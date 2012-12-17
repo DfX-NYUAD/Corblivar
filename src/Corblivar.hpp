@@ -56,8 +56,7 @@ class Corblivar_FP {
 		// main vars
 		string benchmark, blocks_file, nets_file;
 		ofstream results;
-		//TODO blocks w/o dependencie to layers
-		vector< map<int, Block*> > blocks;
+		map<int, Block*> blocks;
 		vector<Net*> inter_nets;
 		vector<Net*> intra_nets;
 		int maxBlockId;

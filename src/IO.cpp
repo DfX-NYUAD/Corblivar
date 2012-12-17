@@ -118,11 +118,55 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 void IO::parseBlocks(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
-	int i, blocks_count, j;
 	Block *cur_block;
+	int id;
 
 	if (corb.logMed()) {
 		cout << "Parsing blocks..." << endl;
+	}
+
+	// open fp file
+	in.open(file.c_str());
+
+	// reset blocks
+	corb.blocks.clear();
+
+	// skip headers
+	while (tmpstr != "sb0" && !in.eof())
+		in >> tmpstr;
+
+	// parse blocks
+	id = 0;
+	while (!in.eof()) {
+
+		// find line containing block
+		while (tmpstr.find("sb", 0) == string::npos && !in.eof()) {
+			in >> tmpstr;
+		}
+		if (in.eof()) {
+			break;
+		}
+
+		// init block
+		cur_block = new Block();
+		cur_block->id = id;
+
+		// parse block type
+		in >> tmpstr;
+		if (tmpstr == "hardrectilinear") {
+			cout << id << endl;
+			//TODO parse block info
+		}
+		else {
+			cout << "Unhandled block type: " << tmpstr << endl;
+			exit(1);
+		}
+
+		// store block
+		corb.blocks.insert( pair<int, Block*>(id, cur_block) );
+
+		id++;
+
 	}
 }
 
