@@ -15,20 +15,23 @@
 void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 	ifstream in;
 
-	if (argc < 5)
+	if (argc < 4)
 	{
-		cout << "Usage: " << argv[0] << " GSRC_benchmark_name config_file blocks_file nets_file" << endl;
+		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir" << endl;
 		cout << endl;
 		cout << "Expected config_file format: see Corblivar.conf" << endl;
-		cout << "Expected blocks_file format: TODO" << endl;
-		cout << "Expected nets_file format: GSRC (UCLA nets 1.0)" << endl;
+		cout << "Expected benchmarks: GSRC n... sets" << endl;
 		exit(1);
 	}
 	else {
 		corb.benchmark = argv[1];
 		corb.config_file = argv[2];
-		corb.blocks_file = argv[3];
-		corb.nets_file = argv[4];
+		stringstream blocks_file;
+		blocks_file << argv[3] << corb.benchmark << ".blocks";
+		corb.blocks_file = blocks_file.str();
+		stringstream nets_file;
+		nets_file << argv[3] << corb.benchmark << ".nets";
+		corb.nets_file = nets_file.str();
 
 		// test files
 		in.open(corb.config_file.c_str());
@@ -58,7 +61,6 @@ void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 	}
 }
 
-//TODO update
 void IO::parseConfig(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
@@ -67,21 +69,40 @@ void IO::parseConfig(Corblivar_FP &corb, string file) {
 		cout << "Parsing config file..." << endl;
 	}
 
-//	in.open(file.c_str());
-//
-//	// parse in parameters
-//	in >> tmpstr;
-//	while (tmpstr != "value" && !in.eof())
-//		in >> tmpstr;
-//	in >> corb.log;
-//
-//	in.close();
-//
-//	if (corb.logMed()) {
-//		cout << "Loglevel (1 to 3 for minimal, medium, maximal): " << corb.log << endl;
-//	}
+	in.open(file.c_str());
+
+	// parse in parameters
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_log;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_layer;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_outline_x;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_outline_y;
+
+	in.close();
+
+	if (corb.logMed()) {
+		cout << "Config values:" << endl;
+		cout << "Loglevel (1 to 3 for minimal, medium, maximal): " << corb.conf_log << endl;
+		cout << "Layers for 3D IC: " << corb.conf_layer << endl;
+		cout << "Fixed die outline (width, x-dimension): " << corb.conf_outline_x << endl;
+		cout << "Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
+	}
 	if (corb.logMin()) {
-		cout << "Done" << endl;
+		cout << "Done" << endl << endl;
 	}
 
 }

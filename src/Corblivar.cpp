@@ -20,12 +20,13 @@ int main (int argc, char** argv) {
 	// memorize start time
 	ftime(&start);
 
-//	// parse and verify program parameter
-//	IO::parseProgramParameter(corb, argc, argv);
+	// parse and verify program parameter
+	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
+	IO::parseProgramParameter(corb, argc, argv);
+	// parse config file
+	IO::parseConfig(corb, corb.config_file);
 //	// init results file
 //	corb.initResultsFile();
-//	// parse config file
-//	IO::parseConfig(corb, corb.config_file);
 //	// parse blocks
 //	IO::parseBlocks(corb, corb.blocks_file);
 //	// parse nets

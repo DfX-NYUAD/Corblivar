@@ -56,45 +56,26 @@ class Corblivar_FP {
 		// main vars
 		string benchmark, config_file, blocks_file, nets_file;
 		ofstream results_file;
-		int log;
-		int layer;
-		double w, h;
+		//TODO blocks w/o dependencie to layers
 		vector< map<int, Block*> > blocks;
 		vector<Net*> inter_nets;
 		vector<Net*> intra_nets;
 		int maxBlockId;
 
 		// config parameters
-		// TODO update
-		//double conf_TSV_dim;
-		//double conf_TSV_dim_wo_keepout;
-		//double conf_PG_TSV_dim;
-		//double conf_PG_TSV_dim_wo_keepout;
-		//double conf_metall_layers_thick;
-		//double conf_active_layer_thick;
-		//double conf_substrate_layer_thick;
-		//double conf_bonding_layer_thick;
-		//double conf_PG_grid_size;
-		//double conf_PG_grid_offset;
-		//bool conf_packing;
-		//bool conf_packing_use_PG_rings;
-		//bool conf_PG_TSV_uppermost_layer;
-		//bool conf_clock_TSV_fixed;
-		//int conf_max_cluster_per_net;
-		//bool conf_clustering_independent_nets;
-		//double conf_cost_factor_IR_drop;
-		//double conf_cost_factor_clock_power;
-		//double conf_cost_factor_thermal;
+		int conf_log;
+		int conf_layer;
+		double conf_outline_x, conf_outline_y;
 
 		// logging
 		bool logMin() {
-			return (this->log >= LOG_MINIMAL);
+			return (this->conf_log >= LOG_MINIMAL);
 		};
 		bool logMed() {
-			return (this->log >= LOG_MEDIUM);
+			return (this->conf_log >= LOG_MEDIUM);
 		};
 		bool logMax() {
-			return (this->log >= LOG_MAXIMUM);
+			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
 		// var stuff
