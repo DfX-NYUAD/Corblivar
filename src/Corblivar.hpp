@@ -36,7 +36,8 @@ enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF}
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
 
 /* forward declarations */
-class Corblivar;
+class Corblivar_FP;
+class Corblivar_Core;
 class IO;
 class Point;
 class Pin;
@@ -46,7 +47,7 @@ class Rect;
 
 /* classes */
 
-class Corblivar {
+class Corblivar_FP {
 	public:
 		static const int LOG_MINIMAL = 1;
 		static const int LOG_MEDIUM = 2;
@@ -103,14 +104,17 @@ class Corblivar {
 		// test suites
 };
 
+class Corblivar_Core {
+};
+
 class IO {
 	public:
-		static void parseProgramParameter(Corblivar &corb, int argc, char** argv);
-		static void parseConfig(Corblivar &corb, string file);
-		static void parseBlocks(Corblivar &corb, string file);
-		static void parseNets(Corblivar &corb, string file);
-		static void writeFloorplanGP(Corblivar &corb);
-		static void writeFloorplanGP(Corblivar &corb, string file_suffix);
+		static void parseProgramParameter(Corblivar_FP &corb, int argc, char** argv);
+		static void parseConfig(Corblivar_FP &corb, string file);
+		static void parseBlocks(Corblivar_FP &corb, string file);
+		static void parseNets(Corblivar_FP &corb, string file);
+		static void writeFloorplanGP(Corblivar_FP &corb);
+		static void writeFloorplanGP(Corblivar_FP &corb, string file_suffix);
 
 	private:
 		static int netId;

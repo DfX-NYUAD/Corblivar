@@ -12,7 +12,7 @@
 #include "Corblivar.hpp"
 
 // parse in and verify program parameter
-void IO::parseProgramParameter(Corblivar &corb, int argc, char** argv) {
+void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 	ifstream in;
 
 	if (argc < 5)
@@ -59,7 +59,7 @@ void IO::parseProgramParameter(Corblivar &corb, int argc, char** argv) {
 }
 
 //TODO update
-void IO::parseConfig(Corblivar &corb, string file) {
+void IO::parseConfig(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
 
@@ -88,7 +88,7 @@ void IO::parseConfig(Corblivar &corb, string file) {
 
 // parse blocks file
 // TODO update
-void IO::parseBlocks(Corblivar &corb, string file) {
+void IO::parseBlocks(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
 	int i, blocks_count, j;
@@ -101,7 +101,7 @@ void IO::parseBlocks(Corblivar &corb, string file) {
 
 // parse nets file
 //TODO update
-void IO::parseNets(Corblivar &corb, string file) {
+void IO::parseNets(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
 	Net *cur_net;
@@ -118,13 +118,13 @@ void IO::parseNets(Corblivar &corb, string file) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(Corblivar &corb) {
+void IO::writeFloorplanGP(Corblivar_FP &corb) {
 	writeFloorplanGP(corb, "");
 }
 
 // generate GP plots of FP
 // TODO update
-void IO::writeFloorplanGP(Corblivar &corb, string file_suffix) {
+void IO::writeFloorplanGP(Corblivar_FP &corb, string file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int object_counter;

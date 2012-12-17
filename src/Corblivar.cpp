@@ -12,7 +12,7 @@
 
 int main (int argc, char** argv) {
 	struct timeb start, end;
-	Corblivar corb;
+	Corblivar_FP corb;
 
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
@@ -70,9 +70,9 @@ int main (int argc, char** argv) {
 // initializations see Corblivar.hpp
 const int Block::TYPE_BLOCK;
 const int Block::TYPE_TSV;
-const int Corblivar::LOG_MINIMAL;
-const int Corblivar::LOG_MEDIUM;
-const int Corblivar::LOG_MAXIMUM;
+const int Corblivar_FP::LOG_MINIMAL;
+const int Corblivar_FP::LOG_MEDIUM;
+const int Corblivar_FP::LOG_MAXIMUM;
 const int Point::UNDEF;
 const int Net::TYPE_INTRALAYER;
 const int Net::TYPE_INTERLAYER;
