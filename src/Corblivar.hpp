@@ -53,7 +53,7 @@ class Corblivar {
 		static const int LOG_MAXIMUM = 3;
 
 		// main vars
-		string benchmark, config_file, fp_file, nets_file;
+		string benchmark, config_file, blocks_file, nets_file;
 		ofstream results_file;
 		int log;
 		int layer;
@@ -64,6 +64,7 @@ class Corblivar {
 		int maxBlockId;
 
 		// config parameters
+		// TODO update
 		//double conf_TSV_dim;
 		//double conf_TSV_dim_wo_keepout;
 		//double conf_PG_TSV_dim;
@@ -74,10 +75,12 @@ class Corblivar {
 		//double conf_bonding_layer_thick;
 		//double conf_PG_grid_size;
 		//double conf_PG_grid_offset;
+		//bool conf_packing;
+		//bool conf_packing_use_PG_rings;
 		//bool conf_PG_TSV_uppermost_layer;
 		//bool conf_clock_TSV_fixed;
-		//double conf_shift_window_blocks;
-		//double conf_shift_window_clock_TSVs;
+		//int conf_max_cluster_per_net;
+		//bool conf_clustering_independent_nets;
 		//double conf_cost_factor_IR_drop;
 		//double conf_cost_factor_clock_power;
 		//double conf_cost_factor_thermal;
@@ -102,10 +105,10 @@ class Corblivar {
 
 class IO {
 	public:
-		static void readProgramParameter(Corblivar &corb, int argc, char** argv);
-		static void readConfig(Corblivar &corb, string file);
-		static void readFP(Corblivar &corb, string file);
-		static void readNets(Corblivar &corb, string file);
+		static void parseProgramParameter(Corblivar &corb, int argc, char** argv);
+		static void parseConfig(Corblivar &corb, string file);
+		static void parseBlocks(Corblivar &corb, string file);
+		static void parseNets(Corblivar &corb, string file);
 		static void writeFloorplanGP(Corblivar &corb);
 		static void writeFloorplanGP(Corblivar &corb, string file_suffix);
 

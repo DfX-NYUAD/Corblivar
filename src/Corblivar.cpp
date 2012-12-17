@@ -20,16 +20,16 @@ int main (int argc, char** argv) {
 	// memorize start time
 	ftime(&start);
 
-//	// read in and verify program parameter
-//	IO::readProgramParameter(corb, argc, argv);
+//	// parse and verify program parameter
+//	IO::parseProgramParameter(corb, argc, argv);
 //	// init results file
 //	corb.initResultsFile();
 //	// parse config file
-//	IO::readConfig(corb, corb.config_file);
-//	// parse floorplan file
-//	IO::readFP(corb, corb.fp_file);
+//	IO::parseConfig(corb, corb.config_file);
+//	// parse blocks
+//	IO::parseBlocks(corb, corb.blocks_file);
 //	// parse nets
-//	IO::readNets(corb, corb.nets_file);
+//	IO::parseNets(corb, corb.nets_file);
 
 //	// perform test suites
 //	if (corb.logMin()) {
