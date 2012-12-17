@@ -20,11 +20,9 @@ int main (int argc, char** argv) {
 	// memorize start time
 	ftime(&start);
 
-	// parse and verify program parameter
-	IO::parseProgramParameter(corb, argc, argv);
-	// parse config file
+	// parse program parameter and config file
 	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
-	IO::parseConfig(corb, corb.config_file);
+	IO::parseParameterConfig(corb, argc, argv);
 	// open/generate results file
 	corb.results.open(corb.results_file.c_str());
 //	// parse blocks

@@ -11,10 +11,13 @@
  */
 #include "Corblivar.hpp"
 
-// parse in and verify program parameter
-void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
+// parse program parameter and config file
+void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 	ifstream in;
+	string config_file;
+	string tmpstr;
 
+	// program parameter
 	if (argc < 4)
 	{
 		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [results_file]" << endl;
@@ -23,60 +26,54 @@ void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 		cout << "Expected benchmarks: GSRC n... sets" << endl;
 		exit(1);
 	}
-	else {
-		corb.benchmark = argv[1];
-		corb.config_file = argv[2];
-		stringstream blocks_file;
-		blocks_file << argv[3] << corb.benchmark << ".blocks";
-		corb.blocks_file = blocks_file.str();
-		stringstream nets_file;
-		nets_file << argv[3] << corb.benchmark << ".nets";
-		corb.nets_file = nets_file.str();
-		if (argc > 4) {
-			corb.results_file = argv[4];
-		}
-		else {
-			// default value generation see IO::parseConfig
-			corb.results_file = "";
-		}
 
-		// test files
-		in.open(corb.config_file.c_str());
-		if (!in.good())
-		{
-			cout << "No such config file: " << corb.config_file<< endl;
-			exit(1);
-		}
-		in.close();
-
-		in.open(corb.blocks_file.c_str());
-		if (!in.good())
-		{
-			cout << "No such blocks file: " << corb.blocks_file << endl;
-			exit(1);
-		}
-		in.close();
-
-		in.open(corb.nets_file.c_str());
-		if (!in.good())
-		{
-			cout << "No such nets file: " << corb.nets_file << endl;
-			exit(1);
-		}
-		in.close();
-
+	corb.benchmark = argv[1];
+	config_file = argv[2];
+	stringstream blocks_file;
+	blocks_file << argv[3] << corb.benchmark << ".blocks";
+	corb.blocks_file = blocks_file.str();
+	stringstream nets_file;
+	nets_file << argv[3] << corb.benchmark << ".nets";
+	corb.nets_file = nets_file.str();
+	if (argc > 4) {
+		corb.results_file = argv[4];
 	}
-}
+	else {
+		// default value generation: see config file parsing
+		corb.results_file = "";
+	}
 
-void IO::parseConfig(Corblivar_FP &corb, string file) {
-	ifstream in;
-	string tmpstr;
+	// test files
+	in.open(config_file.c_str());
+	if (!in.good())
+	{
+		cout << "No such config file: " << config_file<< endl;
+		exit(1);
+	}
+	in.close();
 
+	in.open(corb.blocks_file.c_str());
+	if (!in.good())
+	{
+		cout << "No such blocks file: " << corb.blocks_file << endl;
+		exit(1);
+	}
+	in.close();
+
+	in.open(corb.nets_file.c_str());
+	if (!in.good())
+	{
+		cout << "No such nets file: " << corb.nets_file << endl;
+		exit(1);
+	}
+	in.close();
+
+	// config file
 	if (corb.logMin()) {
 		cout << "Parsing config file..." << endl;
 	}
 
-	in.open(file.c_str());
+	in.open(config_file.c_str());
 
 	// parse in parameters
 	in >> tmpstr;
@@ -118,7 +115,6 @@ void IO::parseConfig(Corblivar_FP &corb, string file) {
 	if (corb.logMin()) {
 		cout << "Done" << endl << endl;
 	}
-
 }
 
 // parse blocks file
