@@ -21,12 +21,12 @@ int main (int argc, char** argv) {
 	ftime(&start);
 
 	// parse and verify program parameter
-	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
 	IO::parseProgramParameter(corb, argc, argv);
 	// parse config file
+	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
 	IO::parseConfig(corb, corb.config_file);
-//	// init results file
-//	corb.initResultsFile();
+	// open/generate results file
+	corb.results.open(corb.results_file.c_str());
 //	// parse blocks
 //	IO::parseBlocks(corb, corb.blocks_file);
 //	// parse nets
@@ -57,14 +57,16 @@ int main (int argc, char** argv) {
 
 //	// generate final GP plots
 //	IO::writeFloorplanGP(corb, "final");
-//	// close results file
-//	corb.closeResultsFile();
 
 	// determine total runtime
 	ftime(&end);
 	if (corb.logMin()) {
 		cout << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
+		corb.results << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
 	}
+
+	// close results file
+	corb.results.close();
 }
 
 // definitions for const vars, to allocate memory

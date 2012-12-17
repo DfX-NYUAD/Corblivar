@@ -17,7 +17,7 @@ void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 
 	if (argc < 4)
 	{
-		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir" << endl;
+		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [results_file]" << endl;
 		cout << endl;
 		cout << "Expected config_file format: see Corblivar.conf" << endl;
 		cout << "Expected benchmarks: GSRC n... sets" << endl;
@@ -32,6 +32,13 @@ void IO::parseProgramParameter(Corblivar_FP &corb, int argc, char** argv) {
 		stringstream nets_file;
 		nets_file << argv[3] << corb.benchmark << ".nets";
 		corb.nets_file = nets_file.str();
+		if (argc > 4) {
+			corb.results_file = argv[4];
+		}
+		else {
+			// default value generation see IO::parseConfig
+			corb.results_file = "";
+		}
 
 		// test files
 		in.open(corb.config_file.c_str());
@@ -93,6 +100,13 @@ void IO::parseConfig(Corblivar_FP &corb, string file) {
 	in >> corb.conf_outline_y;
 
 	in.close();
+
+	// default value for results file
+	if (corb.results_file == "") {
+		stringstream results_file;
+		results_file << corb.benchmark << "_" << corb.conf_layer << ".solution";
+		corb.results_file = results_file.str();
+	}
 
 	if (corb.logMed()) {
 		cout << "Config values:" << endl;

@@ -54,8 +54,8 @@ class Corblivar_FP {
 		static const int LOG_MAXIMUM = 3;
 
 		// main vars
-		string benchmark, config_file, blocks_file, nets_file;
-		ofstream results_file;
+		string benchmark, config_file, blocks_file, nets_file, results_file;
+		ofstream results;
 		//TODO blocks w/o dependencie to layers
 		vector< map<int, Block*> > blocks;
 		vector<Net*> inter_nets;
@@ -79,8 +79,6 @@ class Corblivar_FP {
 		};
 
 		// var stuff
-		void initResultsFile();
-		void closeResultsFile();
 
 		// test suites
 };
