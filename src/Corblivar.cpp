@@ -23,8 +23,6 @@ int main (int argc, char** argv) {
 	// parse program parameter and config file
 	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
 	IO::parseParameterConfig(corb, argc, argv);
-	// open/generate results file
-	corb.results.open(corb.results_file.c_str());
 //	// parse blocks
 //	IO::parseBlocks(corb, corb.blocks_file);
 //	// parse nets

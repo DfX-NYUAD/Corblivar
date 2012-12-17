@@ -15,6 +15,7 @@
 void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 	ifstream in;
 	string config_file;
+	stringstream results_file;
 	string tmpstr;
 
 	// program parameter
@@ -35,13 +36,6 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 	stringstream nets_file;
 	nets_file << argv[3] << corb.benchmark << ".nets";
 	corb.nets_file = nets_file.str();
-	if (argc > 4) {
-		corb.results_file = argv[4];
-	}
-	else {
-		// default value generation: see config file parsing
-		corb.results_file = "";
-	}
 
 	// test files
 	in.open(config_file.c_str());
@@ -98,12 +92,14 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 
 	in.close();
 
-	// default value for results file
-	if (corb.results_file == "") {
-		stringstream results_file;
-		results_file << corb.benchmark << "_" << corb.conf_layer << ".solution";
-		corb.results_file = results_file.str();
+	// init results file
+	if (argc > 4) {
+		results_file << argv[4];
 	}
+	else {
+		results_file << corb.benchmark << "_" << corb.conf_layer << ".solution";
+	}
+	corb.results.open(results_file.str().c_str());
 
 	if (corb.logMed()) {
 		cout << "Config values:" << endl;
