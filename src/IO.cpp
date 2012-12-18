@@ -267,7 +267,7 @@ void IO::parseNets(Corblivar_FP &corb) {
 		for (i = 0; i < net_degree; i++) {
 			in >> net_block;
 			// parse block
-			//// sb31 B
+			//// sb31
 			if (net_block.find("sb") != string::npos) {
 
 				// retrieve corresponding block
@@ -276,30 +276,32 @@ void IO::parseNets(Corblivar_FP &corb) {
 				if (b != corb.blocks.end()) {
 					cur_net->blocks.push_back((*b).second);
 				}
-
-				// drop "B"
-				in >> tmpstr;
 			}
 			// parse terminal pin
-			//// p1 B
+			//// p1
 			else if (net_block.find("p") != string::npos) {
 				// mark net as net w/ external pin
 				cur_net->hasExternalPin = true;
-
-				// drop "B"
-				in >> tmpstr;
 			}
 			else {
-				// drop unknown block
-				in >> tmpstr;
+				// ignore unknown block
 				if (corb.logMin()) {
-					cout << "Drop unknown block \"" << tmpstr << "\" while parsing net " << id << endl;
+					cout << "Drop unknown block \"" << net_block << "\" while parsing net " << id << endl;
 				}
 			}
+			// drop "B"
+			in >> tmpstr;
 		}
 
-		// store net
-		corb.nets.push_back(cur_net);
+		// store nets connecting two or more blocks
+		// ignores nets connecting only to external pins
+		// (TODO) consider external pins w/ position
+		if (cur_net->blocks.size() > 1) {
+			corb.nets.push_back(cur_net);
+		}
+		else {
+			delete(cur_net);
+		}
 
 		id++;
 	}

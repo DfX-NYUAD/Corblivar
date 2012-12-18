@@ -26,7 +26,7 @@
 #include <sys/timeb.h>
 
 // debugging code switch
-#define DBG_IO
+//#define DBG_IO
 
 /* standard namespace */
 using namespace std;
