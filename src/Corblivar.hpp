@@ -26,7 +26,7 @@
 #include <sys/timeb.h>
 
 // debugging code switch
-//#define DBG_IO
+#define DBG_IO
 
 /* standard namespace */
 using namespace std;
@@ -57,8 +57,9 @@ class Corblivar_FP {
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results;
 		map<int, Block*> blocks;
-		vector<Net*> inter_nets;
-		vector<Net*> intra_nets;
+		vector<Net*> nets;
+		//vector<Net*> inter_nets;
+		//vector<Net*> intra_nets;
 		int maxBlockId;
 
 		// config parameters
@@ -177,22 +178,23 @@ class Block {
 
 class Net {
 	public:
-		static const int TYPE_INTRALAYER = 0;
-		static const int TYPE_INTERLAYER = 1;
+		//static const int TYPE_INTRALAYER = 0;
+		//static const int TYPE_INTERLAYER = 1;
 
 		int id;
-		int type;
-		int lower_layer, upper_layer;
+		//int type;
+		//int lower_layer, upper_layer;
 		bool hasExternalPin;
-		// assignment flags for each related layer: [lower_layer..upper_layer]
-		vector<bool> assigned;
-		// outer vector for var layers
-		vector< vector<Block*> > blocks;
+		//// assignment flags for each related layer: [lower_layer..upper_layer]
+		//vector<bool> assigned;
+		//// outer vector for var layers
+		//vector< vector<Block*> > blocks;
+		vector<Block*> blocks;
 
-		Net(int i) {
-			id = i;
-			type = TYPE_INTRALAYER;
-			lower_layer = upper_layer = -1;
+		Net(int id_i) {
+			id = id_i;
+			//type = TYPE_INTRALAYER;
+			//lower_layer = upper_layer = -1;
 			hasExternalPin = false;
 		};
 

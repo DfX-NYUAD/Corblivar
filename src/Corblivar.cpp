@@ -25,8 +25,8 @@ int main (int argc, char** argv) {
 	IO::parseParameterConfig(corb, argc, argv);
 	// parse blocks
 	IO::parseBlocks(corb);
-//	// parse nets
-//	IO::parseNets(corb, corb.nets_file);
+	// parse nets
+	IO::parseNets(corb);
 
 //	// perform test suites
 //	if (corb.logMin()) {
@@ -73,5 +73,5 @@ const int Corblivar_FP::LOG_MINIMAL;
 const int Corblivar_FP::LOG_MEDIUM;
 const int Corblivar_FP::LOG_MAXIMUM;
 const int Point::UNDEF;
-const int Net::TYPE_INTRALAYER;
-const int Net::TYPE_INTERLAYER;
+//const int Net::TYPE_INTRALAYER;
+//const int Net::TYPE_INTERLAYER;

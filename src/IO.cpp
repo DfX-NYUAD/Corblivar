@@ -151,7 +151,7 @@ void IO::parseBlocks(Corblivar_FP &corb) {
 	while (!blocks_in.eof()) {
 
 		// find line containing block
-		while (tmpstr.find("sb", 0) == string::npos && !blocks_in.eof()) {
+		while (tmpstr.find("sb") == string::npos && !blocks_in.eof()) {
 			blocks_in >> tmpstr;
 		}
 		if (blocks_in.eof()) {
@@ -165,8 +165,9 @@ void IO::parseBlocks(Corblivar_FP &corb) {
 			power_in >> cur_block->power;
 		}
 		else {
-			cout << "Block " << id << " has no power value assigned!" << endl;
-			exit(1);
+			if (corb.logMin()) {
+				cout << "Block " << id << " has no power value assigned!" << endl;
+			}
 		}
 
 		// parse block type
@@ -223,19 +224,102 @@ void IO::parseBlocks(Corblivar_FP &corb) {
 }
 
 // parse nets file
-//TODO update
 void IO::parseNets(Corblivar_FP &corb) {
-	//ifstream in;
-	//string tmpstr;
-	//Net *cur_net;
-	//int i, net_degree;
-	//int net_block_id;
-	//string net_block;
-	//int cur_layer;
-	//map<int, Block*>::iterator b;
+
+	ifstream in;
+	string tmpstr;
+	Net *cur_net;
+	int i, net_degree;
+	int net_block_id;
+	string net_block;
+	map<int, Block*>::iterator b;
+	int id;
 
 	if (corb.logMed()) {
 		cout << "Parsing nets..." << endl;
+	}
+
+	// reset nets
+	corb.nets.clear();
+
+	// open nets file
+	in.open(corb.nets_file.c_str());
+
+	// parse nets file
+	id = 0;
+	while (!in.eof()) {
+		cur_net = new Net(id);
+
+		// parse net degree
+		//// NetDegree : 2
+		while (tmpstr != "NetDegree" && !in.eof()) {
+			in >> tmpstr;
+		}
+		if (in.eof()) {
+			break;
+		}
+		// drop ":"
+		in >> tmpstr;
+
+		// read in blocks of net
+		in >> net_degree;
+		cur_net->blocks.clear();
+		for (i = 0; i < net_degree; i++) {
+			in >> net_block;
+			// parse block
+			//// sb31 B
+			if (net_block.find("sb") != string::npos) {
+
+				// retrieve corresponding block
+				net_block_id = atoi(net_block.substr(2).c_str());
+				b = corb.blocks.find(net_block_id);
+				if (b != corb.blocks.end()) {
+					cur_net->blocks.push_back((*b).second);
+				}
+
+				// drop "B"
+				in >> tmpstr;
+			}
+			// parse terminal pin
+			//// p1 B
+			else if (net_block.find("p") != string::npos) {
+				// mark net as net w/ external pin
+				cur_net->hasExternalPin = true;
+
+				// drop "B"
+				in >> tmpstr;
+			}
+			else {
+				// drop unknown block
+				in >> tmpstr;
+				if (corb.logMin()) {
+					cout << "Drop unknown block \"" << tmpstr << "\" while parsing net " << id << endl;
+				}
+			}
+		}
+
+		// store net
+		corb.nets.push_back(cur_net);
+
+		id++;
+	}
+
+	// close nets file
+	in.close();
+
+#ifdef DBG_IO
+	unsigned n, bl;
+
+	for (n = 0; n < corb.nets.size(); n++) {
+		cout << "net " << corb.nets[n]->id << endl;
+		for (bl = 0; bl < corb.nets[n]->blocks.size(); bl++) {
+			cout << " block " << corb.nets[n]->blocks[bl]->id << endl;
+		}
+	}
+#endif
+
+	if (corb.logMed()) {
+		cout << "Done; " << corb.nets.size() << " nets read in" << endl << endl;
 	}
 
 }
