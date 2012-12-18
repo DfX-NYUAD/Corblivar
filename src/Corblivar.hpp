@@ -34,6 +34,7 @@ using namespace std;
 /* div stuff */
 enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
+enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
 
 /* forward declarations */
 class CorblivarFP;
@@ -208,24 +209,62 @@ class CorblivarCore {
 };
 
 class CorblivarAlignmentReq {
-	private:
-		bool range_x, range_y;
-
 	public:
 
 		Block *s_i, *s_j;
+		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;
 
-		CorblivarAlignmentReq(Block* si, Block* sj, bool rangex, double offsetrangex, bool rangey, double offsetrangey) {
+		bool rangeX() {
+			return (type_x == ALIGNMENT_RANGE);
+		};
+		bool rangeY() {
+			return (type_y == ALIGNMENT_RANGE);
+		};
+		bool fixedOffsX() {
+			return (type_x == ALIGNMENT_OFFSET);
+		};
+		bool fixedOffsY() {
+			return (type_y == ALIGNMENT_OFFSET);
+		};
+		string tupleString() {
+			stringstream ret;
+
+			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", ";
+			if (this->rangeX()) {
+				ret << "1";
+			}
+			else if (this->fixedOffsX()) {
+				ret << "0";
+			}
+			else {
+				ret << "lambda";
+			}
+			ret << "), (" << offset_range_y << ", ";
+			if (this->rangeY()) {
+				ret << "1";
+			}
+			else if (this->fixedOffsY()) {
+				ret << "0";
+			}
+			else {
+				ret << "lambda";
+			}
+			ret << ") )";
+
+			return ret.str();
+		};
+
+		CorblivarAlignmentReq(Block* si, Block* sj, Alignment typex, double offsetrangex, Alignment typey, double offsetrangey) {
 			s_i = si;
 			s_j = sj;
-			range_x = rangex;
-			range_y = rangey;
+			type_x = typex;
+			type_y = typey;
 			offset_range_x = offsetrangex;
 			offset_range_y = offsetrangey;
 
 			// fix invalid negative range
-			if ((range_x && offset_range_x < 0) || (range_y && offset_range_y < 0)) {
+			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
 				cout << "Fixing tuple (negative range):" << endl;
 				cout << " " << this->tupleString() << " to" << endl;
 
@@ -239,25 +278,6 @@ class CorblivarAlignmentReq {
 				cout << " " << this->tupleString() << endl;
 			}
 		};
-
-		bool rangeX() {
-			return range_x;
-		};
-		bool rangeY() {
-			return range_y;
-		};
-		bool fixedOffsX() {
-			return !range_x;
-		};
-		bool fixedOffsY() {
-			return !range_y;
-		};
-		string tupleString() {
-			stringstream ret;
-			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", " << range_x << "), (" << offset_range_y << ", " << range_y << ") )";
-			return ret.str();
-		};
-
 };
 
 #endif
