@@ -12,7 +12,7 @@
 #include "Corblivar.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
+void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file;
@@ -125,7 +125,7 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 }
 
 // parse blocks file
-void IO::parseBlocks(Corblivar_FP &corb) {
+void IO::parseBlocks(CorblivarFP &corb) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
 	Block *cur_block;
@@ -224,7 +224,7 @@ void IO::parseBlocks(Corblivar_FP &corb) {
 }
 
 // parse nets file
-void IO::parseNets(Corblivar_FP &corb) {
+void IO::parseNets(CorblivarFP &corb) {
 
 	ifstream in;
 	string tmpstr;
@@ -327,13 +327,13 @@ void IO::parseNets(Corblivar_FP &corb) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(Corblivar_FP &corb) {
+void IO::writeFloorplanGP(CorblivarFP &corb) {
 	writeFloorplanGP(corb, "");
 }
 
 // generate GP plots of FP
 // TODO update
-void IO::writeFloorplanGP(Corblivar_FP &corb, string file_suffix) {
+void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	//ofstream gp_out;
 	//int cur_layer;
 	//int object_counter;

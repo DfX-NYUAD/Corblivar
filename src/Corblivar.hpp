@@ -36,8 +36,9 @@ enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF}
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
 
 /* forward declarations */
-class Corblivar_FP;
-class Corblivar_Core;
+class CorblivarFP;
+class CorblivarCore;
+class CorblivarAlignmentReq;
 class IO;
 class Point;
 //class Pin;
@@ -47,7 +48,7 @@ class Rect;
 
 /* classes */
 
-class Corblivar_FP {
+class CorblivarFP {
 	public:
 		static const int LOG_MINIMAL = 1;
 		static const int LOG_MEDIUM = 2;
@@ -83,16 +84,13 @@ class Corblivar_FP {
 		// test suites
 };
 
-class Corblivar_Core {
-};
-
 class IO {
 	public:
-		static void parseParameterConfig(Corblivar_FP &corb, int argc, char** argv);
-		static void parseBlocks(Corblivar_FP &corb);
-		static void parseNets(Corblivar_FP &corb);
-		static void writeFloorplanGP(Corblivar_FP &corb);
-		static void writeFloorplanGP(Corblivar_FP &corb, string file_suffix);
+		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
+		static void parseBlocks(CorblivarFP &corb);
+		static void parseNets(CorblivarFP &corb);
+		static void writeFloorplanGP(CorblivarFP &corb);
+		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix);
 
 	private:
 		static int netId;
@@ -204,6 +202,62 @@ class Net {
 		//bool requiresTSV(int layer);
 		//Rect determineBoundingBox(int l_layer, int u_layer);
 		//double determineHPWL_Cong(MoDo &modo, vector< vector< vector<int> > > &grid, double bin_size);
+};
+
+class CorblivarCore {
+};
+
+class CorblivarAlignmentReq {
+	private:
+		bool range_x, range_y;
+
+	public:
+
+		Block *s_i, *s_j;
+		double offset_range_x, offset_range_y;
+
+		CorblivarAlignmentReq(Block* si, Block* sj, bool rangex, double offsetrangex, bool rangey, double offsetrangey) {
+			s_i = si;
+			s_j = sj;
+			range_x = rangex;
+			range_y = rangey;
+			offset_range_x = offsetrangex;
+			offset_range_y = offsetrangey;
+
+			// fix invalid negative range
+			if ((range_x && offset_range_x < 0) || (range_y && offset_range_y < 0)) {
+				cout << "Fixing tuple (negative range):" << endl;
+				cout << " " << this->tupleString() << " to" << endl;
+
+				if (offset_range_x < 0) {
+					offset_range_x = 0;
+				}
+				if (offset_range_y < 0) {
+					offset_range_y = 0;
+				}
+
+				cout << " " << this->tupleString() << endl;
+			}
+		};
+
+		bool rangeX() {
+			return range_x;
+		};
+		bool rangeY() {
+			return range_y;
+		};
+		bool fixedOffsX() {
+			return !range_x;
+		};
+		bool fixedOffsY() {
+			return !range_y;
+		};
+		string tupleString() {
+			stringstream ret;
+			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", " << range_x << "), (" << offset_range_y << ", " << range_y << ") )";
+			return ret.str();
+		};
+
 };
 
 #endif
