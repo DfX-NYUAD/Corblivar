@@ -33,6 +33,9 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 	stringstream blocks_file;
 	blocks_file << argv[3] << corb.benchmark << ".blocks";
 	corb.blocks_file = blocks_file.str();
+	stringstream power_file;
+	power_file << argv[3] << corb.benchmark << ".power";
+	corb.power_file = power_file.str();
 	stringstream nets_file;
 	nets_file << argv[3] << corb.benchmark << ".nets";
 	corb.nets_file = nets_file.str();
@@ -50,6 +53,14 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 	if (!in.good())
 	{
 		cout << "No such blocks file: " << corb.blocks_file << endl;
+		exit(1);
+	}
+	in.close();
+
+	in.open(corb.power_file.c_str());
+	if (!in.good())
+	{
+		cout << "No such power file: " << corb.power_file << endl;
 		exit(1);
 	}
 	in.close();
@@ -114,8 +125,8 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 }
 
 // parse blocks file
-void IO::parseBlocks(Corblivar_FP &corb, string file) {
-	ifstream in;
+void IO::parseBlocks(Corblivar_FP &corb) {
+	ifstream blocks_in, power_in;
 	string tmpstr;
 	Block *cur_block;
 	int id;
@@ -124,54 +135,63 @@ void IO::parseBlocks(Corblivar_FP &corb, string file) {
 		cout << "Parsing blocks..." << endl;
 	}
 
-	// open fp file
-	in.open(file.c_str());
+	// open files
+	blocks_in.open(corb.blocks_file.c_str());
+	power_in.open(corb.power_file.c_str());
 
 	// reset blocks
 	corb.blocks.clear();
 
-	// skip headers
-	while (tmpstr != "sb0" && !in.eof())
-		in >> tmpstr;
+	// drop block files header
+	while (tmpstr != "sb0" && !blocks_in.eof())
+		blocks_in >> tmpstr;
 
 	// parse blocks
 	id = 0;
-	while (!in.eof()) {
+	while (!blocks_in.eof()) {
 
 		// find line containing block
-		while (tmpstr.find("sb", 0) == string::npos && !in.eof()) {
-			in >> tmpstr;
+		while (tmpstr.find("sb", 0) == string::npos && !blocks_in.eof()) {
+			blocks_in >> tmpstr;
 		}
-		if (in.eof()) {
+		if (blocks_in.eof()) {
 			break;
 		}
 
 		// init block
 		cur_block = new Block(id);
+		// assign power value
+		if (!power_in.eof()) {
+			power_in >> cur_block->power;
+		}
+		else {
+			cout << "Block " << id << " has no power value assigned!" << endl;
+			exit(1);
+		}
 
 		// parse block type
-		in >> tmpstr;
+		blocks_in >> tmpstr;
 		if (tmpstr == "hardrectilinear") {
 			// drop "4"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// drop "(0,"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// drop "0)"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// drop "(0,"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// drop "y)"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// parse "(x,"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			cur_block->bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
 			// parse "y)"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			cur_block->bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
 			// drop "(x,"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 			// drop "0)"
-			in >> tmpstr;
+			blocks_in >> tmpstr;
 		}
 		else {
 			cout << "Unhandled block type: " << tmpstr << endl;
@@ -185,18 +205,26 @@ void IO::parseBlocks(Corblivar_FP &corb, string file) {
 
 	}
 
-	// close file
-	in.close();
+	// close files
+	blocks_in.close();
+	power_in.close();
 
 	// logging
 	if (corb.logMed()) {
-		cout << "Done; " << corb.blocks.size() << " blocks read in" << endl << endl;
+		double power = 0.0;
+		map<int, Block*>::iterator b;
+
+		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
+			power += (*b).second->power;
+		}
+
+		cout << "Done; " << corb.blocks.size() << " blocks read in; " << power << " total power" << endl << endl;
 	}
 }
 
 // parse nets file
 //TODO update
-void IO::parseNets(Corblivar_FP &corb, string file) {
+void IO::parseNets(Corblivar_FP &corb) {
 	//ifstream in;
 	//string tmpstr;
 	//Net *cur_net;

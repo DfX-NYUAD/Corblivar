@@ -24,7 +24,7 @@ int main (int argc, char** argv) {
 	corb.conf_log = Corblivar_FP::LOG_MINIMAL;
 	IO::parseParameterConfig(corb, argc, argv);
 	// parse blocks
-	IO::parseBlocks(corb, corb.blocks_file);
+	IO::parseBlocks(corb);
 //	// parse nets
 //	IO::parseNets(corb, corb.nets_file);
 

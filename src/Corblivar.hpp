@@ -54,7 +54,7 @@ class Corblivar_FP {
 		static const int LOG_MAXIMUM = 3;
 
 		// main vars
-		string benchmark, blocks_file, nets_file;
+		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results;
 		map<int, Block*> blocks;
 		vector<Net*> inter_nets;
@@ -88,8 +88,8 @@ class Corblivar_Core {
 class IO {
 	public:
 		static void parseParameterConfig(Corblivar_FP &corb, int argc, char** argv);
-		static void parseBlocks(Corblivar_FP &corb, string file);
-		static void parseNets(Corblivar_FP &corb, string file);
+		static void parseBlocks(Corblivar_FP &corb);
+		static void parseNets(Corblivar_FP &corb);
 		static void writeFloorplanGP(Corblivar_FP &corb);
 		static void writeFloorplanGP(Corblivar_FP &corb, string file_suffix);
 
