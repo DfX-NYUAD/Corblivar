@@ -40,7 +40,7 @@ class Corblivar_FP;
 class Corblivar_Core;
 class IO;
 class Point;
-class Pin;
+//class Pin;
 class Block;
 class Net;
 class Rect;
@@ -112,14 +112,14 @@ class Point {
 		};
 };
 
-class Pin: public Point {
-	public:
-		int id;
-
-		Pin() : Point() {
-			id = 0;
-		};
-};
+//class Pin: public Point {
+//	public:
+//		int id;
+//
+//		Pin() : Point() {
+//			id = 0;
+//		};
+//};
 
 class Rect {
 	public:
@@ -160,9 +160,9 @@ class Block {
 		//Rect bb, init_bb, tmp_bb, shift_window;
 		Rect bb, tmp_bb;
 
-		Block() {
+		Block(int id_i) {
 			insert_modifier = INSERT_SHIFTING;
-			id = 0;
+			id = id_i;
 			layer = -1;
 			type = TYPE_BLOCK;
 			power = 0.0;
@@ -170,9 +170,9 @@ class Block {
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
 
-		bool invalidId() {
-			return (this->id <= 0);
-		};
+		//bool invalidId() {
+		//	return (this->id <= 0);
+		//};
 };
 
 class Net {

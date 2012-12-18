@@ -114,7 +114,6 @@ void IO::parseParameterConfig(Corblivar_FP &corb, int argc, char** argv) {
 }
 
 // parse blocks file
-// TODO update
 void IO::parseBlocks(Corblivar_FP &corb, string file) {
 	ifstream in;
 	string tmpstr;
@@ -148,14 +147,31 @@ void IO::parseBlocks(Corblivar_FP &corb, string file) {
 		}
 
 		// init block
-		cur_block = new Block();
-		cur_block->id = id;
+		cur_block = new Block(id);
 
 		// parse block type
 		in >> tmpstr;
 		if (tmpstr == "hardrectilinear") {
-			cout << id << endl;
-			//TODO parse block info
+			// drop "4"
+			in >> tmpstr;
+			// drop "(0,"
+			in >> tmpstr;
+			// drop "0)"
+			in >> tmpstr;
+			// drop "(0,"
+			in >> tmpstr;
+			// drop "y)"
+			in >> tmpstr;
+			// parse "(x,"
+			in >> tmpstr;
+			cur_block->bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
+			// parse "y)"
+			in >> tmpstr;
+			cur_block->bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
+			// drop "(x,"
+			in >> tmpstr;
+			// drop "0)"
+			in >> tmpstr;
 		}
 		else {
 			cout << "Unhandled block type: " << tmpstr << endl;
@@ -168,19 +184,27 @@ void IO::parseBlocks(Corblivar_FP &corb, string file) {
 		id++;
 
 	}
+
+	// close file
+	in.close();
+
+	// logging
+	if (corb.logMed()) {
+		cout << "Done; " << corb.blocks.size() << " blocks read in" << endl << endl;
+	}
 }
 
 // parse nets file
 //TODO update
 void IO::parseNets(Corblivar_FP &corb, string file) {
-	ifstream in;
-	string tmpstr;
-	Net *cur_net;
-	int i, net_degree;
-	int net_block_id;
-	string net_block;
-	int cur_layer;
-	map<int, Block*>::iterator b;
+	//ifstream in;
+	//string tmpstr;
+	//Net *cur_net;
+	//int i, net_degree;
+	//int net_block_id;
+	//string net_block;
+	//int cur_layer;
+	//map<int, Block*>::iterator b;
 
 	if (corb.logMed()) {
 		cout << "Parsing nets..." << endl;
@@ -196,12 +220,12 @@ void IO::writeFloorplanGP(Corblivar_FP &corb) {
 // generate GP plots of FP
 // TODO update
 void IO::writeFloorplanGP(Corblivar_FP &corb, string file_suffix) {
-	ofstream gp_out;
-	int cur_layer;
-	int object_counter;
-	map<int, Block*>::iterator b;
-	Block *cur_block;
-//	TSV *cur_TSV;
-	Rect cur_TSV_bb;
+	//ofstream gp_out;
+	//int cur_layer;
+	//int object_counter;
+	//map<int, Block*>::iterator b;
+	//Block *cur_block;
+//	//TSV *cur_TSV;
+	//Rect cur_TSV_bb;
 
 }
