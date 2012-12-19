@@ -13,6 +13,7 @@
 int main (int argc, char** argv) {
 	struct timeb start, end;
 	CorblivarFP corb;
+	CorblivarLayoutRep chip;
 
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;

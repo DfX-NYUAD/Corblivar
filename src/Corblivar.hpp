@@ -35,14 +35,16 @@ using namespace std;
 enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
 enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
+enum Direction {DIRECTION_HOR, DIRECTION_VERT};
 
 /* forward declarations */
 class CorblivarFP;
-class CorblivarCore;
+class CorblivarLayoutRep;
+class CorblivarDie;
 class CorblivarAlignmentReq;
+class CBLitem;
 class IO;
 class Point;
-//class Pin;
 class Block;
 class Net;
 class Rect;
@@ -62,7 +64,6 @@ class CorblivarFP {
 		vector<Net*> nets;
 		//vector<Net*> inter_nets;
 		//vector<Net*> intra_nets;
-		int maxBlockId;
 
 		// config parameters
 		int conf_log;
@@ -111,15 +112,6 @@ class Point {
 			return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
 		};
 };
-
-//class Pin: public Point {
-//	public:
-//		int id;
-//
-//		Pin() : Point() {
-//			id = 0;
-//		};
-//};
 
 class Rect {
 	public:
@@ -205,7 +197,41 @@ class Net {
 		//double determineHPWL_Cong(MoDo &modo, vector< vector< vector<int> > > &grid, double bin_size);
 };
 
-class CorblivarCore {
+class CorblivarLayoutRep {
+	public:
+
+		vector<CorblivarDie*> dies;
+		vector<CorblivarAlignmentReq*> A;
+		map<Block*, CorblivarDie*> blockDieAssignment;
+		// die pointer
+		CorblivarDie* p;
+
+		void initCorblivar(CorblivarFP &corb);
+		void generateLayout();
+};
+
+
+class CorblivarDie {
+	public:
+
+		// CBL data
+		vector<CBLitem*> CBL;
+		// progress pointer, vector index
+		int currentPos;
+
+		bool stalled;
+		bool done;
+
+		CorblivarDie() {
+			stalled = done = false;
+			currentPos = 0;
+		}
+};
+
+class CBLitem {
+	Block* Si;
+	Direction Li;
+	int Ti;
 };
 
 class CorblivarAlignmentReq {
