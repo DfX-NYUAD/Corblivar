@@ -24,6 +24,8 @@
 #include <queue>
 #include <stack>
 #include <sys/timeb.h>
+#include <ctime>
+#include <cstdlib>
 
 // debugging code switch
 //#define DBG_IO
@@ -82,6 +84,16 @@ class CorblivarFP {
 		};
 
 		// var stuff
+		static double randF(int min, int max) {
+			double r;
+
+			r = (double) std::rand() / RAND_MAX;
+			return min + r * (double) (max - min);
+		};
+
+		static int randI(int min, int max) {
+			return (int) randF(min, max);
+		};
 
 		// test suites
 };
@@ -93,9 +105,6 @@ class IO {
 		static void parseNets(CorblivarFP &corb);
 		static void writeFloorplanGP(CorblivarFP &corb);
 		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix);
-
-	private:
-		static int netId;
 };
 
 class Point {
@@ -208,6 +217,7 @@ class CorblivarLayoutRep {
 
 		void initCorblivar(CorblivarFP &corb);
 		void generateLayout();
+		CorblivarDie* findDie(Block* Si);
 };
 
 
@@ -229,9 +239,17 @@ class CorblivarDie {
 };
 
 class CBLitem {
-	Block* Si;
-	Direction Li;
-	int Ti;
+	public:
+
+		Block* Si;
+		Direction Li;
+		int Ti;
+
+		CBLitem (Block *si, Direction li, int ti) {
+			Si = si;
+			Li = li;
+			Ti = ti;
+		}
 };
 
 class CorblivarAlignmentReq {

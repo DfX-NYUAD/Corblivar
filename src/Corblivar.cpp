@@ -15,11 +15,14 @@ int main (int argc, char** argv) {
 	CorblivarFP corb;
 	CorblivarLayoutRep chip;
 
+	// memorize start time
+	ftime(&start);
+
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
 
-	// memorize start time
-	ftime(&start);
+	// init random number gen
+	srand(time(0));
 
 	// parse program parameter and config file
 	corb.conf_log = CorblivarFP::LOG_MINIMAL;
@@ -28,6 +31,9 @@ int main (int argc, char** argv) {
 	IO::parseBlocks(corb);
 	// parse nets
 	IO::parseNets(corb);
+
+	// init Corblivar layout representation
+	chip.initCorblivar(corb);
 
 //	// perform test suites
 //	if (corb.logMin()) {
