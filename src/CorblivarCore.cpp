@@ -31,15 +31,14 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		cur_block = (*b).second;
 
 		// generate direction L
-		rand = CorblivarFP::randI(0, 1);
-		if (rand == 0) {
+		if (CorblivarFP::randB()) {
 			cur_dir = DIRECTION_HOR;
 		}
 		else {
 			cur_dir = DIRECTION_VERT;
 		}
 		// generate T-junction to be overlapped
-		cur_t = CorblivarFP::randI(0, corb.blocks.size());
+		cur_t = CorblivarFP::randI(0, corb.blocks.size() / 3);
 
 		// init CBL item
 		cur_CBLitem = new CBLitem(cur_block, cur_dir, cur_t);

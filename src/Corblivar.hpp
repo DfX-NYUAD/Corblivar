@@ -95,6 +95,13 @@ class CorblivarFP {
 			return (int) randF(min, max);
 		};
 
+		static bool randB() {
+			int r;
+
+			r = std::rand();
+			return (r < (RAND_MAX / 2));
+		};
+
 		// test suites
 };
 
@@ -249,6 +256,14 @@ class CBLitem {
 			Si = si;
 			Li = li;
 			Ti = ti;
+		}
+
+		string itemString() {
+			stringstream ret;
+
+			ret << "(" << Si->id << ", " << Li << ", " << Ti << ")";
+
+			return ret.str();
 		}
 };
 
