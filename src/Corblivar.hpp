@@ -29,6 +29,7 @@
 
 // debugging code switch
 //#define DBG_IO
+//#define DBG_CORB_FP
 
 /* standard namespace */
 using namespace std;
@@ -84,6 +85,8 @@ class CorblivarFP {
 		};
 
 		// var stuff
+
+		// note: range is [min, max)
 		static double randF(int min, int max) {
 			double r;
 
@@ -91,6 +94,7 @@ class CorblivarFP {
 			return min + r * (double) (max - min);
 		};
 
+		// note: range is [min, max)
 		static int randI(int min, int max) {
 			return (int) randF(min, max);
 		};
