@@ -222,7 +222,6 @@ class CorblivarLayoutRep {
 
 		vector<CorblivarDie*> dies;
 		vector<CorblivarAlignmentReq*> A;
-		map<Block*, CorblivarDie*> blockDieAssignment;
 		// die pointer
 		CorblivarDie* p;
 
@@ -237,16 +236,17 @@ class CorblivarDie {
 		int id;
 
 		// CBL data
-		vector<CBLitem*> CBL;
-		// progress pointer, vector index
-		unsigned pi;
+		list<CBLitem*> CBL;
+		// progress pointer, list iterator
+		list<CBLitem*>::iterator pi;
+		// placement stacks
+		stack<Block*> Hi, Vi;
 
 		bool stalled;
 		bool done;
 
 		CorblivarDie(int i) {
 			stalled = done = false;
-			pi = 0;
 			id = i;
 		}
 

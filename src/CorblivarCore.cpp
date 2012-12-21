@@ -49,14 +49,15 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 
 #ifdef DBG_CORB_FP
-	unsigned d, t;
+	unsigned d;
+	list<CBLitem*>::iterator CBLi;
 
 	for (d = 0; d < this->dies.size(); d++) {
 		cout << "DBG_CORB_FP> ";
 		cout << "CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
-		for (t = 0; t < this->dies[d]->CBL.size(); t++) {
+		for (CBLi = this->dies[d]->CBL.begin(); CBLi != this->dies[d]->CBL.end(); ++CBLi) {
 			cout << "DBG_CORB_FP> ";
-			cout << this->dies[d]->CBL[t]->itemString() << endl;
+			cout << (* CBLi)->itemString() << endl;
 		}
 		cout << "DBG_CORB_FP> ";
 		cout << endl;
@@ -79,9 +80,18 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 
 	// init die pointer
 	this->p = this->dies[0];
-	// init/reset progress pointer
+
+	// reset die data
 	for (i = 0; i < this->dies.size(); i++) {
-		this->dies[i]->pi = 0;
+		// reset progress pointer
+		this->dies[i]->pi = this->dies[i]->CBL.begin();
+		// reset placement stacks
+		while (!this->dies[i]->Hi.empty()) {
+			this->dies[i]->Hi.pop();
+		}
+		while (!this->dies[i]->Vi.empty()) {
+			this->dies[i]->Vi.pop();
+		}
 	}
 
 	// perform layout generation in loop (until all blocks are placed)
@@ -135,22 +145,24 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 
 void CorblivarDie::incrementProgressPointer() {
 
-	if (this->pi == (this->CBL.size() - 1)) {
+	if ((* this->pi) == this->CBL.back()) {
 		this->done = true;
 	}
 	else {
-		this->pi++;
+		++(this->pi);
 	}
 }
 
 Block* CorblivarDie::currentBlock() {
-	return this->CBL[this->pi]->Si;
+	return (* this->pi)->Si;
 }
 
 Block* CorblivarDie::placeCurrentBlock() {
 	Block *cur_block;
+	CBLitem *cur_CBLi;
 
-	cur_block = this->CBL[this->pi]->Si;
+	cur_CBLi = (* this->pi);
+	cur_block = cur_CBLi->Si;
 
 #ifdef DBG_CORB_FP
 	cout << "DBG_CORB_FP> ";
