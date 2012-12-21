@@ -227,26 +227,32 @@ class CorblivarLayoutRep {
 		CorblivarDie* p;
 
 		void initCorblivar(CorblivarFP &corb);
-		void generateLayout();
+		void generateLayout(CorblivarFP &corb);
 		CorblivarDie* findDie(Block* Si);
 };
 
 
 class CorblivarDie {
 	public:
+		int id;
 
 		// CBL data
 		vector<CBLitem*> CBL;
 		// progress pointer, vector index
-		int currentPos;
+		unsigned pi;
 
 		bool stalled;
 		bool done;
 
-		CorblivarDie() {
+		CorblivarDie(int i) {
 			stalled = done = false;
-			currentPos = 0;
+			pi = 0;
+			id = i;
 		}
+
+		Block* placeCurrentBlock();
+		Block* currentBlock();
+		void incrementProgressPointer();
 };
 
 class CBLitem {

@@ -23,7 +23,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 
 	// init separate data structures for dies
 	for (i = 0; i < corb.conf_layer; i++) {
-		this->dies.push_back(new CorblivarDie());
+		this->dies.push_back(new CorblivarDie(i));
 	}
 
 	// assign each block randomly to one die, generate L and T randomly as well
@@ -63,4 +63,95 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	if (corb.logMed()) {
 		cout << "Done" << endl << endl;
 	}
+}
+
+void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
+	unsigned i;
+	Block *cur_block;
+	bool loop;
+
+	if (corb.logMax()) {
+		cout << "Performing layout generation..." << endl;
+	}
+
+	// init die pointer
+	this->p = this->dies[0];
+	// init/reset progress pointer
+	for (i = 0; i < this->dies.size(); i++) {
+		this->dies[i]->pi = 0;
+	}
+
+	// perform layout generation in loop (until all blocks are placed)
+	loop = true;
+	while (loop) {
+		// handle stalled die / resolve open alignment process by placing current block
+		if (this->p->stalled) {
+			// place block
+			cur_block = this->p->placeCurrentBlock();
+			// TODO mark current block as placed in AS
+			//
+			// mark die as not stalled anymore
+			this->p->stalled = false;
+			// increment progress pointer, next block
+			this->p->incrementProgressPointer();
+		}
+		// die is not stalled
+		else {
+			// TODO check for alignment tuples for current block
+			//
+			if (false) {
+			}
+			// no alignment tuple assigned for current block
+			else {
+				// place block, consider next block
+				this->p->placeCurrentBlock();
+				this->p->incrementProgressPointer();
+			}
+		}
+
+		// die done
+		if (this->p->done) {
+			// continue loop on yet unfinished die
+			for (i = 0; i < this->dies.size(); i++) {
+				if (!this->dies[i]->done) {
+					this->p = this->dies[i];
+					break;
+				}
+			}
+			// all dies handled, stop loop
+			if (this->p->done) {
+				loop = false;
+			}
+		}
+	}
+
+	if (corb.logMax()) {
+		cout << "Done" << endl << endl;
+	}
+}
+
+void CorblivarDie::incrementProgressPointer() {
+
+	if (this->pi == (this->CBL.size() - 1)) {
+		this->done = true;
+	}
+	else {
+		this->pi++;
+	}
+}
+
+Block* CorblivarDie::currentBlock() {
+	return this->CBL[this->pi]->Si;
+}
+
+Block* CorblivarDie::placeCurrentBlock() {
+	Block *cur_block;
+
+	cur_block = this->CBL[this->pi]->Si;
+
+#ifdef DBG_CORB_FP
+	cout << "DBG_CORB_FP: Placing block " << cur_block->id << " on die " << this->id << endl;
+#endif
+
+	return cur_block;
 }
