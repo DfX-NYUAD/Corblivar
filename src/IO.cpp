@@ -334,14 +334,82 @@ void IO::writeFloorplanGP(CorblivarFP &corb) {
 }
 
 // generate GP plots of FP
-// TODO update
 void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
-	//ofstream gp_out;
-	//int cur_layer;
-	//int object_counter;
-	//map<int, Block*>::iterator b;
-	//Block *cur_block;
-//	//TSV *cur_TSV;
-	//Rect cur_TSV_bb;
+	ofstream gp_out;
+	int cur_layer;
+	int object_counter;
+	map<int, Block*>::iterator b;
+	Block *cur_block;
 
+	if (corb.logMed()) {
+		if (file_suffix != "")
+			cout << "Generating GP scripts for floorplan (suffix \"" << file_suffix << "\")..." << endl;
+		else
+			cout << "Generating GP scripts for floorplan ..." << endl;
+	}
+
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+		// build up file name
+		stringstream out_name;
+		out_name << corb.benchmark << "_" << cur_layer + 1;
+		if (file_suffix != "")
+			out_name << "_" << file_suffix;
+		out_name << ".gp";
+
+		// init file stream
+		gp_out.open(out_name.str().c_str());
+
+		// file header
+		gp_out << "set title \"" << corb.benchmark << " - Layer " << cur_layer + 1 << "\"" << endl;
+		gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
+		gp_out << "set output \"" << out_name.str() << ".eps\"" << endl;
+		gp_out << "set size square" << endl;
+		gp_out << "set xrange [0:" << corb.conf_outline_x << "]" << endl;
+		gp_out << "set yrange [0:" << corb.conf_outline_y << "]" << endl;
+		gp_out << "set xtics 100" << endl;
+		gp_out << "set ytics 100" << endl;
+		gp_out << "set mxtics 4" << endl;
+		gp_out << "set mytics 4" << endl;
+		gp_out << "set tics front" << endl;
+		gp_out << "set grid xtics ytics mxtics mytics" << endl;
+
+		// init obj counter
+		object_counter = 1;
+
+		// output blocks
+		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
+			cur_block = (*b).second;
+
+			if (cur_block->layer != cur_layer) {
+				continue;
+			}
+
+			gp_out << "set obj " << object_counter;
+			object_counter++;
+
+			// blocks
+			if (cur_block->type == Block::TYPE_BLOCK) {
+				gp_out << " rect";
+				gp_out << " from " << cur_block->bb.ll.x << "," << cur_block->bb.ll.y;
+				gp_out << " to " << cur_block->bb.ur.x << "," << cur_block->bb.ur.y;
+				gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
+				gp_out << endl;
+
+				// label
+				gp_out << "set label \"b" << cur_block->id << "\"";
+				gp_out << " at " << cur_block->bb.ll.x + 2.0 << "," << cur_block->bb.ll.y + 5.0;
+				gp_out << " font \"Times,6\"" << endl;
+			}
+		}
+
+		// file footer
+		gp_out << "plot NaN notitle" << endl;
+
+		// close file stream
+		gp_out.close();
+	}
+
+	if (corb.logMed()) {
+		cout << "Done" << endl << endl;
+	}
 }

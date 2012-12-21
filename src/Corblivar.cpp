@@ -62,8 +62,8 @@ int main (int argc, char** argv) {
 		cout << "Done, floorplanning was successful" << endl << endl;
 	}
 
-//	// generate final GP plots
-//	IO::writeFloorplanGP(corb, "final");
+	// generate final GP plots
+	IO::writeFloorplanGP(corb);
 
 	// determine total runtime
 	ftime(&end);

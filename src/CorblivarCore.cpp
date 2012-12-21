@@ -167,6 +167,9 @@ Block* CorblivarDie::placeCurrentBlock() {
 	cur_CBLi = (* this->pi);
 	cur_block = cur_CBLi->Si;
 
+	// assign layer to block
+	cur_block->layer = this->id;
+
 	// horizontal placement
 	if (cur_CBLi->Li == DIRECTION_HOR) {
 		// pop relevant blocks from stack
