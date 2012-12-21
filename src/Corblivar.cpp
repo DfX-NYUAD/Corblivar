@@ -35,6 +35,10 @@ int main (int argc, char** argv) {
 	// init Corblivar layout representation
 	chip.initCorblivar(corb);
 
+	// TODO perform during SA optimization flow
+	// generate layout
+	chip.generateLayout(corb);
+
 //	// perform test suites
 //	if (corb.logMin()) {
 //		cout << "Performing test suites..." << endl;

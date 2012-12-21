@@ -54,7 +54,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 
 	for (d = 0; d < this->dies.size(); d++) {
 		cout << "DBG_CORB_FP> ";
-		cout << "CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
+		cout << "Init CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
 		for (CBLi = this->dies[d]->CBL.begin(); CBLi != this->dies[d]->CBL.end(); ++CBLi) {
 			cout << "DBG_CORB_FP> ";
 			cout << (* CBLi)->itemString() << endl;
@@ -160,13 +160,103 @@ Block* CorblivarDie::currentBlock() {
 Block* CorblivarDie::placeCurrentBlock() {
 	Block *cur_block;
 	CBLitem *cur_CBLi;
+	vector<Block*> relevBlocks;
+	unsigned relevBlocksCount, b;
+	double x, y;
 
 	cur_CBLi = (* this->pi);
 	cur_block = cur_CBLi->Si;
 
+	// horizontal placement
+	if (cur_CBLi->Li == DIRECTION_HOR) {
+		// pop relevant blocks from stack
+		relevBlocksCount = min(cur_CBLi->Ti + 1, Hi.size());
+		while (relevBlocksCount > relevBlocks.size()) {
+			relevBlocks.push_back(Hi.top());
+			Hi.pop();
+		}
+
+		// determine x-coordinate for lower left corner of current block
+		x = 0;
+		for (b = 0; b < relevBlocks.size(); b++) {
+			// determine right front
+			x = max(x, relevBlocks[b]->bb.ur.x);
+		}
+
+		// determine y-coordinate for lower left corner of current block
+		if (Hi.empty()) {
+			y = 0;
+		}
+		else {
+			// init min value (lower front)
+			if (relevBlocks.empty()) {
+				y = 0;
+			}
+			else {
+				y = relevBlocks[0]->bb.ll.y;
+
+				// determine min value
+				for (b = 0; b < relevBlocks.size(); b++) {
+					if (relevBlocks[b]->bb.ll.y != Point::UNDEF) {
+						y = min(y, relevBlocks[b]->bb.ll.y);
+					}
+				}
+			}
+		}
+	}
+	// vertical placement
+	else {
+		// pop relevant blocks from stack
+		relevBlocksCount = min(cur_CBLi->Ti + 1, Vi.size());
+		while (relevBlocksCount > relevBlocks.size()) {
+			relevBlocks.push_back(Vi.top());
+			Vi.pop();
+		}
+
+		// determine y-coordinate for lower left corner of current block
+		y = 0;
+		for (b = 0; b < relevBlocks.size(); b++) {
+			// determine upper front
+			y = max(y, relevBlocks[b]->bb.ur.y);
+		}
+
+		// determine x-coordinate for lower left corner of current block
+		if (Vi.empty()) {
+			x = 0;
+		}
+		else {
+			// init min value (left front)
+			if (relevBlocks.empty()) {
+				x = 0;
+			}
+			else {
+				x = relevBlocks[0]->bb.ll.x;
+
+				// determine min value
+				for (b = 0; b < relevBlocks.size(); b++) {
+					if (relevBlocks[b]->bb.ll.x != Point::UNDEF) {
+						x = min(x, relevBlocks[b]->bb.ll.x);
+					}
+				}
+			}
+		}
+	}
+
+	// update block coordinates
+	cur_block->bb.ll.x = x;
+	cur_block->bb.ll.y = y;
+	cur_block->bb.ur.x = cur_block->bb.w + x;
+	cur_block->bb.ur.y = cur_block->bb.h + y;
+
+	// remember placed block on stacks
+	Hi.push(cur_block);
+	Vi.push(cur_block);
+
 #ifdef DBG_CORB_FP
 	cout << "DBG_CORB_FP> ";
-	cout << "Placing block " << cur_block->id << " on die " << this->id << endl;
+	cout << "Processing CBL tuple " << cur_CBLi->itemString() << " on die " << this->id << ": ";
+	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
+	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 #endif
 
 	return cur_block;

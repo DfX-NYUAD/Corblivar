@@ -29,7 +29,7 @@
 
 // debugging code switch
 //#define DBG_IO
-//#define DBG_CORB_FP
+#define DBG_CORB_FP
 
 /* standard namespace */
 using namespace std;
@@ -260,9 +260,9 @@ class CBLitem {
 
 		Block* Si;
 		Direction Li;
-		int Ti;
+		unsigned Ti;
 
-		CBLitem (Block *si, Direction li, int ti) {
+		CBLitem (Block *si, Direction li, unsigned ti) {
 			Si = si;
 			Li = li;
 			Ti = ti;
