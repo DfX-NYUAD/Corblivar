@@ -52,10 +52,13 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	unsigned d, t;
 
 	for (d = 0; d < this->dies.size(); d++) {
+		cout << "DBG_CORB_FP> ";
 		cout << "CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
 		for (t = 0; t < this->dies[d]->CBL.size(); t++) {
+			cout << "DBG_CORB_FP> ";
 			cout << this->dies[d]->CBL[t]->itemString() << endl;
 		}
+		cout << "DBG_CORB_FP> ";
 		cout << endl;
 	}
 #endif
@@ -150,7 +153,8 @@ Block* CorblivarDie::placeCurrentBlock() {
 	cur_block = this->CBL[this->pi]->Si;
 
 #ifdef DBG_CORB_FP
-	cout << "DBG_CORB_FP: Placing block " << cur_block->id << " on die " << this->id << endl;
+	cout << "DBG_CORB_FP> ";
+	cout << "Placing block " << cur_block->id << " on die " << this->id << endl;
 #endif
 
 	return cur_block;

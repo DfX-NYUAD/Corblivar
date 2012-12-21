@@ -313,8 +313,10 @@ void IO::parseNets(CorblivarFP &corb) {
 	unsigned n, bl;
 
 	for (n = 0; n < corb.nets.size(); n++) {
+		cout << "DBG_IO> ";
 		cout << "net " << corb.nets[n]->id << endl;
 		for (bl = 0; bl < corb.nets[n]->blocks.size(); bl++) {
+			cout << "DBG_IO> ";
 			cout << " block " << corb.nets[n]->blocks[bl]->id << endl;
 		}
 	}
