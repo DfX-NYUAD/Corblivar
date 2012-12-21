@@ -366,8 +366,8 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 		gp_out << "set size square" << endl;
 		gp_out << "set xrange [0:" << corb.conf_outline_x << "]" << endl;
 		gp_out << "set yrange [0:" << corb.conf_outline_y << "]" << endl;
-		gp_out << "set xtics 100" << endl;
-		gp_out << "set ytics 100" << endl;
+		gp_out << "set xtics " << corb.conf_outline_x / 5 << endl;
+		gp_out << "set ytics " << corb.conf_outline_x / 5 << endl;
 		gp_out << "set mxtics 4" << endl;
 		gp_out << "set mytics 4" << endl;
 		gp_out << "set tics front" << endl;

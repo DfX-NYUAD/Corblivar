@@ -29,7 +29,7 @@
 
 // debugging code switch
 //#define DBG_IO
-#define DBG_CORB_FP
+//#define DBG_CORB_FP
 
 /* standard namespace */
 using namespace std;
@@ -38,7 +38,7 @@ using namespace std;
 enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
 enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
-enum Direction {DIRECTION_HOR, DIRECTION_VERT};
+enum Direction {DIRECTION_VERT, DIRECTION_HOR};
 
 /* forward declarations */
 class CorblivarFP;

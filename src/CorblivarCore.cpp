@@ -13,7 +13,6 @@
 void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	map<int, Block*>::iterator b;
 	Block *cur_block;
-	CBLitem *cur_CBLitem;
 	Direction cur_dir;
 	int i, rand, cur_t;
 
@@ -30,6 +29,9 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 		cur_block = (*b).second;
 
+		// consider random die
+		rand = CorblivarFP::randI(0, corb.conf_layer);
+
 		// generate direction L
 		if (CorblivarFP::randB()) {
 			cur_dir = DIRECTION_HOR;
@@ -38,14 +40,11 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 			cur_dir = DIRECTION_VERT;
 		}
 		// generate T-junction to be overlapped
-		cur_t = CorblivarFP::randI(0, (corb.blocks.size() / 3) + 1);
+		// consider block count as upper bound
+		cur_t = CorblivarFP::randI(0, this->dies[rand]->CBL.size());
 
-		// init CBL item
-		cur_CBLitem = new CBLitem(cur_block, cur_dir, cur_t);
-
-		// assign to random die
-		rand = CorblivarFP::randI(0, corb.conf_layer);
-		this->dies[rand]->CBL.push_back(cur_CBLitem);
+		// store CBL item
+		this->dies[rand]->CBL.push_back(new CBLitem(cur_block, cur_dir, cur_t));
 	}
 
 #ifdef DBG_CORB_FP
@@ -173,10 +172,11 @@ Block* CorblivarDie::placeCurrentBlock() {
 	// horizontal placement
 	if (cur_CBLi->Li == DIRECTION_HOR) {
 		// pop relevant blocks from stack
-		relevBlocksCount = min(cur_CBLi->Ti + 1, Hi.size());
+		relevBlocksCount = min(cur_CBLi->Ti + 1, this->Hi.size());
+//cout << "relevBlocksCount=" << relevBlocksCount << endl;
 		while (relevBlocksCount > relevBlocks.size()) {
-			relevBlocks.push_back(Hi.top());
-			Hi.pop();
+			relevBlocks.push_back(this->Hi.top());
+			this->Hi.pop();
 		}
 
 		// determine x-coordinate for lower left corner of current block
@@ -187,15 +187,18 @@ Block* CorblivarDie::placeCurrentBlock() {
 		}
 
 		// determine y-coordinate for lower left corner of current block
-		if (Hi.empty()) {
+		if (this->Hi.empty()) {
 			y = 0;
+//cout << "Hi empty" << endl;
 		}
 		else {
 			// init min value (lower front)
 			if (relevBlocks.empty()) {
 				y = 0;
+//cout << "relevBlocks empty" << endl;
 			}
 			else {
+//cout << "OK" << endl;
 				y = relevBlocks[0]->bb.ll.y;
 
 				// determine min value
@@ -210,10 +213,10 @@ Block* CorblivarDie::placeCurrentBlock() {
 	// vertical placement
 	else {
 		// pop relevant blocks from stack
-		relevBlocksCount = min(cur_CBLi->Ti + 1, Vi.size());
+		relevBlocksCount = min(cur_CBLi->Ti + 1, this->Vi.size());
 		while (relevBlocksCount > relevBlocks.size()) {
-			relevBlocks.push_back(Vi.top());
-			Vi.pop();
+			relevBlocks.push_back(this->Vi.top());
+			this->Vi.pop();
 		}
 
 		// determine y-coordinate for lower left corner of current block
@@ -224,7 +227,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 		}
 
 		// determine x-coordinate for lower left corner of current block
-		if (Vi.empty()) {
+		if (this->Vi.empty()) {
 			x = 0;
 		}
 		else {
@@ -252,8 +255,8 @@ Block* CorblivarDie::placeCurrentBlock() {
 	cur_block->bb.ur.y = cur_block->bb.h + y;
 
 	// remember placed block on stacks
-	Hi.push(cur_block);
-	Vi.push(cur_block);
+	this->Hi.push(cur_block);
+	this->Vi.push(cur_block);
 
 #ifdef DBG_CORB_FP
 	cout << "DBG_CORB_FP> ";
