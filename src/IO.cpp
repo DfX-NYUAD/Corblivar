@@ -21,6 +21,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	// program parameter
 	if (argc < 4)
 	{
+		cout << "IO> ";
 		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [results_file]" << endl;
 		cout << endl;
 		cout << "Expected config_file format: see Corblivar.conf" << endl;
@@ -44,6 +45,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in.open(config_file.c_str());
 	if (!in.good())
 	{
+		cout << "IO> ";
 		cout << "No such config file: " << config_file<< endl;
 		exit(1);
 	}
@@ -52,6 +54,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in.open(corb.blocks_file.c_str());
 	if (!in.good())
 	{
+		cout << "IO> ";
 		cout << "No such blocks file: " << corb.blocks_file << endl;
 		exit(1);
 	}
@@ -60,6 +63,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in.open(corb.power_file.c_str());
 	if (!in.good())
 	{
+		cout << "IO> ";
 		cout << "No such power file: " << corb.power_file << endl;
 		exit(1);
 	}
@@ -68,13 +72,15 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in.open(corb.nets_file.c_str());
 	if (!in.good())
 	{
+		cout << "IO> ";
 		cout << "No such nets file: " << corb.nets_file << endl;
 		exit(1);
 	}
 	in.close();
 
 	// config file
-	if (corb.logMin()) {
+	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Parsing config file..." << endl;
 	}
 
@@ -113,13 +119,14 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	corb.results.open(results_file.str().c_str());
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Config values:" << endl;
 		cout << "Loglevel (1 to 3 for minimal, medium, maximal): " << corb.conf_log << endl;
 		cout << "Layers for 3D IC: " << corb.conf_layer << endl;
 		cout << "Fixed die outline (width, x-dimension): " << corb.conf_outline_x << endl;
 		cout << "Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
-	}
-	if (corb.logMin()) {
+
+		cout << "IO> ";
 		cout << "Done" << endl << endl;
 	}
 }
@@ -132,6 +139,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 	int id;
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Parsing blocks..." << endl;
 	}
 
@@ -166,6 +174,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 		}
 		else {
 			if (corb.logMin()) {
+				cout << "IO> ";
 				cout << "Block " << id << " has no power value assigned!" << endl;
 			}
 		}
@@ -195,6 +204,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			blocks_in >> tmpstr;
 		}
 		else {
+			cout << "IO> ";
 			cout << "Unhandled block type: " << tmpstr << endl;
 			exit(1);
 		}
@@ -219,6 +229,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			power += (*b).second->power;
 		}
 
+		cout << "IO> ";
 		cout << "Done; " << corb.blocks.size() << " blocks read in; " << power << " total power" << endl << endl;
 	}
 }
@@ -236,6 +247,7 @@ void IO::parseNets(CorblivarFP &corb) {
 	int id;
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Parsing nets..." << endl;
 	}
 
@@ -286,6 +298,7 @@ void IO::parseNets(CorblivarFP &corb) {
 			else {
 				// ignore unknown block
 				if (corb.logMin()) {
+					cout << "IO> ";
 					cout << "Drop unknown block \"" << net_block << "\" while parsing net " << id << endl;
 				}
 			}
@@ -323,6 +336,7 @@ void IO::parseNets(CorblivarFP &corb) {
 #endif
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Done; " << corb.nets.size() << " nets read in" << endl << endl;
 	}
 
@@ -342,6 +356,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	Block *cur_block;
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		if (file_suffix != "")
 			cout << "Generating GP scripts for floorplan (suffix \"" << file_suffix << "\")..." << endl;
 		else
@@ -410,6 +425,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	}
 
 	if (corb.logMed()) {
+		cout << "IO> ";
 		cout << "Done" << endl << endl;
 	}
 }

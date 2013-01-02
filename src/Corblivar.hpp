@@ -334,6 +334,7 @@ class CorblivarAlignmentReq {
 
 			// fix invalid negative range
 			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
+				cout << "CorblivarAlignmentReq> ";
 				cout << "Fixing tuple (negative range):" << endl;
 				cout << " " << this->tupleString() << " to" << endl;
 

@@ -48,6 +48,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	int i, rand, cur_t;
 
 	if (corb.logMed()) {
+		cout << "Layout> ";
 		cout << "Initializing Corblivar data for chip on " << corb.conf_layer << " layers..." << endl;
 	}
 
@@ -95,6 +96,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 #endif
 
 	if (corb.logMed()) {
+		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
 }
@@ -105,6 +107,7 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 	bool loop;
 
 	if (corb.logMax()) {
+		cout << "Layout> ";
 		cout << "Performing layout generation..." << endl;
 	}
 
@@ -169,6 +172,7 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 	}
 
 	if (corb.logMax()) {
+		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
 }

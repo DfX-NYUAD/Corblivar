@@ -49,6 +49,7 @@ int main (int argc, char** argv) {
 //	}
 
 	if (corb.logMin()) {
+		cout << "Corblivar> ";
 		cout << "Performing SA floorplanning optimization..." << endl << endl;
 	}
 
@@ -57,6 +58,7 @@ int main (int argc, char** argv) {
 	done = corb.SA(chip);
 
 	if (corb.logMin()) {
+		cout << "Corblivar> ";
 		if (done) {
 			cout << "Done, floorplanning was successful" << endl << endl;
 		}
@@ -71,6 +73,7 @@ int main (int argc, char** argv) {
 	// determine total runtime
 	ftime(&end);
 	if (corb.logMin()) {
+		cout << "Corblivar> ";
 		cout << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
 		corb.results << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
 	}
