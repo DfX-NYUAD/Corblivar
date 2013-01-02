@@ -14,6 +14,7 @@ int main (int argc, char** argv) {
 	struct timeb start, end;
 	CorblivarFP corb;
 	CorblivarLayoutRep chip;
+	bool done;
 
 	// memorize start time
 	ftime(&start);
@@ -35,10 +36,6 @@ int main (int argc, char** argv) {
 	// init Corblivar layout representation
 	chip.initCorblivar(corb);
 
-	// TODO perform during SA optimization flow
-	// generate layout
-	chip.generateLayout(corb);
-
 //	// perform test suites
 //	if (corb.logMin()) {
 //		cout << "Performing test suites..." << endl;
@@ -51,15 +48,21 @@ int main (int argc, char** argv) {
 //		cout << "Done" << endl << endl;
 //	}
 
-	// TODO perform optimizations
 	if (corb.logMin()) {
 		cout << "Performing SA floorplanning optimization..." << endl << endl;
 	}
+
 	// TODO runtime of optimization steps
 	// TODO bool parameter, flags for performing opt steps
+	done = corb.SA(chip);
 
 	if (corb.logMin()) {
-		cout << "Done, floorplanning was successful" << endl << endl;
+		if (done) {
+			cout << "Done, floorplanning was successful" << endl << endl;
+		}
+		else {
+			cout << "Done, floorplanning was _not_ successful" << endl << endl;
+		}
 	}
 
 	// generate final GP plots

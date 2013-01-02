@@ -84,8 +84,10 @@ class CorblivarFP {
 			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
-		// var stuff
+		// SA handler
+		bool SA(CorblivarLayoutRep &chip);
 
+		// random functions
 		// note: range is [min, max)
 		static double randF(int min, int max) {
 			double r;
@@ -93,12 +95,10 @@ class CorblivarFP {
 			r = (double) std::rand() / RAND_MAX;
 			return min + r * (double) (max - min);
 		};
-
 		// note: range is [min, max)
 		static int randI(int min, int max) {
 			return (int) randF(min, max);
 		};
-
 		static bool randB() {
 			int r;
 
