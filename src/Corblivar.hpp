@@ -56,10 +56,6 @@ class Rect;
 
 class CorblivarFP {
 	public:
-		static const int LOG_MINIMAL = 1;
-		static const int LOG_MEDIUM = 2;
-		static const int LOG_MAXIMUM = 3;
-
 		// main vars
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results;
@@ -74,9 +70,21 @@ class CorblivarFP {
 		double conf_outline_x, conf_outline_y;
 		double conf_SA_minT, conf_SA_coolingT, conf_SA_loopFactor;
 		// fixed config parameters
-		static const SA_INIT_T_FACTOR = 20;
+		static const int SA_INIT_T_FACTOR = 20;
+		// values see Corblivar.cpp
+		static const double COST_FACTOR_TEMP;
+		static const double COST_FACTOR_IR;
+		static const double COST_FACTOR_WL;
+		static const double COST_FACTOR_TSVS;
+		static const double COST_FACTOR_AREA;
+		static const double COST_FACTOR_OUTLINE_X;
+		static const double COST_FACTOR_OUTLINE_Y;
+		static const double COST_FACTOR_ALIGNMENTS;
 
 		// logging
+		static const int LOG_MINIMAL = 1;
+		static const int LOG_MEDIUM = 2;
+		static const int LOG_MAXIMUM = 3;
 		bool logMin() {
 			return (this->conf_log >= LOG_MINIMAL);
 		};
@@ -87,8 +95,9 @@ class CorblivarFP {
 			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
-		// SA handler
+		// FP functions
 		bool SA(CorblivarLayoutRep &chip);
+		double determLayoutCost(CorblivarLayoutRep &chip);
 
 		// random functions
 		// note: range is [min, max)

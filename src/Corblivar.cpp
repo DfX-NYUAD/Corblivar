@@ -89,6 +89,15 @@ const int Block::TYPE_TSV;
 const int CorblivarFP::LOG_MINIMAL;
 const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;
+const int CorblivarFP::SA_INIT_T_FACTOR;
 const int Point::UNDEF;
-//const int Net::TYPE_INTRALAYER;
-//const int Net::TYPE_INTERLAYER;
+// double initialization w/in class defintion is not standard, thus put here
+// var factors must sum up to approx. 1 !
+const double CorblivarFP::COST_FACTOR_TEMP = 1/8;
+const double CorblivarFP::COST_FACTOR_IR = 1/8;
+const double CorblivarFP::COST_FACTOR_WL = 1/8;
+const double CorblivarFP::COST_FACTOR_TSVS = 1/8;
+const double CorblivarFP::COST_FACTOR_AREA = 1/8;
+const double CorblivarFP::COST_FACTOR_OUTLINE_X = 1/8;
+const double CorblivarFP::COST_FACTOR_OUTLINE_Y = 1/8;
+const double CorblivarFP::COST_FACTOR_ALIGNMENTS = 1/8;

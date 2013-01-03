@@ -59,6 +59,54 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
+double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
+	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_area, cost_outline_x, cost_outline_y, cost_alignments;
+	int i;
+
+	// TODO Cost Temp
+	cost_temp = 0.0;
+
+	// TODO Cost IR
+	cost_IR = 0.0;
+
+	// TODO Cost WL
+	cost_WL = 0.0;
+
+	// TODO Cost TSVs
+	cost_TSVs = 0.0;
+
+	// Cost Area
+	cost_area = 0.0;
+	for (i = 0; i < this->conf_layer; i++) {
+	}
+
+	// TODO Cost Outline in x-direction
+	cost_outline_x = 0.0;
+
+	// TODO Cost Outline in y-direction
+	cost_outline_y = 0.0;
+
+	// TODO Cost (Failed) Alignments
+	cost_temp = 0.0;
+
+	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
+		+ CorblivarFP::COST_FACTOR_WL * cost_WL
+		+ CorblivarFP::COST_FACTOR_TSVS * cost_TSVs
+		+ CorblivarFP::COST_FACTOR_IR * cost_IR
+		+ CorblivarFP::COST_FACTOR_AREA * cost_area
+		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline_x
+		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline_y
+		+ CorblivarFP::COST_FACTOR_ALIGNMENTS * cost_alignments
+	;
+
+	if (this->logMax()) {
+		cout << "Layout> ";
+		cout << "Layout cost: " << cost_total << endl;
+	}
+
+	return cost_total;
+}
+
 void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	map<int, Block*>::iterator b;
 	Block *cur_block;
