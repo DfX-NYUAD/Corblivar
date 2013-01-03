@@ -11,31 +11,49 @@
 #include "Corblivar.hpp"
 
 bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
-	int i;
-	bool annealed, stabilized;
+	int i, ii;
+	int innerLoopMax;
+	bool annealed;
+
+	// init SA parameters
+	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
 	annealed = false;
 	while (!annealed) {
+
 		if (this->logMed()) {
 			cout << "SA> Optimization step: " << i << endl;
 		}
 
-		// inner loop: layout operations (until cost convergence for particular temp)
-		stabilized = false;
-		while (!stabilized) {
+		// inner loop: layout operations
+		ii = 0;
+		while (ii < innerLoopMax) {
+
 			chip.generateLayout(*this);
 
-			stabilized = true;
+#ifdef DBG_CORB_FP
+			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
+#endif
+
+			ii++;
 		}
 
 		// TODO logMed: current cost, current temp
 		if (this->logMed()) {
-			cout << endl;
+			cout << "SA> Step done" << endl;
 		}
 
+		i++;
+
+		// TODO determine: use avg cost of prev iterations, if smaller than
+		// standard dev?
 		annealed = true;
+	}
+
+	if (this->logMed()) {
+		cout << endl;
 	}
 
 	return true;

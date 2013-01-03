@@ -72,6 +72,9 @@ class CorblivarFP {
 		int conf_log;
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
+		double conf_SA_minT, conf_SA_coolingT, conf_SA_loopFactor;
+		// fixed config parameters
+		static const SA_INIT_T_FACTOR = 20;
 
 		// logging
 		bool logMin() {
