@@ -264,7 +264,9 @@ class CorblivarDie {
 
 		Block* placeCurrentBlock();
 		Block* currentBlock();
-		void incrementProgressPointer();
+		// false: last CBL tuple; true: not last tuple
+		bool incrementTuplePointer();
+		void resetTuplePointer();
 };
 
 class CBLitem {

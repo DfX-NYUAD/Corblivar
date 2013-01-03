@@ -183,7 +183,9 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 	// reset die data
 	for (i = 0; i < this->dies.size(); i++) {
 		// reset progress pointer
-		this->dies[i]->pi = this->dies[i]->CBL.begin();
+		this->dies[i]->resetTuplePointer();
+		// reset done flag
+		this->dies[i]->done = false;
 		// reset placement stacks
 		while (!this->dies[i]->Hi.empty()) {
 			this->dies[i]->Hi.pop();
@@ -198,14 +200,12 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 	while (loop) {
 		// handle stalled die / resolve open alignment process by placing current block
 		if (this->p->stalled) {
-			// place block
+			// place block, increment progress pointer
 			cur_block = this->p->placeCurrentBlock();
 			// TODO mark current block as placed in AS
 			//
 			// mark die as not stalled anymore
 			this->p->stalled = false;
-			// increment progress pointer, next block
-			this->p->incrementProgressPointer();
 		}
 		// die is not stalled
 		else {
@@ -215,9 +215,8 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 			}
 			// no alignment tuple assigned for current block
 			else {
-				// place block, consider next block
+				// place block, increment progress pointer
 				this->p->placeCurrentBlock();
-				this->p->incrementProgressPointer();
 			}
 		}
 
@@ -243,14 +242,21 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 	}
 }
 
-void CorblivarDie::incrementProgressPointer() {
+// false: last CBL tuple; true: not last tuple
+bool CorblivarDie::incrementTuplePointer() {
 
 	if ((* this->pi) == this->CBL.back()) {
 		this->done = true;
+		return false;
 	}
 	else {
 		++(this->pi);
+		return true;
 	}
+}
+
+void CorblivarDie::resetTuplePointer() {
+	this->pi = this->CBL.begin();
 }
 
 Block* CorblivarDie::currentBlock() {
@@ -365,6 +371,9 @@ Block* CorblivarDie::placeCurrentBlock() {
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 #endif
+
+	// increment progress pointer, consider next tuple (block)
+	this->incrementTuplePointer();
 
 	return cur_block;
 }
