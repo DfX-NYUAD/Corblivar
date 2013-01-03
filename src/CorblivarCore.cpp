@@ -27,11 +27,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cout << "SA> Optimization step: " << i << endl;
 		}
 
+		// TODO SA handling
 		// inner loop: layout operations
 		ii = 0;
 		while (ii < innerLoopMax) {
 
 			chip.generateLayout(*this);
+
+			//TODO eval layout
 
 #ifdef DBG_CORB_FP
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
@@ -59,9 +62,15 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
+// cost factors should all be normalized to their respective max values; i.e., for
+// optimized solutions, cost will be less than 1
+// TODO move separate cost functions to separate class
 double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
-	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_area, cost_outline_x, cost_outline_y, cost_alignments;
+	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_outline_x, cost_outline_y, cost_alignments;
 	int i;
+	CorblivarDie *cur_die;
+	Block *cur_block;
+	double max_outline_x, max_outline_y;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -75,25 +84,34 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	// TODO Cost TSVs
 	cost_TSVs = 0.0;
 
-	// Cost Area
-	cost_area = 0.0;
+	//// Cost outline
+	cost_outline_x = 0.0;
+	cost_outline_y = 0.0;
+	// consider dies separately, determine avg cost afterwards
 	for (i = 0; i < this->conf_layer; i++) {
+		cur_die = chip.dies[i];
+		cur_die->resetTuplePointer();
+
+		// init max outline points
+		cur_block = cur_die->currentBlock();
+		max_outline_x = cur_block->bb.ur.x;
+		max_outline_y = cur_block->bb.ur.y;
+		// update max outline points
+		while (cur_die->incrementTuplePointer()) {
+			cur_block = cur_die->currentBlock();
+			max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
+			max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
+		}
+		// TODO BREAK
 	}
 
-	// TODO Cost Outline in x-direction
-	cost_outline_x = 0.0;
-
-	// TODO Cost Outline in y-direction
-	cost_outline_y = 0.0;
-
 	// TODO Cost (Failed) Alignments
-	cost_temp = 0.0;
+	cost_alignments = 0.0;
 
 	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
 		+ CorblivarFP::COST_FACTOR_WL * cost_WL
 		+ CorblivarFP::COST_FACTOR_TSVS * cost_TSVs
 		+ CorblivarFP::COST_FACTOR_IR * cost_IR
-		+ CorblivarFP::COST_FACTOR_AREA * cost_area
 		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline_x
 		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline_y
 		+ CorblivarFP::COST_FACTOR_ALIGNMENTS * cost_alignments
@@ -240,27 +258,6 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
-}
-
-// false: last CBL tuple; true: not last tuple
-bool CorblivarDie::incrementTuplePointer() {
-
-	if ((* this->pi) == this->CBL.back()) {
-		this->done = true;
-		return false;
-	}
-	else {
-		++(this->pi);
-		return true;
-	}
-}
-
-void CorblivarDie::resetTuplePointer() {
-	this->pi = this->CBL.begin();
-}
-
-Block* CorblivarDie::currentBlock() {
-	return (* this->pi)->Si;
 }
 
 Block* CorblivarDie::placeCurrentBlock() {

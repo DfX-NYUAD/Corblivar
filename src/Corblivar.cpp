@@ -97,7 +97,6 @@ const double CorblivarFP::COST_FACTOR_TEMP = 1/8;
 const double CorblivarFP::COST_FACTOR_IR = 1/8;
 const double CorblivarFP::COST_FACTOR_WL = 1/8;
 const double CorblivarFP::COST_FACTOR_TSVS = 1/8;
-const double CorblivarFP::COST_FACTOR_AREA = 1/8;
 const double CorblivarFP::COST_FACTOR_OUTLINE_X = 1/8;
 const double CorblivarFP::COST_FACTOR_OUTLINE_Y = 1/8;
 const double CorblivarFP::COST_FACTOR_ALIGNMENTS = 1/8;

@@ -76,7 +76,8 @@ class CorblivarFP {
 		static const double COST_FACTOR_IR;
 		static const double COST_FACTOR_WL;
 		static const double COST_FACTOR_TSVS;
-		static const double COST_FACTOR_AREA;
+		// handled via outline
+		//static const double COST_FACTOR_AREA;
 		static const double COST_FACTOR_OUTLINE_X;
 		static const double COST_FACTOR_OUTLINE_Y;
 		static const double COST_FACTOR_ALIGNMENTS;
