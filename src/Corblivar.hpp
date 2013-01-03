@@ -229,6 +229,28 @@ class Net {
 		//double determineHPWL_Cong(MoDo &modo, vector< vector< vector<int> > > &grid, double bin_size);
 };
 
+class CBLitem {
+	public:
+
+		Block* Si;
+		Direction Li;
+		unsigned Ti;
+
+		CBLitem (Block *si, Direction li, unsigned ti) {
+			Si = si;
+			Li = li;
+			Ti = ti;
+		}
+
+		string itemString() {
+			stringstream ret;
+
+			ret << "(" << Si->id << ", " << Li << ", " << Ti << ")";
+
+			return ret.str();
+		}
+};
+
 class CorblivarLayoutRep {
 	public:
 
@@ -263,31 +285,26 @@ class CorblivarDie {
 		}
 
 		Block* placeCurrentBlock();
-		Block* currentBlock();
+
 		// false: last CBL tuple; true: not last tuple
-		bool incrementTuplePointer();
-		void resetTuplePointer();
-};
+		bool incrementTuplePointer() {
 
-class CBLitem {
-	public:
-
-		Block* Si;
-		Direction Li;
-		unsigned Ti;
-
-		CBLitem (Block *si, Direction li, unsigned ti) {
-			Si = si;
-			Li = li;
-			Ti = ti;
+			if ((* this->pi) == this->CBL.back()) {
+				this->done = true;
+				return false;
+			}
+			else {
+				++(this->pi);
+				return true;
+			}
 		}
 
-		string itemString() {
-			stringstream ret;
+		void resetTuplePointer() {
+			this->pi = this->CBL.begin();
+		}
 
-			ret << "(" << Si->id << ", " << Li << ", " << Ti << ")";
-
-			return ret.str();
+		Block* currentBlock() {
+			return (* this->pi)->Si;
 		}
 };
 
