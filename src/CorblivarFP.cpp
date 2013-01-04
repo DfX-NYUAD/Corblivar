@@ -131,3 +131,7 @@ vector<double> CorblivarFP::determLayoutOutline() {
 
 	return ret;
 }
+
+// TODO det HPWL and TSVs
+vector<double> CorblivarFP::determLayoutInterconnects() {
+}

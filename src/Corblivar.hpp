@@ -113,6 +113,7 @@ class CorblivarFP {
 		bool SA(CorblivarLayoutRep &chip);
 		double determLayoutCost();
 		vector<double> determLayoutOutline();
+		vector<double> determLayoutInterconnects();
 
 		// random functions
 		// note: range is [min, max)
