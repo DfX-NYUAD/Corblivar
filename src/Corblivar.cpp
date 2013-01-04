@@ -93,10 +93,10 @@ const int CorblivarFP::SA_INIT_T_FACTOR;
 const int Point::UNDEF;
 // double initialization w/in class defintion is not standard, thus put here
 // var factors must sum up to approx. 1 !
-const double CorblivarFP::COST_FACTOR_TEMP = 1/8;
-const double CorblivarFP::COST_FACTOR_IR = 1/8;
-const double CorblivarFP::COST_FACTOR_WL = 1/8;
-const double CorblivarFP::COST_FACTOR_TSVS = 1/8;
-const double CorblivarFP::COST_FACTOR_OUTLINE_X = 1/8;
-const double CorblivarFP::COST_FACTOR_OUTLINE_Y = 1/8;
-const double CorblivarFP::COST_FACTOR_ALIGNMENTS = 1/8;
+const double CorblivarFP::COST_FACTOR_TEMP = (double) 1/8;
+const double CorblivarFP::COST_FACTOR_IR = (double) 1/8;
+const double CorblivarFP::COST_FACTOR_WL = (double) 1/8;
+const double CorblivarFP::COST_FACTOR_TSVS = (double) 1/8;
+const double CorblivarFP::COST_FACTOR_OUTLINE_X = (double) 4/8;
+const double CorblivarFP::COST_FACTOR_OUTLINE_Y = (double) 4/8;
+const double CorblivarFP::COST_FACTOR_ALIGNMENTS = (double) 1/8;

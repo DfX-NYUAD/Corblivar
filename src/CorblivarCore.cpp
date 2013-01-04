@@ -14,6 +14,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
 	bool annealed;
+	double cur_cost;
 
 	// init SA parameters
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
@@ -32,9 +33,10 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		ii = 0;
 		while (ii < innerLoopMax) {
 
+			// generate layout
 			chip.generateLayout(*this);
-
-			//TODO eval layout
+			// evaluate layout
+			this->determLayoutCost(chip);
 
 #ifdef DBG_CORB_FP
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
@@ -87,6 +89,7 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	//// Cost outline
 	cost_outline_x = 0.0;
 	cost_outline_y = 0.0;
+
 	// consider dies separately, determine avg cost afterwards
 	for (i = 0; i < this->conf_layer; i++) {
 		cur_die = chip.dies[i];
@@ -102,8 +105,17 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 			max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
 			max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
 		}
-		// TODO BREAK
+		// sum up over all dies
+		cost_outline_x += max_outline_x;
+		cost_outline_y += max_outline_y;
 	}
+	// avg for all dies
+	cost_outline_x /= this->conf_layer;
+	cost_outline_y /= this->conf_layer;
+
+	// normalize
+	cost_outline_x /= this->conf_outline_x;
+	cost_outline_y /= this->conf_outline_y;
 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
@@ -256,7 +268,7 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 
 	if (corb.logMax()) {
 		cout << "Layout> ";
-		cout << "Done" << endl << endl;
+		cout << "Done" << endl;
 	}
 }
 
