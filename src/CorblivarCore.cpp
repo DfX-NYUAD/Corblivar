@@ -41,7 +41,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			// evaluate layout
 			this->determLayoutCost(chip);
 
-#ifdef DBG_CORB_FP
+#ifdef DBG_SA
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
 #endif
 
@@ -187,18 +187,18 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		this->dies[rand]->CBL.push_back(new CBLitem(cur_block, cur_dir, cur_t));
 	}
 
-#ifdef DBG_CORB_FP
+#ifdef DBG_CORB
 	unsigned d;
 	list<CBLitem*>::iterator CBLi;
 
 	for (d = 0; d < this->dies.size(); d++) {
-		cout << "DBG_CORB_FP> ";
+		cout << "DBG_CORB> ";
 		cout << "Init CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
 		for (CBLi = this->dies[d]->CBL.begin(); CBLi != this->dies[d]->CBL.end(); ++CBLi) {
-			cout << "DBG_CORB_FP> ";
+			cout << "DBG_CORB> ";
 			cout << (* CBLi)->itemString() << endl;
 		}
-		cout << "DBG_CORB_FP> ";
+		cout << "DBG_CORB> ";
 		cout << endl;
 	}
 #endif
@@ -386,8 +386,8 @@ Block* CorblivarDie::placeCurrentBlock() {
 	this->Hi.push(cur_block);
 	this->Vi.push(cur_block);
 
-#ifdef DBG_CORB_FP
-	cout << "DBG_CORB_FP> ";
+#ifdef DBG_CORB
+	cout << "DBG_CORB> ";
 	cout << "Processing CBL tuple " << cur_CBLi->itemString() << " on die " << this->id << ": ";
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;

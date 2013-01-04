@@ -29,7 +29,8 @@
 
 // debugging code switch
 //#define DBG_IO
-//#define DBG_CORB_FP
+//#define DBG_CORB
+//#define DBG_SA
 
 /* standard namespace */
 using namespace std;
