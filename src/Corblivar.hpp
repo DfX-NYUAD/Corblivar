@@ -207,23 +207,13 @@ class Block {
 
 class Net {
 	public:
-		//static const int TYPE_INTRALAYER = 0;
-		//static const int TYPE_INTERLAYER = 1;
 
 		int id;
-		//int type;
-		//int lower_layer, upper_layer;
 		bool hasExternalPin;
-		//// assignment flags for each related layer: [lower_layer..upper_layer]
-		//vector<bool> assigned;
-		//// outer vector for var layers
-		//vector< vector<Block*> > blocks;
 		vector<Block*> blocks;
 
 		Net(int id_i) {
 			id = id_i;
-			//type = TYPE_INTRALAYER;
-			//lower_layer = upper_layer = -1;
 			hasExternalPin = false;
 		};
 

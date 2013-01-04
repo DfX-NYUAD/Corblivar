@@ -91,7 +91,7 @@ const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;
 const int CorblivarFP::SA_INIT_T_FACTOR;
 const int Point::UNDEF;
-// double initialization w/in class defintion is not standard, thus put here
+// initialization of double w/in header is not standard, thus put here
 // var factors must sum up to approx. 1 !
 const double CorblivarFP::COST_FACTOR_TEMP = (double) 1/8;
 const double CorblivarFP::COST_FACTOR_IR = (double) 1/8;
