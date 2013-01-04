@@ -39,7 +39,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			// generate layout
 			chip.generateLayout(this->conf_log);
 			// evaluate layout
-			this->determLayoutCost(chip);
+			this->determLayoutCost();
 
 #ifdef DBG_SA
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
@@ -69,7 +69,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 // cost factors should all be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be less than 1
-double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
+double CorblivarFP::determLayoutCost() {
 	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_alignments;
 	vector<double> cost_outline;
 
@@ -85,8 +85,8 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	// TODO Cost TSVs
 	cost_TSVs = 0.0;
 
-	//// Cost outline
-	cost_outline = this->determLayoutCostOutline(chip);
+	//// cost outline, i.e., max outline coords
+	cost_outline = this->determLayoutOutline();
 	// normalize to max value, i.e., given outline
 	cost_outline[0] /= this->conf_outline_x;
 	cost_outline[1] /= this->conf_outline_y;
@@ -111,40 +111,23 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	return cost_total;
 }
 
-vector<double> CorblivarFP::determLayoutCostOutline(CorblivarLayoutRep &chip) {
-	double cost_outline_x = 0.0;
-	double cost_outline_y = 0.0;
-	double max_outline_x, max_outline_y;
+vector<double> CorblivarFP::determLayoutOutline() {
+	double max_outline_x = 0.0;
+	double max_outline_y = 0.0;
 	vector<double> ret;
-	int i;
-	CorblivarDie *cur_die;
 	Block *cur_block;
+	map<int, Block*>::iterator b;
 
-	// consider dies separately, determine avg cost afterwards
-	for (i = 0; i < this->conf_layer; i++) {
-		cur_die = chip.dies[i];
-		cur_die->resetTuplePointer();
-
-		// init max outline points
-		cur_block = cur_die->currentBlock();
-		max_outline_x = cur_block->bb.ur.x;
-		max_outline_y = cur_block->bb.ur.y;
-		// update max outline points
-		while (cur_die->incrementTuplePointer()) {
-			cur_block = cur_die->currentBlock();
-			max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
-			max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
-		}
-		// sum up over all dies
-		cost_outline_x += max_outline_x;
-		cost_outline_y += max_outline_y;
+	// consider max outline coords for all blocks on all dies
+	for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
+		cur_block = (*b).second;
+		// update max outline coords
+		max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
+		max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
 	}
-	// avg for all dies
-	cost_outline_x /= this->conf_layer;
-	cost_outline_y /= this->conf_layer;
 
-	ret.push_back(cost_outline_x);
-	ret.push_back(cost_outline_y);
+	ret.push_back(max_outline_x);
+	ret.push_back(max_outline_y);
 
 	return ret;
 }
