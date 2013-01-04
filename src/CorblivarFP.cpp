@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar floorplanning file (SA operations and handler)
+ *    Description:  Corblivar floorplanning file (SA operations and related handler)
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
@@ -37,7 +37,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		while (ii < innerLoopMax) {
 
 			// generate layout
-			chip.generateLayout(*this);
+			chip.generateLayout(this->conf_log);
 			// evaluate layout
 			this->determLayoutCost(chip);
 

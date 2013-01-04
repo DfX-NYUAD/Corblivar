@@ -91,13 +91,22 @@ class CorblivarFP {
 		static const int LOG_MEDIUM = 2;
 		static const int LOG_MAXIMUM = 3;
 		bool logMin() {
-			return (this->conf_log >= LOG_MINIMAL);
+			return logMin(this->conf_log);
 		};
 		bool logMed() {
-			return (this->conf_log >= LOG_MEDIUM);
+			return logMed(this->conf_log);
 		};
 		bool logMax() {
-			return (this->conf_log >= LOG_MAXIMUM);
+			return logMax(this->conf_log);
+		};
+		static bool logMin(int log) {
+			return (log >= LOG_MINIMAL);
+		};
+		static bool logMed(int log) {
+			return (log >= LOG_MEDIUM);
+		};
+		static bool logMax(int log) {
+			return (log >= LOG_MAXIMUM);
 		};
 
 		// FP functions
@@ -256,7 +265,7 @@ class CorblivarLayoutRep {
 		CorblivarDie* p;
 
 		void initCorblivar(CorblivarFP &corb);
-		void generateLayout(CorblivarFP &corb);
+		void generateLayout(int log);
 		CorblivarDie* findDie(Block* Si);
 };
 

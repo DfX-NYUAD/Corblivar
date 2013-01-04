@@ -32,8 +32,6 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 
 		// consider random die
 		rand = CorblivarFP::randI(0, corb.conf_layer);
-		// memorize die in block
-		cur_block->layer = rand;
 
 		// generate direction L
 		if (CorblivarFP::randB()) {
@@ -72,12 +70,12 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
+void CorblivarLayoutRep::generateLayout(int log) {
 	unsigned i;
 	Block *cur_block;
 	bool loop;
 
-	if (corb.logMax()) {
+	if (CorblivarFP::logMax(log)) {
 		cout << "Layout> ";
 		cout << "Performing layout generation..." << endl;
 	}
@@ -141,7 +139,7 @@ void CorblivarLayoutRep::generateLayout(CorblivarFP &corb) {
 		}
 	}
 
-	if (corb.logMax()) {
+	if (CorblivarFP::logMax(log)) {
 		cout << "Layout> ";
 		cout << "Done" << endl;
 	}
