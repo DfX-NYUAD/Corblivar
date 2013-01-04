@@ -19,6 +19,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// init SA parameters
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
 
+	// TODO var random operations in the beginning to outline solution space,
+	// i.e., outline max cost for var parameters
+
 	// outer loop: annealing -- temperature steps
 	i = 0;
 	annealed = false;
@@ -84,6 +87,9 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 
 	//// Cost outline
 	cost_outline = this->determLayoutCostOutline(chip);
+	// normalize to max value, i.e., given outline
+	cost_outline[0] /= this->conf_outline_x;
+	cost_outline[1] /= this->conf_outline_y;
 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
@@ -136,10 +142,6 @@ vector<double> CorblivarFP::determLayoutCostOutline(CorblivarLayoutRep &chip) {
 	// avg for all dies
 	cost_outline_x /= this->conf_layer;
 	cost_outline_y /= this->conf_layer;
-
-	// normalize to max value, i.e., given outline
-	cost_outline_x /= this->conf_outline_x;
-	cost_outline_y /= this->conf_outline_y;
 
 	ret.push_back(cost_outline_x);
 	ret.push_back(cost_outline_y);

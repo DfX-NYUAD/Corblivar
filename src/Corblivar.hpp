@@ -82,6 +82,9 @@ class CorblivarFP {
 		static const double COST_FACTOR_OUTLINE_Y;
 		static const double COST_FACTOR_ALIGNMENTS;
 
+		// SA parameters: max cost values
+		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
 		// logging
 		static const int LOG_MINIMAL = 1;
 		static const int LOG_MEDIUM = 2;
