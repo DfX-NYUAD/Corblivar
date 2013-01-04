@@ -66,13 +66,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 // cost factors should all be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be less than 1
-// TODO move separate cost functions to separate class
 double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
-	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_outline_x, cost_outline_y, cost_alignments;
-	int i;
-	CorblivarDie *cur_die;
-	Block *cur_block;
-	double max_outline_x, max_outline_y;
+	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_alignments;
+	vector<double> cost_outline;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -87,8 +83,36 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	cost_TSVs = 0.0;
 
 	//// Cost outline
-	cost_outline_x = 0.0;
-	cost_outline_y = 0.0;
+	cost_outline = this->determLayoutCostOutline(chip);
+
+	// TODO Cost (Failed) Alignments
+	cost_alignments = 0.0;
+
+	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
+		+ CorblivarFP::COST_FACTOR_WL * cost_WL
+		+ CorblivarFP::COST_FACTOR_TSVS * cost_TSVs
+		+ CorblivarFP::COST_FACTOR_IR * cost_IR
+		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline[0]
+		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline[1]
+		+ CorblivarFP::COST_FACTOR_ALIGNMENTS * cost_alignments
+	;
+
+	if (this->logMax()) {
+		cout << "Layout> ";
+		cout << "Layout cost: " << cost_total << endl;
+	}
+
+	return cost_total;
+}
+
+vector<double> CorblivarFP::determLayoutCostOutline(CorblivarLayoutRep &chip) {
+	double cost_outline_x = 0.0;
+	double cost_outline_y = 0.0;
+	double max_outline_x, max_outline_y;
+	vector<double> ret;
+	int i;
+	CorblivarDie *cur_die;
+	Block *cur_block;
 
 	// consider dies separately, determine avg cost afterwards
 	for (i = 0; i < this->conf_layer; i++) {
@@ -113,28 +137,14 @@ double CorblivarFP::determLayoutCost(CorblivarLayoutRep &chip) {
 	cost_outline_x /= this->conf_layer;
 	cost_outline_y /= this->conf_layer;
 
-	// normalize
+	// normalize to max value, i.e., given outline
 	cost_outline_x /= this->conf_outline_x;
 	cost_outline_y /= this->conf_outline_y;
 
-	// TODO Cost (Failed) Alignments
-	cost_alignments = 0.0;
+	ret.push_back(cost_outline_x);
+	ret.push_back(cost_outline_y);
 
-	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
-		+ CorblivarFP::COST_FACTOR_WL * cost_WL
-		+ CorblivarFP::COST_FACTOR_TSVS * cost_TSVs
-		+ CorblivarFP::COST_FACTOR_IR * cost_IR
-		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline_x
-		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline_y
-		+ CorblivarFP::COST_FACTOR_ALIGNMENTS * cost_alignments
-	;
-
-	if (this->logMax()) {
-		cout << "Layout> ";
-		cout << "Layout cost: " << cost_total << endl;
-	}
-
-	return cost_total;
+	return ret;
 }
 
 void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
