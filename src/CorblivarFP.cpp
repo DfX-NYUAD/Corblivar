@@ -67,11 +67,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
-// cost factors should all be normalized to their respective max values; i.e., for
-// optimized solutions, cost will be less than 1
+// cost factors must be normalized to their respective max values; i.e., for
+// optimized solutions, cost will be significantly less than 1
 double CorblivarFP::determLayoutCost() {
-	double cost_total, cost_temp, cost_WL, cost_TSVs, cost_IR, cost_alignments;
+	double cost_total, cost_temp, cost_IR, cost_alignments;
 	vector<double> cost_outline;
+	vector<double> cost_interconnects;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -79,14 +80,12 @@ double CorblivarFP::determLayoutCost() {
 	// TODO Cost IR
 	cost_IR = 0.0;
 
-	// TODO Cost WL
-	cost_WL = 0.0;
-
-	// TODO Cost TSVs
-	cost_TSVs = 0.0;
+	// cost interconnects
+	cost_interconnects = this->determCostInterconnects();
+	// TODO normalize to max value from initial sampling
 
 	//// cost outline, i.e., max outline coords
-	cost_outline = this->determLayoutOutline();
+	cost_outline = this->determCostOutline();
 	// normalize to max value, i.e., given outline
 	cost_outline[0] /= this->conf_outline_x;
 	cost_outline[1] /= this->conf_outline_y;
@@ -95,8 +94,8 @@ double CorblivarFP::determLayoutCost() {
 	cost_alignments = 0.0;
 
 	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
-		+ CorblivarFP::COST_FACTOR_WL * cost_WL
-		+ CorblivarFP::COST_FACTOR_TSVS * cost_TSVs
+		+ CorblivarFP::COST_FACTOR_WL * cost_interconnects[0]
+		+ CorblivarFP::COST_FACTOR_TSVS * cost_interconnects[1]
 		+ CorblivarFP::COST_FACTOR_IR * cost_IR
 		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline[0]
 		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline[1]
@@ -111,7 +110,7 @@ double CorblivarFP::determLayoutCost() {
 	return cost_total;
 }
 
-vector<double> CorblivarFP::determLayoutOutline() {
+vector<double> CorblivarFP::determCostOutline() {
 	double max_outline_x = 0.0;
 	double max_outline_y = 0.0;
 	vector<double> ret;
@@ -132,6 +131,109 @@ vector<double> CorblivarFP::determLayoutOutline() {
 	return ret;
 }
 
-// TODO det HPWL and TSVs
-vector<double> CorblivarFP::determLayoutInterconnects() {
+vector<double> CorblivarFP::determCostInterconnects() {
+	unsigned n, b;
+	int i, ii;
+	double HPWL;
+	int TSVs;
+	Net *cur_net;
+	vector<Rect> blocks_to_consider;
+	Rect bb;
+	bool blocks_above_considered;
+
+	HPWL = 0.0;
+	TSVs = 0;
+	vector<double> ret;
+
+	// determine HPWL and TSVs for each net
+	for (n = 0; n < this->nets.size(); n++) {
+		cur_net = this->nets[n];
+
+		// determine HPWL on each layer separately
+		for (i = 0; i < this->conf_layer; i++) {
+#ifdef DBG_SA
+			cout << "SA> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
+#endif
+
+			// consider all related blocks:
+			// blocks on this layer and blocks on layer above --- thus we
+			// include TSVs in HPWL estimate assuming they are subsequently
+			// placed in the related bounding box
+			blocks_to_consider.clear();
+
+			// blocks on current layer
+			for (b = 0; b < cur_net->blocks.size(); b++) {
+				if (cur_net->blocks[b]->layer == i) {
+					blocks_to_consider.push_back(cur_net->blocks[b]->bb);
+#ifdef DBG_SA
+					cout << "SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
+#endif
+				}
+			}
+			// ignore cases where no blocks on current layer (no blocks
+			// require connecting to upper layers)
+			if (blocks_to_consider.empty()) {
+				continue;
+			}
+
+			// blocks on layer above, not necessarily adjacent
+			// thus stepwise consider upper layers until some blocks are found
+			blocks_above_considered = false;
+			ii = i + 1;
+			while (true) {
+				for (b = 0; b < cur_net->blocks.size(); b++) {
+					if (cur_net->blocks[b]->layer == ii) {
+						blocks_to_consider.push_back(cur_net->blocks[b]->bb);
+						blocks_above_considered = true;
+#ifdef DBG_SA
+						cout << "SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
+#endif
+					}
+				}
+
+				// loop handler
+				if (blocks_above_considered) {
+					break;
+				}
+				else {
+					if (ii == this->conf_layer) {
+						break;
+					}
+					else {
+						ii++;
+					}
+				}
+			}
+			// ignore cases where only one block needs to be considered; these
+			// cases (single blocks on uppermost layer) are already covered
+			// while considering layers below
+			if (blocks_to_consider.size() == 1) {
+#ifdef DBG_SA
+				cout << "SA> 	Ignore single block on uppermost layer" << endl;
+#endif
+				continue;
+			}
+
+			// update TSVs counter if connecting to blocks on some upper layer
+			if (blocks_above_considered) {
+				TSVs += (ii - i);
+#ifdef DBG_SA
+				cout << "SA> 	TSVs required: " << (ii - i) << endl;
+#endif
+			}
+
+			// determine HPWL of related blocks using their bounding box
+			bb = Rect::determBoundingBox(blocks_to_consider);
+			HPWL += bb.w;
+			HPWL += bb.h;
+#ifdef DBG_SA
+			cout << "SA> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+#endif
+		}
+	}
+
+	ret.push_back(HPWL);
+	ret.push_back(TSVs);
+
+	return ret;
 }
