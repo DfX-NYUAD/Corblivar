@@ -110,8 +110,8 @@ class CorblivarFP {
 		// FP functions
 		bool SA(CorblivarLayoutRep &chip);
 		double determLayoutCost();
-		vector<double> determLayoutOutline();
-		vector<double> determLayoutInterconnects();
+		vector<double> determCostOutline();
+		vector<double> determCostInterconnects();
 
 		// random functions
 		// note: range is [min, max)
@@ -167,6 +167,31 @@ class Rect {
 
 		Rect() {
 			h = w = area = 0.0;
+		};
+
+		static Rect determBoundingBox(vector<Rect> rects) {
+			Rect ret;
+			unsigned b;
+
+			if (rects.empty()) {
+				ret.ll.x = ret.ll.y = ret.ur.x = ret.ur.y = Point::UNDEF;
+				ret.h = ret.w = ret.area = Point::UNDEF;
+			}
+			else {
+				ret.ll = rects[0].ll;
+				ret.ur = rects[0].ur;
+				for (b = 1; b < rects.size(); b++) {
+					ret.ll.x = min(ret.ll.x, rects[b].ll.x);
+					ret.ll.y = min(ret.ll.y, rects[b].ll.y);
+					ret.ur.x = max(ret.ur.x, rects[b].ur.x);
+					ret.ur.y = max(ret.ur.y, rects[b].ur.y);
+				}
+				ret.w = ret.ur.x - ret.ll.x;
+				ret.h = ret.ur.y - ret.ll.y;
+				ret.area = ret.w * ret.h;
+			}
+
+			return ret;
 		};
 };
 
