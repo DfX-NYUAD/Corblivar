@@ -84,8 +84,6 @@ int main (int argc, char** argv) {
 
 // definitions for const vars, to allocate memory
 // initializations see Corblivar.hpp
-const int Block::TYPE_BLOCK;
-const int Block::TYPE_TSV;
 const int CorblivarFP::LOG_MINIMAL;
 const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;

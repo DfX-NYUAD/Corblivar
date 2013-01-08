@@ -420,18 +420,16 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 			object_counter++;
 
 			// blocks
-			if (cur_block->type == Block::TYPE_BLOCK) {
-				gp_out << " rect";
-				gp_out << " from " << cur_block->bb.ll.x << "," << cur_block->bb.ll.y;
-				gp_out << " to " << cur_block->bb.ur.x << "," << cur_block->bb.ur.y;
-				gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
-				gp_out << endl;
+			gp_out << " rect";
+			gp_out << " from " << cur_block->bb.ll.x << "," << cur_block->bb.ll.y;
+			gp_out << " to " << cur_block->bb.ur.x << "," << cur_block->bb.ur.y;
+			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
+			gp_out << endl;
 
-				// label
-				gp_out << "set label \"b" << cur_block->id << "\"";
-				gp_out << " at " << cur_block->bb.ll.x + 2.0 << "," << cur_block->bb.ll.y + 5.0;
-				gp_out << " font \"Times,6\"" << endl;
-			}
+			// label
+			gp_out << "set label \"b" << cur_block->id << "\"";
+			gp_out << " at " << cur_block->bb.ll.x + 2.0 << "," << cur_block->bb.ll.y + 5.0;
+			gp_out << " font \"Times,6\"" << endl;
 		}
 
 		// file footer

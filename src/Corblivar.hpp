@@ -62,8 +62,6 @@ class CorblivarFP {
 		ofstream results;
 		map<int, Block*> blocks;
 		vector<Net*> nets;
-		//vector<Net*> inter_nets;
-		//vector<Net*> intra_nets;
 
 		// config parameters
 		int conf_log;
@@ -170,49 +168,24 @@ class Rect {
 		Rect() {
 			h = w = area = 0.0;
 		};
-
-		static bool RectsAB_identical(Rect a, Rect b);
-		static bool RectsAB_overlap_vert(Rect a, Rect b);
-		static bool RectsAB_overlap_hori(Rect a, Rect b);
-		static bool RectsAB_overlap(Rect a, Rect b);
-		static bool RectA_leftOf_RectB(Rect a, Rect b);
-		static bool RectA_below_RectB(Rect a, Rect b);
-		//static Region nearest_border_of_a_to_b(Rect a, Rect b);
-		//static Rect determineBoundingBox(vector<Point*> points);
-		//static Rect determineBoundingBox(vector<Rect> rects);
-		//static Rect determineIntersection(Rect a, Rect b);
 };
 
 class Block {
 	public:
-		static const int INSERT_FIXED_POS = 1;
-		static const int INSERT_SHIFTING = 2;
-		static const int TYPE_BLOCK = 1;
-		static const int TYPE_TSV = 2;
-
-		int insert_modifier;
 		int id;
 		int layer;
-		int type;
 		double power;
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
-		//Rect bb, init_bb, tmp_bb, shift_window;
-		Rect bb, tmp_bb;
+		Rect bb;
 
 		Block(int id_i) {
-			insert_modifier = INSERT_SHIFTING;
 			id = id_i;
 			layer = -1;
-			type = TYPE_BLOCK;
 			power = 0.0;
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
-
-		//bool invalidId() {
-		//	return (this->id <= 0);
-		//};
 };
 
 class Net {
@@ -227,12 +200,7 @@ class Net {
 			hasExternalPin = false;
 		};
 
-		//static void determineAndLog_HPWL_Cong(MoDo &modo);
-
-		//Rect determineBoundingBox(int l_layer);
-		//bool requiresTSV(int layer);
-		//Rect determineBoundingBox(int l_layer, int u_layer);
-		//double determineHPWL_Cong(MoDo &modo, vector< vector< vector<int> > > &grid, double bin_size);
+		double determHPWL();
 };
 
 class CBLitem {
