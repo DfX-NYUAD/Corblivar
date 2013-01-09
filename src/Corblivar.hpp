@@ -312,8 +312,16 @@ class CorblivarLayoutRep {
 			int i1, i2, d;
 
 			d = CorblivarFP::randI(0, this->dies.size());
-			i1 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
-			i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			// sanity check for empty dies
+			if (this->dies[d]->CBL.empty()) {
+				return;
+			}
+
+			// ensure that tuples are different
+			i1 = i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			while (i1 == i2) {
+				i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			}
 
 			swap(this->dies[d]->CBL[i1], this->dies[d]->CBL[i2]);
 		};
@@ -321,8 +329,16 @@ class CorblivarLayoutRep {
 		void switchRandomTuplesAcrossDies() {
 			int i1, i2, d1, d2;
 
-			d1 = CorblivarFP::randI(0, this->dies.size());
-			d2 = CorblivarFP::randI(0, this->dies.size());
+			d1 = d2 = CorblivarFP::randI(0, this->dies.size());
+			// ensure that dies are different
+			while (d1 == d2) {
+				d2 = CorblivarFP::randI(0, this->dies.size());
+			}
+			// sanity check for empty dies
+			if (this->dies[d1]->CBL.empty() || this->dies[d2]->CBL.empty()) {
+				return;
+			}
+
 			i1 = CorblivarFP::randI(0, this->dies[d1]->CBL.size());
 			i2 = CorblivarFP::randI(0, this->dies[d2]->CBL.size());
 
@@ -332,10 +348,24 @@ class CorblivarLayoutRep {
 		void switchRandomTupleToRandomDie() {
 			int i1, i2, d1, d2;
 
-			d1 = CorblivarFP::randI(0, this->dies.size());
-			d2 = CorblivarFP::randI(0, this->dies.size());
+			d1 = d2 = CorblivarFP::randI(0, this->dies.size());
+			// ensure that dies are different
+			while (d1 == d2) {
+				d2 = CorblivarFP::randI(0, this->dies.size());
+			}
+			// sanity check for empty dies
+			if (this->dies[d1]->CBL.empty() || this->dies[d2]->CBL.empty()) {
+				return;
+			}
+
 			i1 = CorblivarFP::randI(0, this->dies[d1]->CBL.size());
 			i2 = CorblivarFP::randI(0, this->dies[d2]->CBL.size());
+#ifdef DBG_CORB
+			cout << "DBG_CORB> ";
+			cout << "Moving tuple d1[i1] to d2[i2]:";
+			cout << " d1=" << d1 << "; d2=" << d2;
+			cout << " i1=" << i1 << "; i2=" << i2 << endl;
+#endif
 
 			// insert tuple i1 from die d1 into die d2 w/ offset i2
 			this->dies[d2]->CBL.insert(this->dies[d2]->CBL.begin() + i2, *(this->dies[d1]->CBL.begin() + i1));

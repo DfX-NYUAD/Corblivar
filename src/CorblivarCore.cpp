@@ -151,6 +151,12 @@ Block* CorblivarDie::placeCurrentBlock() {
 	unsigned relevBlocksCount, b;
 	double x, y;
 
+	// sanity check for empty dies
+	if (this->CBL.empty()) {
+		this->done = true;
+		return NULL;
+	}
+
 	cur_CBLi = this->CBL[this->pi];
 	cur_block = cur_CBLi->Si;
 
