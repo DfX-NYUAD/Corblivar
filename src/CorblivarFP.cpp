@@ -11,7 +11,7 @@
 #include "Corblivar.hpp"
 
 bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
-	int i, ii;
+	int i, ii, op;
 	int innerLoopMax;
 	bool annealed;
 	double cur_cost;
@@ -19,8 +19,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// init SA parameters
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
 
-	// TODO var random operations in the beginning to outline solution space,
-	// i.e., outline max cost for var parameters
+	// TODO solution-space sampling
+	// i.e., outline max cost for various parameters
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
@@ -35,6 +35,26 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// inner loop: layout operations
 		ii = 0;
 		while (ii < innerLoopMax) {
+
+			// perform random layout operation
+			op = CorblivarFP::randI(0, 5);
+			switch (op) {
+				case 0:
+					chip.switchRandomTuplesWithinDie();
+					break;
+				case 1:
+					chip.switchRandomTuplesAcrossDies();
+					break;
+				case 2:
+					chip.switchRandomTupleToRandomDie();
+					break;
+				case 3:
+					chip.switchRandomTupleDirection();
+					break;
+				case 4:
+					chip.switchRandomTupleJunctions();
+					break;
+			}
 
 			// generate layout
 			chip.generateLayout(this->conf_log);
