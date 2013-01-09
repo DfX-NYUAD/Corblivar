@@ -312,8 +312,8 @@ class CorblivarLayoutRep {
 			int i1, i2, d;
 
 			d = CorblivarFP::randI(0, this->dies.size());
-			// sanity check for empty dies
-			if (this->dies[d]->CBL.empty()) {
+			// sanity check for empty dies and dies w/ one block
+			if (this->dies[d]->CBL.size() <= 1) {
 				return;
 			}
 
