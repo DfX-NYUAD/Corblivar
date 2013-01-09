@@ -377,6 +377,11 @@ class CorblivarLayoutRep {
 			int i, d;
 
 			d = CorblivarFP::randI(0, this->dies.size());
+			// sanity check for empty dies
+			if (this->dies[d]->CBL.empty()) {
+				return;
+			}
+
 			i = CorblivarFP::randI(0, this->dies[d]->CBL.size());
 
 			if (this->dies[d]->CBL[i]->Li == DIRECTION_VERT) {
@@ -391,6 +396,11 @@ class CorblivarLayoutRep {
 			int i, t, d;
 
 			d = CorblivarFP::randI(0, this->dies.size());
+			// sanity check for empty dies
+			if (this->dies[d]->CBL.empty()) {
+				return;
+			}
+
 			i = CorblivarFP::randI(0, this->dies[d]->CBL.size());
 			t = CorblivarFP::randI(0, i);
 
