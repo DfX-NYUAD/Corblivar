@@ -269,9 +269,9 @@ class CorblivarDie {
 		int id;
 
 		// CBL data
-		list<CBLitem*> CBL;
-		// progress pointer, list iterator
-		list<CBLitem*>::iterator pi;
+		vector<CBLitem*> CBL;
+		// progress pointer, CBL vector index
+		unsigned pi;
 		// placement stacks
 		stack<Block*> Hi, Vi;
 
@@ -288,22 +288,22 @@ class CorblivarDie {
 		// false: last CBL tuple; true: not last tuple
 		bool incrementTuplePointer() {
 
-			if ((* this->pi) == this->CBL.back()) {
+			if (this->pi == (CBL.size() - 1)) {
 				this->done = true;
 				return false;
 			}
 			else {
-				++(this->pi);
+				this->pi++;
 				return true;
 			}
 		}
 
 		void resetTuplePointer() {
-			this->pi = this->CBL.begin();
+			this->pi = 0;
 		}
 
 		Block* currentBlock() {
-			return (* this->pi)->Si;
+			return this->CBL[this->pi]->Si;
 		}
 };
 

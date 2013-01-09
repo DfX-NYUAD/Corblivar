@@ -49,15 +49,14 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 
 #ifdef DBG_CORB
-	unsigned d;
-	list<CBLitem*>::iterator CBLi;
+	unsigned d, CBLi;
 
 	for (d = 0; d < this->dies.size(); d++) {
 		cout << "DBG_CORB> ";
 		cout << "Init CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
-		for (CBLi = this->dies[d]->CBL.begin(); CBLi != this->dies[d]->CBL.end(); ++CBLi) {
+		for (CBLi = 0; CBLi < this->dies[d]->CBL.size(); CBLi++) {
 			cout << "DBG_CORB> ";
-			cout << (* CBLi)->itemString() << endl;
+			cout << this->dies[d]->CBL[CBLi]->itemString() << endl;
 		}
 		cout << "DBG_CORB> ";
 		cout << endl;
@@ -152,7 +151,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 	unsigned relevBlocksCount, b;
 	double x, y;
 
-	cur_CBLi = (* this->pi);
+	cur_CBLi = this->CBL[this->pi];
 	cur_block = cur_CBLi->Si;
 
 	// assign layer to block
