@@ -250,20 +250,6 @@ class CBLitem {
 		}
 };
 
-class CorblivarLayoutRep {
-	public:
-
-		vector<CorblivarDie*> dies;
-		vector<CorblivarAlignmentReq*> A;
-		// die pointer
-		CorblivarDie* p;
-
-		void initCorblivar(CorblivarFP &corb);
-		void generateLayout(int log);
-		CorblivarDie* findDie(Block* Si);
-};
-
-
 class CorblivarDie {
 	public:
 		int id;
@@ -283,6 +269,7 @@ class CorblivarDie {
 			id = i;
 		}
 
+		// layout generation functions
 		Block* placeCurrentBlock();
 
 		// false: last CBL tuple; true: not last tuple
@@ -304,6 +291,80 @@ class CorblivarDie {
 
 		Block* currentBlock() {
 			return this->CBL[this->pi]->Si;
+		}
+};
+
+class CorblivarLayoutRep {
+	public:
+
+		vector<CorblivarDie*> dies;
+		vector<CorblivarAlignmentReq*> A;
+		// die pointer
+		CorblivarDie* p;
+
+		void initCorblivar(CorblivarFP &corb);
+		void generateLayout(int log);
+		//CorblivarDie* findDie(Block* Si);
+
+		/// stochastic layout operations for heuristic optimization
+		// swap two random tuples within one random die
+		void switchRandomTuplesWithinDie() {
+			int i1, i2, d;
+
+			d = CorblivarFP::randI(0, this->dies.size());
+			i1 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+
+			swap(this->dies[d]->CBL[i1], this->dies[d]->CBL[i2]);
+		};
+		// swap two random tuples among two random dies
+		void switchRandomTuplesAcrossDies() {
+			int i1, i2, d1, d2;
+
+			d1 = CorblivarFP::randI(0, this->dies.size());
+			d2 = CorblivarFP::randI(0, this->dies.size());
+			i1 = CorblivarFP::randI(0, this->dies[d1]->CBL.size());
+			i2 = CorblivarFP::randI(0, this->dies[d2]->CBL.size());
+
+			swap(this->dies[d1]->CBL[i1], this->dies[d2]->CBL[i2]);
+		};
+		// move one random tuple to random die (random insertion)
+		void switchRandomTupleToRandomDie() {
+			int i1, i2, d1, d2;
+
+			d1 = CorblivarFP::randI(0, this->dies.size());
+			d2 = CorblivarFP::randI(0, this->dies.size());
+			i1 = CorblivarFP::randI(0, this->dies[d1]->CBL.size());
+			i2 = CorblivarFP::randI(0, this->dies[d2]->CBL.size());
+
+			// insert tuple i1 from die d1 into die d2 w/ offset i2
+			this->dies[d2]->CBL.insert(this->dies[d2]->CBL.begin() + i2, *(this->dies[d1]->CBL.begin() + i1));
+			// erase tuple i1 from die d1
+			this->dies[d1]->CBL.erase(this->dies[d1]->CBL.begin() + i1);
+		};
+		// swap insertion direction of random tuple (on random die)
+		void switchRandomTupleDirection() {
+			int i, d;
+
+			d = CorblivarFP::randI(0, this->dies.size());
+			i = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+
+			if (this->dies[d]->CBL[i]->Li == DIRECTION_VERT) {
+				this->dies[d]->CBL[i]->Li = DIRECTION_HOR;
+			}
+			else {
+				this->dies[d]->CBL[i]->Li = DIRECTION_VERT;
+			}
+		};
+		// randomly adapt T-junctions of random tuple (on random die)
+		void switchRandomTupleJunctions() {
+			int i, t, d;
+
+			d = CorblivarFP::randI(0, this->dies.size());
+			i = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			t = CorblivarFP::randI(0, i);
+
+			this->dies[d]->CBL[i]->Ti = t;
 		}
 };
 
