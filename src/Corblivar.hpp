@@ -120,13 +120,13 @@ class CorblivarFP {
 				return min;
 			}
 			else {
-				return min + (std::rand() % (max - min));
+				return min + (rand() % (max - min));
 			}
 		};
 		static bool randB() {
 			int r;
 
-			r = std::rand();
+			r = rand();
 			return (r < (RAND_MAX / 2));
 		};
 
@@ -315,8 +315,9 @@ class CorblivarLayoutRep {
 				return;
 			}
 
+			i1 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
+			i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
 			// ensure that tuples are different
-			i1 = i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
 			while (i1 == i2) {
 				i2 = CorblivarFP::randI(0, this->dies[d]->CBL.size());
 			}
@@ -327,7 +328,8 @@ class CorblivarLayoutRep {
 		void switchRandomTuplesAcrossDies() {
 			int i1, i2, d1, d2;
 
-			d1 = d2 = CorblivarFP::randI(0, this->dies.size());
+			d1 = CorblivarFP::randI(0, this->dies.size());
+			d2 = CorblivarFP::randI(0, this->dies.size());
 			// ensure that dies are different
 			while (d1 == d2) {
 				d2 = CorblivarFP::randI(0, this->dies.size());
@@ -346,29 +348,36 @@ class CorblivarLayoutRep {
 		void switchRandomTupleToRandomDie() {
 			int i1, i2, d1, d2;
 
-			d1 = d2 = CorblivarFP::randI(0, this->dies.size());
+			d1 = CorblivarFP::randI(0, this->dies.size());
+			d2 = CorblivarFP::randI(0, this->dies.size());
 			// ensure that dies are different
 			while (d1 == d2) {
 				d2 = CorblivarFP::randI(0, this->dies.size());
 			}
-			// sanity check for empty dies
-			if (this->dies[d1]->CBL.empty() || this->dies[d2]->CBL.empty()) {
+			// sanity check for empty die
+			if (this->dies[d1]->CBL.empty()) {
 				return;
 			}
 
 			i1 = CorblivarFP::randI(0, this->dies[d1]->CBL.size());
 			i2 = CorblivarFP::randI(0, this->dies[d2]->CBL.size());
-#ifdef DBG_CORB
-			cout << "DBG_CORB> ";
-			cout << "Moving tuple d1[i1] to d2[i2]:";
-			cout << " d1=" << d1 << "; d2=" << d2;
-			cout << " i1=" << i1 << "; i2=" << i2 << endl;
-#endif
 
 			// insert tuple i1 from die d1 into die d2 w/ offset i2
 			this->dies[d2]->CBL.insert(this->dies[d2]->CBL.begin() + i2, *(this->dies[d1]->CBL.begin() + i1));
 			// erase tuple i1 from die d1
 			this->dies[d1]->CBL.erase(this->dies[d1]->CBL.begin() + i1);
+
+#ifdef DBG_CORB
+			cout << "DBG_CORB> ";
+			cout << "Moving tuples: ";
+			cout << "d1[i1]=" << d1 << "[" << i1 << "] to d2[i2]=" << d2 << "[" << i2 << "];	";
+
+			unsigned i;
+			for (i = 0; i < this->dies.size(); i++) {
+				cout << "|d" << i << "|=" << this->dies[i]->CBL.size() << ";	";
+			}
+			cout << endl;
+#endif
 		};
 		// swap insertion direction of random tuple (on random die)
 		void switchRandomTupleDirection() {
