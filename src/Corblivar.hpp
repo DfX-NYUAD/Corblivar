@@ -115,15 +115,13 @@ class CorblivarFP {
 
 		// random functions
 		// note: range is [min, max)
-		static double randF(int min, int max) {
-			double r;
-
-			r = (double) std::rand() / RAND_MAX;
-			return min + r * (double) (max - min);
-		};
-		// note: range is [min, max)
 		static int randI(int min, int max) {
-			return (int) randF(min, max);
+			if (max == min) {
+				return min;
+			}
+			else {
+				return min + (std::rand() % (max - min));
+			}
 		};
 		static bool randB() {
 			int r;
