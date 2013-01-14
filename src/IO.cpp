@@ -383,7 +383,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 		// build up file name
 		stringstream out_name;
-		out_name << corb.benchmark << "_" << cur_layer + 1;
+		out_name << corb.benchmark << "_" << cur_layer;
 		if (file_suffix != "")
 			out_name << "_" << file_suffix;
 		out_name << ".gp";
