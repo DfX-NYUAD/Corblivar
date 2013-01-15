@@ -11,16 +11,39 @@
 #include "Corblivar.hpp"
 
 bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
-	int i, ii, op;
+	int i, ii;
 	int innerLoopMax;
 	bool annealed;
 	double cur_cost;
+	vector<double> init_cost_interconnects;
 
 	// init SA parameters
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
 
-	// TODO solution-space sampling
+	// init max cost
+	this->max_cost_WL = 0.0;
+	this->max_cost_TSVs = 0.0;
+	this->max_cost_temp = 0.0;
+	this->max_cost_IR = 0.0;
+	this->max_cost_alignments = 0.0;
+
+	// initial solution-space sampling
 	// i.e., outline max cost for various parameters
+	// TODO backup initial CBL
+	for (i = 0; i < innerLoopMax; i++) {
+		// perform random layout op
+		this->SAinnerLoopIter(chip);
+		// generate layout
+		chip.generateLayout(this->conf_log);
+
+		// determine and memorize cost interconnects
+		init_cost_interconnects = this->determCostInterconnects();
+
+		// memorize max cost
+		this->max_cost_WL = max(this->max_cost_WL, init_cost_interconnects[0]);
+		this->max_cost_TSVs = max(this->max_cost_TSVs, init_cost_interconnects[1]);
+	}
+	// TODO restore initial CBL
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
@@ -36,30 +59,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		ii = 0;
 		while (ii < innerLoopMax) {
 
-			// perform random layout operation
-			op = CorblivarFP::randI(0, 5);
-			switch (op) {
-				case 0:
-					chip.switchRandomTuplesWithinDie();
-					break;
-				case 1:
-					chip.switchRandomTuplesAcrossDies();
-					break;
-				case 2:
-					chip.switchRandomTupleToRandomDie();
-					break;
-				case 3:
-					chip.switchRandomTupleDirection();
-					break;
-				case 4:
-					chip.switchRandomTupleJunctions();
-					break;
-			}
-
+			// perform random layout op
+			this->SAinnerLoopIter(chip);
 			// generate layout
 			chip.generateLayout(this->conf_log);
 			// evaluate layout
-			this->determLayoutCost();
+			cur_cost = this->determLayoutCost();
 
 #ifdef DBG_SA
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
@@ -87,6 +92,30 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
+void CorblivarFP::SAinnerLoopRandomOp(CorblivarLayoutRep &chip) {
+	int op;
+
+	// perform random layout operation
+	op = CorblivarFP::randI(0, 5);
+	switch (op) {
+		case 0:
+			chip.switchRandomTuplesWithinDie();
+			break;
+		case 1:
+			chip.switchRandomTuplesAcrossDies();
+			break;
+		case 2:
+			chip.switchRandomTupleToRandomDie();
+			break;
+		case 3:
+			chip.switchRandomTupleDirection();
+			break;
+		case 4:
+			chip.switchRandomTupleJunctions();
+			break;
+	}
+}
+
 // cost factors must be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be significantly less than 1
 double CorblivarFP::determLayoutCost() {
@@ -102,7 +131,9 @@ double CorblivarFP::determLayoutCost() {
 
 	// cost interconnects
 	cost_interconnects = this->determCostInterconnects();
-	// TODO normalize to max value from initial sampling
+	// normalize to max value from initial sampling
+	cost_interconnects[0] /= this->max_cost_WL;
+	cost_interconnects[1] /= this->max_cost_TSVs;
 
 	//// cost outline, i.e., max outline coords
 	cost_outline = this->determCostOutline();

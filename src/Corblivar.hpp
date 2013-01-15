@@ -109,6 +109,7 @@ class CorblivarFP {
 
 		// FP functions
 		bool SA(CorblivarLayoutRep &chip);
+		void SAinnerLoopRandomOp(CorblivarLayoutRep &chip);
 		double determLayoutCost();
 		vector<double> determCostOutline();
 		vector<double> determCostInterconnects();

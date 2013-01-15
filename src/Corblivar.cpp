@@ -93,8 +93,8 @@ const int Point::UNDEF;
 // var factors must sum up to approx. 1 !
 const double CorblivarFP::COST_FACTOR_TEMP = (double) 0;
 const double CorblivarFP::COST_FACTOR_IR = (double) 0;
-const double CorblivarFP::COST_FACTOR_WL = (double) 1;
-const double CorblivarFP::COST_FACTOR_TSVS = (double) 0;
-const double CorblivarFP::COST_FACTOR_OUTLINE_X = (double) 0;
-const double CorblivarFP::COST_FACTOR_OUTLINE_Y = (double) 0;
+const double CorblivarFP::COST_FACTOR_WL = (double) 1/4;
+const double CorblivarFP::COST_FACTOR_TSVS = (double) 1/4;
+const double CorblivarFP::COST_FACTOR_OUTLINE_X = (double) 1/4;
+const double CorblivarFP::COST_FACTOR_OUTLINE_Y = (double) 1/4;
 const double CorblivarFP::COST_FACTOR_ALIGNMENTS = (double) 0;
