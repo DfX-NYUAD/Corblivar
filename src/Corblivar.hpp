@@ -254,7 +254,7 @@ class CorblivarDie {
 		int id;
 
 		// CBL data
-		vector<CBLitem*> CBL;
+		vector<CBLitem*> CBL, CBLbackup;
 		// progress pointer, CBL vector index
 		unsigned pi;
 		// placement stacks
@@ -304,6 +304,31 @@ class CorblivarLayoutRep {
 		void initCorblivar(CorblivarFP &corb);
 		void generateLayout(int log);
 		//CorblivarDie* findDie(Block* Si);
+
+		void backupCBLs() {
+			unsigned i, ii;
+			CBLitem *cur_CBLi;
+
+			for (i = 0; i < this->dies.size(); i++) {
+				this->dies[i]->CBLbackup.clear();
+				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
+					cur_CBLi = this->dies[i]->CBL[ii];
+					this->dies[i]->CBLbackup.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+				}
+			}
+		};
+		void restoreCBLs() {
+			unsigned i, ii;
+			CBLitem *cur_CBLi;
+
+			for (i = 0; i < this->dies.size(); i++) {
+				this->dies[i]->CBL.clear();
+				for (ii = 0; ii < this->dies[i]->CBLbackup.size(); ii++) {
+					cur_CBLi = this->dies[i]->CBLbackup[ii];
+					this->dies[i]->CBL.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+				}
+			}
+		};
 
 		/// stochastic layout operations for heuristic optimization
 		// swap two random tuples within one random die
