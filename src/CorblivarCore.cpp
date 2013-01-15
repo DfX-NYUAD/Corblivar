@@ -22,6 +22,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 
 	// init separate data structures for dies
+	this->dies.clear();
 	for (i = 0; i < corb.conf_layer; i++) {
 		this->dies.push_back(new CorblivarDie(i));
 	}
