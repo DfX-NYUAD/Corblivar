@@ -14,15 +14,18 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
 	bool annealed;
+	bool op_success;
 	double cur_cost, prev_cost;
+	double cur_avg_cost;
 	double cur_temp, init_temp;
+	double r;
 	vector<double> init_cost_interconnects;
 
 	/// init SA parameters
 	//
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
-	// assume std deviation of cost as 1
-	init_temp = CorblivarFP::SA_INIT_T_FACTOR * 1;
+	// assume std deviation of cost as 0.5
+	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * 0.5;
 
 	// init max cost
 	this->max_cost_WL = 0.0;
@@ -66,36 +69,62 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// inner loop: layout operations
 		ii = 0;
+		cur_avg_cost = 0.0;
 		while (ii < innerLoopMax) {
 
-			prev_cost = cur_cost;
 			// perform random layout op
-			this->performRandomLayoutOp(chip);
-			// generate layout
-			chip.generateLayout(this->conf_log);
-			// evaluate layout
-			cur_cost = this->determLayoutCost();
+			op_success = this->performRandomLayoutOp(chip);
+			if (op_success) {
 
-			// judge cost difference
-			cout << "cost diff: " << cur_cost - prev_cost << endl;
+				prev_cost = cur_cost;
 
-#ifdef DBG_SA
-			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-#endif
+				// generate layout
+				chip.generateLayout(this->conf_log);
 
-			ii++;
+				// evaluate layout, new cost
+				cur_cost = this->determLayoutCost();
+
+				// cost difference
+				if (this->logMax()) {
+					cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
+					cout << "SA> Cost diff: " << cur_cost - prev_cost << endl;
+				}
+
+				// revert solution w/ worse cost, depending on temperature
+				r = CorblivarFP::randF01();
+				if (r > exp(-(cur_cost - prev_cost) / cur_temp)) {
+					if (this->logMax()) {
+						cout << "SA> Revert op" << endl;
+					}
+					// revert last op
+					this->performRandomLayoutOp(chip, true);
+				}
+				else {
+					if (this->logMax()) {
+						cout << "SA> Accept op" << endl;
+					}
+				}
+
+				// memorize cost
+				cur_avg_cost += cur_cost;
+				// consider next loop iteration
+				ii++;
+			}
 		}
 
-		// TODO logMed: current cost, current temp
+		// determine avg cost for temp step
+		cur_avg_cost /= innerLoopMax;
+
 		if (this->logMed()) {
-			cout << "SA> Step done" << endl;
+			cout << "SA> Step done; temperature: " << cur_temp << ", average cost: " << cur_avg_cost << endl;
 		}
 
+		cur_temp *= this->conf_SA_coolingT;
 		i++;
 
-		// TODO determine: use avg cost of prev iterations, if smaller than
-		// standard dev?
-		annealed = true;
+		// minimal temperature reached?
+		// TODO use avg cost of prev iterations, if smaller than standard dev?
+		annealed = (cur_temp <= init_temp * this->conf_SA_minT);
 	}
 
 	if (this->logMed()) {
