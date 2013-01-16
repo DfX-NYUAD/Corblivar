@@ -39,7 +39,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// perform some random operations, track max costs
 	for (i = 0; i < innerLoopMax; i++) {
 		// perform random layout op
-		this->SAinnerLoopRandomOp(chip);
+		this->performRandomLayoutOp(chip, false);
 		// generate layout
 		chip.generateLayout(this->conf_log);
 
@@ -68,7 +68,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		while (ii < innerLoopMax) {
 
 			// perform random layout op
-			this->SAinnerLoopRandomOp(chip);
+			this->performRandomLayoutOp(chip, false);
 			// generate layout
 			chip.generateLayout(this->conf_log);
 			// evaluate layout
@@ -100,28 +100,149 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
-void CorblivarFP::SAinnerLoopRandomOp(CorblivarLayoutRep &chip) {
+void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
 	int op;
+	int die1, die2, tuple1, tuple2, t;
 
-	// perform random layout operation
-	op = CorblivarFP::randI(0, 5);
+	// revert last op
+	if (revertLastOp) {
+		op = this->last_op;
+
+		// last op caused no changes, no revert required
+		if (this->last_op_skipped) {
+			return;
+		}
+	}
+	// perform new, random op
+	else {
+		this->last_op = op = CorblivarFP::randI(0, 5);
+	}
+
+	// specific op handler
 	switch (op) {
-		case 0:
-			chip.switchRandomTuplesWithinDie();
+		case CorblivarLayoutRep::OP_SWAP_TUPLES_WI_DIE:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				// sanity check for dies w/ one or zero blocks
+				if (chip.dies[die1]->CBL.size() <= 1) {
+					this->last_op_skipped = true;
+					return;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				// ensure that tuples are different
+				while (tuple1 == tuple2) {
+					tuple2 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				}
+
+				chip.switchTuplesWithinDie(die1, tuple1, tuple2);
+			}
+			else {
+				chip.switchTuplesWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+			}
+
 			break;
-		case 1:
-			chip.switchRandomTuplesAcrossDies();
+
+		case CorblivarLayoutRep::OP_SWAP_TUPLES_ACROSS_DIE:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die2 = CorblivarFP::randI(0, chip.dies.size());
+				// ensure that dies are different
+				while (die1 == die2) {
+					die2 = CorblivarFP::randI(0, chip.dies.size());
+				}
+				// sanity check for empty dies
+				if (chip.dies[die1]->CBL.empty() || chip.dies[die2]->CBL.empty()) {
+					this->last_op_skipped = true;
+					return;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = CorblivarFP::randI(0, chip.dies[die2]->CBL.size());
+
+				chip.switchTuplesAcrossDies(die1, die2, tuple1, tuple2);
+			}
+			else {
+				chip.switchTuplesAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+			}
+
 			break;
-		case 2:
-			chip.switchRandomTupleToRandomDie();
+
+		case CorblivarLayoutRep::OP_MOVE_TUPLE:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die2 = CorblivarFP::randI(0, chip.dies.size());
+				// ensure that dies are different
+				while (die1 == die2) {
+					die2 = CorblivarFP::randI(0, chip.dies.size());
+				}
+				// sanity check for empty (origin) die
+				if (chip.dies[die1]->CBL.empty()) {
+					this->last_op_skipped = true;
+					return;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = CorblivarFP::randI(0, chip.dies[die2]->CBL.size());
+
+				chip.moveTupleAcrossDies(die1, die2, tuple1, tuple2);
+			}
+			else {
+				chip.moveTupleAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+			}
+
 			break;
-		case 3:
-			chip.switchRandomTupleDirection();
+
+		case CorblivarLayoutRep::OP_SWITCH_DIR:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				// sanity check for empty dies
+				if (chip.dies[die1]->CBL.empty()) {
+					this->last_op_skipped = true;
+					return;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+
+				chip.switchTupleDirection(die1, tuple1);
+			}
+			else {
+				chip.switchTupleDirection(this->last_op_die1, this->last_op_tuple1);
+			}
+
 			break;
-		case 4:
-			chip.switchRandomTupleJunctions();
+
+		case CorblivarLayoutRep::OP_SWITCH_JUNCTS:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				// sanity check for empty dies
+				if (chip.dies[die1]->CBL.empty()) {
+					this->last_op_skipped = true;
+					return;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				t = CorblivarFP::randI(0, tuple1);
+
+				this->last_op_juncts = chip.switchTupleJunctions(die1, tuple1, t);
+			}
+			else {
+				chip.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
+			}
+
 			break;
 	}
+
+	// memorize op as succeeded
+	this->last_op_skipped = false;
+
+	// memorize op elements
+	this->last_op_die1 = die1;
+	this->last_op_die2 = die2;
+	this->last_op_tuple1 = tuple1;
+	this->last_op_tuple2 = tuple2;
+
 }
 
 // cost factors must be normalized to their respective max values; i.e., for
