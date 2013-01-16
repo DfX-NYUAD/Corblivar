@@ -39,7 +39,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// perform some random operations, track max costs
 	for (i = 0; i < innerLoopMax; i++) {
 		// perform random layout op
-		this->performRandomLayoutOp(chip, false);
+		this->performRandomLayoutOp(chip);
 		// generate layout
 		chip.generateLayout(this->conf_log);
 
@@ -68,7 +68,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		while (ii < innerLoopMax) {
 
 			// perform random layout op
-			this->performRandomLayoutOp(chip, false);
+			this->performRandomLayoutOp(chip);
 			// generate layout
 			chip.generateLayout(this->conf_log);
 			// evaluate layout

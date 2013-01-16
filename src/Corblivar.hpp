@@ -116,7 +116,7 @@ class CorblivarFP {
 		// layout operation handlers
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 		bool last_op_skipped;
-		void performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp);
+		void performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
 
 
 		// random functions
@@ -142,8 +142,7 @@ class IO {
 		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
 		static void parseBlocks(CorblivarFP &corb);
 		static void parseNets(CorblivarFP &corb);
-		static void writeFloorplanGP(CorblivarFP &corb);
-		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix);
+		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
 };
 
 class Point {

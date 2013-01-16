@@ -360,11 +360,6 @@ void IO::parseNets(CorblivarFP &corb) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(CorblivarFP &corb) {
-	writeFloorplanGP(corb, "");
-}
-
-// generate GP plots of FP
 void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
