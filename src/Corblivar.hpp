@@ -133,6 +133,9 @@ class CorblivarFP {
 			r = rand();
 			return (r < (RAND_MAX / 2));
 		};
+		static double randF01() {
+			return ((double) rand() / RAND_MAX);
+		}
 };
 
 class IO {
