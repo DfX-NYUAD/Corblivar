@@ -115,9 +115,7 @@ class CorblivarFP {
 
 		// layout operation handlers
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
-		bool last_op_skipped;
-		void performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
-
+		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
 
 		// random functions
 		// note: range is [min, max)

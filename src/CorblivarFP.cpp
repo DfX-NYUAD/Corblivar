@@ -14,7 +14,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
 	bool annealed;
-	double cur_cost;
+	double cur_cost, prev_cost;
 	double cur_temp, init_temp;
 	vector<double> init_cost_interconnects;
 
@@ -52,6 +52,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	}
 	// restore initial CBLs
 	chip.restoreCBLs();
+	// determine initial, normalized cost
+	cur_cost = this->determLayoutCost();
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
@@ -62,17 +64,20 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cout << "SA> Optimization step: " << i << endl;
 		}
 
-		// TODO SA handling
 		// inner loop: layout operations
 		ii = 0;
 		while (ii < innerLoopMax) {
 
+			prev_cost = cur_cost;
 			// perform random layout op
 			this->performRandomLayoutOp(chip);
 			// generate layout
 			chip.generateLayout(this->conf_log);
 			// evaluate layout
 			cur_cost = this->determLayoutCost();
+
+			// judge cost difference
+			cout << "cost diff: " << cur_cost - prev_cost << endl;
 
 #ifdef DBG_SA
 			cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
@@ -100,18 +105,13 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return true;
 }
 
-void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
+bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 
 	// revert last op
 	if (revertLastOp) {
 		op = this->last_op;
-
-		// last op caused no changes, no revert required
-		if (this->last_op_skipped) {
-			return;
-		}
 	}
 	// perform new, random op
 	else {
@@ -125,8 +125,7 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				// sanity check for dies w/ one or zero blocks
 				if (chip.dies[die1]->CBL.size() <= 1) {
-					this->last_op_skipped = true;
-					return;
+					return false;
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
@@ -154,8 +153,7 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				}
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty() || chip.dies[die2]->CBL.empty()) {
-					this->last_op_skipped = true;
-					return;
+					return false;
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
@@ -179,8 +177,7 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				}
 				// sanity check for empty (origin) die
 				if (chip.dies[die1]->CBL.empty()) {
-					this->last_op_skipped = true;
-					return;
+					return false;
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
@@ -199,8 +196,7 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty()) {
-					this->last_op_skipped = true;
-					return;
+					return false;
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
@@ -218,8 +214,7 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty()) {
-					this->last_op_skipped = true;
-					return;
+					return false;
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
@@ -234,15 +229,14 @@ void CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 			break;
 	}
 
-	// memorize op as succeeded
-	this->last_op_skipped = false;
-
 	// memorize op elements
 	this->last_op_die1 = die1;
 	this->last_op_die2 = die2;
 	this->last_op_tuple1 = tuple1;
 	this->last_op_tuple2 = tuple2;
 
+	// op succeeded
+	return true;
 }
 
 // cost factors must be normalized to their respective max values; i.e., for
