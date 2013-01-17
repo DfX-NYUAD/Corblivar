@@ -136,6 +136,26 @@ class CorblivarFP {
 		static double randF01() {
 			return ((double) rand() / RAND_MAX);
 		}
+
+		// var stuff
+		static double stdDev(deque<double> &samples) {
+			double avg, sq_diffs;
+			unsigned s;
+
+			// determine avg of samples
+			avg = 0.0;
+			for (s = 0; s < samples.size(); s++) {
+				avg += samples[s];
+			}
+			avg /= samples.size();
+			// determine sum of squared diffs for std dev
+			sq_diffs = 0.0;
+			for (s = 0; s < samples.size(); s++) {
+				sq_diffs += pow(samples[s] - avg, 2);
+			}
+			// determine std dev
+			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
+		}
 };
 
 class IO {
