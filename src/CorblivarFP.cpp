@@ -13,10 +13,14 @@
 bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
+	double accepted_ops;
 	bool annealed;
 	bool op_success;
 	double cur_cost, prev_cost;
 	double cur_avg_cost;
+	deque<double> cost_hist;
+	unsigned cur_cost_hist;
+	double cost_hist_avg, cost_hist_sums, cost_hist_std_dev;
 	double cur_temp, init_temp;
 	double r;
 	vector<double> init_cost_interconnects;
@@ -70,6 +74,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// inner loop: layout operations
 		ii = 0;
 		cur_avg_cost = 0.0;
+		accepted_ops = 0.0;
 		while (ii < innerLoopMax) {
 
 			// perform random layout op
@@ -103,6 +108,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 					if (this->logMax()) {
 						cout << "SA> Accept op" << endl;
 					}
+					accepted_ops++;
 				}
 
 				// memorize cost
@@ -114,17 +120,49 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// determine avg cost for temp step
 		cur_avg_cost /= innerLoopMax;
+		// determine accepted-ops ratio
+		accepted_ops /= innerLoopMax;
 
 		if (this->logMed()) {
-			cout << "SA> Step done; temperature: " << cur_temp << ", average cost: " << cur_avg_cost << endl;
+			cout << "SA> Step done; accepted-operations ratio: " << accepted_ops;
+			cout << ", temperature: " << cur_temp << ", average cost: " << cur_avg_cost;
 		}
 
+		/// determine whether annealed: consider std deviation
+		/// of avg cost of previous 10 iterations
+		cost_hist.push_back(cur_avg_cost);
+		if (cost_hist.size() > 10) {
+			// drop cost of iteration 10 rounds ago
+			cost_hist.pop_front();
+			// determine avg of prev iterations
+			cost_hist_avg = 0.0;
+			for (cur_cost_hist = 0; cur_cost_hist < cost_hist.size(); cur_cost_hist++) {
+				cost_hist_avg += cost_hist[cur_cost_hist];
+			}
+			cost_hist_avg /= cost_hist.size();
+			// determine sum of squared diffs for std dev
+			cost_hist_sums = 0.0;
+			for (cur_cost_hist = 0; cur_cost_hist < cost_hist.size(); cur_cost_hist++) {
+				cost_hist_sums += pow(cost_hist[cur_cost_hist] - cost_hist_avg, 2);
+			}
+			// determine std dev
+			cost_hist_std_dev = sqrt(1.0/(double)(cost_hist.size() - 1) * cost_hist_sums);
+
+			// consider as annealed when std dev drops below min level
+			annealed = (cost_hist_std_dev <= this->conf_SA_minStdDevCost);
+
+			if (this->logMed()) {
+				cout << ", std dev of avg cost: " << cost_hist_std_dev;
+			}
+		}
+
+		if (this->logMed()) {
+			cout << endl;
+		}
+
+		// reduce temp, consider next temp step
 		cur_temp *= this->conf_SA_coolingT;
 		i++;
-
-		// minimal temperature reached?
-		// TODO use avg cost of prev iterations, if smaller than standard dev?
-		annealed = (cur_temp <= init_temp * this->conf_SA_minT);
 	}
 
 	if (this->logMed()) {

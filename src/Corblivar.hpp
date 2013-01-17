@@ -20,9 +20,9 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <algorithm>
-#include <queue>
+#include <deque>
 #include <stack>
+#include <algorithm>
 #include <sys/timeb.h>
 #include <ctime>
 #include <cstdlib>
@@ -67,7 +67,7 @@ class CorblivarFP {
 		int conf_log;
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
-		double conf_SA_minT, conf_SA_coolingT, conf_SA_loopFactor;
+		double conf_SA_minStdDevCost, conf_SA_coolingT, conf_SA_loopFactor;
 		// fixed config parameters
 		static const int SA_INIT_T_FACTOR = 20;
 		// values see Corblivar.cpp
