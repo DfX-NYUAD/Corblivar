@@ -24,12 +24,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double r;
 	vector<double> init_cost_interconnects;
 
-	/// init SA parameters
-	//
-	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
-	// assume std deviation of cost as 0.5
-	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * 0.5;
-
 	// init max cost
 	this->max_cost_WL = 0.0;
 	this->max_cost_TSVs = 0.0;
@@ -37,9 +31,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	this->max_cost_IR = 0.0;
 	this->max_cost_alignments = 0.0;
 
+	// init SA parameter: inner loop count
+	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
+
 	/// initial solution-space sampling
 	/// i.e., outline max cost for various parameters
-	//
+	if (this->logMed()) {
+		cout << "SA> Perform initial solution-space sampling..." << endl;
+	}
 	// backup initial CBLs
 	chip.backupCBLs();
 	// perform some random operations, track max costs
@@ -58,8 +57,28 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	}
 	// restore initial CBLs
 	chip.restoreCBLs();
+	// perform some random operations, track cost std dev
+	for (i = 0; i < innerLoopMax; i++) {
+		// perform random layout op
+		this->performRandomLayoutOp(chip);
+		// generate layout
+		chip.generateLayout(this->conf_log);
+
+		cost_hist.push_back(this->determLayoutCost());
+	}
+	// restore initial CBLs
+	chip.restoreCBLs();
+
 	// determine initial, normalized cost
 	cur_cost = this->determLayoutCost();
+
+	// init SA parameter: start temp, depends on std dev of costs
+	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * CorblivarFP::stdDev(cost_hist);
+	cost_hist.clear();
+
+	if (this->logMed()) {
+		cout << "SA> Done" << endl;
+	}
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
