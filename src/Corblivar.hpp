@@ -68,18 +68,10 @@ class CorblivarFP {
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
 		double conf_SA_minStdDevCost, conf_SA_coolingT, conf_SA_loopFactor;
+		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs;
+		double conf_SA_cost_outline_x, conf_SA_cost_outline_y, conf_SA_cost_alignments;
 		// fixed config parameters
 		static const int SA_INIT_T_FACTOR = 20;
-		// values see Corblivar.cpp
-		static const double COST_FACTOR_TEMP;
-		static const double COST_FACTOR_IR;
-		static const double COST_FACTOR_WL;
-		static const double COST_FACTOR_TSVS;
-		// handled via outline
-		//static const double COST_FACTOR_AREA;
-		static const double COST_FACTOR_OUTLINE_X;
-		static const double COST_FACTOR_OUTLINE_Y;
-		static const double COST_FACTOR_ALIGNMENTS;
 
 		// SA parameters: max cost values
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;

@@ -323,13 +323,13 @@ double CorblivarFP::determLayoutCost() {
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
 
-	cost_total = CorblivarFP::COST_FACTOR_TEMP * cost_temp
-		+ CorblivarFP::COST_FACTOR_WL * cost_interconnects[0]
-		+ CorblivarFP::COST_FACTOR_TSVS * cost_interconnects[1]
-		+ CorblivarFP::COST_FACTOR_IR * cost_IR
-		+ CorblivarFP::COST_FACTOR_OUTLINE_X * cost_outline[0]
-		+ CorblivarFP::COST_FACTOR_OUTLINE_Y * cost_outline[1]
-		+ CorblivarFP::COST_FACTOR_ALIGNMENTS * cost_alignments
+	cost_total = this->conf_SA_cost_temp * cost_temp
+		+ this->conf_SA_cost_WL * cost_interconnects[0]
+		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
+		+ this->conf_SA_cost_IR * cost_IR
+		+ this->conf_SA_cost_outline_x * cost_outline[0]
+		+ this->conf_SA_cost_outline_y * cost_outline[1]
+		+ this->conf_SA_cost_alignments * cost_alignments
 	;
 
 	if (this->logMax()) {

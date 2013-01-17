@@ -122,6 +122,41 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		in >> tmpstr;
 	in >> corb.conf_SA_loopFactor;
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_temp;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_IR;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_WL;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_TSVs;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_outline_x;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_outline_y;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_cost_alignments;
+
 	in.close();
 
 	// init results file
@@ -143,6 +178,13 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "SA -- Lower limit for std dev of avg cost during SA (stop criterion): " << corb.conf_SA_minStdDevCost << endl;
 		cout << "SA -- Temperature cooling factor: " << corb.conf_SA_coolingT << endl;
 		cout << "SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << corb.conf_SA_loopFactor << endl;
+		cout << "SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
+		cout << "SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
+		cout << "SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
+		cout << "SA -- Cost factor for TSVs: " << corb.conf_SA_cost_TSVs << endl;
+		cout << "SA -- Cost factor for fixed outline (x-dimension): " << corb.conf_SA_cost_outline_x << endl;
+		cout << "SA -- Cost factor for fixed outline (y-dimension): " << corb.conf_SA_cost_outline_y << endl;
+		cout << "SA -- Cost factor for failed alignment requirements: " << corb.conf_SA_cost_alignments << endl;
 		cout << "IO> ";
 		cout << "Done" << endl << endl;
 	}
