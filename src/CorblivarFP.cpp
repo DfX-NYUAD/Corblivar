@@ -176,9 +176,23 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cout << endl;
 		}
 
-		// reduce temp, consider next temp step
-		cur_temp *= this->conf_SA_coolingT;
+		// reduce temp
+		// LV Christian Hochberger "HW Synthese eingebettete Systeme", Kapitel 6
+		if (accepted_ops > 0.96) {
+			cur_temp *= 0.5;
+		}
+		else if (0.8 < accepted_ops && accepted_ops <= 0.96) {
+			cur_temp *= 0.9;
+		}
+		else if (0.15 < accepted_ops && accepted_ops <= 0.8) {
+			cur_temp *= 0.95;
+		}
+		// accepted_ops <= 0.15
+		else {
+			cur_temp *= 0.8;
+		}
 
+		// consider next step
 		i++;
 	}
 
