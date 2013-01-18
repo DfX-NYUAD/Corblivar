@@ -69,7 +69,7 @@ class CorblivarFP {
 		double conf_outline_x, conf_outline_y;
 		double conf_SA_minStdDevCost, conf_SA_coolingT, conf_SA_loopFactor;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs;
-		double conf_SA_cost_outline_x, conf_SA_cost_outline_y, conf_SA_cost_alignments;
+		double conf_SA_penalty_outline_x, conf_SA_penalty_outline_y, conf_SA_penalty_alignments;
 		// fixed config parameters
 		static const int SA_INIT_T_FACTOR = 20;
 
