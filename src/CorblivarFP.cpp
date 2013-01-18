@@ -16,7 +16,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, prev_cost;
+	double cur_cost, prev_cost, cost_diff;
 	double cur_avg_cost;
 	deque<double> cost_hist;
 	double cost_hist_std_dev;
@@ -73,6 +73,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	cur_cost = this->determLayoutCost();
 
 	// init SA parameter: start temp, depends on std dev of costs
+	// Huang et al 1986
 	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * CorblivarFP::stdDev(cost_hist);
 	cost_hist.clear();
 
@@ -108,24 +109,31 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				cur_cost = this->determLayoutCost();
 
 				// cost difference
+				cost_diff = cur_cost - prev_cost;
+
 				if (this->logMax()) {
 					cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-					cout << "SA> Cost diff: " << cur_cost - prev_cost << endl;
+					cout << "SA> Cost diff: " << cost_diff << endl;
 				}
 
 				// revert solution w/ worse cost, depending on temperature
-				r = CorblivarFP::randF01();
-				if (r > exp(-(cur_cost - prev_cost) / cur_temp)) {
-					if (this->logMax()) {
-						cout << "SA> Revert op" << endl;
+				if (cost_diff > 0.0) {
+					r = CorblivarFP::randF01();
+					if (r > exp(- cost_diff / cur_temp)) {
+						if (this->logMax()) {
+							cout << "SA> Revert op" << endl;
+						}
+						// revert last op
+						this->performRandomLayoutOp(chip, true);
 					}
-					// revert last op
-					this->performRandomLayoutOp(chip, true);
+					else {
+						if (this->logMax()) {
+							cout << "SA> Accept op" << endl;
+						}
+						accepted_ops++;
+					}
 				}
 				else {
-					if (this->logMax()) {
-						cout << "SA> Accept op" << endl;
-					}
 					accepted_ops++;
 				}
 
@@ -170,6 +178,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// reduce temp, consider next temp step
 		cur_temp *= this->conf_SA_coolingT;
+
 		i++;
 	}
 
