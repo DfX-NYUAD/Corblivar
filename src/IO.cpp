@@ -107,6 +107,9 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		in >> tmpstr;
 	in >> corb.conf_outline_y;
 
+	// determine outline aspect ratio
+	corb.outline_AR = corb.conf_outline_x / corb.conf_outline_y;
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -140,17 +143,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> corb.conf_SA_penalty_outline_x;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> corb.conf_SA_penalty_outline_y;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> corb.conf_SA_penalty_alignments;
+	in >> corb.conf_SA_cost_area_outline;
 
 	in.close();
 
@@ -176,9 +169,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
 		cout << "SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
 		cout << "SA -- Cost factor for TSVs: " << corb.conf_SA_cost_TSVs << endl;
-		cout << "SA -- Penalty factor for violating fixed outline (x-dimension): " << corb.conf_SA_penalty_outline_x << endl;
-		cout << "SA -- Penalty factor for violating fixed outline (y-dimension): " << corb.conf_SA_penalty_outline_y << endl;
-		cout << "SA -- Penalty factor for failed alignment requirements: " << corb.conf_SA_penalty_alignments << endl;
+		cout << "SA -- Cost factor for area and outline violation: " << corb.conf_SA_cost_area_outline << endl;
 		cout << "IO> ";
 		cout << "Done" << endl << endl;
 	}

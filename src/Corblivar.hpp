@@ -66,10 +66,9 @@ class CorblivarFP {
 		// config parameters
 		int conf_log;
 		int conf_layer;
-		double conf_outline_x, conf_outline_y;
+		double conf_outline_x, conf_outline_y, outline_AR;
 		double conf_SA_minStdDevCost, conf_SA_loopFactor;
-		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs;
-		double conf_SA_penalty_outline_x, conf_SA_penalty_outline_y, conf_SA_penalty_alignments;
+		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 		// fixed config parameters
 		static const int SA_INIT_T_FACTOR = 20;
 
@@ -101,7 +100,7 @@ class CorblivarFP {
 
 		// FP functions
 		bool SA(CorblivarLayoutRep &chip);
-		double determLayoutCost();
+		double determLayoutCost(double ratio_feasible_solutions_fixed_outline = 0.0);
 		vector<double> determCostOutline();
 		vector<double> determCostInterconnects();
 

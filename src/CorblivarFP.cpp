@@ -338,11 +338,13 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 }
 
 // cost factors must be normalized to their respective max values; i.e., for
-// optimized solutions, cost will be significantly less than 1
-double CorblivarFP::determLayoutCost() {
+// optimized solutions, cost will be significantly smaller than 1
+// TODO determine ratio for appropriate calls
+double CorblivarFP::determLayoutCost(double ratio_feasible_solutions_fixed_outline) {
 	double cost_total, cost_temp, cost_IR, cost_alignments;
-	vector<double> penalty_outline;
 	vector<double> cost_interconnects;
+	vector<double> cur_outline;
+	double cur_ratio;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -356,14 +358,13 @@ double CorblivarFP::determLayoutCost() {
 	cost_interconnects[0] /= this->max_cost_WL;
 	cost_interconnects[1] /= this->max_cost_TSVs;
 
-	//// detmine outline, i.e., max outline coords
-	penalty_outline = this->determCostOutline();
-	// determine amount of violation, i.e., non-negative amount of exceeding outline
-	penalty_outline[0] = max(0.0, penalty_outline[0] - this->conf_outline_x);
-	penalty_outline[1] = max(0.0, penalty_outline[1] - this->conf_outline_y);
-	// normalize to max value, i.e., given outline
-	penalty_outline[0] /= this->conf_outline_x;
-	penalty_outline[1] /= this->conf_outline_y;
+	// determine outline, i.e., max outline coords
+	cur_outline = this->determCostOutline();
+	// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
+	cur_ratio = cur_outline[0] / cur_outline[1];
+	// normalize outline to max value, i.e., given outline
+	cur_outline[0] /= this->conf_outline_x;
+	cur_outline[1] /= this->conf_outline_y;
 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
@@ -372,9 +373,10 @@ double CorblivarFP::determLayoutCost() {
 		+ this->conf_SA_cost_WL * cost_interconnects[0]
 		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
 		+ this->conf_SA_cost_IR * cost_IR
-		+ this->conf_SA_penalty_outline_x * penalty_outline[0]
-		+ this->conf_SA_penalty_outline_y * penalty_outline[1]
-		+ this->conf_SA_penalty_alignments * cost_alignments
+		// cost term for area: alpha * ratio * A
+		+ this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline * (cur_outline[0] * cur_outline[1])
+		// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
+		+ this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline) * pow(cur_ratio - this->outline_AR, 2.0)
 	;
 
 	if (this->logMax()) {
