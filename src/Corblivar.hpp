@@ -100,7 +100,7 @@ class CorblivarFP {
 
 		// FP functions
 		bool SA(CorblivarLayoutRep &chip);
-		double determLayoutCost(double ratio_feasible_solutions_fixed_outline = 0.0);
+		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
 		vector<double> determCostOutline();
 		vector<double> determCostInterconnects();
 

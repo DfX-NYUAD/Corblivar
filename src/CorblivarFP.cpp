@@ -23,6 +23,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double cur_temp, init_temp;
 	double r;
 	vector<double> init_cost_interconnects;
+	bool cur_layout_fits_in_outline;
 
 	// init max cost
 	this->max_cost_WL = 0.0;
@@ -64,13 +65,13 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// generate layout
 		chip.generateLayout(this->conf_log);
 
-		cost_hist.push_back(this->determLayoutCost());
+		cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline));
 	}
 	// restore initial CBLs
 	chip.restoreCBLs();
 
 	// determine initial, normalized cost
-	cur_cost = this->determLayoutCost();
+	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline);
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
@@ -106,7 +107,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				chip.generateLayout(this->conf_log);
 
 				// evaluate layout, new cost
-				cur_cost = this->determLayoutCost();
+				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline);
 
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -340,7 +341,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // cost factors must be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be significantly smaller than 1
 // TODO determine ratio for appropriate calls
-double CorblivarFP::determLayoutCost(double ratio_feasible_solutions_fixed_outline) {
+double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
 	double cost_total, cost_temp, cost_IR, cost_alignments;
 	vector<double> cost_interconnects;
 	vector<double> cur_outline;
@@ -365,6 +366,8 @@ double CorblivarFP::determLayoutCost(double ratio_feasible_solutions_fixed_outli
 	// normalize outline to max value, i.e., given outline
 	cur_outline[0] /= this->conf_outline_x;
 	cur_outline[1] /= this->conf_outline_y;
+	// provide feedback whether layout fits into outline
+	layout_fits_in_fixed_outline = (cur_outline[0] <= 1.0 && cur_outline[1] <= 1.0);
 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
