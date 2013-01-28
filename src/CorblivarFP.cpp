@@ -18,6 +18,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	bool op_success;
 	double cur_cost, prev_cost, cost_diff;
 	double cur_avg_cost;
+	double best_cost;
 	deque<double> cost_hist;
 	double cost_hist_std_dev;
 	double cur_temp, init_temp;
@@ -80,11 +81,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
+		cout << "SA> Start annealing process..." << endl;
 	}
 
 	// outer loop: annealing -- temperature steps
 	i = 0;
 	annealed = false;
+	best_cost = cur_cost;
+
 	while (!annealed) {
 
 		if (this->logMed()) {
@@ -95,6 +99,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		ii = 0;
 		cur_avg_cost = 0.0;
 		accepted_ops = 0.0;
+
 		while (ii < innerLoopMax) {
 
 			// perform random layout op
@@ -115,6 +120,16 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				if (this->logMax()) {
 					cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
 					cout << "SA> Cost diff: " << cost_diff << endl;
+				}
+
+				// memorize best solution which fits into outline
+				if (cur_cost < best_cost && cur_layout_fits_in_outline) {
+					if (this->logMax()) {
+						cout << "SA> Currently best solution" << endl;
+					}
+
+					best_cost = cur_cost;
+					chip.storeBestCBLs();
 				}
 
 				// revert solution w/ worse cost, depending on temperature
@@ -198,10 +213,22 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	}
 
 	if (this->logMed()) {
-		cout << endl;
+		cout << "SA> Done" << endl;
 	}
 
-	return true;
+	// apply best solution as final solution
+	chip.applyBestCBLs(this->conf_log);
+
+	// determine cost, assuming fit into outline
+	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+
+	if (this->logMed()) {
+			cout << "SA> Final solution cost: " << cur_cost << endl;
+			cout << "SA>  (assumes that final layout fits into outline)" << endl;
+			cout << endl;
+	}
+
+	return cur_layout_fits_in_outline;
 }
 
 bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {

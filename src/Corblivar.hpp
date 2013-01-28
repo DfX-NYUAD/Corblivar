@@ -268,7 +268,7 @@ class CorblivarDie {
 		int id;
 
 		// CBL data
-		vector<CBLitem*> CBL, CBLbackup;
+		vector<CBLitem*> CBL, CBLbackup, CBLbest;
 		// progress pointer, CBL vector index
 		unsigned pi;
 		// placement stacks
@@ -339,6 +339,37 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBL.clear();
 				for (ii = 0; ii < this->dies[i]->CBLbackup.size(); ii++) {
 					cur_CBLi = this->dies[i]->CBLbackup[ii];
+					this->dies[i]->CBL.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+				}
+			}
+		};
+		void storeBestCBLs() {
+			unsigned i, ii;
+			CBLitem *cur_CBLi;
+
+			for (i = 0; i < this->dies.size(); i++) {
+				this->dies[i]->CBLbest.clear();
+				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
+					cur_CBLi = this->dies[i]->CBL[ii];
+					this->dies[i]->CBLbest.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+				}
+			}
+		};
+		void applyBestCBLs(int log) {
+			unsigned i, ii;
+			CBLitem *cur_CBLi;
+
+			if (this->dies[0]->CBLbest.empty()) {
+				if (CorblivarFP::logMed(log)) {
+					cout << "SA> No best solution available" << endl;
+				}
+				return;
+			}
+
+			for (i = 0; i < this->dies.size(); i++) {
+				this->dies[i]->CBL.clear();
+				for (ii = 0; ii < this->dies[i]->CBLbest.size(); ii++) {
+					cur_CBLi = this->dies[i]->CBLbest[ii];
 					this->dies[i]->CBL.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
 				}
 			}
