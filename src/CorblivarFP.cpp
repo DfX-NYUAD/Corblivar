@@ -25,6 +25,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double r;
 	vector<double> init_cost_interconnects;
 	bool cur_layout_fits_in_outline;
+	int count_layouts_fit_in_outline;
 
 	// init max cost
 	this->max_cost_WL = 0.0;
@@ -38,11 +39,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	/// initial solution-space sampling
 	/// i.e., outline max cost for various parameters
+	//
 	if (this->logMed()) {
 		cout << "SA> Perform initial solution-space sampling..." << endl;
 	}
+
 	// backup initial CBLs
 	chip.backupCBLs();
+
 	// perform some random operations, track max costs
 	for (i = 0; i < innerLoopMax; i++) {
 		// perform random layout op
@@ -57,22 +61,31 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		this->max_cost_WL = max(this->max_cost_WL, init_cost_interconnects[0]);
 		this->max_cost_TSVs = max(this->max_cost_TSVs, init_cost_interconnects[1]);
 	}
+
 	// restore initial CBLs
 	chip.restoreCBLs();
+
 	// perform some random operations, track cost std dev
-	for (i = 0; i < innerLoopMax; i++) {
+	count_layouts_fit_in_outline = 0;
+	for (i = 1; i <= innerLoopMax; i++) {
 		// perform random layout op
 		this->performRandomLayoutOp(chip);
 		// generate layout
 		chip.generateLayout(this->conf_log);
 
-		cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline));
+		cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline, (double) count_layouts_fit_in_outline / i));
+
+		// memorize count of solutions fitting into outline
+		if (cur_layout_fits_in_outline) {
+			count_layouts_fit_in_outline++;
+		}
 	}
+
 	// restore initial CBLs
 	chip.restoreCBLs();
 
 	// determine initial, normalized cost
-	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline);
+	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) count_layouts_fit_in_outline / i);
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
@@ -96,11 +109,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		}
 
 		// inner loop: layout operations
-		ii = 0;
+		ii = 1;
 		cur_avg_cost = 0.0;
 		accepted_ops = 0.0;
+		count_layouts_fit_in_outline = 0;
 
-		while (ii < innerLoopMax) {
+		while (ii <= innerLoopMax) {
 
 			// perform random layout op
 			op_success = this->performRandomLayoutOp(chip);
@@ -112,7 +126,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				chip.generateLayout(this->conf_log);
 
 				// evaluate layout, new cost
-				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline);
+				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) count_layouts_fit_in_outline / ii);
+
+				// memorize count of solutions fitting into outline
+				if (cur_layout_fits_in_outline) {
+					count_layouts_fit_in_outline++;
+				}
 
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -172,6 +191,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		/// determine whether annealed: consider std deviation
 		/// of avg cost of previous 10 iterations
+		// TODO alternative annealing decision?
 		cost_hist.push_back(cur_avg_cost);
 		if (cost_hist.size() > 10) {
 			// drop cost of iteration 10 rounds ago
@@ -367,7 +387,6 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 // cost factors must be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be significantly smaller than 1
-// TODO determine ratio for appropriate calls
 double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
 	double cost_total, cost_temp, cost_IR, cost_alignments;
 	vector<double> cost_interconnects;
@@ -403,7 +422,9 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 		+ this->conf_SA_cost_WL * cost_interconnects[0]
 		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
 		+ this->conf_SA_cost_IR * cost_IR
-		// cost term for area: alpha * ratio * A
+		/// adaptive cost model: terms for area and AR mismatch are _mutually_
+		/// depending on ratio of feasible solutions, i.e., solutions fit into outline
+		// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
 		+ this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline * (cur_outline[0] * cur_outline[1])
 		// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
 		+ this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline) * pow(cur_ratio - this->outline_AR, 2.0)
