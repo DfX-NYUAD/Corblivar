@@ -144,7 +144,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				// memorize best solution which fits into outline
 				if (cur_cost < best_cost && cur_layout_fits_in_outline) {
 					if (this->logMax()) {
-						cout << "SA> Currently best solution" << endl;
+						cout << "SA> Currently best (fitting) solution found; cost: " << cur_cost << endl;
 					}
 
 					best_cost = cur_cost;
@@ -232,20 +232,16 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		i++;
 	}
 
-	if (this->logMed()) {
-		cout << "SA> Done" << endl;
-	}
-
-	// apply best solution as final solution
+	// apply best solution, if available, as final solution
 	chip.applyBestCBLs(this->conf_log);
-
+	// generate final layout
+	chip.generateLayout(this->conf_log);
 	// determine cost, assuming fit into outline
 	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
 
 	if (this->logMed()) {
-			cout << "SA> Final solution cost: " << cur_cost << endl;
-			cout << "SA>  (assumes that final layout fits into outline)" << endl;
-			cout << endl;
+		cout << "SA> Done" << endl;
+		cout << endl;
 	}
 
 	return cur_layout_fits_in_outline;

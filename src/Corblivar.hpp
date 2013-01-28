@@ -360,8 +360,8 @@ class CorblivarLayoutRep {
 			CBLitem *cur_CBLi;
 
 			if (this->dies[0]->CBLbest.empty()) {
-				if (CorblivarFP::logMed(log)) {
-					cout << "SA> No best solution available" << endl;
+				if (CorblivarFP::logMin(log)) {
+					cout << "SA> No best (fitting) solution available!" << endl;
 				}
 				return;
 			}
