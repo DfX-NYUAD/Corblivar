@@ -160,17 +160,13 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 						}
 						// revert last op
 						this->performRandomLayoutOp(chip, true);
-					}
-					else {
-						if (this->logMax()) {
-							cout << "SA> Accept op" << endl;
-						}
-						accepted_ops++;
+						// decrease op count, compensated by unconditional
+						// increase below
+						accepted_ops--;
 					}
 				}
-				else {
-					accepted_ops++;
-				}
+				// increase ops count
+				accepted_ops++;
 
 				// memorize cost
 				cur_avg_cost += cur_cost;
