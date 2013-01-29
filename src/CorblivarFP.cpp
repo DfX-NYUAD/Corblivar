@@ -385,9 +385,15 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // optimized solutions, cost will be significantly smaller than 1
 double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
 	double cost_total, cost_temp, cost_IR, cost_alignments;
+	double cost_area_outline;
 	vector<double> cost_interconnects;
-	vector<double> cur_outline;
-	double cur_ratio;
+	double max_outline_x;
+	double max_outline_y;
+	Block *cur_block;
+	map<int, Block*>::iterator b;
+	int i, non_empty_dies;
+	vector<double> dies_AR;
+	vector<double> dies_area;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -401,30 +407,67 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	cost_interconnects[0] /= this->max_cost_WL;
 	cost_interconnects[1] /= this->max_cost_TSVs;
 
-	// determine outline, i.e., max outline coords
-	cur_outline = this->determCostOutline();
-	// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
-	cur_ratio = cur_outline[0] / cur_outline[1];
-	// normalize outline to max value, i.e., given outline
-	cur_outline[0] /= this->conf_outline_x;
-	cur_outline[1] /= this->conf_outline_y;
-	// provide feedback whether layout fits into outline
-	layout_fits_in_fixed_outline = (cur_outline[0] <= 1.0 && cur_outline[1] <= 1.0);
-
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
 
+	// cost function; cost terms which are independent of particular layer layouts
 	cost_total = this->conf_SA_cost_temp * cost_temp
 		+ this->conf_SA_cost_WL * cost_interconnects[0]
 		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
 		+ this->conf_SA_cost_IR * cost_IR
-		/// adaptive cost model: terms for area and AR mismatch are _mutually_
-		/// depending on ratio of feasible solutions, i.e., solutions fit into outline
-		// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
-		+ this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline * (cur_outline[0] * cur_outline[1])
-		// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
-		+ this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline) * pow(cur_ratio - this->outline_AR, 2.0)
 	;
+
+	/// cost outline, area
+	// determine max outline coords for blocks on all dies separately
+	layout_fits_in_fixed_outline = true;
+	non_empty_dies = 0;
+	for (i = 0; i < this->conf_layer; i++) {
+		max_outline_x = max_outline_y = 0.0;
+		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
+			cur_block = (*b).second;
+			// update max outline coords
+			if (cur_block->layer == i) {
+				max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
+				max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
+			}
+		}
+
+		// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
+		if (max_outline_x == 0.0 || max_outline_y == 0.0) {
+			// dummy value; implies outline cost of 0.0 for this die
+			dies_AR.push_back(this->outline_AR);
+		}
+		else {
+			dies_AR.push_back(max_outline_x / max_outline_y);
+			non_empty_dies++;
+		}
+		// normalize outline to max value, i.e., given outline
+		max_outline_x /= this->conf_outline_x;
+		max_outline_y /= this->conf_outline_y;
+		// consider normalized outline for area calculation
+		dies_area.push_back(max_outline_x * max_outline_y);
+		// memorize whether layout fits into outline
+		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
+	}
+
+	// cost function; cost terms which are dependent of particular layer layouts,
+	// i.e., outline, area
+	cost_area_outline = 0.0;
+	for (i = 0; i < this->conf_layer; i++) {
+		/// adaptive cost model: terms for area and AR mismatch are _mutually_
+		/// depending on ratio of feasible solutions (solutions fitting into outline)
+		// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
+		cost_area_outline = cost_area_outline
+		+ this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline * dies_area[i]
+		// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
+		+ this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline) * pow(dies_AR[i] - this->outline_AR, 2.0)
+	;
+	}
+	// determine average of layer-dependent cost factors
+	cost_area_outline /= non_empty_dies;
+
+	// add to cost function
+	cost_total += cost_area_outline;
 
 	if (this->logMax()) {
 		cout << "Layout> ";
@@ -434,27 +477,8 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	return cost_total;
 }
 
-vector<double> CorblivarFP::determCostOutline() {
-	double max_outline_x = 0.0;
-	double max_outline_y = 0.0;
-	vector<double> ret;
-	Block *cur_block;
-	map<int, Block*>::iterator b;
-
-	// consider max outline coords for all blocks on all dies
-	for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
-		cur_block = (*b).second;
-		// update max outline coords
-		max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
-		max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
-	}
-
-	ret.push_back(max_outline_x);
-	ret.push_back(max_outline_y);
-
-	return ret;
-}
-
+// return[0]: HPWL
+// return[1]: TSVs
 vector<double> CorblivarFP::determCostInterconnects() {
 	unsigned n, b;
 	int i, ii;

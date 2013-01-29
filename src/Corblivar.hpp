@@ -98,10 +98,11 @@ class CorblivarFP {
 			return (log >= LOG_MAXIMUM);
 		};
 
-		// FP functions
+		/// FP functions
 		bool SA(CorblivarLayoutRep &chip);
 		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
-		vector<double> determCostOutline();
+		// return[0]: HPWL
+		// return[1]: TSVs
 		vector<double> determCostInterconnects();
 
 		// layout operation handlers
