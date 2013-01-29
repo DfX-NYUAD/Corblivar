@@ -267,14 +267,19 @@ void IO::parseBlocks(CorblivarFP &corb) {
 	// logging
 	if (corb.logMed()) {
 		double power = 0.0;
+		double area = 0.0;
 		map<int, Block*>::iterator b;
 
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			power += (*b).second->power;
+			area += (*b).second->bb.w * (*b).second->bb.h;
 		}
 
 		cout << "IO> ";
-		cout << "Done; " << corb.blocks.size() << " blocks read in; " << power << " total power" << endl << endl;
+		cout << "Done; " << corb.blocks.size() << " blocks read in" << endl;
+		cout << "IO>  (blocks power: " << power << "; blocks area: " << area;
+		cout << "; blocks area / total area: " << area / (corb.conf_layer * corb.conf_outline_x * corb.conf_outline_y) << ")" << endl;
+		cout << endl;
 	}
 }
 
