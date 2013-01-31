@@ -85,6 +85,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	chip.restoreCBLs();
 
 	// determine initial, normalized cost
+	chip.generateLayout(this->conf_log);
 	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) count_layouts_fit_in_outline / i);
 
 	// init SA parameter: start temp, depends on std dev of costs
