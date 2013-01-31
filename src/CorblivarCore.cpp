@@ -41,9 +41,9 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		else {
 			cur_dir = DIRECTION_VERT;
 		}
-		// generate T-junction to be overlapped
-		// consider block count as upper bound
-		cur_t = CorblivarFP::randI(0, this->dies[rand]->CBL.size());
+		// init T-junction to be overlapped as zero, results in initial layout to
+		// be placed ``somewhat diagonally'' into outline
+		cur_t = 0;
 
 		// store CBL item
 		this->dies[rand]->CBL.push_back(new CBLitem(cur_block, cur_dir, cur_t));
