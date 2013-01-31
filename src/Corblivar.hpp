@@ -306,6 +306,19 @@ class CorblivarDie {
 		Block* currentBlock() {
 			return this->CBL[this->pi]->Si;
 		}
+
+		string itemString() {
+			unsigned i;
+			stringstream ret;
+
+			ret << "{";
+			for (i = 0; i < CBL.size(); i++) {
+				ret << CBL[i]->itemString() << ", ";
+			}
+			ret << "}";
+
+			return ret.str();
+		}
 };
 
 class CorblivarLayoutRep {
@@ -320,6 +333,16 @@ class CorblivarLayoutRep {
 		void generateLayout(int log);
 		//CorblivarDie* findDie(Block* Si);
 
+		void printCBLs(int log) {
+			unsigned i;
+
+			if (CorblivarFP::logMax(log)) {
+				for (i = 0; i < this->dies.size(); i++) {
+					cout << "CBL[" << i << "]" << endl;
+					cout << this->dies[i]->itemString() << endl;
+				}
+			}
+		};
 		void backupCBLs() {
 			unsigned i, ii;
 			CBLitem *cur_CBLi;
