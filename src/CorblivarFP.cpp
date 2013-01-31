@@ -110,7 +110,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	annealed = false;
 	best_cost = cur_cost;
 
-	while (!annealed) {
+	while (!annealed && i <= this->conf_SA_loopLimit) {
 
 		if (this->logMed()) {
 			cout << "SA> Optimization step: " << i << endl;

@@ -123,6 +123,11 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> corb.conf_SA_loopLimit;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> corb.conf_SA_cost_temp;
 
 	in >> tmpstr;
@@ -165,6 +170,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
 		cout << "SA -- Lower limit for change of cost/temp ratio (stop criterion): " << corb.conf_SA_costTempRatioLowerLimit << endl;
 		cout << "SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << corb.conf_SA_loopFactor << endl;
+		cout << "SA -- Outer-loop upper bound: " << corb.conf_SA_loopLimit << endl;
 		cout << "SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
 		cout << "SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
 		cout << "SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
