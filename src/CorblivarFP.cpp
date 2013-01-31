@@ -381,11 +381,16 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 				this->last_op_juncts = t;
 
-				if (CorblivarFP::randB()) {
+				if (t == 0) {
 					t++;
 				}
 				else {
-					t = max(0, t - 1);
+					if (CorblivarFP::randB()) {
+						t++;
+					}
+					else {
+						t = max(0, t - 1);
+					}
 				}
 
 				chip.switchTupleJunctions(die1, tuple1, t);
