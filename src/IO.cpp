@@ -113,7 +113,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> corb.conf_SA_minStdDevCost;
+	in >> corb.conf_SA_costTempRatioLowerLimit;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -163,7 +163,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "Layers for 3D IC: " << corb.conf_layer << endl;
 		cout << "Fixed die outline (width, x-dimension): " << corb.conf_outline_x << endl;
 		cout << "Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
-		cout << "SA -- Lower limit for std dev of avg cost during SA (stop criterion): " << corb.conf_SA_minStdDevCost << endl;
+		cout << "SA -- Lower limit for change of cost/temp ratio (stop criterion): " << corb.conf_SA_costTempRatioLowerLimit << endl;
 		cout << "SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << corb.conf_SA_loopFactor << endl;
 		cout << "SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
 		cout << "SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;

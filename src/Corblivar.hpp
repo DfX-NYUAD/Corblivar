@@ -67,7 +67,7 @@ class CorblivarFP {
 		int conf_log;
 		int conf_layer;
 		double conf_outline_x, conf_outline_y, outline_AR;
-		double conf_SA_minStdDevCost, conf_SA_loopFactor;
+		double conf_SA_costTempRatioLowerLimit, conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 		// fixed config parameters
 		static const int SA_INIT_T_FACTOR = 20;

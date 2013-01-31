@@ -16,12 +16,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, prev_cost, cost_diff;
-	double cur_avg_cost;
-	double best_cost;
+	double cur_cost, best_cost, prev_cost, cost_diff;
+	double cur_avg_cost, init_avg_cost;
+	double cost_temp_diff;
+	unsigned c;
 	deque<double> cost_hist;
-	double cost_hist_std_dev;
-	double cur_temp, init_temp;
+	double cur_temp, init_temp, temp_diff;
 	double r;
 	vector<double> init_cost_interconnects;
 	bool cur_layout_fits_in_outline;
@@ -87,6 +87,13 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// determine initial, normalized cost
 	chip.generateLayout(this->conf_log);
 	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) count_layouts_fit_in_outline / i);
+
+	// determine initial avg cost
+	init_avg_cost = 0.0;
+	for (c = 0; c < cost_hist.size(); c++) {
+		init_avg_cost += cost_hist[c];
+	}
+	init_avg_cost /= cost_hist.size();
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
@@ -186,31 +193,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cout << ", temperature: " << cur_temp << ", average cost: " << cur_avg_cost;
 		}
 
-		/// determine whether annealed: consider std deviation
-		/// of avg cost of previous 10 iterations
-		// TODO alternative annealing decision?
-		cost_hist.push_back(cur_avg_cost);
-		if (cost_hist.size() > 10) {
-			// drop cost of iteration 10 rounds ago
-			cost_hist.pop_front();
-
-			// determine std dev
-			cost_hist_std_dev = CorblivarFP::stdDev(cost_hist);
-
-			// consider as annealed when std dev drops below min level
-			annealed = (cost_hist_std_dev <= this->conf_SA_minStdDevCost);
-
-			if (this->logMed()) {
-				cout << ", std dev of avg cost: " << cost_hist_std_dev;
-			}
-		}
-
-		if (this->logMed()) {
-			cout << endl;
-		}
-
 		// reduce temp
 		// LV Christian Hochberger "HW Synthese eingebettete Systeme", Kapitel 6
+		temp_diff = cur_temp;
 		if (accepted_ops > 0.96) {
 			cur_temp *= 0.5;
 		}
@@ -223,6 +208,34 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// accepted_ops <= 0.15
 		else {
 			cur_temp *= 0.8;
+		}
+		temp_diff -= cur_temp;
+
+		// determine whether annealed: consider change of cost/temp ratio
+		// (Aarts 1986, as given in Shahookar 1991)
+		cost_hist.push_back(cur_avg_cost);
+		if (cost_hist.size() > 2) {
+			// drop cost of previous (> 2) iteration
+			cost_hist.pop_front();
+
+			// determine change of cost in prev iteration
+			cost_diff = cost_hist[1] - cost_hist[0];
+
+			// determine change of cost/temp ratio
+			// weighted w/ temp/init_cost ratio
+			cost_temp_diff = abs((cost_diff / temp_diff) * (cur_temp / init_avg_cost));
+
+			// consider as annealed when ratio drops below min level
+			annealed = (cost_temp_diff <= this->conf_SA_costTempRatioLowerLimit);
+
+			if (this->logMed()) {
+				cout << ", diff of (weighted) cost/temp ratio: " << cost_temp_diff << endl;
+			}
+		}
+		else {
+			if (this->logMed()) {
+				cout << endl;
+			}
 		}
 
 		// consider next step
