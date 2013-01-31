@@ -75,10 +75,10 @@ void CorblivarLayoutRep::generateLayout(int log) {
 	Block *cur_block;
 	bool loop;
 
-	if (CorblivarFP::logMax(log)) {
-		cout << "Layout> ";
-		cout << "Performing layout generation..." << endl;
-	}
+#ifdef DBG_CORB
+	cout << "Layout> ";
+	cout << "Performing layout generation..." << endl;
+#endif
 
 	// init die pointer
 	this->p = this->dies[0];
@@ -139,10 +139,11 @@ void CorblivarLayoutRep::generateLayout(int log) {
 		}
 	}
 
-	if (CorblivarFP::logMax(log)) {
-		cout << "Layout> ";
-		cout << "Done" << endl;
-	}
+#ifdef DBG_CORB
+	cout << "Layout> ";
+	cout << "Done" << endl;
+#endif
+
 }
 
 Block* CorblivarDie::placeCurrentBlock() {

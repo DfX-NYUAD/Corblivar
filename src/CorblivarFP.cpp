@@ -143,15 +143,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				cur_avg_cost += cur_cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
+#ifdef DBG_SA
+				cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
+				cout << "SA> Cost diff: " << cost_diff << endl;
+#endif
 
 				// memorize count of solutions fitting into outline
 				if (cur_layout_fits_in_outline) {
 					layout_fit_counter++;
-				}
-
-				if (this->logMax()) {
-					cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-					cout << "SA> Cost diff: " << cost_diff << endl;
 				}
 
 				// memorize best solution which fits into outline
@@ -170,9 +169,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				if (cost_diff > 0.0) {
 					r = CorblivarFP::randF01();
 					if (r > exp(- cost_diff / cur_temp)) {
-						if (this->logMax()) {
-							cout << "SA> Revert op" << endl;
-						}
+#ifdef DBG_SA
+						cout << "SA> Revert op" << endl;
+#endif
 						// revert last op
 						this->performRandomLayoutOp(chip, true);
 						// decrease op count, compensated by unconditional
@@ -199,8 +198,11 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		accepted_ops /= innerLoopMax;
 
 		if (this->logMed()) {
-			cout << "SA> Step done; valid-layouts ratio: " << layout_fit_ratio << ", accept-ops ratio: " << accepted_ops;
-			cout << ", temp: " << cur_temp << ", avg cost: " << cur_avg_cost;
+			cout << "SA> Step done:" << endl;
+			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
+			cout << "SA>  accept-ops ratio: " << accepted_ops << endl;
+			cout << "SA>  temp: " << cur_temp << endl;
+			cout << "SA>  avg cost: " << cur_avg_cost << endl;
 		}
 
 		// reduce temp
@@ -239,12 +241,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			annealed = (cost_temp_diff <= this->conf_SA_costTempRatioLowerLimit);
 
 			if (this->logMed()) {
-				cout << ", delta(cost/temp) ratio: " << cost_temp_diff << endl;
-			}
-		}
-		else {
-			if (this->logMed()) {
-				cout << endl;
+				cout << "SA>  delta(cost/temp) ratio: " << cost_temp_diff << endl;
 			}
 		}
 
@@ -256,8 +253,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	chip.applyBestCBLs(this->conf_log);
 	// generate final layout
 	chip.generateLayout(this->conf_log);
-	// determine cost, assuming fit into outline
-	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+	// verify if layout fits into outline
+	this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
@@ -498,10 +495,10 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// add to cost function
 	cost_total += cost_area_outline;
 
-	if (this->logMax()) {
-		cout << "Layout> ";
-		cout << "Layout cost: " << cost_total << endl;
-	}
+#ifdef DBG_SA
+	cout << "Layout> ";
+	cout << "Layout cost: " << cost_total << endl;
+#endif
 
 	return cost_total;
 }
