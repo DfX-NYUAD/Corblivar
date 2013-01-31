@@ -408,9 +408,15 @@ class CorblivarLayoutRep {
 
 		void switchTuplesWithinDie(int die, int tuple1, int tuple2) {
 			swap(this->dies[die]->CBL[tuple1], this->dies[die]->CBL[tuple2]);
+#ifdef DBG_CORB
+			cout << "SA> switchTuplesWithinDie; d1=" << die << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+#endif
 		};
 		void switchTuplesAcrossDies(int die1, int die2, int tuple1, int tuple2) {
 			swap(this->dies[die1]->CBL[tuple1], this->dies[die2]->CBL[tuple2]);
+#ifdef DBG_CORB
+			cout << "SA> switchTuplesAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+#endif
 		};
 		void moveTupleAcrossDies(int die1, int die2, int tuple1, int tuple2) {
 
@@ -420,15 +426,7 @@ class CorblivarLayoutRep {
 			this->dies[die1]->CBL.erase(this->dies[die1]->CBL.begin() + tuple1);
 
 #ifdef DBG_CORB
-			cout << "DBG_CORB> ";
-			cout << "Moving tuples: ";
-			cout << "d1[i1]=" << d1 << "[" << i1 << "] to d2[i2]=" << d2 << "[" << i2 << "];	";
-
-			unsigned i;
-			for (i = 0; i < this->dies.size(); i++) {
-				cout << "|d" << i << "|=" << this->dies[i]->CBL.size() << ";	";
-			}
-			cout << endl;
+			cout << "SA> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 #endif
 		};
 		void switchTupleDirection(int die, int tuple) {
@@ -438,9 +436,15 @@ class CorblivarLayoutRep {
 			else {
 				this->dies[die]->CBL[tuple]->Li = DIRECTION_VERT;
 			}
+#ifdef DBG_CORB
+			cout << "SA> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
+#endif
 		};
 		void switchTupleJunctions(int die, int tuple, int juncts) {
 			this->dies[die]->CBL[tuple]->Ti = juncts;
+#ifdef DBG_CORB
+			cout << "SA> switchTupleJunctions; d1=" << die << ", t1=" << tuple << endl;
+#endif
 		}
 };
 
