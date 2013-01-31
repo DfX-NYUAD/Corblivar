@@ -416,13 +416,8 @@ class CorblivarLayoutRep {
 				this->dies[die]->CBL[tuple]->Li = DIRECTION_VERT;
 			}
 		};
-		int switchTupleJunctions(int die, int tuple, int juncts) {
-			int prevJuncts;
-
-			prevJuncts = this->dies[die]->CBL[tuple]->Ti;
+		void switchTupleJunctions(int die, int tuple, int juncts) {
 			this->dies[die]->CBL[tuple]->Ti = juncts;
-
-			return prevJuncts;
 		}
 };
 

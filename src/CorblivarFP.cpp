@@ -357,9 +357,18 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
-				t = CorblivarFP::randI(0, tuple1);
+				t = chip.dies[die1]->CBL[tuple1]->Ti;
 
-				this->last_op_juncts = chip.switchTupleJunctions(die1, tuple1, t);
+				this->last_op_juncts = t;
+
+				if (CorblivarFP::randB()) {
+					t++;
+				}
+				else {
+					t = max(0, t - 1);
+				}
+
+				chip.switchTupleJunctions(die1, tuple1, t);
 			}
 			else {
 				chip.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
