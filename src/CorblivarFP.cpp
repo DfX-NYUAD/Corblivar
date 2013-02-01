@@ -27,6 +27,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	bool cur_layout_fits_in_outline;
 	int layout_fit_counter;
 	double layout_fit_ratio;
+	bool accept;
 
 	// init max cost
 	this->max_cost_WL = 0.0;
@@ -111,7 +112,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	annealed = false;
 	// dummy value >> normalized cost to expect
 	best_cost = 100.0;
-	layout_fit_ratio = layout_fit_counter = 0.0;
+	layout_fit_ratio = 0.0;
 
 	/// outer loop: annealing -- temperature steps
 	while (!annealed && i <= this->conf_SA_loopLimit) {
@@ -124,6 +125,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		ii = 1;
 		cur_avg_cost = 0.0;
 		accepted_ops = 0.0;
+		layout_fit_counter = 0.0;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -146,41 +148,43 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				cout << "SA> Cost diff: " << cost_diff << endl;
 #endif
 
-				// memorize count of solutions fitting into outline
-				if (cur_layout_fits_in_outline) {
-					layout_fit_counter++;
-				}
-
-				// memorize best solution which fits into outline
-				if (cur_cost < best_cost && cur_layout_fits_in_outline) {
-					if (this->logMax()) {
-						cout << "SA> Currently best (fitting) solution found; cost: " << cur_cost << endl;
-					}
-
-					best_cost = cur_cost;
-					chip.storeBestCBLs();
-				}
-
-				// assume op as accepted for now
-				accepted_ops++;
-				// same for cost, summing up
-				cur_avg_cost += cur_cost;
 				// revert solution w/ worse cost, depending on temperature
+				accept = true;
 				if (cost_diff > 0.0) {
 					r = CorblivarFP::randF01();
 					if (r > exp(- cost_diff / cur_temp)) {
 #ifdef DBG_SA
 						cout << "SA> Revert op" << endl;
 #endif
+						accept = false;
+
 						// revert last op
 						this->performRandomLayoutOp(chip, true);
-						// decrease op count, compensated by unconditional
-						// increase above
-						accepted_ops--;
-						// similarly, decrease cost
-						cur_avg_cost -= cur_cost;
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
+					}
+				}
+
+				// solution accepted
+				if (accept) {
+					// update ops count
+					accepted_ops++;
+					// update sum of cost
+					cur_avg_cost += cur_cost;
+
+					// update count of solutions fitting into outline
+					if (cur_layout_fits_in_outline) {
+						layout_fit_counter++;
+
+						// memorize best solution which fits into outline
+						if (cur_cost < best_cost) {
+							if (this->logMax()) {
+								cout << "SA> Currently best (fitting) solution found; cost: " << cur_cost << endl;
+							}
+
+							best_cost = cur_cost;
+							chip.storeBestCBLs();
+						}
 					}
 				}
 
@@ -191,8 +195,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// determine ratio of solutions fitting into outline in prev temp step
 		layout_fit_ratio = (double) layout_fit_counter / innerLoopMax;
-		// reset counter
-		layout_fit_counter = 0;
 
 		// determine avg cost for temp step
 		cur_avg_cost /= accepted_ops;
