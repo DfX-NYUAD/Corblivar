@@ -139,8 +139,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 				// evaluate layout, new cost
 				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, layout_fit_ratio);
-				// memorize cost
-				cur_avg_cost += cur_cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 #ifdef DBG_SA
@@ -163,8 +161,10 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 					chip.storeBestCBLs();
 				}
 
-				// increase ops count
+				// assume op as accepted for now
 				accepted_ops++;
+				// same for cost, summing up
+				cur_avg_cost += cur_cost;
 				// revert solution w/ worse cost, depending on temperature
 				if (cost_diff > 0.0) {
 					r = CorblivarFP::randF01();
@@ -179,6 +179,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 						accepted_ops--;
 						// similarly, decrease cost
 						cur_avg_cost -= cur_cost;
+						// reset cost according to reverted CBL
+						cur_cost = prev_cost;
 					}
 				}
 
