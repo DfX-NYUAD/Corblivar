@@ -50,18 +50,24 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	chip.backupCBLs();
 
 	// perform some random operations, track max costs
-	for (i = 0; i < innerLoopMax; i++) {
-		// perform random layout op
-		this->performRandomLayoutOp(chip);
-		// generate layout
-		chip.generateLayout(this->conf_log);
+	i = 0;
+	while (i < innerLoopMax) {
 
-		// determine and memorize cost of interconnects
-		init_cost_interconnects = this->determCostInterconnects();
+		op_success = this->performRandomLayoutOp(chip);
 
-		// memorize max cost
-		this->max_cost_WL = max(this->max_cost_WL, init_cost_interconnects[0]);
-		this->max_cost_TSVs = max(this->max_cost_TSVs, init_cost_interconnects[1]);
+		if (op_success) {
+			// generate layout
+			chip.generateLayout(this->conf_log);
+
+			// determine and memorize cost of interconnects
+			init_cost_interconnects = this->determCostInterconnects();
+
+			// memorize max cost
+			this->max_cost_WL = max(this->max_cost_WL, init_cost_interconnects[0]);
+			this->max_cost_TSVs = max(this->max_cost_TSVs, init_cost_interconnects[1]);
+
+			i++;
+		}
 	}
 
 	// restore initial CBLs
@@ -69,17 +75,23 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// perform some random operations, track cost std dev
 	layout_fit_counter = 0;
-	for (i = 1; i <= innerLoopMax; i++) {
-		// perform random layout op
-		this->performRandomLayoutOp(chip);
-		// generate layout
-		chip.generateLayout(this->conf_log);
+	i = 1;
+	while (i <= innerLoopMax) {
 
-		cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i));
+		op_success = this->performRandomLayoutOp(chip);
 
-		// memorize count of solutions fitting into outline
-		if (cur_layout_fits_in_outline) {
-			layout_fit_counter++;
+		if (op_success) {
+			// generate layout
+			chip.generateLayout(this->conf_log);
+
+			cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i));
+
+			// memorize count of solutions fitting into outline
+			if (cur_layout_fits_in_outline) {
+				layout_fit_counter++;
+			}
+
+			i++;
 		}
 	}
 
