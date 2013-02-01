@@ -246,6 +246,7 @@ class CBLitem {
 	public:
 
 		Block* Si;
+		double Si_w, Si_h;
 		Direction Li;
 		unsigned Ti;
 
@@ -253,6 +254,10 @@ class CBLitem {
 			Si = si;
 			Li = li;
 			Ti = ti;
+			// block dimensions
+			// to be encoded in CBL in order to enable block shaping
+			Si_w = si->bb.w;
+			Si_h = si->bb.h;
 		}
 
 		string itemString() {
@@ -450,12 +455,9 @@ class CorblivarLayoutRep {
 		void switchBlockOrientation(int die, int tuple) {
 			double w_tmp;
 
-			// backup width
-			w_tmp = this->dies[die]->CBL[tuple]->Si->bb.w;
-			// assign heigth to width
-			this->dies[die]->CBL[tuple]->Si->bb.w = this->dies[die]->CBL[tuple]->Si->bb.h;
-			// assign backup width to height
-			this->dies[die]->CBL[tuple]->Si->bb.h = w_tmp;
+			w_tmp = this->dies[die]->CBL[tuple]->Si_w;
+			this->dies[die]->CBL[tuple]->Si_w = this->dies[die]->CBL[tuple]->Si_h;
+			this->dies[die]->CBL[tuple]->Si_h = w_tmp;
 #ifdef DBG_CORB
 			cout << "SA> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
 #endif
