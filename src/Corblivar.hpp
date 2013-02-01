@@ -403,8 +403,9 @@ class CorblivarLayoutRep {
 		static const int OP_SWAP_TUPLES_WI_DIE = 0;
 		static const int OP_SWAP_TUPLES_ACROSS_DIE = 1;
 		static const int OP_MOVE_TUPLE = 2;
-		static const int OP_SWITCH_DIR = 3;
-		static const int OP_SWITCH_JUNCTS = 4;
+		static const int OP_SWITCH_TUPLE_DIR = 3;
+		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
+		static const int OP_SWITCH_BLOCK_ORIENT = 5;
 
 		void switchTuplesWithinDie(int die, int tuple1, int tuple2) {
 			swap(this->dies[die]->CBL[tuple1], this->dies[die]->CBL[tuple2]);
@@ -444,6 +445,19 @@ class CorblivarLayoutRep {
 			this->dies[die]->CBL[tuple]->Ti = juncts;
 #ifdef DBG_CORB
 			cout << "SA> switchTupleJunctions; d1=" << die << ", t1=" << tuple << endl;
+#endif
+		}
+		void switchBlockOrientation(int die, int tuple) {
+			double w_tmp;
+
+			// backup width
+			w_tmp = this->dies[die]->CBL[tuple]->Si->bb.w;
+			// assign heigth to width
+			this->dies[die]->CBL[tuple]->Si->bb.w = this->dies[die]->CBL[tuple]->Si->bb.h;
+			// assign backup width to height
+			this->dies[die]->CBL[tuple]->Si->bb.h = w_tmp;
+#ifdef DBG_CORB
+			cout << "SA> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
 #endif
 		}
 };

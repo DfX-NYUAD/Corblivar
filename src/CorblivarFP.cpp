@@ -278,7 +278,10 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 	}
 	// perform new, random op
 	else {
-		this->last_op = op = CorblivarFP::randI(0, 5);
+		// see OP_ constants (encoding ``op-codes'') in class CorblivarLayoutRep
+		// to set op-code ranges
+		// recall that randI(x,y) is [x,y)
+		this->last_op = op = CorblivarFP::randI(0, 6);
 	}
 
 	// specific op handler
@@ -354,7 +357,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWITCH_DIR:
+		case CorblivarLayoutRep::OP_SWITCH_TUPLE_DIR:
 			if (!revertLastOp) {
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				// sanity check for empty dies
@@ -372,7 +375,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWITCH_JUNCTS:
+		case CorblivarLayoutRep::OP_SWITCH_TUPLE_JUNCTS:
 			if (!revertLastOp) {
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				// sanity check for empty dies
@@ -401,6 +404,24 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 			}
 			else {
 				chip.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
+			}
+
+			break;
+
+		case CorblivarLayoutRep::OP_SWITCH_BLOCK_ORIENT:
+			if (!revertLastOp) {
+				die1 = CorblivarFP::randI(0, chip.dies.size());
+				// sanity check for empty dies
+				if (chip.dies[die1]->CBL.empty()) {
+					return false;
+				}
+
+				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+
+				chip.switchBlockOrientation(die1, tuple1);
+			}
+			else {
+				chip.switchBlockOrientation(this->last_op_die1, this->last_op_tuple1);
 			}
 
 			break;
