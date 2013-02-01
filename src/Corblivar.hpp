@@ -258,7 +258,16 @@ class CBLitem {
 			// to be encoded in CBL in order to enable block shaping
 			Si_w = si->bb.w;
 			Si_h = si->bb.h;
-		}
+		};
+		CBLitem (Block *si, double si_w, double si_h, Direction li, unsigned ti) {
+			Si = si;
+			Li = li;
+			Ti = ti;
+			// block dimensions
+			// to be encoded in CBL in order to enable block shaping
+			Si_w = si_w;
+			Si_h = si_h;
+		};
 
 		string itemString() {
 			stringstream ret;
@@ -266,7 +275,7 @@ class CBLitem {
 			ret << "(" << Si->id << ", " << Li << ", " << Ti << ")";
 
 			return ret.str();
-		}
+		};
 };
 
 class CorblivarDie {
@@ -356,7 +365,9 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBLbackup.clear();
 				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
 					cur_CBLi = this->dies[i]->CBL[ii];
-					this->dies[i]->CBLbackup.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+					this->dies[i]->CBLbackup.push_back(
+							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
+							);
 				}
 			}
 		};
@@ -368,7 +379,9 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBL.clear();
 				for (ii = 0; ii < this->dies[i]->CBLbackup.size(); ii++) {
 					cur_CBLi = this->dies[i]->CBLbackup[ii];
-					this->dies[i]->CBL.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+					this->dies[i]->CBL.push_back(
+							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
+							);
 				}
 			}
 		};
@@ -380,7 +393,9 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBLbest.clear();
 				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
 					cur_CBLi = this->dies[i]->CBL[ii];
-					this->dies[i]->CBLbest.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+					this->dies[i]->CBLbest.push_back(
+							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
+							);
 				}
 			}
 		};
@@ -399,7 +414,9 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBL.clear();
 				for (ii = 0; ii < this->dies[i]->CBLbest.size(); ii++) {
 					cur_CBLi = this->dies[i]->CBLbest[ii];
-					this->dies[i]->CBL.push_back(new CBLitem(cur_CBLi->Si, cur_CBLi->Li, cur_CBLi->Ti));
+					this->dies[i]->CBL.push_back(
+							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
+							);
 				}
 			}
 		};
