@@ -161,23 +161,21 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	}
 	corb.results.open(results_file.str().c_str());
 
-	if (corb.logMed()) {
-		cout << "IO> ";
-		cout << "Config values:" << endl;
-		cout << "Loglevel (1 to 3 for minimal, medium, maximal): " << corb.conf_log << endl;
-		cout << "Layers for 3D IC: " << corb.conf_layer << endl;
-		cout << "Fixed die outline (width, x-dimension): " << corb.conf_outline_x << endl;
-		cout << "Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
-		cout << "SA -- Lower limit for change of cost/temp ratio (stop criterion): " << corb.conf_SA_costTempRatioLowerLimit << endl;
-		cout << "SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << corb.conf_SA_loopFactor << endl;
-		cout << "SA -- Outer-loop upper bound: " << corb.conf_SA_loopLimit << endl;
-		cout << "SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
-		cout << "SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
-		cout << "SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
-		cout << "SA -- Cost factor for TSVs: " << corb.conf_SA_cost_TSVs << endl;
-		cout << "SA -- Cost factor for area and outline violation: " << corb.conf_SA_cost_area_outline << endl;
-		cout << "IO> ";
-		cout << "Done" << endl << endl;
+	if (corb.logMin()) {
+		cout << "IO> Config values:" << endl;
+		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << corb.conf_log << endl;
+		cout << "IO>  Layers for 3D IC: " << corb.conf_layer << endl;
+		cout << "IO>  Fixed die outline (width, x-dimension): " << corb.conf_outline_x << endl;
+		cout << "IO>  Fixed die outline (height, y-dimension): " << corb.conf_outline_y << endl;
+		cout << "IO>  SA -- Lower limit for change of cost/temp ratio (stop criterion): " << corb.conf_SA_costTempRatioLowerLimit << endl;
+		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << corb.conf_SA_loopFactor << endl;
+		cout << "IO>  SA -- Outer-loop upper bound: " << corb.conf_SA_loopLimit << endl;
+		cout << "IO>  SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
+		cout << "IO>  SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
+		cout << "IO>  SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
+		cout << "IO>  SA -- Cost factor for TSVs: " << corb.conf_SA_cost_TSVs << endl;
+		cout << "IO>  SA -- Cost factor for area and outline violation: " << corb.conf_SA_cost_area_outline << endl;
+		cout << endl;
 	}
 }
 

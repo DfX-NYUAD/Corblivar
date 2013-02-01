@@ -117,7 +117,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	while (!annealed && i <= this->conf_SA_loopLimit) {
 
 		if (this->logMed()) {
-			cout << "SA> Optimization step: " << i << endl;
+			cout << "SA> Optimization step: " << i << "/" << this->conf_SA_loopLimit << endl;
 		}
 
 		// init loop parameters
