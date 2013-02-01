@@ -36,25 +36,12 @@ int main (int argc, char** argv) {
 	// init Corblivar layout representation
 	chip.initCorblivar(corb);
 
-//	// perform test suites
-//	if (corb.logMin()) {
-//		cout << "Performing test suites..." << endl;
-//	}
-////	// test for TSV planning
-////	corb.PG_TSVsRingTestsuite();
-//	// tests for CG and block handling
-//	corb.CGBlockTestsuite();
-//	if (corb.logMin()) {
-//		cout << "Done" << endl << endl;
-//	}
-
 	if (corb.logMin()) {
 		cout << "Corblivar> ";
 		cout << "Performing SA floorplanning optimization..." << endl << endl;
 	}
 
 	// TODO runtime of optimization steps
-	// TODO bool parameter, flags for performing opt steps
 	done = corb.SA(chip);
 
 	if (corb.logMin()) {
