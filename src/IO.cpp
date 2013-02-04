@@ -257,6 +257,8 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			exit(1);
 		}
 
+		// calculate block area
+		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
 		// store block
 		corb.blocks.insert( pair<int, Block*>(id, cur_block) );
 
@@ -276,7 +278,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			power += (*b).second->power;
-			area += (*b).second->bb.w * (*b).second->bb.h;
+			area += (*b).second->bb.area;
 		}
 
 		cout << "IO> ";
