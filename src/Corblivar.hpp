@@ -46,10 +46,13 @@ class CorblivarFP;
 class CorblivarLayoutRep;
 class CorblivarDie;
 class CorblivarAlignmentReq;
-class CBLitem;
+//class CBLitem;
+class CornerBlockList;
+class CBLnode;
 class IO;
 class Point;
 class Block;
+class BlockShaped;
 class Net;
 class Rect;
 
@@ -227,6 +230,18 @@ class Block {
 		};
 };
 
+class BlockShaped {
+	public:
+		Block *s;
+		double w, h;
+
+		BlockShaped(Block *b) {
+			s = b;
+			w = b->bb.w;
+			h = b->bb.h;
+		}
+};
+
 class Net {
 	public:
 
@@ -242,50 +257,80 @@ class Net {
 		double determHPWL();
 };
 
-class CBLitem {
+class CornerBlockList {
 	public:
+		// CBL sequences
+		vector<BlockShaped> S;
+		vector<Direction> L;
+		vector<unsigned> T;
 
-		Block* Si;
-		double Si_w, Si_h;
-		Direction Li;
-		unsigned Ti;
+		unsigned size() {
+			unsigned ret;
 
-		CBLitem (Block *si, Direction li, unsigned ti) {
-			Si = si;
-			Li = li;
-			Ti = ti;
-			// block dimensions
-			// to be encoded in CBL in order to enable block shaping
-			Si_w = si->bb.w;
-			Si_h = si->bb.h;
+			ret = this->S.size();
+#ifdef DBG_CORB
+			bool mismatch = false;
+			unsigned prev_ret;
+
+			prev_ret = ret;
+			ret = min(ret, this->L.size());
+			mismatch = (ret != prev_ret);
+			prev_ret = ret;
+			ret = min(ret, this->T.size());
+			mismatch = mismatch || (ret != prev_ret);
+
+			if (mismatch) {
+				cout << "DBG_CORB> CBL has sequences size mismatch!" << endl;
+				cout << "DBG_CORB> CBL: " << endl;
+				cout << this->itemString() << endl;
+			}
+
+#endif
+			return ret;
 		};
-		CBLitem (Block *si, double si_w, double si_h, Direction li, unsigned ti) {
-			Si = si;
-			Li = li;
-			Ti = ti;
-			// block dimensions
-			// to be encoded in CBL in order to enable block shaping
-			Si_w = si_w;
-			Si_h = si_h;
+
+		bool empty() {
+			return (this->size() == 0);
 		};
 
-		string itemString() {
+		void clear() {
+			this->S.clear();
+			this->L.clear();
+			this->T.clear();
+		};
+
+		string itemString(unsigned i) {
 			stringstream ret;
 
-			ret << "(" << Si->id << ", " << Li << ", " << Ti << ")";
+			ret << "(" << S[i].s->id << ", " << L[i] << ", " << T[i] << ")";
 
 			return ret.str();
 		};
+
+		string itemString() {
+			unsigned i;
+			stringstream ret;
+
+			ret << "{";
+			for (i = 0; i < this->size(); i++) {
+				ret << this->itemString(i) << ", ";
+			}
+			ret << "}";
+
+			return ret.str();
+		}
 };
 
 class CorblivarDie {
+	private:
+		// progress pointer, CBL vector index
+		unsigned pi;
+
 	public:
 		int id;
 
 		// CBL data
-		vector<CBLitem*> CBL, CBLbackup, CBLbest;
-		// progress pointer, CBL vector index
-		unsigned pi;
+		CornerBlockList CBL, CBLbackup, CBLbest;
 		// placement stacks
 		stack<Block*> Hi, Vi;
 
@@ -317,21 +362,20 @@ class CorblivarDie {
 			this->pi = 0;
 		}
 
-		Block* currentBlock() {
-			return this->CBL[this->pi]->Si;
+		BlockShaped currentBlockShaped() {
+			return this->CBL.S[this->pi];
 		}
 
-		string itemString() {
-			unsigned i;
-			stringstream ret;
+		Direction currentTupleDirection() {
+			return this->CBL.L[this->pi];
+		}
 
-			ret << "{";
-			for (i = 0; i < CBL.size(); i++) {
-				ret << CBL[i]->itemString() << ", ";
-			}
-			ret << "}";
+		unsigned currentTupleJuncts() {
+			return this->CBL.T[this->pi];
+		}
 
-			return ret.str();
+		string currentTupleString() {
+			return this->CBL.itemString(this->pi);
 		}
 };
 
@@ -353,55 +397,70 @@ class CorblivarLayoutRep {
 			if (CorblivarFP::logMax(log)) {
 				for (i = 0; i < this->dies.size(); i++) {
 					cout << "CBL[" << i << "]" << endl;
-					cout << this->dies[i]->itemString() << endl;
+					cout << this->dies[i]->CBL.itemString() << endl;
 				}
 			}
 		};
+
 		void backupCBLs() {
 			unsigned i, ii;
-			CBLitem *cur_CBLi;
 
 			for (i = 0; i < this->dies.size(); i++) {
+
 				this->dies[i]->CBLbackup.clear();
-				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
-					cur_CBLi = this->dies[i]->CBL[ii];
-					this->dies[i]->CBLbackup.push_back(
-							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
-							);
+
+				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
+					this->dies[i]->CBLbackup.S.push_back(BlockShaped(this->dies[i]->CBL.S[ii].s));
+				}
+				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
+					this->dies[i]->CBLbackup.L.push_back(this->dies[i]->CBL.L[ii]);
+				}
+				for (ii = 0; ii < this->dies[i]->CBL.T.size(); ii++) {
+					this->dies[i]->CBLbackup.T.push_back(this->dies[i]->CBL.T[ii]);
 				}
 			}
 		};
+
 		void restoreCBLs() {
 			unsigned i, ii;
-			CBLitem *cur_CBLi;
 
 			for (i = 0; i < this->dies.size(); i++) {
+
 				this->dies[i]->CBL.clear();
-				for (ii = 0; ii < this->dies[i]->CBLbackup.size(); ii++) {
-					cur_CBLi = this->dies[i]->CBLbackup[ii];
-					this->dies[i]->CBL.push_back(
-							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
-							);
+
+				for (ii = 0; ii < this->dies[i]->CBLbackup.S.size(); ii++) {
+					this->dies[i]->CBL.S.push_back(BlockShaped(this->dies[i]->CBLbackup.S[ii].s));
+				}
+				for (ii = 0; ii < this->dies[i]->CBLbackup.L.size(); ii++) {
+					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbackup.L[ii]);
+				}
+				for (ii = 0; ii < this->dies[i]->CBLbackup.T.size(); ii++) {
+					this->dies[i]->CBL.T.push_back(this->dies[i]->CBLbackup.T[ii]);
 				}
 			}
 		};
+
 		void storeBestCBLs() {
 			unsigned i, ii;
-			CBLitem *cur_CBLi;
 
 			for (i = 0; i < this->dies.size(); i++) {
+
 				this->dies[i]->CBLbest.clear();
-				for (ii = 0; ii < this->dies[i]->CBL.size(); ii++) {
-					cur_CBLi = this->dies[i]->CBL[ii];
-					this->dies[i]->CBLbest.push_back(
-							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
-							);
+
+				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
+					this->dies[i]->CBLbest.S.push_back(BlockShaped(this->dies[i]->CBL.S[ii].s));
+				}
+				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
+					this->dies[i]->CBLbest.L.push_back(this->dies[i]->CBL.L[ii]);
+				}
+				for (ii = 0; ii < this->dies[i]->CBL.T.size(); ii++) {
+					this->dies[i]->CBLbest.T.push_back(this->dies[i]->CBL.T[ii]);
 				}
 			}
 		};
+
 		void applyBestCBLs(int log) {
 			unsigned i, ii;
-			CBLitem *cur_CBLi;
 
 			if (this->dies[0]->CBLbest.empty()) {
 				if (CorblivarFP::logMin(log)) {
@@ -411,70 +470,83 @@ class CorblivarLayoutRep {
 			}
 
 			for (i = 0; i < this->dies.size(); i++) {
+
 				this->dies[i]->CBL.clear();
-				for (ii = 0; ii < this->dies[i]->CBLbest.size(); ii++) {
-					cur_CBLi = this->dies[i]->CBLbest[ii];
-					this->dies[i]->CBL.push_back(
-							new CBLitem(cur_CBLi->Si, cur_CBLi->Si_w, cur_CBLi->Si_h, cur_CBLi->Li, cur_CBLi->Ti)
-							);
+
+				for (ii = 0; ii < this->dies[i]->CBLbest.S.size(); ii++) {
+					this->dies[i]->CBL.S.push_back(BlockShaped(this->dies[i]->CBLbest.S[ii].s));
+				}
+				for (ii = 0; ii < this->dies[i]->CBLbest.L.size(); ii++) {
+					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbest.L[ii]);
+				}
+				for (ii = 0; ii < this->dies[i]->CBLbest.T.size(); ii++) {
+					this->dies[i]->CBL.T.push_back(this->dies[i]->CBLbest.T[ii]);
 				}
 			}
 		};
 
 		// layout operations for heuristic optimization
-		static const int OP_SWAP_TUPLES_WI_DIE = 0;
-		static const int OP_SWAP_TUPLES_ACROSS_DIE = 1;
+		static const int OP_SWAP_BLOCKS_WI_DIE = 0;
+		static const int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
 		static const int OP_MOVE_TUPLE = 2;
 		static const int OP_SWITCH_TUPLE_DIR = 3;
 		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static const int OP_SWITCH_BLOCK_ORIENT = 5;
 
-		void switchTuplesWithinDie(int die, int tuple1, int tuple2) {
-			swap(this->dies[die]->CBL[tuple1], this->dies[die]->CBL[tuple2]);
+		void switchBlocksWithinDie(int die, int tuple1, int tuple2) {
+			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
 #ifdef DBG_CORB
-			cout << "SA> switchTuplesWithinDie; d1=" << die << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+			cout << "SA> switchBlocksWithinDie; d1=" << die;
+			cout << ", s1=" << this->dies[die]->CBL.S[tuple1].s->id;
+			cout << ", s2=" << this->dies[die]->CBL.S[tuple2].s->id << endl;
 #endif
 		};
-		void switchTuplesAcrossDies(int die1, int die2, int tuple1, int tuple2) {
-			swap(this->dies[die1]->CBL[tuple1], this->dies[die2]->CBL[tuple2]);
+		void switchBlocksAcrossDies(int die1, int die2, int tuple1, int tuple2) {
+			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 #ifdef DBG_CORB
-			cout << "SA> switchTuplesAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+			cout << "SA> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
+			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1].s->id;
+			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2].s->id << endl;
 #endif
 		};
 		void moveTupleAcrossDies(int die1, int die2, int tuple1, int tuple2) {
 
 			// insert tuple1 from die1 into die2 w/ offset tuple2
-			this->dies[die2]->CBL.insert(this->dies[die2]->CBL.begin() + tuple2, *(this->dies[die1]->CBL.begin() + tuple1));
+			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
+			this->dies[die2]->CBL.L.insert(this->dies[die2]->CBL.L.begin() + tuple2, *(this->dies[die1]->CBL.L.begin() + tuple1));
+			this->dies[die2]->CBL.T.insert(this->dies[die2]->CBL.T.begin() + tuple2, *(this->dies[die1]->CBL.T.begin() + tuple1));
 			// erase tuple1 from die1
-			this->dies[die1]->CBL.erase(this->dies[die1]->CBL.begin() + tuple1);
+			this->dies[die1]->CBL.S.erase(this->dies[die1]->CBL.S.begin() + tuple1);
+			this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
+			this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
 
 #ifdef DBG_CORB
 			cout << "SA> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 #endif
 		};
 		void switchTupleDirection(int die, int tuple) {
-			if (this->dies[die]->CBL[tuple]->Li == DIRECTION_VERT) {
-				this->dies[die]->CBL[tuple]->Li = DIRECTION_HOR;
+			if (this->dies[die]->CBL.L[tuple] == DIRECTION_VERT) {
+				this->dies[die]->CBL.L[tuple] = DIRECTION_HOR;
 			}
 			else {
-				this->dies[die]->CBL[tuple]->Li = DIRECTION_VERT;
+				this->dies[die]->CBL.L[tuple] = DIRECTION_VERT;
 			}
 #ifdef DBG_CORB
 			cout << "SA> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
 #endif
 		};
 		void switchTupleJunctions(int die, int tuple, int juncts) {
-			this->dies[die]->CBL[tuple]->Ti = juncts;
+			this->dies[die]->CBL.T[tuple] = juncts;
 #ifdef DBG_CORB
-			cout << "SA> switchTupleJunctions; d1=" << die << ", t1=" << tuple << endl;
+			cout << "SA> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 #endif
 		}
 		void switchBlockOrientation(int die, int tuple) {
 			double w_tmp;
 
-			w_tmp = this->dies[die]->CBL[tuple]->Si_w;
-			this->dies[die]->CBL[tuple]->Si_w = this->dies[die]->CBL[tuple]->Si_h;
-			this->dies[die]->CBL[tuple]->Si_h = w_tmp;
+			w_tmp = this->dies[die]->CBL.S[tuple].w;
+			this->dies[die]->CBL.S[tuple].w = this->dies[die]->CBL.S[tuple].h;
+			this->dies[die]->CBL.S[tuple].h = w_tmp;
 #ifdef DBG_CORB
 			cout << "SA> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
 #endif

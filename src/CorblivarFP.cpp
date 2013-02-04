@@ -298,10 +298,10 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 	// specific op handler
 	switch (op) {
-		case CorblivarLayoutRep::OP_SWAP_TUPLES_WI_DIE:
+		case CorblivarLayoutRep::OP_SWAP_BLOCKS_WI_DIE:
 			if (!revertLastOp) {
 				die1 = CorblivarFP::randI(0, chip.dies.size());
-				// sanity check for dies w/ one or zero blocks
+				// sanity check for dies w/ one or zero tuples
 				if (chip.dies[die1]->CBL.size() <= 1) {
 					return false;
 				}
@@ -313,15 +313,15 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 					tuple2 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
 				}
 
-				chip.switchTuplesWithinDie(die1, tuple1, tuple2);
+				chip.switchBlocksWithinDie(die1, tuple1, tuple2);
 			}
 			else {
-				chip.switchTuplesWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				chip.switchBlocksWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWAP_TUPLES_ACROSS_DIE:
+		case CorblivarLayoutRep::OP_SWAP_BLOCKS_ACROSS_DIE:
 			if (!revertLastOp) {
 				die1 = CorblivarFP::randI(0, chip.dies.size());
 				die2 = CorblivarFP::randI(0, chip.dies.size());
@@ -337,10 +337,10 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
 				tuple2 = CorblivarFP::randI(0, chip.dies[die2]->CBL.size());
 
-				chip.switchTuplesAcrossDies(die1, die2, tuple1, tuple2);
+				chip.switchBlocksAcrossDies(die1, die2, tuple1, tuple2);
 			}
 			else {
-				chip.switchTuplesAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				chip.switchBlocksAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
@@ -396,7 +396,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 				}
 
 				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
-				t = chip.dies[die1]->CBL[tuple1]->Ti;
+				t = chip.dies[die1]->CBL.T[tuple1];
 
 				this->last_op_juncts = t;
 

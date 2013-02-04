@@ -45,8 +45,10 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		// be placed ``somewhat diagonally'' into outline
 		cur_t = 0;
 
-		// store CBL item
-		this->dies[rand]->CBL.push_back(new CBLitem(cur_block, cur_dir, cur_t));
+		// store into separate CBL sequences
+		this->dies[rand]->CBL.S.push_back(BlockShaped(cur_block));
+		this->dies[rand]->CBL.L.push_back(cur_dir);
+		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
 
 #ifdef DBG_CORB
@@ -55,10 +57,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	for (d = 0; d < this->dies.size(); d++) {
 		cout << "DBG_CORB> ";
 		cout << "Init CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
-		for (CBLi = 0; CBLi < this->dies[d]->CBL.size(); CBLi++) {
-			cout << "DBG_CORB> ";
-			cout << this->dies[d]->CBL[CBLi]->itemString() << endl;
-		}
+		cout << this->dies[d]->CBL.itemString() << endl;
 		cout << "DBG_CORB> ";
 		cout << endl;
 	}
@@ -148,7 +147,8 @@ void CorblivarLayoutRep::generateLayout(int log) {
 
 Block* CorblivarDie::placeCurrentBlock() {
 	Block *cur_block;
-	CBLitem *cur_CBLi;
+	Direction cur_dir;
+	unsigned cur_juncts;
 	vector<Block*> relevBlocks;
 	unsigned relevBlocksCount, b;
 	double x, y;
@@ -159,20 +159,21 @@ Block* CorblivarDie::placeCurrentBlock() {
 		return NULL;
 	}
 
-	cur_CBLi = this->CBL[this->pi];
-	cur_block = cur_CBLi->Si;
+	cur_block = this->currentBlockShaped().s;
+	cur_dir = this->currentTupleDirection();
+	cur_juncts = this->currentTupleJuncts();
 
 	// assign layer to block
 	cur_block->layer = this->id;
 
 	// assign block dimension encoded in CBL to block
-	cur_block->bb.w = cur_CBLi->Si_w;
-	cur_block->bb.h = cur_CBLi->Si_h;
+	cur_block->bb.w = this->currentBlockShaped().w;
+	cur_block->bb.h = this->currentBlockShaped().h;
 
 	// horizontal placement
-	if (cur_CBLi->Li == DIRECTION_HOR) {
+	if (cur_dir == DIRECTION_HOR) {
 		// pop relevant blocks from stack
-		relevBlocksCount = min(cur_CBLi->Ti + 1, this->Hi.size());
+		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
 //cout << "relevBlocksCount=" << relevBlocksCount << endl;
 		while (relevBlocksCount > relevBlocks.size()) {
 			relevBlocks.push_back(this->Hi.top());
@@ -213,7 +214,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 	// vertical placement
 	else {
 		// pop relevant blocks from stack
-		relevBlocksCount = min(cur_CBLi->Ti + 1, this->Vi.size());
+		relevBlocksCount = min(cur_juncts + 1, this->Vi.size());
 		while (relevBlocksCount > relevBlocks.size()) {
 			relevBlocks.push_back(this->Vi.top());
 			this->Vi.pop();
@@ -260,7 +261,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 
 #ifdef DBG_CORB
 	cout << "DBG_CORB> ";
-	cout << "Processing CBL tuple " << cur_CBLi->itemString() << " on die " << this->id << ": ";
+	cout << "Processing CBL tuple " << this->currentTupleString() << " on die " << this->id << ": ";
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 #endif
