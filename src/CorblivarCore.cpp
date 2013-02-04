@@ -32,10 +32,10 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		cur_block = (*b).second;
 
 		// consider random die
-		rand = CorblivarFP::randI(0, corb.conf_layer);
+		rand = Math::randI(0, corb.conf_layer);
 
 		// generate direction L
-		if (CorblivarFP::randB()) {
+		if (Math::randB()) {
 			cur_dir = DIRECTION_HOR;
 		}
 		else {
@@ -75,7 +75,7 @@ void CorblivarLayoutRep::generateLayout(int log) {
 	bool loop;
 
 #ifdef DBG_CORB
-	cout << "Layout> ";
+	cout << "DBG_CORB> ";
 	cout << "Performing layout generation..." << endl;
 #endif
 
@@ -139,7 +139,7 @@ void CorblivarLayoutRep::generateLayout(int log) {
 	}
 
 #ifdef DBG_CORB
-	cout << "Layout> ";
+	cout << "DBG_CORB> ";
 	cout << "Done" << endl;
 #endif
 

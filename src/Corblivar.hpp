@@ -32,10 +32,10 @@
 //#define DBG_CORB
 //#define DBG_SA
 
-/* standard namespace */
+/* consider standard namespace */
 using namespace std;
 
-/* div stuff */
+/* div enumerations */
 enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
 enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
@@ -46,27 +46,25 @@ class CorblivarFP;
 class CorblivarLayoutRep;
 class CorblivarDie;
 class CorblivarAlignmentReq;
-//class CBLitem;
 class CornerBlockList;
-class CBLnode;
 class IO;
 class Point;
 class Block;
 class Net;
 class Rect;
+class Math;
 
 /* classes */
-
 class CorblivarFP {
-	public:
-		// main vars
-		string benchmark, blocks_file, power_file, nets_file;
-		ofstream results;
+	private:
+		// layout data
 		map<int, Block*> blocks;
 		vector<Net*> nets;
 
+		// IO
+		string benchmark, blocks_file, power_file, nets_file;
+
 		// config parameters
-		int conf_log;
 		int conf_layer;
 		double conf_outline_x, conf_outline_y, outline_AR;
 		double conf_SA_costTempRatioLowerLimit, conf_SA_loopFactor, conf_SA_loopLimit;
@@ -76,6 +74,19 @@ class CorblivarFP {
 
 		// SA parameters: max cost values
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
+		// layout operation handlers
+		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+
+	public:
+		friend class IO;
+		friend class CorblivarLayoutRep;
+
+		// IO
+		ofstream results;
+
+		// config parameters
+		int conf_log;
 
 		// logging
 		static const int LOG_MINIMAL = 1;
@@ -106,10 +117,11 @@ class CorblivarFP {
 		// return[0]: HPWL
 		// return[1]: TSVs
 		vector<double> determCostInterconnects();
-
-		// layout operation handlers
-		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+};
+
+class Math {
+	public:
 
 		// random functions
 		// note: range is [min, max)
@@ -246,6 +258,7 @@ class Net {
 
 class CornerBlockList {
 	public:
+
 		// CBL sequences
 		vector<Block*> S;
 		vector<Direction> L;
@@ -312,26 +325,6 @@ class CorblivarDie {
 	private:
 		// progress pointer, CBL vector index
 		unsigned pi;
-
-	public:
-		int id;
-
-		// CBL data
-		CornerBlockList CBL, CBLbackup, CBLbest;
-		// placement stacks
-		stack<Block*> Hi, Vi;
-
-		bool stalled;
-		bool done;
-
-		CorblivarDie(int i) {
-			stalled = done = false;
-			id = i;
-		}
-
-		// layout generation functions
-		Block* placeCurrentBlock();
-
 		// false: last CBL tuple; true: not last tuple
 		bool incrementTuplePointer() {
 
@@ -343,11 +336,35 @@ class CorblivarDie {
 				this->pi++;
 				return true;
 			}
-		}
-
+		};
 		void resetTuplePointer() {
 			this->pi = 0;
+		};
+
+		// backup CBL sequences
+		CornerBlockList CBLbackup, CBLbest;
+
+		// placement stacks
+		stack<Block*> Hi, Vi;
+
+	public:
+		friend class CorblivarLayoutRep;
+
+		int id;
+
+		bool stalled;
+		bool done;
+
+		// main CBL sequence
+		CornerBlockList CBL;
+
+		CorblivarDie(int i) {
+			stalled = done = false;
+			id = i;
 		}
+
+		// layout generation functions
+		Block* placeCurrentBlock();
 
 		Block* currentBlock() {
 			return this->CBL.S[this->pi];
@@ -367,17 +384,88 @@ class CorblivarDie {
 };
 
 class CorblivarLayoutRep {
-	public:
-
-		vector<CorblivarDie*> dies;
-		vector<CorblivarAlignmentReq*> A;
+	private:
 		// die pointer
 		CorblivarDie* p;
 
+		vector<CorblivarAlignmentReq*> A;
+
+	public:
+		vector<CorblivarDie*> dies;
+
+		// general layout operations
 		void initCorblivar(CorblivarFP &corb);
 		void generateLayout(int log);
 		//CorblivarDie* findDie(Block* Si);
 
+		// layout operations for heuristic optimization
+		static const int OP_SWAP_BLOCKS_WI_DIE = 0;
+		static const int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
+		static const int OP_MOVE_TUPLE = 2;
+		static const int OP_SWITCH_TUPLE_DIR = 3;
+		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
+		static const int OP_SWITCH_BLOCK_ORIENT = 5;
+
+		void switchBlocksWithinDie(int die, int tuple1, int tuple2) {
+			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
+#ifdef DBG_CORB
+			cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
+			cout << ", s1=" << this->dies[die]->CBL.S[tuple1].s->id;
+			cout << ", s2=" << this->dies[die]->CBL.S[tuple2].s->id << endl;
+#endif
+		};
+		void switchBlocksAcrossDies(int die1, int die2, int tuple1, int tuple2) {
+			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
+#ifdef DBG_CORB
+			cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
+			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1].s->id;
+			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2].s->id << endl;
+#endif
+		};
+		void moveTupleAcrossDies(int die1, int die2, int tuple1, int tuple2) {
+
+			// insert tuple1 from die1 into die2 w/ offset tuple2
+			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
+			this->dies[die2]->CBL.L.insert(this->dies[die2]->CBL.L.begin() + tuple2, *(this->dies[die1]->CBL.L.begin() + tuple1));
+			this->dies[die2]->CBL.T.insert(this->dies[die2]->CBL.T.begin() + tuple2, *(this->dies[die1]->CBL.T.begin() + tuple1));
+			// erase tuple1 from die1
+			this->dies[die1]->CBL.S.erase(this->dies[die1]->CBL.S.begin() + tuple1);
+			this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
+			this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
+
+#ifdef DBG_CORB
+			cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+#endif
+		};
+		void switchTupleDirection(int die, int tuple) {
+			if (this->dies[die]->CBL.L[tuple] == DIRECTION_VERT) {
+				this->dies[die]->CBL.L[tuple] = DIRECTION_HOR;
+			}
+			else {
+				this->dies[die]->CBL.L[tuple] = DIRECTION_VERT;
+			}
+#ifdef DBG_CORB
+			cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
+#endif
+		};
+		void switchTupleJunctions(int die, int tuple, int juncts) {
+			this->dies[die]->CBL.T[tuple] = juncts;
+#ifdef DBG_CORB
+			cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
+#endif
+		};
+		void switchBlockOrientation(int die, int tuple) {
+			double w_tmp;
+
+			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
+			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
+			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;
+#ifdef DBG_CORB
+			cout << "DBG_CORB> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
+#endif
+		};
+
+		// CBL logging
 		void printCBLs(int log) {
 			unsigned i;
 
@@ -388,7 +476,7 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-
+		// CBL backup handler
 		void backupCBLs() {
 			unsigned i, ii;
 			Block *cur_block;
@@ -412,7 +500,6 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-
 		void restoreCBLs() {
 			unsigned i, ii;
 			Block *cur_block;
@@ -436,7 +523,7 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-
+		// CBL best-solution handler
 		void storeBestCBLs() {
 			unsigned i, ii;
 			Block *cur_block;
@@ -460,14 +547,13 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-
 		void applyBestCBLs(int log) {
 			unsigned i, ii;
 			Block *cur_block;
 
 			if (this->dies[0]->CBLbest.empty()) {
 				if (CorblivarFP::logMin(log)) {
-					cout << "SA> No best (fitting) solution available!" << endl;
+					cout << "Corblivar> No best (fitting) solution available!" << endl;
 				}
 				return;
 			}
@@ -491,73 +577,6 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-
-		// layout operations for heuristic optimization
-		static const int OP_SWAP_BLOCKS_WI_DIE = 0;
-		static const int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
-		static const int OP_MOVE_TUPLE = 2;
-		static const int OP_SWITCH_TUPLE_DIR = 3;
-		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
-		static const int OP_SWITCH_BLOCK_ORIENT = 5;
-
-		void switchBlocksWithinDie(int die, int tuple1, int tuple2) {
-			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
-#ifdef DBG_CORB
-			cout << "SA> switchBlocksWithinDie; d1=" << die;
-			cout << ", s1=" << this->dies[die]->CBL.S[tuple1].s->id;
-			cout << ", s2=" << this->dies[die]->CBL.S[tuple2].s->id << endl;
-#endif
-		};
-		void switchBlocksAcrossDies(int die1, int die2, int tuple1, int tuple2) {
-			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
-#ifdef DBG_CORB
-			cout << "SA> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
-			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1].s->id;
-			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2].s->id << endl;
-#endif
-		};
-		void moveTupleAcrossDies(int die1, int die2, int tuple1, int tuple2) {
-
-			// insert tuple1 from die1 into die2 w/ offset tuple2
-			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
-			this->dies[die2]->CBL.L.insert(this->dies[die2]->CBL.L.begin() + tuple2, *(this->dies[die1]->CBL.L.begin() + tuple1));
-			this->dies[die2]->CBL.T.insert(this->dies[die2]->CBL.T.begin() + tuple2, *(this->dies[die1]->CBL.T.begin() + tuple1));
-			// erase tuple1 from die1
-			this->dies[die1]->CBL.S.erase(this->dies[die1]->CBL.S.begin() + tuple1);
-			this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
-			this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
-
-#ifdef DBG_CORB
-			cout << "SA> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
-#endif
-		};
-		void switchTupleDirection(int die, int tuple) {
-			if (this->dies[die]->CBL.L[tuple] == DIRECTION_VERT) {
-				this->dies[die]->CBL.L[tuple] = DIRECTION_HOR;
-			}
-			else {
-				this->dies[die]->CBL.L[tuple] = DIRECTION_VERT;
-			}
-#ifdef DBG_CORB
-			cout << "SA> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
-#endif
-		};
-		void switchTupleJunctions(int die, int tuple, int juncts) {
-			this->dies[die]->CBL.T[tuple] = juncts;
-#ifdef DBG_CORB
-			cout << "SA> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
-#endif
-		}
-		void switchBlockOrientation(int die, int tuple) {
-			double w_tmp;
-
-			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
-			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
-			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;
-#ifdef DBG_CORB
-			cout << "SA> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
-#endif
-		}
 };
 
 class CorblivarAlignmentReq {

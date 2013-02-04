@@ -111,7 +111,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
-	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * CorblivarFP::stdDev(cost_hist);
+	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * Math::stdDev(cost_hist);
 	cost_hist.clear();
 
 	if (this->logMed()) {
@@ -156,17 +156,17 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 #ifdef DBG_SA
-				cout << "SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-				cout << "SA> Cost diff: " << cost_diff << endl;
+				cout << "DBG_SA> Inner step: " << ii << "/" << innerLoopMax << endl;
+				cout << "DBG_SA> Cost diff: " << cost_diff << endl;
 #endif
 
 				// revert solution w/ worse cost, depending on temperature
 				accept = true;
 				if (cost_diff > 0.0) {
-					r = CorblivarFP::randF01();
+					r = Math::randF01();
 					if (r > exp(- cost_diff / cur_temp)) {
 #ifdef DBG_SA
-						cout << "SA> Revert op" << endl;
+						cout << "DBG_SA> Revert op" << endl;
 #endif
 						accept = false;
 
@@ -293,24 +293,24 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 		// see OP_ constants (encoding ``op-codes'') in class CorblivarLayoutRep
 		// to set op-code ranges
 		// recall that randI(x,y) is [x,y)
-		this->last_op = op = CorblivarFP::randI(0, 6);
+		this->last_op = op = Math::randI(0, 6);
 	}
 
 	// specific op handler
 	switch (op) {
 		case CorblivarLayoutRep::OP_SWAP_BLOCKS_WI_DIE:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
 				// sanity check for dies w/ one or zero tuples
 				if (chip.dies[die1]->CBL.size() <= 1) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, chip.dies[die1]->CBL.size());
 				// ensure that tuples are different
 				while (tuple1 == tuple2) {
-					tuple2 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+					tuple2 = Math::randI(0, chip.dies[die1]->CBL.size());
 				}
 
 				chip.switchBlocksWithinDie(die1, tuple1, tuple2);
@@ -323,19 +323,19 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 		case CorblivarLayoutRep::OP_SWAP_BLOCKS_ACROSS_DIE:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
-				die2 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
+				die2 = Math::randI(0, chip.dies.size());
 				// ensure that dies are different
 				while (die1 == die2) {
-					die2 = CorblivarFP::randI(0, chip.dies.size());
+					die2 = Math::randI(0, chip.dies.size());
 				}
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty() || chip.dies[die2]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = CorblivarFP::randI(0, chip.dies[die2]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, chip.dies[die2]->CBL.size());
 
 				chip.switchBlocksAcrossDies(die1, die2, tuple1, tuple2);
 			}
@@ -347,19 +347,19 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 		case CorblivarLayoutRep::OP_MOVE_TUPLE:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
-				die2 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
+				die2 = Math::randI(0, chip.dies.size());
 				// ensure that dies are different
 				while (die1 == die2) {
-					die2 = CorblivarFP::randI(0, chip.dies.size());
+					die2 = Math::randI(0, chip.dies.size());
 				}
 				// sanity check for empty (origin) die
 				if (chip.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = CorblivarFP::randI(0, chip.dies[die2]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, chip.dies[die2]->CBL.size());
 
 				chip.moveTupleAcrossDies(die1, die2, tuple1, tuple2);
 			}
@@ -371,13 +371,13 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 		case CorblivarLayoutRep::OP_SWITCH_TUPLE_DIR:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
 
 				chip.switchTupleDirection(die1, tuple1);
 			}
@@ -389,13 +389,13 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 		case CorblivarLayoutRep::OP_SWITCH_TUPLE_JUNCTS:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
 				t = chip.dies[die1]->CBL.T[tuple1];
 
 				this->last_op_juncts = t;
@@ -404,7 +404,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 					t++;
 				}
 				else {
-					if (CorblivarFP::randB()) {
+					if (Math::randB()) {
 						t++;
 					}
 					else {
@@ -422,13 +422,13 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 
 		case CorblivarLayoutRep::OP_SWITCH_BLOCK_ORIENT:
 			if (!revertLastOp) {
-				die1 = CorblivarFP::randI(0, chip.dies.size());
+				die1 = Math::randI(0, chip.dies.size());
 				// sanity check for empty dies
 				if (chip.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = CorblivarFP::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
 
 				chip.switchBlockOrientation(die1, tuple1);
 			}
@@ -568,7 +568,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 		// determine HPWL on each layer separately
 		for (i = 0; i < this->conf_layer; i++) {
 #ifdef DBG_SA
-			cout << "SA> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
+			cout << "DBG_SA> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
 #endif
 
 			// consider all related blocks:
@@ -582,7 +582,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 				if (cur_net->blocks[b]->layer == i) {
 					blocks_to_consider.push_back(cur_net->blocks[b]->bb);
 #ifdef DBG_SA
-					cout << "SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
+					cout << "DBG_SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
 #endif
 				}
 			}
@@ -602,7 +602,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 						blocks_to_consider.push_back(cur_net->blocks[b]->bb);
 						blocks_above_considered = true;
 #ifdef DBG_SA
-						cout << "SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
+						cout << "DBG_SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
 #endif
 					}
 				}
@@ -625,7 +625,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			// while considering layers below
 			if (blocks_to_consider.size() == 1) {
 #ifdef DBG_SA
-				cout << "SA> 	Ignore single block on uppermost layer" << endl;
+				cout << "DBG_SA> 	Ignore single block on uppermost layer" << endl;
 #endif
 				continue;
 			}
@@ -634,7 +634,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			if (blocks_above_considered) {
 				TSVs += (ii - i);
 #ifdef DBG_SA
-				cout << "SA> 	TSVs required: " << (ii - i) << endl;
+				cout << "DBG_SA> 	TSVs required: " << (ii - i) << endl;
 #endif
 			}
 
@@ -643,7 +643,7 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			HPWL += bb.w;
 			HPWL += bb.h;
 #ifdef DBG_SA
-			cout << "SA> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+			cout << "DBG_SA> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
 #endif
 		}
 	}
