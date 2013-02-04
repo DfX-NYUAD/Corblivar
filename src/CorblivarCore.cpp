@@ -46,7 +46,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand]->CBL.S.push_back(BlockShaped(cur_block));
+		this->dies[rand]->CBL.S.push_back(cur_block);
 		this->dies[rand]->CBL.L.push_back(cur_dir);
 		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
@@ -159,16 +159,12 @@ Block* CorblivarDie::placeCurrentBlock() {
 		return NULL;
 	}
 
-	cur_block = this->currentBlockShaped().s;
+	cur_block = this->currentBlock();
 	cur_dir = this->currentTupleDirection();
 	cur_juncts = this->currentTupleJuncts();
 
 	// assign layer to block
 	cur_block->layer = this->id;
-
-	// assign block dimension encoded in CBL to block
-	cur_block->bb.w = this->currentBlockShaped().w;
-	cur_block->bb.h = this->currentBlockShaped().h;
 
 	// horizontal placement
 	if (cur_dir == DIRECTION_HOR) {

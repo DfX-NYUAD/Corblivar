@@ -52,7 +52,6 @@ class CBLnode;
 class IO;
 class Point;
 class Block;
-class BlockShaped;
 class Net;
 class Rect;
 
@@ -219,7 +218,7 @@ class Block {
 		double power;
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
-		Rect bb;
+		Rect bb, bb_backup, bb_best;
 
 		Block(int id_i) {
 			id = id_i;
@@ -228,18 +227,6 @@ class Block {
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
-};
-
-class BlockShaped {
-	public:
-		Block *s;
-		double w, h;
-
-		BlockShaped(Block *b) {
-			s = b;
-			w = b->bb.w;
-			h = b->bb.h;
-		}
 };
 
 class Net {
@@ -260,7 +247,7 @@ class Net {
 class CornerBlockList {
 	public:
 		// CBL sequences
-		vector<BlockShaped> S;
+		vector<Block*> S;
 		vector<Direction> L;
 		vector<unsigned> T;
 
@@ -302,7 +289,7 @@ class CornerBlockList {
 		string itemString(unsigned i) {
 			stringstream ret;
 
-			ret << "(" << S[i].s->id << ", " << L[i] << ", " << T[i] << ")";
+			ret << "(" << S[i]->id << ", " << L[i] << ", " << T[i] << ")";
 
 			return ret.str();
 		};
@@ -362,7 +349,7 @@ class CorblivarDie {
 			this->pi = 0;
 		}
 
-		BlockShaped currentBlockShaped() {
+		Block* currentBlock() {
 			return this->CBL.S[this->pi];
 		}
 
@@ -404,13 +391,18 @@ class CorblivarLayoutRep {
 
 		void backupCBLs() {
 			unsigned i, ii;
+			Block *cur_block;
 
 			for (i = 0; i < this->dies.size(); i++) {
 
 				this->dies[i]->CBLbackup.clear();
 
 				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
-					this->dies[i]->CBLbackup.S.push_back(BlockShaped(this->dies[i]->CBL.S[ii].s));
+					cur_block = this->dies[i]->CBL.S[ii];
+					// backup block dimensions (block shape) into
+					// block itself
+					cur_block->bb_backup = cur_block->bb;
+					this->dies[i]->CBLbackup.S.push_back(cur_block);
 				}
 				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
 					this->dies[i]->CBLbackup.L.push_back(this->dies[i]->CBL.L[ii]);
@@ -423,13 +415,18 @@ class CorblivarLayoutRep {
 
 		void restoreCBLs() {
 			unsigned i, ii;
+			Block *cur_block;
 
 			for (i = 0; i < this->dies.size(); i++) {
 
 				this->dies[i]->CBL.clear();
 
 				for (ii = 0; ii < this->dies[i]->CBLbackup.S.size(); ii++) {
-					this->dies[i]->CBL.S.push_back(BlockShaped(this->dies[i]->CBLbackup.S[ii].s));
+					cur_block = this->dies[i]->CBLbackup.S[ii];
+					// restore block dimensions (block shape) from
+					// block itself
+					cur_block->bb = cur_block->bb_backup;
+					this->dies[i]->CBL.S.push_back(cur_block);
 				}
 				for (ii = 0; ii < this->dies[i]->CBLbackup.L.size(); ii++) {
 					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbackup.L[ii]);
@@ -442,13 +439,18 @@ class CorblivarLayoutRep {
 
 		void storeBestCBLs() {
 			unsigned i, ii;
+			Block *cur_block;
 
 			for (i = 0; i < this->dies.size(); i++) {
 
 				this->dies[i]->CBLbest.clear();
 
 				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
-					this->dies[i]->CBLbest.S.push_back(BlockShaped(this->dies[i]->CBL.S[ii].s));
+					cur_block = this->dies[i]->CBL.S[ii];
+					// backup block dimensions (block shape) into
+					// block itself
+					cur_block->bb_best = cur_block->bb;
+					this->dies[i]->CBLbest.S.push_back(cur_block);
 				}
 				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
 					this->dies[i]->CBLbest.L.push_back(this->dies[i]->CBL.L[ii]);
@@ -461,6 +463,7 @@ class CorblivarLayoutRep {
 
 		void applyBestCBLs(int log) {
 			unsigned i, ii;
+			Block *cur_block;
 
 			if (this->dies[0]->CBLbest.empty()) {
 				if (CorblivarFP::logMin(log)) {
@@ -474,7 +477,11 @@ class CorblivarLayoutRep {
 				this->dies[i]->CBL.clear();
 
 				for (ii = 0; ii < this->dies[i]->CBLbest.S.size(); ii++) {
-					this->dies[i]->CBL.S.push_back(BlockShaped(this->dies[i]->CBLbest.S[ii].s));
+					cur_block = this->dies[i]->CBLbest.S[ii];
+					// restore block dimensions (block shape) from
+					// block itself
+					cur_block->bb = cur_block->bb_best;
+					this->dies[i]->CBL.S.push_back(cur_block);
 				}
 				for (ii = 0; ii < this->dies[i]->CBLbest.L.size(); ii++) {
 					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbest.L[ii]);
@@ -544,9 +551,9 @@ class CorblivarLayoutRep {
 		void switchBlockOrientation(int die, int tuple) {
 			double w_tmp;
 
-			w_tmp = this->dies[die]->CBL.S[tuple].w;
-			this->dies[die]->CBL.S[tuple].w = this->dies[die]->CBL.S[tuple].h;
-			this->dies[die]->CBL.S[tuple].h = w_tmp;
+			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
+			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
+			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;
 #ifdef DBG_CORB
 			cout << "SA> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
 #endif
