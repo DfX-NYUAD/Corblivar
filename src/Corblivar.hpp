@@ -466,15 +466,16 @@ class CorblivarLayoutRep {
 		};
 
 		// CBL logging
-		void printCBLs(int log) {
+		string CBLsString() {
 			unsigned i;
+			stringstream ret;
 
-			if (CorblivarFP::logMax(log)) {
-				for (i = 0; i < this->dies.size(); i++) {
-					cout << "CBL[" << i << "]" << endl;
-					cout << this->dies[i]->CBL.itemString() << endl;
-				}
+			for (i = 0; i < this->dies.size(); i++) {
+				ret << "CBL[" << i << "]" << endl;
+				ret << this->dies[i]->CBL.itemString() << endl;
 			}
+
+			return ret.str();
 		};
 		// CBL backup handler
 		void backupCBLs() {

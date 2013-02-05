@@ -270,7 +270,16 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// generate final layout
 	chip.generateLayout(this->conf_log);
 	// verify if layout fits into outline
-	this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+	best_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+
+	// log results for feasible solution
+	if (cur_layout_fits_in_outline && this->logMin()) {
+		cout << "SA> Final cost: " << best_cost << endl;
+		cout << "SA>  Note: may differ from best solutions during SA process due to adaptive cost terms" << endl;
+		this->results << "Cost: " << best_cost << endl;
+		this->results << "CBLs: " << endl;
+		this->results << chip.CBLsString() << endl;
+	}
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
