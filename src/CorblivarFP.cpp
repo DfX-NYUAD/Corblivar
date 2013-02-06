@@ -111,7 +111,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
-	init_temp = cur_temp = CorblivarFP::SA_INIT_T_FACTOR * Math::stdDev(cost_hist);
+	init_temp = cur_temp = this->conf_SA_initTempFactor * Math::stdDev(cost_hist);
 	cost_hist.clear();
 
 	if (this->logMed()) {

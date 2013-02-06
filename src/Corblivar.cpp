@@ -74,5 +74,4 @@ int main (int argc, char** argv) {
 const int CorblivarFP::LOG_MINIMAL;
 const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;
-const int CorblivarFP::SA_INIT_T_FACTOR;
 const int Point::UNDEF;
