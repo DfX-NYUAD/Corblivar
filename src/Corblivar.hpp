@@ -221,6 +221,82 @@ class Rect {
 
 			return ret;
 		};
+
+		static Rect determineIntersection(Rect a, Rect b) {
+			Rect ret;
+
+			// left edge of b within a
+			if (a.ll.x <= b.ll.x && b.ll.x <= a.ur.x) {
+				ret.ll.x = b.ll.x;
+				// right edge: minimum of ur.x
+				ret.ur.x = min(a.ur.x, b.ur.x);
+			}
+			// left edge of a within b
+			else if (b.ll.x <= a.ll.x && a.ll.x <= b.ur.x) {
+				ret.ll.x = a.ll.x;
+				// right edge: minimum of ur.x
+				ret.ur.x = min(a.ur.x, b.ur.x);
+			}
+			// no intersection
+			else {
+				ret.ll.x = ret.ur.x = Point::UNDEF;
+			}
+
+			// bottom edge of b within a
+			if (a.ll.y <= b.ll.y && b.ll.y <= a.ur.y) {
+				ret.ll.y = b.ll.y;
+				// top edge: minimum of ur.y
+				ret.ur.y = min(a.ur.y, b.ur.y);
+			}
+			// bottom edge of a within b
+			else if (b.ll.y <= a.ll.y && a.ll.y <= b.ur.y) {
+				ret.ll.y = a.ll.y;
+				// top edge: minimum of ur.y
+				ret.ur.y = min(a.ur.y, b.ur.y);
+			}
+			// no intersection
+			else {
+				ret.ll.y = ret.ur.y = Point::UNDEF;
+			}
+
+			ret.w = ret.ur.x - ret.ll.x;
+			ret.h = ret.ur.y - ret.ll.y;
+			ret.area = ret.w * ret.h;
+
+			return ret;
+		};
+
+		static bool rectsIntersectVertical(Rect a, Rect b) {
+			return (
+					(a.ll.y <= b.ll.y && b.ll.y < a.ur.y) ||
+					(b.ll.y <= a.ll.y && a.ll.y < b.ur.y)
+				);
+		};
+
+		static bool rectsIntersectHorizontal(Rect a, Rect b) {
+			return (
+					(a.ll.x <= b.ll.x && b.ll.x < a.ur.x) ||
+					(b.ll.x <= a.ll.x && a.ll.x < b.ur.x)
+				);
+		};
+
+		static bool rectsIntersect(Rect a, Rect b) {
+			return rectsIntersectVertical(a, b) && rectsIntersectHorizontal(a, b);
+		};
+
+		static bool rectA_leftOf_rectB(Rect a, Rect b, bool considerVerticalIntersect) {
+			bool leftOf = (a.ur.x <= b.ll.x);
+			bool verticalIntersect = rectsIntersectVertical(a, b);
+
+			return ((leftOf && verticalIntersect) || (leftOf && !considerVerticalIntersect));
+		};
+
+		static bool rectA_below_rectB(Rect a, Rect b, bool considerHorizontalIntersect) {
+			bool below = (a.ur.y <= b.ll.y);
+			bool horizontalIntersect = rectsIntersectHorizontal(a, b);
+
+			return ((below && horizontalIntersect) || (below && !considerHorizontalIntersect));
+		};
 };
 
 class Block {
