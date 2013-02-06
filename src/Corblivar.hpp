@@ -624,9 +624,16 @@ class CorblivarLayoutRep {
 		};
 		void applyBestCBLs(int log) {
 			unsigned i, ii;
+			bool empty;
 			Block *cur_block;
 
-			if (this->dies[0]->CBLbest.empty()) {
+			empty = true;
+			for (i = 0; i < this->dies.size(); i++) {
+				if (!this->dies[i]->CBLbest.empty()) {
+					empty = false;
+				}
+			}
+			if (empty) {
 				if (CorblivarFP::logMin(log)) {
 					cout << "Corblivar> No best (fitting) solution available!" << endl;
 				}
