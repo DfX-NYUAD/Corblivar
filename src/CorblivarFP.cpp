@@ -205,7 +205,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			}
 		}
 
-		// determine ratio of solutions fitting into outline in prev temp step
+		// determine ratio of solutions fitting into outline in prev temp step;
+		// note that during the temp step this ratio is fixed in order to avoid
+		// sudden changes of related cost terms during few iterations
 		layout_fit_ratio = (double) layout_fit_counter / innerLoopMax;
 
 		// determine avg cost for temp step
