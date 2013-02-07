@@ -472,7 +472,9 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	map<int, Block*>::iterator b;
 	int i, non_empty_dies;
 	vector<double> dies_AR;
-	vector<double> dies_area;
+	vector<double> dies_outline;
+	//vector<double> blocks_area;
+	//double cur_blocks_area;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -489,63 +491,74 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
 
-	// cost function; cost terms which are independent of particular layer layouts
+	// cost function; cost terms which are determined considering full 3D layout
 	cost_total = this->conf_SA_cost_temp * cost_temp
 		+ this->conf_SA_cost_WL * cost_interconnects[0]
 		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
 		+ this->conf_SA_cost_IR * cost_IR
 	;
 
-	/// cost outline, area
-	// determine max outline coords for blocks on all dies separately
+	// cost function; cost terms which are determined considering particular dies
+	// i.e., outline, area
+	//
+	// determine outline and area
 	layout_fits_in_fixed_outline = true;
 	non_empty_dies = 0;
 	for (i = 0; i < this->conf_layer; i++) {
+		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
+		//cur_blocks_area = 0.0;
 		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
 			cur_block = (*b).second;
-			// update max outline coords
 			if (cur_block->layer == i) {
+				// update max outline coords
 				max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
 				max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
+				// sum up area covered by blocks
+				//cur_blocks_area += cur_block->bb.area;
 			}
 		}
+		//blocks_area.push_back(cur_blocks_area);
+		dies_outline.push_back(max_outline_x * max_outline_y);
 
 		// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
-		if (max_outline_x == 0.0 || max_outline_y == 0.0) {
-			// dummy value; implies outline cost of 0.0 for this die
-			dies_AR.push_back(this->outline_AR);
-		}
-		else {
+		if (max_outline_x > 0.0 && max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
 			non_empty_dies++;
 		}
-		// normalize outline to max value, i.e., given outline
+		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
+		// not impact cost function
+		else {
+			dies_AR.push_back(this->outline_AR);
+		}
+
+		// memorize whether layout fits into outline
 		max_outline_x /= this->conf_outline_x;
 		max_outline_y /= this->conf_outline_y;
-		// consider normalized outline for area calculation
-		dies_area.push_back(max_outline_x * max_outline_y);
-		// memorize whether layout fits into outline
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// cost function; cost terms which are dependent of particular layer layouts,
-	// i.e., outline, area
+	// determine cost factors
 	cost_area_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
 		/// adaptive cost model: terms for area and AR mismatch are _mutually_
 		/// depending on ratio of feasible solutions (solutions fitting into outline)
-		// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
-		cost_area_outline = cost_area_outline
-		+ this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline * dies_area[i]
-		// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
-		+ this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline) * pow(dies_AR[i] - this->outline_AR, 2.0)
-	;
+		cost_area_outline +=
+			// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
+			(this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline
+			 	// consider normalized area (blocks' outline) w.r.t. die outline
+				* (dies_outline[i] / (this->conf_outline_x * this->conf_outline_y)))
+				//* (blocks_area[i] / dies_outline[i]))
+				//* pow((blocks_area[i] / dies_outline[i]) - 1.0, 2.0))
+			// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
+			+ (this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline)
+				* pow(dies_AR[i] - this->outline_AR, 2.0))
+			;
 	}
 	// determine average of layer-dependent cost factors
 	cost_area_outline /= non_empty_dies;
 
-	// add to cost function
+	// sum up cost function
 	cost_total += cost_area_outline;
 
 #ifdef DBG_SA
