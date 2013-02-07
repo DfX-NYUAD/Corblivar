@@ -16,12 +16,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, best_cost, prev_cost, cost_diff;
-	double cur_avg_cost, init_avg_cost;
-	double cost_temp_diff;
-	unsigned c;
-	deque<double> cost_hist;
-	double cur_temp, init_temp, temp_diff;
+	double cur_cost, best_cost, prev_cost, cost_diff, cur_avg_cost;
+	vector<double> cost_hist;
+	double cur_temp, init_temp;
 	double r;
 	vector<double> init_cost_interconnects;
 	bool cur_layout_fits_in_outline;
@@ -102,17 +99,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	chip.generateLayout(this->conf_log);
 	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
 
-	// determine initial avg cost
-	init_avg_cost = 0.0;
-	for (c = 0; c < cost_hist.size(); c++) {
-		init_avg_cost += cost_hist[c];
-	}
-	init_avg_cost /= cost_hist.size();
-
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
 	init_temp = cur_temp = this->conf_SA_initTempFactor * Math::stdDev(cost_hist);
-	cost_hist.clear();
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
@@ -127,7 +116,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	layout_fit_ratio = 0.0;
 
 	/// outer loop: annealing -- temperature steps
-	while (!annealed && i <= this->conf_SA_loopLimit) {
+	while (!annealed) {
 
 		if (this->logMed()) {
 			cout << "SA> Optimization step: " << i << "/" << this->conf_SA_loopLimit << endl;
@@ -225,7 +214,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// reduce temp
 		// LV Christian Hochberger "HW Synthese eingebettete Systeme", Kapitel 6
-		temp_diff = cur_temp;
 		if (accepted_ops > 0.96) {
 			cur_temp *= 0.5;
 		}
@@ -239,32 +227,11 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		else {
 			cur_temp *= 0.8;
 		}
-		temp_diff -= cur_temp;
-
-		// determine whether annealed: consider change of cost/temp ratio
-		// (Aarts 1986, as given in Shahookar 1991)
-		cost_hist.push_back(cur_avg_cost);
-		if (cost_hist.size() > 2) {
-			// drop cost of previous (> 2) iteration
-			cost_hist.pop_front();
-
-			// determine change of cost in prev iteration
-			cost_diff = cost_hist[1] - cost_hist[0];
-
-			// determine change of cost/temp ratio
-			// weighted w/ temp/init_cost ratio
-			cost_temp_diff = abs((cost_diff / temp_diff) * (cur_temp / init_avg_cost));
-
-			// consider as annealed when ratio drops below min level
-			annealed = (cost_temp_diff <= this->conf_SA_costTempRatioLowerLimit);
-
-			if (this->logMed()) {
-				cout << "SA>  delta(cost/temp) ratio: " << cost_temp_diff << endl;
-			}
-		}
 
 		// consider next step
 		i++;
+		// (TODO) also consider acceptance rate for faster stop
+		annealed = (i > this->conf_SA_loopLimit);
 	}
 
 	// apply best solution, if available, as final solution

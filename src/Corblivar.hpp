@@ -67,7 +67,7 @@ class CorblivarFP {
 		// config parameters
 		int conf_layer;
 		double conf_outline_x, conf_outline_y, outline_AR;
-		double conf_SA_costTempRatioLowerLimit, conf_SA_loopFactor, conf_SA_loopLimit, conf_SA_initTempFactor;
+		double conf_SA_loopFactor, conf_SA_loopLimit, conf_SA_initTempFactor;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: max cost values
@@ -142,7 +142,7 @@ class Math {
 		}
 
 		// var stuff
-		static double stdDev(deque<double> &samples) {
+		static double stdDev(vector<double> &samples) {
 			double avg, sq_diffs;
 			unsigned s;
 
