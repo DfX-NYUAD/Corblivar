@@ -84,17 +84,7 @@ void CorblivarLayoutRep::generateLayout(int log, bool dbgStack) {
 
 	// reset die data
 	for (i = 0; i < this->dies.size(); i++) {
-		// reset progress pointer
-		this->dies[i]->resetTuplePointer();
-		// reset done flag
-		this->dies[i]->done = false;
-		// reset placement stacks
-		while (!this->dies[i]->Hi.empty()) {
-			this->dies[i]->Hi.pop();
-		}
-		while (!this->dies[i]->Vi.empty()) {
-			this->dies[i]->Vi.pop();
-		}
+		this->dies[i]->reset();
 	}
 
 	// perform layout generation in loop (until all blocks are placed)

@@ -415,15 +415,10 @@ class CorblivarDie {
 			this->pi = 0;
 		};
 
-		// backup CBL sequences
-		CornerBlockList CBLbackup, CBLbest;
-
 		// placement stacks
 		stack<Block*> Hi, Vi;
 
 	public:
-		friend class CorblivarLayoutRep;
-
 		int id;
 
 		bool stalled;
@@ -431,6 +426,9 @@ class CorblivarDie {
 
 		// main CBL sequence
 		CornerBlockList CBL;
+
+		// backup CBL sequences
+		CornerBlockList CBLbackup, CBLbest;
 
 		CorblivarDie(int i) {
 			stalled = done = false;
@@ -454,6 +452,20 @@ class CorblivarDie {
 
 		string currentTupleString() {
 			return this->CBL.itemString(this->pi);
+		}
+
+		void reset() {
+			// reset progress pointer
+			this->resetTuplePointer();
+			// reset done flag
+			this->done = false;
+			// reset placement stacks
+			while (!this->Hi.empty()) {
+				this->Hi.pop();
+			}
+			while (!this->Vi.empty()) {
+				this->Vi.pop();
+			}
 		}
 };
 
