@@ -473,8 +473,6 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	int i, non_empty_dies;
 	vector<double> dies_AR;
 	vector<double> dies_outline;
-	//vector<double> blocks_area;
-	//double cur_blocks_area;
 
 	// TODO Cost Temp
 	cost_temp = 0.0;
@@ -507,18 +505,14 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	for (i = 0; i < this->conf_layer; i++) {
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		//cur_blocks_area = 0.0;
 		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
 			cur_block = (*b).second;
 			if (cur_block->layer == i) {
 				// update max outline coords
 				max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
 				max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
-				// sum up area covered by blocks
-				//cur_blocks_area += cur_block->bb.area;
 			}
 		}
-		//blocks_area.push_back(cur_blocks_area);
 		dies_outline.push_back(max_outline_x * max_outline_y);
 
 		// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
@@ -544,14 +538,12 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 		/// adaptive cost model: terms for area and AR mismatch are _mutually_
 		/// depending on ratio of feasible solutions (solutions fitting into outline)
 		cost_area_outline +=
-			// cost term for area: alpha * ratio * A; 0 <= alpha <= cost_area_outline
-			(this->conf_SA_cost_area_outline * ratio_feasible_solutions_fixed_outline
+			// cost term for area
+			(0.5 * this->conf_SA_cost_area_outline * (1.0 + ratio_feasible_solutions_fixed_outline)
 			 	// consider normalized area (blocks' outline) w.r.t. die outline
 				* (dies_outline[i] / (this->conf_outline_x * this->conf_outline_y)))
-				//* (blocks_area[i] / dies_outline[i]))
-				//* pow((blocks_area[i] / dies_outline[i]) - 1.0, 2.0))
-			// cost term for aspect ratio mismatch: alpha * (1 - ratio) * (R - R_outline)^2
-			+ (this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline)
+			// cost term for aspect ratio mismatch
+			+ (0.5 * this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline)
 				* pow(dies_AR[i] - this->outline_AR, 2.0))
 			;
 	}
