@@ -186,9 +186,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 			// determine min value
 			y = relevBlocks[0]->bb.ll.y;
 			for (b = 1; b < relevBlocks.size(); b++) {
-				if (relevBlocks[b]->bb.ll.y != Point::UNDEF) {
-					y = min(y, relevBlocks[b]->bb.ll.y);
-				}
+				y = min(y, relevBlocks[b]->bb.ll.y);
 			}
 		}
 
@@ -258,9 +256,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 			// determine min value
 			x = relevBlocks[0]->bb.ll.x;
 			for (b = 1; b < relevBlocks.size(); b++) {
-				if (relevBlocks[b]->bb.ll.x != Point::UNDEF) {
-					x = min(x, relevBlocks[b]->bb.ll.x);
-				}
+				x = min(x, relevBlocks[b]->bb.ll.x);
 			}
 		}
 
@@ -316,13 +312,12 @@ Block* CorblivarDie::placeCurrentBlock() {
 
 #ifdef DBG_CORB
 	cout << "DBG_CORB> ";
-	cout << "Processed (placed) CBL tuple " << this->currentTupleString() << " on die " << this->id << ":" << endl;
-	cout << " LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
-	cout << " UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
+	cout << "Processed (placed) CBL tuple " << this->currentTupleString() << " on die " << this->id << ": ";
+	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
+	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
 	stack<Block*> tmp_Hi = this->Hi;
-	cout << "DBG_CORB> stack Hi:" << endl;
-	cout << " ";
+	cout << "DBG_CORB> stack Hi: ";
 	while (!tmp_Hi.empty()) {
 		if (tmp_Hi.size() > 1) {
 			cout << tmp_Hi.top()->id << ", ";
@@ -334,8 +329,7 @@ Block* CorblivarDie::placeCurrentBlock() {
 	}
 
 	stack<Block*> tmp_Vi = this->Vi;
-	cout << "DBG_CORB> stack Vi:" << endl;
-	cout << " ";
+	cout << "DBG_CORB> stack Vi: ";
 	while (!tmp_Vi.empty()) {
 		if (tmp_Vi.size() > 1) {
 			cout << tmp_Vi.top()->id << ", ";
