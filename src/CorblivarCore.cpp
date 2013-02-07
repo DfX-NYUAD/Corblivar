@@ -69,7 +69,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(int log) {
+void CorblivarLayoutRep::generateLayout(int log, bool dbgStack) {
 	unsigned i;
 	Block *cur_block;
 	bool loop;
@@ -103,7 +103,7 @@ void CorblivarLayoutRep::generateLayout(int log) {
 		// handle stalled die / resolve open alignment process by placing current block
 		if (this->p->stalled) {
 			// place block, increment progress pointer
-			cur_block = this->p->placeCurrentBlock();
+			cur_block = this->p->placeCurrentBlock(dbgStack);
 			// TODO mark current block as placed in AS
 			//
 			// mark die as not stalled anymore
@@ -118,7 +118,7 @@ void CorblivarLayoutRep::generateLayout(int log) {
 			// no alignment tuple assigned for current block
 			else {
 				// place block, increment progress pointer
-				this->p->placeCurrentBlock();
+				this->p->placeCurrentBlock(dbgStack);
 			}
 		}
 
@@ -145,7 +145,7 @@ void CorblivarLayoutRep::generateLayout(int log) {
 
 }
 
-Block* CorblivarDie::placeCurrentBlock() {
+Block* CorblivarDie::placeCurrentBlock(bool dbgStack) {
 	Block *cur_block;
 	Direction cur_dir;
 	unsigned cur_juncts;
@@ -310,36 +310,36 @@ Block* CorblivarDie::placeCurrentBlock() {
 		}
 	}
 
-#ifdef DBG_CORB
-	cout << "DBG_CORB> ";
-	cout << "Processed (placed) CBL tuple " << this->currentTupleString() << " on die " << this->id << ": ";
-	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
-	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
+	if (dbgStack) {
+		cout << "DBG_CORB> ";
+		cout << "Processed (placed) CBL tuple " << this->currentTupleString() << " on die " << this->id << ": ";
+		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
+		cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
-	stack<Block*> tmp_Hi = this->Hi;
-	cout << "DBG_CORB> stack Hi: ";
-	while (!tmp_Hi.empty()) {
-		if (tmp_Hi.size() > 1) {
-			cout << tmp_Hi.top()->id << ", ";
+		stack<Block*> tmp_Hi = this->Hi;
+		cout << "DBG_CORB> stack Hi: ";
+		while (!tmp_Hi.empty()) {
+			if (tmp_Hi.size() > 1) {
+				cout << tmp_Hi.top()->id << ", ";
+			}
+			else {
+				cout << tmp_Hi.top()->id << endl;
+			}
+			tmp_Hi.pop();
 		}
-		else {
-			cout << tmp_Hi.top()->id << endl;
-		}
-		tmp_Hi.pop();
-	}
 
-	stack<Block*> tmp_Vi = this->Vi;
-	cout << "DBG_CORB> stack Vi: ";
-	while (!tmp_Vi.empty()) {
-		if (tmp_Vi.size() > 1) {
-			cout << tmp_Vi.top()->id << ", ";
+		stack<Block*> tmp_Vi = this->Vi;
+		cout << "DBG_CORB> stack Vi: ";
+		while (!tmp_Vi.empty()) {
+			if (tmp_Vi.size() > 1) {
+				cout << tmp_Vi.top()->id << ", ";
+			}
+			else {
+				cout << tmp_Vi.top()->id << endl;
+			}
+			tmp_Vi.pop();
 		}
-		else {
-			cout << tmp_Vi.top()->id << endl;
-		}
-		tmp_Vi.pop();
 	}
-#endif
 
 	// increment progress pointer, consider next tuple (block)
 	this->incrementTuplePointer();

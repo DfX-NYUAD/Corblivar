@@ -438,7 +438,7 @@ class CorblivarDie {
 		}
 
 		// layout generation functions
-		Block* placeCurrentBlock();
+		Block* placeCurrentBlock(bool dbgStack = false);
 
 		Block* currentBlock() {
 			return this->CBL.S[this->pi];
@@ -469,7 +469,7 @@ class CorblivarLayoutRep {
 
 		// general layout operations
 		void initCorblivar(CorblivarFP &corb);
-		void generateLayout(int log);
+		void generateLayout(int log, bool dbgStack = false);
 		//CorblivarDie* findDie(Block* Si);
 
 		// layout operations for heuristic optimization
