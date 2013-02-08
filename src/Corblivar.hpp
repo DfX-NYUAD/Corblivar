@@ -67,7 +67,7 @@ class CorblivarFP {
 		// config parameters
 		int conf_layer;
 		double conf_outline_x, conf_outline_y, outline_AR;
-		double conf_SA_loopFactor, conf_SA_loopLimit, conf_SA_initTempFactor;
+		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: max cost values
