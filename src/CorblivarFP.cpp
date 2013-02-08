@@ -16,7 +16,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, best_cost, prev_cost, cost_diff, cur_avg_cost;
+	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost;
 	vector<double> cost_hist;
 	double cur_temp, init_temp;
 	double r;
@@ -70,7 +70,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// restore initial CBLs
 	chip.restoreCBLs();
 
-	// perform some random operations, track cost std dev
+	// perform some random operations, track cost
 	layout_fit_counter = 0;
 	i = 1;
 	while (i <= innerLoopMax) {
@@ -101,7 +101,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
-	init_temp = cur_temp = this->conf_SA_initTempFactor * Math::stdDev(cost_hist);
+	init_temp = cur_temp = Math::stdDev(cost_hist);
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
@@ -109,7 +109,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	}
 
 	// init loop parameters
-	i = 0;
+	i = 1;
 	annealed = false;
 	// dummy value >> normalized cost to expect
 	best_cost = 100.0;
@@ -124,7 +124,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// init loop parameters
 		ii = 1;
-		cur_avg_cost = 0.0;
+		avg_cost = 0.0;
 		accepted_ops = 0.0;
 		layout_fit_counter = 0.0;
 
@@ -170,8 +170,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				if (accept) {
 					// update ops count
 					accepted_ops++;
-					// update sum of cost
-					cur_avg_cost += cur_cost;
+					// sum up cost for subsequent avg determination
+					avg_cost += cur_cost;
 
 					// update count of solutions fitting into outline
 					if (cur_layout_fits_in_outline) {
@@ -200,7 +200,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		layout_fit_ratio = (double) layout_fit_counter / innerLoopMax;
 
 		// determine avg cost for temp step
-		cur_avg_cost /= accepted_ops;
+		avg_cost /= accepted_ops;
 		// determine accepted-ops ratio
 		accepted_ops /= innerLoopMax;
 
@@ -209,7 +209,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
 			cout << "SA>  accept-ops ratio: " << accepted_ops << endl;
 			cout << "SA>  temp: " << cur_temp << endl;
-			cout << "SA>  avg cost: " << cur_avg_cost << endl;
+			cout << "SA>  avg cost: " << avg_cost << endl;
 		}
 
 		// reduce temp
