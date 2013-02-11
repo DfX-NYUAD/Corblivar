@@ -165,12 +165,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	/// derive related temperature-schedule boundaries
 	// upper boundary; for fast cooling
-	// 0.333 <= boundary <= 1.0
-	accepted_ops_ratio_boundary_1 = min(1.0, 3.0 * accepted_ops_ratio_offset);
-	accepted_ops_ratio_boundary_1 = max(0.333, accepted_ops_ratio_boundary_1);
+	accepted_ops_ratio_boundary_1 = this->conf_SA_temp_phase_trans_12_factor * accepted_ops_ratio_offset;
 	// lower boundary; for slow cooling
-	// boundary <= 0.333
-	accepted_ops_ratio_boundary_2 = min(0.333, 0.9 * accepted_ops_ratio_offset);
+	accepted_ops_ratio_boundary_2 = this->conf_SA_temp_phase_trans_23_factor * accepted_ops_ratio_offset;
 
 	if (this->logMed()) {
 		cout << "SA> Temperature-update factors (dependent of acceptance ratio r): " << endl;

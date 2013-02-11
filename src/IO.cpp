@@ -138,6 +138,16 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> corb.conf_SA_temp_phase_trans_12_factor;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> corb.conf_SA_temp_phase_trans_23_factor;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> corb.conf_SA_cost_temp;
 
 	in >> tmpstr;
@@ -182,6 +192,8 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (fast cooling): " << corb.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (slow cooling): " << corb.conf_SA_temp_factor_phase2 << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (reheating): " << corb.conf_SA_temp_factor_phase3 << endl;
+		cout << "IO>  SA -- Boundary factor for transitions b/w phases 1, 2: " << corb.conf_SA_temp_phase_trans_12_factor << endl;
+		cout << "IO>  SA -- Boundary factor for transitions b/w phases 2, 3: " << corb.conf_SA_temp_phase_trans_23_factor << endl;
 		cout << "IO>  SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
 		cout << "IO>  SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
 		cout << "IO>  SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;

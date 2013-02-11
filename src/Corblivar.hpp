@@ -74,6 +74,9 @@ class CorblivarFP {
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 		// SA parameters: temperature-scaling factors
 		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
+		// SA parameters: temperature-phase-transition factos
+		double conf_SA_temp_phase_trans_12_factor, conf_SA_temp_phase_trans_23_factor;
+
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static const int SA_SAMPLING_LOOP_FACTOR = 2;
 
