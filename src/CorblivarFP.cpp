@@ -51,7 +51,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// perform some random operations, track max costs
 	i = 0;
-	while (i < innerLoopMax) {
+	while (i < SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
 
 		op_success = this->performRandomLayoutOp(chip);
 
@@ -80,7 +80,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// perform some random operations, track cost
 	layout_fit_counter = 0;
 	i = 1;
-	while (i <= innerLoopMax) {
+	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
 
 		op_success = this->performRandomLayoutOp(chip);
 
@@ -114,7 +114,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	i = 1;
 	accepted_ops_ratio = 0.0;
 	layout_fit_counter = 0;
-	while (i <= innerLoopMax) {
+	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
 
 		op_success = this->performRandomLayoutOp(chip);
 
@@ -158,7 +158,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		}
 	}
 	// determine ratio of accepted ops
-	accepted_ops_ratio_offset = accepted_ops_ratio / innerLoopMax;
+	accepted_ops_ratio_offset = accepted_ops_ratio / i;
 	if (this->logMed()) {
 		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
 	}
