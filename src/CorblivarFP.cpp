@@ -16,7 +16,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost;
+	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, init_cost, fitting_cost;
 	vector<double> cost_hist;
 	double cur_temp, init_temp;
 	double r;
@@ -66,7 +66,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			i++;
 		}
 	}
-
 	// restore initial CBLs
 	chip.restoreCBLs();
 
@@ -91,13 +90,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			i++;
 		}
 	}
-
 	// restore initial CBLs
 	chip.restoreCBLs();
 
 	// determine initial, normalized cost
 	chip.generateLayout(this->conf_log);
-	cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
+	init_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
@@ -111,9 +109,10 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// init loop parameters
 	i = 1;
 	annealed = false;
-	// dummy value >> normalized cost to expect
-	best_cost = 100.0;
 	layout_fit_ratio = 0.0;
+	cur_cost = init_cost;
+	// dummy large value to accept first fitting solution
+	best_cost = 100.0 * init_cost;
 
 	/// outer loop: annealing -- temperature steps
 	while (!annealed) {
@@ -149,9 +148,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				cout << "DBG_SA> Cost diff: " << cost_diff << endl;
 #endif
 
-				// revert solution w/ worse cost, depending on temperature
+				// revert solution w/ worse or same cost, depending on temperature
 				accept = true;
-				if (cost_diff > 0.0) {
+				if (cost_diff >= 0.0) {
 					r = Math::randF01();
 					if (r > exp(- cost_diff / cur_temp)) {
 #ifdef DBG_SA
@@ -173,20 +172,29 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 					// sum up cost for subsequent avg determination
 					avg_cost += cur_cost;
 
-					// update count of solutions fitting into outline
 					if (cur_layout_fits_in_outline) {
+						// update count of solutions fitting into outline
 						layout_fit_counter++;
 
+						// in order to compare different fitting
+						// solutions equally, set fitting ratio to
+						// 1.0
+						fitting_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
 						// memorize best solution which fits into outline
-						if (cur_cost < best_cost) {
+						if (fitting_cost < best_cost) {
 							if (this->logMax()) {
-								cout << "SA> Currently best (fitting) solution found; cost: " << cur_cost << endl;
+								cout << "SA> Currently best solution found; (adapted) cost: " << fitting_cost << endl;
 							}
 
 							best_cost = cur_cost;
 							chip.storeBestCBLs();
 						}
 					}
+				}
+				// not accepted, but would fit into outline
+				else if (cur_layout_fits_in_outline) {
+					// update count of solutions fitting into outline
+					layout_fit_counter++;
 				}
 
 				// consider next loop iteration
@@ -213,19 +221,18 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		}
 
 		// reduce temp
-		// LV Christian Hochberger "HW Synthese eingebettete Systeme", Kapitel 6
-		if (accepted_ops > 0.96) {
+		if (accepted_ops > 0.6) {
+			cur_temp *= 0.1;
+		}
+		else if (0.3 < accepted_ops && accepted_ops <= 0.6) {
 			cur_temp *= 0.5;
 		}
-		else if (0.8 < accepted_ops && accepted_ops <= 0.96) {
+		else if (0.0 < accepted_ops && accepted_ops <= 0.3) {
 			cur_temp *= 0.9;
 		}
-		else if (0.15 < accepted_ops && accepted_ops <= 0.8) {
-			cur_temp *= 0.95;
-		}
-		// accepted_ops <= 0.15
 		else {
-			cur_temp *= 0.8;
+			//cur_temp *= 10.0 * (1.0 - (double) i / this->conf_SA_loopLimit);
+			cur_temp *= 100.0;
 		}
 
 		// consider next step
@@ -244,7 +251,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// log results for feasible solution
 	if (cur_layout_fits_in_outline && this->logMin()) {
 		cout << "SA> Final cost: " << best_cost << endl;
-		cout << "SA>  Note: may differ from best solutions during SA process due to adaptive cost terms" << endl;
 		this->results << "Cost: " << best_cost << endl;
 		this->results << "CBLs: " << endl;
 		this->results << chip.CBLsString() << endl;
