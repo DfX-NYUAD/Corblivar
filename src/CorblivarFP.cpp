@@ -16,7 +16,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops;
 	bool annealed;
 	bool op_success;
-	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, init_cost, fitting_cost;
+	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
 	vector<double> cost_hist;
 	double cur_temp, init_temp;
 	double r;
@@ -93,10 +93,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	// restore initial CBLs
 	chip.restoreCBLs();
 
-	// determine initial, normalized cost
-	chip.generateLayout(this->conf_log);
-	init_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
-
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
 	init_temp = cur_temp = Math::stdDev(cost_hist);
@@ -110,9 +106,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	i = 1;
 	annealed = false;
 	layout_fit_ratio = 0.0;
-	cur_cost = init_cost;
 	// dummy large value to accept first fitting solution
-	best_cost = 100.0 * init_cost;
+	best_cost = 100.0 * Math::stdDev(cost_hist);
 
 	/// outer loop: annealing -- temperature steps
 	while (!annealed) {
@@ -126,6 +121,10 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		avg_cost = 0.0;
 		accepted_ops = 0.0;
 		layout_fit_counter = 0.0;
+
+		// init cost for current layout and fitting ratio
+		chip.generateLayout(this->conf_log);
+		cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, layout_fit_ratio);
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
