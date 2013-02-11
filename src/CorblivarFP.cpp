@@ -176,6 +176,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		cout << this->conf_SA_temp_factor_phase2 << endl;
 		// below lower boundary; peform reheating
 		cout << "SA>  r <= " << accepted_ops_ratio_boundary_2 << ": " << this->conf_SA_temp_factor_phase3 << endl;
+		cout << "SA>   Note: this factor will decrease w/ increasing optimization step" << endl;
 	}
 
 	if (this->logMed()) {
