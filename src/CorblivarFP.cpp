@@ -26,6 +26,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	bool cur_layout_fits_in_outline;
 	int layout_fit_counter;
 	double layout_fit_ratio;
+	bool valid_layout_found;
 	bool accept;
 
 	// init max cost
@@ -165,11 +166,11 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	/// derive related temperature-schedule boundaries
 	// upper boundary; for fast cooling
 	// 0.333 <= boundary <= 1.0
-	accepted_ops_ratio_boundary_1 = min(1.0, 5.0 * accepted_ops_ratio_offset);
+	accepted_ops_ratio_boundary_1 = min(1.0, 3.0 * accepted_ops_ratio_offset);
 	accepted_ops_ratio_boundary_1 = max(0.333, accepted_ops_ratio_boundary_1);
 	// lower boundary; for slow cooling
 	// boundary <= 0.333
-	accepted_ops_ratio_boundary_2 = min(0.333, 1.5 * accepted_ops_ratio_offset);
+	accepted_ops_ratio_boundary_2 = min(0.333, 0.9 * accepted_ops_ratio_offset);
 
 	if (this->logMed()) {
 		cout << "SA> Temperature-update factors (dependent of acceptance ratio r): " << endl;
@@ -190,7 +191,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// init loop parameters
 	i = 1;
-	annealed = false;
+	annealed = valid_layout_found = false;
 	layout_fit_ratio = 0.0;
 	// dummy large value to accept first fitting solution
 	best_cost = 100.0 * Math::stdDev(cost_hist);
@@ -262,9 +263,10 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 						layout_fit_counter++;
 
 						// in order to compare different fitting
-						// solutions equally, set fitting ratio to
-						// 1.0
+						// solutions equally, redetermine cost w/
+						// fitting ratio 1.0
 						fitting_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
 							if (this->logMax()) {
@@ -273,6 +275,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 							best_cost = cur_cost;
 							chip.storeBestCBLs();
+							valid_layout_found = true;
 						}
 					}
 				}
@@ -315,9 +318,16 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			cur_temp *= this->conf_SA_temp_factor_phase2;
 		}
 		// phase 3; reheating; accepted_ops_ratio <= accepted_ops_ratio_boundary_2
+		// heating-up factor is steadily decreased w/ increasing step count to
+		// enable convergence
 		else {
-			cur_temp *= this->conf_SA_temp_factor_phase3 * (1.0 - (double) i / this->conf_SA_loopLimit);
-			//cur_temp *= 100.0;
+			if (valid_layout_found) {
+				cur_temp *= this->conf_SA_temp_factor_phase3 * (1.0 - (double) i / this->conf_SA_loopLimit);
+			}
+			// if no layout was found; heating up is increased exponentially
+			else {
+				cur_temp *= pow(this->conf_SA_temp_factor_phase3, 2.0) * (1.0 - (double) i / this->conf_SA_loopLimit);
+			}
 		}
 
 		// consider next step
