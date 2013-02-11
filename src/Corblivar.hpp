@@ -72,6 +72,8 @@ class CorblivarFP {
 
 		// SA parameters: max cost values
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+		// SA parameters: temperature-scaling factors
+		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
 
 		// layout operation handlers
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;

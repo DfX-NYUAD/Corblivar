@@ -13,7 +13,9 @@
 bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
-	double accepted_ops;
+	double accepted_ops_ratio;
+	double accepted_ops_ratio_offset;
+	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
 	bool annealed;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
@@ -66,6 +68,11 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			i++;
 		}
 	}
+	// log
+	if (this->logMed()) {
+		cout << "SA> Cost parameter normalization set up..." << endl;
+	}
+
 	// restore initial CBLs
 	chip.restoreCBLs();
 
@@ -90,17 +97,96 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			i++;
 		}
 	}
+
 	// restore initial CBLs
 	chip.restoreCBLs();
 
 	// init SA parameter: start temp, depends on std dev of costs
 	// Huang et al 1986
 	init_temp = cur_temp = Math::stdDev(cost_hist);
+	if (this->logMed()) {
+		cout << "SA> Initial temperature: " << init_temp << endl;
+	}
+
+	// perform some random operations, track acceptance ratio for temperature = 0.0
+	// i.e., consider only solutions w/ improved cost
+	i = 1;
+	accepted_ops_ratio = 0.0;
+	layout_fit_counter = 0;
+	while (i <= innerLoopMax) {
+
+		op_success = this->performRandomLayoutOp(chip);
+
+		if (op_success) {
+
+			// init cost
+			if (i == 1) {
+				chip.generateLayout(this->conf_log);
+				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, 0.0);
+			}
+
+			prev_cost = cur_cost;
+
+			// generate layout
+			chip.generateLayout(this->conf_log);
+
+			// evaluate layout, new cost
+			cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
+			// cost difference
+			cost_diff = cur_cost - prev_cost;
+
+			// solution w/ worse cost, revert
+			if (cost_diff >= 0.0) {
+				// revert last op
+				this->performRandomLayoutOp(chip, true);
+				// reset cost according to reverted CBL
+				cur_cost = prev_cost;
+			}
+			// accept solution w/ improved cost
+			else {
+				// update ops count
+				accepted_ops_ratio++;
+			}
+
+			// memorize count of solutions fitting into outline
+			if (cur_layout_fits_in_outline) {
+				layout_fit_counter++;
+			}
+
+			i++;
+		}
+	}
+	// determine ratio of accepted ops
+	accepted_ops_ratio_offset = accepted_ops_ratio / innerLoopMax;
+	if (this->logMed()) {
+		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
+	}
+
+	/// derive related temperature-schedule boundaries
+	// upper boundary; for fast cooling
+	// 0.333 <= boundary <= 1.0
+	accepted_ops_ratio_boundary_1 = min(1.0, 5.0 * accepted_ops_ratio_offset);
+	accepted_ops_ratio_boundary_1 = max(0.333, accepted_ops_ratio_boundary_1);
+	// lower boundary; for slow cooling
+	// boundary <= 0.333
+	accepted_ops_ratio_boundary_2 = min(0.333, 1.5 * accepted_ops_ratio_offset);
+
+	if (this->logMed()) {
+		cout << "SA> Temperature-update factors (dependent of acceptance ratio r): " << endl;
+		cout << "SA>  r > " << accepted_ops_ratio_boundary_1 << ": " << this->conf_SA_temp_factor_phase1 << endl;
+		cout << "SA>  " << accepted_ops_ratio_boundary_2 << " < r <= " << accepted_ops_ratio_boundary_1 << ": ";
+		cout << this->conf_SA_temp_factor_phase2 << endl;
+		// below lower boundary; peform reheating
+		cout << "SA>  r <= " << accepted_ops_ratio_boundary_2 << ": " << this->conf_SA_temp_factor_phase3 << endl;
+	}
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
 		cout << "SA> Start annealing process..." << endl;
 	}
+
+	// restore initial CBLs
+	chip.restoreCBLs();
 
 	// init loop parameters
 	i = 1;
@@ -119,7 +205,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// init loop parameters
 		ii = 1;
 		avg_cost = 0.0;
-		accepted_ops = 0.0;
+		accepted_ops_ratio = 0.0;
 		layout_fit_counter = 0.0;
 
 		// init cost for current layout and fitting ratio
@@ -167,7 +253,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				// solution accepted
 				if (accept) {
 					// update ops count
-					accepted_ops++;
+					accepted_ops_ratio++;
 					// sum up cost for subsequent avg determination
 					avg_cost += cur_cost;
 
@@ -207,31 +293,31 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		layout_fit_ratio = (double) layout_fit_counter / innerLoopMax;
 
 		// determine avg cost for temp step
-		avg_cost /= accepted_ops;
+		avg_cost /= accepted_ops_ratio;
 		// determine accepted-ops ratio
-		accepted_ops /= innerLoopMax;
+		accepted_ops_ratio /= innerLoopMax;
 
 		if (this->logMed()) {
 			cout << "SA> Step done:" << endl;
+			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
 			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
-			cout << "SA>  accept-ops ratio: " << accepted_ops << endl;
 			cout << "SA>  temp: " << cur_temp << endl;
 			cout << "SA>  avg cost: " << avg_cost << endl;
 		}
 
-		// reduce temp
-		if (accepted_ops > 0.6) {
-			cur_temp *= 0.1;
+		/// reduce temp
+		// phase 1; fast cooling
+		if (accepted_ops_ratio > accepted_ops_ratio_boundary_1) {
+			cur_temp *= this->conf_SA_temp_factor_phase1;
 		}
-		else if (0.3 < accepted_ops && accepted_ops <= 0.6) {
-			cur_temp *= 0.5;
+		// phase 2; slow cooling
+		else if (accepted_ops_ratio_boundary_2 < accepted_ops_ratio && accepted_ops_ratio <= accepted_ops_ratio_boundary_1) {
+			cur_temp *= this->conf_SA_temp_factor_phase2;
 		}
-		else if (0.0 < accepted_ops && accepted_ops <= 0.3) {
-			cur_temp *= 0.9;
-		}
+		// phase 3; reheating; accepted_ops_ratio <= accepted_ops_ratio_boundary_2
 		else {
-			//cur_temp *= 10.0 * (1.0 - (double) i / this->conf_SA_loopLimit);
-			cur_temp *= 100.0;
+			cur_temp *= this->conf_SA_temp_factor_phase3 * (1.0 - (double) i / this->conf_SA_loopLimit);
+			//cur_temp *= 100.0;
 		}
 
 		// consider next step
