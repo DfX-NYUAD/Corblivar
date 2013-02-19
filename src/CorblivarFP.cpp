@@ -330,7 +330,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// consider next step
 		i++;
-		// (TODO) also consider acceptance rate for faster stop
+		// consider as annealed if some maximum temperature steps are done
 		annealed = (i > this->conf_SA_loopLimit);
 	}
 
@@ -629,6 +629,7 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 
 // return[0]: HPWL
 // return[1]: TSVs
+// TODO recode; currently hotspot
 vector<double> CorblivarFP::determCostInterconnects() {
 	unsigned n, b;
 	int i, ii;
