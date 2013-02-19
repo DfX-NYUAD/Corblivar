@@ -170,11 +170,20 @@ class Math {
 };
 
 class IO {
+	private:
+		static const double HEAT_CAPACITY_SI;
+		static const double THERMAL_RESISTIVITY_SI;
+		static const double THICKNESS_SI;
+		static const double HEAT_CAPACITY_BEOL;
+		static const double THERMAL_RESISTIVITY_BEOL;
+		static const double THICKNESS_BEOL;
+
 	public:
 		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
 		static void parseBlocks(CorblivarFP &corb);
 		static void parseNets(CorblivarFP &corb);
 		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
+		static void writeHotSpotFiles(CorblivarFP &corb);
 };
 
 class Point {

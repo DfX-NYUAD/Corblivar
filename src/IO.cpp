@@ -501,3 +501,199 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 		cout << "Done" << endl << endl;
 	}
 }
+
+// generate files for HotSpot steady-state thermal simulation
+void IO::writeHotSpotFiles(CorblivarFP &corb) {
+	ofstream file;
+	map<int, Block*>::iterator b;
+	Block *cur_block;
+	int cur_layer;
+	// factor to scale um downto m;
+	static const double SCALE_DOWN = 0.000001;
+
+	if (corb.logMed()) {
+		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;
+	}
+
+	/// generate floorplan files
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+		// build up file name
+		stringstream fp_file;
+		fp_file << corb.benchmark << "_HotSpot_" << cur_layer << ".flp";
+
+		// init file stream
+		file.open(fp_file.str().c_str());
+
+		// file header
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+		file << "# all dimensions are in meters" << endl;
+		file << "# comment lines begin with a '#'" << endl;
+		file << "# comments and empty lines are ignored" << endl;
+		file << endl;
+
+		// output blocks
+		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
+			cur_block = (*b).second;
+
+			if (cur_block->layer != cur_layer) {
+				continue;
+			}
+
+			file << "b" << cur_block->id;
+			file << "	" << cur_block->bb.w * SCALE_DOWN;
+			file << "	" << cur_block->bb.h * SCALE_DOWN;
+			file << "	" << cur_block->bb.ll.x * SCALE_DOWN;
+			file << "	" << cur_block->bb.ll.y * SCALE_DOWN;
+			file << "	" << IO::HEAT_CAPACITY_SI;
+			file << "	" << IO::THERMAL_RESISTIVITY_SI;
+			file << endl;
+		}
+
+		// dummy block to describe layer outline
+		file << "outline" << cur_layer;
+		file << "	" << corb.conf_outline_x * SCALE_DOWN;
+		file << "	" << corb.conf_outline_y * SCALE_DOWN;
+		file << "	0.0";
+		file << "	0.0";
+		file << "	0.0";
+		file << "	0.0";
+		file << endl;
+
+		// close file stream
+		file.close();
+	}
+
+	/// generate dummy floorplan for BEOL layer
+	//
+	// build up file name
+	stringstream BEOL_fp_file;
+	BEOL_fp_file << corb.benchmark << "_HotSpot_BEOL.flp";
+
+	// init file stream
+	file.open(BEOL_fp_file.str().c_str());
+
+	// file header
+	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+	file << "# all dimensions are in meters" << endl;
+	file << "# comment lines begin with a '#'" << endl;
+	file << "# comments and empty lines are ignored" << endl;
+
+	// BEOL ``block''
+	file << "BEOL";
+	file << "	" << corb.conf_outline_x * SCALE_DOWN;
+	file << "	" << corb.conf_outline_y * SCALE_DOWN;
+	file << "	0.0";
+	file << "	0.0";
+	file << "	" << IO::HEAT_CAPACITY_BEOL;
+	file << "	" << IO::THERMAL_RESISTIVITY_BEOL;
+	file << endl;
+
+	// close file stream
+	file.close();
+
+	/// generate power-trace file
+	//
+	// build up file name
+	stringstream power_file;
+	power_file << corb.benchmark << "_HotSpot.ptrace";
+
+	// init file stream
+	file.open(power_file.str().c_str());
+
+	// block sequence in trace file has to follow layer files, thus build up file
+	// according to layer structure
+	//
+	// output block labels in first line
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+
+		// output blocks
+		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
+			cur_block = (*b).second;
+
+			if (cur_block->layer != cur_layer) {
+				continue;
+			}
+
+			file << "b" << cur_block->id << " ";
+		}
+
+		// dummy outline block
+		file << "outline" << cur_layer << " ";
+	}
+	file << endl;
+
+	// output block labels in first line
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+
+		// output blocks
+		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
+			cur_block = (*b).second;
+
+			if (cur_block->layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_block->power << " ";
+		}
+
+		// dummy outline block
+		file << "0.0 ";
+	}
+	file << endl;
+
+	// close file stream
+	file.close();
+
+	/// generate 3D-IC description file
+	//
+	// build up file name
+	stringstream stack_file;
+	stack_file << corb.benchmark << "_HotSpot.lcf";
+
+	// init file stream
+	file.open(stack_file.str().c_str());
+
+	// file header
+	file << "#Lines starting with # are used for commenting" << endl;
+	file << "#Blank lines are also ignored" << endl;
+	file << endl;
+	file << "#File Format:" << endl;
+	file << "#<Layer Number>" << endl;
+	file << "#<Lateral heat flow Y/N?>" << endl;
+	file << "#<Power Dissipation Y/N?>" << endl;
+	file << "#<Specific heat capacity in J/(m^3K)>" << endl;
+	file << "#<Resistivity in (m-K)/W>" << endl;
+	file << "#<Thickness in m>" << endl;
+	file << "#<floorplan file>" << endl;
+	file << endl;
+
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+
+		file << "# Active Si layer; design layer " << cur_layer << endl;
+		file << 2 * cur_layer << endl;
+		file << "Y" << endl;
+		file << "Y" << endl;
+		file << IO::HEAT_CAPACITY_SI << endl;
+		file << IO::THERMAL_RESISTIVITY_SI << endl;
+		file << IO::THICKNESS_SI << endl;
+		file << corb.benchmark << "_HotSpot_" << cur_layer << ".flp" << endl;
+		file << endl;
+
+		file << "# BEOL layer for active layer " << cur_layer << endl;
+		file << 2 * cur_layer + 1 << endl;
+		file << "Y" << endl;
+		file << "N" << endl;
+		file << IO::HEAT_CAPACITY_BEOL << endl;
+		file << IO::THERMAL_RESISTIVITY_BEOL << endl;
+		file << IO::THICKNESS_BEOL << endl;
+		file << corb.benchmark << "_HotSpot_BEOL.flp" << endl;
+		file << endl;
+	}
+
+	// close file stream
+	file.close();
+
+	if (corb.logMed()) {
+		cout << "IO> Done" << endl << endl;
+	}
+}

@@ -57,6 +57,9 @@ int main (int argc, char** argv) {
 	// generate final GP plots
 	IO::writeFloorplanGP(corb);
 
+	// generate HotSpot files
+	IO::writeHotSpotFiles(corb);
+
 	// determine total runtime
 	ftime(&end);
 	if (corb.logMin()) {
@@ -75,3 +78,10 @@ const int CorblivarFP::LOG_MINIMAL;
 const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;
 const int Point::UNDEF;
+// material parameters for HotSpot thermal 3D-IC simulation
+const double IO::HEAT_CAPACITY_SI = 1750000.0;
+const double IO::THERMAL_RESISTIVITY_SI = 0.01;
+const double IO::THICKNESS_SI = 0.00005;
+const double IO::HEAT_CAPACITY_BEOL = 1750000.0;
+const double IO::THERMAL_RESISTIVITY_BEOL = 0.05;
+const double IO::THICKNESS_BEOL = 0.00001;
