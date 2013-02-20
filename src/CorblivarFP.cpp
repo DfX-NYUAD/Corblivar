@@ -341,7 +341,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 	// log results for feasible solution
 	if (valid_layout_found && this->logMin()) {
-		cout << "SA> Final cost: " << best_cost << endl;
+		cout << "SA> Final (adapted) cost: " << best_cost << endl;
 		this->results << "Cost: " << best_cost << endl;
 		this->results << "CBLs: " << endl;
 		this->results << chip.CBLsString() << endl;
