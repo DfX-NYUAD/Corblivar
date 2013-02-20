@@ -489,8 +489,9 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 
 			// label
 			gp_out << "set label \"b" << cur_block->id << "\"";
-			gp_out << " at " << cur_block->bb.ll.x + 2.0 << "," << cur_block->bb.ll.y + 5.0;
-			gp_out << " font \"Times,6\"" << endl;
+			gp_out << " at " << cur_block->bb.ll.x + 2.0 * IO::BLOCKS_SCALE_UP;
+			gp_out << "," << cur_block->bb.ll.y + 5.0 * IO::BLOCKS_SCALE_UP;
+			gp_out << " font \"Times,9\"" << endl;
 		}
 
 		// file footer
