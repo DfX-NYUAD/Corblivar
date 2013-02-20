@@ -171,12 +171,16 @@ class Math {
 
 class IO {
 	private:
+		// material parameters for HotSpot thermal 3D-IC simulation; see
+		// Corblivar.cpp
 		static const double HEAT_CAPACITY_SI;
 		static const double THERMAL_RESISTIVITY_SI;
 		static const double THICKNESS_SI;
 		static const double HEAT_CAPACITY_BEOL;
 		static const double THERMAL_RESISTIVITY_BEOL;
 		static const double THICKNESS_BEOL;
+		// scaling factor for block dimensions
+		static const int BLOCKS_SCALE_UP = 50;
 
 	public:
 		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);

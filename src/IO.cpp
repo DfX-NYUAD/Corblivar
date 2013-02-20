@@ -281,6 +281,10 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			exit(1);
 		}
 
+		// scale up dimensions
+		cur_block->bb.w *= IO::BLOCKS_SCALE_UP;
+		cur_block->bb.h *= IO::BLOCKS_SCALE_UP;
+
 		// calculate block area
 		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
 		// store block
