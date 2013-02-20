@@ -243,6 +243,13 @@ void IO::parseBlocks(CorblivarFP &corb) {
 		// assign power value
 		if (!power_in.eof()) {
 			power_in >> cur_block->power;
+			// normalize to watts
+			cur_block->power /= 1000.0;
+			// scale power values according to block scaling
+			// note that correct scaling (maintain power/area ratio)
+			// would imply using pow(IO::BLOCKS_SCALE_UP, 2.0); which is
+			// rejected in order to limit overall power values
+			cur_block->power *= pow(IO::BLOCKS_SCALE_UP, 3.0/2.0);
 		}
 		else {
 			if (corb.logMin()) {
@@ -491,7 +498,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 			gp_out << "set label \"b" << cur_block->id << "\"";
 			gp_out << " at " << cur_block->bb.ll.x + 2.0 * IO::BLOCKS_SCALE_UP;
 			gp_out << "," << cur_block->bb.ll.y + 5.0 * IO::BLOCKS_SCALE_UP;
-			gp_out << " font \"Times,9\"" << endl;
+			gp_out << " font \"Times,6\"" << endl;
 		}
 
 		// file footer
