@@ -271,7 +271,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 								cout << "SA> Currently best solution found; (adapted) cost: " << fitting_cost << endl;
 							}
 
-							best_cost = cur_cost;
+							best_cost = fitting_cost;
 							chip.storeBestCBLs();
 							valid_layout_found = true;
 						}
@@ -338,11 +338,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	chip.applyBestCBLs(this->conf_log);
 	// generate final layout
 	chip.generateLayout(this->conf_log);
-	// verify if layout fits into outline
-	best_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
 
 	// log results for feasible solution
-	if (cur_layout_fits_in_outline && this->logMin()) {
+	if (valid_layout_found && this->logMin()) {
 		cout << "SA> Final cost: " << best_cost << endl;
 		this->results << "Cost: " << best_cost << endl;
 		this->results << "CBLs: " << endl;
@@ -354,7 +352,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		cout << endl;
 	}
 
-	return cur_layout_fits_in_outline;
+	return valid_layout_found;
 }
 
 bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
