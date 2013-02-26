@@ -539,6 +539,8 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	vector<double> dies_outline;
 
 	// cost temperature distribution
+	// TODO consider only for layouts fitting into outline
+	// TODO max value? initial sampling most likely doesn't fit into outline
 	cost_temp = this->determCostThermalDistr();
 
 	// TODO Cost IR
@@ -626,26 +628,37 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 }
 
 double CorblivarFP::determCostThermalDistr() {
+	int maps_dim;
+
+	// TODO realize as config parameter / determine considering smallest block
+	maps_dim = 64;
 
 	// generate power maps for current layout
-	this->generatePowerMaps();
+	this->generatePowerMaps(maps_dim);
+
+	// TODO gnuplot
+
+	exit(0);
 
 	return 0.0;
 }
 
-void CorblivarFP::generatePowerMaps() {
+void CorblivarFP::generatePowerMaps(int maps_dim) {
 	int i, n;
 	int x, y;
-	map<int, Block*>::iterator b;
-	Block *cur_block;
-	int maps_dim;
+	map<int, Block*>::iterator block_it;
+	Block *block;
+	double maps_dim_x, maps_dim_y;
 	vector< vector<double> > map;
+	Rect bin, intersect;
+	int x_lower, x_upper, y_lower, y_upper;
 
 	// clear maps
 	this->power_maps.clear();
 
-	// TODO realize as config parameter
-	maps_dim = 64;
+	// scale map dimensions to outline
+	maps_dim_x = this->conf_outline_x / maps_dim;
+	maps_dim_y = this->conf_outline_y / maps_dim;
 
 	// determine maps for each layer
 	for (i = 0; i < this->conf_layer; i++) {
@@ -658,17 +671,40 @@ void CorblivarFP::generatePowerMaps() {
 		}
 
 		// consider each block on the related layer
-		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
-			cur_block = (*b).second;
+		for (block_it = this->blocks.begin(); block_it != this->blocks.end(); ++block_it) {
+			block = (*block_it).second;
 
-			if (cur_block->layer != i) {
+			if (block->layer != i) {
+				continue;
+			}
+			// sanity check; ignore blocks outside outline
+			if (block->bb.ur.x > this->conf_outline_x || block->bb.ur.y > this->conf_outline_y) {
 				continue;
 			}
 
-			// walk block outline and map block power to grid bins
-			// TODO
-			for (x = 0; x < maps_dim; x++) {
-				for (y = 0; y < maps_dim; y++) {
+			// determine grid index boundaries for block
+			x_lower = floor(block->bb.ll.x / maps_dim_x);
+			x_upper = ceil(block->bb.ur.x / maps_dim_x);
+			y_lower = floor(block->bb.ll.y / maps_dim_y);
+			y_upper = ceil(block->bb.ur.y / maps_dim_y);
+
+			// walk grid bins covering block outline
+			for (x = x_lower; x < x_upper; x++) {
+				for (y = y_lower; y < y_upper; y++) {
+
+					// determine real coords of abstract grid bin
+					bin.ll.x = x * maps_dim_x;
+					bin.ur.x = bin.ll.x + maps_dim_x;
+					bin.ll.y = y * maps_dim_y;
+					bin.ur.y = bin.ll.y + maps_dim_y;
+
+					// determine intersection of grid bin and block
+					// TODO only for boundaries required
+					intersect = Rect::determineIntersection(bin, block->bb);
+
+					// add block power to bin, scaled accordingly to
+					// intersection
+					map[x][y] += block->power * (intersect.area / (maps_dim_x * maps_dim_y));
 				}
 			}
 		}

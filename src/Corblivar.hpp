@@ -97,7 +97,7 @@ class CorblivarFP {
 
 		// thermal modeling: handlers
 		//TODO outsource layout-related data into separate layout class
-		void generatePowerMaps();
+		void generatePowerMaps(int maps_dim);
 
 		// layout-evalutions
 		//TODO outsource layout-related data into separate layout class
