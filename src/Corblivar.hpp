@@ -94,6 +94,8 @@ class CorblivarFP {
 		vector< vector< vector<double> > > thermal_masks;
 		// [map][x][y], whereas map[0] relates to the map for layer 0 and so forth.
 		vector< vector< vector<double> > > power_maps;
+		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
+		vector< vector<double> > thermal_map;
 
 		// thermal modeling: handlers
 		//TODO outsource layout-related data into separate layout class

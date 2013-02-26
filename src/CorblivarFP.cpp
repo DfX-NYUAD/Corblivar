@@ -541,7 +541,10 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// cost temperature distribution
 	// TODO consider only for layouts fitting into outline
 	// TODO max value? initial sampling most likely doesn't fit into outline
-	cost_temp = this->determCostThermalDistr();
+	cost_temp = 0.0;
+	if (layout_fits_in_fixed_outline) {
+		this->determCostThermalDistr();
+	}
 
 	// TODO Cost IR
 	cost_IR = 0.0;
@@ -628,7 +631,15 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 }
 
 double CorblivarFP::determCostThermalDistr() {
+	unsigned i;
+	int n;
 	int maps_dim;
+	int x, y;
+	int mask_center_x, mask_center_y;
+	int mask_x, mask_y;
+	int mask_x_size, mask_y_size;
+	int mask_flipped_x, mask_flipped_y;
+	int power_x, power_y;
 
 	// TODO realize as config parameter / determine considering smallest block
 	maps_dim = 64;
@@ -636,13 +647,61 @@ double CorblivarFP::determCostThermalDistr() {
 	// generate power maps for current layout
 	this->generatePowerMaps(maps_dim);
 
+	// init grid of thermal map
+	this->thermal_map.clear();
+	this->thermal_map.resize(maps_dim);
+	for (n = 0; n < maps_dim; n++) {
+		this->thermal_map[n].resize(maps_dim, 0.0);
+	}
+
+	// determine thermal map for lowest layer, i.e., hottest layer;
+	// perform convolution of thermal masks and power maps
+	for (i = 0; i < this->thermal_masks.size(); i++) {
+		mask_x_size = this->thermal_masks[i].size();
+		mask_y_size = this->thermal_masks[i][0].size();
+
+		// determine center index of mask grid
+		mask_center_x = mask_x_size / 2;
+		mask_center_y = mask_y_size / 2;
+
+		// walk thermal-map grid
+		for (x = 0; x < maps_dim; x++) {
+			for (y = 0; y < maps_dim; y++) {
+
+				// walk mask grid
+				for (mask_x = 0; mask_x < mask_x_size; mask_x++) {
+					mask_flipped_x = mask_x_size - mask_x - 1;
+
+					for (mask_y = 0; mask_y < mask_y_size; mask_y++) {
+						mask_flipped_y = mask_y_size - mask_y - 1;
+
+						// power bin to consider
+						power_x = x + (mask_x - mask_center_x);
+						power_y = y + (mask_y - mask_center_y);
+
+						// consider only bins within map bounds
+						if (power_x >= 0 && power_x < maps_dim && power_y >= 0 && power_y < maps_dim) {
+							// multiply mask bin w/ related
+							// power-map bin for convolution
+							this->thermal_map[x][y] += this->thermal_masks[i][mask_flipped_x][mask_flipped_y]
+								* this->power_maps[i][power_x][power_y];
+						}
+					}
+				}
+			}
+		}
+	}
+
 	IO::writePowerThermalMaps(*this);
+	IO::writeFloorplanGP(*this);
+	IO::writeHotSpotFiles(*this);
 
 	exit(0);
 
 	return 0.0;
 }
 
+// TODO logging, dbg
 void CorblivarFP::generatePowerMaps(int maps_dim) {
 	int i, n;
 	int x, y;
@@ -713,8 +772,9 @@ void CorblivarFP::generatePowerMaps(int maps_dim) {
 	}
 }
 
+// determine masks for lowest layer, i.e., hottest layer
 // based on a gaussian-like thermal impulse response fuction
-// TODO determine masks for all layers
+// TODO logging, dbg
 void CorblivarFP::initThermalMasks() {
 	int i;
 	int masks_dim;
