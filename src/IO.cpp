@@ -432,6 +432,70 @@ void IO::parseNets(CorblivarFP &corb) {
 
 }
 
+// TODO output thermal profile
+void IO::writePowerThermalMaps(CorblivarFP &corb) {
+	ofstream gp_out;
+	ofstream data_out;
+	int cur_layer;
+	unsigned x, y;
+
+	if (corb.logMed()) {
+		cout << "IO> ";
+		cout << "Generating power maps and thermal profiles ..." << endl;
+	}
+
+	// generate power maps
+	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
+		// build up file name for gnuplot script
+		stringstream gp_out_name;
+		gp_out_name << corb.benchmark << "_" << cur_layer << "_power.gp";
+		// build up file name for data file
+		stringstream data_out_name;
+		data_out_name << corb.benchmark << "_" << cur_layer << "_power.data";
+
+		// init file stream for gnuplot script
+		gp_out.open(gp_out_name.str().c_str());
+		// init file stream for data file
+		data_out.open(data_out_name.str().c_str());
+
+		// file header for gnuplot script
+		gp_out << "set title \"" << corb.benchmark << " - Power Map Layer " << cur_layer + 1 << "\"" << endl;
+		gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
+		gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
+		gp_out << "set size square" << endl;
+		gp_out << "set xrange [0:" << corb.power_maps[cur_layer].size() - 1 << "]" << endl;
+		gp_out << "set yrange [0:" << corb.power_maps[cur_layer][0].size() - 1 << "]" << endl;
+		gp_out << "set tics front" << endl;
+		gp_out << "set grid xtics ytics ztics" << endl;
+		gp_out << "set pm3d map" << endl;
+		// color printable as gray
+		gp_out << "set palette rgbformulae 30,31,32" << endl;
+		gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
+
+		// close file stream for gnuplot script
+		gp_out.close();
+
+		// file header for data file
+		data_out << "# X Y Power" << endl;
+
+		// power values
+		for (x = 0; x < corb.power_maps[cur_layer].size(); x++) {
+			for (y = 0; y < corb.power_maps[cur_layer][x].size(); y++) {
+				data_out << x << "	" << y << "	" << corb.power_maps[cur_layer][x][y] << endl;
+			}
+			data_out << endl;
+		}
+
+		// close file stream for data file
+		data_out.close();
+	}
+
+	if (corb.logMed()) {
+		cout << "IO> ";
+		cout << "Done" << endl << endl;
+	}
+}
+
 // generate GP plots of FP
 void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	ofstream gp_out;

@@ -221,6 +221,7 @@ class IO {
 		static void parseNets(CorblivarFP &corb);
 		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
 		static void writeHotSpotFiles(CorblivarFP &corb);
+		static void writePowerThermalMaps(CorblivarFP &corb);
 };
 
 class Point {

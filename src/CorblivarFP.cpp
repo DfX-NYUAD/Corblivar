@@ -636,7 +636,7 @@ double CorblivarFP::determCostThermalDistr() {
 	// generate power maps for current layout
 	this->generatePowerMaps(maps_dim);
 
-	// TODO gnuplot
+	IO::writePowerThermalMaps(*this);
 
 	exit(0);
 
