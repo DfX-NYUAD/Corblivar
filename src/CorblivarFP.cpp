@@ -538,8 +538,8 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	vector<double> dies_AR;
 	vector<double> dies_outline;
 
-	// TODO Cost Temp
-	cost_temp = 0.0;
+	// cost temperature distribution
+	cost_temp = this->determCostThermalDistr();
 
 	// TODO Cost IR
 	cost_IR = 0.0;
@@ -626,10 +626,59 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 }
 
 double CorblivarFP::determCostThermalDistr() {
+
+	// generate power maps for current layout
+	this->generatePowerMaps();
+
+	return 0.0;
+}
+
+void CorblivarFP::generatePowerMaps() {
+	int i, n;
+	int x, y;
+	map<int, Block*>::iterator b;
+	Block *cur_block;
+	int maps_dim;
+	vector< vector<double> > map;
+
+	// clear maps
+	this->power_maps.clear();
+
+	// TODO realize as config parameter
+	maps_dim = 64;
+
+	// determine maps for each layer
+	for (i = 0; i < this->conf_layer; i++) {
+
+		// init grid of map
+		map.clear();
+		map.resize(maps_dim);
+		for (n = 0; n < maps_dim; n++) {
+			map[n].resize(maps_dim, 0.0);
+		}
+
+		// consider each block on the related layer
+		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
+			cur_block = (*b).second;
+
+			if (cur_block->layer != i) {
+				continue;
+			}
+
+			// walk block outline and map block power to grid bins
+			// TODO
+			for (x = 0; x < maps_dim; x++) {
+				for (y = 0; y < maps_dim; y++) {
+				}
+			}
+		}
+
+		this->power_maps.push_back(map);
+	}
 }
 
 // based on a gaussian-like thermal impulse response fuction
-// TODO determine masks ands thermal profile for all layers
+// TODO determine masks for all layers
 void CorblivarFP::initThermalMasks() {
 	int i;
 	int masks_dim;
