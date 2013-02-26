@@ -625,6 +625,82 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	return cost_total;
 }
 
+double CorblivarFP::determCostThermalDistr() {
+}
+
+// based on a gaussian-like thermal impulse response fuction
+// TODO determine masks ands thermal profile for all layers
+void CorblivarFP::initThermalMasks() {
+	int i;
+	int masks_dim;
+	double range_scale;
+	double max_spread;
+	double spread;
+	double impulse_factor;
+	vector< vector<double> > mask;
+	vector<double> mask_col;
+	int x, y;
+
+	// clear masks
+	this->thermal_masks.clear();
+
+	// TODO vary this parameter; should be uneven
+	// TODO realize as config parameter
+	masks_dim = 7;
+
+	// max_spread represents the spreading factor for the widest function g, i.e., relates
+	// to mask for point source on layer furthest away
+	// TODO vary this parameter
+	max_spread = this->conf_layer;
+
+	// determine range scale factor, i.e. determine spread such that g = 0.01 at
+	// boundary corners of kernel
+	range_scale = sqrt(max_spread) * sqrt(log(2.0)+log(5.0));
+	// normalize range according to mask dimension
+	// decrement masks_dim such that subsequent impulse-response calculation
+	// determines values for center of each mask bin
+	range_scale /=  (masks_dim - 1) / 2;
+
+	// determine masks for lowest layer, i.e., hottest layer
+	for (i = 1; i <= this->conf_layer; i++) {
+		// TODO vary these calculations
+		spread = 1.0 / i;
+		impulse_factor = 1.0 / i;
+
+		mask.clear();
+
+		for (x = -(masks_dim - 1) / 2; x <= (masks_dim - 1) / 2; x++) {
+			mask_col.clear();
+
+			for (y = -(masks_dim - 1) / 2; y <= (masks_dim - 1) / 2; y++) {
+				mask_col.push_back(Math::gaussImpulseResponse(x * range_scale, y * range_scale, impulse_factor, spread));
+			}
+
+			mask.push_back(mask_col);
+		}
+
+		this->thermal_masks.push_back(mask);
+	}
+
+#ifdef DBG_SA
+	// enforce fixed digit count for printing mask
+	cout << fixed;
+	// dump mask
+	for (i = 0; i < this->conf_layer; i++) {
+		cout << "DBG_SA> Thermal mask for layer " << i << ":" << endl;
+		for (y = masks_dim - 1; y >= 0; y--) {
+			for (x = 0; x < masks_dim; x++) {
+				cout << masks[i][x][y] << "	";
+			}
+			cout << endl;
+		}
+	}
+	// reset to default floating output
+	cout.unsetf(ios_base::floatfield);
+#endif
+
+}
+
 // return[0]: HPWL
 // return[1]: TSVs
 // TODO recode; currently hotspot

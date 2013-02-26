@@ -57,15 +57,10 @@ class Math;
 /* classes */
 class CorblivarFP {
 	private:
-		// layout data
-		map<int, Block*> blocks;
-		vector<Net*> nets;
-
 		// IO
 		string benchmark, blocks_file, power_file, nets_file;
 
 		// config parameters
-		int conf_layer;
 		double conf_outline_x, conf_outline_y, outline_AR;
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
@@ -80,17 +75,37 @@ class CorblivarFP {
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static const int SA_SAMPLING_LOOP_FACTOR = 2;
 
-		// layout operation handlers
+		// Corblivar: layout operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+
+		// Corblivar: SA layout-operation handler
+		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+
+		// thermal modeling: parameters
+		// [mask][x][y]
+		vector< vector< vector<double> > > thermal_masks;
+
+		// thermal modeling: handlers
+		void initThermalMasks();
+
+		// layout-evalutions
+		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
+		// return[0]: HPWL
+		// return[1]: TSVs
+		vector<double> determCostInterconnects();
 
 	public:
 		friend class IO;
-		friend class CorblivarLayoutRep;
+
+		// layout data
+		map<int, Block*> blocks;
+		vector<Net*> nets;
 
 		// IO
 		ofstream results;
 
 		// config parameters
+		int conf_layer;
 		int conf_log;
 
 		// logging
@@ -116,13 +131,11 @@ class CorblivarFP {
 			return (log >= LOG_MAXIMUM);
 		};
 
-		/// FP functions
+		// floorplanning main routine
 		bool SA(CorblivarLayoutRep &chip);
-		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
-		// return[0]: HPWL
-		// return[1]: TSVs
-		vector<double> determCostInterconnects();
-		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+
+		// TODO move to private
+		double determCostThermalDistr();
 };
 
 class Math {
@@ -148,7 +161,7 @@ class Math {
 			return ((double) rand() / RAND_MAX);
 		}
 
-		// var stuff
+		// standard deviation of samples
 		static double stdDev(vector<double> &samples) {
 			double avg, sq_diffs;
 			unsigned s;
@@ -166,6 +179,11 @@ class Math {
 			}
 			// determine std dev
 			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
+		}
+
+		// gaussian-like impulse response fuction, used for thermal evaluation
+		static double gaussImpulseResponse(double x, double y, double factor, double spread) {
+			return factor * exp(-spread * pow(x, 2.0)) * exp(-spread * pow(y, 2.0));
 		}
 };
 
