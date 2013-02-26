@@ -729,7 +729,6 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		// output blocks
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			cur_block = (*b).second;
 
@@ -745,10 +744,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	}
 	file << endl;
 
-	// output block labels in first line
+	// output block power in second line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		// output blocks
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			cur_block = (*b).second;
 
