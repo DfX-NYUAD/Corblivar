@@ -36,12 +36,15 @@ int main (int argc, char** argv) {
 	// init Corblivar layout representation
 	chip.initCorblivar(corb);
 
+	// init thermal masks for thermal modelling based on power blurring
+	corb.initThermalMasks();
+
 	if (corb.logMin()) {
 		cout << "Corblivar> ";
 		cout << "Performing SA floorplanning optimization..." << endl << endl;
 	}
 
-	// TODO runtime of optimization steps
+	// perform SA; main handler
 	done = corb.SA(chip);
 
 	if (corb.logMin()) {

@@ -57,21 +57,21 @@ class Math;
 /* classes */
 class CorblivarFP {
 	private:
-		// layout data
-		map<int, Block*> blocks;
-		vector<Net*> nets;
-
 		// IO
+		//TODO outsource layout-related data into separate layout class
 		string benchmark, blocks_file, power_file, nets_file;
 
 		// config parameters
-		int conf_layer;
+		//TODO outsource layout-related data into separate layout class
 		double conf_outline_x, conf_outline_y, outline_AR;
+
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: max cost values
+		//TODO outsource layout-related data into separate layout class
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
 		// SA parameters: temperature-scaling factors
 		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
 		// SA parameters: temperature-phase-transition factos
@@ -80,17 +80,49 @@ class CorblivarFP {
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static const int SA_SAMPLING_LOOP_FACTOR = 2;
 
-		// layout operation handlers
+		// SA: layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+
+		// SA: layout-operation handler
+		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+
+		// thermal modeling: parameters
+		// [mask][x][y], whereas mask[0] relates to the mask for layer 0 obtained
+		// by considering heat source in layer 0, mask[1] relates to the mask for
+		// layer 0 obtained by considering heat source in layer 1 and so forth.
+		//TODO outsource layout-related data into separate layout class
+		vector< vector< vector<double> > > thermal_masks;
+		// [map][x][y], whereas map[0] relates to the map for layer 0 and so forth.
+		vector< vector< vector<double> > > power_maps;
+		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
+		vector< vector<double> > thermal_map;
+
+		// thermal modeling: handlers
+		//TODO outsource layout-related data into separate layout class
+		void generatePowerMaps(int maps_dim);
+
+		// layout-evalutions
+		//TODO outsource layout-related data into separate layout class
+		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
+		double determCostThermalDistr();
+		// return[0]: HPWL
+		// return[1]: TSVs
+		vector<double> determCostInterconnects();
 
 	public:
 		friend class IO;
-		friend class CorblivarLayoutRep;
+
+		// layout data
+		//TODO outsource layout-related data into separate layout class
+		map<int, Block*> blocks;
+		vector<Net*> nets;
 
 		// IO
 		ofstream results;
 
 		// config parameters
+		//TODO outsource layout-related data into separate layout class
+		int conf_layer;
 		int conf_log;
 
 		// logging
@@ -116,13 +148,11 @@ class CorblivarFP {
 			return (log >= LOG_MAXIMUM);
 		};
 
-		/// FP functions
+		// floorplanning main routine
 		bool SA(CorblivarLayoutRep &chip);
-		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
-		// return[0]: HPWL
-		// return[1]: TSVs
-		vector<double> determCostInterconnects();
-		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+
+		//TODO outsource layout-related data into separate layout class
+		void initThermalMasks();
 };
 
 class Math {
@@ -148,7 +178,7 @@ class Math {
 			return ((double) rand() / RAND_MAX);
 		}
 
-		// var stuff
+		// standard deviation of samples
 		static double stdDev(vector<double> &samples) {
 			double avg, sq_diffs;
 			unsigned s;
@@ -166,6 +196,11 @@ class Math {
 			}
 			// determine std dev
 			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
+		}
+
+		// gaussian-like impulse response fuction, used for thermal evaluation
+		static double gaussImpulseResponse(double x, double y, double factor, double spread) {
+			return factor * exp(-spread * pow(x, 2.0)) * exp(-spread * pow(y, 2.0));
 		}
 };
 
@@ -188,6 +223,7 @@ class IO {
 		static void parseNets(CorblivarFP &corb);
 		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
 		static void writeHotSpotFiles(CorblivarFP &corb);
+		static void writePowerThermalMaps(CorblivarFP &corb);
 };
 
 class Point {

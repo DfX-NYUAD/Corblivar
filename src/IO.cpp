@@ -243,6 +243,13 @@ void IO::parseBlocks(CorblivarFP &corb) {
 		// assign power value
 		if (!power_in.eof()) {
 			power_in >> cur_block->power;
+			// normalize to watts
+			cur_block->power /= 1000.0;
+			// scale power values according to block scaling
+			// note that correct scaling (maintain power/area ratio)
+			// would imply using pow(IO::BLOCKS_SCALE_UP, 2.0); which is
+			// rejected in order to limit overall power values
+			cur_block->power *= pow(IO::BLOCKS_SCALE_UP, 3.0/2.0);
 		}
 		else {
 			if (corb.logMin()) {
@@ -425,6 +432,117 @@ void IO::parseNets(CorblivarFP &corb) {
 
 }
 
+void IO::writePowerThermalMaps(CorblivarFP &corb) {
+	ofstream gp_out;
+	ofstream data_out;
+	int cur_layer;
+	int layer_limit;
+	unsigned x, y;
+	unsigned x_limit, y_limit;
+	int flag;
+
+	if (corb.logMed()) {
+		cout << "IO> ";
+		cout << "Generating power maps and thermal profiles ..." << endl;
+	}
+
+	// flag=0: generate power maps
+	// flag=1: generate thermal map
+	for (flag = 0; flag <= 1; flag++) {
+
+		// power maps for all layers
+		if (flag == 0) {
+			layer_limit = corb.conf_layer;
+		}
+		// thermal map only for layer 0
+		else {
+			layer_limit = 1;
+		}
+
+		for (cur_layer = 0; cur_layer < layer_limit; cur_layer++) {
+			// build up file names
+			stringstream gp_out_name;
+			stringstream data_out_name;
+			if (flag == 0) {
+				gp_out_name << corb.benchmark << "_" << cur_layer << "_power.gp";
+				data_out_name << corb.benchmark << "_" << cur_layer << "_power.data";
+			}
+			else {
+				gp_out_name << corb.benchmark << "_" << cur_layer << "_thermal.gp";
+				data_out_name << corb.benchmark << "_" << cur_layer << "_thermal.data";
+			}
+
+			// init file stream for gnuplot script
+			gp_out.open(gp_out_name.str().c_str());
+			// init file stream for data file
+			data_out.open(data_out_name.str().c_str());
+
+			// file header for gnuplot script
+			if (flag == 0) {
+				gp_out << "set title \"" << corb.benchmark << " - Power Map Layer " << cur_layer + 1 << "\"" << endl;
+			}
+			else {
+				gp_out << "set title \"" << corb.benchmark << " - Thermal Map Layer " << cur_layer + 1 << "\"" << endl;
+			}
+			gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
+			gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
+			gp_out << "set size square" << endl;
+			if (flag == 0) {
+				gp_out << "set xrange [0:" << corb.power_maps[cur_layer].size() - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << corb.power_maps[cur_layer][0].size() - 1 << "]" << endl;
+			}
+			else {
+				gp_out << "set xrange [0:" << corb.thermal_map.size() - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << corb.thermal_map[0].size() - 1 << "]" << endl;
+			}
+			gp_out << "set tics front" << endl;
+			gp_out << "set grid xtics ytics ztics" << endl;
+			gp_out << "set pm3d map" << endl;
+			// color printable as gray
+			gp_out << "set palette rgbformulae 30,31,32" << endl;
+			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
+
+			// close file stream for gnuplot script
+			gp_out.close();
+
+			// file header for data file
+			data_out << "# X Y Power" << endl;
+
+			// determine grid boundaries
+			if (flag == 0) {
+				x_limit = corb.power_maps[cur_layer].size();
+				y_limit = corb.power_maps[cur_layer][0].size();
+			}
+			else {
+				x_limit = corb.thermal_map.size();
+				y_limit = corb.thermal_map[0].size();
+			}
+
+			// output grid values
+			for (x = 0; x < x_limit; x++) {
+				for (y = 0; y < y_limit; y++) {
+					if (flag == 0) {
+						data_out << x << "	" << y << "	" << corb.power_maps[cur_layer][x][y] << endl;
+					}
+					else {
+						data_out << x << "	" << y << "	" << corb.thermal_map[x][y] << endl;
+					}
+				}
+				data_out << endl;
+			}
+
+			// close file stream for data file
+			data_out.close();
+		}
+
+	}
+
+	if (corb.logMed()) {
+		cout << "IO> ";
+		cout << "Done" << endl << endl;
+	}
+}
+
 // generate GP plots of FP
 void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	ofstream gp_out;
@@ -491,7 +609,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 			gp_out << "set label \"b" << cur_block->id << "\"";
 			gp_out << " at " << cur_block->bb.ll.x + 2.0 * IO::BLOCKS_SCALE_UP;
 			gp_out << "," << cur_block->bb.ll.y + 5.0 * IO::BLOCKS_SCALE_UP;
-			gp_out << " font \"Times,9\"" << endl;
+			gp_out << " font \"Times,6\"" << endl;
 		}
 
 		// file footer
@@ -611,7 +729,6 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		// output blocks
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			cur_block = (*b).second;
 
@@ -627,10 +744,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	}
 	file << endl;
 
-	// output block labels in first line
+	// output block power in second line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		// output blocks
 		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
 			cur_block = (*b).second;
 
