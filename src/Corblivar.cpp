@@ -11,13 +11,12 @@
 #include "Corblivar.hpp"
 
 int main (int argc, char** argv) {
-	struct timeb start, end;
 	CorblivarFP corb;
 	CorblivarLayoutRep chip;
 	bool done;
 
 	// memorize start time
-	ftime(&start);
+	ftime(&corb.start);
 
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
@@ -57,22 +56,8 @@ int main (int argc, char** argv) {
 		}
 	}
 
-	// generate final GP plots
-	IO::writeFloorplanGP(corb);
-
-	// generate HotSpot files
-	IO::writeHotSpotFiles(corb);
-
-	// determine total runtime
-	ftime(&end);
-	if (corb.logMin()) {
-		cout << "Corblivar> ";
-		cout << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
-		corb.results << "Runtime: " << (1000.0 * (end.time - start.time) + (end.millitm - start.millitm)) / 1000.0 << " s" << endl << endl;
-	}
-
-	// close results file
-	corb.results.close();
+	// finalize: generate output files, final logging
+	corb.finalize();
 }
 
 // definitions for const vars, to allocate memory

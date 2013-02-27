@@ -55,6 +55,28 @@ class Rect;
 class Math;
 
 /* classes */
+class IO {
+	private:
+		// material parameters for HotSpot thermal 3D-IC simulation; see
+		// Corblivar.cpp
+		static const double HEAT_CAPACITY_SI;
+		static const double THERMAL_RESISTIVITY_SI;
+		static const double THICKNESS_SI;
+		static const double HEAT_CAPACITY_BEOL;
+		static const double THERMAL_RESISTIVITY_BEOL;
+		static const double THICKNESS_BEOL;
+		// scaling factor for block dimensions
+		static const int BLOCKS_SCALE_UP = 50;
+
+	public:
+		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
+		static void parseBlocks(CorblivarFP &corb);
+		static void parseNets(CorblivarFP &corb);
+		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
+		static void writeHotSpotFiles(CorblivarFP &corb);
+		static void writePowerThermalMaps(CorblivarFP &corb);
+};
+
 class CorblivarFP {
 	private:
 		// IO
@@ -118,6 +140,7 @@ class CorblivarFP {
 		vector<Net*> nets;
 
 		// IO
+		struct timeb start, end;
 		ofstream results;
 
 		// config parameters
@@ -146,6 +169,30 @@ class CorblivarFP {
 		};
 		static bool logMax(int log) {
 			return (log >= LOG_MAXIMUM);
+		};
+		// finalize; generate output files
+		void finalize() {
+			stringstream runtime;
+
+			// generate power and thermal maps
+			IO::writePowerThermalMaps(*this);
+			// generate final GP plots
+			IO::writeFloorplanGP(*this);
+			// generate HotSpot files
+			IO::writeHotSpotFiles(*this);
+
+			// determine total runtime
+			ftime(&this->end);
+			if (logMin()) {
+				runtime << "Runtime: " << (1000.0 * (this->end.time - this->start.time) + (this->end.millitm - this->start.millitm)) / 1000.0 << " s";
+				cout << "Corblivar> " << runtime.str() << endl;
+				this->results << runtime.str() << endl;
+			}
+
+			// close results file
+			this->results.close();
+
+			exit(0);
 		};
 
 		// floorplanning main routine
@@ -202,28 +249,6 @@ class Math {
 		static double gaussImpulseResponse(double x, double y, double factor, double spread) {
 			return factor * exp(-spread * pow(x, 2.0)) * exp(-spread * pow(y, 2.0));
 		}
-};
-
-class IO {
-	private:
-		// material parameters for HotSpot thermal 3D-IC simulation; see
-		// Corblivar.cpp
-		static const double HEAT_CAPACITY_SI;
-		static const double THERMAL_RESISTIVITY_SI;
-		static const double THICKNESS_SI;
-		static const double HEAT_CAPACITY_BEOL;
-		static const double THERMAL_RESISTIVITY_BEOL;
-		static const double THICKNESS_BEOL;
-		// scaling factor for block dimensions
-		static const int BLOCKS_SCALE_UP = 50;
-
-	public:
-		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
-		static void parseBlocks(CorblivarFP &corb);
-		static void parseNets(CorblivarFP &corb);
-		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
-		static void writeHotSpotFiles(CorblivarFP &corb);
-		static void writePowerThermalMaps(CorblivarFP &corb);
 };
 
 class Point {

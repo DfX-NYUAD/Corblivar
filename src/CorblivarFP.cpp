@@ -692,11 +692,8 @@ double CorblivarFP::determCostThermalDistr() {
 		}
 	}
 
-	IO::writePowerThermalMaps(*this);
-	IO::writeFloorplanGP(*this);
-	IO::writeHotSpotFiles(*this);
-
-	exit(0);
+	// TODO drop
+	this->finalize();
 
 	return 0.0;
 }
