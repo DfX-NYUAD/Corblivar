@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HS=~/code/HotSpot_detailed3D
+HS=~/code/HotSpot
 
 if [ "$1" == "" ]; then
 	echo "Provide benchmark name as parameter!"
