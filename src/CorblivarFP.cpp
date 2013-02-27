@@ -736,6 +736,9 @@ void CorblivarFP::generatePowerMaps(int maps_dim) {
 			if (block->layer != i) {
 				continue;
 			}
+			// TODO consider parts of blocks which are w/in outline
+			// required to not guide search towards violating outline by
+			// moving blocks outside in order to reduce temperature
 			// sanity check; ignore blocks outside outline
 			if (block->bb.ur.x > this->conf_outline_x || block->bb.ur.y > this->conf_outline_y) {
 				continue;
@@ -791,7 +794,7 @@ void CorblivarFP::initThermalMasks() {
 
 	// TODO vary this parameter; should be uneven
 	// TODO realize as config parameter
-	masks_dim = 7;
+	masks_dim = 17;
 
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away
