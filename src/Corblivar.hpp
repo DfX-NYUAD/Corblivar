@@ -82,7 +82,8 @@ class CorblivarFP {
 		// IO
 		//TODO outsource layout-related data into separate layout class
 		string benchmark, blocks_file, power_file, nets_file;
-		ofstream results;
+		ofstream results, solution_out;
+		ifstream solution_in;
 
 		// config parameters
 		//TODO outsource layout-related data into separate layout class

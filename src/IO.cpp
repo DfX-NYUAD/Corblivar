@@ -15,36 +15,38 @@
 void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	ifstream in;
 	string config_file;
-	stringstream results_file;
+	stringstream results_file, solution_file;
+	stringstream blocks_file;
+	stringstream power_file;
+	stringstream nets_file;
 	string tmpstr;
 
 	// program parameter
 	if (argc < 4)
 	{
 		cout << "IO> ";
-		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir" << endl;
+		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
 		cout << endl;
 		cout << "Expected config_file format: see Corblivar.conf" << endl;
 		cout << "Expected benchmarks: GSRC n... sets" << endl;
+		cout << "Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
+
 		exit(1);
 	}
 
 	corb.benchmark = argv[1];
 	config_file = argv[2];
 
-	stringstream blocks_file;
 	blocks_file << argv[3] << corb.benchmark << ".blocks";
 	corb.blocks_file = blocks_file.str();
 
-	stringstream power_file;
 	power_file << argv[3] << corb.benchmark << ".power";
 	corb.power_file = power_file.str();
 
-	stringstream nets_file;
 	nets_file << argv[3] << corb.benchmark << ".nets";
 	corb.nets_file = nets_file.str();
 
-	results_file << corb.benchmark << ".solution";
+	results_file << corb.benchmark << ".results";
 	corb.results.open(results_file.str().c_str());
 
 	// test files
@@ -84,7 +86,26 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	}
 	in.close();
 
-	// config file
+	// additional parameter for solution file given; consider file for readin
+	if (argc == 5) {
+
+		solution_file << argv[4];
+		// open file if possible
+		corb.solution_in.open(solution_file.str().c_str());
+		if (!corb.solution_in.good())
+		{
+			cout << "IO> ";
+			cout << "No such solution file: " << solution_file.str() << endl;
+			exit(1);
+		}
+	}
+	// open new solution file
+	else {
+		solution_file << corb.benchmark << ".solution";
+		corb.solution_out.open(solution_file.str().c_str());
+	}
+
+	// handle config file
 	if (corb.logMed()) {
 		cout << "IO> ";
 		cout << "Parsing config file..." << endl;

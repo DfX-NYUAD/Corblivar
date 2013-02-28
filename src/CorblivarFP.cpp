@@ -368,6 +368,13 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	// generate floorplan plots
 	IO::writeFloorplanGP(*this);
 
+	// generate Corblivar date if solution file is used as outpu
+	if (this->solution_out.is_open()) {
+		this->solution_out << chip.CBLsString() << endl;
+		this->solution_out.close();
+	}
+
+	// thermal-analysis files
 	if (valid_solution) {
 		// generate power and thermal maps
 		IO::writePowerThermalMaps(*this);
