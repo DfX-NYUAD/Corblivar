@@ -342,6 +342,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return valid_layout_found;
 }
 
+// TODO output CBL solution w/ block dimensions into separat file
 void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	stringstream runtime;
 	bool valid_solution;
@@ -351,31 +352,31 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	valid_solution = chip.applyBestCBLs(this->conf_log);
 	// generate final layout
 	chip.generateLayout(this->conf_log);
-	// determine final cost
+
+	// determine cost for valid solutions
 	if (valid_solution) {
 		cost = this->determLayoutCost(valid_solution, 1.0);
-	}
-	else {
-		cost = this->determLayoutCost(valid_solution, 0.0);
+
+		// TODO further details like WL, TSVs, area and so
+		if (this->logMin()) {
+			cout << "SA> Final (adapted) cost: " << cost << endl;
+			this->results << "Cost: " << cost << endl;
+		}
 	}
 
-	// log results for feasible solution
-	// TODO further details like WL, TSVs, area and so
-	if (valid_solution && this->logMin()) {
-		cout << "SA> Final (adapted) cost: " << cost << endl;
-		this->results << "Cost: " << cost << endl;
-	}
-
-	// generate power and thermal maps
-	IO::writePowerThermalMaps(*this);
-	// generate final GP plots
+	// generate floorplan plots
 	IO::writeFloorplanGP(*this);
-	// generate HotSpot files
-	IO::writeHotSpotFiles(*this);
+
+	if (valid_solution) {
+		// generate power and thermal maps
+		IO::writePowerThermalMaps(*this);
+		// generate HotSpot files
+		IO::writeHotSpotFiles(*this);
+	}
 
 	// determine overall runtime
 	ftime(&this->end);
-	if (logMin()) {
+	if (this->logMin()) {
 		runtime << "Runtime: " << (1000.0 * (this->end.time - this->start.time) + (this->end.millitm - this->start.millitm)) / 1000.0 << " s";
 		cout << "Corblivar> " << runtime.str() << endl;
 		this->results << runtime.str() << endl;
