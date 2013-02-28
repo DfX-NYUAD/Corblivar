@@ -678,8 +678,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << "	" << corb.conf_outline_y * SCALE_DOWN;
 		file << "	0.0";
 		file << "	0.0";
-		file << "	0.0";
-		file << "	0.0";
+		file << "	" << IO::HEAT_CAPACITY_SI;
+		file << "	" << IO::THERMAL_RESISTIVITY_SI;
 		file << endl;
 
 		// close file stream
