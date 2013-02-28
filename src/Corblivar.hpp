@@ -82,6 +82,7 @@ class CorblivarFP {
 		// IO
 		//TODO outsource layout-related data into separate layout class
 		string benchmark, blocks_file, power_file, nets_file;
+		ofstream results;
 
 		// config parameters
 		//TODO outsource layout-related data into separate layout class
@@ -140,8 +141,7 @@ class CorblivarFP {
 		vector<Net*> nets;
 
 		// IO
-		struct timeb start, end;
-		ofstream results;
+		struct timeb start;
 
 		// config parameters
 		//TODO outsource layout-related data into separate layout class

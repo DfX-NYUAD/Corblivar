@@ -344,6 +344,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 // TODO output CBL solution w/ block dimensions into separat file
 void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
+	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
@@ -375,9 +376,9 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	}
 
 	// determine overall runtime
-	ftime(&this->end);
+	ftime(&end);
 	if (this->logMin()) {
-		runtime << "Runtime: " << (1000.0 * (this->end.time - this->start.time) + (this->end.millitm - this->start.millitm)) / 1000.0 << " s";
+		runtime << "Runtime: " << (1000.0 * (end.time - this->start.time) + (end.millitm - this->start.millitm)) / 1000.0 << " s";
 		cout << "Corblivar> " << runtime.str() << endl;
 		this->results << runtime.str() << endl;
 	}
