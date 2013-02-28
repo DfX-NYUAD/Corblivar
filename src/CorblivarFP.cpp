@@ -675,6 +675,7 @@ double CorblivarFP::determCostThermalDistr() {
 	int mask_x_size, mask_y_size;
 	int mask_flipped_x, mask_flipped_y;
 	int power_x, power_y;
+	double max_temp;
 
 	// TODO realize as config parameter / determine considering smallest block
 	maps_dim = 64;
@@ -727,8 +728,15 @@ double CorblivarFP::determCostThermalDistr() {
 		}
 	}
 
-	// TODO return max value
-	return 0.0;
+	// determine max value
+	max_temp = 0.0;
+	for (x = 0; x < maps_dim; x++) {
+		for (y = 0; y < maps_dim; y++) {
+			max_temp = max(max_temp, this->thermal_map[x][y]);
+		}
+	}
+
+	return max_temp;
 }
 
 // TODO logging, dbg
