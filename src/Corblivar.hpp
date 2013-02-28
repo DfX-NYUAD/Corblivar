@@ -170,33 +170,10 @@ class CorblivarFP {
 		static bool logMax(int log) {
 			return (log >= LOG_MAXIMUM);
 		};
-		// finalize; generate output files
-		void finalize() {
-			stringstream runtime;
 
-			// generate power and thermal maps
-			IO::writePowerThermalMaps(*this);
-			// generate final GP plots
-			IO::writeFloorplanGP(*this);
-			// generate HotSpot files
-			IO::writeHotSpotFiles(*this);
-
-			// determine total runtime
-			ftime(&this->end);
-			if (logMin()) {
-				runtime << "Runtime: " << (1000.0 * (this->end.time - this->start.time) + (this->end.millitm - this->start.millitm)) / 1000.0 << " s";
-				cout << "Corblivar> " << runtime.str() << endl;
-				this->results << runtime.str() << endl;
-			}
-
-			// close results file
-			this->results.close();
-
-			exit(0);
-		};
-
-		// floorplanning main routine
+		// floorplanning handler
 		bool SA(CorblivarLayoutRep &chip);
+		void finalize(CorblivarLayoutRep &chip);
 
 		//TODO outsource layout-related data into separate layout class
 		void initThermalMasks();
@@ -715,7 +692,7 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-		void applyBestCBLs(int log) {
+		bool applyBestCBLs(int log) {
 			unsigned i, ii;
 			bool empty;
 			Block *cur_block;
@@ -730,7 +707,7 @@ class CorblivarLayoutRep {
 				if (CorblivarFP::logMin(log)) {
 					cout << "Corblivar> No best (fitting) solution available!" << endl;
 				}
-				return;
+				return false;
 			}
 
 			for (i = 0; i < this->dies.size(); i++) {
@@ -751,6 +728,8 @@ class CorblivarLayoutRep {
 					this->dies[i]->CBL.T.push_back(this->dies[i]->CBLbest.T[ii]);
 				}
 			}
+
+			return true;
 		};
 };
 

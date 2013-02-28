@@ -334,25 +334,57 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		annealed = (i > this->conf_SA_loopLimit);
 	}
 
-	// apply best solution, if available, as final solution
-	chip.applyBestCBLs(this->conf_log);
-	// generate final layout
-	chip.generateLayout(this->conf_log);
-
-	// log results for feasible solution
-	if (valid_layout_found && this->logMin()) {
-		cout << "SA> Final (adapted) cost: " << best_cost << endl;
-		this->results << "Cost: " << best_cost << endl;
-		this->results << "CBLs: " << endl;
-		this->results << chip.CBLsString() << endl;
-	}
-
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
 		cout << endl;
 	}
 
 	return valid_layout_found;
+}
+
+void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
+	stringstream runtime;
+	bool valid_solution;
+	double cost;
+
+	// apply best solution, if available, as final solution
+	valid_solution = chip.applyBestCBLs(this->conf_log);
+	// generate final layout
+	chip.generateLayout(this->conf_log);
+	// determine final cost
+	if (valid_solution) {
+		cost = this->determLayoutCost(valid_solution, 1.0);
+	}
+	else {
+		cost = this->determLayoutCost(valid_solution, 0.0);
+	}
+
+	// log results for feasible solution
+	// TODO further details like WL, TSVs, area and so
+	if (valid_solution && this->logMin()) {
+		cout << "SA> Final (adapted) cost: " << cost << endl;
+		this->results << "Cost: " << cost << endl;
+	}
+
+	// generate power and thermal maps
+	IO::writePowerThermalMaps(*this);
+	// generate final GP plots
+	IO::writeFloorplanGP(*this);
+	// generate HotSpot files
+	IO::writeHotSpotFiles(*this);
+
+	// determine overall runtime
+	ftime(&this->end);
+	if (logMin()) {
+		runtime << "Runtime: " << (1000.0 * (this->end.time - this->start.time) + (this->end.millitm - this->start.millitm)) / 1000.0 << " s";
+		cout << "Corblivar> " << runtime.str() << endl;
+		this->results << runtime.str() << endl;
+	}
+
+	// close results file
+	this->results.close();
+
+	exit(0);
 }
 
 bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
@@ -541,6 +573,8 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// cost temperature distribution
 	// TODO consider only for layouts fitting into outline
 	// TODO max value? initial sampling most likely doesn't fit into outline
+	// TODO move; only after layout evaluation the variable
+	// layout_fits_in_fixed_outline is set
 	cost_temp = 0.0;
 	if (layout_fits_in_fixed_outline) {
 		this->determCostThermalDistr();
@@ -692,9 +726,7 @@ double CorblivarFP::determCostThermalDistr() {
 		}
 	}
 
-	// TODO drop
-	this->finalize();
-
+	// TODO return max value
 	return 0.0;
 }
 

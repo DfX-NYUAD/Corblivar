@@ -57,7 +57,7 @@ int main (int argc, char** argv) {
 	}
 
 	// finalize: generate output files, final logging
-	corb.finalize();
+	corb.finalize(chip);
 }
 
 // definitions for const vars, to allocate memory
