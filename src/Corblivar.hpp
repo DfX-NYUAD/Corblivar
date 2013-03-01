@@ -62,9 +62,14 @@ class IO {
 		static const double HEAT_CAPACITY_SI;
 		static const double THERMAL_RESISTIVITY_SI;
 		static const double THICKNESS_SI;
+		static const double THICKNESS_SI_ACTIVE;
 		static const double HEAT_CAPACITY_BEOL;
 		static const double THERMAL_RESISTIVITY_BEOL;
 		static const double THICKNESS_BEOL;
+		static const double HEAT_CAPACITY_BOND;
+		static const double THERMAL_RESISTIVITY_BOND;
+		static const double THICKNESS_BOND;
+
 		// scaling factor for block dimensions
 		static const int BLOCKS_SCALE_UP = 50;
 

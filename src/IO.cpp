@@ -745,7 +745,7 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	Block *cur_block;
 	int cur_layer;
 	// factor to scale um downto m;
-	static const double SCALE_DOWN = 0.000001;
+	static const double SCALE_UM_M = 0.000001;
 
 	if (corb.logMed()) {
 		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;
@@ -776,10 +776,10 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 			}
 
 			file << "b" << cur_block->id;
-			file << "	" << cur_block->bb.w * SCALE_DOWN;
-			file << "	" << cur_block->bb.h * SCALE_DOWN;
-			file << "	" << cur_block->bb.ll.x * SCALE_DOWN;
-			file << "	" << cur_block->bb.ll.y * SCALE_DOWN;
+			file << "	" << cur_block->bb.w * SCALE_UM_M;
+			file << "	" << cur_block->bb.h * SCALE_UM_M;
+			file << "	" << cur_block->bb.ll.x * SCALE_UM_M;
+			file << "	" << cur_block->bb.ll.y * SCALE_UM_M;
 			file << "	" << IO::HEAT_CAPACITY_SI;
 			file << "	" << IO::THERMAL_RESISTIVITY_SI;
 			file << endl;
@@ -787,8 +787,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 
 		// dummy block to describe layer outline
 		file << "outline" << cur_layer;
-		file << "	" << corb.conf_outline_x * SCALE_DOWN;
-		file << "	" << corb.conf_outline_y * SCALE_DOWN;
+		file << "	" << corb.conf_outline_x * SCALE_UM_M;
+		file << "	" << corb.conf_outline_y * SCALE_UM_M;
 		file << "	0.0";
 		file << "	0.0";
 		file << "	" << IO::HEAT_CAPACITY_SI;
@@ -798,6 +798,34 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		// close file stream
 		file.close();
 	}
+
+	/// generate dummy floorplan for inactive Si layer
+	//
+	// build up file name
+	stringstream Si_fp_file;
+	Si_fp_file << corb.benchmark << "_HotSpot_Si.flp";
+
+	// init file stream
+	file.open(Si_fp_file.str().c_str());
+
+	// file header
+	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+	file << "# all dimensions are in meters" << endl;
+	file << "# comment lines begin with a '#'" << endl;
+	file << "# comments and empty lines are ignored" << endl;
+
+	// inactive Si ``block''
+	file << "Si";
+	file << "	" << corb.conf_outline_x * SCALE_UM_M;
+	file << "	" << corb.conf_outline_y * SCALE_UM_M;
+	file << "	0.0";
+	file << "	0.0";
+	file << "	" << IO::HEAT_CAPACITY_SI;
+	file << "	" << IO::THERMAL_RESISTIVITY_SI;
+	file << endl;
+
+	// close file stream
+	file.close();
 
 	/// generate dummy floorplan for BEOL layer
 	//
@@ -816,12 +844,40 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 
 	// BEOL ``block''
 	file << "BEOL";
-	file << "	" << corb.conf_outline_x * SCALE_DOWN;
-	file << "	" << corb.conf_outline_y * SCALE_DOWN;
+	file << "	" << corb.conf_outline_x * SCALE_UM_M;
+	file << "	" << corb.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
 	file << "	" << IO::HEAT_CAPACITY_BEOL;
 	file << "	" << IO::THERMAL_RESISTIVITY_BEOL;
+	file << endl;
+
+	// close file stream
+	file.close();
+
+	/// generate dummy floorplan for Bond layer
+	//
+	// build up file name
+	stringstream Bond_fp_file;
+	Bond_fp_file << corb.benchmark << "_HotSpot_Bond.flp";
+
+	// init file stream
+	file.open(Bond_fp_file.str().c_str());
+
+	// file header
+	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+	file << "# all dimensions are in meters" << endl;
+	file << "# comment lines begin with a '#'" << endl;
+	file << "# comments and empty lines are ignored" << endl;
+
+	// Bond ``block''
+	file << "Bond";
+	file << "	" << corb.conf_outline_x * SCALE_UM_M;
+	file << "	" << corb.conf_outline_y * SCALE_UM_M;
+	file << "	0.0";
+	file << "	0.0";
+	file << "	" << IO::HEAT_CAPACITY_BOND;
+	file << "	" << IO::THERMAL_RESISTIVITY_BOND;
 	file << endl;
 
 	// close file stream
@@ -903,18 +959,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		file << "# Active Si layer; design layer " << cur_layer << endl;
-		file << 2 * cur_layer << endl;
-		file << "Y" << endl;
-		file << "Y" << endl;
-		file << IO::HEAT_CAPACITY_SI << endl;
-		file << IO::THERMAL_RESISTIVITY_SI << endl;
-		file << IO::THICKNESS_SI << endl;
-		file << corb.benchmark << "_HotSpot_" << cur_layer << ".flp" << endl;
-		file << endl;
-
-		file << "# BEOL layer for active layer " << cur_layer << endl;
-		file << 2 * cur_layer + 1 << endl;
+		file << "# BEOL (interconnects) layer " << cur_layer << endl;
+		file << 4 * cur_layer << endl;
 		file << "Y" << endl;
 		file << "N" << endl;
 		file << IO::HEAT_CAPACITY_BEOL << endl;
@@ -922,6 +968,38 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << IO::THICKNESS_BEOL << endl;
 		file << corb.benchmark << "_HotSpot_BEOL.flp" << endl;
 		file << endl;
+
+		file << "# Active Si layer; design layer " << cur_layer << endl;
+		file << 4 * cur_layer + 1 << endl;
+		file << "Y" << endl;
+		file << "Y" << endl;
+		file << IO::HEAT_CAPACITY_SI << endl;
+		file << IO::THERMAL_RESISTIVITY_SI << endl;
+		file << IO::THICKNESS_SI_ACTIVE << endl;
+		file << corb.benchmark << "_HotSpot_" << cur_layer << ".flp" << endl;
+		file << endl;
+
+		file << "# Inactive Si layer " << cur_layer << endl;
+		file << 4 * cur_layer + 2 << endl;
+		file << "Y" << endl;
+		file << "N" << endl;
+		file << IO::HEAT_CAPACITY_SI << endl;
+		file << IO::THERMAL_RESISTIVITY_SI << endl;
+		file << IO::THICKNESS_SI << endl;
+		file << corb.benchmark << "_HotSpot_Si.flp" << endl;
+		file << endl;
+
+		if (cur_layer < (corb.conf_layer - 1)) {
+			file << "# Bond layer " << cur_layer << "; for F2B bonding to next die " << cur_layer + 1 << endl;
+			file << 4 * cur_layer + 3 << endl;
+			file << "Y" << endl;
+			file << "N" << endl;
+			file << IO::HEAT_CAPACITY_BOND << endl;
+			file << IO::THERMAL_RESISTIVITY_BOND << endl;
+			file << IO::THICKNESS_BOND << endl;
+			file << corb.benchmark << "_HotSpot_Bond.flp" << endl;
+			file << endl;
+		}
 	}
 
 	// close file stream
