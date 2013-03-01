@@ -614,6 +614,9 @@ class CorblivarLayoutRep {
 			unsigned i;
 			stringstream ret;
 
+			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << endl;
+			ret << "data_start" << endl;
+
 			for (i = 0; i < this->dies.size(); i++) {
 				ret << "CBL [ " << i << " ]" << endl;
 				ret << this->dies[i]->CBL.itemString() << endl;

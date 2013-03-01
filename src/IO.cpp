@@ -243,9 +243,10 @@ void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
 		chip.dies.push_back(new CorblivarDie(i));
 	}
 
-//	// drop block files header
-//	while (tmpstr != "sb0" && !blocks_in.eof())
-//		blocks_in >> tmpstr;
+	// drop solution file header
+	while (tmpstr != "data_start" && !corb.solution_in.eof()) {
+		corb.solution_in >> tmpstr;
+	}
 
 	while (!corb.solution_in.eof()) {
 		corb.solution_in >> tmpstr;
