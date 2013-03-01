@@ -664,8 +664,8 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// sum up cost function
 	cost_total += cost_area_outline;
 
-#ifdef DBG_SA
-	cout << "Layout> ";
+#ifdef DBG_LAYOUT
+	cout << "DBG_LAYOUT> ";
 	cout << "Layout cost: " << cost_total << endl;
 #endif
 
@@ -746,7 +746,6 @@ double CorblivarFP::determCostThermalDistr() {
 	return max_temp;
 }
 
-// TODO logging, dbg
 void CorblivarFP::generatePowerMaps(int maps_dim) {
 	int i, n;
 	int x, y;
@@ -822,7 +821,6 @@ void CorblivarFP::generatePowerMaps(int maps_dim) {
 
 // determine masks for lowest layer, i.e., hottest layer
 // based on a gaussian-like thermal impulse response fuction
-// TODO logging, dbg
 void CorblivarFP::initThermalMasks() {
 	int i;
 	int masks_dim;
@@ -833,6 +831,11 @@ void CorblivarFP::initThermalMasks() {
 	vector< vector<double> > mask;
 	vector<double> mask_col;
 	int x, y;
+
+	if (this->logMed()) {
+		cout << "Layout> ";
+		cout << "Initializing thermals masks for power blurring ..." << endl;
+	}
 
 	// clear masks
 	this->thermal_masks.clear();
@@ -875,12 +878,12 @@ void CorblivarFP::initThermalMasks() {
 		this->thermal_masks.push_back(mask);
 	}
 
-#ifdef DBG_SA
+#ifdef DBG_LAYOUT
 	// enforce fixed digit count for printing mask
 	cout << fixed;
 	// dump mask
 	for (i = 0; i < this->conf_layer; i++) {
-		cout << "DBG_SA> Thermal mask for layer " << i << ":" << endl;
+		cout << "DBG_LAYOUT> Thermal mask for layer " << i << ":" << endl;
 		for (y = masks_dim - 1; y >= 0; y--) {
 			for (x = 0; x < masks_dim; x++) {
 				cout << masks[i][x][y] << "	";
@@ -891,6 +894,11 @@ void CorblivarFP::initThermalMasks() {
 	// reset to default floating output
 	cout.unsetf(ios_base::floatfield);
 #endif
+
+	if (this->logMed()) {
+		cout << "Layout> ";
+		cout << "Done" << endl << endl;
+	}
 
 }
 
@@ -917,8 +925,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 
 		// determine HPWL on each layer separately
 		for (i = 0; i < this->conf_layer; i++) {
-#ifdef DBG_SA
-			cout << "DBG_SA> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
+#ifdef DBG_LAYOUT
+			cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
 #endif
 
 			// consider all related blocks:
@@ -931,8 +939,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			for (b = 0; b < cur_net->blocks.size(); b++) {
 				if (cur_net->blocks[b]->layer == i) {
 					blocks_to_consider.push_back(cur_net->blocks[b]->bb);
-#ifdef DBG_SA
-					cout << "DBG_SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
+#ifdef DBG_LAYOUT
+					cout << "DBG_LAYOUT> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
 #endif
 				}
 			}
@@ -951,8 +959,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 					if (cur_net->blocks[b]->layer == ii) {
 						blocks_to_consider.push_back(cur_net->blocks[b]->bb);
 						blocks_above_considered = true;
-#ifdef DBG_SA
-						cout << "DBG_SA> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
+#ifdef DBG_LAYOUT
+						cout << "DBG_LAYOUT> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
 #endif
 					}
 				}
@@ -974,8 +982,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			// cases (single blocks on uppermost layer) are already covered
 			// while considering layers below
 			if (blocks_to_consider.size() == 1) {
-#ifdef DBG_SA
-				cout << "DBG_SA> 	Ignore single block on uppermost layer" << endl;
+#ifdef DBG_LAYOUT
+				cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
 #endif
 				continue;
 			}
@@ -983,8 +991,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			// update TSVs counter if connecting to blocks on some upper layer
 			if (blocks_above_considered) {
 				TSVs += (ii - i);
-#ifdef DBG_SA
-				cout << "DBG_SA> 	TSVs required: " << (ii - i) << endl;
+#ifdef DBG_LAYOUT
+				cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
 #endif
 			}
 
@@ -992,8 +1000,8 @@ vector<double> CorblivarFP::determCostInterconnects() {
 			bb = Rect::determBoundingBox(blocks_to_consider);
 			HPWL += bb.w;
 			HPWL += bb.h;
-#ifdef DBG_SA
-			cout << "DBG_SA> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+#ifdef DBG_LAYOUT
+			cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
 #endif
 		}
 	}

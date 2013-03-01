@@ -30,6 +30,7 @@
 // debugging code switch
 //#define DBG_IO
 //#define DBG_CORB
+//#define DBG_LAYOUT
 //#define DBG_SA
 
 /* consider standard namespace */
