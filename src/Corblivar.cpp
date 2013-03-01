@@ -95,8 +95,8 @@ const double IO::THERMAL_RESISTIVITY_BEOL = 0.4444;
 const double IO::HEAT_CAPACITY_BOND = 2298537.0;
 // [Park09]
 const double IO::THERMAL_RESISTIVITY_BOND = 5.0;
-// 200um thick dies; [Park09]
-const double IO::THICKNESS_SI = 0.0002;
+// 100um thick dies; own value
+const double IO::THICKNESS_SI = 0.0001;
 // 2um active Si layer; [Sridhar10]
 const double IO::THICKNESS_SI_ACTIVE = 0.000002;
 // 12um BEOL; [Sridhar10]
