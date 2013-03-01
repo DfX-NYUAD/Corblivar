@@ -554,6 +554,11 @@ void IO::writePowerThermalMaps(CorblivarFP &corb) {
 	unsigned x_limit, y_limit;
 	int flag;
 
+	// sanity check
+	if (corb.power_maps.empty() || corb.thermal_map.empty()) {
+		return;
+	}
+
 	if (corb.logMed()) {
 		cout << "IO> ";
 		cout << "Generating power maps and thermal profiles ..." << endl;
