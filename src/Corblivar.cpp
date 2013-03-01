@@ -33,9 +33,11 @@ int main (int argc, char** argv) {
 	IO::parseNets(corb);
 
 	/// init Corblivar layout representation
-	// read from file
 	if (corb.solution_in.is_open()) {
+		// read from file
 		IO::parseCorblivarFile(corb, chip);
+		// assume read in data as currently best solution
+		chip.storeBestCBLs();
 	}
 	// generate new, random data set
 	else {
@@ -44,6 +46,11 @@ int main (int argc, char** argv) {
 
 	// init thermal masks for thermal modelling based on power blurring
 	corb.initThermalMasks();
+
+	// (TODO) drop if further optimization of read in data is desired
+	if (corb.solution_in.is_open()) {
+		corb.finalize(chip);
+	}
 
 	if (corb.logMin()) {
 		cout << "Corblivar> ";

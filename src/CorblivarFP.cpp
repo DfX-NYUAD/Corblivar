@@ -342,7 +342,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	return valid_layout_found;
 }
 
-// TODO output CBL solution w/ block dimensions into separat file
 void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	struct timeb end;
 	stringstream runtime;
@@ -368,7 +367,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	// generate floorplan plots
 	IO::writeFloorplanGP(*this);
 
-	// generate Corblivar date if solution file is used as outpu
+	// generate Corblivar date if solution file is used as output
 	if (this->solution_out.is_open()) {
 		this->solution_out << chip.CBLsString() << endl;
 		this->solution_out.close();
