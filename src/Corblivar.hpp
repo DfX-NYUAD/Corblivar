@@ -436,7 +436,7 @@ class CornerBlockList {
 		string itemString(unsigned i) {
 			stringstream ret;
 
-			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " )";
+			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
 
 			return ret.str();
 		};

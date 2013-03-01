@@ -230,6 +230,7 @@ void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
 	unsigned dir;
 	int juncts;
 	int i;
+	double w, h;
 
 	if (corb.logMed()) {
 		cout << "Layout> ";
@@ -290,6 +291,16 @@ void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
 			corb.solution_in >> juncts;
 			// store junctions into T sequence
 			chip.dies[cur_layer]->CBL.T.push_back(juncts);
+
+			// block width
+			corb.solution_in >> w;
+			// store width in block
+			cur_block->bb.w = w;
+
+			// block height
+			corb.solution_in >> h;
+			// store height in block
+			cur_block->bb.h = h;
 
 			// drop ")"
 			corb.solution_in >> tmpstr;
