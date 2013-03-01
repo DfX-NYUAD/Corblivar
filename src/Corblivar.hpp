@@ -72,6 +72,7 @@ class IO {
 		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
 		static void parseBlocks(CorblivarFP &corb);
 		static void parseNets(CorblivarFP &corb);
+		static void parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip);
 		static void writeFloorplanGP(CorblivarFP &corb, string file_suffix = "");
 		static void writeHotSpotFiles(CorblivarFP &corb);
 		static void writePowerThermalMaps(CorblivarFP &corb);
@@ -83,7 +84,6 @@ class CorblivarFP {
 		//TODO outsource layout-related data into separate layout class
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results, solution_out;
-		ifstream solution_in;
 
 		// config parameters
 		//TODO outsource layout-related data into separate layout class
@@ -143,6 +143,7 @@ class CorblivarFP {
 
 		// IO
 		struct timeb start;
+		ifstream solution_in;
 
 		// config parameters
 		//TODO outsource layout-related data into separate layout class
@@ -435,7 +436,7 @@ class CornerBlockList {
 		string itemString(unsigned i) {
 			stringstream ret;
 
-			ret << "(" << S[i]->id << ", " << L[i] << ", " << T[i] << ")";
+			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " )";
 
 			return ret.str();
 		};
@@ -444,11 +445,9 @@ class CornerBlockList {
 			unsigned i;
 			stringstream ret;
 
-			ret << "{";
 			for (i = 0; i < this->size(); i++) {
-				ret << this->itemString(i) << ", ";
+				ret << this->itemString(i) << " , ";
 			}
-			ret << "}";
 
 			return ret.str();
 		}
@@ -616,7 +615,7 @@ class CorblivarLayoutRep {
 			stringstream ret;
 
 			for (i = 0; i < this->dies.size(); i++) {
-				ret << "CBL[" << i << "]" << endl;
+				ret << "CBL [ " << i << " ]" << endl;
 				ret << this->dies[i]->CBL.itemString() << endl;
 			}
 

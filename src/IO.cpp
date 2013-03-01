@@ -221,6 +221,89 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	}
 }
 
+void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
+	string tmpstr;
+	map<int, Block*>::iterator b;
+	Block *cur_block;
+	int cur_layer;
+	int block_id;
+	unsigned dir;
+	int juncts;
+	int i;
+
+	if (corb.logMed()) {
+		cout << "Layout> ";
+		cout << "Initializing Corblivar data from solution file ..." << endl;
+	}
+
+	// init separate data structures for dies
+	chip.dies.clear();
+	for (i = 0; i < corb.conf_layer; i++) {
+		chip.dies.push_back(new CorblivarDie(i));
+	}
+
+//	// drop block files header
+//	while (tmpstr != "sb0" && !blocks_in.eof())
+//		blocks_in >> tmpstr;
+
+	while (!corb.solution_in.eof()) {
+		corb.solution_in >> tmpstr;
+
+		// new die; new CBL
+		if (tmpstr == "CBL") {
+			// drop "["
+			corb.solution_in >> tmpstr;
+
+			// layer id
+			corb.solution_in >> cur_layer;
+
+			// drop "]"
+			corb.solution_in >> tmpstr;
+		}
+		// new CBL tuple; new block
+		else if (tmpstr == "(") {
+			// block id
+			corb.solution_in >> block_id;
+			// find related block
+			b = corb.blocks.find(block_id);
+			if (b != corb.blocks.end()) {
+				cur_block = (*b).second;
+			}
+			else {
+				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
+				cur_block = NULL;
+			}
+			// store block into S sequence
+			chip.dies[cur_layer]->CBL.S.push_back(cur_block);
+
+			// direction L
+			corb.solution_in >> dir;
+			// store direction into L sequence
+			if (dir == 0) {
+				chip.dies[cur_layer]->CBL.L.push_back(DIRECTION_VERT);
+			}
+			else {
+				chip.dies[cur_layer]->CBL.L.push_back(DIRECTION_HOR);
+			}
+
+			// T-junctions
+			corb.solution_in >> juncts;
+			// store junctions into T sequence
+			chip.dies[cur_layer]->CBL.T.push_back(juncts);
+
+			// drop ")"
+			corb.solution_in >> tmpstr;
+			// drop ","
+			corb.solution_in >> tmpstr;
+		}
+	}
+
+	if (corb.logMed()) {
+		cout << "Layout> ";
+		cout << "Done" << endl << endl;
+	}
+}
+
 // parse blocks file
 void IO::parseBlocks(CorblivarFP &corb) {
 	ifstream blocks_in, power_in;

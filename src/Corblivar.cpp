@@ -32,8 +32,15 @@ int main (int argc, char** argv) {
 	// parse nets
 	IO::parseNets(corb);
 
-	// init Corblivar layout representation
-	chip.initCorblivar(corb);
+	/// init Corblivar layout representation
+	// read from file
+	if (corb.solution_in.is_open()) {
+		IO::parseCorblivarFile(corb, chip);
+	}
+	// generate new, random data set
+	else {
+		chip.initCorblivar(corb);
+	}
 
 	// init thermal masks for thermal modelling based on power blurring
 	corb.initThermalMasks();
