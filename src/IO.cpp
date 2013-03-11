@@ -315,6 +315,8 @@ void IO::parseBlocks(CorblivarFP &corb) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
 	Block *cur_block;
+	double power = 0.0;
+	double area = 0.0;
 	int id;
 
 	if (corb.logMed()) {
@@ -357,6 +359,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			// would imply using pow(IO::BLOCKS_SCALE_UP, 2.0); which is
 			// rejected in order to limit overall power values
 			cur_block->power *= pow(IO::BLOCKS_SCALE_UP, 3.0/2.0);
+			power += cur_block->power;
 		}
 		else {
 			if (corb.logMin()) {
@@ -401,6 +404,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 
 		// calculate block area
 		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
+		area += cur_block->bb.area;
 		// store block
 		corb.blocks.insert( pair<int, Block*>(id, cur_block) );
 
@@ -414,20 +418,17 @@ void IO::parseBlocks(CorblivarFP &corb) {
 
 	// logging
 	if (corb.logMed()) {
-		double power = 0.0;
-		double area = 0.0;
-		map<int, Block*>::iterator b;
-
-		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-			power += (*b).second->power;
-			area += (*b).second->bb.area;
-		}
-
 		cout << "IO> ";
 		cout << "Done; " << corb.blocks.size() << " blocks read in" << endl;
 		cout << "IO>  (blocks power: " << power << "; blocks area: " << area;
 		cout << "; blocks area / total area: " << area / (corb.conf_layer * corb.conf_outline_x * corb.conf_outline_y) << ")" << endl;
 		cout << endl;
+	}
+
+	// sanity check of fixed outline
+	if (area / (corb.conf_layer * corb.conf_outline_x * corb.conf_outline_y) > 1.0) {
+		cout << "IO> Outline too small; consider fixing the config file" << endl;
+		exit(1);
 	}
 }
 
