@@ -220,8 +220,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 					}
 				}
 
-				// solution accepted
-				if (accept) {
+				// solution accepted, also applies for potentially
+				// rejected, first fitting solution
+				if (accept || (cur_layout_fits_in_outline && !valid_layout_found)) {
 					// update ops count
 					accepted_ops_ratio++;
 					// sum up cost for subsequent avg determination
