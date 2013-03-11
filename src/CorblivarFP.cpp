@@ -591,12 +591,11 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	double max_outline_y;
 	Block *cur_block;
 	map<int, Block*>::iterator b;
-	int i, non_empty_dies;
+	int i;
 	vector<double> dies_AR;
 	vector<double> dies_area;
 
 	layout_fits_in_fixed_outline = true;
-	non_empty_dies = 0;
 
 	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
@@ -616,9 +615,8 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 		dies_area.push_back((max_outline_x * max_outline_y) / (this->conf_outline_x * this->conf_outline_y));
 
 		// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
-		if (max_outline_x > 0.0 && max_outline_y > 0.0) {
+		if (max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
-			non_empty_dies++;
 		}
 		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
 		// not impact cost function
@@ -635,12 +633,10 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	// cost for AR mismatch (guides into fixed outline, Chen 2006)
 	cost_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
-		cost_outline += pow(dies_AR[i] - this->outline_AR, 2.0);
+		cost_outline = max(cost_outline, pow(dies_AR[i] - this->outline_AR, 2.0));
 	}
-	// determine average value
-	cost_outline /= non_empty_dies;
 	// determine cost function value
-	cost_outline *=	0.5 * this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline);
+	cost_outline *= 0.5 * this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline);
 
 	// cost for area
 	cost_area = 0.0;
