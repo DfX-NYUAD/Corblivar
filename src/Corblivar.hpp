@@ -87,19 +87,16 @@ class IO {
 class CorblivarFP {
 	private:
 		// IO
-		//TODO outsource layout-related data into separate layout class
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results, solution_out;
 
 		// config parameters
-		//TODO outsource layout-related data into separate layout class
 		double conf_outline_x, conf_outline_y, outline_AR;
 
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: max cost values
-		//TODO outsource layout-related data into separate layout class
 		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA parameters: temperature-scaling factors
@@ -116,23 +113,20 @@ class CorblivarFP {
 		// SA: layout-operation handler
 		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
 
-		// thermal modeling: parameters
-		// [mask][x][y], whereas mask[0] relates to the mask for layer 0 obtained
+		// thermal modeling: vector masks and maps
+		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
 		// by considering heat source in layer 0, mask[1] relates to the mask for
 		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		//TODO outsource layout-related data into separate layout class
 		vector< vector< vector<double> > > thermal_masks;
-		// [map][x][y], whereas map[0] relates to the map for layer 0 and so forth.
+		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
 		vector< vector< vector<double> > > power_maps;
 		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
 		vector< vector<double> > thermal_map;
 
 		// thermal modeling: handlers
-		//TODO outsource layout-related data into separate layout class
 		void generatePowerMaps(int maps_dim);
 
-		// layout-evalutions
-		//TODO outsource layout-related data into separate layout class
+		// SA: cost functions, i.e., layout-evalutions
 		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
 		double determCostThermalDistr();
 		// return[0]: HPWL
@@ -142,8 +136,7 @@ class CorblivarFP {
 	public:
 		friend class IO;
 
-		// layout data
-		//TODO outsource layout-related data into separate layout class
+		// chip data
 		map<int, Block*> blocks;
 		vector<Net*> nets;
 
@@ -152,7 +145,6 @@ class CorblivarFP {
 		ifstream solution_in;
 
 		// config parameters
-		//TODO outsource layout-related data into separate layout class
 		int conf_layer;
 		int conf_log;
 
@@ -179,11 +171,11 @@ class CorblivarFP {
 			return (log >= LOG_MAXIMUM);
 		};
 
-		// floorplanning handler
+		// SA: floorplanning handler
 		bool SA(CorblivarLayoutRep &chip);
 		void finalize(CorblivarLayoutRep &chip);
 
-		//TODO outsource layout-related data into separate layout class
+		// thermal modeling: handlers
 		void initThermalMasks();
 };
 
