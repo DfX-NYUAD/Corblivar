@@ -180,11 +180,6 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> corb.conf_SA_cost_IR;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
 	in >> corb.conf_SA_cost_WL;
 
 	in >> tmpstr;
@@ -213,7 +208,6 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 		cout << "IO>  SA -- Boundary factor for transitions b/w phases 1, 2: " << corb.conf_SA_temp_phase_trans_12_factor << endl;
 		cout << "IO>  SA -- Boundary factor for transitions b/w phases 2, 3: " << corb.conf_SA_temp_phase_trans_23_factor << endl;
 		cout << "IO>  SA -- Cost factor for temperature: " << corb.conf_SA_cost_temp << endl;
-		cout << "IO>  SA -- Cost factor for IR-drop: " << corb.conf_SA_cost_IR << endl;
 		cout << "IO>  SA -- Cost factor for wirelength: " << corb.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << corb.conf_SA_cost_TSVs << endl;
 		cout << "IO>  SA -- Cost factor for area and outline violation: " << corb.conf_SA_cost_area_outline << endl;

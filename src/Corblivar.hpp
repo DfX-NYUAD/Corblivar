@@ -94,10 +94,10 @@ class CorblivarFP {
 		double conf_outline_x, conf_outline_y, outline_AR;
 
 		double conf_SA_loopFactor, conf_SA_loopLimit;
-		double conf_SA_cost_temp, conf_SA_cost_IR, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
+		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: max cost values
-		double max_cost_temp, max_cost_IR, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA parameters: temperature-scaling factors
 		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
@@ -127,7 +127,7 @@ class CorblivarFP {
 		void generatePowerMaps(int maps_dim);
 
 		// SA: cost functions, i.e., layout-evalutions
-		double determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
+		double determCost(bool &layout_fits_in_fixed_outline, bool phase_two = false, double ratio_feasible_solutions_fixed_outline = 0.0);
 		double determCostThermalDistr();
 		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline);
 		// return[0]: HPWL

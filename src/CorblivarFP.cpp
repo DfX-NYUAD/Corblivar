@@ -33,7 +33,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	this->max_cost_WL = 0.0;
 	this->max_cost_TSVs = 0.0;
 	this->max_cost_temp = 0.0;
-	this->max_cost_IR = 0.0;
 	this->max_cost_alignments = 0.0;
 
 	// init SA parameter: inner loop count
@@ -88,7 +87,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			// generate layout
 			chip.generateLayout(this->conf_log);
 
-			cost_hist.push_back(this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i));
+			cost_hist.push_back(this->determCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i));
 
 			// memorize count of solutions fitting into outline
 			if (cur_layout_fits_in_outline) {
@@ -123,7 +122,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			// init cost
 			if (i == 1) {
 				chip.generateLayout(this->conf_log);
-				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, 0.0);
+				cur_cost = this->determCost(cur_layout_fits_in_outline, 0.0);
 			}
 
 			prev_cost = cur_cost;
@@ -132,7 +131,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			chip.generateLayout(this->conf_log);
 
 			// evaluate layout, new cost
-			cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
+			cur_cost = this->determCost(cur_layout_fits_in_outline, (double) layout_fit_counter / i);
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
 
@@ -209,7 +208,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 
 		// init cost for current layout and fitting ratio
 		chip.generateLayout(this->conf_log);
-		cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, layout_fit_ratio);
+		cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio);
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -224,7 +223,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				chip.generateLayout(this->conf_log);
 
 				// evaluate layout, new cost
-				cur_cost = this->determLayoutCost(cur_layout_fits_in_outline, layout_fit_ratio);
+				cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio);
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 #ifdef DBG_SA
@@ -263,7 +262,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 						// in order to compare different fitting
 						// solutions equally, redetermine cost w/
 						// fitting ratio 1.0
-						fitting_cost = this->determLayoutCost(cur_layout_fits_in_outline, 1.0);
+						fitting_cost = this->determCost(cur_layout_fits_in_outline, 1.0);
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -355,7 +354,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 
 	// determine cost for valid solutions
 	if (valid_solution) {
-		cost = this->determLayoutCost(valid_solution, 1.0);
+		cost = this->determCost(valid_solution, 1.0);
 
 		// TODO further details like WL, TSVs, area and so
 		if (this->logMin()) {
@@ -564,46 +563,47 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 	return true;
 }
 
-// cost factors must be normalized to their respective max values; i.e., for
-// optimized solutions, cost will be significantly smaller than 1
-double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
-	double cost_total, cost_temp, cost_IR, cost_alignments, cost_area_outline;
+// adaptive cost model w/ two phases;
+// first phase considers only cost for packing into outline
+// second phase considers further factors like WL, thermal distr, etc.
+double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, bool phase_two, double ratio_feasible_solutions_fixed_outline) {
+	double cost_total, cost_temp, cost_alignments, cost_area_outline;
 	vector<double> cost_interconnects;
-
-//	// cost temperature distribution
-//	// TODO consider only for layouts fitting into outline
-//	// TODO max value? initial sampling most likely doesn't fit into outline
-//	// TODO move; only after layout evaluation the variable
-//	// layout_fits_in_fixed_outline is set
-//	cost_temp = 0.0;
-//	if (layout_fits_in_fixed_outline) {
-//		this->determCostThermalDistr();
-//	}
-
-	// TODO Cost IR
-	cost_IR = 0.0;
-
-	// cost interconnects
-	cost_interconnects = this->determCostInterconnects();
-	// normalize to max value from initial sampling
-	cost_interconnects[0] /= this->max_cost_WL;
-	cost_interconnects[1] /= this->max_cost_TSVs;
-
-	// TODO Cost (Failed) Alignments
-	cost_alignments = 0.0;
 
 	// cost area and outline, returns weighted cost using an adaptive cost model
 	cost_area_outline = this->determCostAreaOutline(layout_fits_in_fixed_outline, ratio_feasible_solutions_fixed_outline);
 
-	// cost function; cost terms which are determined considering full 3D layout
-	cost_total =
-//		this->conf_SA_cost_temp * cost_temp
-		+ this->conf_SA_cost_WL * cost_interconnects[0]
-		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
-		+ this->conf_SA_cost_IR * cost_IR
-		// area, outline cost is already weighted
-		+ cost_area_outline;
-	;
+	// consider further cost factors
+	if (phase_two) {
+
+		// interconnects cost
+		cost_interconnects = this->determCostInterconnects();
+		// normalize to max value from initial sampling
+		cost_interconnects[0] /= this->max_cost_WL;
+		cost_interconnects[1] /= this->max_cost_TSVs;
+
+		// TODO cost (failed) alignments
+		cost_alignments = 0.0;
+
+		// temperature-distribution cost
+		// TODO consider only for layouts fitting into outline
+		// TODO max value? initial sampling most likely doesn't fit into outline
+		cost_temp = this->determCostThermalDistr();
+
+		// cost function; sum up cost terms
+		// TODO consider adaptive cost fct for TSVs and die occuption
+		cost_total =
+			this->conf_SA_cost_WL * cost_interconnects[0]
+			+ this->conf_SA_cost_TSVs * cost_interconnects[1]
+			+ this->conf_SA_cost_temp * cost_temp
+			// area, outline cost is already weighted
+			+ cost_area_outline;
+		;
+	}
+	else {
+		// invert cost-factor weight since only one factor defines the cost fct
+		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline;
+	}
 
 #ifdef DBG_LAYOUT
 	cout << "DBG_LAYOUT> ";
