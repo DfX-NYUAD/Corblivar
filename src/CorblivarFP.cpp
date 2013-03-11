@@ -58,12 +58,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			// generate layout
 			chip.generateLayout(this->conf_log);
 
-			// determine and memorize cost of interconnects
-			init_cost_interconnects = this->determCostInterconnects();
-
-			// memorize max cost
-			this->max_cost_WL = max(this->max_cost_WL, init_cost_interconnects[0]);
-			this->max_cost_TSVs = max(this->max_cost_TSVs, init_cost_interconnects[1]);
+			// determine and memorize (max) cost of interconnects
+			this->determCostInterconnects(true);
 
 			i++;
 		}
@@ -578,9 +574,6 @@ double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, bool phase_tw
 
 		// interconnects cost
 		cost_interconnects = this->determCostInterconnects();
-		// normalize to max value from initial sampling
-		cost_interconnects[0] /= this->max_cost_WL;
-		cost_interconnects[1] /= this->max_cost_TSVs;
 
 		// TODO cost (failed) alignments
 		cost_alignments = 0.0;
@@ -917,7 +910,7 @@ void CorblivarFP::initThermalMasks() {
 // return[0]: HPWL
 // return[1]: TSVs
 // TODO recode; currently hotspot
-vector<double> CorblivarFP::determCostInterconnects() {
+vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost) {
 	unsigned n, b;
 	int i, ii;
 	double HPWL;
@@ -1021,5 +1014,16 @@ vector<double> CorblivarFP::determCostInterconnects() {
 	ret.push_back(HPWL);
 	ret.push_back(TSVs);
 
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_WL = ret[0];
+		this->max_cost_TSVs = ret[1];
+	}
+
+	// normalize to max value from initial sampling
+	ret[0] /= this->max_cost_WL;
+	ret[1] /= this->max_cost_TSVs;
+
 	return ret;
+
 }
