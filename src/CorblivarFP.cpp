@@ -567,17 +567,8 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // cost factors must be normalized to their respective max values; i.e., for
 // optimized solutions, cost will be significantly smaller than 1
 double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
-	double cost_total, cost_temp, cost_IR, cost_alignments;
-	double cost_area;
-	double cost_outline;
+	double cost_total, cost_temp, cost_IR, cost_alignments, cost_area_outline;
 	vector<double> cost_interconnects;
-	double max_outline_x;
-	double max_outline_y;
-	Block *cur_block;
-	map<int, Block*>::iterator b;
-	int i, non_empty_dies;
-	vector<double> dies_AR;
-	vector<double> dies_area;
 
 //	// cost temperature distribution
 //	// TODO consider only for layouts fitting into outline
@@ -601,22 +592,44 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// TODO Cost (Failed) Alignments
 	cost_alignments = 0.0;
 
+	// cost area and outline, returns weighted cost using an adaptive cost model
+	cost_area_outline = this->determCostAreaOutline(layout_fits_in_fixed_outline, ratio_feasible_solutions_fixed_outline);
+
 	// cost function; cost terms which are determined considering full 3D layout
 	cost_total =
 //		this->conf_SA_cost_temp * cost_temp
 		+ this->conf_SA_cost_WL * cost_interconnects[0]
 		+ this->conf_SA_cost_TSVs * cost_interconnects[1]
 		+ this->conf_SA_cost_IR * cost_IR
+		// area, outline cost is already weighted
+		+ cost_area_outline;
 	;
 
-	// TODO extract into separate function
-	//
-	// cost function; cost terms which are determined considering particular dies
-	// i.e., outline, area
-	//
-	// determine outline and area
+#ifdef DBG_LAYOUT
+	cout << "DBG_LAYOUT> ";
+	cout << "Layout cost: " << cost_total << endl;
+#endif
+
+	return cost_total;
+}
+
+// adaptive cost model: terms for area and AR mismatch are _mutually_
+// depending on ratio of feasible solutions (solutions fitting into outline)
+double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
+	double cost_area;
+	double cost_outline;
+	double max_outline_x;
+	double max_outline_y;
+	Block *cur_block;
+	map<int, Block*>::iterator b;
+	int i, non_empty_dies;
+	vector<double> dies_AR;
+	vector<double> dies_area;
+
 	layout_fits_in_fixed_outline = true;
 	non_empty_dies = 0;
+
+	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
@@ -648,10 +661,6 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// determine cost factors
-	// adaptive cost model: terms for area and AR mismatch are _mutually_
-	// depending on ratio of feasible solutions (solutions fitting into outline)
-	//
 	// cost for AR mismatch (guides into fixed outline)
 	cost_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
@@ -672,16 +681,7 @@ double CorblivarFP::determLayoutCost(bool &layout_fits_in_fixed_outline, double 
 	// determine cost function value
 	cost_area *= 0.5 * this->conf_SA_cost_area_outline * (1.0 + ratio_feasible_solutions_fixed_outline);
 
-	// sum up cost function
-	cost_total += cost_outline;
-	cost_total += cost_area;
-
-#ifdef DBG_LAYOUT
-	cout << "DBG_LAYOUT> ";
-	cout << "Layout cost: " << cost_total << endl;
-#endif
-
-	return cost_total;
+	return cost_outline + cost_area;
 }
 
 double CorblivarFP::determCostThermalDistr() {
