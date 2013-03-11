@@ -538,7 +538,7 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, bool phase_two, double ratio_feasible_solutions_fixed_outline) {
+double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two) {
 	double cost_total, cost_temp, cost_alignments, cost_area_outline;
 	vector<double> cost_interconnects;
 
@@ -600,6 +600,7 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 
 	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
+
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
 		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
@@ -610,6 +611,7 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 				max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
 			}
 		}
+
 		// store normalized area
 		dies_area.push_back((max_outline_x * max_outline_y) / (this->conf_outline_x * this->conf_outline_y));
 
@@ -630,7 +632,7 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// cost for AR mismatch (guides into fixed outline)
+	// cost for AR mismatch (guides into fixed outline, Chen 2006)
 	cost_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
 		cost_outline += pow(dies_AR[i] - this->outline_AR, 2.0);
