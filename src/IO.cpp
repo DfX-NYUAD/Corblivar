@@ -662,6 +662,8 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 	int object_counter;
 	map<int, Block*>::iterator b;
 	Block *cur_block;
+	double ratio_inv;
+	int tics;
 
 	if (corb.logMed()) {
 		cout << "IO> ";
@@ -670,6 +672,9 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 		else
 			cout << "Generating GP scripts for floorplan ..." << endl;
 	}
+
+	ratio_inv = corb.conf_outline_y / corb.conf_outline_x;
+	tics = max(corb.conf_outline_x, corb.conf_outline_y) / 5;
 
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 		// build up file name
@@ -686,11 +691,11 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 		gp_out << "set title \"" << corb.benchmark << " - Layer " << cur_layer + 1 << "\"" << endl;
 		gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
 		gp_out << "set output \"" << out_name.str() << ".eps\"" << endl;
-		gp_out << "set size square" << endl;
+		gp_out << "set size ratio " << ratio_inv << endl;
 		gp_out << "set xrange [0:" << corb.conf_outline_x << "]" << endl;
 		gp_out << "set yrange [0:" << corb.conf_outline_y << "]" << endl;
-		gp_out << "set xtics " << corb.conf_outline_x / 5 << endl;
-		gp_out << "set ytics " << corb.conf_outline_x / 5 << endl;
+		gp_out << "set xtics " << tics << endl;
+		gp_out << "set ytics " << tics << endl;
 		gp_out << "set mxtics 4" << endl;
 		gp_out << "set mytics 4" << endl;
 		gp_out << "set tics front" << endl;
