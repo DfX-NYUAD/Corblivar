@@ -128,11 +128,11 @@ class CorblivarFP {
 
 		// SA: cost functions, i.e., layout-evalutions
 		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two = false, bool set_max_cost = false);
-		double determCostThermalDistr(bool set_max_cost = false);
+		double determCostThermalDistr(bool set_max_cost = false, bool normalize = true);
 		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
 		// return[0]: HPWL
 		// return[1]: TSVs
-		vector<double> determCostInterconnects(bool set_max_cost = false);
+		vector<double> determCostInterconnects(bool set_max_cost = false, bool normalize = true);
 
 	public:
 		friend class IO;

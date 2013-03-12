@@ -263,12 +263,12 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		// determine ratio of solutions fitting into outline in prev temp step;
 		// note that during the temp step this ratio is fixed in order to avoid
 		// sudden changes of related cost terms during few iterations
-		layout_fit_ratio = (double) layout_fit_counter / innerLoopMax;
+		layout_fit_ratio = (double) layout_fit_counter / ii;
 
 		// determine avg cost for temp step
 		avg_cost /= accepted_ops_ratio;
 		// determine accepted-ops ratio
-		accepted_ops_ratio /= innerLoopMax;
+		accepted_ops_ratio /= ii;
 
 		if (this->logMax()) {
 			cout << "SA> Step done:" << endl;
@@ -317,7 +317,8 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
-	double area;
+	double area, temp;
+	vector<double> interconn;
 
 	// apply best solution, if available, as final solution
 	valid_solution = chip.applyBestCBLs(this->conf_log);
@@ -326,19 +327,33 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 
 	// determine cost for valid solutions
 	if (valid_solution) {
-		// TODO consider other fct version returning separated cost vector
+
+		// determine overall cost
 		cost = this->determCost(valid_solution, 1.0, true);
+
 		// determine area cost, invert weight
 		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(valid_solution, 1.0);
-		// determine related area, invert normalization
-		area *= this->conf_outline_x * this->conf_outline_y;
+		// convert to percent
+		area *= 100.0;
 
-		// TODO further details like WL, TSVs and so
+		// determine non-normalized WL and TSVs cost
+		interconn = this->determCostInterconnects(false, false);
+
+		// determine non-normalized temperature cost
+		temp = this->determCostThermalDistr(false, false);
+
+		// TODO alignment costs
 		if (this->logMin()) {
 			cout << "SA> Final (adapted) cost: " << cost << endl;
-			cout << "SA>  Max die occupation (blocks area): " << area << endl;
-			this->results << "Cost: " << cost << endl;
-			this->results << "Max die occupation (blocks area): " << area << endl;
+			cout << "SA>  Max die occupation [\%]: " << area << endl;
+			cout << "SA>  HPWL: " << interconn[0] << endl;
+			cout << "SA>  TSVs: " << interconn[1] << endl;
+			cout << "SA>  Temp cost (no real temp): " << temp << endl;
+			this->results << "Final (adapted) cost: " << cost << endl;
+			this->results << " Max die occupation [\%]: " << area << endl;
+			this->results << " HPWL: " << interconn[0] << endl;
+			this->results << " TSVs: " << interconn[1] << endl;
+			this->results << " Temp cost (no real temp): " << temp << endl;
 		}
 	}
 
@@ -545,7 +560,6 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-// TODO another version of this fct returns separate, unweighted cost values in vector
 double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two, bool set_max_cost) {
 	double cost_total, cost_temp, cost_alignments, cost_area_outline;
 	vector<double> cost_interconnects;
@@ -564,6 +578,7 @@ double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_
 
 		// normalized temperature-distribution cost
 		// TODO consider only for layouts fitting into outline
+		cost_temp = 0.0;
 //		cost_temp = this->determCostThermalDistr(set_max_cost);
 
 		// cost function; sum up cost terms
@@ -658,7 +673,7 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	return cost_outline + cost_area;
 }
 
-double CorblivarFP::determCostThermalDistr(bool set_max_cost) {
+double CorblivarFP::determCostThermalDistr(bool set_max_cost, bool normalize) {
 	unsigned i;
 	int n;
 	int maps_dim;
@@ -735,7 +750,9 @@ double CorblivarFP::determCostThermalDistr(bool set_max_cost) {
 	}
 
 	// normalize to max value from initial sampling
-	max_temp /= this->max_cost_temp;
+	if (normalize) {
+		max_temp /= this->max_cost_temp;
+	}
 
 	return max_temp;
 }
@@ -899,7 +916,7 @@ void CorblivarFP::initThermalMasks() {
 // return[0]: HPWL
 // return[1]: TSVs
 // TODO recode; currently hotspot
-vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost) {
+vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost, bool normalize) {
 	unsigned n, b;
 	int i, ii;
 	double HPWL;
@@ -1010,8 +1027,10 @@ vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost) {
 	}
 
 	// normalize to max value from initial sampling
-	ret[0] /= this->max_cost_WL;
-	ret[1] /= this->max_cost_TSVs;
+	if (normalize) {
+		ret[0] /= this->max_cost_WL;
+		ret[1] /= this->max_cost_TSVs;
+	}
 
 	return ret;
 
