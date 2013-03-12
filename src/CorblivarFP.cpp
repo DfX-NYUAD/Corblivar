@@ -577,12 +577,10 @@ double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_
 		cost_alignments = 0.0;
 
 		// normalized temperature-distribution cost
-		// TODO consider only for layouts fitting into outline
 		cost_temp = 0.0;
 //		cost_temp = this->determCostThermalDistr(set_max_cost);
 
 		// cost function; sum up cost terms
-		// TODO consider adaptive cost fct for TSVs and die occuption
 		cost_total =
 			this->conf_SA_cost_WL * cost_interconnects[0]
 			+ this->conf_SA_cost_TSVs * cost_interconnects[1]
