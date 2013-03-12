@@ -298,6 +298,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
+	double area;
 
 	// apply best solution, if available, as final solution
 	valid_solution = chip.applyBestCBLs(this->conf_log);
@@ -307,11 +308,17 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	// determine cost for valid solutions
 	if (valid_solution) {
 		cost = this->determCost(valid_solution, 1.0);
+		// determine area cost, invert weight
+		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(valid_solution, 1.0);
+		// determine related area, invert normalization
+		area *= this->conf_outline_x * this->conf_outline_y;
 
-		// TODO further details like WL, TSVs, area and so
+		// TODO further details like WL, TSVs and so
 		if (this->logMin()) {
 			cout << "SA> Final (adapted) cost: " << cost << endl;
+			cout << "SA>  Max die occupation (blocks area): " << area << endl;
 			this->results << "Cost: " << cost << endl;
+			this->results << "Max die occupation (blocks area): " << area << endl;
 		}
 	}
 
