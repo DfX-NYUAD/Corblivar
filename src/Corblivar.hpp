@@ -127,8 +127,8 @@ class CorblivarFP {
 		void generatePowerMaps(int maps_dim);
 
 		// SA: cost functions, i.e., layout-evalutions
-		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0, bool phase_two = false);
-		double determCostThermalDistr();
+		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two = false, bool set_max_cost = false);
+		double determCostThermalDistr(bool set_max_cost = false);
 		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
 		// return[0]: HPWL
 		// return[1]: TSVs

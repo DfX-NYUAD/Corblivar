@@ -16,7 +16,6 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double accepted_ops_ratio;
 	double accepted_ops_ratio_offset;
 	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
-	bool annealed;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
 	vector<double> cost_hist;
@@ -28,6 +27,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	double layout_fit_ratio;
 	bool valid_layout_found;
 	bool accept;
+	bool phase_two, phase_two_transit;
 
 	// reset max cost
 	this->max_cost_WL = 0.0;
@@ -130,6 +130,9 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		cout << "SA> Done" << endl;
 		cout << "SA> " << endl;
 		cout << "SA> Perform simulated annealing process..." << endl;
+		cout << "SA> " << endl;
+		cout << "SA> Phase I: packing blocks into outline..." << endl;
+		cout << "SA> " << endl;
 	}
 
 	// restore initial CBLs
@@ -139,13 +142,14 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	//
 	// init loop parameters
 	i = 1;
-	annealed = valid_layout_found = false;
+	phase_two = phase_two_transit = false;
+	valid_layout_found = false;
 	layout_fit_ratio = 0.0;
 	// dummy large value to accept first fitting solution
 	best_cost = 100.0 * Math::stdDev(cost_hist);
 
 	/// outer loop: annealing -- temperature steps
-	while (!annealed) {
+	while (i <= this->conf_SA_loopLimit) {
 
 		if (this->logMax()) {
 			cout << "SA> Optimization step: " << i << "/" << this->conf_SA_loopLimit << endl;
@@ -156,16 +160,18 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		avg_cost = 0.0;
 		accepted_ops_ratio = 0.0;
 		layout_fit_counter = 0.0;
+		phase_two_transit = false;
 
 		// init cost for current layout and fitting ratio
 		chip.generateLayout(this->conf_log);
-		cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio);
+		cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
 			op_success = this->performRandomLayoutOp(chip);
+
 			if (op_success) {
 
 				prev_cost = cur_cost;
@@ -174,7 +180,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				chip.generateLayout(this->conf_log);
 
 				// evaluate layout, new cost
-				cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio);
+				cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 #ifdef DBG_SA
@@ -199,9 +205,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 					}
 				}
 
-				// solution accepted, also applies for potentially
-				// rejected, first fitting solution
-				if (accept || (cur_layout_fits_in_outline && !valid_layout_found)) {
+				// solution to be accepted, i.e., previously not reverted
+				if (accept) {
 					// update ops count
 					accepted_ops_ratio++;
 					// sum up cost for subsequent avg determination
@@ -211,10 +216,26 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 						// update count of solutions fitting into outline
 						layout_fit_counter++;
 
+						// switch to SA phase two when
+						// first fitting solution is found
+						if (!phase_two) {
+							phase_two = phase_two_transit = true;
+
+							if (this->logMed()) {
+								cout << "SA> " << endl;
+								cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
+								cout << "SA> " << endl;
+							}
+						}
+
 						// in order to compare different fitting
 						// solutions equally, redetermine cost w/
 						// fitting ratio 1.0
-						fitting_cost = this->determCost(cur_layout_fits_in_outline, 1.0);
+						//
+						// during switch to phase two, initialize
+						// current cost as max cost for further
+						// normalization (phase_two_transit)
+						fitting_cost = this->determCost(cur_layout_fits_in_outline, 1.0, phase_two, phase_two_transit);
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -279,10 +300,8 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			}
 		}
 
-		// consider next step
+		// consider next outer step
 		i++;
-		// consider as annealed if some maximum temperature steps are done
-		annealed = (i > this->conf_SA_loopLimit);
 	}
 
 	if (this->logMed()) {
@@ -307,7 +326,8 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 
 	// determine cost for valid solutions
 	if (valid_solution) {
-		cost = this->determCost(valid_solution, 1.0);
+		// TODO consider other fct version returning separated cost vector
+		cost = this->determCost(valid_solution, 1.0, true);
 		// determine area cost, invert weight
 		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(valid_solution, 1.0);
 		// determine related area, invert normalization
@@ -525,26 +545,26 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two) {
+// TODO another version of this fct returns separate, unweighted cost values in vector
+double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two, bool set_max_cost) {
 	double cost_total, cost_temp, cost_alignments, cost_area_outline;
 	vector<double> cost_interconnects;
 
-	// cost area and outline, returns weighted cost using an adaptive cost model
+	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
 	cost_area_outline = this->determCostAreaOutline(layout_fits_in_fixed_outline, ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
 	if (phase_two) {
 
-		// interconnects cost
-		cost_interconnects = this->determCostInterconnects();
+		// normalized interconnects cost
+		cost_interconnects = this->determCostInterconnects(set_max_cost);
 
 		// TODO cost (failed) alignments
 		cost_alignments = 0.0;
 
-		// temperature-distribution cost
+		// normalized temperature-distribution cost
 		// TODO consider only for layouts fitting into outline
-		// TODO max value? initial sampling most likely doesn't fit into outline
-		cost_temp = this->determCostThermalDistr();
+//		cost_temp = this->determCostThermalDistr(set_max_cost);
 
 		// cost function; sum up cost terms
 		// TODO consider adaptive cost fct for TSVs and die occuption
@@ -638,7 +658,7 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	return cost_outline + cost_area;
 }
 
-double CorblivarFP::determCostThermalDistr() {
+double CorblivarFP::determCostThermalDistr(bool set_max_cost) {
 	unsigned i;
 	int n;
 	int maps_dim;
@@ -708,6 +728,14 @@ double CorblivarFP::determCostThermalDistr() {
 			max_temp = max(max_temp, this->thermal_map[x][y]);
 		}
 	}
+
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_temp = max_temp;
+	}
+
+	// normalize to max value from initial sampling
+	max_temp /= this->max_cost_temp;
 
 	return max_temp;
 }
