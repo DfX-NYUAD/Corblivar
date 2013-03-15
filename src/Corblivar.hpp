@@ -395,7 +395,7 @@ class CorblivarFP {
 		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: floorplanning handler
-		bool SA(CorblivarLayoutRep &chip);
+		bool performSA(CorblivarLayoutRep &chip);
 		void finalize(CorblivarLayoutRep &chip);
 };
 
@@ -548,7 +548,7 @@ class CorblivarLayoutRep {
 
 		// general layout operations
 		void initCorblivar(CorblivarFP &corb);
-		void generateLayout(int log, bool dbgStack = false);
+		void generateLayout(bool dbgStack = false);
 		//CorblivarDie* findDie(Block* Si);
 
 		// layout operations for heuristic optimization

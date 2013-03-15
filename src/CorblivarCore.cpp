@@ -69,7 +69,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(int log, bool dbgStack) {
+void CorblivarLayoutRep::generateLayout(bool dbgStack) {
 	unsigned i;
 	Block *cur_block;
 	bool loop;

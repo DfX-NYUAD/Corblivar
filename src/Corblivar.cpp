@@ -66,7 +66,7 @@ int main (int argc, char** argv) {
 	}
 
 	// perform SA; main handler
-	done = corb.SA(chip);
+	done = corb.performSA(chip);
 
 	if (corb.logMin()) {
 		cout << "Corblivar> ";

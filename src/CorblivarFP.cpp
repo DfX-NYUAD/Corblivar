@@ -10,7 +10,8 @@
  */
 #include "Corblivar.hpp"
 
-bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
+// main handler
+bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 	int i, ii;
 	int innerLoopMax;
 	double accepted_ops_ratio;
@@ -48,7 +49,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 	}
 
 	// init cost
-	chip.generateLayout(this->conf_log);
+	chip.generateLayout();
 	cur_cost = this->determCost(cur_layout_fits_in_outline, 0.0);
 
 	// perform some random operations, for SA temperature = 0.0
@@ -66,7 +67,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 			prev_cost = cur_cost;
 
 			// generate layout
-			chip.generateLayout(this->conf_log);
+			chip.generateLayout();
 
 			// evaluate layout, new cost
 			cur_cost = this->determCost(cur_layout_fits_in_outline, (double) layout_fit_counter / (SA_SAMPLING_LOOP_FACTOR * innerLoopMax));
@@ -163,7 +164,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 		phase_two_transit = false;
 
 		// init cost for current layout and fitting ratio
-		chip.generateLayout(this->conf_log);
+		chip.generateLayout();
 		cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
 
 		// inner loop: layout operations
@@ -177,7 +178,7 @@ bool CorblivarFP::SA(CorblivarLayoutRep &chip) {
 				prev_cost = cur_cost;
 
 				// generate layout
-				chip.generateLayout(this->conf_log);
+				chip.generateLayout();
 
 				// evaluate layout, new cost
 				cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
@@ -323,7 +324,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	// apply best solution, if available, as final solution
 	valid_solution = chip.applyBestCBLs(this->conf_log);
 	// generate final layout
-	chip.generateLayout(this->conf_log);
+	chip.generateLayout();
 
 	// determine cost for valid solutions
 	if (valid_solution) {
