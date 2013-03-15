@@ -36,11 +36,7 @@
 /* consider standard namespace */
 using namespace std;
 
-// TODO declare as const ints in related classes
-/* div enumerations */
-enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
-enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
-enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
+/* global enumerations */
 enum Direction {DIRECTION_VERT, DIRECTION_HOR};
 
 /* forward declarations */
@@ -750,6 +746,9 @@ class CorblivarLayoutRep {
 };
 
 class CorblivarAlignmentReq {
+	private:
+		enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
+
 	public:
 
 		Block *s_i, *s_j;
