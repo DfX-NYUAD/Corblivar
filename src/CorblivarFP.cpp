@@ -11,7 +11,7 @@
 #include "Corblivar.hpp"
 
 // main handler
-bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
+bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
 	int i, ii;
 	int innerLoopMax;
 	double accepted_ops_ratio;
@@ -19,11 +19,11 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
+	Cost cost;
 	vector<double> cost_hist;
 	double cur_temp, init_temp;
 	double r;
 	vector<double> init_cost_interconnects;
-	bool cur_layout_fits_in_outline;
 	int layout_fit_counter;
 	double layout_fit_ratio;
 	bool valid_layout_found;
@@ -50,7 +50,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 
 	// init cost
 	chip.generateLayout();
-	cur_cost = this->determCost(cur_layout_fits_in_outline, 0.0);
+	cur_cost = this->determCost().cost;
 
 	// perform some random operations, for SA temperature = 0.0
 	// i.e., consider only solutions w/ improved cost
@@ -70,7 +70,8 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 			chip.generateLayout();
 
 			// evaluate layout, new cost
-			cur_cost = this->determCost(cur_layout_fits_in_outline, (double) layout_fit_counter / (SA_SAMPLING_LOOP_FACTOR * innerLoopMax));
+			cost = this->determCost((double) layout_fit_counter / (SA_SAMPLING_LOOP_FACTOR * innerLoopMax));
+			cur_cost = cost.cost;
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
 
@@ -90,7 +91,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 			}
 
 			// memorize count of solutions fitting into outline
-			if (cur_layout_fits_in_outline) {
+			if (cost.fits_fixed_outline) {
 				layout_fit_counter++;
 			}
 
@@ -165,7 +166,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 
 		// init cost for current layout and fitting ratio
 		chip.generateLayout();
-		cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
+		cur_cost = this->determCost(layout_fit_ratio, phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -181,7 +182,8 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 				chip.generateLayout();
 
 				// evaluate layout, new cost
-				cur_cost = this->determCost(cur_layout_fits_in_outline, layout_fit_ratio, phase_two);
+				cost = this->determCost(layout_fit_ratio, phase_two);
+				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 #ifdef DBG_SA
@@ -213,7 +215,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 					// sum up cost for subsequent avg determination
 					avg_cost += cur_cost;
 
-					if (cur_layout_fits_in_outline) {
+					if (cost.fits_fixed_outline) {
 						// update count of solutions fitting into outline
 						layout_fit_counter++;
 
@@ -236,7 +238,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 						// during switch to phase two, initialize
 						// current cost as max cost for further
 						// normalization (phase_two_transit)
-						fitting_cost = this->determCost(cur_layout_fits_in_outline, 1.0, phase_two, phase_two_transit);
+						fitting_cost = this->determCost(1.0, phase_two, phase_two_transit).cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -251,7 +253,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 					}
 				}
 				// not accepted, but would fit into outline
-				else if (cur_layout_fits_in_outline) {
+				else if (cost.fits_fixed_outline) {
 					// update count of solutions fitting into outline
 					layout_fit_counter++;
 				}
@@ -313,13 +315,13 @@ bool CorblivarFP::performSA(CorblivarLayoutRep &chip) {
 	return valid_layout_found;
 }
 
-void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
+void CorblivarFP::finalize(CorblivarLayoutRep& chip) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
 	double area, temp;
-	vector<double> interconn;
+	CostInterconn interconn;
 
 	// apply best solution, if available, as final solution
 	valid_solution = chip.applyBestCBLs(this->conf_log);
@@ -330,10 +332,10 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	if (valid_solution) {
 
 		// determine overall cost
-		cost = this->determCost(valid_solution, 1.0, true);
+		cost = this->determCost(1.0, true).cost;
 
 		// determine area cost, invert weight
-		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(valid_solution, 1.0);
+		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
 		// convert to percent
 		area *= 100.0;
 
@@ -347,13 +349,13 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 		if (this->logMin()) {
 			cout << "SA> Final (adapted) cost: " << cost << endl;
 			cout << "SA>  Max die occupation [\%]: " << area << endl;
-			cout << "SA>  HPWL: " << interconn[0] << endl;
-			cout << "SA>  TSVs: " << interconn[1] << endl;
+			cout << "SA>  HPWL: " << interconn.HPWL << endl;
+			cout << "SA>  TSVs: " << interconn.TSVs << endl;
 			cout << "SA>  Temp cost (no real temp): " << temp << endl;
 			this->results << "Final (adapted) cost: " << cost << endl;
 			this->results << " Max die occupation [\%]: " << area << endl;
-			this->results << " HPWL: " << interconn[0] << endl;
-			this->results << " TSVs: " << interconn[1] << endl;
+			this->results << " HPWL: " << interconn.HPWL << endl;
+			this->results << " TSVs: " << interconn.TSVs << endl;
 			this->results << " Temp cost (no real temp): " << temp << endl;
 		}
 	}
@@ -389,7 +391,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep &chip) {
 	exit(0);
 }
 
-bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp) {
+bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep& chip, const bool& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 
@@ -561,12 +563,14 @@ bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLas
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two, bool set_max_cost) {
-	double cost_total, cost_temp, cost_alignments, cost_area_outline;
-	vector<double> cost_interconnects;
+CorblivarFP::Cost CorblivarFP::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) {
+	double cost_total, cost_temp, cost_alignments;
+	CostInterconn cost_interconnects;
+	Cost cost_area_outline, ret;
 
 	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
-	cost_area_outline = this->determCostAreaOutline(layout_fits_in_fixed_outline, ratio_feasible_solutions_fixed_outline);
+	// also determine whether layout fits into outline
+	cost_area_outline = this->determCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
 	if (phase_two) {
@@ -583,16 +587,16 @@ double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_
 
 		// cost function; sum up cost terms
 		cost_total =
-			this->conf_SA_cost_WL * cost_interconnects[0]
-			+ this->conf_SA_cost_TSVs * cost_interconnects[1]
+			this->conf_SA_cost_WL * cost_interconnects.HPWL
+			+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
 			+ this->conf_SA_cost_temp * cost_temp
 			// area, outline cost is already weighted
-			+ cost_area_outline;
+			+ cost_area_outline.cost;
 		;
 	}
 	else {
 		// invert cost-factor weight since only one factor defines the cost fct
-		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline;
+		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
 	}
 
 #ifdef DBG_LAYOUT
@@ -600,12 +604,15 @@ double CorblivarFP::determCost(bool &layout_fits_in_fixed_outline, double ratio_
 	cout << "Layout cost: " << cost_total << endl;
 #endif
 
-	return cost_total;
+	ret.cost = cost_total;
+	ret.fits_fixed_outline = cost_area_outline.fits_fixed_outline;
+
+	return ret;
 }
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_
 // depending on ratio of feasible solutions (solutions fitting into outline)
-double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline) {
+CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -615,9 +622,10 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	int i;
 	vector<double> dies_AR;
 	vector<double> dies_area;
+	bool layout_fits_in_fixed_outline;
+	Cost ret;
 
 	layout_fits_in_fixed_outline = true;
-
 	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
 
@@ -669,25 +677,23 @@ double CorblivarFP::determCostAreaOutline(bool &layout_fits_in_fixed_outline, do
 	// determine cost function value
 	cost_area *= 0.5 * this->conf_SA_cost_area_outline * (1.0 + ratio_feasible_solutions_fixed_outline);
 
-	return cost_outline + cost_area;
+	ret.cost = cost_outline + cost_area;
+	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
+
+	return ret;
 }
 
-// return[0]: HPWL
-// return[1]: TSVs
 // TODO recode; currently hotspot
-vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost, bool normalize) {
+CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
 	unsigned n, b;
 	int i, ii;
-	double HPWL;
-	int TSVs;
 	Net *cur_net;
 	vector<Rect> blocks_to_consider;
 	Rect bb;
 	bool blocks_above_considered;
 
-	HPWL = 0.0;
-	TSVs = 0;
-	vector<double> ret;
+	CostInterconn ret;
+	ret.HPWL = ret.TSVs = 0.0;
 
 	// determine HPWL and TSVs for each net
 	for (n = 0; n < this->nets.size(); n++) {
@@ -760,7 +766,7 @@ vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost, bool norm
 
 			// update TSVs counter if connecting to blocks on some upper layer
 			if (blocks_above_considered) {
-				TSVs += (ii - i);
+				ret.TSVs += (ii - i);
 #ifdef DBG_LAYOUT
 				cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
 #endif
@@ -768,29 +774,25 @@ vector<double> CorblivarFP::determCostInterconnects(bool set_max_cost, bool norm
 
 			// determine HPWL of related blocks using their bounding box
 			bb = Rect::determBoundingBox(blocks_to_consider);
-			HPWL += bb.w;
-			HPWL += bb.h;
+			ret.HPWL += bb.w;
+			ret.HPWL += bb.h;
 #ifdef DBG_LAYOUT
 			cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
 #endif
 		}
 	}
 
-	ret.push_back(HPWL);
-	ret.push_back(TSVs);
-
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_WL = ret[0];
-		this->max_cost_TSVs = ret[1];
+		this->max_cost_WL = ret.HPWL;
+		this->max_cost_TSVs = ret.TSVs;
 	}
 
 	// normalize to max value from initial sampling
 	if (normalize) {
-		ret[0] /= this->max_cost_WL;
-		ret[1] /= this->max_cost_TSVs;
+		ret.HPWL /= this->max_cost_WL;
+		ret.TSVs /= this->max_cost_TSVs;
 	}
 
 	return ret;
-
 }

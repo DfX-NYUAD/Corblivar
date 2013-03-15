@@ -10,7 +10,7 @@
  */
 #include "Corblivar.hpp"
 
-void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
+void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 	map<int, Block*>::iterator b;
 	Block *cur_block;
 	Direction cur_dir;
@@ -69,7 +69,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP &corb) {
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(bool dbgStack) {
+void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 	unsigned i;
 	Block *cur_block;
 	bool loop;
@@ -135,7 +135,7 @@ void CorblivarLayoutRep::generateLayout(bool dbgStack) {
 
 }
 
-Block* CorblivarDie::placeCurrentBlock(bool dbgStack) {
+Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	Block *cur_block;
 	Direction cur_dir;
 	unsigned cur_juncts;

@@ -12,7 +12,7 @@
 #include "Corblivar.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
+void IO::parseParameterConfig(CorblivarFP& corb, int argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -215,7 +215,7 @@ void IO::parseParameterConfig(CorblivarFP &corb, int argc, char** argv) {
 	}
 }
 
-void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
+void IO::parseCorblivarFile(CorblivarFP& corb, CorblivarLayoutRep& chip) {
 	string tmpstr;
 	map<int, Block*>::iterator b;
 	Block *cur_block;
@@ -311,7 +311,7 @@ void IO::parseCorblivarFile(CorblivarFP &corb, CorblivarLayoutRep &chip) {
 }
 
 // parse blocks file
-void IO::parseBlocks(CorblivarFP &corb) {
+void IO::parseBlocks(CorblivarFP& corb) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
 	Block *cur_block;
@@ -433,7 +433,7 @@ void IO::parseBlocks(CorblivarFP &corb) {
 }
 
 // parse nets file
-void IO::parseNets(CorblivarFP &corb) {
+void IO::parseNets(CorblivarFP& corb) {
 
 	ifstream in;
 	string tmpstr;
@@ -540,7 +540,7 @@ void IO::parseNets(CorblivarFP &corb) {
 
 }
 
-void IO::writePowerThermalMaps(CorblivarFP &corb) {
+void IO::writePowerThermalMaps(CorblivarFP& corb) {
 	ofstream gp_out;
 	ofstream data_out;
 	int cur_layer;
@@ -657,7 +657,7 @@ void IO::writePowerThermalMaps(CorblivarFP &corb) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
+void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int object_counter;
@@ -744,7 +744,7 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 }
 
 // generate files for HotSpot steady-state thermal simulation
-void IO::writeHotSpotFiles(CorblivarFP &corb) {
+void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	ofstream file;
 	map<int, Block*>::iterator b;
 	Block *cur_block;
