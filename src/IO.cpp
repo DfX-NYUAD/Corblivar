@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *    Description:  IO handler
+ *    Description:  Corblivar IO handler
  *
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
@@ -550,7 +550,7 @@ void IO::writePowerThermalMaps(CorblivarFP &corb) {
 	int flag;
 
 	// sanity check
-	if (corb.power_maps.empty() || corb.thermal_map.empty()) {
+	if (corb.thermalAnalyzer.power_maps.empty() || corb.thermalAnalyzer.thermal_map.empty()) {
 		return;
 	}
 
@@ -601,12 +601,12 @@ void IO::writePowerThermalMaps(CorblivarFP &corb) {
 			gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
 			gp_out << "set size square" << endl;
 			if (flag == 0) {
-				gp_out << "set xrange [0:" << corb.power_maps[cur_layer].size() - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << corb.power_maps[cur_layer][0].size() - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << corb.thermalAnalyzer.power_maps[cur_layer].size() - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << corb.thermalAnalyzer.power_maps[cur_layer][0].size() - 1 << "]" << endl;
 			}
 			else {
-				gp_out << "set xrange [0:" << corb.thermal_map.size() - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << corb.thermal_map[0].size() - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << corb.thermalAnalyzer.thermal_map.size() - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << corb.thermalAnalyzer.thermal_map[0].size() - 1 << "]" << endl;
 			}
 			gp_out << "set tics front" << endl;
 			gp_out << "set grid xtics ytics ztics" << endl;
@@ -623,22 +623,22 @@ void IO::writePowerThermalMaps(CorblivarFP &corb) {
 
 			// determine grid boundaries
 			if (flag == 0) {
-				x_limit = corb.power_maps[cur_layer].size();
-				y_limit = corb.power_maps[cur_layer][0].size();
+				x_limit = corb.thermalAnalyzer.power_maps[cur_layer].size();
+				y_limit = corb.thermalAnalyzer.power_maps[cur_layer][0].size();
 			}
 			else {
-				x_limit = corb.thermal_map.size();
-				y_limit = corb.thermal_map[0].size();
+				x_limit = corb.thermalAnalyzer.thermal_map.size();
+				y_limit = corb.thermalAnalyzer.thermal_map[0].size();
 			}
 
 			// output grid values
 			for (x = 0; x < x_limit; x++) {
 				for (y = 0; y < y_limit; y++) {
 					if (flag == 0) {
-						data_out << x << "	" << y << "	" << corb.power_maps[cur_layer][x][y] << endl;
+						data_out << x << "	" << y << "	" << corb.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
 					}
 					else {
-						data_out << x << "	" << y << "	" << corb.thermal_map[x][y] << endl;
+						data_out << x << "	" << y << "	" << corb.thermalAnalyzer.thermal_map[x][y] << endl;
 					}
 				}
 				data_out << endl;
@@ -785,8 +785,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 			file << "	" << cur_block->bb.h * SCALE_UM_M;
 			file << "	" << cur_block->bb.ll.x * SCALE_UM_M;
 			file << "	" << cur_block->bb.ll.y * SCALE_UM_M;
-			file << "	" << IO::HEAT_CAPACITY_SI;
-			file << "	" << IO::THERMAL_RESISTIVITY_SI;
+			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
+			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 			file << endl;
 		}
 
@@ -796,8 +796,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << "	" << corb.conf_outline_y * SCALE_UM_M;
 		file << "	0.0";
 		file << "	0.0";
-		file << "	" << IO::HEAT_CAPACITY_SI;
-		file << "	" << IO::THERMAL_RESISTIVITY_SI;
+		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
+		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 		file << endl;
 
 		// close file stream
@@ -825,8 +825,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	file << "	" << corb.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
-	file << "	" << IO::HEAT_CAPACITY_SI;
-	file << "	" << IO::THERMAL_RESISTIVITY_SI;
+	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
+	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 	file << endl;
 
 	// close file stream
@@ -853,8 +853,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	file << "	" << corb.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
-	file << "	" << IO::HEAT_CAPACITY_BEOL;
-	file << "	" << IO::THERMAL_RESISTIVITY_BEOL;
+	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
+	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
 	file << endl;
 
 	// close file stream
@@ -881,8 +881,8 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 	file << "	" << corb.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
-	file << "	" << IO::HEAT_CAPACITY_BOND;
-	file << "	" << IO::THERMAL_RESISTIVITY_BOND;
+	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BOND;
+	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
 	file << endl;
 
 	// close file stream
@@ -968,9 +968,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << 4 * cur_layer << endl;
 		file << "Y" << endl;
 		file << "N" << endl;
-		file << IO::HEAT_CAPACITY_BEOL << endl;
-		file << IO::THERMAL_RESISTIVITY_BEOL << endl;
-		file << IO::THICKNESS_BEOL << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
+		file << ThermalAnalyzer::THICKNESS_BEOL << endl;
 		file << corb.benchmark << "_HotSpot_BEOL.flp" << endl;
 		file << endl;
 
@@ -978,9 +978,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << 4 * cur_layer + 1 << endl;
 		file << "Y" << endl;
 		file << "Y" << endl;
-		file << IO::HEAT_CAPACITY_SI << endl;
-		file << IO::THERMAL_RESISTIVITY_SI << endl;
-		file << IO::THICKNESS_SI_ACTIVE << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
+		file << ThermalAnalyzer::THICKNESS_SI_ACTIVE << endl;
 		file << corb.benchmark << "_HotSpot_" << cur_layer << ".flp" << endl;
 		file << endl;
 
@@ -988,9 +988,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 		file << 4 * cur_layer + 2 << endl;
 		file << "Y" << endl;
 		file << "N" << endl;
-		file << IO::HEAT_CAPACITY_SI << endl;
-		file << IO::THERMAL_RESISTIVITY_SI << endl;
-		file << IO::THICKNESS_SI << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
+		file << ThermalAnalyzer::THICKNESS_SI << endl;
 		file << corb.benchmark << "_HotSpot_Si.flp" << endl;
 		file << endl;
 
@@ -999,9 +999,9 @@ void IO::writeHotSpotFiles(CorblivarFP &corb) {
 			file << 4 * cur_layer + 3 << endl;
 			file << "Y" << endl;
 			file << "N" << endl;
-			file << IO::HEAT_CAPACITY_BOND << endl;
-			file << IO::THERMAL_RESISTIVITY_BOND << endl;
-			file << IO::THICKNESS_BOND << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
+			file << ThermalAnalyzer::THICKNESS_BOND << endl;
 			file << corb.benchmark << "_HotSpot_Bond.flp" << endl;
 			file << endl;
 		}

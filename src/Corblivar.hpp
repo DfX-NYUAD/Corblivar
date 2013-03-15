@@ -36,6 +36,7 @@
 /* consider standard namespace */
 using namespace std;
 
+// TODO declare as const ints in related classes
 /* div enumerations */
 enum Region {REGION_LEFT, REGION_RIGHT, REGION_BOTTOM, REGION_TOP, REGION_UNDEF};
 enum Corner {CORNER_LL, CORNER_UL, CORNER_LR, CORNER_UR, CORNER_UNDEF};
@@ -48,6 +49,7 @@ class CorblivarLayoutRep;
 class CorblivarDie;
 class CorblivarAlignmentReq;
 class CornerBlockList;
+class ThermalAnalyzer;
 class IO;
 class Point;
 class Block;
@@ -58,20 +60,8 @@ class Math;
 /* classes */
 class IO {
 	private:
-		// material parameters for HotSpot thermal 3D-IC simulation; see
-		// Corblivar.cpp
-		static const double HEAT_CAPACITY_SI;
-		static const double THERMAL_RESISTIVITY_SI;
-		static const double THICKNESS_SI;
-		static const double THICKNESS_SI_ACTIVE;
-		static const double HEAT_CAPACITY_BEOL;
-		static const double THERMAL_RESISTIVITY_BEOL;
-		static const double THICKNESS_BEOL;
-		static const double HEAT_CAPACITY_BOND;
-		static const double THERMAL_RESISTIVITY_BOND;
-		static const double THICKNESS_BOND;
-
 		// scaling factor for block dimensions
+		// TODO move to CorblivarFP
 		static const int BLOCKS_SCALE_UP = 50;
 
 	public:
@@ -84,20 +74,53 @@ class IO {
 		static void writePowerThermalMaps(CorblivarFP &corb);
 };
 
+class ThermalAnalyzer {
+	private:
+		// material parameters for HotSpot thermal 3D-IC simulation
+		static const double HEAT_CAPACITY_SI;
+		static const double THERMAL_RESISTIVITY_SI;
+		static const double THICKNESS_SI;
+		static const double THICKNESS_SI_ACTIVE;
+		static const double HEAT_CAPACITY_BEOL;
+		static const double THERMAL_RESISTIVITY_BEOL;
+		static const double THICKNESS_BEOL;
+		static const double HEAT_CAPACITY_BOND;
+		static const double THERMAL_RESISTIVITY_BOND;
+		static const double THICKNESS_BOND;
+
+		// thermal modeling: vector masks and maps
+		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
+		// by considering heat source in layer 0, mask[1] relates to the mask for
+		// layer 0 obtained by considering heat source in layer 1 and so forth.
+		vector< vector< vector<double> > > thermal_masks;
+		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
+		vector< vector< vector<double> > > power_maps;
+		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
+		vector< vector<double> > thermal_map;
+
+		// thermal modeling: handlers
+		void generatePowerMaps(CorblivarFP &corb, int maps_dim);
+
+	public:
+		friend class IO;
+
+		// thermal modeling: handlers
+		void initThermalMasks(CorblivarFP &corb);
+		// thermal-analyzer routine based on power blurring,
+		// i.e., convolution of thermals masks and power maps
+		// returns max value of convoluted 2D matrix
+		double performPowerBlurring(CorblivarFP &corb, bool set_max_cost = false, bool normalize = true);
+};
+
 class CorblivarFP {
 	private:
 		// IO
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results, solution_out;
 
-		// config parameters
-		double conf_outline_x, conf_outline_y, outline_AR;
-
+		// SA config parameters
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
-
-		// SA parameters: max cost values
-		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA parameters: temperature-scaling factors
 		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
@@ -113,22 +136,11 @@ class CorblivarFP {
 		// SA: layout-operation handler
 		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
 
-		// thermal modeling: vector masks and maps
-		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
-		// by considering heat source in layer 0, mask[1] relates to the mask for
-		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		vector< vector< vector<double> > > thermal_masks;
-		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		vector< vector< vector<double> > > power_maps;
-		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
-		vector< vector<double> > thermal_map;
-
-		// thermal modeling: handlers
-		void generatePowerMaps(int maps_dim);
-
 		// SA: cost functions, i.e., layout-evalutions
 		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two = false, bool set_max_cost = false);
-		double determCostThermalDistr(bool set_max_cost = false, bool normalize = true);
+		double determCostThermalDistr(bool set_max_cost = false, bool normalize = true) {
+			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
+		}
 		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
 		// return[0]: HPWL
 		// return[1]: TSVs
@@ -141,6 +153,9 @@ class CorblivarFP {
 		map<int, Block*> blocks;
 		vector<Net*> nets;
 
+		// thermal analyzer
+		ThermalAnalyzer thermalAnalyzer;
+
 		// IO
 		struct timeb start;
 		ifstream solution_in;
@@ -148,6 +163,7 @@ class CorblivarFP {
 		// config parameters
 		int conf_layer;
 		int conf_log;
+		double conf_outline_x, conf_outline_y, outline_AR;
 
 		// logging
 		static const int LOG_MINIMAL = 1;
@@ -172,12 +188,12 @@ class CorblivarFP {
 			return (log >= LOG_MAXIMUM);
 		};
 
+		// SA parameters: max cost values
+		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
 		// SA: floorplanning handler
 		bool SA(CorblivarLayoutRep &chip);
 		void finalize(CorblivarLayoutRep &chip);
-
-		// thermal modeling: handlers
-		void initThermalMasks();
 };
 
 class Math {

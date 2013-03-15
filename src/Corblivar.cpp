@@ -13,6 +13,7 @@
 int main (int argc, char** argv) {
 	CorblivarFP corb;
 	CorblivarLayoutRep chip;
+	ThermalAnalyzer therm;
 	bool done;
 
 	// memorize start time
@@ -44,8 +45,8 @@ int main (int argc, char** argv) {
 		chip.initCorblivar(corb);
 	}
 
-	// init thermal masks for thermal modelling based on power blurring
-	corb.initThermalMasks();
+	// init thermal masks
+	corb.thermalAnalyzer.initThermalMasks(corb);
 
 	// (TODO) drop if further optimization of read in data is desired
 	if (corb.solution_in.is_open()) {
@@ -80,26 +81,3 @@ const int CorblivarFP::LOG_MINIMAL;
 const int CorblivarFP::LOG_MEDIUM;
 const int CorblivarFP::LOG_MAXIMUM;
 const int Point::UNDEF;
-/// material parameters for thermal 3D-IC simulation using HotSpot
-/// Note: properties for heat spread and heat sink also from [Park09] (equal default
-/// HotSpot configuration values)
-// [Park09]; derived from 700 J/(kg*K) to J/(m^3*K) considering Si density of 2330 kg/m^3
-const double IO::HEAT_CAPACITY_SI = 1631000.0;
-// [Park09]
-const double IO::THERMAL_RESISTIVITY_SI = 0.008510638;
-// [Sridhar10]; derived considering a factor of appr. 1.35 for Si/BEOL heat capacity
-const double IO::HEAT_CAPACITY_BEOL = 1208150.0;
-// [Sridhar10]
-const double IO::THERMAL_RESISTIVITY_BEOL = 0.4444;
-// [Park09]
-const double IO::HEAT_CAPACITY_BOND = 2298537.0;
-// [Park09]
-const double IO::THERMAL_RESISTIVITY_BOND = 5.0;
-// 100um thick dies; own value
-const double IO::THICKNESS_SI = 0.0001;
-// 2um active Si layer; [Sridhar10]
-const double IO::THICKNESS_SI_ACTIVE = 0.000002;
-// 12um BEOL; [Sridhar10]
-const double IO::THICKNESS_BEOL = 0.000012;
-// 20um BCB bond; [Sridhar10]
-const double IO::THICKNESS_BOND = 0.00002;
