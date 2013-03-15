@@ -6,41 +6,26 @@ APP=Corblivar
 #=============================================================================#
 # Define Compiler Executable:
 #=============================================================================#
-# !!! O3 w/ g++ 4.5.x produces wrong code !!!
-# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48172
-#COMPILER	= g++-4.4
 COMPILER	= clang++
 
 #=============================================================================#
 # Compiler Options:
 #=============================================================================#
 # warnings
-OPT := $(OPT) -Wall -Wextra -Wpointer-arith -Wuninitialized #-Winline -Wshadow 
+OPT := $(OPT) -Wall -Wextra #-Wpointer-arith -Wuninitialized -Winline -Wshadow
 #
-# machine code
-# gcc, Intel Pentium 4
-#OPT := $(OPT) -mtune=pentium4m -march=pentium4m -mfpmath=sse 
-# icc, Core 2 Duo
-#OPT = $(OPT) -fast -axT -xT
-# gcc, AMD Athlon64
-#OPT := $(OPT) -march=athlon64 -mfpmath=sse
-# gcc, AMD Athlon64 plus experimental usage of SSE and 387 unit in parallel
-#OPT := $(OPT) -march=athlon64 -mfpmath=sse,387
-# gcc, Improved version of Intel Pentium4 CPU with 64-bit extensions, MMX, SSE, SSE2 and SSE3 instruction set support.
-#OPT := $(OPT) -march=nocona -mfpmath=sse
-#
+# C++11
+OPT := $(OPT) -std=c++11
 # gprof profiler code
 #OPT := $(OPT) -pg
 # 32bit binary
 #OPT := $(OPT) -m32
-## debug symbols
+# debug symbols
 #OPT := $(OPT) -g
-## gdb
+# gdb
 #OPT := $(OPT) -ggdb3
 #
 # Runtime Optimization
-# !!! O3 w/ g++ 4.5.x produces wrong code !!!
-# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48172
 OPT := $(OPT) -O2
 # native tuning, since gcc 4.2
 OPT := $(OPT) -march=native
@@ -80,7 +65,7 @@ all: libs $(APP)
 $(APP): $(BUILD_DIR) $(OBJ)
 	@echo
 	@echo Linking binary
-	$(COMPILER) $(OBJ) $(LIBS) $(OPT) -o $@
+	$(COMPILER) $(OBJ) $(LIBS) -o $@
 
 $(BUILD_DIR):
 	@echo
