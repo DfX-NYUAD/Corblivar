@@ -129,18 +129,17 @@ class Math {
 		// standard deviation of samples
 		inline static double stdDev(const vector<double>& samples) {
 			double avg, sq_diffs;
-			unsigned s;
 
 			// determine avg of samples
 			avg = 0.0;
-			for (s = 0; s < samples.size(); s++) {
-				avg += samples[s];
+			for (double s : samples) {
+				avg += s;
 			}
 			avg /= samples.size();
 			// determine sum of squared diffs for std dev
 			sq_diffs = 0.0;
-			for (s = 0; s < samples.size(); s++) {
-				sq_diffs += pow(samples[s] - avg, 2);
+			for (double s : samples) {
+				sq_diffs += pow(s - avg, 2);
 			}
 			// determine std dev
 			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
@@ -179,7 +178,6 @@ class Rect {
 
 		inline static Rect determBoundingBox(const vector<Rect>& rects) {
 			Rect ret;
-			unsigned b;
 
 			if (rects.empty()) {
 				ret.ll.x = ret.ll.y = ret.ur.x = ret.ur.y = Point::UNDEF;
@@ -188,11 +186,11 @@ class Rect {
 			else {
 				ret.ll = rects[0].ll;
 				ret.ur = rects[0].ur;
-				for (b = 1; b < rects.size(); b++) {
-					ret.ll.x = min(ret.ll.x, rects[b].ll.x);
-					ret.ll.y = min(ret.ll.y, rects[b].ll.y);
-					ret.ur.x = max(ret.ur.x, rects[b].ur.x);
-					ret.ur.y = max(ret.ur.y, rects[b].ur.y);
+				for (Rect r : rects) {
+					ret.ll.x = min(ret.ll.x, r.ll.x);
+					ret.ll.y = min(ret.ll.y, r.ll.y);
+					ret.ur.x = max(ret.ur.x, r.ur.x);
+					ret.ur.y = max(ret.ur.y, r.ur.y);
 				}
 				ret.w = ret.ur.x - ret.ll.x;
 				ret.h = ret.ur.y - ret.ll.y;
@@ -630,15 +628,14 @@ class CorblivarLayoutRep {
 
 		// CBL logging
 		inline string CBLsString() {
-			unsigned i;
 			stringstream ret;
 
 			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << endl;
 			ret << "data_start" << endl;
 
-			for (i = 0; i < this->dies.size(); i++) {
-				ret << "CBL [ " << i << " ]" << endl;
-				ret << this->dies[i]->CBL.itemString() << endl;
+			for (CorblivarDie* die : this->dies) {
+				ret << "CBL [ " << die->id << " ]" << endl;
+				ret << die->CBL.itemString() << endl;
 			}
 
 			return ret.str();
@@ -646,83 +643,71 @@ class CorblivarLayoutRep {
 
 		// CBL backup handler
 		inline void backupCBLs() {
-			unsigned i, ii;
-			Block *cur_block;
 
-			for (i = 0; i < this->dies.size(); i++) {
+			for (CorblivarDie* die : this->dies) {
 
-				this->dies[i]->CBLbackup.clear();
+				die->CBLbackup.clear();
 
-				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
-					cur_block = this->dies[i]->CBL.S[ii];
+				for (Block* b : die->CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
-					cur_block->bb_backup = cur_block->bb;
-					this->dies[i]->CBLbackup.S.push_back(cur_block);
+					b->bb_backup = b->bb;
+					die->CBLbackup.S.push_back(b);
 				}
-				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
-					this->dies[i]->CBLbackup.L.push_back(this->dies[i]->CBL.L[ii]);
+				for (Direction dir : die->CBL.L) {
+					die->CBLbackup.L.push_back(dir);
 				}
-				for (ii = 0; ii < this->dies[i]->CBL.T.size(); ii++) {
-					this->dies[i]->CBLbackup.T.push_back(this->dies[i]->CBL.T[ii]);
+				for (unsigned t_juncts : die->CBL.T) {
+					die->CBLbackup.T.push_back(t_juncts);
 				}
 			}
 		};
 		inline void restoreCBLs() {
-			unsigned i, ii;
-			Block *cur_block;
 
-			for (i = 0; i < this->dies.size(); i++) {
+			for (CorblivarDie* die : this->dies) {
 
-				this->dies[i]->CBL.clear();
+				die->CBL.clear();
 
-				for (ii = 0; ii < this->dies[i]->CBLbackup.S.size(); ii++) {
-					cur_block = this->dies[i]->CBLbackup.S[ii];
+				for (Block* b : die->CBLbackup.S) {
 					// restore block dimensions (block shape) from
 					// block itself
-					cur_block->bb = cur_block->bb_backup;
-					this->dies[i]->CBL.S.push_back(cur_block);
+					b->bb = b->bb_backup;
+					die->CBL.S.push_back(b);
 				}
-				for (ii = 0; ii < this->dies[i]->CBLbackup.L.size(); ii++) {
-					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbackup.L[ii]);
+				for (Direction dir : die->CBLbackup.L) {
+					die->CBL.L.push_back(dir);
 				}
-				for (ii = 0; ii < this->dies[i]->CBLbackup.T.size(); ii++) {
-					this->dies[i]->CBL.T.push_back(this->dies[i]->CBLbackup.T[ii]);
+				for (unsigned t_juncts : die->CBLbackup.T) {
+					die->CBL.T.push_back(t_juncts);
 				}
 			}
 		};
 		// CBL best-solution handler
 		inline void storeBestCBLs() {
-			unsigned i, ii;
-			Block *cur_block;
 
-			for (i = 0; i < this->dies.size(); i++) {
+			for (CorblivarDie* die : this->dies) {
 
-				this->dies[i]->CBLbest.clear();
+				die->CBLbest.clear();
 
-				for (ii = 0; ii < this->dies[i]->CBL.S.size(); ii++) {
-					cur_block = this->dies[i]->CBL.S[ii];
+				for (Block* b : die->CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
-					cur_block->bb_best = cur_block->bb;
-					this->dies[i]->CBLbest.S.push_back(cur_block);
+					b->bb_best = b->bb;
+					die->CBLbest.S.push_back(b);
 				}
-				for (ii = 0; ii < this->dies[i]->CBL.L.size(); ii++) {
-					this->dies[i]->CBLbest.L.push_back(this->dies[i]->CBL.L[ii]);
+				for (Direction dir : die->CBL.L) {
+					die->CBLbest.L.push_back(dir);
 				}
-				for (ii = 0; ii < this->dies[i]->CBL.T.size(); ii++) {
-					this->dies[i]->CBLbest.T.push_back(this->dies[i]->CBL.T[ii]);
+				for (unsigned t_juncts : die->CBL.T) {
+					die->CBLbest.T.push_back(t_juncts);
 				}
 			}
 		};
 		inline bool applyBestCBLs(const int& log) {
-			unsigned i, ii;
-			bool empty;
-			Block *cur_block;
+			bool empty = true;
 
-			empty = true;
-			for (i = 0; i < this->dies.size(); i++) {
-				if (!this->dies[i]->CBLbest.empty()) {
+			for (CorblivarDie* die : this->dies) {
+				if (!die->CBLbest.empty()) {
 					empty = false;
 				}
 			}
@@ -733,22 +718,21 @@ class CorblivarLayoutRep {
 				return false;
 			}
 
-			for (i = 0; i < this->dies.size(); i++) {
+			for (CorblivarDie* die : this->dies) {
 
-				this->dies[i]->CBL.clear();
+				die->CBL.clear();
 
-				for (ii = 0; ii < this->dies[i]->CBLbest.S.size(); ii++) {
-					cur_block = this->dies[i]->CBLbest.S[ii];
+				for (Block* b : die->CBLbest.S) {
 					// restore block dimensions (block shape) from
 					// block itself
-					cur_block->bb = cur_block->bb_best;
-					this->dies[i]->CBL.S.push_back(cur_block);
+					b->bb = b->bb_best;
+					die->CBL.S.push_back(b);
 				}
-				for (ii = 0; ii < this->dies[i]->CBLbest.L.size(); ii++) {
-					this->dies[i]->CBL.L.push_back(this->dies[i]->CBLbest.L[ii]);
+				for (Direction dir : die->CBLbest.L) {
+					die->CBL.L.push_back(dir);
 				}
-				for (ii = 0; ii < this->dies[i]->CBLbest.T.size(); ii++) {
-					this->dies[i]->CBL.T.push_back(this->dies[i]->CBLbest.T[ii]);
+				for (unsigned t_juncts : die->CBLbest.T) {
+					die->CBL.T.push_back(t_juncts);
 				}
 			}
 
