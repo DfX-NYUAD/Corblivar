@@ -59,11 +59,6 @@ class Math;
 
 /* classes */
 class IO {
-	private:
-		// scaling factor for block dimensions
-		// TODO move to CorblivarFP
-		static const int BLOCKS_SCALE_UP = 50;
-
 	public:
 		static void parseParameterConfig(CorblivarFP &corb, int argc, char** argv);
 		static void parseBlocks(CorblivarFP &corb);
@@ -110,90 +105,6 @@ class ThermalAnalyzer {
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
 		double performPowerBlurring(CorblivarFP &corb, bool set_max_cost = false, bool normalize = true);
-};
-
-class CorblivarFP {
-	private:
-		// IO
-		string benchmark, blocks_file, power_file, nets_file;
-		ofstream results, solution_out;
-
-		// SA config parameters
-		double conf_SA_loopFactor, conf_SA_loopLimit;
-		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
-
-		// SA parameters: temperature-scaling factors
-		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
-		// SA parameters: temperature-phase-transition factos
-		double conf_SA_temp_phase_trans_12_factor, conf_SA_temp_phase_trans_23_factor;
-
-		// SA parameter: scaling factor for loops during solution-space sampling
-		static const int SA_SAMPLING_LOOP_FACTOR = 2;
-
-		// SA: layout-operation handler variables
-		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
-
-		// SA: layout-operation handler
-		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
-
-		// SA: cost functions, i.e., layout-evalutions
-		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two = false, bool set_max_cost = false);
-		double determCostThermalDistr(bool set_max_cost = false, bool normalize = true) {
-			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
-		}
-		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
-		// return[0]: HPWL
-		// return[1]: TSVs
-		vector<double> determCostInterconnects(bool set_max_cost = false, bool normalize = true);
-
-	public:
-		friend class IO;
-
-		// chip data
-		map<int, Block*> blocks;
-		vector<Net*> nets;
-
-		// thermal analyzer
-		ThermalAnalyzer thermalAnalyzer;
-
-		// IO
-		struct timeb start;
-		ifstream solution_in;
-
-		// config parameters
-		int conf_layer;
-		int conf_log;
-		double conf_outline_x, conf_outline_y, outline_AR;
-
-		// logging
-		static const int LOG_MINIMAL = 1;
-		static const int LOG_MEDIUM = 2;
-		static const int LOG_MAXIMUM = 3;
-		bool logMin() {
-			return logMin(this->conf_log);
-		};
-		bool logMed() {
-			return logMed(this->conf_log);
-		};
-		bool logMax() {
-			return logMax(this->conf_log);
-		};
-		static bool logMin(int log) {
-			return (log >= LOG_MINIMAL);
-		};
-		static bool logMed(int log) {
-			return (log >= LOG_MEDIUM);
-		};
-		static bool logMax(int log) {
-			return (log >= LOG_MAXIMUM);
-		};
-
-		// SA parameters: max cost values
-		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
-
-		// SA: floorplanning handler
-		bool SA(CorblivarLayoutRep &chip);
-		void finalize(CorblivarLayoutRep &chip);
 };
 
 class Math {
@@ -403,6 +314,93 @@ class Net {
 		};
 
 		double determHPWL();
+};
+
+class CorblivarFP {
+	private:
+		// IO
+		string benchmark, blocks_file, power_file, nets_file;
+		ofstream results, solution_out;
+
+		// IO: scaling factor for block dimensions
+		static const int BLOCKS_SCALE_UP = 50;
+
+		// SA config parameters
+		double conf_SA_loopFactor, conf_SA_loopLimit;
+		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
+
+		// SA parameters: temperature-scaling factors
+		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
+		// SA parameters: temperature-phase-transition factos
+		double conf_SA_temp_phase_trans_12_factor, conf_SA_temp_phase_trans_23_factor;
+
+		// SA parameter: scaling factor for loops during solution-space sampling
+		static const int SA_SAMPLING_LOOP_FACTOR = 2;
+
+		// SA: layout-operation handler variables
+		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+
+		// SA: layout-operation handler
+		bool performRandomLayoutOp(CorblivarLayoutRep &chip, bool revertLastOp = false);
+
+		// SA: cost functions, i.e., layout-evalutions
+		double determCost(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline, bool phase_two = false, bool set_max_cost = false);
+		double determCostThermalDistr(bool set_max_cost = false, bool normalize = true) {
+			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
+		}
+		double determCostAreaOutline(bool &layout_fits_in_fixed_outline, double ratio_feasible_solutions_fixed_outline = 0.0);
+		// return[0]: HPWL
+		// return[1]: TSVs
+		vector<double> determCostInterconnects(bool set_max_cost = false, bool normalize = true);
+
+	public:
+		friend class IO;
+
+		// chip data
+		map<int, Block*> blocks;
+		vector<Net*> nets;
+
+		// thermal analyzer
+		ThermalAnalyzer thermalAnalyzer;
+
+		// IO
+		struct timeb start;
+		ifstream solution_in;
+
+		// config parameters
+		int conf_layer;
+		int conf_log;
+		double conf_outline_x, conf_outline_y, outline_AR;
+
+		// logging
+		static const int LOG_MINIMAL = 1;
+		static const int LOG_MEDIUM = 2;
+		static const int LOG_MAXIMUM = 3;
+		bool logMin() {
+			return logMin(this->conf_log);
+		};
+		bool logMed() {
+			return logMed(this->conf_log);
+		};
+		bool logMax() {
+			return logMax(this->conf_log);
+		};
+		static bool logMin(int log) {
+			return (log >= LOG_MINIMAL);
+		};
+		static bool logMed(int log) {
+			return (log >= LOG_MEDIUM);
+		};
+		static bool logMax(int log) {
+			return (log >= LOG_MAXIMUM);
+		};
+
+		// SA parameters: max cost values
+		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
+		// SA: floorplanning handler
+		bool SA(CorblivarLayoutRep &chip);
+		void finalize(CorblivarLayoutRep &chip);
 };
 
 class CornerBlockList {

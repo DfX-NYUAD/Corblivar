@@ -10,6 +10,13 @@
  */
 #include "Corblivar.hpp"
 
+// definitions for const vars, to allocate memory
+// initializations see Corblivar.hpp
+const int CorblivarFP::LOG_MINIMAL;
+const int CorblivarFP::LOG_MEDIUM;
+const int CorblivarFP::LOG_MAXIMUM;
+const int Point::UNDEF;
+
 int main (int argc, char** argv) {
 	CorblivarFP corb;
 	CorblivarLayoutRep chip;
@@ -74,10 +81,3 @@ int main (int argc, char** argv) {
 	// finalize: generate output files, final logging
 	corb.finalize(chip);
 }
-
-// definitions for const vars, to allocate memory
-// initializations see Corblivar.hpp
-const int CorblivarFP::LOG_MINIMAL;
-const int CorblivarFP::LOG_MEDIUM;
-const int CorblivarFP::LOG_MAXIMUM;
-const int Point::UNDEF;

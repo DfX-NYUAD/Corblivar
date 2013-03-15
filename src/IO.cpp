@@ -356,9 +356,9 @@ void IO::parseBlocks(CorblivarFP &corb) {
 			cur_block->power /= 1000.0;
 			// scale power values according to block scaling
 			// note that correct scaling (maintain power/area ratio)
-			// would imply using pow(IO::BLOCKS_SCALE_UP, 2.0); which is
+			// would imply using pow(CorblivarFP::BLOCKS_SCALE_UP, 2.0); which is
 			// rejected in order to limit overall power values
-			cur_block->power *= pow(IO::BLOCKS_SCALE_UP, 3.0/2.0);
+			cur_block->power *= pow(CorblivarFP::BLOCKS_SCALE_UP, 3.0/2.0);
 			power += cur_block->power;
 		}
 		else {
@@ -399,8 +399,8 @@ void IO::parseBlocks(CorblivarFP &corb) {
 		}
 
 		// scale up dimensions
-		cur_block->bb.w *= IO::BLOCKS_SCALE_UP;
-		cur_block->bb.h *= IO::BLOCKS_SCALE_UP;
+		cur_block->bb.w *= CorblivarFP::BLOCKS_SCALE_UP;
+		cur_block->bb.h *= CorblivarFP::BLOCKS_SCALE_UP;
 
 		// calculate block area
 		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
@@ -725,8 +725,8 @@ void IO::writeFloorplanGP(CorblivarFP &corb, string file_suffix) {
 
 			// label
 			gp_out << "set label \"b" << cur_block->id << "\"";
-			gp_out << " at " << cur_block->bb.ll.x + 2.0 * IO::BLOCKS_SCALE_UP;
-			gp_out << "," << cur_block->bb.ll.y + 5.0 * IO::BLOCKS_SCALE_UP;
+			gp_out << " at " << cur_block->bb.ll.x + 2.0 * CorblivarFP::BLOCKS_SCALE_UP;
+			gp_out << "," << cur_block->bb.ll.y + 5.0 * CorblivarFP::BLOCKS_SCALE_UP;
 			gp_out << " font \"Times,6\"" << endl;
 		}
 
