@@ -178,13 +178,17 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 					bin.ll.y = y * maps_dim_y;
 					bin.ur.y = bin.ll.y + maps_dim_y;
 
-					// determine intersection of grid bin and block
-					// TODO only for boundaries required
-					intersect = Rect::determineIntersection(bin, block->bb);
-
-					// add block power to bin, scaled accordingly to
-					// intersection
-					map[x][y] += block->power * (intersect.area / (maps_dim_x * maps_dim_y));
+					// sum up block power in fully covered grid bins
+					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
+						map[x][y] += block->power;
+					}
+					// consider intersection of bin and block at
+					// blocks' boundaries
+					else {
+						intersect = Rect::determineIntersection(bin, block->bb);
+						// scale power according to intersection
+						map[x][y] += block->power * (intersect.area / (maps_dim_x * maps_dim_y));
+					}
 				}
 			}
 		}
