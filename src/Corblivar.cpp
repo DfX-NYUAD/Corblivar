@@ -26,6 +26,7 @@ int main (int argc, char** argv) {
 	// memorize start time
 	ftime(&corb.start);
 
+	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
 

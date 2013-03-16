@@ -132,8 +132,9 @@ bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
 		cout << "SA> Done" << endl;
 		cout << "SA> " << endl;
 		cout << "SA> Perform simulated annealing process..." << endl;
-		cout << "SA> " << endl;
 		cout << "SA> Phase I: packing blocks into outline..." << endl;
+	}
+	if (this->logMax()) {
 		cout << "SA> " << endl;
 	}
 
@@ -224,9 +225,13 @@ bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
 						if (!phase_two) {
 							phase_two = phase_two_transit = true;
 
-							if (this->logMed()) {
+							if (this->logMax()) {
 								cout << "SA> " << endl;
+							}
+							if (this->logMed()) {
 								cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
+							}
+							if (this->logMax()) {
 								cout << "SA> " << endl;
 							}
 						}
@@ -352,6 +357,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep& chip) {
 			cout << "SA>  HPWL: " << interconn.HPWL << endl;
 			cout << "SA>  TSVs: " << interconn.TSVs << endl;
 			cout << "SA>  Temp cost (no real temp): " << temp << endl;
+			cout << endl;
 			this->results << "Final (adapted) cost: " << cost << endl;
 			this->results << " Max die occupation [\%]: " << area << endl;
 			this->results << " HPWL: " << interconn.HPWL << endl;

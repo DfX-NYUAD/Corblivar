@@ -194,7 +194,7 @@ void IO::parseParameterConfig(CorblivarFP& corb, int argc, char** argv) {
 
 	in.close();
 
-	if (corb.logMin()) {
+	if (corb.logMed()) {
 		cout << "IO> Config values:" << endl;
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << corb.conf_log << endl;
 		cout << "IO>  Layers for 3D IC: " << corb.conf_layer << endl;
