@@ -521,14 +521,14 @@ void IO::parseNets(CorblivarFP& corb) {
 	in.close();
 
 #ifdef DBG_IO
-	unsigned n, bl;
 
-	for (n = 0; n < corb.nets.size(); n++) {
+	for (Net* &n : corb.nets) {
 		cout << "DBG_IO> ";
-		cout << "net " << corb.nets[n]->id << endl;
-		for (bl = 0; bl < corb.nets[n]->blocks.size(); bl++) {
+		cout << "net " << n->id << endl;
+
+		for (Block* &b : n->blocks) {
 			cout << "DBG_IO> ";
-			cout << " block " << corb.nets[n]->blocks[bl]->id << endl;
+			cout << " block " << b->id << endl;
 		}
 	}
 #endif
@@ -706,8 +706,8 @@ void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
 		object_counter = 1;
 
 		// output blocks
-		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-			cur_block = (*b).second;
+		for (auto& b : corb.blocks) {
+			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
 				continue;
@@ -773,8 +773,8 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 		file << endl;
 
 		// output blocks
-		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-			cur_block = (*b).second;
+		for (auto& b : corb.blocks) {
+			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
 				continue;
@@ -903,8 +903,8 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-			cur_block = (*b).second;
+		for (auto& b : corb.blocks) {
+			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
 				continue;
@@ -921,8 +921,8 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-			cur_block = (*b).second;
+		for (auto& b : corb.blocks) {
+			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
 				continue;

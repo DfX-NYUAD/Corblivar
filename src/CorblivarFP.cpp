@@ -617,8 +617,6 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 	double cost_outline;
 	double max_outline_x;
 	double max_outline_y;
-	Block *cur_block;
-	map<int, Block*>::iterator b;
 	int i;
 	vector<double> dies_AR;
 	vector<double> dies_area;
@@ -631,12 +629,11 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		for (b = this->blocks.begin(); b != this->blocks.end(); ++b) {
-			cur_block = (*b).second;
-			if (cur_block->layer == i) {
+		for (auto& b : this->blocks) {
+			if (b.second->layer == i) {
 				// update max outline coords
-				max_outline_x = max(max_outline_x, cur_block->bb.ur.x);
-				max_outline_y = max(max_outline_y, cur_block->bb.ur.y);
+				max_outline_x = max(max_outline_x, b.second->bb.ur.x);
+				max_outline_y = max(max_outline_y, b.second->bb.ur.y);
 			}
 		}
 
@@ -685,9 +682,7 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 
 // TODO recode; currently hotspot
 CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
-	unsigned n, b;
 	int i, ii;
-	Net *cur_net;
 	vector<Rect> blocks_to_consider;
 	Rect bb;
 	bool blocks_above_considered;
@@ -696,8 +691,7 @@ CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_
 	ret.HPWL = ret.TSVs = 0.0;
 
 	// determine HPWL and TSVs for each net
-	for (n = 0; n < this->nets.size(); n++) {
-		cur_net = this->nets[n];
+	for (Net* &cur_net : this->nets) {
 
 		// determine HPWL on each layer separately
 		for (i = 0; i < this->conf_layer; i++) {
@@ -712,11 +706,11 @@ CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_
 			blocks_to_consider.clear();
 
 			// blocks on current layer
-			for (b = 0; b < cur_net->blocks.size(); b++) {
-				if (cur_net->blocks[b]->layer == i) {
-					blocks_to_consider.push_back(cur_net->blocks[b]->bb);
+			for (Block* &b : cur_net->blocks) {
+				if (b->layer == i) {
+					blocks_to_consider.push_back(b->bb);
 #ifdef DBG_LAYOUT
-					cout << "DBG_LAYOUT> 	Consider block " << cur_net->blocks[b]->id << " on layer " << i << endl;
+					cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
 #endif
 				}
 			}
@@ -731,12 +725,12 @@ CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_
 			blocks_above_considered = false;
 			ii = i + 1;
 			while (true) {
-				for (b = 0; b < cur_net->blocks.size(); b++) {
-					if (cur_net->blocks[b]->layer == ii) {
-						blocks_to_consider.push_back(cur_net->blocks[b]->bb);
+				for (Block* &b : cur_net->blocks) {
+					if (b->layer == ii) {
+						blocks_to_consider.push_back(b->bb);
 						blocks_above_considered = true;
 #ifdef DBG_LAYOUT
-						cout << "DBG_LAYOUT> 	Consider block " << cur_net->blocks[b]->id << " on layer " << ii << endl;
+						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
 #endif
 					}
 				}

@@ -124,7 +124,6 @@ double ThermalAnalyzer::performPowerBlurring(CorblivarFP& corb, const bool& set_
 void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) {
 	int i, n;
 	int x, y;
-	map<int, Block*>::iterator block_it;
 	Block *block;
 	double maps_dim_x, maps_dim_y;
 	vector< vector<double> > map;
@@ -149,8 +148,8 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 		}
 
 		// consider each block on the related layer
-		for (block_it = corb.blocks.begin(); block_it != corb.blocks.end(); ++block_it) {
-			block = (*block_it).second;
+		for (auto& b : corb.blocks) {
+			block = b.second;
 
 			if (block->layer != i) {
 				continue;
