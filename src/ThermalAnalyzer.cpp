@@ -261,7 +261,7 @@ void ThermalAnalyzer::initThermalMasks(CorblivarFP& corb) {
 		cout << "DBG_LAYOUT> Thermal mask for layer " << i << ":" << endl;
 		for (y = masks_dim - 1; y >= 0; y--) {
 			for (x = 0; x < masks_dim; x++) {
-				cout << masks[i][x][y] << "	";
+				cout << this->thermal_masks[i][x][y] << "	";
 			}
 			cout << endl;
 		}

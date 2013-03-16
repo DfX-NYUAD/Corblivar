@@ -574,16 +574,16 @@ class CorblivarLayoutRep {
 			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
-			cout << ", s1=" << this->dies[die]->CBL.S[tuple1].s->id;
-			cout << ", s2=" << this->dies[die]->CBL.S[tuple2].s->id << endl;
+			cout << ", s1=" << this->dies[die]->CBL.S[tuple1]->id;
+			cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
 #endif
 		};
 		inline void switchBlocksAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
-			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1].s->id;
-			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2].s->id << endl;
+			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1]->id;
+			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
 #endif
 		};
 		inline void moveTupleAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) {
