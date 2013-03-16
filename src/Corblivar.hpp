@@ -180,6 +180,7 @@ class Rect {
 
 		inline static Rect determBoundingBox(const vector<Rect>& rects) {
 			Rect ret;
+			unsigned r;
 
 			if (rects.empty()) {
 				ret.ll.x = ret.ll.y = ret.ur.x = ret.ur.y = Point::UNDEF;
@@ -188,11 +189,11 @@ class Rect {
 			else {
 				ret.ll = rects[0].ll;
 				ret.ur = rects[0].ur;
-				for (const Rect& r : rects) {
-					ret.ll.x = min(ret.ll.x, r.ll.x);
-					ret.ll.y = min(ret.ll.y, r.ll.y);
-					ret.ur.x = max(ret.ur.x, r.ur.x);
-					ret.ur.y = max(ret.ur.y, r.ur.y);
+				for (r = 1; r < rects.size(); r++) {
+					ret.ll.x = min(ret.ll.x, rects[r].ll.x);
+					ret.ll.y = min(ret.ll.y, rects[r].ll.y);
+					ret.ur.x = max(ret.ur.x, rects[r].ur.x);
+					ret.ur.y = max(ret.ur.y, rects[r].ur.y);
 				}
 				ret.w = ret.ur.x - ret.ll.x;
 				ret.h = ret.ur.y - ret.ll.y;
