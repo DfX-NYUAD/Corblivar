@@ -144,7 +144,7 @@ class Math {
 			}
 
 			// determine std dev
-			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
+			return sqrt(1.0 / (double) samples.size() * sq_diffs);
 		}
 
 		// 2D gauss function; used for power blurring as impulse response fuction
