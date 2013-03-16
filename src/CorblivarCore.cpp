@@ -11,8 +11,6 @@
 #include "Corblivar.hpp"
 
 void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
-	map<int, Block*>::iterator b;
-	Block *cur_block;
 	Direction cur_dir;
 	int i, rand, cur_t;
 
@@ -28,8 +26,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 	}
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (b = corb.blocks.begin(); b != corb.blocks.end(); ++b) {
-		cur_block = (*b).second;
+	for (auto& b : corb.blocks) {
 
 		// consider random die
 		rand = Math::randI(0, corb.conf_layer);
@@ -46,18 +43,17 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand]->CBL.S.push_back(cur_block);
+		this->dies[rand]->CBL.S.push_back(b.second);
 		this->dies[rand]->CBL.L.push_back(cur_dir);
 		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
 
 #ifdef DBG_CORB
-	unsigned d, CBLi;
 
-	for (d = 0; d < this->dies.size(); d++) {
+	for (CorblivarDie* &die : this->dies) {
 		cout << "DBG_CORB> ";
-		cout << "Init CBL tuples for die " << d << "; " << this->dies[d]->CBL.size() << " tuples:" << endl;
-		cout << this->dies[d]->CBL.itemString() << endl;
+		cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
+		cout << die->CBL.itemString() << endl;
 		cout << "DBG_CORB> ";
 		cout << endl;
 	}
@@ -70,7 +66,6 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 }
 
 void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
-	unsigned i;
 	Block *cur_block;
 	bool loop;
 
@@ -83,8 +78,8 @@ void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 	this->p = this->dies[0];
 
 	// reset die data
-	for (i = 0; i < this->dies.size(); i++) {
-		this->dies[i]->reset();
+	for (CorblivarDie* &die : this->dies) {
+		die->reset();
 	}
 
 	// perform layout generation in loop (until all blocks are placed)
@@ -115,9 +110,9 @@ void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 		// die done
 		if (this->p->done) {
 			// continue loop on yet unfinished die
-			for (i = 0; i < this->dies.size(); i++) {
-				if (!this->dies[i]->done) {
-					this->p = this->dies[i];
+			for (CorblivarDie* &die :  this->dies) {
+				if (!die->done) {
+					this->p = die;
 					break;
 				}
 			}
@@ -144,7 +139,6 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	double x, y;
 	bool add_to_stack;
 	list<Block*> blocks_add_to_stack;
-	list<Block*>::iterator ba;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -186,11 +180,11 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 
 		// determine x-coordinate for lower left corner of current block
 		x = 0;
-		for (b = 0; b < relevBlocks.size(); b++) {
+		for (Block* &b : relevBlocks) {
 			// only consider blocks which intersect in y-direction
-			if (Rect::rectsIntersectVertical(cur_block->bb, relevBlocks[b]->bb)) {
+			if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
 				// determine right front
-				x = max(x, relevBlocks[b]->bb.ur.x);
+				x = max(x, b->bb.ur.x);
 			}
 		}
 
@@ -201,8 +195,8 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 		// update vertical stack; add cur_block when no other relevant blocks
 		// are to its top side, indepent of overlap in x-direction
 		add_to_stack = true;
-		for (b = 0; b < relevBlocks.size(); b++) {
-			if (Rect::rectA_below_rectB(cur_block->bb, relevBlocks[b]->bb, false)) {
+		for (Block* &b : relevBlocks) {
+			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
 			}
 		}
@@ -214,19 +208,19 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 		// update horizontal stack; add relevant blocks which have no block to the right,
 		// can be simplified by checking against cur_block (only new block which
 		// can be possibly right of others)
-		for (b = 0; b < relevBlocks.size(); b++) {
-			if (!Rect::rectA_leftOf_rectB(relevBlocks[b]->bb, cur_block->bb, true)) {
+		for (Block* &b : relevBlocks) {
+			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Hi regarding their
 				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(relevBlocks[b]);
+				blocks_add_to_stack.push_front(b);
 			}
 		}
 		// also consider new block cur_block as right of others
 		blocks_add_to_stack.push_front(cur_block);
 
-		for (ba = blocks_add_to_stack.begin(); ba != blocks_add_to_stack.end(); ++ba) {
-			this->Hi.push(*ba);
+		for (Block* &b : blocks_add_to_stack) {
+			this->Hi.push(b);
 		}
 	}
 	// vertical placement
@@ -256,11 +250,11 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 
 		// determine y-coordinate for lower left corner of current block
 		y = 0;
-		for (b = 0; b < relevBlocks.size(); b++) {
+		for (Block* &b : relevBlocks) {
 			// only consider blocks which intersect in x-direction
-			if (Rect::rectsIntersectHorizontal(cur_block->bb, relevBlocks[b]->bb)) {
+			if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
 				// determine upper front
-				y = max(y, relevBlocks[b]->bb.ur.y);
+				y = max(y, b->bb.ur.y);
 			}
 		}
 
@@ -271,8 +265,8 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 		// update horizontal stack; add cur_block when no other relevant blocks
 		// are to its right side, indepent of overlap in y-direction
 		add_to_stack = true;
-		for (b = 0; b < relevBlocks.size(); b++) {
-			if (Rect::rectA_leftOf_rectB(cur_block->bb, relevBlocks[b]->bb, false)) {
+		for (Block* &b : relevBlocks) {
+			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
 			}
 		}
@@ -284,19 +278,19 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 		// update vertical stack; add relevant blocks which have no block above,
 		// can be simplified by checking against cur_block (only new block which
 		// can be possibly above others)
-		for (b = 0; b < relevBlocks.size(); b++) {
-			if (!Rect::rectA_below_rectB(relevBlocks[b]->bb, cur_block->bb, true)) {
+		for (Block* &b : relevBlocks) {
+			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Vi regarding their
 				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(relevBlocks[b]);
+				blocks_add_to_stack.push_front(b);
 			}
 		}
 		// also consider new block cur_block as above others
 		blocks_add_to_stack.push_front(cur_block);
 
-		for (ba = blocks_add_to_stack.begin(); ba != blocks_add_to_stack.end(); ++ba) {
-			this->Vi.push(*ba);
+		for (Block* &b : blocks_add_to_stack) {
+			this->Vi.push(b);
 		}
 	}
 
