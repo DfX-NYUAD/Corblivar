@@ -132,15 +132,17 @@ class Math {
 
 			// determine avg of samples
 			avg = 0.0;
-			for (double s : samples) {
+			for (const double& s : samples) {
 				avg += s;
 			}
 			avg /= samples.size();
+
 			// determine sum of squared diffs for std dev
 			sq_diffs = 0.0;
-			for (double s : samples) {
+			for (const double& s : samples) {
 				sq_diffs += pow(s - avg, 2);
 			}
+
 			// determine std dev
 			return sqrt(1.0/(double)(samples.size() - 1) * sq_diffs);
 		}
@@ -186,7 +188,7 @@ class Rect {
 			else {
 				ret.ll = rects[0].ll;
 				ret.ur = rects[0].ur;
-				for (Rect r : rects) {
+				for (const Rect& r : rects) {
 					ret.ll.x = min(ret.ll.x, r.ll.x);
 					ret.ll.y = min(ret.ll.y, r.ll.y);
 					ret.ur.x = max(ret.ur.x, r.ur.x);
@@ -633,7 +635,7 @@ class CorblivarLayoutRep {
 			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << endl;
 			ret << "data_start" << endl;
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 				ret << "CBL [ " << die->id << " ]" << endl;
 				ret << die->CBL.itemString() << endl;
 			}
@@ -644,40 +646,40 @@ class CorblivarLayoutRep {
 		// CBL backup handler
 		inline void backupCBLs() {
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 
 				die->CBLbackup.clear();
 
-				for (Block* b : die->CBL.S) {
+				for (Block* &b : die->CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
 					b->bb_backup = b->bb;
 					die->CBLbackup.S.push_back(b);
 				}
-				for (Direction dir : die->CBL.L) {
+				for (const Direction& dir : die->CBL.L) {
 					die->CBLbackup.L.push_back(dir);
 				}
-				for (unsigned t_juncts : die->CBL.T) {
+				for (const unsigned& t_juncts : die->CBL.T) {
 					die->CBLbackup.T.push_back(t_juncts);
 				}
 			}
 		};
 		inline void restoreCBLs() {
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 
 				die->CBL.clear();
 
-				for (Block* b : die->CBLbackup.S) {
+				for (Block* &b : die->CBLbackup.S) {
 					// restore block dimensions (block shape) from
 					// block itself
 					b->bb = b->bb_backup;
 					die->CBL.S.push_back(b);
 				}
-				for (Direction dir : die->CBLbackup.L) {
+				for (const Direction& dir : die->CBLbackup.L) {
 					die->CBL.L.push_back(dir);
 				}
-				for (unsigned t_juncts : die->CBLbackup.T) {
+				for (const unsigned& t_juncts : die->CBLbackup.T) {
 					die->CBL.T.push_back(t_juncts);
 				}
 			}
@@ -685,20 +687,20 @@ class CorblivarLayoutRep {
 		// CBL best-solution handler
 		inline void storeBestCBLs() {
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 
 				die->CBLbest.clear();
 
-				for (Block* b : die->CBL.S) {
+				for (Block* &b : die->CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
 					b->bb_best = b->bb;
 					die->CBLbest.S.push_back(b);
 				}
-				for (Direction dir : die->CBL.L) {
+				for (const Direction& dir : die->CBL.L) {
 					die->CBLbest.L.push_back(dir);
 				}
-				for (unsigned t_juncts : die->CBL.T) {
+				for (const unsigned& t_juncts : die->CBL.T) {
 					die->CBLbest.T.push_back(t_juncts);
 				}
 			}
@@ -706,7 +708,7 @@ class CorblivarLayoutRep {
 		inline bool applyBestCBLs(const int& log) {
 			bool empty = true;
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 				if (!die->CBLbest.empty()) {
 					empty = false;
 				}
@@ -718,20 +720,20 @@ class CorblivarLayoutRep {
 				return false;
 			}
 
-			for (CorblivarDie* die : this->dies) {
+			for (CorblivarDie* &die : this->dies) {
 
 				die->CBL.clear();
 
-				for (Block* b : die->CBLbest.S) {
+				for (Block* &b : die->CBLbest.S) {
 					// restore block dimensions (block shape) from
 					// block itself
 					b->bb = b->bb_best;
 					die->CBL.S.push_back(b);
 				}
-				for (Direction dir : die->CBLbest.L) {
+				for (const Direction& dir : die->CBLbest.L) {
 					die->CBL.L.push_back(dir);
 				}
-				for (unsigned t_juncts : die->CBLbest.T) {
+				for (const unsigned& t_juncts : die->CBLbest.T) {
 					die->CBL.T.push_back(t_juncts);
 				}
 			}
