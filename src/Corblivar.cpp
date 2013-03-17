@@ -50,7 +50,7 @@ int main (int argc, char** argv) {
 	}
 	// generate new, random data set
 	else {
-		chip.initCorblivar(corb);
+		chip.initCorblivarRandomly(corb);
 	}
 
 	// init thermal masks

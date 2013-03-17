@@ -485,6 +485,8 @@ class CorblivarDie {
 	private:
 		// progress pointer, CBL vector index
 		unsigned pi;
+		// placement stacks
+		stack<Block*> Hi, Vi;
 
 		// false: last CBL tuple; true: not last tuple
 		inline bool incrementTuplePointer() {
@@ -503,12 +505,8 @@ class CorblivarDie {
 			this->pi = 0;
 		};
 
-		// placement stacks
-		stack<Block*> Hi, Vi;
-
 	public:
 		int id;
-
 		bool stalled;
 		bool done;
 
@@ -561,16 +559,35 @@ class CorblivarLayoutRep {
 	private:
 		// die pointer
 		CorblivarDie* p;
-
+		// sequence A; alignment requirements
 		vector<CorblivarAlignmentReq*> A;
 
 	public:
 		vector<CorblivarDie*> dies;
 
 		// general operations
-		void initCorblivar(CorblivarFP& corb);
+		void initCorblivarRandomly(CorblivarFP& corb);
 		void generateLayout(const bool& dbgStack = false);
 		//CorblivarDie* findDie(Block* Si);
+
+		// init handler
+		inline void initCorblivarDies(const int& layer, const unsigned& blocks) {
+			int i;
+			CorblivarDie* cur_die;
+
+			// clear and reserve mem for dies
+			this->dies.clear();
+			this->dies.reserve(layer);
+
+			// init dies and their related structures
+			for (i = 0; i < layer; i++) {
+				cur_die = new CorblivarDie(i);
+				// reserve mem for worst case, i.e., all blocks in one particular die
+				cur_die->CBL.reserve(blocks);
+
+				this->dies.push_back(cur_die);
+			}
+		};
 
 		// layout operations for heuristic optimization
 		static const int OP_SWAP_BLOCKS_WI_DIE = 0;
@@ -750,25 +767,6 @@ class CorblivarLayoutRep {
 
 			return true;
 		};
-
-		// init handler
-		inline void initCorblivarDies(const int& layer, const unsigned& blocks) {
-			int i;
-			CorblivarDie* cur_die;
-
-			// clear and reserve mem for dies
-			this->dies.clear();
-			this->dies.reserve(layer);
-
-			// init dies and their related structures
-			for (i = 0; i < layer; i++) {
-				cur_die = new CorblivarDie(i);
-				// reserve mem for worst case, i.e., all blocks in one particular die
-				cur_die->CBL.reserve(blocks);
-
-				this->dies.push_back(cur_die);
-			}
-		}
 };
 
 class CorblivarAlignmentReq {

@@ -10,7 +10,7 @@
  */
 #include "Corblivar.hpp"
 
-void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
+void CorblivarLayoutRep::initCorblivarRandomly(CorblivarFP& corb) {
 	Direction cur_dir;
 	int rand, cur_t;
 
