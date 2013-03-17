@@ -83,11 +83,11 @@ class ThermalAnalyzer {
 		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
 		// by considering heat source in layer 0, mask[1] relates to the mask for
 		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		vector< vector< vector<double> > > thermal_masks;
+		vector<vector<vector<double>>> thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		vector< vector< vector<double> > > power_maps;
+		vector<vector<vector<double>>> power_maps;
 		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
-		vector< vector<double> > thermal_map;
+		vector<vector<double>> thermal_map;
 
 		// thermal modeling: handlers
 		void generatePowerMaps(CorblivarFP& corb, const int& maps_dim);

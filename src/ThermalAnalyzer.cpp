@@ -126,7 +126,7 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 	int x, y;
 	Block *block;
 	double maps_dim_x, maps_dim_y;
-	vector< vector<double> > map;
+	vector<vector<double>> map;
 	Rect bin, intersect;
 	int x_lower, x_upper, y_lower, y_upper;
 
@@ -206,7 +206,7 @@ void ThermalAnalyzer::initThermalMasks(CorblivarFP& corb) {
 	double max_spread;
 	double spread;
 	double impulse_factor;
-	vector< vector<double> > mask;
+	vector<vector<double>> mask;
 	vector<double> mask_col;
 	int x, y;
 
