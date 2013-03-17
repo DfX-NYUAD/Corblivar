@@ -635,7 +635,8 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		for (auto& b : this->blocks) {
+		for (pair<const int, Block*> &b : this->blocks) {
+
 			if (b.second->layer == i) {
 				// update max outline coords
 				max_outline_x = max(max_outline_x, b.second->bb.ur.x);

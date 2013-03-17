@@ -706,7 +706,7 @@ void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
 		object_counter = 1;
 
 		// output blocks
-		for (auto& b : corb.blocks) {
+		for (pair<const int, Block*> &b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -773,7 +773,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 		file << endl;
 
 		// output blocks
-		for (auto& b : corb.blocks) {
+		for (pair<const int, Block*> &b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -903,7 +903,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (auto& b : corb.blocks) {
+		for (pair<const int, Block*> &b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -921,7 +921,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (auto& b : corb.blocks) {
+		for (pair<const int, Block*> &b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {

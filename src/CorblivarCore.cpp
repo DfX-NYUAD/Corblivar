@@ -26,7 +26,7 @@ void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 	}
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (auto& b : corb.blocks) {
+	for (pair<const int, Block*> &b : corb.blocks) {
 
 		// consider random die
 		rand = Math::randI(0, corb.conf_layer);

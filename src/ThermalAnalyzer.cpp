@@ -148,7 +148,7 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 		}
 
 		// consider each block on the related layer
-		for (auto& b : corb.blocks) {
+		for (pair<const int, Block*> &b : corb.blocks) {
 			block = b.second;
 
 			if (block->layer != i) {
