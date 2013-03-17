@@ -557,7 +557,8 @@ class CorblivarLayoutRep {
 	public:
 		vector<CorblivarDie*> dies;
 
-		// general layout operations
+		// general operations
+		void initCorblivarDies(const int& layer, const unsigned& blocks);
 		void initCorblivar(CorblivarFP& corb);
 		void generateLayout(const bool& dbgStack = false);
 		//CorblivarDie* findDie(Block* Si);

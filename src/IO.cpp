@@ -223,7 +223,6 @@ void IO::parseCorblivarFile(CorblivarFP& corb, CorblivarLayoutRep& chip) {
 	int block_id;
 	unsigned dir;
 	int juncts;
-	int i;
 	double w, h;
 
 	if (corb.logMed()) {
@@ -231,11 +230,8 @@ void IO::parseCorblivarFile(CorblivarFP& corb, CorblivarLayoutRep& chip) {
 		cout << "Initializing Corblivar data from solution file ..." << endl;
 	}
 
-	// init separate data structures for dies
-	chip.dies.clear();
-	for (i = 0; i < corb.conf_layer; i++) {
-		chip.dies.push_back(new CorblivarDie(i));
-	}
+	// init dies data
+	chip.initCorblivarDies(corb.conf_layer, corb.blocks.size());
 
 	// drop solution file header
 	while (tmpstr != "data_start" && !corb.solution_in.eof()) {

@@ -10,20 +10,38 @@
  */
 #include "Corblivar.hpp"
 
+void CorblivarLayoutRep::initCorblivarDies(const int& layer, const unsigned& blocks) {
+	int i;
+	CorblivarDie* cur_die;
+
+	// clear and reserve mem for dies
+	this->dies.clear();
+	this->dies.reserve(layer);
+
+	// init dies and their related structures
+	for (i = 0; i < layer; i++) {
+		cur_die = new CorblivarDie(i);
+
+		// reserve mem for worst case, i.e., all blocks in one particular die
+		cur_die->CBL.S.reserve(blocks);
+		cur_die->CBL.L.reserve(blocks);
+		cur_die->CBL.T.reserve(blocks);
+
+		this->dies.push_back(cur_die);
+	}
+}
+
 void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 	Direction cur_dir;
-	int i, rand, cur_t;
+	int rand, cur_t;
 
 	if (corb.logMed()) {
 		cout << "Layout> ";
 		cout << "Initializing Corblivar data for chip on " << corb.conf_layer << " layers..." << endl;
 	}
 
-	// init separate data structures for dies
-	this->dies.clear();
-	for (i = 0; i < corb.conf_layer; i++) {
-		this->dies.push_back(new CorblivarDie(i));
-	}
+	// init dies data
+	this->initCorblivarDies(corb.conf_layer, corb.blocks.size());
 
 	// assign each block randomly to one die, generate L and T randomly as well
 	for (pair<const int, Block*> &b : corb.blocks) {
