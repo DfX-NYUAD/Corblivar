@@ -10,27 +10,6 @@
  */
 #include "Corblivar.hpp"
 
-void CorblivarLayoutRep::initCorblivarDies(const int& layer, const unsigned& blocks) {
-	int i;
-	CorblivarDie* cur_die;
-
-	// clear and reserve mem for dies
-	this->dies.clear();
-	this->dies.reserve(layer);
-
-	// init dies and their related structures
-	for (i = 0; i < layer; i++) {
-		cur_die = new CorblivarDie(i);
-
-		// reserve mem for worst case, i.e., all blocks in one particular die
-		cur_die->CBL.S.reserve(blocks);
-		cur_die->CBL.L.reserve(blocks);
-		cur_die->CBL.T.reserve(blocks);
-
-		this->dies.push_back(cur_die);
-	}
-}
-
 void CorblivarLayoutRep::initCorblivar(CorblivarFP& corb) {
 	Direction cur_dir;
 	int rand, cur_t;
@@ -95,7 +74,7 @@ void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 	// init die pointer
 	this->p = this->dies[0];
 
-	// reset die data
+	// reset die data, i.e., layout generation handler data
 	for (CorblivarDie* &die : this->dies) {
 		die->reset();
 	}
@@ -175,6 +154,7 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	if (cur_dir == DIRECTION_HOR) {
 		// pop relevant blocks from stack
 		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
+		relevBlocks.reserve(relevBlocksCount);
 		while (relevBlocksCount > relevBlocks.size()) {
 			relevBlocks.push_back(this->Hi.top());
 			this->Hi.pop();
@@ -245,6 +225,7 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	else {
 		// pop relevant blocks from stack
 		relevBlocksCount = min(cur_juncts + 1, this->Vi.size());
+		relevBlocks.reserve(relevBlocksCount);
 		while (relevBlocksCount > relevBlocks.size()) {
 			relevBlocks.push_back(this->Vi.top());
 			this->Vi.pop();

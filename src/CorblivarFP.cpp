@@ -58,6 +58,8 @@ bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
 	i = 1;
 	accepted_ops_ratio = 0.0;
 	layout_fit_counter = 0;
+	cost_hist.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
+
 	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
 
 		op_success = this->performRandomLayoutOp(chip);
@@ -629,6 +631,9 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 	bool layout_fits_in_fixed_outline;
 	Cost ret;
 
+	dies_AR.reserve(this->conf_layer);
+	dies_area.reserve(this->conf_layer);
+
 	layout_fits_in_fixed_outline = true;
 	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
@@ -696,6 +701,7 @@ CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_
 
 	CostInterconn ret;
 	ret.HPWL = ret.TSVs = 0.0;
+	blocks_to_consider.reserve(this->blocks.size());
 
 	// determine HPWL and TSVs for each net
 	for (Net* &cur_net : this->nets) {

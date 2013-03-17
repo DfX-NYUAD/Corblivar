@@ -132,6 +132,7 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 
 	// clear maps
 	this->power_maps.clear();
+	this->power_maps.reserve(corb.conf_layer);
 
 	// scale map dimensions to outline
 	maps_dim_x = corb.conf_outline_x / maps_dim;
@@ -217,10 +218,14 @@ void ThermalAnalyzer::initThermalMasks(CorblivarFP& corb) {
 
 	// clear masks
 	this->thermal_masks.clear();
+	this->thermal_masks.reserve(corb.conf_layer);
 
 	// TODO vary this parameter; should be uneven
 	// TODO realize as config parameter
 	masks_dim = 17;
+
+	mask.reserve(masks_dim);
+	mask_col.reserve(masks_dim);
 
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away

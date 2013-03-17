@@ -441,6 +441,10 @@ class CornerBlockList {
 			return ret;
 		};
 
+		inline unsigned capacity() {
+			return this->S.capacity();
+		};
+
 		inline bool empty() {
 			return (this->size() == 0);
 		};
@@ -449,6 +453,12 @@ class CornerBlockList {
 			this->S.clear();
 			this->L.clear();
 			this->T.clear();
+		};
+
+		inline void reserve(const unsigned& elements) {
+			this->S.reserve(elements);
+			this->L.reserve(elements);
+			this->T.reserve(elements);
 		};
 
 		inline string itemString(const unsigned& i) {
@@ -468,7 +478,7 @@ class CornerBlockList {
 			}
 
 			return ret.str();
-		}
+		};
 };
 
 class CorblivarDie {
@@ -518,19 +528,19 @@ class CorblivarDie {
 
 		inline Block* currentBlock() {
 			return this->CBL.S[this->pi];
-		}
+		};
 
 		inline Direction currentTupleDirection() {
 			return this->CBL.L[this->pi];
-		}
+		};
 
 		inline unsigned currentTupleJuncts() {
 			return this->CBL.T[this->pi];
-		}
+		};
 
 		inline string currentTupleString() {
 			return this->CBL.itemString(this->pi);
-		}
+		};
 
 		inline void reset() {
 			// reset progress pointer
@@ -544,7 +554,7 @@ class CorblivarDie {
 			while (!this->Vi.empty()) {
 				this->Vi.pop();
 			}
-		}
+		};
 };
 
 class CorblivarLayoutRep {
@@ -558,7 +568,6 @@ class CorblivarLayoutRep {
 		vector<CorblivarDie*> dies;
 
 		// general operations
-		void initCorblivarDies(const int& layer, const unsigned& blocks);
 		void initCorblivar(CorblivarFP& corb);
 		void generateLayout(const bool& dbgStack = false);
 		//CorblivarDie* findDie(Block* Si);
@@ -651,6 +660,7 @@ class CorblivarLayoutRep {
 			for (CorblivarDie* &die : this->dies) {
 
 				die->CBLbackup.clear();
+				die->CBLbackup.reserve(die->CBL.capacity());
 
 				for (Block* &b : die->CBL.S) {
 					// backup block dimensions (block shape) into
@@ -671,6 +681,7 @@ class CorblivarLayoutRep {
 			for (CorblivarDie* &die : this->dies) {
 
 				die->CBL.clear();
+				die->CBL.reserve(die->CBLbackup.capacity());
 
 				for (Block* &b : die->CBLbackup.S) {
 					// restore block dimensions (block shape) from
@@ -692,6 +703,7 @@ class CorblivarLayoutRep {
 			for (CorblivarDie* &die : this->dies) {
 
 				die->CBLbest.clear();
+				die->CBLbest.reserve(die->CBL.capacity());
 
 				for (Block* &b : die->CBL.S) {
 					// backup block dimensions (block shape) into
@@ -708,23 +720,19 @@ class CorblivarLayoutRep {
 			}
 		};
 		inline bool applyBestCBLs(const int& log) {
-			bool empty = true;
 
 			for (CorblivarDie* &die : this->dies) {
-				if (!die->CBLbest.empty()) {
-					empty = false;
-				}
-			}
-			if (empty) {
-				if (CorblivarFP::logMin(log)) {
-					cout << "Corblivar> No best (fitting) solution available!" << endl;
-				}
-				return false;
-			}
 
-			for (CorblivarDie* &die : this->dies) {
+				// sanity check for existence of best solution
+				if (die->CBLbest.empty()) {
+					if (CorblivarFP::logMin(log)) {
+						cout << "Corblivar> No best (fitting) solution available!" << endl;
+					}
+					return false;
+				}
 
 				die->CBL.clear();
+				die->CBL.reserve(die->CBLbest.capacity());
 
 				for (Block* &b : die->CBLbest.S) {
 					// restore block dimensions (block shape) from
@@ -742,6 +750,25 @@ class CorblivarLayoutRep {
 
 			return true;
 		};
+
+		// init handler
+		inline void initCorblivarDies(const int& layer, const unsigned& blocks) {
+			int i;
+			CorblivarDie* cur_die;
+
+			// clear and reserve mem for dies
+			this->dies.clear();
+			this->dies.reserve(layer);
+
+			// init dies and their related structures
+			for (i = 0; i < layer; i++) {
+				cur_die = new CorblivarDie(i);
+				// reserve mem for worst case, i.e., all blocks in one particular die
+				cur_die->CBL.reserve(blocks);
+
+				this->dies.push_back(cur_die);
+			}
+		}
 };
 
 class CorblivarAlignmentReq {
