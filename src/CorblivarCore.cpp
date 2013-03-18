@@ -11,7 +11,7 @@
 #include "Corblivar.hpp"
 
 void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
-	Direction cur_dir;
+	CornerBlockList::Direction cur_dir;
 	int rand, cur_t;
 	Block *cur_block;
 
@@ -32,10 +32,10 @@ void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
 
 		// generate direction L
 		if (Math::randB()) {
-			cur_dir = DIRECTION_HOR;
+			cur_dir = CornerBlockList::DIRECTION_HOR;
 		}
 		else {
-			cur_dir = DIRECTION_VERT;
+			cur_dir = CornerBlockList::DIRECTION_VERT;
 		}
 		// init T-junction to be overlapped as zero, results in initial layout to
 		// be placed ``somewhat diagonally'' into outline
@@ -131,7 +131,7 @@ void CorblivarCore::generateLayout(const bool& dbgStack) const {
 
 Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	Block *cur_block;
-	Direction cur_dir;
+	CornerBlockList::Direction cur_dir;
 	unsigned cur_juncts;
 	vector<Block*> relevBlocks;
 	unsigned relevBlocksCount, b;
@@ -153,7 +153,7 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	cur_block->layer = this->id;
 
 	// horizontal placement
-	if (cur_dir == DIRECTION_HOR) {
+	if (cur_dir == CornerBlockList::DIRECTION_HOR) {
 		// pop relevant blocks from stack
 		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
 		relevBlocks.reserve(relevBlocksCount);

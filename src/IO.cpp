@@ -272,10 +272,10 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.solution_in >> dir;
 			// store direction into L sequence
 			if (dir == 0) {
-				corb.dies[cur_layer]->CBL.L.push_back(DIRECTION_VERT);
+				corb.dies[cur_layer]->CBL.L.push_back(CornerBlockList::DIRECTION_VERT);
 			}
 			else {
-				corb.dies[cur_layer]->CBL.L.push_back(DIRECTION_HOR);
+				corb.dies[cur_layer]->CBL.L.push_back(CornerBlockList::DIRECTION_HOR);
 			}
 
 			// T-junctions

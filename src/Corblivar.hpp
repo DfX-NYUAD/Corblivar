@@ -36,9 +36,6 @@
 /* consider standard namespace */
 using namespace std;
 
-/* global enumerations */
-enum Direction {DIRECTION_VERT, DIRECTION_HOR};
-
 /* forward declarations */
 class FloorPlanner;
 class CorblivarCore;
@@ -401,6 +398,8 @@ class FloorPlanner {
 
 class CornerBlockList {
 	public:
+		// CBL placement direction
+		enum Direction {DIRECTION_VERT, DIRECTION_HOR};
 
 		// CBL sequences
 		vector<Block*> S;
@@ -522,7 +521,7 @@ class CorblivarDie {
 			return this->CBL.S[this->pi];
 		};
 
-		inline Direction currentTupleDirection() const {
+		inline CornerBlockList::Direction currentTupleDirection() const {
 			return this->CBL.L[this->pi];
 		};
 
@@ -623,11 +622,11 @@ class CorblivarCore {
 #endif
 		};
 		inline void switchTupleDirection(const int& die, const int& tuple) const {
-			if (this->dies[die]->CBL.L[tuple] == DIRECTION_VERT) {
-				this->dies[die]->CBL.L[tuple] = DIRECTION_HOR;
+			if (this->dies[die]->CBL.L[tuple] == CornerBlockList::DIRECTION_VERT) {
+				this->dies[die]->CBL.L[tuple] = CornerBlockList::DIRECTION_HOR;
 			}
 			else {
-				this->dies[die]->CBL.L[tuple] = DIRECTION_VERT;
+				this->dies[die]->CBL.L[tuple] = CornerBlockList::DIRECTION_VERT;
 			}
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
@@ -679,7 +678,7 @@ class CorblivarCore {
 					b->bb_backup = b->bb;
 					die->CBLbackup.S.push_back(b);
 				}
-				for (const Direction& dir : die->CBL.L) {
+				for (const CornerBlockList::Direction& dir : die->CBL.L) {
 					die->CBLbackup.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBL.T) {
@@ -700,7 +699,7 @@ class CorblivarCore {
 					b->bb = b->bb_backup;
 					die->CBL.S.push_back(b);
 				}
-				for (const Direction& dir : die->CBLbackup.L) {
+				for (const CornerBlockList::Direction& dir : die->CBLbackup.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBLbackup.T) {
@@ -723,7 +722,7 @@ class CorblivarCore {
 					b->bb_best = b->bb;
 					die->CBLbest.S.push_back(b);
 				}
-				for (const Direction& dir : die->CBL.L) {
+				for (const CornerBlockList::Direction& dir : die->CBL.L) {
 					die->CBLbest.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBL.T) {
@@ -752,7 +751,7 @@ class CorblivarCore {
 					b->bb = b->bb_best;
 					die->CBL.S.push_back(b);
 				}
-				for (const Direction& dir : die->CBLbest.L) {
+				for (const CornerBlockList::Direction& dir : die->CBLbest.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBLbest.T) {
