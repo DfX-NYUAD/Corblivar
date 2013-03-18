@@ -10,25 +10,25 @@
  */
 #include "Corblivar.hpp"
 
-void CorblivarLayoutRep::initCorblivarRandomly(const CorblivarFP& corb) {
+void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
 	Direction cur_dir;
 	int rand, cur_t;
 	Block *cur_block;
 
-	if (corb.logMed()) {
+	if (fp.logMed()) {
 		cout << "Layout> ";
-		cout << "Initializing Corblivar data for chip on " << corb.conf_layer << " layers..." << endl;
+		cout << "Initializing Corblivar data for corb on " << fp.conf_layer << " layers..." << endl;
 	}
 
 	// init dies data
-	this->initCorblivarDies(corb.conf_layer, corb.blocks.size());
+	this->initCorblivarDies(fp.conf_layer, fp.blocks.size());
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (auto& b : corb.blocks) {
+	for (auto& b : fp.blocks) {
 		cur_block = b.second;
 
 		// consider random die
-		rand = Math::randI(0, corb.conf_layer);
+		rand = Math::randI(0, fp.conf_layer);
 
 		// generate direction L
 		if (Math::randB()) {
@@ -58,13 +58,13 @@ void CorblivarLayoutRep::initCorblivarRandomly(const CorblivarFP& corb) {
 	}
 #endif
 
-	if (corb.logMed()) {
+	if (fp.logMed()) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(const bool& dbgStack) const {
+void CorblivarCore::generateLayout(const bool& dbgStack) const {
 	Block *cur_block;
 	bool loop;
 

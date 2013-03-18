@@ -12,19 +12,19 @@
 
 // definitions for const vars, to allocate memory
 // initializations see Corblivar.hpp
-const int CorblivarFP::LOG_MINIMAL;
-const int CorblivarFP::LOG_MEDIUM;
-const int CorblivarFP::LOG_MAXIMUM;
+const int FloorPlanner::LOG_MINIMAL;
+const int FloorPlanner::LOG_MEDIUM;
+const int FloorPlanner::LOG_MAXIMUM;
 const int Point::UNDEF;
 
 int main (int argc, char** argv) {
-	CorblivarFP corb;
-	CorblivarLayoutRep chip;
+	FloorPlanner fp;
+	CorblivarCore corb;
 	ThermalAnalyzer therm;
 	bool done;
 
 	// memorize start time
-	ftime(&corb.start);
+	ftime(&fp.start);
 
 	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
@@ -34,42 +34,42 @@ int main (int argc, char** argv) {
 	srand(time(0));
 
 	// parse program parameter and config file
-	corb.conf_log = CorblivarFP::LOG_MINIMAL;
-	IO::parseParameterConfig(corb, argc, argv);
+	fp.conf_log = FloorPlanner::LOG_MINIMAL;
+	IO::parseParameterConfig(fp, argc, argv);
 	// parse blocks
-	IO::parseBlocks(corb);
+	IO::parseBlocks(fp);
 	// parse nets
-	IO::parseNets(corb);
+	IO::parseNets(fp);
 
 	/// init Corblivar layout representation
-	if (corb.solution_in.is_open()) {
+	if (fp.solution_in.is_open()) {
 		// read from file
-		IO::parseCorblivarFile(corb, chip);
+		IO::parseCorblivarFile(fp, corb);
 		// assume read in data as currently best solution
-		chip.storeBestCBLs();
+		corb.storeBestCBLs();
 	}
 	// generate new, random data set
 	else {
-		chip.initCorblivarRandomly(corb);
+		corb.initCorblivarRandomly(fp);
 	}
 
 	// init thermal masks
-	corb.thermalAnalyzer.initThermalMasks(corb);
+	fp.thermalAnalyzer.initThermalMasks(fp);
 
 	// (TODO) drop if further optimization of read in data is desired
-	if (corb.solution_in.is_open()) {
-		corb.finalize(chip);
+	if (fp.solution_in.is_open()) {
+		fp.finalize(corb);
 	}
 
-	if (corb.logMin()) {
+	if (fp.logMin()) {
 		cout << "Corblivar> ";
 		cout << "Performing SA floorplanning optimization..." << endl << endl;
 	}
 
 	// perform SA; main handler
-	done = corb.performSA(chip);
+	done = fp.performSA(corb);
 
-	if (corb.logMin()) {
+	if (fp.logMin()) {
 		cout << "Corblivar> ";
 		if (done) {
 			cout << "Done, floorplanning was successful" << endl << endl;
@@ -80,5 +80,5 @@ int main (int argc, char** argv) {
 	}
 
 	// finalize: generate output files, final logging
-	corb.finalize(chip);
+	fp.finalize(corb);
 }

@@ -11,7 +11,7 @@
 #include "Corblivar.hpp"
 
 // main handler
-bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
+bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
 	double accepted_ops_ratio;
@@ -37,7 +37,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 	this->max_cost_alignments = 0.0;
 
 	// backup initial CBLs
-	chip.backupCBLs();
+	corb.backupCBLs();
 
 	// init SA parameter: inner loop count
 	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
@@ -49,7 +49,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 	}
 
 	// init cost
-	chip.generateLayout();
+	corb.generateLayout();
 	cur_cost = this->determCost().cost;
 
 	// perform some random operations, for SA temperature = 0.0
@@ -62,14 +62,14 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 
 	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
 
-		op_success = this->performRandomLayoutOp(chip);
+		op_success = this->performRandomLayoutOp(corb);
 
 		if (op_success) {
 
 			prev_cost = cur_cost;
 
 			// generate layout
-			chip.generateLayout();
+			corb.generateLayout();
 
 			// evaluate layout, new cost
 			cost = this->determCost((double) layout_fit_counter / (SA_SAMPLING_LOOP_FACTOR * innerLoopMax));
@@ -80,7 +80,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 			// solution w/ worse cost, revert
 			if (cost_diff >= 0.0) {
 				// revert last op
-				this->performRandomLayoutOp(chip, true);
+				this->performRandomLayoutOp(corb, true);
 				// reset cost according to reverted CBL
 				cur_cost = prev_cost;
 			}
@@ -141,7 +141,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 	}
 
 	// restore initial CBLs
-	chip.restoreCBLs();
+	corb.restoreCBLs();
 
 	/// main SA loop
 	//
@@ -168,21 +168,21 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 		phase_two_transit = false;
 
 		// init cost for current layout and fitting ratio
-		chip.generateLayout();
+		corb.generateLayout();
 		cur_cost = this->determCost(layout_fit_ratio, phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
-			op_success = this->performRandomLayoutOp(chip);
+			op_success = this->performRandomLayoutOp(corb);
 
 			if (op_success) {
 
 				prev_cost = cur_cost;
 
 				// generate layout
-				chip.generateLayout();
+				corb.generateLayout();
 
 				// evaluate layout, new cost
 				cost = this->determCost(layout_fit_ratio, phase_two);
@@ -205,7 +205,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 						accept = false;
 
 						// revert last op
-						this->performRandomLayoutOp(chip, true);
+						this->performRandomLayoutOp(corb, true);
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
 					}
@@ -254,7 +254,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 							}
 
 							best_cost = fitting_cost;
-							chip.storeBestCBLs();
+							corb.storeBestCBLs();
 							valid_layout_found = true;
 						}
 					}
@@ -322,7 +322,7 @@ bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 	return valid_layout_found;
 }
 
-void CorblivarFP::finalize(const CorblivarLayoutRep& chip) {
+void FloorPlanner::finalize(const CorblivarCore& corb) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -331,9 +331,9 @@ void CorblivarFP::finalize(const CorblivarLayoutRep& chip) {
 	CostInterconn interconn;
 
 	// apply best solution, if available, as final solution
-	valid_solution = chip.applyBestCBLs(this->logMin());
+	valid_solution = corb.applyBestCBLs(this->logMin());
 	// generate final layout
-	chip.generateLayout();
+	corb.generateLayout();
 
 	// determine cost for valid solutions
 	if (valid_solution) {
@@ -373,7 +373,7 @@ void CorblivarFP::finalize(const CorblivarLayoutRep& chip) {
 
 	// generate Corblivar date if solution file is used as output
 	if (this->solution_out.is_open()) {
-		this->solution_out << chip.CBLsString() << endl;
+		this->solution_out << corb.CBLsString() << endl;
 		this->solution_out.close();
 	}
 
@@ -399,7 +399,7 @@ void CorblivarFP::finalize(const CorblivarLayoutRep& chip) {
 	exit(0);
 }
 
-bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bool& revertLastOp) {
+bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 
@@ -409,7 +409,7 @@ bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bo
 	}
 	// perform new, random op
 	else {
-		// see OP_ constants (encoding ``op-codes'') in class CorblivarLayoutRep
+		// see OP_ constants (encoding ``op-codes'') in class CorblivarCore
 		// to set op-code ranges
 		// recall that randI(x,y) is [x,y)
 		this->last_op = op = Math::randI(0, 6);
@@ -417,105 +417,105 @@ bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bo
 
 	// specific op handler
 	switch (op) {
-		case CorblivarLayoutRep::OP_SWAP_BLOCKS_WI_DIE:
+		case CorblivarCore::OP_SWAP_BLOCKS_WI_DIE:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for dies w/ one or zero tuples
-				if (chip.dies[die1]->CBL.size() <= 1) {
+				if (corb.dies[die1]->CBL.size() <= 1) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, corb.dies[die1]->CBL.size());
 				// ensure that tuples are different
 				while (tuple1 == tuple2) {
-					tuple2 = Math::randI(0, chip.dies[die1]->CBL.size());
+					tuple2 = Math::randI(0, corb.dies[die1]->CBL.size());
 				}
 
-				chip.switchBlocksWithinDie(die1, tuple1, tuple2);
+				corb.switchBlocksWithinDie(die1, tuple1, tuple2);
 			}
 			else {
-				chip.switchBlocksWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				corb.switchBlocksWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWAP_BLOCKS_ACROSS_DIE:
+		case CorblivarCore::OP_SWAP_BLOCKS_ACROSS_DIE:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
-				die2 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
+				die2 = Math::randI(0, corb.dies.size());
 				// ensure that dies are different
 				while (die1 == die2) {
-					die2 = Math::randI(0, chip.dies.size());
+					die2 = Math::randI(0, corb.dies.size());
 				}
 				// sanity check for empty dies
-				if (chip.dies[die1]->CBL.empty() || chip.dies[die2]->CBL.empty()) {
+				if (corb.dies[die1]->CBL.empty() || corb.dies[die2]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = Math::randI(0, chip.dies[die2]->CBL.size());
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, corb.dies[die2]->CBL.size());
 
-				chip.switchBlocksAcrossDies(die1, die2, tuple1, tuple2);
+				corb.switchBlocksAcrossDies(die1, die2, tuple1, tuple2);
 			}
 			else {
-				chip.switchBlocksAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				corb.switchBlocksAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_MOVE_TUPLE:
+		case CorblivarCore::OP_MOVE_TUPLE:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
-				die2 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
+				die2 = Math::randI(0, corb.dies.size());
 				// ensure that dies are different
 				while (die1 == die2) {
-					die2 = Math::randI(0, chip.dies.size());
+					die2 = Math::randI(0, corb.dies.size());
 				}
 				// sanity check for empty (origin) die
-				if (chip.dies[die1]->CBL.empty()) {
+				if (corb.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
-				tuple2 = Math::randI(0, chip.dies[die2]->CBL.size());
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
+				tuple2 = Math::randI(0, corb.dies[die2]->CBL.size());
 
-				chip.moveTupleAcrossDies(die1, die2, tuple1, tuple2);
+				corb.moveTupleAcrossDies(die1, die2, tuple1, tuple2);
 			}
 			else {
-				chip.moveTupleAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				corb.moveTupleAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWITCH_TUPLE_DIR:
+		case CorblivarCore::OP_SWITCH_TUPLE_DIR:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
-				if (chip.dies[die1]->CBL.empty()) {
+				if (corb.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
 
-				chip.switchTupleDirection(die1, tuple1);
+				corb.switchTupleDirection(die1, tuple1);
 			}
 			else {
-				chip.switchTupleDirection(this->last_op_die1, this->last_op_tuple1);
+				corb.switchTupleDirection(this->last_op_die1, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWITCH_TUPLE_JUNCTS:
+		case CorblivarCore::OP_SWITCH_TUPLE_JUNCTS:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
-				if (chip.dies[die1]->CBL.empty()) {
+				if (corb.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
-				t = chip.dies[die1]->CBL.T[tuple1];
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
+				t = corb.dies[die1]->CBL.T[tuple1];
 
 				this->last_op_juncts = t;
 
@@ -531,28 +531,28 @@ bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bo
 					}
 				}
 
-				chip.switchTupleJunctions(die1, tuple1, t);
+				corb.switchTupleJunctions(die1, tuple1, t);
 			}
 			else {
-				chip.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
+				corb.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
 			}
 
 			break;
 
-		case CorblivarLayoutRep::OP_SWITCH_BLOCK_ORIENT:
+		case CorblivarCore::OP_SWITCH_BLOCK_ORIENT:
 			if (!revertLastOp) {
-				die1 = Math::randI(0, chip.dies.size());
+				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
-				if (chip.dies[die1]->CBL.empty()) {
+				if (corb.dies[die1]->CBL.empty()) {
 					return false;
 				}
 
-				tuple1 = Math::randI(0, chip.dies[die1]->CBL.size());
+				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
 
-				chip.switchBlockOrientation(die1, tuple1);
+				corb.switchBlockOrientation(die1, tuple1);
 			}
 			else {
-				chip.switchBlockOrientation(this->last_op_die1, this->last_op_tuple1);
+				corb.switchBlockOrientation(this->last_op_die1, this->last_op_tuple1);
 			}
 
 			break;
@@ -571,7 +571,7 @@ bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bo
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-CorblivarFP::Cost CorblivarFP::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) {
 	double cost_total, cost_temp, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
@@ -620,7 +620,7 @@ CorblivarFP::Cost CorblivarFP::determCost(const double& ratio_feasible_solutions
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_
 // depending on ratio of feasible solutions (solutions fitting into outline)
-CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) {
+FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -695,7 +695,7 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 }
 
 // TODO recode; currently hotspot
-CorblivarFP::CostInterconn CorblivarFP::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
+FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
 	int i, ii;
 	vector<Rect> blocks_to_consider;
 	Rect bb;

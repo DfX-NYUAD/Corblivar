@@ -40,8 +40,8 @@ using namespace std;
 enum Direction {DIRECTION_VERT, DIRECTION_HOR};
 
 /* forward declarations */
-class CorblivarFP;
-class CorblivarLayoutRep;
+class FloorPlanner;
+class CorblivarCore;
 class CorblivarDie;
 class CorblivarAlignmentReq;
 class CornerBlockList;
@@ -56,13 +56,13 @@ class Math;
 /* classes */
 class IO {
 	public:
-		static void parseParameterConfig(CorblivarFP& corb, const int& argc, char** argv);
-		static void parseBlocks(CorblivarFP& corb);
-		static void parseNets(CorblivarFP& corb);
-		static void parseCorblivarFile(CorblivarFP& corb, CorblivarLayoutRep& chip);
-		static void writeFloorplanGP(const CorblivarFP& corb, const string& file_suffix = "");
-		static void writeHotSpotFiles(const CorblivarFP& corb);
-		static void writePowerThermalMaps(const CorblivarFP& corb);
+		static void parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv);
+		static void parseBlocks(FloorPlanner& fp);
+		static void parseNets(FloorPlanner& fp);
+		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
+		static void writeFloorplanGP(const FloorPlanner& fp, const string& file_suffix = "");
+		static void writeHotSpotFiles(const FloorPlanner& fp);
+		static void writePowerThermalMaps(const FloorPlanner& fp);
 };
 
 class ThermalAnalyzer {
@@ -90,17 +90,17 @@ class ThermalAnalyzer {
 		vector<vector<double>> thermal_map;
 
 		// thermal modeling: handlers
-		void generatePowerMaps(const CorblivarFP& corb, const int& maps_dim);
+		void generatePowerMaps(const FloorPlanner& fp, const int& maps_dim);
 
 	public:
 		friend class IO;
 
 		// thermal modeling: handlers
-		void initThermalMasks(const CorblivarFP& corb);
+		void initThermalMasks(const FloorPlanner& fp);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
-		double performPowerBlurring(const CorblivarFP& corb, const bool& set_max_cost = false, const bool& normalize = true);
+		double performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost = false, const bool& normalize = true);
 };
 
 class Math {
@@ -313,7 +313,7 @@ class Net {
 		double determHPWL();
 };
 
-class CorblivarFP {
+class FloorPlanner {
 	private:
 		// PODs for cost functions
 		struct Cost {
@@ -348,7 +348,7 @@ class CorblivarFP {
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(const CorblivarLayoutRep& chip, const bool& revertLastOp = false);
+		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false);
 
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false);
@@ -395,8 +395,8 @@ class CorblivarFP {
 		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: floorplanning handler
-		bool performSA(const CorblivarLayoutRep& chip);
-		void finalize(const CorblivarLayoutRep& chip);
+		bool performSA(const CorblivarCore& corb);
+		void finalize(const CorblivarCore& corb);
 };
 
 class CornerBlockList {
@@ -546,7 +546,7 @@ class CorblivarDie {
 		};
 };
 
-class CorblivarLayoutRep {
+class CorblivarCore {
 	private:
 		// die pointer
 		mutable CorblivarDie* p;
@@ -557,7 +557,7 @@ class CorblivarLayoutRep {
 		vector<CorblivarDie*> dies;
 
 		// general operations
-		void initCorblivarRandomly(const CorblivarFP& corb);
+		void initCorblivarRandomly(const FloorPlanner& fp);
 		void generateLayout(const bool& dbgStack = false) const;
 		//CorblivarDie* findDie(Block* Si);
 

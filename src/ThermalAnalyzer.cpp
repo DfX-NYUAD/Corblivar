@@ -37,7 +37,7 @@ const double ThermalAnalyzer::THICKNESS_BOND = 0.00002;
 // thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps
 // returns max value of convoluted 2D matrix
-double ThermalAnalyzer::performPowerBlurring(const CorblivarFP& corb, const bool& set_max_cost, const bool& normalize) {
+double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) {
 	unsigned i;
 	int n;
 	int maps_dim;
@@ -53,7 +53,7 @@ double ThermalAnalyzer::performPowerBlurring(const CorblivarFP& corb, const bool
 	maps_dim = 64;
 
 	// generate power maps for current layout
-	this->generatePowerMaps(corb, maps_dim);
+	this->generatePowerMaps(fp, maps_dim);
 
 	// init grid of thermal map
 	this->thermal_map.clear();
@@ -110,18 +110,18 @@ double ThermalAnalyzer::performPowerBlurring(const CorblivarFP& corb, const bool
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		corb.max_cost_temp = max_temp;
+		fp.max_cost_temp = max_temp;
 	}
 
 	// normalize to max value from initial sampling
 	if (normalize) {
-		max_temp /= corb.max_cost_temp;
+		max_temp /= fp.max_cost_temp;
 	}
 
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps_dim) {
+void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) {
 	int i, n;
 	int x, y;
 	Block *block;
@@ -132,14 +132,14 @@ void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps
 
 	// clear maps
 	this->power_maps.clear();
-	this->power_maps.reserve(corb.conf_layer);
+	this->power_maps.reserve(fp.conf_layer);
 
 	// scale map dimensions to outline
-	maps_dim_x = corb.conf_outline_x / maps_dim;
-	maps_dim_y = corb.conf_outline_y / maps_dim;
+	maps_dim_x = fp.conf_outline_x / maps_dim;
+	maps_dim_y = fp.conf_outline_y / maps_dim;
 
 	// determine maps for each layer
-	for (i = 0; i < corb.conf_layer; i++) {
+	for (i = 0; i < fp.conf_layer; i++) {
 
 		// init grid of map
 		map.clear();
@@ -149,7 +149,7 @@ void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps
 		}
 
 		// consider each block on the related layer
-		for (auto& b : corb.blocks) {
+		for (auto& b : fp.blocks) {
 			block = b.second;
 
 			if (block->layer != i) {
@@ -159,7 +159,7 @@ void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps
 			// required to not guide search towards violating outline by
 			// moving blocks outside in order to reduce temperature
 			// sanity check; ignore blocks outside outline
-			if (block->bb.ur.x > corb.conf_outline_x || block->bb.ur.y > corb.conf_outline_y) {
+			if (block->bb.ur.x > fp.conf_outline_x || block->bb.ur.y > fp.conf_outline_y) {
 				continue;
 			}
 
@@ -200,7 +200,7 @@ void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps
 
 // determine masks for lowest layer, i.e., hottest layer
 // based on a gaussian-like thermal impulse response fuction
-void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
+void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	int i;
 	int masks_dim;
 	double range_scale;
@@ -211,14 +211,14 @@ void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	vector<double> mask_col;
 	int x, y;
 
-	if (corb.logMed()) {
+	if (fp.logMed()) {
 		cout << "Layout> ";
 		cout << "Initializing thermals masks for power blurring ..." << endl;
 	}
 
 	// clear masks
 	this->thermal_masks.clear();
-	this->thermal_masks.reserve(corb.conf_layer);
+	this->thermal_masks.reserve(fp.conf_layer);
 
 	// TODO vary this parameter; should be uneven
 	// TODO realize as config parameter
@@ -230,7 +230,7 @@ void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away
 	// TODO vary this parameter
-	max_spread = corb.conf_layer;
+	max_spread = fp.conf_layer;
 
 	// determine range scale factor, i.e. determine spread such that g = 0.01 at
 	// boundary corners of kernel
@@ -241,7 +241,7 @@ void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	range_scale /=  (masks_dim - 1) / 2;
 
 	// determine masks for lowest layer, i.e., hottest layer
-	for (i = 1; i <= corb.conf_layer; i++) {
+	for (i = 1; i <= fp.conf_layer; i++) {
 		// TODO vary these calculations
 		spread = 1.0 / i;
 		impulse_factor = 1.0 / i;
@@ -265,7 +265,7 @@ void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	// enforce fixed digit count for printing mask
 	cout << fixed;
 	// dump mask
-	for (i = 0; i < corb.conf_layer; i++) {
+	for (i = 0; i < fp.conf_layer; i++) {
 		cout << "DBG_LAYOUT> Thermal mask for layer " << i << ":" << endl;
 		for (y = masks_dim - 1; y >= 0; y--) {
 			for (x = 0; x < masks_dim; x++) {
@@ -278,7 +278,7 @@ void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	cout.unsetf(ios_base::floatfield);
 #endif
 
-	if (corb.logMed()) {
+	if (fp.logMed()) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
