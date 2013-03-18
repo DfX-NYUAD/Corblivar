@@ -140,11 +140,11 @@ class Math {
 			// determine sum of squared diffs for std dev
 			sq_diffs = 0.0;
 			for (const double& s : samples) {
-				sq_diffs += pow(s - avg, 2);
+				sq_diffs += pow(s - avg, 2.0);
 			}
 
 			// determine std dev
-			return sqrt(1.0 / (double) samples.size() * sq_diffs);
+			return sqrt(sq_diffs / ((double) samples.size()));
 		}
 
 		// 2D gauss function; used for power blurring as impulse response fuction
