@@ -615,7 +615,12 @@ void IO::writePowerThermalMaps(CorblivarFP& corb) {
 			gp_out.close();
 
 			// file header for data file
-			data_out << "# X Y Power" << endl;
+			if (flag == 0) {
+				data_out << "# X Y power" << endl;
+			}
+			else {
+				data_out << "# X Y thermal" << endl;
+			}
 
 			// determine grid boundaries
 			if (flag == 0) {
