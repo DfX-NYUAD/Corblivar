@@ -11,7 +11,7 @@
 #include "Corblivar.hpp"
 
 // main handler
-bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
+bool CorblivarFP::performSA(const CorblivarLayoutRep& chip) {
 	int i, ii;
 	int innerLoopMax;
 	double accepted_ops_ratio;
@@ -322,7 +322,7 @@ bool CorblivarFP::performSA(CorblivarLayoutRep& chip) {
 	return valid_layout_found;
 }
 
-void CorblivarFP::finalize(CorblivarLayoutRep& chip) {
+void CorblivarFP::finalize(const CorblivarLayoutRep& chip) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -331,7 +331,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep& chip) {
 	CostInterconn interconn;
 
 	// apply best solution, if available, as final solution
-	valid_solution = chip.applyBestCBLs(this->conf_log);
+	valid_solution = chip.applyBestCBLs(this->logMin());
 	// generate final layout
 	chip.generateLayout();
 
@@ -399,7 +399,7 @@ void CorblivarFP::finalize(CorblivarLayoutRep& chip) {
 	exit(0);
 }
 
-bool CorblivarFP::performRandomLayoutOp(CorblivarLayoutRep& chip, const bool& revertLastOp) {
+bool CorblivarFP::performRandomLayoutOp(const CorblivarLayoutRep& chip, const bool& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 
@@ -630,6 +630,7 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 	vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
 	Cost ret;
+	Block *block;
 
 	dies_AR.reserve(this->conf_layer);
 	dies_area.reserve(this->conf_layer);
@@ -640,12 +641,13 @@ CorblivarFP::Cost CorblivarFP::determCostAreaOutline(const double& ratio_feasibl
 
 		// determine outline and area for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		for (pair<const int, Block*> &b : this->blocks) {
+		for (auto& b : this->blocks) {
+			block = b.second;
 
-			if (b.second->layer == i) {
+			if (block->layer == i) {
 				// update max outline coords
-				max_outline_x = max(max_outline_x, b.second->bb.ur.x);
-				max_outline_y = max(max_outline_y, b.second->bb.ur.y);
+				max_outline_x = max(max_outline_x, block->bb.ur.x);
+				max_outline_y = max(max_outline_y, block->bb.ur.y);
 			}
 		}
 

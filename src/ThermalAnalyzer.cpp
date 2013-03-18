@@ -37,7 +37,7 @@ const double ThermalAnalyzer::THICKNESS_BOND = 0.00002;
 // thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps
 // returns max value of convoluted 2D matrix
-double ThermalAnalyzer::performPowerBlurring(CorblivarFP& corb, const bool& set_max_cost, const bool& normalize) {
+double ThermalAnalyzer::performPowerBlurring(const CorblivarFP& corb, const bool& set_max_cost, const bool& normalize) {
 	unsigned i;
 	int n;
 	int maps_dim;
@@ -121,7 +121,7 @@ double ThermalAnalyzer::performPowerBlurring(CorblivarFP& corb, const bool& set_
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) {
+void ThermalAnalyzer::generatePowerMaps(const CorblivarFP& corb, const int& maps_dim) {
 	int i, n;
 	int x, y;
 	Block *block;
@@ -149,7 +149,7 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 		}
 
 		// consider each block on the related layer
-		for (pair<const int, Block*> &b : corb.blocks) {
+		for (auto& b : corb.blocks) {
 			block = b.second;
 
 			if (block->layer != i) {
@@ -200,7 +200,7 @@ void ThermalAnalyzer::generatePowerMaps(CorblivarFP& corb, const int& maps_dim) 
 
 // determine masks for lowest layer, i.e., hottest layer
 // based on a gaussian-like thermal impulse response fuction
-void ThermalAnalyzer::initThermalMasks(CorblivarFP& corb) {
+void ThermalAnalyzer::initThermalMasks(const CorblivarFP& corb) {
 	int i;
 	int masks_dim;
 	double range_scale;

@@ -10,9 +10,10 @@
  */
 #include "Corblivar.hpp"
 
-void CorblivarLayoutRep::initCorblivarRandomly(CorblivarFP& corb) {
+void CorblivarLayoutRep::initCorblivarRandomly(const CorblivarFP& corb) {
 	Direction cur_dir;
 	int rand, cur_t;
+	Block *cur_block;
 
 	if (corb.logMed()) {
 		cout << "Layout> ";
@@ -23,7 +24,8 @@ void CorblivarLayoutRep::initCorblivarRandomly(CorblivarFP& corb) {
 	this->initCorblivarDies(corb.conf_layer, corb.blocks.size());
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (pair<const int, Block*> &b : corb.blocks) {
+	for (auto& b : corb.blocks) {
+		cur_block = b.second;
 
 		// consider random die
 		rand = Math::randI(0, corb.conf_layer);
@@ -40,7 +42,7 @@ void CorblivarLayoutRep::initCorblivarRandomly(CorblivarFP& corb) {
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand]->CBL.S.push_back(b.second);
+		this->dies[rand]->CBL.S.push_back(cur_block);
 		this->dies[rand]->CBL.L.push_back(cur_dir);
 		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
@@ -62,7 +64,7 @@ void CorblivarLayoutRep::initCorblivarRandomly(CorblivarFP& corb) {
 	}
 }
 
-void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
+void CorblivarLayoutRep::generateLayout(const bool& dbgStack) const {
 	Block *cur_block;
 	bool loop;
 
@@ -71,11 +73,11 @@ void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 	cout << "Performing layout generation..." << endl;
 #endif
 
-	// init die pointer
+	// init (mutable) die pointer
 	this->p = this->dies[0];
 
 	// reset die data, i.e., layout generation handler data
-	for (CorblivarDie* &die : this->dies) {
+	for (CorblivarDie* const& die : this->dies) {
 		die->reset();
 	}
 
@@ -107,7 +109,7 @@ void CorblivarLayoutRep::generateLayout(const bool& dbgStack) {
 		// die done
 		if (this->p->done) {
 			// continue loop on yet unfinished die
-			for (CorblivarDie* &die :  this->dies) {
+			for (CorblivarDie* const& die :  this->dies) {
 				if (!die->done) {
 					this->p = die;
 					break;

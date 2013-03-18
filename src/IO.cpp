@@ -12,7 +12,7 @@
 #include "Corblivar.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(CorblivarFP& corb, int argc, char** argv) {
+void IO::parseParameterConfig(CorblivarFP& corb, const int& argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -332,7 +332,7 @@ void IO::parseBlocks(CorblivarFP& corb) {
 		blocks_in >> tmpstr;
 
 	// parse blocks
-	id = 0;
+	id = -1;
 	while (!blocks_in.eof()) {
 
 		// find line containing block
@@ -344,7 +344,9 @@ void IO::parseBlocks(CorblivarFP& corb) {
 		}
 
 		// init block
+		id++;
 		cur_block = new Block(id);
+
 		// assign power value
 		if (!power_in.eof()) {
 			power_in >> cur_block->power;
@@ -402,10 +404,7 @@ void IO::parseBlocks(CorblivarFP& corb) {
 		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
 		area += cur_block->bb.area;
 		// store block
-		corb.blocks.insert( pair<int, Block*>(id, cur_block) );
-
-		id++;
-
+		corb.blocks.insert( pair<int, Block*>(cur_block->id, cur_block) );
 	}
 
 	// close files
@@ -536,7 +535,7 @@ void IO::parseNets(CorblivarFP& corb) {
 
 }
 
-void IO::writePowerThermalMaps(CorblivarFP& corb) {
+void IO::writePowerThermalMaps(const CorblivarFP& corb) {
 	ofstream gp_out;
 	ofstream data_out;
 	int cur_layer;
@@ -658,7 +657,7 @@ void IO::writePowerThermalMaps(CorblivarFP& corb) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
+void IO::writeFloorplanGP(const CorblivarFP& corb, const string& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int object_counter;
@@ -707,7 +706,7 @@ void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
 		object_counter = 1;
 
 		// output blocks
-		for (pair<const int, Block*> &b : corb.blocks) {
+		for (auto& b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -745,7 +744,7 @@ void IO::writeFloorplanGP(CorblivarFP& corb, const string& file_suffix) {
 }
 
 // generate files for HotSpot steady-state thermal simulation
-void IO::writeHotSpotFiles(CorblivarFP& corb) {
+void IO::writeHotSpotFiles(const CorblivarFP& corb) {
 	ofstream file;
 	map<int, Block*>::iterator b;
 	Block *cur_block;
@@ -774,7 +773,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 		file << endl;
 
 		// output blocks
-		for (pair<const int, Block*> &b : corb.blocks) {
+		for (auto& b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -904,7 +903,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (pair<const int, Block*> &b : corb.blocks) {
+		for (auto& b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {
@@ -922,7 +921,7 @@ void IO::writeHotSpotFiles(CorblivarFP& corb) {
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < corb.conf_layer; cur_layer++) {
 
-		for (pair<const int, Block*> &b : corb.blocks) {
+		for (auto& b : corb.blocks) {
 			cur_block = b.second;
 
 			if (cur_block->layer != cur_layer) {

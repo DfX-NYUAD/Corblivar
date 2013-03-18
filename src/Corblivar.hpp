@@ -56,13 +56,13 @@ class Math;
 /* classes */
 class IO {
 	public:
-		static void parseParameterConfig(CorblivarFP& corb, int argc, char** argv);
+		static void parseParameterConfig(CorblivarFP& corb, const int& argc, char** argv);
 		static void parseBlocks(CorblivarFP& corb);
 		static void parseNets(CorblivarFP& corb);
 		static void parseCorblivarFile(CorblivarFP& corb, CorblivarLayoutRep& chip);
-		static void writeFloorplanGP(CorblivarFP& corb, const string& file_suffix = "");
-		static void writeHotSpotFiles(CorblivarFP& corb);
-		static void writePowerThermalMaps(CorblivarFP& corb);
+		static void writeFloorplanGP(const CorblivarFP& corb, const string& file_suffix = "");
+		static void writeHotSpotFiles(const CorblivarFP& corb);
+		static void writePowerThermalMaps(const CorblivarFP& corb);
 };
 
 class ThermalAnalyzer {
@@ -90,17 +90,17 @@ class ThermalAnalyzer {
 		vector<vector<double>> thermal_map;
 
 		// thermal modeling: handlers
-		void generatePowerMaps(CorblivarFP& corb, const int& maps_dim);
+		void generatePowerMaps(const CorblivarFP& corb, const int& maps_dim);
 
 	public:
 		friend class IO;
 
 		// thermal modeling: handlers
-		void initThermalMasks(CorblivarFP& corb);
+		void initThermalMasks(const CorblivarFP& corb);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
-		double performPowerBlurring(CorblivarFP& corb, const bool& set_max_cost = false, const bool& normalize = true);
+		double performPowerBlurring(const CorblivarFP& corb, const bool& set_max_cost = false, const bool& normalize = true);
 };
 
 class Math {
@@ -289,7 +289,7 @@ class Block {
 		//double x_slack_forward, y_slack_forward;
 		Rect bb, bb_backup, bb_best;
 
-		Block(int id_i) {
+		Block(const int& id_i) {
 			id = id_i;
 			layer = -1;
 			power = 0.0;
@@ -305,7 +305,7 @@ class Net {
 		bool hasExternalPin;
 		vector<Block*> blocks;
 
-		Net(int id_i) {
+		Net(const int& id_i) {
 			id = id_i;
 			hasExternalPin = false;
 		};
@@ -348,7 +348,7 @@ class CorblivarFP {
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(CorblivarLayoutRep& chip, const bool& revertLastOp = false);
+		bool performRandomLayoutOp(const CorblivarLayoutRep& chip, const bool& revertLastOp = false);
 
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false);
@@ -381,31 +381,22 @@ class CorblivarFP {
 		static const int LOG_MINIMAL = 1;
 		static const int LOG_MEDIUM = 2;
 		static const int LOG_MAXIMUM = 3;
-		inline bool logMin() {
-			return logMin(this->conf_log);
+		inline bool logMin() const {
+			return (this->conf_log >= LOG_MINIMAL);
 		};
-		inline bool logMed() {
-			return logMed(this->conf_log);
+		inline bool logMed() const {
+			return (this->conf_log >= LOG_MEDIUM);
 		};
-		inline bool logMax() {
-			return logMax(this->conf_log);
-		};
-		inline static bool logMin(const int& log) {
-			return (log >= LOG_MINIMAL);
-		};
-		inline static bool logMed(const int& log) {
-			return (log >= LOG_MEDIUM);
-		};
-		inline static bool logMax(const int& log) {
-			return (log >= LOG_MAXIMUM);
+		inline bool logMax() const {
+			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
 		// SA parameters: max cost values
-		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: floorplanning handler
-		bool performSA(CorblivarLayoutRep& chip);
-		void finalize(CorblivarLayoutRep& chip);
+		bool performSA(const CorblivarLayoutRep& chip);
+		void finalize(const CorblivarLayoutRep& chip);
 };
 
 class CornerBlockList {
@@ -416,7 +407,7 @@ class CornerBlockList {
 		vector<Direction> L;
 		vector<unsigned> T;
 
-		inline unsigned size() {
+		inline unsigned size() const {
 			unsigned ret;
 
 			ret = this->S.size();
@@ -441,11 +432,11 @@ class CornerBlockList {
 			return ret;
 		};
 
-		inline unsigned capacity() {
+		inline unsigned capacity() const {
 			return this->S.capacity();
 		};
 
-		inline bool empty() {
+		inline bool empty() const {
 			return (this->size() == 0);
 		};
 
@@ -461,7 +452,7 @@ class CornerBlockList {
 			this->T.reserve(elements);
 		};
 
-		inline string itemString(const unsigned& i) {
+		inline string itemString(const unsigned& i) const {
 			stringstream ret;
 
 			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
@@ -469,7 +460,7 @@ class CornerBlockList {
 			return ret.str();
 		};
 
-		inline string itemString() {
+		inline string itemString() const {
 			unsigned i;
 			stringstream ret;
 
@@ -516,7 +507,7 @@ class CorblivarDie {
 		// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
 
-		CorblivarDie(int i) {
+		CorblivarDie(const int& i) {
 			stalled = done = false;
 			id = i;
 		}
@@ -524,19 +515,19 @@ class CorblivarDie {
 		// layout generation functions
 		Block* placeCurrentBlock(const bool& dbgStack = false);
 
-		inline Block* currentBlock() {
+		inline Block* currentBlock() const {
 			return this->CBL.S[this->pi];
 		};
 
-		inline Direction currentTupleDirection() {
+		inline Direction currentTupleDirection() const {
 			return this->CBL.L[this->pi];
 		};
 
-		inline unsigned currentTupleJuncts() {
+		inline unsigned currentTupleJuncts() const {
 			return this->CBL.T[this->pi];
 		};
 
-		inline string currentTupleString() {
+		inline string currentTupleString() const {
 			return this->CBL.itemString(this->pi);
 		};
 
@@ -558,7 +549,7 @@ class CorblivarDie {
 class CorblivarLayoutRep {
 	private:
 		// die pointer
-		CorblivarDie* p;
+		mutable CorblivarDie* p;
 		// sequence A; alignment requirements
 		vector<CorblivarAlignmentReq*> A;
 
@@ -566,8 +557,8 @@ class CorblivarLayoutRep {
 		vector<CorblivarDie*> dies;
 
 		// general operations
-		void initCorblivarRandomly(CorblivarFP& corb);
-		void generateLayout(const bool& dbgStack = false);
+		void initCorblivarRandomly(const CorblivarFP& corb);
+		void generateLayout(const bool& dbgStack = false) const;
 		//CorblivarDie* findDie(Block* Si);
 
 		// init handler
@@ -597,7 +588,7 @@ class CorblivarLayoutRep {
 		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static const int OP_SWITCH_BLOCK_ORIENT = 5;
 
-		inline void switchBlocksWithinDie(const int& die, const int& tuple1, const int& tuple2) {
+		inline void switchBlocksWithinDie(const int& die, const int& tuple1, const int& tuple2) const {
 			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
@@ -605,7 +596,7 @@ class CorblivarLayoutRep {
 			cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
 #endif
 		};
-		inline void switchBlocksAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) {
+		inline void switchBlocksAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
@@ -613,7 +604,7 @@ class CorblivarLayoutRep {
 			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
 #endif
 		};
-		inline void moveTupleAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) {
+		inline void moveTupleAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
 
 			// insert tuple1 from die1 into die2 w/ offset tuple2
 			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
@@ -628,7 +619,7 @@ class CorblivarLayoutRep {
 			cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 #endif
 		};
-		inline void switchTupleDirection(const int& die, const int& tuple) {
+		inline void switchTupleDirection(const int& die, const int& tuple) const {
 			if (this->dies[die]->CBL.L[tuple] == DIRECTION_VERT) {
 				this->dies[die]->CBL.L[tuple] = DIRECTION_HOR;
 			}
@@ -639,13 +630,13 @@ class CorblivarLayoutRep {
 			cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
 #endif
 		};
-		inline void switchTupleJunctions(const int& die, const int& tuple, const int& juncts) {
+		inline void switchTupleJunctions(const int& die, const int& tuple, const int& juncts) const {
 			this->dies[die]->CBL.T[tuple] = juncts;
 #ifdef DBG_CORB
 			cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 #endif
 		};
-		inline void switchBlockOrientation(const int& die, const int& tuple) {
+		inline void switchBlockOrientation(const int& die, const int& tuple) const {
 			double w_tmp;
 
 			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
@@ -657,13 +648,13 @@ class CorblivarLayoutRep {
 		};
 
 		// CBL logging
-		inline string CBLsString() {
+		inline string CBLsString() const {
 			stringstream ret;
 
 			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << endl;
 			ret << "data_start" << endl;
 
-			for (CorblivarDie* &die : this->dies) {
+			for (CorblivarDie* const& die : this->dies) {
 				ret << "CBL [ " << die->id << " ]" << endl;
 				ret << die->CBL.itemString() << endl;
 			}
@@ -672,9 +663,9 @@ class CorblivarLayoutRep {
 		};
 
 		// CBL backup handler
-		inline void backupCBLs() {
+		inline void backupCBLs() const {
 
-			for (CorblivarDie* &die : this->dies) {
+			for (CorblivarDie* const& die : this->dies) {
 
 				die->CBLbackup.clear();
 				die->CBLbackup.reserve(die->CBL.capacity());
@@ -693,9 +684,9 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-		inline void restoreCBLs() {
+		inline void restoreCBLs() const {
 
-			for (CorblivarDie* &die : this->dies) {
+			for (CorblivarDie* const& die : this->dies) {
 
 				die->CBL.clear();
 				die->CBL.reserve(die->CBLbackup.capacity());
@@ -714,10 +705,11 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-		// CBL best-solution handler
-		inline void storeBestCBLs() {
 
-			for (CorblivarDie* &die : this->dies) {
+		// CBL best-solution handler
+		inline void storeBestCBLs() const {
+
+			for (CorblivarDie* const& die : this->dies) {
 
 				die->CBLbest.clear();
 				die->CBLbest.reserve(die->CBL.capacity());
@@ -736,13 +728,13 @@ class CorblivarLayoutRep {
 				}
 			}
 		};
-		inline bool applyBestCBLs(const int& log) {
+		inline bool applyBestCBLs(const bool& log) const {
 
-			for (CorblivarDie* &die : this->dies) {
+			for (CorblivarDie* const& die : this->dies) {
 
 				// sanity check for existence of best solution
 				if (die->CBLbest.empty()) {
-					if (CorblivarFP::logMin(log)) {
+					if (log) {
 						cout << "Corblivar> No best (fitting) solution available!" << endl;
 					}
 					return false;
@@ -779,19 +771,19 @@ class CorblivarAlignmentReq {
 		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;
 
-		inline bool rangeX() {
-			return (type_x == ALIGNMENT_RANGE);
+		inline bool rangeX() const {
+			return (this->type_x == ALIGNMENT_RANGE);
 		};
-		inline bool rangeY() {
-			return (type_y == ALIGNMENT_RANGE);
+		inline bool rangeY() const {
+			return (this->type_y == ALIGNMENT_RANGE);
 		};
-		inline bool fixedOffsX() {
-			return (type_x == ALIGNMENT_OFFSET);
+		inline bool fixedOffsX() const {
+			return (this->type_x == ALIGNMENT_OFFSET);
 		};
-		inline bool fixedOffsY() {
-			return (type_y == ALIGNMENT_OFFSET);
+		inline bool fixedOffsY() const {
+			return (this->type_y == ALIGNMENT_OFFSET);
 		};
-		inline string tupleString() {
+		inline string tupleString() const {
 			stringstream ret;
 
 			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", ";
