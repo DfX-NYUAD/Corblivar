@@ -474,10 +474,19 @@ class CornerBlockList {
 
 class CorblivarDie {
 	private:
+		int id;
+		// progress flags
+		bool stalled;
+		bool done;
+
 		// progress pointer, CBL vector index
 		unsigned pi;
+
 		// placement stacks
 		stack<Block*> Hi, Vi;
+
+		// backup CBL sequences
+		CornerBlockList CBLbackup, CBLbest;
 
 		// false: last CBL tuple; true: not last tuple
 		inline bool incrementTuplePointer() {
@@ -495,17 +504,11 @@ class CorblivarDie {
 		inline void resetTuplePointer() {
 			this->pi = 0;
 		};
-
 	public:
-		int id;
-		bool stalled;
-		bool done;
+		friend class CorblivarCore;
 
 		// main CBL sequence
 		CornerBlockList CBL;
-
-		// backup CBL sequences
-		CornerBlockList CBLbackup, CBLbest;
 
 		CorblivarDie(const int& i) {
 			stalled = done = false;
