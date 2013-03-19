@@ -88,9 +88,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 			else {
 				// update ops count
 				accepted_ops_ratio++;
-				// store cost
-				cost_hist.push_back(cur_cost);
 			}
+			// store cost
+			cost_hist.push_back(cur_cost);
 
 			// memorize count of solutions fitting into outline
 			if (cost.fits_fixed_outline) {
