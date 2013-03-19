@@ -13,18 +13,14 @@ COMPILER	= clang++
 #=============================================================================#
 # warnings
 OPT := $(OPT) -Wall -Wextra #-Wpointer-arith -Wuninitialized -Winline -Wshadow
-#
 # C++11
 OPT := $(OPT) -std=c++11
 # gprof profiler code
 #OPT := $(OPT) -pg
 # 32bit binary
 #OPT := $(OPT) -m32
-# debug symbols
-#OPT := $(OPT) -g
-# gdb
-#OPT := $(OPT) -ggdb3
-#
+# debug symbols, clang uses only g for source embedding
+OPT := $(OPT) -g
 # Runtime Optimization
 OPT := $(OPT) -O2
 # native tuning, since gcc 4.2
