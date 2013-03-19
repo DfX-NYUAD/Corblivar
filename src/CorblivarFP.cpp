@@ -256,11 +256,6 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 						}
 					}
 				}
-				// not accepted, but would fit into outline
-				else if (cost.fits_fixed_outline) {
-					// update count of solutions fitting into outline
-					layout_fit_counter++;
-				}
 
 				// consider next loop iteration
 				ii++;
@@ -270,7 +265,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		// determine ratio of solutions fitting into outline in prev temp step;
 		// note that during the temp step this ratio is fixed in order to avoid
 		// sudden changes of related cost terms during few iterations
-		layout_fit_ratio = (double) layout_fit_counter / ii;
+		layout_fit_ratio = (double) layout_fit_counter / accepted_ops;
 
 		// determine avg cost for temp step
 		avg_cost /= accepted_ops;
