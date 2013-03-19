@@ -14,6 +14,7 @@
 bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
+	int accepted_ops;
 	double accepted_ops_ratio;
 	double accepted_ops_ratio_offset;
 	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
@@ -58,7 +59,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	// track acceptance ratio and cost (phase one, area and AR mismatch)
 	// also trigger cost function to assume no fitting layouts
 	i = 1;
-	accepted_ops_ratio = 0.0;
+	accepted_ops = 0;
 	cost_hist.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
 
 	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
@@ -88,7 +89,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 			// accept solution w/ improved cost
 			else {
 				// update ops count
-				accepted_ops_ratio++;
+				accepted_ops++;
 			}
 			// store cost
 			cost_hist.push_back(cur_cost);
@@ -105,7 +106,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	}
 
 	// determine ratio of accepted ops
-	accepted_ops_ratio_offset = accepted_ops_ratio / i;
+	accepted_ops_ratio_offset = (double) accepted_ops / i;
 	if (this->logMax()) {
 		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
 	}
@@ -159,7 +160,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		// init loop parameters
 		ii = 1;
 		avg_cost = 0.0;
-		accepted_ops_ratio = 0.0;
+		accepted_ops = 0;
 		layout_fit_counter = 0.0;
 		phase_two_transit = false;
 
@@ -210,7 +211,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 				// solution to be accepted, i.e., previously not reverted
 				if (accept) {
 					// update ops count
-					accepted_ops_ratio++;
+					accepted_ops++;
 					// sum up cost for subsequent avg determination
 					avg_cost += cur_cost;
 
@@ -272,9 +273,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		layout_fit_ratio = (double) layout_fit_counter / ii;
 
 		// determine avg cost for temp step
-		avg_cost /= accepted_ops_ratio;
+		avg_cost /= accepted_ops;
 		// determine accepted-ops ratio
-		accepted_ops_ratio /= ii;
+		accepted_ops_ratio = (double) accepted_ops / ii;
 
 		if (this->logMax()) {
 			cout << "SA> Step done:" << endl;
