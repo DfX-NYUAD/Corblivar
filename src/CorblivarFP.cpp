@@ -29,6 +29,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	bool valid_layout_found;
 	bool accept;
 	bool phase_two, phase_two_transit;
+	double loop_factor, reheat_factor;
 
 	// reset max cost
 	this->max_cost_WL = 0.0;
@@ -284,29 +285,47 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 			cout << "SA> Step done:" << endl;
 			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
 			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
-			cout << "SA>  temp: " << cur_temp << endl;
 			cout << "SA>  avg cost: " << avg_cost << endl;
+			cout << "SA>  temp: " << cur_temp << endl;
 		}
 
 		/// reduce temp
 		// phase 1; fast cooling
 		if (accepted_ops_ratio > accepted_ops_ratio_boundary_1) {
 			cur_temp *= this->conf_SA_temp_factor_phase1;
+
+			if (this->logMax()) {
+				cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase1 << " (phase 1)" << endl;
+			}
 		}
 		// phase 2; slow cooling
 		else if (accepted_ops_ratio_boundary_2 < accepted_ops_ratio && accepted_ops_ratio <= accepted_ops_ratio_boundary_1) {
 			cur_temp *= this->conf_SA_temp_factor_phase2;
+
+			if (this->logMax()) {
+				cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase2 << " (phase 2)" << endl;
+			}
 		}
 		// phase 3; reheating; accepted_ops_ratio <= accepted_ops_ratio_boundary_2
 		// heating-up factor is steadily decreased w/ increasing step count to
 		// enable convergence
 		else {
+			loop_factor = 1.0 - (double) i / this->conf_SA_loopLimit;
+
 			if (valid_layout_found) {
-				cur_temp *= this->conf_SA_temp_factor_phase3 * (1.0 - (double) i / this->conf_SA_loopLimit);
+				reheat_factor = this->conf_SA_temp_factor_phase3;
+
+				cur_temp *= loop_factor * reheat_factor;
 			}
 			// if no layout was found; heating up is increased exponentially
 			else {
-				cur_temp *= pow(this->conf_SA_temp_factor_phase3, 2.0) * (1.0 - (double) i / this->conf_SA_loopLimit);
+				reheat_factor = pow(this->conf_SA_temp_factor_phase3, 2.0);
+
+				cur_temp *= loop_factor * reheat_factor;
+			}
+
+			if (this->logMax()) {
+				cout << "SA>  temp factor: " << loop_factor * reheat_factor << " (phase 3)" << endl;
 			}
 		}
 
