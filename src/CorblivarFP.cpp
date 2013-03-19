@@ -362,8 +362,6 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 
 		// determine area cost, invert weight
 		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
-		// convert to percent
-		area *= 100.0;
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
@@ -374,7 +372,7 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 		// TODO alignment costs
 		if (this->logMin()) {
 			cout << "SA> Final (adapted) cost: " << cost << endl;
-			cout << "SA>  Max die occupation [\%]: " << area << endl;
+			cout << "SA>  Max blocks-outline / die-outline ratio: " << area << endl;
 			cout << "SA>  HPWL: " << interconn.HPWL << endl;
 			cout << "SA>  TSVs: " << interconn.TSVs << endl;
 			cout << "SA>  Temp cost (no real temp): " << temp << endl;
@@ -658,7 +656,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	// determine outline and area
 	for (i = 0; i < this->conf_layer; i++) {
 
-		// determine outline and area for blocks on all dies separately
+		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
 		for (auto& b : this->blocks) {
 			block = b.second;
@@ -670,10 +668,10 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 			}
 		}
 
-		// store normalized area
+		// area, represented by blocks' outline; normalized to die outline
 		dies_area.push_back((max_outline_x * max_outline_y) / (this->conf_outline_x * this->conf_outline_y));
 
-		// determine aspect ratio; used to guide optimization for fixed outline (Chen 2006)
+		// aspect ratio; used to guide optimization towards fixed outline (Chen 2006)
 		if (max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
 		}
@@ -699,7 +697,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 
 	// cost for area
 	cost_area = 0.0;
-	// determine max value of (blocks area) / (outline area);
+	// determine max value of (blocks-outline area) / (die-outline area);
 	// guides into balanced die occupation and area minimization
 	for (i = 0; i < this->conf_layer; i++) {
 		cost_area = max(cost_area, dies_area[i]);
