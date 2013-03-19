@@ -56,9 +56,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	// perform some random operations, for SA temperature = 0.0
 	// i.e., consider only solutions w/ improved cost
 	// track acceptance ratio and cost (phase one, area and AR mismatch)
+	// also trigger cost function to assume no fitting layouts
 	i = 1;
 	accepted_ops_ratio = 0.0;
-	layout_fit_counter = 0;
 	cost_hist.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
 
 	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
@@ -73,7 +73,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 			corb.generateLayout();
 
 			// evaluate layout, new cost
-			cost = this->determCost((double) layout_fit_counter / (SA_SAMPLING_LOOP_FACTOR * innerLoopMax));
+			cost = this->determCost();
 			cur_cost = cost.cost;
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
@@ -92,11 +92,6 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 			}
 			// store cost
 			cost_hist.push_back(cur_cost);
-
-			// memorize count of solutions fitting into outline
-			if (cost.fits_fixed_outline) {
-				layout_fit_counter++;
-			}
 
 			i++;
 		}
