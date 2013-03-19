@@ -64,17 +64,29 @@ class IO {
 
 class ThermalAnalyzer {
 	private:
-		// material parameters for HotSpot thermal 3D-IC simulation
-		static const double HEAT_CAPACITY_SI;
-		static const double THERMAL_RESISTIVITY_SI;
-		static const double THICKNESS_SI;
-		static const double THICKNESS_SI_ACTIVE;
-		static const double HEAT_CAPACITY_BEOL;
-		static const double THERMAL_RESISTIVITY_BEOL;
-		static const double THICKNESS_BEOL;
-		static const double HEAT_CAPACITY_BOND;
-		static const double THERMAL_RESISTIVITY_BOND;
-		static const double THICKNESS_BOND;
+		/// material parameters for thermal 3D-IC simulation using HotSpot
+		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
+		/// HotSpot configuration values)
+		// [Park09]; derived from 700 J/(kg*K) to J/(m^3*K) considering Si density of 2330 kg/m^3
+		static constexpr double HEAT_CAPACITY_SI = 1631000.0;
+		// [Park09]
+		static constexpr double THERMAL_RESISTIVITY_SI = 0.008510638;
+		// [Sridhar10]; derived considering a factor of appr. 1.35 for Si/BEOL heat capacity
+		static constexpr double HEAT_CAPACITY_BEOL = 1208150.0;
+		// [Sridhar10]
+		static constexpr double THERMAL_RESISTIVITY_BEOL = 0.4444;
+		// [Park09]
+		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
+		// [Park09]
+		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
+		// 100um thick dies; own value
+		static constexpr double THICKNESS_SI = 0.0001;
+		// 2um active Si layer; [Sridhar10]
+		static constexpr double THICKNESS_SI_ACTIVE = 0.000002;
+		// 12um BEOL; [Sridhar10]
+		static constexpr double THICKNESS_BEOL = 0.000012;
+		// 20um BCB bond; [Sridhar10]
+		static constexpr double THICKNESS_BOND = 0.00002;
 
 		// thermal modeling: vector masks and maps
 		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
