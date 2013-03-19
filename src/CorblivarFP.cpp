@@ -101,9 +101,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		}
 	}
 
-	// init SA parameter: start temp, depends on std dev of costs
-	// Huang et al 1986
-	init_temp = cur_temp = Math::stdDev(cost_hist);
+	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
+	// Shahookar91]
+	init_temp = cur_temp = Math::stdDev(cost_hist) * SA_INIT_TEMP_FACTOR;
 	if (this->logMax()) {
 		cout << "SA> Initial temperature: " << init_temp << endl;
 	}
@@ -116,9 +116,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 
 	/// derive related temperature-schedule boundaries
 	// upper boundary; for fast cooling
-	accepted_ops_ratio_boundary_1 = this->conf_SA_temp_phase_trans_12_factor * Math::stdDev(cost_hist) * accepted_ops_ratio_offset;
+	accepted_ops_ratio_boundary_1 = this->conf_SA_temp_phase_trans_12_factor * accepted_ops_ratio_offset;
 	// lower boundary; for slow cooling
-	accepted_ops_ratio_boundary_2 = this->conf_SA_temp_phase_trans_23_factor * Math::stdDev(cost_hist) * accepted_ops_ratio_offset;
+	accepted_ops_ratio_boundary_2 = this->conf_SA_temp_phase_trans_23_factor * accepted_ops_ratio_offset;
 
 	if (this->logMax()) {
 		cout << "SA> Temperature-scaling factors (dependent of acceptance ratio r): " << endl;

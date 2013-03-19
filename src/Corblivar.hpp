@@ -341,6 +341,9 @@ class FloorPlanner {
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static const int SA_SAMPLING_LOOP_FACTOR = 2;
 
+		// SA paramter: scaling factor for initial temp
+		static constexpr double SA_INIT_TEMP_FACTOR = 0.01;
+
 		// SA: layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
