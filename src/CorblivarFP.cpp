@@ -223,16 +223,6 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 						// first fitting solution is found
 						if (!phase_two) {
 							phase_two = phase_two_transit = true;
-
-							if (this->logMax()) {
-								cout << "SA> " << endl;
-							}
-							if (this->logMed()) {
-								cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
-							}
-							if (this->logMax()) {
-								cout << "SA> " << endl;
-							}
 						}
 
 						// in order to compare different fitting
@@ -248,6 +238,18 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 						if (fitting_cost < best_cost) {
 							if (this->logMax()) {
 								cout << "SA> Currently best solution found; (adapted) cost: " << fitting_cost << endl;
+							}
+
+							if (phase_two_transit) {
+								if (this->logMax()) {
+									cout << "SA> " << endl;
+								}
+								if (this->logMed()) {
+									cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
+								}
+								if (this->logMax()) {
+									cout << "SA> " << endl;
+								}
 							}
 
 							best_cost = fitting_cost;
