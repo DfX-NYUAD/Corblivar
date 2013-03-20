@@ -712,8 +712,8 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	vector<Rect*> blocks_to_consider;
 	Rect bb;
 	bool blocks_above_considered;
-
 	CostInterconn ret;
+
 	ret.HPWL = ret.TSVs = 0.0;
 	blocks_to_consider.reserve(this->blocks.size());
 

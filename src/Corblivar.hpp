@@ -308,7 +308,6 @@ class Block {
 };
 
 class Net {
-
 	public:
 
 		int id;
@@ -379,10 +378,14 @@ class FloorPlanner {
 		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false);
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false);
+		Cost determCost(
+				const double& ratio_feasible_solutions_fixed_outline = 0.0,
+				const bool& phase_two = false,
+				const bool& set_max_cost = false
+				);
 		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) {
 			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
-		}
+		};
 		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0);
 		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true);
 
