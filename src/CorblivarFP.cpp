@@ -20,7 +20,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
-	Cost cost;
+	FloorPlanner::Cost cost;
 	vector<double> cost_hist;
 	double cur_temp, init_temp;
 	double r;
@@ -338,7 +338,7 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	bool valid_solution;
 	double cost;
 	double area, temp;
-	CostInterconn interconn;
+	Net::CostInterconn interconn;
 
 	// apply best solution, if available, as final solution
 	valid_solution = corb.applyBestCBLs(this->logMin());
@@ -581,8 +581,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 // second phase considers further factors like WL, thermal distr, etc.
 FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) {
 	double cost_total, cost_temp, cost_alignments;
-	CostInterconn cost_interconnects;
-	Cost cost_area_outline, ret;
+	Net::CostInterconn cost_interconnects;
+	FloorPlanner::Cost cost_area_outline, ret;
 
 	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
 	// also determine whether layout fits into outline
@@ -637,7 +637,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	vector<double> dies_AR;
 	vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
-	Cost ret;
+	FloorPlanner::Cost ret;
 	Block *block;
 
 	dies_AR.reserve(this->conf_layer);
@@ -702,100 +702,16 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	return ret;
 }
 
-// TODO implement other variants to compare w/ other floorplanners; consider static bool
-// in Corblivar.hpp for selecting appropriate version during compile time / config
-// parameter during runtime
-FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
-	int i, ii;
-	vector<Rect*> blocks_to_consider;
-	Rect bb;
-	bool blocks_above_considered;
+Net::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
+	Net::CostInterconn ret, cur_net;
 
-	CostInterconn ret;
 	ret.HPWL = ret.TSVs = 0.0;
-	blocks_to_consider.reserve(this->blocks.size());
 
 	// determine HPWL and TSVs for each net
-	for (Net* &cur_net : this->nets) {
-
-		// set layer boundaries for each net, i.e., determine lowest and uppermost
-		// layer of net's blocks
-		cur_net->setLayerBoundaries(this->conf_layer - 1);
-
-		// determine HPWL on each related layer separately
-		for (i = cur_net->layer_bottom; i <= cur_net->layer_top; i++) {
-#ifdef DBG_LAYOUT
-			cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
-#endif
-
-			blocks_to_consider.clear();
-
-			// blocks for cur_net on this layer
-			for (Block* &b : cur_net->blocks) {
-				if (b->layer == i) {
-					blocks_to_consider.push_back(&b->bb);
-#ifdef DBG_LAYOUT
-					cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
-#endif
-				}
-			}
-			// ignore cases with no blocks on current layer
-			if (blocks_to_consider.empty()) {
-				continue;
-			}
-
-			// blocks on the layer above; required to assume a reasonable
-			// bounding box on current layer w/o placed TSVs
-			// the layer above to consider is not necessarily the adjacent
-			// one, thus stepwise consider layers until some blocks are found
-			blocks_above_considered = false;
-			ii = i + 1;
-			while (ii <= cur_net->layer_top) {
-				for (Block* &b : cur_net->blocks) {
-					if (b->layer == ii) {
-						blocks_to_consider.push_back(&b->bb);
-						blocks_above_considered = true;
-#ifdef DBG_LAYOUT
-						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
-#endif
-					}
-				}
-
-				// loop handler
-				if (blocks_above_considered) {
-					break;
-				}
-				else {
-					ii++;
-				}
-			}
-
-			// ignore cases where only one block needs to be considered; these
-			// cases (single blocks on uppermost layer) are already covered
-			// while considering layers below
-			if (blocks_to_consider.size() == 1) {
-#ifdef DBG_LAYOUT
-				cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
-#endif
-				continue;
-			}
-
-			// update TSVs counter if connecting to blocks on some upper layer
-			if (blocks_above_considered) {
-				ret.TSVs += (ii - i);
-#ifdef DBG_LAYOUT
-				cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
-#endif
-			}
-
-			// determine HPWL of related blocks using their bounding box
-			bb = Rect::determBoundingBox(blocks_to_consider);
-			ret.HPWL += bb.w;
-			ret.HPWL += bb.h;
-#ifdef DBG_LAYOUT
-			cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
-#endif
-		}
+	for (Net* &n : this->nets) {
+		cur_net = n->determHPWL(this->conf_layer);
+		ret.HPWL += cur_net.HPWL;
+		ret.TSVs += cur_net.TSVs;
 	}
 
 	// memorize max cost; initial sampling
@@ -808,6 +724,100 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	if (normalize) {
 		ret.HPWL /= this->max_cost_WL;
 		ret.TSVs /= this->max_cost_TSVs;
+	}
+
+	return ret;
+}
+
+// TODO implement other variants to compare w/ other floorplanners; consider static bool
+// in Corblivar.hpp for selecting appropriate version during compile time / config
+// parameter during runtime
+Net::CostInterconn Net::determHPWL(const int& conf_layer) {
+	int i, ii;
+	vector<Rect*> blocks_to_consider;
+	Rect bb;
+	bool blocks_above_considered;
+	Net::CostInterconn ret;
+
+	// set layer boundaries for each net, i.e., determine lowest and uppermost
+	// layer of net's blocks
+	this->setLayerBoundaries(conf_layer - 1);
+
+	ret.HPWL = ret.TSVs = 0.0;
+
+	// determine HPWL on each related layer separately
+	for (i = this->layer_bottom; i <= this->layer_top; i++) {
+#ifdef DBG_LAYOUT
+		cout << "DBG_LAYOUT> Determine interconnects for net " << this->id << " on layer " << i << " and above" << endl;
+#endif
+
+		blocks_to_consider.clear();
+
+		// blocks on this layer
+		for (Block* &b : this->blocks) {
+			if (b->layer == i) {
+				blocks_to_consider.push_back(&b->bb);
+#ifdef DBG_LAYOUT
+				cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
+#endif
+			}
+		}
+		// ignore cases with no blocks on current layer
+		if (blocks_to_consider.empty()) {
+			continue;
+		}
+
+		// blocks on the layer above; required to assume a reasonable
+		// bounding box on current layer w/o placed TSVs
+		// the layer above to consider is not necessarily the adjacent
+		// one, thus stepwise consider layers until some blocks are found
+		blocks_above_considered = false;
+		ii = i + 1;
+		while (ii <= this->layer_top) {
+			for (Block* &b : this->blocks) {
+				if (b->layer == ii) {
+					blocks_to_consider.push_back(&b->bb);
+					blocks_above_considered = true;
+#ifdef DBG_LAYOUT
+					cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
+#endif
+				}
+			}
+
+			// loop handler
+			if (blocks_above_considered) {
+				break;
+			}
+			else {
+				ii++;
+			}
+		}
+
+		// ignore cases where only one block needs to be considered; these
+		// cases (single blocks on uppermost layer) are already covered
+		// while considering layers below
+		if (blocks_to_consider.size() == 1) {
+#ifdef DBG_LAYOUT
+			cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
+#endif
+			continue;
+		}
+
+		// update TSVs counter if connecting to blocks on some upper layer
+		if (blocks_above_considered) {
+			ret.TSVs += (ii - i);
+#ifdef DBG_LAYOUT
+			cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
+#endif
+		}
+
+		// determine HPWL of related blocks using their bounding box
+		bb = Rect::determBoundingBox(blocks_to_consider);
+		ret.HPWL += bb.w;
+		ret.HPWL += bb.h;
+#ifdef DBG_LAYOUT
+		cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+#endif
 	}
 
 	return ret;

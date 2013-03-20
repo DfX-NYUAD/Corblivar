@@ -308,13 +308,17 @@ class Block {
 };
 
 class Net {
-
 	public:
-
 		int id;
 		bool hasExternalPin;
 		vector<Block*> blocks;
 		int layer_bottom, layer_top;
+
+		// POD for cost functions
+		struct CostInterconn {
+			double HPWL;
+			double TSVs;
+		};
 
 		Net(const int& id_i) {
 			id = id_i;
@@ -336,18 +340,16 @@ class Net {
 				}
 			}
 		};
+
+		Net::CostInterconn determHPWL(const int& conf_layer);
 };
 
 class FloorPlanner {
 	private:
-		// PODs for cost functions
+		// POD for cost functions
 		struct Cost {
 			double cost;
 			bool fits_fixed_outline;
-		};
-		struct CostInterconn {
-			double HPWL;
-			double TSVs;
 		};
 
 		// IO
@@ -379,12 +381,16 @@ class FloorPlanner {
 		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false);
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false);
+		FloorPlanner::Cost determCost(
+				const double& ratio_feasible_solutions_fixed_outline = 0.0,
+				const bool& phase_two = false,
+				const bool& set_max_cost = false
+				);
 		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) {
 			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
 		}
-		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0);
-		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true);
+		FloorPlanner::Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0);
+		Net::CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true);
 
 	public:
 		friend class IO;
