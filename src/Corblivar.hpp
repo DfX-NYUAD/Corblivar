@@ -187,7 +187,7 @@ class Rect {
 			h = w = area = 0.0;
 		};
 
-		inline static Rect determBoundingBox(const vector<Rect>& rects) {
+		inline static Rect determBoundingBox(const vector<Rect*>& rects) {
 			Rect ret;
 			unsigned r;
 
@@ -196,13 +196,13 @@ class Rect {
 				ret.h = ret.w = ret.area = Point::UNDEF;
 			}
 			else {
-				ret.ll = rects[0].ll;
-				ret.ur = rects[0].ur;
+				ret.ll = rects[0]->ll;
+				ret.ur = rects[0]->ur;
 				for (r = 1; r < rects.size(); r++) {
-					ret.ll.x = min(ret.ll.x, rects[r].ll.x);
-					ret.ll.y = min(ret.ll.y, rects[r].ll.y);
-					ret.ur.x = max(ret.ur.x, rects[r].ur.x);
-					ret.ur.y = max(ret.ur.y, rects[r].ur.y);
+					ret.ll.x = min(ret.ll.x, rects[r]->ll.x);
+					ret.ll.y = min(ret.ll.y, rects[r]->ll.y);
+					ret.ur.x = max(ret.ur.x, rects[r]->ur.x);
+					ret.ur.y = max(ret.ur.y, rects[r]->ur.y);
 				}
 				ret.w = ret.ur.x - ret.ll.x;
 				ret.h = ret.ur.y - ret.ll.y;
@@ -308,18 +308,34 @@ class Block {
 };
 
 class Net {
+
 	public:
 
 		int id;
 		bool hasExternalPin;
 		vector<Block*> blocks;
+		int layer_bottom, layer_top;
 
 		Net(const int& id_i) {
 			id = id_i;
 			hasExternalPin = false;
 		};
 
-		double determHPWL();
+		inline void setLayerBoundaries(const int& globalUpperLayer) {
+			this->layer_bottom = globalUpperLayer;
+			this->layer_top = 0;
+
+			if (this->blocks.empty()) {
+				return;
+			}
+			else {
+				for (Block* b : this->blocks) {
+					this->layer_bottom = min(this->layer_bottom, b->layer);
+					this->layer_top = max(this->layer_top, b->layer);
+
+				}
+			}
+		};
 };
 
 class FloorPlanner {

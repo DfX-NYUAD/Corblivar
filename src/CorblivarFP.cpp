@@ -702,10 +702,12 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	return ret;
 }
 
-// TODO recode; currently hotspot
+// TODO implement other variants to compare w/ other floorplanners; consider static bool
+// in Corblivar.hpp for selecting appropriate version during compile time / config
+// parameter during runtime
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
 	int i, ii;
-	vector<Rect> blocks_to_consider;
+	vector<Rect*> blocks_to_consider;
 	Rect bb;
 	bool blocks_above_considered;
 
@@ -716,41 +718,42 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	// determine HPWL and TSVs for each net
 	for (Net* &cur_net : this->nets) {
 
-		// determine HPWL on each layer separately
-		for (i = 0; i < this->conf_layer; i++) {
+		// set layer boundaries for each net, i.e., determine lowest and uppermost
+		// layer of net's blocks
+		cur_net->setLayerBoundaries(this->conf_layer - 1);
+
+		// determine HPWL on each related layer separately
+		for (i = cur_net->layer_bottom; i <= cur_net->layer_top; i++) {
 #ifdef DBG_LAYOUT
 			cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
 #endif
 
-			// consider all related blocks:
-			// blocks on this layer and blocks on layer above --- thus we
-			// include TSVs in HPWL estimate assuming they are subsequently
-			// placed in the related bounding box
 			blocks_to_consider.clear();
 
-			// blocks on current layer
+			// blocks for cur_net on this layer
 			for (Block* &b : cur_net->blocks) {
 				if (b->layer == i) {
-					blocks_to_consider.push_back(b->bb);
+					blocks_to_consider.push_back(&b->bb);
 #ifdef DBG_LAYOUT
 					cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
 #endif
 				}
 			}
-			// ignore cases where no blocks on current layer (no blocks
-			// require connecting to upper layers)
+			// ignore cases with no blocks on current layer
 			if (blocks_to_consider.empty()) {
 				continue;
 			}
 
-			// blocks on layer above, not necessarily adjacent
-			// thus stepwise consider upper layers until some blocks are found
+			// blocks on the layer above; required to assume a reasonable
+			// bounding box on current layer w/o placed TSVs
+			// the layer above to consider is not necessarily the adjacent
+			// one, thus stepwise consider layers until some blocks are found
 			blocks_above_considered = false;
 			ii = i + 1;
-			while (true) {
+			while (ii <= cur_net->layer_top) {
 				for (Block* &b : cur_net->blocks) {
 					if (b->layer == ii) {
-						blocks_to_consider.push_back(b->bb);
+						blocks_to_consider.push_back(&b->bb);
 						blocks_above_considered = true;
 #ifdef DBG_LAYOUT
 						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
@@ -763,14 +766,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 					break;
 				}
 				else {
-					if (ii == this->conf_layer) {
-						break;
-					}
-					else {
-						ii++;
-					}
+					ii++;
 				}
 			}
+
 			// ignore cases where only one block needs to be considered; these
 			// cases (single blocks on uppermost layer) are already covered
 			// while considering layers below
