@@ -94,12 +94,12 @@ class ThermalAnalyzer {
 		// layer 0 obtained by considering heat source in layer 1 and so forth.
 		vector<vector<vector<double>>> thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		vector<vector<vector<double>>> power_maps;
+		mutable vector<vector<vector<double>>> power_maps;
 		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
-		vector<vector<double>> thermal_map;
+		mutable vector<vector<double>> thermal_map;
 
 		// thermal modeling: handlers
-		void generatePowerMaps(const FloorPlanner& fp, const int& maps_dim);
+		void generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) const;
 
 	public:
 		friend class IO;
@@ -109,7 +109,7 @@ class ThermalAnalyzer {
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
-		double performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost = false, const bool& normalize = true);
+		double performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost = false, const bool& normalize = true) const;
 };
 
 class Math {
@@ -382,12 +382,12 @@ class FloorPlanner {
 				const double& ratio_feasible_solutions_fixed_outline = 0.0,
 				const bool& phase_two = false,
 				const bool& set_max_cost = false
-				);
-		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) {
+				) const;
+		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) const {
 			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
 		};
-		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0);
-		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true);
+		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
+		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true) const;
 
 	public:
 		friend class IO;

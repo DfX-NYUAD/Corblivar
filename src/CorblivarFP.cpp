@@ -581,7 +581,7 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) const {
 	double cost_total, cost_temp, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
@@ -630,7 +630,7 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_
 // depending on ratio of feasible solutions (solutions fitting into outline)
-FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) {
+FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -707,7 +707,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 // TODO implement other variants to compare w/ other floorplanners; consider static bool
 // in Corblivar.hpp for selecting appropriate version during compile time / config
 // parameter during runtime
-FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) {
+FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) const {
 	int i, ii;
 	vector<Rect*> blocks_to_consider;
 	Rect bb;
@@ -718,7 +718,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	blocks_to_consider.reserve(this->blocks.size());
 
 	// determine HPWL and TSVs for each net
-	for (Net* &cur_net : this->nets) {
+	for (Net* const& cur_net : this->nets) {
 
 		// set layer boundaries for each net, i.e., determine lowest and uppermost
 		// layer of net's blocks

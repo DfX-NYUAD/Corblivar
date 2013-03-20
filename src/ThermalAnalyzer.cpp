@@ -13,7 +13,7 @@
 // thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps
 // returns max value of convoluted 2D matrix
-double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) {
+double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) const {
 	unsigned i;
 	int n;
 	int maps_dim;
@@ -97,7 +97,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) {
+void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) const {
 	int i, n;
 	int x, y;
 	Block *block;
