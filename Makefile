@@ -7,19 +7,26 @@ APP=Corblivar
 # Define Compiler Executable:
 #=============================================================================#
 COMPILER	= clang++
+#COMPILER	= /opt/clang+llvm-3.2-x86-linux-ubuntu-12.04/bin/clang++
+#COMPILER	= g++
+#COMPILER	= /opt/intel/bin/icpc
 
 #=============================================================================#
 # Compiler Options:
 #=============================================================================#
 # warnings
-OPT := $(OPT) -Wall -Wextra #-Wpointer-arith -Wuninitialized -Winline -Wshadow
+OPT := $(OPT) -Wall -Wextra
 # C++11
 OPT := $(OPT) -std=c++11
+## threading support, requires clang > 3.0
+#OPT := $(OPT) -pthread
+# OpenMP, requires gcc
+OPT := $(OPT) -fopenmp
 # gprof profiler code
 #OPT := $(OPT) -pg
 # 32bit binary
 #OPT := $(OPT) -m32
-# debug symbols, clang uses only g for source embedding
+# debug symbols
 OPT := $(OPT) -g
 # Runtime Optimization
 OPT := $(OPT) -O2
@@ -50,7 +57,7 @@ DEP := $(OBJ:%.o=%.d)
 #=============================================================================#
 # Linker Options:
 #=============================================================================#
-LIBS :=
+LIBS := -fopenmp
 #LIBS := $(LIB_GC_SO)
 
 #=============================================================================#
