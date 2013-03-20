@@ -423,6 +423,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 		this->last_op = op = Math::randI(0, 6);
 	}
 
+	die1 = die2 = tuple1 = tuple2 = -1;
+
 	// specific op handler
 	switch (op) {
 		case CorblivarCore::OP_SWAP_BLOCKS_WI_DIE:
