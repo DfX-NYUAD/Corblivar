@@ -263,8 +263,15 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 					}
 				}
 
+				// after phase transition, skip current global iteration
+				// in order to consider updated cost function
+				if (phase_two_transit) {
+					break;
+				}
 				// consider next loop iteration
-				ii++;
+				else {
+					ii++;
+				}
 			}
 		}
 
