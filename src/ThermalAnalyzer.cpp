@@ -25,6 +25,10 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	int power_x, power_y;
 	double max_temp;
 
+#ifdef DBG_CALLS
+	cout << "ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
+#endif
+
 	// TODO realize as config parameter / determine considering smallest block
 	maps_dim = 64;
 
@@ -106,6 +110,10 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_
 	Rect bin, intersect;
 	int x_lower, x_upper, y_lower, y_upper;
 
+#ifdef DBG_CALLS
+	cout << "ThermalAnalyzer::generatePowerMaps(" << &fp << ", " << maps_dim << ")" << endl;
+#endif
+
 	// clear maps
 	this->power_maps.clear();
 	this->power_maps.reserve(fp.conf_layer);
@@ -186,6 +194,10 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	vector<vector<double>> mask;
 	vector<double> mask_col;
 	int x, y;
+
+#ifdef DBG_CALLS
+	cout << "ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
+#endif
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
