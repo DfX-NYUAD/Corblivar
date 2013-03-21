@@ -611,7 +611,13 @@ void IO::writePowerThermalMaps(const FloorPlanner& fp) {
 			}
 			gp_out << "set tics front" << endl;
 			gp_out << "set grid xtics ytics ztics" << endl;
-			gp_out << "set pm3d map" << endl;
+			// pm3d algorithm determines an average value for each pixel,
+			// considering sourrounding pixels
+			// skip this behaviour w/ ``corners2color''; c1 means to select
+			// the lower-left value, practically loosing one row and column in
+			// the overall plot
+			// see also http://gnuplot.sourceforge.net/demo/pm3d.html
+			gp_out << "set pm3d map corners2color c1" << endl;
 			// color printable as gray
 			gp_out << "set palette rgbformulae 30,31,32" << endl;
 			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
