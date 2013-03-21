@@ -16,7 +16,6 @@
 double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) const {
 	unsigned i;
 	int n;
-	int maps_dim;
 	int x, y;
 	int mask_center_x, mask_center_y;
 	int mask_x, mask_y;
@@ -29,17 +28,11 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
 #endif
 
-	// TODO realize as config parameter / determine considering smallest block
-	maps_dim = 64;
-
-	// generate power maps for current layout
-	this->generatePowerMaps(fp, maps_dim);
-
 	// init grid of thermal map
 	this->thermal_map.clear();
-	this->thermal_map.resize(maps_dim);
-	for (n = 0; n < maps_dim; n++) {
-		this->thermal_map[n].resize(maps_dim, 0.0);
+	this->thermal_map.resize(this->maps_dim);
+	for (n = 0; n < this->maps_dim; n++) {
+		this->thermal_map[n].resize(this->maps_dim, 0.0);
 	}
 
 	// determine thermal map for lowest layer, i.e., hottest layer;
@@ -53,14 +46,16 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 		mask_center_y = mask_y_size / 2;
 
 		// walk thermal-map grid
-		for (x = 0; x < maps_dim; x++) {
-			for (y = 0; y < maps_dim; y++) {
+		for (x = 0; x < this->maps_dim; x++) {
+			for (y = 0; y < this->maps_dim; y++) {
 
 				// walk mask grid
 				for (mask_x = 0; mask_x < mask_x_size; mask_x++) {
+
 					mask_flipped_x = mask_x_size - mask_x - 1;
 
 					for (mask_y = 0; mask_y < mask_y_size; mask_y++) {
+
 						mask_flipped_y = mask_y_size - mask_y - 1;
 
 						// power bin to consider
@@ -68,7 +63,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 						power_y = y + (mask_y - mask_center_y);
 
 						// consider only bins within map bounds
-						if (power_x >= 0 && power_x < maps_dim && power_y >= 0 && power_y < maps_dim) {
+						if (power_x >= 0 && power_x < this->maps_dim && power_y >= 0 && power_y < this->maps_dim) {
 							// multiply mask bin w/ related
 							// power-map bin for convolution
 							this->thermal_map[x][y] += this->thermal_masks[i][mask_flipped_x][mask_flipped_y]
@@ -82,8 +77,8 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 
 	// determine max value
 	max_temp = 0.0;
-	for (x = 0; x < maps_dim; x++) {
-		for (y = 0; y < maps_dim; y++) {
+	for (x = 0; x < this->maps_dim; x++) {
+		for (y = 0; y < this->maps_dim; y++) {
 			max_temp = max(max_temp, this->thermal_map[x][y]);
 		}
 	}
@@ -105,7 +100,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) const {
+void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 	int i, n;
 	int x, y;
 	Block *block;
@@ -195,7 +190,6 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_
 // based on a gaussian-like thermal impulse response fuction
 void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	int i;
-	int masks_dim;
 	double range_scale;
 	double max_spread;
 	double spread;
@@ -217,12 +211,9 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	this->thermal_masks.clear();
 	this->thermal_masks.reserve(fp.conf_layer);
 
-	// TODO vary this parameter; should be uneven
-	// TODO realize as config parameter
-	masks_dim = 17;
-
-	mask.reserve(masks_dim);
-	mask_col.reserve(masks_dim);
+	// init current mask
+	mask.reserve(this->mask_dim);
+	mask_col.reserve(this->mask_dim);
 
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away
@@ -235,7 +226,7 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	// normalize range according to mask dimension
 	// decrement masks_dim such that subsequent impulse-response calculation
 	// determines values for center of each mask bin
-	range_scale /=  (masks_dim - 1) / 2;
+	range_scale /=  (this->mask_dim - 1) / 2;
 
 	// determine masks for lowest layer, i.e., hottest layer
 	for (i = 1; i <= fp.conf_layer; i++) {
@@ -245,10 +236,10 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 
 		mask.clear();
 
-		for (x = -(masks_dim - 1) / 2; x <= (masks_dim - 1) / 2; x++) {
+		for (x = -(this->mask_dim - 1) / 2; x <= (this->mask_dim - 1) / 2; x++) {
 			mask_col.clear();
 
-			for (y = -(masks_dim - 1) / 2; y <= (masks_dim - 1) / 2; y++) {
+			for (y = -(this->mask_dim - 1) / 2; y <= (this->mask_dim - 1) / 2; y++) {
 				mask_col.push_back(Math::gauss2D(x * range_scale, y * range_scale, impulse_factor, spread));
 			}
 
@@ -264,8 +255,8 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	// dump mask
 	for (i = 0; i < fp.conf_layer; i++) {
 		cout << "DBG_LAYOUT> Thermal mask for layer " << i << ":" << endl;
-		for (y = masks_dim - 1; y >= 0; y--) {
-			for (x = 0; x < masks_dim; x++) {
+		for (y = this->mask_dim - 1; y >= 0; y--) {
+			for (x = 0; x < this->mask_dim; x++) {
 				cout << this->thermal_masks[i][x][y] << "	";
 			}
 			cout << endl;

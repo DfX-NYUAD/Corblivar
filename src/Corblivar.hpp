@@ -100,14 +100,21 @@ class ThermalAnalyzer {
 		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
 		mutable vector<vector<double>> thermal_map;
 
-		// thermal modeling: handlers
-		void generatePowerMaps(const FloorPlanner& fp, const int& maps_dim) const;
+		// thermal modeling: dimensions
+		// maps_dim relates to power maps and thermal map
+		// (note that power maps are padded at the boundaries according to mask
+		// dim in order to handle boundary values for convolution)
+		static const int maps_dim = 64;
+		// mask_dim relates to the thermal mask, i.e., the 2D gauss function
+		// representing the thermal impulse response; value must be uneven
+		static const int mask_dim = 17;
 
 	public:
 		friend class IO;
 
 		// thermal modeling: handlers
 		void initThermalMasks(const FloorPlanner& fp);
+		void generatePowerMaps(const FloorPlanner& fp) const;
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
@@ -397,6 +404,7 @@ class FloorPlanner {
 				const bool& set_max_cost = false
 				) const;
 		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) const {
+			this->thermalAnalyzer.generatePowerMaps(*this);
 			return this->thermalAnalyzer.performPowerBlurring(*this, set_max_cost, normalize);
 		};
 		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
