@@ -25,8 +25,8 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	int power_x, power_y;
 	double max_temp;
 
-#ifdef DBG_CALLS
-	cout << "ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
+#ifdef DBG_CALLS_THERMAL
+	cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
 #endif
 
 	// TODO realize as config parameter / determine considering smallest block
@@ -98,6 +98,10 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 		max_temp /= fp.max_cost_temp;
 	}
 
+#ifdef DBG_CALLS_THERMAL
+	cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
+#endif
+
 	return max_temp;
 }
 
@@ -110,8 +114,8 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_
 	Rect bin, intersect;
 	int x_lower, x_upper, y_lower, y_upper;
 
-#ifdef DBG_CALLS
-	cout << "ThermalAnalyzer::generatePowerMaps(" << &fp << ", " << maps_dim << ")" << endl;
+#ifdef DBG_CALLS_THERMAL
+	cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ", " << maps_dim << ")" << endl;
 #endif
 
 	// clear maps
@@ -180,6 +184,11 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp, const int& maps_
 
 		this->power_maps.push_back(map);
 	}
+
+#ifdef DBG_CALLS_THERMAL
+	cout << "<- ThermalAnalyzer::generatePowerMaps" << endl;
+#endif
+
 }
 
 // determine masks for lowest layer, i.e., hottest layer
@@ -195,8 +204,8 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	vector<double> mask_col;
 	int x, y;
 
-#ifdef DBG_CALLS
-	cout << "ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
+#ifdef DBG_CALLS_THERMAL
+	cout << "-> ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
 #endif
 
 	if (fp.logMed()) {
@@ -270,5 +279,9 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
+
+#ifdef DBG_CALLS_THERMAL
+	cout << "<- ThermalAnalyzer::initThermalMasks" << endl;
+#endif
 
 }

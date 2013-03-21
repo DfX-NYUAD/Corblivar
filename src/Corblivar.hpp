@@ -32,7 +32,8 @@
 //#define DBG_CORB
 //#define DBG_LAYOUT
 //#define DBG_SA
-//#define DBG_CALLS
+//#define DBG_CALLS_THERMAL
+//#define DBG_CALLS_SA
 
 /* consider standard namespace */
 using namespace std;
@@ -344,10 +345,21 @@ class FloorPlanner {
 		struct Cost {
 			double cost;
 			bool fits_fixed_outline;
+
+			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
+			friend ostream& operator<< (ostream& out, const Cost& cost) {
+				out << "cost=" << cost.cost << ", fits_fixed_outline=" << cost.fits_fixed_outline;
+				return out;
+			}
 		};
 		struct CostInterconn {
 			double HPWL;
 			double TSVs;
+
+			friend ostream& operator<< (ostream& out, const CostInterconn& cost) {
+				out << "HPWL=" << cost.HPWL << ", TSVs=" << cost.TSVs;
+				return out;
+			}
 		};
 
 		// IO

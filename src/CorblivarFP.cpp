@@ -32,6 +32,10 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	bool phase_two, phase_two_transit;
 	double loop_factor, reheat_factor;
 
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
+#endif
+
 	// reset max cost
 	this->max_cost_WL = 0.0;
 	this->max_cost_TSVs = 0.0;
@@ -331,6 +335,10 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		cout << endl;
 	}
 
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::performSA : " << valid_layout_found << endl;
+#endif
+
 	return valid_layout_found;
 }
 
@@ -341,6 +349,10 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	double cost;
 	double area, temp;
 	CostInterconn interconn;
+
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::finalize(" << &corb << ")" << endl;
+#endif
 
 	// apply best solution, if available, as final solution
 	valid_solution = corb.applyBestCBLs(this->logMin());
@@ -406,12 +418,21 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	// close results file
 	this->results.close();
 
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::finalize(" << &corb << ")" << endl;
+#endif
+
 	exit(0);
 }
 
 bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
+	bool ret;
+
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << revertLastOp << ")" << endl;
+#endif
 
 	// revert last op
 	if (revertLastOp) {
@@ -426,6 +447,7 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 	}
 
 	die1 = die2 = tuple1 = tuple2 = -1;
+	ret = true;
 
 	// specific op handler
 	switch (op) {
@@ -434,7 +456,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for dies w/ one or zero tuples
 				if (corb.dies[die1]->CBL.size() <= 1) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -462,7 +485,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				}
 				// sanity check for empty dies
 				if (corb.dies[die1]->CBL.empty() || corb.dies[die2]->CBL.empty()) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -486,7 +510,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				}
 				// sanity check for empty (origin) die
 				if (corb.dies[die1]->CBL.empty()) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -505,7 +530,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
 				if (corb.dies[die1]->CBL.empty()) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -523,7 +549,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
 				if (corb.dies[die1]->CBL.empty()) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -556,7 +583,8 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 				die1 = Math::randI(0, corb.dies.size());
 				// sanity check for empty dies
 				if (corb.dies[die1]->CBL.empty()) {
-					return false;
+					ret = false;
+					break;
 				}
 
 				tuple1 = Math::randI(0, corb.dies[die1]->CBL.size());
@@ -570,14 +598,19 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 			break;
 	}
 
-	// memorize op elements
-	this->last_op_die1 = die1;
-	this->last_op_die2 = die2;
-	this->last_op_tuple1 = tuple1;
-	this->last_op_tuple2 = tuple2;
+	// memorize elements of successful op
+	if (ret) {
+		this->last_op_die1 = die1;
+		this->last_op_die2 = die2;
+		this->last_op_tuple1 = tuple1;
+		this->last_op_tuple2 = tuple2;
+	}
 
-	// op succeeded
-	return true;
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::performRandomLayoutOp : " << ret << endl;
+#endif
+
+	return ret;
 }
 
 // adaptive cost model w/ two phases;
@@ -588,11 +621,16 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << phase_two << ", " << set_max_cost << ")" << endl;
+#endif
+
 	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
 	// also determine whether layout fits into outline
 	cost_area_outline = this->determCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
+	// TODO try to speed up by using threads / OpenMP to determine separate cost fcts in parallel
 	if (phase_two) {
 
 		// normalized interconnects cost
@@ -602,8 +640,7 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 		cost_alignments = 0.0;
 
 		// normalized temperature-distribution cost
-		cost_temp = 0.0;
-//		cost_temp = this->determCostThermalDistr(set_max_cost);
+		cost_temp = this->determCostThermalDistr(set_max_cost);
 
 		// cost function; sum up cost terms
 		cost_total =
@@ -627,6 +664,10 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	ret.cost = cost_total;
 	ret.fits_fixed_outline = cost_area_outline.fits_fixed_outline;
 
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::determCost : " << ret << endl;
+#endif
+
 	return ret;
 }
 
@@ -643,6 +684,10 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	bool layout_fits_in_fixed_outline;
 	Cost ret;
 	Block *block;
+
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
+#endif
 
 	dies_AR.reserve(this->conf_layer);
 	dies_area.reserve(this->conf_layer);
@@ -703,6 +748,10 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	ret.cost = cost_outline + cost_area;
 	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
 
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::determCostAreaOutline : " << ret << endl;
+#endif
+
 	return ret;
 }
 
@@ -715,6 +764,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	Rect bb;
 	bool blocks_above_considered;
 	CostInterconn ret;
+
+#ifdef DBG_CALLS_SA
+	cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
+#endif
 
 	ret.HPWL = ret.TSVs = 0.0;
 	blocks_to_consider.reserve(this->blocks.size());
@@ -813,6 +866,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 		ret.HPWL /= this->max_cost_WL;
 		ret.TSVs /= this->max_cost_TSVs;
 	}
+
+#ifdef DBG_CALLS_SA
+	cout << "<- FloorPlanner::determCostInterconnects : " << ret << endl;
+#endif
 
 	return ret;
 }
