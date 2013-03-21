@@ -366,7 +366,13 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 		cost = this->determCost(1.0, true).cost;
 
 		// determine area cost, invert weight
-		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
+		// sanity check for zero cost weight
+		if (this->conf_SA_cost_area_outline == 0.0) {
+			area = 0.0;
+		}
+		else {
+			area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
+		}
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
@@ -627,6 +633,8 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 
 	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
 	// also determine whether layout fits into outline
+	//
+	// no sanity check required, handled in IO::parseParameterConfig
 	cost_area_outline = this->determCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
@@ -634,13 +642,28 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	if (phase_two) {
 
 		// normalized interconnects cost
-		cost_interconnects = this->determCostInterconnects(set_max_cost);
+		//
+		// sanity check for zero cost weight
+		if (this->conf_SA_cost_WL == 0.0 && this->conf_SA_cost_TSVs == 0.0) {
+			cost_interconnects.HPWL = 0.0;
+			cost_interconnects.TSVs = 0.0;
+		}
+		else {
+			cost_interconnects = this->determCostInterconnects(set_max_cost);
+		}
 
 		// TODO cost (failed) alignments
 		cost_alignments = 0.0;
 
 		// normalized temperature-distribution cost
-		cost_temp = this->determCostThermalDistr(set_max_cost);
+		//
+		// sanity check for zero cost weight
+		if (this->conf_SA_cost_temp == 0.0) {
+			cost_temp = 0.0;
+		}
+		else {
+			cost_temp = this->determCostThermalDistr(set_max_cost);
+		}
 
 		// cost function; sum up cost terms
 		cost_total =
@@ -653,6 +676,8 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	}
 	else {
 		// invert cost-factor weight since only one factor defines the cost fct
+		//
+		// no sanity check required, handled in IO::parseParameterConfig
 		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
 	}
 

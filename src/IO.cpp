@@ -192,6 +192,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_area_outline;
 
+	// sanity check for mandatory area, outline cost
+	if (fp.conf_SA_cost_area_outline == 0.0) {
+		cout << "A cost factor > 0 is required for area and outline optimization!" << endl;
+		exit(1);
+	}
+
 	in.close();
 
 	if (fp.logMed()) {
