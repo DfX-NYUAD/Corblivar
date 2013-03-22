@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <array>
 #include <vector>
 #include <list>
 #include <map>
@@ -53,6 +54,7 @@ class Rect;
 class Math;
 
 /* classes */
+		// TODO clean interfaces; replace FloorPlanner& fp or CorblivarCore& corb w/ required members
 class IO {
 	public:
 		static void parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv);
@@ -90,24 +92,25 @@ class ThermalAnalyzer {
 		// 20um BCB bond; [Sridhar10]
 		static constexpr double THICKNESS_BOND = 0.00002;
 
-		// thermal modeling: vector masks and maps
-		// mask[i][x][y], whereas mask[0] relates to the mask for layer 0 obtained
-		// by considering heat source in layer 0, mask[1] relates to the mask for
-		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		vector<vector<vector<double>>> thermal_masks;
-		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		mutable vector<vector<vector<double>>> power_maps;
-		// thermal map for layer 0, i.e., lowest layer, i.e., hottest layer
-		mutable vector<vector<double>> thermal_map;
-
 		// thermal modeling: dimensions
 		// maps_dim relates to power maps and thermal map
 		// (note that power maps are padded at the boundaries according to mask
 		// dim in order to handle boundary values for convolution)
-		static const int maps_dim = 64;
+		static constexpr int maps_dim = 64;
 		// mask_dim relates to the thermal mask, i.e., the 2D gauss function
 		// representing the thermal impulse response; value must be uneven
-		static const int mask_dim = 17;
+		static constexpr int mask_dim = 17;
+
+		// thermal modeling: vector masks and maps
+		// mask[i][x/y], whereas mask[0] relates to the mask for layer 0 obtained
+		// by considering heat source in layer 0, mask[1] relates to the mask for
+		// layer 0 obtained by considering heat source in layer 1 and so forth.
+		// Note that the masks are only 1D for the separated convolution
+		vector< array<double,mask_dim> > thermal_masks;
+		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
+		mutable vector< array<array<double,maps_dim>,maps_dim> > power_maps;
+		// thermal map for layer 0 (lowest layer), i.e., hottest layer
+		mutable array<array<double,maps_dim>,maps_dim> thermal_map;
 
 	public:
 		friend class IO;
@@ -165,9 +168,10 @@ class Math {
 			return sqrt(sq_diffs / ((double) samples.size()));
 		}
 
-		// 2D gauss function; used for power blurring as impulse response fuction
-		inline static double gauss2D(const double& x, const double& y, const double& factor, const double& spread) {
-			return factor * exp(-spread * pow(x, 2.0)) * exp(-spread * pow(y, 2.0));
+		// 1D gauss function; used for separated convolution w/ 2D gauss function,
+		// provides the impulse response function for power blurring
+		inline static double gauss1D(const double& value, const double& factor, const double& spread) {
+			return sqrt(factor) * exp(-spread * pow(value, 2.0));
 		}
 };
 

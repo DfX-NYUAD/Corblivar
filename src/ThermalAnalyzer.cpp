@@ -10,65 +10,96 @@
  */
 #include "Corblivar.hpp"
 
-// thermal-analyzer routine based on power blurring,
-// i.e., convolution of thermals masks and power maps
-// returns max value of convoluted 2D matrix
+// Thermal-analyzer routine based on power blurring,
+// i.e., convolution of thermals masks and power maps into thermal maps.
+// Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
+// Returns max value of thermal map of lowest layer, i.e., hottest layer
+// Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
 double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) const {
-	unsigned i;
-	int n;
-	int x, y;
-	int mask_center_x, mask_center_y;
-	int mask_x, mask_y;
-	int mask_x_size, mask_y_size;
-	int mask_flipped_x, mask_flipped_y;
-	int power_x, power_y;
+	int layer;
+	int x, y, i;
+	int mask_i;
+	int mask_center;
 	double max_temp;
+	// required as buffer for separated convolution
+	array<array<double,ThermalAnalyzer::maps_dim>,ThermalAnalyzer::maps_dim> thermal_map_tmp;
 
 #ifdef DBG_CALLS_THERMAL
 	cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
 #endif
 
-	// init grid of thermal map
-	this->thermal_map.clear();
-	this->thermal_map.resize(this->maps_dim);
-	for (n = 0; n < this->maps_dim; n++) {
-		this->thermal_map[n].resize(this->maps_dim, 0.0);
+	// center index for uneven mask
+	mask_center = ThermalAnalyzer::mask_dim / 2;
+
+	// init temp map to zero
+	for (auto& m : thermal_map_tmp) {
+		m.fill(0.0);
 	}
 
-	// determine thermal map for lowest layer, i.e., hottest layer;
-	// perform convolution of thermal masks and power maps
-	for (i = 0; i < this->thermal_masks.size(); i++) {
-		mask_x_size = this->thermal_masks[i].size();
-		mask_y_size = this->thermal_masks[i][0].size();
+	// reset thermal map to zero
+	for (auto& m : this->thermal_map) {
+		m.fill(0.0);
+	}
 
-		// determine center index of mask grid
-		mask_center_x = mask_x_size / 2;
-		mask_center_y = mask_y_size / 2;
+	/// perform 2D convolution by performing two separated 1D convolution iterations;
+	/// note that no (kernel) flipping is required since the mask is symmetric
+	//
+	// start w/ horizontal convolution (with which to start doesn't matter actually)
+	// TODO replace fp.conf_layer w/ fct parameter
+	for (layer = 0; layer < fp.conf_layer; layer++) {
 
-		// walk thermal-map grid
-		for (x = 0; x < this->maps_dim; x++) {
-			for (y = 0; y < this->maps_dim; y++) {
+		// walk map grid for horizontal convolution; store into thermal_map_tmp
+		// TODO consider padded power map, i.e., power map is larger than
+		// thermal-map to generate; drops boundary checks
+		for (y = 0; y < ThermalAnalyzer::maps_dim; y++) {
+			for (x = 0; x < ThermalAnalyzer::maps_dim; x++) {
 
-				// walk mask grid
-				for (mask_x = 0; mask_x < mask_x_size; mask_x++) {
+				// perform horizontal 1D convolution, i.e., multiply
+				// input[x] w/ mask
+				//
+				// e.g., for x = 0, mask_dim = 3
+				// convol1D(x=0) = input[-1] * mask[0] + input[0] * mask[1] + input[1] * mask[2]
+				//
+				// can be also represented by aligning both arrays:
+				// input array (power map):
+				// |x=-1|x=0|x=1|x=2|
+				// mask:
+				// |i=0 |y=1|y=2|
+				//
+				for (mask_i = 0; mask_i < ThermalAnalyzer::mask_dim; mask_i++) {
 
-					mask_flipped_x = mask_x_size - mask_x - 1;
+					// determine power-map index
+					i = x + (mask_i - mask_center);
 
-					for (mask_y = 0; mask_y < mask_y_size; mask_y++) {
+					// TODO drop after padding power map
+					if (i >= 0 && i < ThermalAnalyzer::maps_dim) {
+						thermal_map_tmp[x][y] += this->power_maps[layer][i][y] * this->thermal_masks[layer][mask_i];
+					}
+				}
+			}
+		}
+	}
 
-						mask_flipped_y = mask_y_size - mask_y - 1;
+	// continue w/ vertical convolution
+	// TODO replace fp.conf_layer w/ fct parameter
+	for (layer = 0; layer < fp.conf_layer; layer++) {
 
-						// power bin to consider
-						power_x = x + (mask_x - mask_center_x);
-						power_y = y + (mask_y - mask_center_y);
+		// walk map grid for horizontal convolution; use data from thermal_map_tmp
+		// and store into thermal_map
+		// TODO consider padded power map, i.e., power map is larger than
+		// thermal-map to generate; drops boundary checks
+		for (x = 0; x < ThermalAnalyzer::maps_dim; x++) {
+			for (y = 0; y < ThermalAnalyzer::maps_dim; y++) {
 
-						// consider only bins within map bounds
-						if (power_x >= 0 && power_x < this->maps_dim && power_y >= 0 && power_y < this->maps_dim) {
-							// multiply mask bin w/ related
-							// power-map bin for convolution
-							this->thermal_map[x][y] += this->thermal_masks[i][mask_flipped_x][mask_flipped_y]
-								* this->power_maps[i][power_x][power_y];
-						}
+				// perform 1D vertical convolution
+				for (mask_i = 0; mask_i < ThermalAnalyzer::mask_dim; mask_i++) {
+
+					// determine power-map index
+					i = y + (mask_i - mask_center);
+
+					// TODO drop after padding power map
+					if (i >= 0 && i < ThermalAnalyzer::maps_dim) {
+						this->thermal_map[x][y] += thermal_map_tmp[x][i] * this->thermal_masks[layer][mask_i];
 					}
 				}
 			}
@@ -77,8 +108,8 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 
 	// determine max value
 	max_temp = 0.0;
-	for (x = 0; x < this->maps_dim; x++) {
-		for (y = 0; y < this->maps_dim; y++) {
+	for (x = 0; x < ThermalAnalyzer::maps_dim; x++) {
+		for (y = 0; y < ThermalAnalyzer::maps_dim; y++) {
 			max_temp = max(max_temp, this->thermal_map[x][y]);
 		}
 	}
@@ -101,16 +132,16 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 }
 
 void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
-	int i, n;
+	int i;
 	int x, y;
 	Block *block;
 	double maps_dim_x, maps_dim_y;
-	vector<vector<double>> map;
+	array<array<double,ThermalAnalyzer::maps_dim>,ThermalAnalyzer::maps_dim> map;
 	Rect bin, intersect;
 	int x_lower, x_upper, y_lower, y_upper;
 
 #ifdef DBG_CALLS_THERMAL
-	cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ", " << maps_dim << ")" << endl;
+	cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ")" << endl;
 #endif
 
 	// clear maps
@@ -118,17 +149,15 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 	this->power_maps.reserve(fp.conf_layer);
 
 	// scale map dimensions to outline
-	maps_dim_x = fp.conf_outline_x / maps_dim;
-	maps_dim_y = fp.conf_outline_y / maps_dim;
+	maps_dim_x = fp.conf_outline_x / ThermalAnalyzer::maps_dim;
+	maps_dim_y = fp.conf_outline_y / ThermalAnalyzer::maps_dim;
 
 	// determine maps for each layer
 	for (i = 0; i < fp.conf_layer; i++) {
 
-		// init grid of map
-		map.clear();
-		map.resize(maps_dim);
-		for (n = 0; n < maps_dim; n++) {
-			map[n].resize(maps_dim, 0.0);
+		// init map to zero
+		for (auto& m : map) {
+			m.fill(0.0);
 		}
 
 		// consider each block on the related layer
@@ -186,17 +215,20 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 
 }
 
-// determine masks for lowest layer, i.e., hottest layer
-// based on a gaussian-like thermal impulse response fuction
+// Determine masks for lowest layer, i.e., hottest layer.
+// Based on a gaussian-like thermal impulse response fuction.
+// Note that masks are centered, i.e., the value f(x=0) resides in the middle of the
+// (uneven) array.
+// Note that masks are 1D, sufficient for the separated convolution in
+// performPowerBlurring()
 void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
-	int i;
+	int i, ii;
 	double range_scale;
 	double max_spread;
 	double spread;
 	double impulse_factor;
-	vector<vector<double>> mask;
-	vector<double> mask_col;
-	int x, y;
+	array<double,ThermalAnalyzer::mask_dim> mask;
+	int x_y;
 
 #ifdef DBG_CALLS_THERMAL
 	cout << "-> ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
@@ -211,10 +243,6 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	this->thermal_masks.clear();
 	this->thermal_masks.reserve(fp.conf_layer);
 
-	// init current mask
-	mask.reserve(this->mask_dim);
-	mask_col.reserve(this->mask_dim);
-
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away
 	// TODO vary this parameter
@@ -226,7 +254,7 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	// normalize range according to mask dimension
 	// decrement masks_dim such that subsequent impulse-response calculation
 	// determines values for center of each mask bin
-	range_scale /=  (this->mask_dim - 1) / 2;
+	range_scale /=  (ThermalAnalyzer::mask_dim - 1) / 2;
 
 	// determine masks for lowest layer, i.e., hottest layer
 	for (i = 1; i <= fp.conf_layer; i++) {
@@ -234,16 +262,10 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		spread = 1.0 / i;
 		impulse_factor = 1.0 / i;
 
-		mask.clear();
-
-		for (x = -(this->mask_dim - 1) / 2; x <= (this->mask_dim - 1) / 2; x++) {
-			mask_col.clear();
-
-			for (y = -(this->mask_dim - 1) / 2; y <= (this->mask_dim - 1) / 2; y++) {
-				mask_col.push_back(Math::gauss2D(x * range_scale, y * range_scale, impulse_factor, spread));
-			}
-
-			mask.push_back(mask_col);
+		ii = 0;
+		for (x_y = -(ThermalAnalyzer::mask_dim - 1) / 2; x_y <= (ThermalAnalyzer::mask_dim - 1) / 2; x_y++) {
+			mask[ii] = Math::gauss1D(x_y * range_scale, impulse_factor, spread);
+			ii++;
 		}
 
 		this->thermal_masks.push_back(mask);
@@ -254,13 +276,11 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	cout << fixed;
 	// dump mask
 	for (i = 0; i < fp.conf_layer; i++) {
-		cout << "DBG_LAYOUT> Thermal mask for layer " << i << ":" << endl;
-		for (y = this->mask_dim - 1; y >= 0; y--) {
-			for (x = 0; x < this->mask_dim; x++) {
-				cout << this->thermal_masks[i][x][y] << "	";
-			}
-			cout << endl;
+		cout << "DBG_LAYOUT> Thermal 1D mask for layer " << i << ":" << endl;
+		for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
+			cout << this->thermal_masks[i][x_y] << ", ";
 		}
+		cout << endl;
 	}
 	// reset to default floating output
 	cout.unsetf(ios_base::floatfield);
