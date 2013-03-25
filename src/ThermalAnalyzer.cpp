@@ -32,9 +32,9 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	// convolution of padded power maps
 	array<array<double,ThermalAnalyzer::power_maps_dim>,ThermalAnalyzer::power_maps_dim> thermal_map_tmp;
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
-#endif
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
+	}
 
 	// init temp map to zero
 	for (auto& m : thermal_map_tmp) {
@@ -81,12 +81,12 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 					// out of range due to the padded power maps
 					i = x + (mask_i - ThermalAnalyzer::mask_center);
 
-#ifdef DBG_THERMAL
-					cout << "y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << endl;
-					if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
-						cout << "i out of range (should be limited by x)" << endl;
+					if (ThermalAnalyzer::DBG) {
+						cout << "y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << endl;
+						if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
+							cout << "i out of range (should be limited by x)" << endl;
+						}
 					}
-#endif
 
 					// convolution; multplication of mask element and
 					// power-map bin
@@ -119,13 +119,13 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 					// out of range due to the padded power maps
 					i = y + (mask_i - ThermalAnalyzer::mask_center);
 
-#ifdef DBG_THERMAL
-					cout << "x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
-					cout << ", mask_i=" << mask_i << ", i=" << i << endl;
-					if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
-						cout << "i out of range (should be limited by y)" << endl;
+					if (ThermalAnalyzer::DBG) {
+						cout << "x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
+						cout << ", mask_i=" << mask_i << ", i=" << i << endl;
+						if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
+							cout << "i out of range (should be limited by y)" << endl;
+						}
 					}
-#endif
 
 					// convolution; multplication of mask element and
 					// power-map bin
@@ -153,9 +153,9 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 		max_temp /= fp.max_cost_temp;
 	}
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
-#endif
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
+	}
 
 	return max_temp;
 }
@@ -170,9 +170,9 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 	Rect bin, intersect, block_offset;
 	int x_lower, x_upper, y_lower, y_upper;
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ")" << endl;
-#endif
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ")" << endl;
+	}
 
 	// clear maps
 	this->power_maps.clear();
@@ -251,10 +251,9 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 		this->power_maps.push_back(map);
 	}
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "<- ThermalAnalyzer::generatePowerMaps" << endl;
-#endif
-
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "<- ThermalAnalyzer::generatePowerMaps" << endl;
+	}
 }
 
 // Determine masks for lowest layer, i.e., hottest layer.
@@ -272,9 +271,9 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	array<double,ThermalAnalyzer::mask_dim> mask;
 	int x_y;
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "-> ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
-#endif
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "-> ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
+	}
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
@@ -313,28 +312,27 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		this->thermal_masks.push_back(mask);
 	}
 
-#ifdef DBG_THERMAL
-	// enforce fixed digit count for printing mask
-	cout << fixed;
-	// dump mask
-	for (i = 0; i < fp.conf_layer; i++) {
-		cout << "DBG_THERMAL> Thermal 1D mask for layer " << i << ":" << endl;
-		for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
-			cout << this->thermal_masks[i][x_y] << ", ";
+	if (ThermalAnalyzer::DBG) {
+		// enforce fixed digit count for printing mask
+		cout << fixed;
+		// dump mask
+		for (i = 0; i < fp.conf_layer; i++) {
+			cout << "DBG> Thermal 1D mask for layer " << i << ":" << endl;
+			for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
+				cout << this->thermal_masks[i][x_y] << ", ";
+			}
+			cout << endl;
 		}
-		cout << endl;
+		// reset to default floating output
+		cout.unsetf(ios_base::floatfield);
 	}
-	// reset to default floating output
-	cout.unsetf(ios_base::floatfield);
-#endif
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}
 
-#ifdef DBG_CALLS_THERMAL
-	cout << "<- ThermalAnalyzer::initThermalMasks" << endl;
-#endif
-
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "<- ThermalAnalyzer::initThermalMasks" << endl;
+	}
 }

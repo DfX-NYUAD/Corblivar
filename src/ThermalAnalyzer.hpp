@@ -11,12 +11,13 @@
 #ifndef _CORBLIVAR_THERMAL_HPP
 #define _CORBLIVAR_THERMAL_HPP
 
-// debugging code switch
-//#define DBG_CALLS_THERMAL
-//#define DBG_THERMAL
-
 class ThermalAnalyzer {
 	private:
+
+		// debugging code switch
+		static constexpr bool DBG_CALLS = false;
+		static constexpr bool DBG = false;
+
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
 		/// HotSpot configuration values)

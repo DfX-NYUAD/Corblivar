@@ -49,16 +49,15 @@ void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
 		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
 
-#ifdef DBG_CORB
-
-	for (CorblivarDie* &die : this->dies) {
-		cout << "DBG_CORB> ";
-		cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
-		cout << die->CBL.itemString() << endl;
-		cout << "DBG_CORB> ";
-		cout << endl;
+	if (DBG_CORB) {
+		for (CorblivarDie* &die : this->dies) {
+			cout << "DBG_CORB> ";
+			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
+			cout << die->CBL.itemString() << endl;
+			cout << "DBG_CORB> ";
+			cout << endl;
+		}
 	}
-#endif
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
@@ -70,10 +69,10 @@ void CorblivarCore::generateLayout(const bool& dbgStack) const {
 	Block *cur_block;
 	bool loop;
 
-#ifdef DBG_CORB
-	cout << "DBG_CORB> ";
-	cout << "Performing layout generation..." << endl;
-#endif
+	if (DBG_CORB) {
+		cout << "DBG_CORB> ";
+		cout << "Performing layout generation..." << endl;
+	}
 
 	// init (mutable) die pointer
 	this->p = this->dies[0];
@@ -124,11 +123,10 @@ void CorblivarCore::generateLayout(const bool& dbgStack) const {
 		}
 	}
 
-#ifdef DBG_CORB
-	cout << "DBG_CORB> ";
-	cout << "Done" << endl;
-#endif
-
+	if (DBG_CORB) {
+		cout << "DBG_CORB> ";
+		cout << "Done" << endl;
+	}
 }
 
 Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {

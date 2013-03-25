@@ -12,7 +12,7 @@
 #define _CORBLIVAR_CORE_HPP
 
 // debugging code switch
-//#define DBG_CORB
+static constexpr bool DBG_CORB = false;
 
 class CornerBlockList {
 	public:
@@ -28,24 +28,25 @@ class CornerBlockList {
 			unsigned ret;
 
 			ret = this->S.size();
-#ifdef DBG_CORB
-			bool mismatch = false;
-			unsigned prev_ret;
 
-			prev_ret = ret;
-			ret = min(ret, this->L.size());
-			mismatch = (ret != prev_ret);
-			prev_ret = ret;
-			ret = min(ret, this->T.size());
-			mismatch = mismatch || (ret != prev_ret);
+			if (DBG_CORB) {
+				bool mismatch = false;
+				unsigned prev_ret;
 
-			if (mismatch) {
-				cout << "DBG_CORB> CBL has sequences size mismatch!" << endl;
-				cout << "DBG_CORB> CBL: " << endl;
-				cout << this->itemString() << endl;
+				prev_ret = ret;
+				ret = min(ret, this->L.size());
+				mismatch = (ret != prev_ret);
+				prev_ret = ret;
+				ret = min(ret, this->T.size());
+				mismatch = mismatch || (ret != prev_ret);
+
+				if (mismatch) {
+					cout << "DBG_CORB> CBL has sequences size mismatch!" << endl;
+					cout << "DBG_CORB> CBL: " << endl;
+					cout << this->itemString() << endl;
+				}
 			}
 
-#endif
 			return ret;
 		};
 
@@ -210,19 +211,21 @@ class CorblivarCore {
 
 		inline void switchBlocksWithinDie(const int& die, const int& tuple1, const int& tuple2) const {
 			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
-#ifdef DBG_CORB
-			cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
-			cout << ", s1=" << this->dies[die]->CBL.S[tuple1]->id;
-			cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
-#endif
+
+			if (DBG_CORB) {
+				cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
+				cout << ", s1=" << this->dies[die]->CBL.S[tuple1]->id;
+				cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
+			}
 		};
 		inline void switchBlocksAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
-#ifdef DBG_CORB
-			cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
-			cout << ", s1=" << this->dies[die1]->CBL.S[tuple1]->id;
-			cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
-#endif
+
+			if (DBG_CORB) {
+				cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
+				cout << ", s1=" << this->dies[die1]->CBL.S[tuple1]->id;
+				cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
+			}
 		};
 		inline void moveTupleAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
 
@@ -235,9 +238,9 @@ class CorblivarCore {
 			this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
 			this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
 
-#ifdef DBG_CORB
-			cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
-#endif
+			if (DBG_CORB) {
+				cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+			}
 		};
 		inline void switchTupleDirection(const int& die, const int& tuple) const {
 			if (this->dies[die]->CBL.L[tuple] == CornerBlockList::DIRECTION_VERT) {
@@ -246,15 +249,17 @@ class CorblivarCore {
 			else {
 				this->dies[die]->CBL.L[tuple] = CornerBlockList::DIRECTION_VERT;
 			}
-#ifdef DBG_CORB
-			cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
-#endif
+
+			if (DBG_CORB) {
+				cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
+			}
 		};
 		inline void switchTupleJunctions(const int& die, const int& tuple, const int& juncts) const {
 			this->dies[die]->CBL.T[tuple] = juncts;
-#ifdef DBG_CORB
-			cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
-#endif
+
+			if (DBG_CORB) {
+				cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
+			}
 		};
 		inline void switchBlockOrientation(const int& die, const int& tuple) const {
 			double w_tmp;
@@ -262,9 +267,10 @@ class CorblivarCore {
 			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
 			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
 			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;
-#ifdef DBG_CORB
-			cout << "DBG_CORB> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
-#endif
+
+			if (DBG_CORB) {
+				cout << "DBG_CORB> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
+			}
 		};
 
 		// CBL logging

@@ -18,10 +18,10 @@ COMPILER	= clang++
 OPT := $(OPT) -Wall -Wextra
 # C++11
 OPT := $(OPT) -std=c++11
-## threading support, requires clang > 3.0
+# threading support, requires clang > 3.0
 #OPT := $(OPT) -pthread
 # OpenMP, requires gcc
-OPT := $(OPT) -fopenmp
+#OPT := $(OPT) -fopenmp
 # gprof profiler code
 #OPT := $(OPT) -pg
 # 32bit binary
@@ -78,7 +78,7 @@ $(BUILD_DIR):
 #=============================================================================#
 # Compile Source Code to Object Files
 #=============================================================================#
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/$(APP).hpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
 	@echo
 	@echo General target for $<
 	$(COMPILER) -c $(OPT) $< -o $@

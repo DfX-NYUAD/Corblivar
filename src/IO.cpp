@@ -524,18 +524,17 @@ void IO::parseNets(FloorPlanner& fp) {
 	// close nets file
 	in.close();
 
-#ifdef DBG_IO
-
-	for (Net* &n : fp.nets) {
-		cout << "DBG_IO> ";
-		cout << "net " << n->id << endl;
-
-		for (Block* &b : n->blocks) {
+	if (IO::DBG) {
+		for (Net* &n : fp.nets) {
 			cout << "DBG_IO> ";
-			cout << " block " << b->id << endl;
+			cout << "net " << n->id << endl;
+
+			for (Block* &b : n->blocks) {
+				cout << "DBG_IO> ";
+				cout << " block " << b->id << endl;
+			}
 		}
 	}
-#endif
 
 	if (fp.logMed()) {
 		cout << "IO> ";

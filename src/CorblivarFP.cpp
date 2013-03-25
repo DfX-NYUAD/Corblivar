@@ -35,9 +35,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	bool phase_two, phase_two_transit;
 	double loop_factor, reheat_factor;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
+	}
 
 	// reset max cost
 	this->max_cost_WL = 0.0;
@@ -193,19 +193,21 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
-#ifdef DBG_SA
-				cout << "DBG_SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-				cout << "DBG_SA> Cost diff: " << cost_diff << endl;
-#endif
+
+				if (FloorPlanner::DBG_SA) {
+					cout << "DBG_SA> Inner step: " << ii << "/" << innerLoopMax << endl;
+					cout << "DBG_SA> Cost diff: " << cost_diff << endl;
+				}
 
 				// revert solution w/ worse or same cost, depending on temperature
 				accept = true;
 				if (cost_diff >= 0.0) {
 					r = Math::randF01();
 					if (r > exp(- cost_diff / cur_temp)) {
-#ifdef DBG_SA
-						cout << "DBG_SA> Revert op" << endl;
-#endif
+
+						if (FloorPlanner::DBG_SA) {
+							cout << "DBG_SA> Revert op" << endl;
+						}
 						accept = false;
 
 						// revert last op
@@ -345,9 +347,9 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		cout << endl;
 	}
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::performSA : " << valid_layout_found << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::performSA : " << valid_layout_found << endl;
+	}
 
 	return valid_layout_found;
 }
@@ -360,9 +362,9 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	double area, temp;
 	CostInterconn interconn;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::finalize(" << &corb << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::finalize(" << &corb << ")" << endl;
+	}
 
 	// apply best solution, if available, as final solution
 	valid_solution = corb.applyBestCBLs(this->logMin());
@@ -434,9 +436,9 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	// close results file
 	this->results.close();
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::finalize(" << &corb << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::finalize(" << &corb << ")" << endl;
+	}
 
 	exit(0);
 }
@@ -446,9 +448,9 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 	int die1, die2, tuple1, tuple2, t;
 	bool ret;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << revertLastOp << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << revertLastOp << ")" << endl;
+	}
 
 	// revert last op
 	if (revertLastOp) {
@@ -622,9 +624,9 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 		this->last_op_tuple2 = tuple2;
 	}
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::performRandomLayoutOp : " << ret << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::performRandomLayoutOp : " << ret << endl;
+	}
 
 	return ret;
 }
@@ -637,9 +639,9 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << phase_two << ", " << set_max_cost << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << phase_two << ", " << set_max_cost << ")" << endl;
+	}
 
 	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
 	// also determine whether layout fits into outline
@@ -691,17 +693,17 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
 	}
 
-#ifdef DBG_LAYOUT
-	cout << "DBG_LAYOUT> ";
-	cout << "Layout cost: " << cost_total << endl;
-#endif
+	if (FloorPlanner::DBG_LAYOUT) {
+		cout << "DBG_LAYOUT> ";
+		cout << "Layout cost: " << cost_total << endl;
+	}
 
 	ret.cost = cost_total;
 	ret.fits_fixed_outline = cost_area_outline.fits_fixed_outline;
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::determCost : " << ret << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::determCost : " << ret << endl;
+	}
 
 	return ret;
 }
@@ -720,9 +722,9 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	Cost ret;
 	Block *block;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
+	}
 
 	dies_AR.reserve(this->conf_layer);
 	dies_area.reserve(this->conf_layer);
@@ -783,9 +785,9 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	ret.cost = cost_outline + cost_area;
 	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::determCostAreaOutline : " << ret << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::determCostAreaOutline : " << ret << endl;
+	}
 
 	return ret;
 }
@@ -800,9 +802,9 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 	bool blocks_above_considered;
 	CostInterconn ret;
 
-#ifdef DBG_CALLS_SA
-	cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
+	}
 
 	ret.HPWL = ret.TSVs = 0.0;
 	blocks_to_consider.reserve(this->blocks.size());
@@ -816,9 +818,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 
 		// determine HPWL on each related layer separately
 		for (i = cur_net->layer_bottom; i <= cur_net->layer_top; i++) {
-#ifdef DBG_LAYOUT
-			cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
-#endif
+
+			if (FloorPlanner::DBG_LAYOUT) {
+				cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
+			}
 
 			blocks_to_consider.clear();
 
@@ -826,9 +829,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 			for (Block* &b : cur_net->blocks) {
 				if (b->layer == i) {
 					blocks_to_consider.push_back(&b->bb);
-#ifdef DBG_LAYOUT
-					cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
-#endif
+
+					if (FloorPlanner::DBG_LAYOUT) {
+						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
+					}
 				}
 			}
 			// ignore cases with no blocks on current layer
@@ -847,9 +851,10 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 					if (b->layer == ii) {
 						blocks_to_consider.push_back(&b->bb);
 						blocks_above_considered = true;
-#ifdef DBG_LAYOUT
-						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
-#endif
+
+						if (FloorPlanner::DBG_LAYOUT) {
+							cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
+						}
 					}
 				}
 
@@ -866,27 +871,31 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 			// cases (single blocks on uppermost layer) are already covered
 			// while considering layers below
 			if (blocks_to_consider.size() == 1) {
-#ifdef DBG_LAYOUT
-				cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
-#endif
+
+				if (FloorPlanner::DBG_LAYOUT) {
+					cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
+				}
+
 				continue;
 			}
 
 			// update TSVs counter if connecting to blocks on some upper layer
 			if (blocks_above_considered) {
 				ret.TSVs += (ii - i);
-#ifdef DBG_LAYOUT
-				cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
-#endif
+
+				if (FloorPlanner::DBG_LAYOUT) {
+					cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
+				}
 			}
 
 			// determine HPWL of related blocks using their bounding box
 			bb = Rect::determBoundingBox(blocks_to_consider);
 			ret.HPWL += bb.w;
 			ret.HPWL += bb.h;
-#ifdef DBG_LAYOUT
-			cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
-#endif
+
+			if (FloorPlanner::DBG_LAYOUT) {
+				cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+			}
 		}
 	}
 
@@ -902,9 +911,9 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& se
 		ret.TSVs /= this->max_cost_TSVs;
 	}
 
-#ifdef DBG_CALLS_SA
-	cout << "<- FloorPlanner::determCostInterconnects : " << ret << endl;
-#endif
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::determCostInterconnects : " << ret << endl;
+	}
 
 	return ret;
 }

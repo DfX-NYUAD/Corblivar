@@ -12,10 +12,10 @@
 #ifndef _CORBLIVAR_IO_HPP
 #define _CORBLIVAR_IO_HPP
 
-// debugging code switch
-//#define DBG_IO
-
 class IO {
+	private:
+		static constexpr bool DBG = false;
+
 	public:
 		static void parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv);
 		static void parseBlocks(FloorPlanner& fp);

@@ -13,13 +13,13 @@
 
 #include "ThermalAnalyzer.hpp"
 
-// debugging code switch
-//#define DBG_SA
-//#define DBG_CALLS_SA
-//#define DBG_LAYOUT
-
 class FloorPlanner {
 	private:
+		// debugging code switches
+		static constexpr bool DBG_SA = false;
+		static constexpr bool DBG_CALLS_SA = false;
+		static constexpr bool DBG_LAYOUT = false;
+
 		// PODs for cost functions
 		struct Cost {
 			double cost;
