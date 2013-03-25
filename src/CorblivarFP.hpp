@@ -46,7 +46,7 @@ class FloorPlanner {
 		ofstream results, solution_out;
 
 		// IO: scaling factor for block dimensions
-		static const int BLOCKS_SCALE_UP = 50;
+		static constexpr int BLOCKS_SCALE_UP = 50;
 
 		// SA config parameters
 		double conf_SA_loopFactor, conf_SA_loopLimit;
@@ -58,7 +58,7 @@ class FloorPlanner {
 		double conf_SA_temp_phase_trans_12_factor, conf_SA_temp_phase_trans_23_factor;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
-		static const int SA_SAMPLING_LOOP_FACTOR = 2;
+		static constexpr int SA_SAMPLING_LOOP_FACTOR = 2;
 
 		// SA paramter: scaling factor for initial temp
 		static constexpr double SA_INIT_TEMP_FACTOR = 0.01;
@@ -102,9 +102,9 @@ class FloorPlanner {
 		double conf_outline_x, conf_outline_y, outline_AR;
 
 		// logging
-		static const int LOG_MINIMAL = 1;
-		static const int LOG_MEDIUM = 2;
-		static const int LOG_MAXIMUM = 3;
+		static constexpr int LOG_MINIMAL = 1;
+		static constexpr int LOG_MEDIUM = 2;
+		static constexpr int LOG_MAXIMUM = 3;
 		inline bool logMin() const {
 			return (this->conf_log >= LOG_MINIMAL);
 		};

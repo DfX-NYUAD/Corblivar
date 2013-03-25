@@ -202,12 +202,12 @@ class CorblivarCore {
 		};
 
 		// layout operations for heuristic optimization
-		static const int OP_SWAP_BLOCKS_WI_DIE = 0;
-		static const int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
-		static const int OP_MOVE_TUPLE = 2;
-		static const int OP_SWITCH_TUPLE_DIR = 3;
-		static const int OP_SWITCH_TUPLE_JUNCTS = 4;
-		static const int OP_SWITCH_BLOCK_ORIENT = 5;
+		static constexpr int OP_SWAP_BLOCKS_WI_DIE = 0;
+		static constexpr int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
+		static constexpr int OP_MOVE_TUPLE = 2;
+		static constexpr int OP_SWITCH_TUPLE_DIR = 3;
+		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
+		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
 
 		inline void switchBlocksWithinDie(const int& die, const int& tuple1, const int& tuple2) const {
 			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);

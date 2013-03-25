@@ -12,10 +12,6 @@
 #include "CorblivarFP.hpp"
 #include "ThermalAnalyzer.hpp"
 
-// definitions for const vars, to allocate memory
-// initializations see Corblivar.hpp
-constexpr int ThermalAnalyzer::thermal_map_dim;
-
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.

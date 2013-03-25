@@ -102,7 +102,7 @@ class Math {
 
 class Point {
 	public:
-		static const int UNDEF = -1;
+		static constexpr int UNDEF = -1;
 
 		double x, y;
 
