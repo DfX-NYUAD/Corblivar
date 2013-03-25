@@ -14,6 +14,7 @@
 #include "CorblivarFP.hpp"
 
 // main handler
+// TODO split up
 bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
@@ -792,7 +793,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 	return ret;
 }
 
-// TODO implement other variants to compare w/ other floorplanners; consider static bool
+// (TODO) implement other variants to compare w/ other floorplanners; consider static bool
 // in Corblivar.hpp for selecting appropriate version during compile time / config
 // parameter during runtime
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) const {

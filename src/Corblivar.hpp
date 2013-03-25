@@ -46,9 +46,7 @@ class Net;
 class Rect;
 class Math;
 
-/* classes */
-// TODO clean interfaces; replace FloorPlanner& fp or CorblivarCore& corb w/ required members
-
+/* general classes */
 class Math {
 	public:
 
