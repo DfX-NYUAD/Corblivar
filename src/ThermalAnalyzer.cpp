@@ -9,6 +9,8 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
+#include "CorblivarFP.hpp"
+#include "ThermalAnalyzer.hpp"
 
 // definitions for const vars, to allocate memory
 // initializations see Corblivar.hpp
@@ -79,7 +81,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 					// out of range due to the padded power maps
 					i = x + (mask_i - ThermalAnalyzer::mask_center);
 
-#ifdef DBG_LAYOUT
+#ifdef DBG_THERMAL
 					cout << "y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << endl;
 					if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
 						cout << "i out of range (should be limited by x)" << endl;
@@ -117,7 +119,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 					// out of range due to the padded power maps
 					i = y + (mask_i - ThermalAnalyzer::mask_center);
 
-#ifdef DBG_LAYOUT
+#ifdef DBG_THERMAL
 					cout << "x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
 					cout << ", mask_i=" << mask_i << ", i=" << i << endl;
 					if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
@@ -311,12 +313,12 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		this->thermal_masks.push_back(mask);
 	}
 
-#ifdef DBG_LAYOUT
+#ifdef DBG_THERMAL
 	// enforce fixed digit count for printing mask
 	cout << fixed;
 	// dump mask
 	for (i = 0; i < fp.conf_layer; i++) {
-		cout << "DBG_LAYOUT> Thermal 1D mask for layer " << i << ":" << endl;
+		cout << "DBG_THERMAL> Thermal 1D mask for layer " << i << ":" << endl;
 		for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
 			cout << this->thermal_masks[i][x_y] << ", ";
 		}

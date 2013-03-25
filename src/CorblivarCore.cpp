@@ -9,6 +9,8 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
+#include "CorblivarFP.hpp"
+#include "CorblivarCore.hpp"
 
 void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
 	CornerBlockList::Direction cur_dir;

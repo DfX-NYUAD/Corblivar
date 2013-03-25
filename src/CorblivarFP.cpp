@@ -9,6 +9,9 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
+#include "CorblivarCore.hpp"
+#include "IO.hpp"
+#include "CorblivarFP.hpp"
 
 // main handler
 bool FloorPlanner::performSA(const CorblivarCore& corb) {

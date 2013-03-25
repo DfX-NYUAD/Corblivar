@@ -10,6 +10,9 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
+#include "CorblivarFP.hpp"
+#include "CorblivarCore.hpp"
+#include "IO.hpp"
 
 // parse program parameter and config file
 void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv) {

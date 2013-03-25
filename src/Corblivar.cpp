@@ -1,7 +1,8 @@
 /*
  * =====================================================================================
  *
- *    Description:  Main file for Corblivar (corner block list for varied [block] alignment requests)
+ *    Description:  Main file for Corblivar
+ *    			(Corner Block List for Varied [block] Alignment Requests)
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
@@ -9,13 +10,9 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
-
-// definitions for const vars, to allocate memory
-// initializations see Corblivar.hpp
-const int FloorPlanner::LOG_MINIMAL;
-const int FloorPlanner::LOG_MEDIUM;
-const int FloorPlanner::LOG_MAXIMUM;
-const int Point::UNDEF;
+#include "CorblivarFP.hpp"
+#include "CorblivarCore.hpp"
+#include "IO.hpp"
 
 int main (int argc, char** argv) {
 	FloorPlanner fp;
