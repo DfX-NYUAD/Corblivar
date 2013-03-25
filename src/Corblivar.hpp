@@ -93,13 +93,20 @@ class ThermalAnalyzer {
 		static constexpr double THICKNESS_BOND = 0.00002;
 
 		// thermal modeling: dimensions
-		// maps_dim relates to power maps and thermal map
-		// (note that power maps are padded at the boundaries according to mask
+		// represents the thermal map's dimension
+		static constexpr int thermal_map_dim = 64;
+		// represents the thermal mask's dimension (i.e., the 2D gauss function
+		// representing the thermal impulse response);
+		// note that value should be uneven!
+		static constexpr int mask_dim = 9;
+		// represents the center index of the center originated mask
+		static constexpr int mask_center = mask_dim / 2;
+		// represents the amount of padded bins at power maps' boundaries
+		static constexpr int mask_dim_half = mask_center;
+		// represents the power maps' dimension
+		// (note that maps are padded at the boundaries according to mask
 		// dim in order to handle boundary values for convolution)
-		static constexpr int maps_dim = 64;
-		// mask_dim relates to the thermal mask, i.e., the 2D gauss function
-		// representing the thermal impulse response; value must be uneven
-		static constexpr int mask_dim = 17;
+		static constexpr int power_maps_dim = thermal_map_dim + (mask_dim - 1);
 
 		// thermal modeling: vector masks and maps
 		// mask[i][x/y], whereas mask[0] relates to the mask for layer 0 obtained
@@ -108,9 +115,9 @@ class ThermalAnalyzer {
 		// Note that the masks are only 1D for the separated convolution
 		vector< array<double,mask_dim> > thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		mutable vector< array<array<double,maps_dim>,maps_dim> > power_maps;
+		mutable vector< array<array<double,power_maps_dim>,power_maps_dim> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
-		mutable array<array<double,maps_dim>,maps_dim> thermal_map;
+		mutable array<array<double,thermal_map_dim>,thermal_map_dim> thermal_map;
 
 	public:
 		friend class IO;

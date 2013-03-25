@@ -593,7 +593,7 @@ void IO::writePowerThermalMaps(const FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == 0) {
-				gp_out << "set title \"" << fp.benchmark << " - Power Map Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"" << fp.benchmark << " - Padded Power Map Layer " << cur_layer + 1 << "\"" << endl;
 			}
 			else {
 				gp_out << "set title \"" << fp.benchmark << " - Thermal Map Layer " << cur_layer + 1 << "\"" << endl;
