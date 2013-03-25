@@ -10,6 +10,10 @@
  */
 #include "Corblivar.hpp"
 
+// definitions for const vars, to allocate memory
+// initializations see Corblivar.hpp
+constexpr int ThermalAnalyzer::thermal_map_dim;
+
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
@@ -193,14 +197,8 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 		for (auto& b : fp.blocks) {
 			block = b.second;
 
+			// drop blocks assigned to other layers
 			if (block->layer != i) {
-				continue;
-			}
-			// TODO consider parts of blocks which are w/in outline
-			// required to not guide search towards violating outline by
-			// moving blocks outside in order to reduce temperature
-			// sanity check; ignore blocks outside outline
-			if (block->bb.ur.x > fp.conf_outline_x || block->bb.ur.y > fp.conf_outline_y) {
 				continue;
 			}
 
@@ -217,6 +215,10 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 			x_upper = ceil(block_offset.ur.x / maps_dim_x);
 			y_lower = floor(block_offset.ll.y / maps_dim_y);
 			y_upper = ceil(block_offset.ur.y / maps_dim_y);
+			// limit boundaries; restricts mapping of blocks' power to power
+			// map according to offset thermal-map dimensions
+			x_upper = min(x_upper, ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half);
+			y_upper = min(y_upper, ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
