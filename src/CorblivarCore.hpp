@@ -122,6 +122,7 @@ class CorblivarDie {
 		inline void resetTuplePointer() {
 			this->pi = 0;
 		};
+
 	public:
 		friend class CorblivarCore;
 
@@ -392,7 +393,6 @@ class CorblivarAlignmentReq {
 		enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
 
 	public:
-
 		Block *s_i, *s_j;
 		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;

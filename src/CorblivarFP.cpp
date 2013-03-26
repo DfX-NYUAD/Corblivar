@@ -444,7 +444,7 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	exit(0);
 }
 
-bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp) {
+bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp) const {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 	bool ret;
@@ -651,7 +651,6 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 	cost_area_outline = this->determCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
-	// TODO try to speed up by using threads / OpenMP to determine separate cost fcts in parallel
 	if (phase_two) {
 
 		// normalized interconnects cost
