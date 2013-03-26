@@ -51,7 +51,7 @@ int main (int argc, char** argv) {
 	}
 
 	// init thermal masks
-	fp.thermalAnalyzer.initThermalMasks(fp);
+	fp.thermalAnalyzer.initThermalMasks(fp.conf_layer, fp.logMed());
 
 	// (TODO) drop if further optimization of read in data is desired
 	if (fp.solution_in.is_open()) {

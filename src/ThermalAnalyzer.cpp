@@ -9,7 +9,6 @@
  * =====================================================================================
  */
 #include "Corblivar.hpp"
-#include "CorblivarFP.hpp"
 #include "ThermalAnalyzer.hpp"
 
 // Thermal-analyzer routine based on power blurring,
@@ -17,7 +16,7 @@
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns max value of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost, const bool& normalize) const {
+double ThermalAnalyzer::performPowerBlurring(const int& layers, double& max_cost_temp, const bool& set_max_cost, const bool& normalize) const {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -29,7 +28,8 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	array<array<double,ThermalAnalyzer::power_maps_dim>,ThermalAnalyzer::power_maps_dim> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::performPowerBlurring(" << &fp << ", " << set_max_cost << ", " << normalize << ")" << endl;
+		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << max_cost_temp << ", ";
+		cout << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
 	// init temp map to zero
@@ -46,8 +46,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	/// note that no (kernel) flipping is required since the mask is symmetric
 	//
 	// start w/ horizontal convolution (with which to start doesn't matter actually)
-	// TODO replace fp.conf_layer w/ fct parameter
-	for (layer = 0; layer < fp.conf_layer; layer++) {
+	for (layer = 0; layer < layers; layer++) {
 
 		// walk power-map grid for horizontal convolution; store into thermal_map_tmp;
 		// consider offset due to padding of power map; also walk only according
@@ -93,8 +92,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	}
 
 	// continue w/ vertical convolution
-	// TODO replace fp.conf_layer w/ fct parameter
-	for (layer = 0; layer < fp.conf_layer; layer++) {
+	for (layer = 0; layer < layers; layer++) {
 
 		// walk power-map grid for horizontal convolution; use data from
 		// thermal_map_tmp and store into thermal_map
@@ -141,12 +139,12 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		fp.max_cost_temp = max_temp;
+		max_cost_temp = max_temp;
 	}
 
 	// normalize to max value from initial sampling
 	if (normalize) {
-		max_temp /= fp.max_cost_temp;
+		max_temp /= max_cost_temp;
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
@@ -156,7 +154,7 @@ double ThermalAnalyzer::performPowerBlurring(const FloorPlanner& fp, const bool&
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
+void ThermalAnalyzer::generatePowerMaps(const int& layers, const double& outline_x, const double& outline_y, const map<int, Block*>& blocks) const {
 	int i;
 	int x, y;
 	Block *block;
@@ -167,23 +165,23 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 	int x_lower, x_upper, y_lower, y_upper;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << &fp << ")" << endl;
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << outline_x << ", " << outline_y << ", " << &blocks << ")" << endl;
 	}
 
 	// clear maps
 	this->power_maps.clear();
-	this->power_maps.reserve(fp.conf_layer);
+	this->power_maps.reserve(layers);
 
 	// scale power map dimensions to outline of thermal map; this way the padding of
 	// power maps doesn't distort the block outlines in the thermal map
-	maps_dim_x = fp.conf_outline_x / ThermalAnalyzer::thermal_map_dim;
-	maps_dim_y = fp.conf_outline_y / ThermalAnalyzer::thermal_map_dim;
+	maps_dim_x = outline_x / ThermalAnalyzer::thermal_map_dim;
+	maps_dim_y = outline_y / ThermalAnalyzer::thermal_map_dim;
 	// determine offset for blocks, related to padding of power maps
-	offset_x = (fp.conf_outline_x / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
-	offset_y = (fp.conf_outline_y / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
+	offset_x = (outline_x / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
+	offset_y = (outline_y / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
 
 	// determine maps for each layer
-	for (i = 0; i < fp.conf_layer; i++) {
+	for (i = 0; i < layers; i++) {
 
 		// init map to zero
 		// note: this also implicitly pads the map w/ zero
@@ -192,7 +190,7 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 		}
 
 		// consider each block on the related layer
-		for (auto& b : fp.blocks) {
+		for (auto& b : blocks) {
 			block = b.second;
 
 			// drop blocks assigned to other layers
@@ -258,7 +256,7 @@ void ThermalAnalyzer::generatePowerMaps(const FloorPlanner& fp) const {
 // (uneven) array.
 // Note that masks are 1D, sufficient for the separated convolution in
 // performPowerBlurring()
-void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
+void ThermalAnalyzer::initThermalMasks(const int& layers, const bool& log) {
 	int i, ii;
 	double range_scale;
 	double max_spread;
@@ -268,33 +266,33 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 	int x_y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::initThermalMasks(" << &fp << ")" << endl;
+		cout << "-> ThermalAnalyzer::initThermalMasks(" << layers << ", " << log << ")" << endl;
 	}
 
-	if (fp.logMed()) {
+	if (log) {
 		cout << "Layout> ";
 		cout << "Initializing thermals masks for power blurring ..." << endl;
 	}
 
 	// clear masks
 	this->thermal_masks.clear();
-	this->thermal_masks.reserve(fp.conf_layer);
+	this->thermal_masks.reserve(layers);
 
 	// max_spread represents the spreading factor for the widest function g, i.e., relates
 	// to mask for point source on layer furthest away
 	// TODO vary this parameter
-	max_spread = fp.conf_layer;
+	max_spread = layers;
 
 	// determine range scale factor, i.e. determine spread such that g = 0.01 at
 	// boundary corners of kernel
-	range_scale = sqrt(max_spread) * sqrt(log(2.0)+log(5.0));
+	range_scale = sqrt(max_spread) * sqrt(std::log(2.0)+std::log(5.0));
 	// normalize range according to mask dimension
 	// decrement masks_dim such that subsequent impulse-response calculation
 	// determines values for center of each mask bin
 	range_scale /=  (ThermalAnalyzer::mask_dim - 1) / 2;
 
 	// determine masks for lowest layer, i.e., hottest layer
-	for (i = 1; i <= fp.conf_layer; i++) {
+	for (i = 1; i <= layers; i++) {
 		// TODO vary these calculations
 		spread = 1.0 / i;
 		impulse_factor = 1.0 / i;
@@ -312,7 +310,7 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		// enforce fixed digit count for printing mask
 		cout << fixed;
 		// dump mask
-		for (i = 0; i < fp.conf_layer; i++) {
+		for (i = 0; i < layers; i++) {
 			cout << "DBG> Thermal 1D mask for layer " << i << ":" << endl;
 			for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
 				cout << this->thermal_masks[i][x_y] << ", ";
@@ -323,7 +321,7 @@ void ThermalAnalyzer::initThermalMasks(const FloorPlanner& fp) {
 		cout.unsetf(ios_base::floatfield);
 	}
 
-	if (fp.logMed()) {
+	if (log) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}

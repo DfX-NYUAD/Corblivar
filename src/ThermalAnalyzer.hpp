@@ -73,12 +73,12 @@ class ThermalAnalyzer {
 		friend class IO;
 
 		// thermal modeling: handlers
-		void initThermalMasks(const FloorPlanner& fp);
-		void generatePowerMaps(const FloorPlanner& fp) const;
+		void initThermalMasks(const int& layers, const bool& log);
+		void generatePowerMaps(const int& layers, const double& outline_x, const double& outline_y, const map<int, Block*>& blocks) const;
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
-		double performPowerBlurring(const FloorPlanner& fp, const bool& set_max_cost = false, const bool& normalize = true) const;
+		double performPowerBlurring(const int& layers, double& max_cost_temp, const bool& set_max_cost = false, const bool& normalize = true) const;
 };
 
 #endif
