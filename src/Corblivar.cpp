@@ -20,7 +20,7 @@ int main (int argc, char** argv) {
 	bool done;
 
 	// memorize start time
-	ftime(&fp.start);
+	fp.setTimeStart();
 
 	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
@@ -30,7 +30,6 @@ int main (int argc, char** argv) {
 	srand(time(0));
 
 	// parse program parameter and config file
-	fp.conf_log = FloorPlanner::LOG_MINIMAL;
 	IO::parseParameterConfig(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
@@ -38,7 +37,7 @@ int main (int argc, char** argv) {
 	IO::parseNets(fp);
 
 	/// init Corblivar layout representation
-	if (fp.solution_in.is_open()) {
+	if (fp.inputSolutionFileOpen()) {
 		// read from file
 		IO::parseCorblivarFile(fp, corb);
 		// assume read in data as currently best solution
@@ -46,14 +45,14 @@ int main (int argc, char** argv) {
 	}
 	// generate new, random data set
 	else {
-		corb.initCorblivarRandomly(fp.logMed(), fp.conf_layer, fp.blocks);
+		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks());
 	}
 
 	// init thermal analyzer, only reasonable after parsing config file
 	fp.initThermalAnalyzer();
 
 	// (TODO) drop if further optimization of read in data is desired
-	if (fp.solution_in.is_open()) {
+	if (fp.inputSolutionFileOpen()) {
 		fp.finalize(corb);
 	}
 

@@ -17,7 +17,7 @@ class IO {
 		static constexpr bool DBG = false;
 
 	public:
-		static void parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv);
+		static void parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv, const bool& log = true);
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseNets(FloorPlanner& fp);
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);

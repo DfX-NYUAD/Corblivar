@@ -20,6 +20,16 @@ class FloorPlanner {
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
 
+		// chip data
+		map<int, Block*> blocks;
+		vector<Net*> nets;
+
+		// config parameters
+		int conf_layer;
+		int conf_log;
+		double conf_outline_x, conf_outline_y;
+		double outline_AR;
+
 		// PODs
 		struct Cost {
 			double cost;
@@ -49,12 +59,19 @@ class FloorPlanner {
 		// IO
 		string benchmark, blocks_file, power_file, nets_file;
 		ofstream results, solution_out;
+		ifstream solution_in;
+		struct timeb start;
 
 		// IO: scaling factor for block dimensions
 		static constexpr int BLOCKS_SCALE_UP = 50;
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
+
+		// logging
+		static constexpr int LOG_MINIMAL = 1;
+		static constexpr int LOG_MEDIUM = 2;
+		static constexpr int LOG_MAXIMUM = 3;
 
 		// SA config parameters
 		double conf_SA_loopFactor, conf_SA_loopLimit;
@@ -96,23 +113,7 @@ class FloorPlanner {
 	public:
 		friend class IO;
 
-		// chip data
-		map<int, Block*> blocks;
-		vector<Net*> nets;
-
-		// IO
-		struct timeb start;
-		ifstream solution_in;
-
-		// config parameters
-		int conf_layer;
-		int conf_log;
-		double conf_outline_x, conf_outline_y, outline_AR;
-
 		// logging
-		static constexpr int LOG_MINIMAL = 1;
-		static constexpr int LOG_MEDIUM = 2;
-		static constexpr int LOG_MAXIMUM = 3;
 		inline bool logMin() const {
 			return (this->conf_log >= LOG_MINIMAL);
 		};
@@ -123,13 +124,29 @@ class FloorPlanner {
 			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
-		// SA: handler
+		// ThermalAnalyzer: handler
 		inline void initThermalAnalyzer() {
 			// init thermal masks
 			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed());
 			// init power maps, i.e. predetermine maps parameters
 			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_outline_x, this->conf_outline_y);
 		};
+
+		// getter / setter
+		inline int getLayers() const {
+			return this->conf_layer;
+		};
+		inline map<int, Block*> getBlocks() const {
+			return this->blocks;
+		};
+		inline void setTimeStart() {
+			ftime(&(this->start));
+		};
+		inline bool inputSolutionFileOpen() const {
+			return this->solution_in.is_open();
+		};
+
+		// SA: handler
 		bool performSA(const CorblivarCore& corb);
 		void finalize(const CorblivarCore& corb);
 };
