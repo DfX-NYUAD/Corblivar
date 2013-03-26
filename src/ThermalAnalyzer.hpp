@@ -69,12 +69,19 @@ class ThermalAnalyzer {
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		mutable array<array<double,thermal_map_dim>,thermal_map_dim> thermal_map;
 
+		// thermal modeling: parameters for generating power maps
+		double power_maps_dim_x, power_maps_dim_y;
+		double power_maps_bin_area;
+		double offset_x, offset_y;
+		array<double,power_maps_dim> power_maps_bins_ll_x, power_maps_bins_ll_y;
+
 	public:
 		friend class IO;
 
 		// thermal modeling: handlers
 		void initThermalMasks(const int& layers, const bool& log);
-		void generatePowerMaps(const int& layers, const double& outline_x, const double& outline_y, const map<int, Block*>& blocks) const;
+		void initPowerMaps(const int& layers, const double& outline_x, const double& outline_y);
+		void generatePowerMaps(const int& layers, const map<int, Block*>& blocks) const;
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix
