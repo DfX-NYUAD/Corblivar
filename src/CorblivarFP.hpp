@@ -64,17 +64,13 @@ class FloorPlanner {
 		static constexpr double SA_INIT_TEMP_FACTOR = 0.01;
 
 		// SA: layout-operation handler variables
-		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false);
+		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false) const;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(
-				const double& ratio_feasible_solutions_fixed_outline = 0.0,
-				const bool& phase_two = false,
-				const bool& set_max_cost = false
-				) const;
+		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false) const;
 		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) const {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
