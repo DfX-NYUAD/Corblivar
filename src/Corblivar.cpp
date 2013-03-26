@@ -47,7 +47,7 @@ int main (int argc, char** argv) {
 	}
 	// generate new, random data set
 	else {
-		corb.initCorblivarRandomly(fp);
+		corb.initCorblivarRandomly(fp.logMed(), fp.conf_layer, fp.blocks);
 	}
 
 	// init thermal masks

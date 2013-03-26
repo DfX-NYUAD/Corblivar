@@ -8,29 +8,30 @@
  *
  * =====================================================================================
  */
+// note that this core functions are not depending on other implementations, i.e., can be
+// reused stand-alone in custom projects using Corblivar
 #include "Corblivar.hpp"
-#include "CorblivarFP.hpp"
 #include "CorblivarCore.hpp"
 
-void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
+void CorblivarCore::initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks) {
 	CornerBlockList::Direction cur_dir;
 	int rand, cur_t;
 	Block *cur_block;
 
-	if (fp.logMed()) {
+	if (log) {
 		cout << "Layout> ";
-		cout << "Initializing Corblivar data for corb on " << fp.conf_layer << " layers..." << endl;
+		cout << "Initializing Corblivar data for corb on " << layers << " layers..." << endl;
 	}
 
 	// init dies data
-	this->initCorblivarDies(fp.conf_layer, fp.blocks.size());
+	this->initCorblivarDies(layers, blocks.size());
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (auto& b : fp.blocks) {
+	for (auto& b : blocks) {
 		cur_block = b.second;
 
 		// consider random die
-		rand = Math::randI(0, fp.conf_layer);
+		rand = Math::randI(0, layers);
 
 		// generate direction L
 		if (Math::randB()) {
@@ -59,7 +60,7 @@ void CorblivarCore::initCorblivarRandomly(const FloorPlanner& fp) {
 		}
 	}
 
-	if (fp.logMed()) {
+	if (log) {
 		cout << "Layout> ";
 		cout << "Done" << endl << endl;
 	}

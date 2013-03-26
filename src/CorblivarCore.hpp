@@ -178,21 +178,21 @@ class CorblivarCore {
 		vector<CorblivarDie*> dies;
 
 		// general operations
-		void initCorblivarRandomly(const FloorPlanner& fp);
+		void initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks);
 		void generateLayout(const bool& dbgStack = false) const;
 		//CorblivarDie* findDie(Block* Si);
 
 		// init handler
-		inline void initCorblivarDies(const int& layer, const unsigned& blocks) {
+		inline void initCorblivarDies(const int& layers, const unsigned& blocks) {
 			int i;
 			CorblivarDie* cur_die;
 
 			// clear and reserve mem for dies
 			this->dies.clear();
-			this->dies.reserve(layer);
+			this->dies.reserve(layers);
 
 			// init dies and their related structures
-			for (i = 0; i < layer; i++) {
+			for (i = 0; i < layers; i++) {
 				cur_die = new CorblivarDie(i);
 				// reserve mem for worst case, i.e., all blocks in one particular die
 				cur_die->CBL.reserve(blocks);
