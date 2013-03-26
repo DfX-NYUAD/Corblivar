@@ -76,7 +76,7 @@ class FloorPlanner {
 				const bool& set_max_cost = false
 				) const;
 		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) const {
-			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->conf_outline_x, this->conf_outline_y, this->blocks);
+			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
 		};
 		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
