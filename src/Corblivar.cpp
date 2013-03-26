@@ -17,7 +17,6 @@
 int main (int argc, char** argv) {
 	FloorPlanner fp;
 	CorblivarCore corb;
-	ThermalAnalyzer therm;
 	bool done;
 
 	// memorize start time
@@ -50,10 +49,8 @@ int main (int argc, char** argv) {
 		corb.initCorblivarRandomly(fp.logMed(), fp.conf_layer, fp.blocks);
 	}
 
-	// init thermal masks
-	fp.thermalAnalyzer.initThermalMasks(fp.conf_layer, fp.logMed());
-	// init power maps, i.e. predetermine maps parameters
-	fp.thermalAnalyzer.initPowerMaps(fp.conf_layer, fp.conf_outline_x, fp.conf_outline_y);
+	// init thermal analyzer, only reasonable after parsing config file
+	fp.initThermalAnalyzer();
 
 	// (TODO) drop if further optimization of read in data is desired
 	if (fp.solution_in.is_open()) {

@@ -53,6 +53,9 @@ class FloorPlanner {
 		// IO: scaling factor for block dimensions
 		static constexpr int BLOCKS_SCALE_UP = 50;
 
+		// thermal analyzer
+		ThermalAnalyzer thermalAnalyzer;
+
 		// SA config parameters
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
@@ -65,7 +68,7 @@ class FloorPlanner {
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 2;
 
-		// SA paramter: scaling factor for initial temp
+		// SA parameter: scaling factor for initial temp
 		static constexpr double SA_INIT_TEMP_FACTOR = 0.01;
 
 		// SA: layout-operation handler variables
@@ -83,6 +86,9 @@ class FloorPlanner {
 		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true) const;
 
+		// SA parameters: max cost values
+		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+
 		// SA: helper for main handler
 		void initSA(const CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
 		inline void updateTemp(double& cur_temp, const OpsRatios& accepted_ops_ratio, const int& iteration, const bool& valid_layout_found);
@@ -93,9 +99,6 @@ class FloorPlanner {
 		// chip data
 		map<int, Block*> blocks;
 		vector<Net*> nets;
-
-		// thermal analyzer
-		ThermalAnalyzer thermalAnalyzer;
 
 		// IO
 		struct timeb start;
@@ -120,10 +123,13 @@ class FloorPlanner {
 			return (this->conf_log >= LOG_MAXIMUM);
 		};
 
-		// SA parameters: max cost values
-		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
-
-		// SA: floorplanning handler
+		// SA: handler
+		inline void initThermalAnalyzer() {
+			// init thermal masks
+			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed());
+			// init power maps, i.e. predetermine maps parameters
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_outline_x, this->conf_outline_y);
+		};
 		bool performSA(const CorblivarCore& corb);
 		void finalize(const CorblivarCore& corb);
 };
