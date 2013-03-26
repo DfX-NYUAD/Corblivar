@@ -62,7 +62,7 @@ class CornerBlockList {
 		};
 
 		inline bool empty() const {
-			return (this->size() == 0);
+			return this->S.empty();
 		};
 
 		inline void clear() {
