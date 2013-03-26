@@ -45,6 +45,7 @@ class Block;
 class Net;
 class Rect;
 class Math;
+class Direction;
 
 /* general classes */
 class Math {

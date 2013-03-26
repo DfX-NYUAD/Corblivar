@@ -15,7 +15,7 @@
 #include "IO.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv) {
+void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv, const bool& log) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -109,7 +109,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv) {
 	}
 
 	// handle config file
-	if (fp.logMed()) {
+	if (log) {
 		cout << "IO> ";
 		cout << "Parsing config file..." << endl;
 	}
@@ -203,7 +203,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv) {
 
 	in.close();
 
-	if (fp.logMed()) {
+	if (log) {
 		cout << "IO> Config values:" << endl;
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
 		cout << "IO>  Layers for 3D IC: " << fp.conf_layer << endl;
@@ -275,22 +275,22 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 				cur_block = NULL;
 			}
 			// store block into S sequence
-			corb.dies[cur_layer]->CBL.S.push_back(cur_block);
+			corb.getDie(cur_layer)->getCBL().S_push_back(cur_block);
 
 			// direction L
 			fp.solution_in >> dir;
 			// store direction into L sequence
 			if (dir == 0) {
-				corb.dies[cur_layer]->CBL.L.push_back(CornerBlockList::DIRECTION_VERT);
+				corb.getDie(cur_layer)->getCBL().L_push_back(Direction::DIRECTION_VERT);
 			}
 			else {
-				corb.dies[cur_layer]->CBL.L.push_back(CornerBlockList::DIRECTION_HOR);
+				corb.getDie(cur_layer)->getCBL().L_push_back(Direction::DIRECTION_HOR);
 			}
 
 			// T-junctions
 			fp.solution_in >> juncts;
 			// store junctions into T sequence
-			corb.dies[cur_layer]->CBL.T.push_back(juncts);
+			corb.getDie(cur_layer)->getCBL().T_push_back(juncts);
 
 			// block width
 			fp.solution_in >> w;

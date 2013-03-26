@@ -13,8 +13,12 @@
 #include "Corblivar.hpp"
 #include "CorblivarCore.hpp"
 
+// member definition, i.e., memory allocation
+constexpr unsigned Direction::DIRECTION_HOR;
+constexpr unsigned Direction::DIRECTION_VERT;
+
 void CorblivarCore::initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks) {
-	CornerBlockList::Direction cur_dir;
+	unsigned cur_dir;
 	int rand, cur_t;
 	Block *cur_block;
 
@@ -35,10 +39,10 @@ void CorblivarCore::initCorblivarRandomly(const bool& log, const int& layers, co
 
 		// generate direction L
 		if (Math::randB()) {
-			cur_dir = CornerBlockList::DIRECTION_HOR;
+			cur_dir = Direction::DIRECTION_HOR;
 		}
 		else {
-			cur_dir = CornerBlockList::DIRECTION_VERT;
+			cur_dir = Direction::DIRECTION_VERT;
 		}
 		// init T-junction to be overlapped as zero, results in initial layout to
 		// be placed ``somewhat diagonally'' into outline
@@ -132,7 +136,7 @@ void CorblivarCore::generateLayout(const bool& dbgStack) const {
 
 Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	Block *cur_block;
-	CornerBlockList::Direction cur_dir;
+	unsigned cur_dir;
 	unsigned cur_juncts;
 	vector<Block*> relevBlocks;
 	unsigned relevBlocksCount, b;
@@ -154,7 +158,7 @@ Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
 	cur_block->layer = this->id;
 
 	// horizontal placement
-	if (cur_dir == CornerBlockList::DIRECTION_HOR) {
+	if (cur_dir == Direction::DIRECTION_HOR) {
 		// pop relevant blocks from stack
 		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
 		relevBlocks.reserve(relevBlocksCount);

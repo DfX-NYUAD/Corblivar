@@ -14,16 +14,25 @@
 // debugging code switch
 static constexpr bool DBG_CORB = false;
 
-class CornerBlockList {
+// CBL placement direction
+class Direction {
 	public:
-		// CBL placement direction
-		enum Direction {DIRECTION_VERT, DIRECTION_HOR};
+		static constexpr unsigned DIRECTION_VERT = 0;
+		static constexpr unsigned DIRECTION_HOR = 1;
+};
 
+class CornerBlockList {
+	private:
 		// CBL sequences
 		vector<Block*> S;
-		vector<Direction> L;
+		vector<unsigned> L;
 		vector<unsigned> T;
 
+	public:
+		friend class CorblivarCore;
+		friend class CorblivarDie;
+
+		// getter / setter
 		inline unsigned size() const {
 			unsigned ret;
 
@@ -70,6 +79,18 @@ class CornerBlockList {
 			this->T.reserve(elements);
 		};
 
+		inline void S_push_back(Block* &block) {
+			this->S.push_back(block);
+		};
+
+		inline void L_push_back(const unsigned& l) {
+			this->L.push_back(l);
+		};
+
+		inline void T_push_back(const unsigned& t) {
+			this->T.push_back(t);
+		};
+
 		inline string itemString(const unsigned& i) const {
 			stringstream ret;
 
@@ -103,6 +124,9 @@ class CorblivarDie {
 		// placement stacks
 		stack<Block*> Hi, Vi;
 
+		// main CBL sequence
+		CornerBlockList CBL;
+
 		// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
 
@@ -119,43 +143,9 @@ class CorblivarDie {
 			}
 		};
 
-		inline void resetTuplePointer() {
-			this->pi = 0;
-		};
-
-	public:
-		friend class CorblivarCore;
-
-		// main CBL sequence
-		CornerBlockList CBL;
-
-		CorblivarDie(const int& i) {
-			stalled = done = false;
-			id = i;
-		}
-
-		// layout generation functions
-		Block* placeCurrentBlock(const bool& dbgStack = false);
-
-		inline Block* currentBlock() const {
-			return this->CBL.S[this->pi];
-		};
-
-		inline CornerBlockList::Direction currentTupleDirection() const {
-			return this->CBL.L[this->pi];
-		};
-
-		inline unsigned currentTupleJuncts() const {
-			return this->CBL.T[this->pi];
-		};
-
-		inline string currentTupleString() const {
-			return this->CBL.itemString(this->pi);
-		};
-
 		inline void reset() {
 			// reset progress pointer
-			this->resetTuplePointer();
+			this->pi = 0;
 			// reset done flag
 			this->done = false;
 			// reset placement stacks
@@ -166,22 +156,69 @@ class CorblivarDie {
 				this->Vi.pop();
 			}
 		};
+
+	public:
+		friend class CorblivarCore;
+
+		CorblivarDie(const int& i) {
+			stalled = done = false;
+			id = i;
+		}
+
+		// layout generation functions
+		Block* placeCurrentBlock(const bool& dbgStack = false);
+
+		// getter
+		inline CornerBlockList getCBL() const {
+			return this->CBL;
+		};
+
+		inline Block* currentBlock() const {
+			return this->CBL.S[this->pi];
+		};
+
+		inline unsigned currentTupleDirection() const {
+			return this->CBL.L[this->pi];
+		};
+
+		inline unsigned currentTupleJuncts() const {
+			return this->CBL.T[this->pi];
+		};
+
+		inline unsigned tupleJuncts(const unsigned& tuple) const {
+			return this->CBL.T[tuple];
+		};
+
+		inline string currentTupleString() const {
+			return this->CBL.itemString(this->pi);
+		};
 };
 
 class CorblivarCore {
 	private:
 		// die pointer
 		mutable CorblivarDie* p;
+
+		// data; encapsulated in CorblivarDie; Corblivar can be considered as 2.5D
+		// layout representation
+		vector<CorblivarDie*> dies;
+
 		// sequence A; alignment requirements
 		vector<CorblivarAlignmentReq*> A;
 
 	public:
-		vector<CorblivarDie*> dies;
-
 		// general operations
 		void initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks);
 		void generateLayout(const bool& dbgStack = false) const;
 		//CorblivarDie* findDie(Block* Si);
+
+		// die handler
+		inline CorblivarDie* getDie(const unsigned& die) const {
+			return this->dies[die];
+		};
+		inline unsigned diesSize() const {
+			return this->dies.size();
+		};
 
 		// init handler
 		inline void initCorblivarDies(const int& layers, const unsigned& blocks) {
@@ -244,11 +281,11 @@ class CorblivarCore {
 			}
 		};
 		inline void switchTupleDirection(const int& die, const int& tuple) const {
-			if (this->dies[die]->CBL.L[tuple] == CornerBlockList::DIRECTION_VERT) {
-				this->dies[die]->CBL.L[tuple] = CornerBlockList::DIRECTION_HOR;
+			if (this->dies[die]->CBL.L[tuple] == Direction::DIRECTION_VERT) {
+				this->dies[die]->CBL.L[tuple] = Direction::DIRECTION_HOR;
 			}
 			else {
-				this->dies[die]->CBL.L[tuple] = CornerBlockList::DIRECTION_VERT;
+				this->dies[die]->CBL.L[tuple] = Direction::DIRECTION_VERT;
 			}
 
 			if (DBG_CORB) {
@@ -303,7 +340,7 @@ class CorblivarCore {
 					b->bb_backup = b->bb;
 					die->CBLbackup.S.push_back(b);
 				}
-				for (const CornerBlockList::Direction& dir : die->CBL.L) {
+				for (const unsigned& dir : die->CBL.L) {
 					die->CBLbackup.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBL.T) {
@@ -324,7 +361,7 @@ class CorblivarCore {
 					b->bb = b->bb_backup;
 					die->CBL.S.push_back(b);
 				}
-				for (const CornerBlockList::Direction& dir : die->CBLbackup.L) {
+				for (const unsigned& dir : die->CBLbackup.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBLbackup.T) {
@@ -347,7 +384,7 @@ class CorblivarCore {
 					b->bb_best = b->bb;
 					die->CBLbest.S.push_back(b);
 				}
-				for (const CornerBlockList::Direction& dir : die->CBL.L) {
+				for (const unsigned& dir : die->CBL.L) {
 					die->CBLbest.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBL.T) {
@@ -376,7 +413,7 @@ class CorblivarCore {
 					b->bb = b->bb_best;
 					die->CBL.S.push_back(b);
 				}
-				for (const CornerBlockList::Direction& dir : die->CBLbest.L) {
+				for (const unsigned& dir : die->CBLbest.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (const unsigned& t_juncts : die->CBLbest.T) {
@@ -390,13 +427,14 @@ class CorblivarCore {
 
 class CorblivarAlignmentReq {
 	private:
+		// TODO realize as constexpr
 		enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
 
-	public:
 		Block *s_i, *s_j;
 		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;
 
+	public:
 		inline bool rangeX() const {
 			return (this->type_x == ALIGNMENT_RANGE);
 		};
