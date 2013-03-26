@@ -48,17 +48,12 @@ DEP := $(OBJ:%.o=%.d)
 #=============================================================================#
 # Library Options:
 #=============================================================================#
-# GC library
-#LIB_GC_DIR := $(LIBS_DIR)/packages/gc6.8
-#LIB_GC_SO := $(LIBS_DIR)/lib/libgc.so
-# library includes
 #OPT := $(OPT) -I$(LIBS_DIR)/include
 
 #=============================================================================#
 # Linker Options:
 #=============================================================================#
-LIBS := -fopenmp
-#LIBS := $(LIB_GC_SO)
+#LIBS := -fopenmp
 
 #=============================================================================#
 # Link Main Executable
@@ -67,7 +62,7 @@ all: libs $(APP)
 
 $(APP): $(BUILD_DIR) $(OBJ)
 	@echo
-	@echo Linking binary
+	@echo linking binary
 	$(COMPILER) $(OBJ) $(LIBS) -o $@
 
 $(BUILD_DIR):
@@ -78,18 +73,21 @@ $(BUILD_DIR):
 #=============================================================================#
 # Compile Source Code to Object Files
 #=============================================================================#
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
+
+# pull in dependency for compiled objects
+# -include performs include w/o warning, aborts for non-existent files
+-include $(DEP)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo
-	@echo General target for $<
+	@echo compile and determine dependencies for $<
 	$(COMPILER) -c $(OPT) $< -o $@
+	$(COMPILER) -MM $(OPT) $< | sed 's/$(basename $(notdir $@))\.o/$(BUILD_DIR)\/$(notdir $@)/g' > $(@:%.o=%.d)
 
 #=============================================================================#
 # Librarys build
 #=============================================================================#
-# build GC lib
-#libs: $(LIB_GC_SO)
 libs:
-
 #$(LIB_GC_SO):
 #	@echo
 #	@echo Building GC lib
@@ -126,9 +124,8 @@ cleanlibs:
 # Cleanup build
 #=============================================================================#
 clean:
-	@echo "Removing: "
-	@echo "		 " $(BUILD_DIR)/* $(APP)
-	@rm -f	$(BUILD_DIR)/* $(APP)
+	@echo "removing: $(BUILD_DIR)/* $(APP)"
+	@rm -f $(BUILD_DIR)/* $(APP)
 
 #=============================================================================#
 # Purge build
@@ -139,9 +136,9 @@ purge: clean cleanlibs
 # Pack source
 #=============================================================================#
 release: all
-	@echo "Packing Archive"
-	@echo "Save as ../$(APP).tar.gz"
-	tar -czf ../$(APP).tar.gz . --exclude=libs/lib --exclude=libs/share --exclude=libs/packages --exclude=libs/bin --exclude=build/* --exclude=$(APP)* --exclude=*.out --exclude=*.swp
+	@echo "packing source archive"
+	@echo "save as $(APP).tar.gz"
+	tar -czf $(APP).tar.gz . --exclude=libs/lib --exclude=libs/share --exclude=libs/packages --exclude=libs/bin --exclude=build/* --exclude=$(APP)* --exclude=*.out --exclude=*.swp
 
 #=============================================================================#
 # Some debugging output
