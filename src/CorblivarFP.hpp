@@ -20,7 +20,7 @@ class FloorPlanner {
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
 
-		// PODs for cost functions
+		// PODs
 		struct Cost {
 			double cost;
 			bool fits_fixed_outline;
@@ -39,6 +39,11 @@ class FloorPlanner {
 				out << "HPWL=" << cost.HPWL << ", TSVs=" << cost.TSVs;
 				return out;
 			}
+		};
+		struct OpsRatios {
+			double cur_ratio;
+			double boundary_1;
+			double boundary_2;
 		};
 
 		// IO
@@ -77,6 +82,10 @@ class FloorPlanner {
 		};
 		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true) const;
+
+		// SA: helper for main handler
+		void initSA(const CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
+		inline void updateTemp(double& cur_temp, const OpsRatios& accepted_ops_ratio, const int& iteration, const bool& valid_layout_found);
 
 	public:
 		friend class IO;

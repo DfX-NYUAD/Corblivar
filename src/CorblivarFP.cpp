@@ -14,139 +14,29 @@
 #include "CorblivarFP.hpp"
 
 // main handler
-// TODO split up
 bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
 	int accepted_ops;
-	double accepted_ops_ratio;
-	double accepted_ops_ratio_offset;
-	double accepted_ops_ratio_boundary_1, accepted_ops_ratio_boundary_2;
+	OpsRatios accepted_ops_ratio;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
 	Cost cost;
-	vector<double> cost_hist;
+	vector<double> cost_samples;
 	double cur_temp, init_temp;
 	double r;
-	vector<double> init_cost_interconnects;
 	int layout_fit_counter;
 	double layout_fit_ratio;
 	bool valid_layout_found;
 	bool accept;
 	bool phase_two, phase_two_transit;
-	double loop_factor, reheat_factor;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
 	}
 
-	// reset max cost
-	this->max_cost_WL = 0.0;
-	this->max_cost_TSVs = 0.0;
-	this->max_cost_temp = 0.0;
-	this->max_cost_alignments = 0.0;
-
-	// backup initial CBLs
-	corb.backupCBLs();
-
-	// init SA parameter: inner loop count
-	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
-
-	/// initial sampling
-	//
-	if (this->logMed()) {
-		cout << "SA> Perform initial solution-space sampling..." << endl;
-	}
-
-	// init cost
-	corb.generateLayout();
-	cur_cost = this->determCost().cost;
-
-	// perform some random operations, for SA temperature = 0.0
-	// i.e., consider only solutions w/ improved cost
-	// track acceptance ratio and cost (phase one, area and AR mismatch)
-	// also trigger cost function to assume no fitting layouts
-	i = 1;
-	accepted_ops = 0;
-	cost_hist.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
-
-	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
-
-		op_success = this->performRandomLayoutOp(corb);
-
-		if (op_success) {
-
-			prev_cost = cur_cost;
-
-			// generate layout
-			corb.generateLayout();
-
-			// evaluate layout, new cost
-			cost = this->determCost();
-			cur_cost = cost.cost;
-			// cost difference
-			cost_diff = cur_cost - prev_cost;
-
-			// solution w/ worse cost, revert
-			if (cost_diff >= 0.0) {
-				// revert last op
-				this->performRandomLayoutOp(corb, true);
-				// reset cost according to reverted CBL
-				cur_cost = prev_cost;
-			}
-			// accept solution w/ improved cost
-			else {
-				// update ops count
-				accepted_ops++;
-			}
-			// store cost
-			cost_hist.push_back(cur_cost);
-
-			i++;
-		}
-	}
-
-	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
-	// Shahookar91]
-	init_temp = cur_temp = Math::stdDev(cost_hist) * SA_INIT_TEMP_FACTOR;
-	if (this->logMax()) {
-		cout << "SA> Initial temperature: " << init_temp << endl;
-	}
-
-	// determine ratio of accepted ops
-	accepted_ops_ratio_offset = (double) accepted_ops / i;
-	if (this->logMax()) {
-		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
-	}
-
-	/// derive related temperature-schedule boundaries
-	// upper boundary; for fast cooling
-	accepted_ops_ratio_boundary_1 = this->conf_SA_temp_phase_trans_12_factor * accepted_ops_ratio_offset;
-	// lower boundary; for slow cooling
-	accepted_ops_ratio_boundary_2 = this->conf_SA_temp_phase_trans_23_factor * accepted_ops_ratio_offset;
-
-	if (this->logMax()) {
-		cout << "SA> Temperature-scaling factors (dependent of acceptance ratio r): " << endl;
-		cout << "SA>  r > " << accepted_ops_ratio_boundary_1 << ": " << this->conf_SA_temp_factor_phase1 << endl;
-		cout << "SA>  " << accepted_ops_ratio_boundary_2 << " < r <= " << accepted_ops_ratio_boundary_1 << ": ";
-		cout << this->conf_SA_temp_factor_phase2 << endl;
-		// below lower boundary; peform reheating
-		cout << "SA>  r <= " << accepted_ops_ratio_boundary_2 << ": " << this->conf_SA_temp_factor_phase3 << endl;
-		cout << "SA>   Note: this ``reheating'' factor will decrease w/ increasing optimization step" << endl;
-	}
-
-	if (this->logMed()) {
-		cout << "SA> Done" << endl;
-		cout << "SA> " << endl;
-		cout << "SA> Perform simulated annealing process..." << endl;
-		cout << "SA> Phase I: packing blocks into outline..." << endl;
-	}
-	if (this->logMax()) {
-		cout << "SA> " << endl;
-	}
-
-	// restore initial CBLs
-	corb.restoreCBLs();
+	// init SA: initial sampling; setup parameters, setup temperature schedule
+	this->initSA(corb, cost_samples, innerLoopMax, init_temp, accepted_ops_ratio);
 
 	/// main SA loop
 	//
@@ -156,7 +46,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	valid_layout_found = false;
 	layout_fit_ratio = 0.0;
 	// dummy large value to accept first fitting solution
-	best_cost = 100.0 * Math::stdDev(cost_hist);
+	best_cost = 100.0 * Math::stdDev(cost_samples);
 
 	/// outer loop: annealing -- temperature steps
 	while (i <= this->conf_SA_loopLimit) {
@@ -289,55 +179,18 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 		// determine avg cost for temp step
 		avg_cost /= accepted_ops;
 		// determine accepted-ops ratio
-		accepted_ops_ratio = (double) accepted_ops / ii;
+		accepted_ops_ratio.cur_ratio = (double) accepted_ops / ii;
 
 		if (this->logMax()) {
 			cout << "SA> Step done:" << endl;
-			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
+			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio.cur_ratio << endl;
 			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
 			cout << "SA>  avg cost: " << avg_cost << endl;
 			cout << "SA>  temp: " << cur_temp << endl;
 		}
 
-		/// reduce temp
-		// phase 1; fast cooling
-		if (accepted_ops_ratio > accepted_ops_ratio_boundary_1) {
-			cur_temp *= this->conf_SA_temp_factor_phase1;
-
-			if (this->logMax()) {
-				cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase1 << " (phase 1)" << endl;
-			}
-		}
-		// phase 2; slow cooling
-		else if (accepted_ops_ratio_boundary_2 < accepted_ops_ratio && accepted_ops_ratio <= accepted_ops_ratio_boundary_1) {
-			cur_temp *= this->conf_SA_temp_factor_phase2;
-
-			if (this->logMax()) {
-				cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase2 << " (phase 2)" << endl;
-			}
-		}
-		// phase 3; reheating; accepted_ops_ratio <= accepted_ops_ratio_boundary_2
-		// heating-up factor is steadily decreased w/ increasing step count to
-		// enable convergence
-		else {
-			loop_factor = 1.0 - (double) i / this->conf_SA_loopLimit;
-
-			if (valid_layout_found) {
-				reheat_factor = this->conf_SA_temp_factor_phase3;
-
-				cur_temp *= loop_factor * reheat_factor;
-			}
-			// if no layout was found; heating up is increased exponentially
-			else {
-				reheat_factor = pow(this->conf_SA_temp_factor_phase3, 2.0);
-
-				cur_temp *= loop_factor * reheat_factor;
-			}
-
-			if (this->logMax()) {
-				cout << "SA>  temp factor: " << loop_factor * reheat_factor << " (phase 3)" << endl;
-			}
-		}
+		// update SA temperature
+		this->updateTemp(cur_temp, accepted_ops_ratio, i, valid_layout_found);
 
 		// consider next outer step
 		i++;
@@ -353,6 +206,167 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	}
 
 	return valid_layout_found;
+}
+
+inline void FloorPlanner::updateTemp(double& cur_temp, const OpsRatios& accepted_ops_ratio, const int& iteration, const bool& valid_layout_found) {
+	double loop_factor, reheat_factor;
+
+	/// reduce temp
+	// phase 1; fast cooling
+	if (accepted_ops_ratio.cur_ratio > accepted_ops_ratio.boundary_1) {
+		cur_temp *= this->conf_SA_temp_factor_phase1;
+
+		if (this->logMax()) {
+			cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase1 << " (phase 1)" << endl;
+		}
+	}
+	// phase 2; slow cooling
+	else if (accepted_ops_ratio.boundary_2 < accepted_ops_ratio.cur_ratio && accepted_ops_ratio.cur_ratio <= accepted_ops_ratio.boundary_1) {
+		cur_temp *= this->conf_SA_temp_factor_phase2;
+
+		if (this->logMax()) {
+			cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase2 << " (phase 2)" << endl;
+		}
+	}
+	// phase 3; reheating; accepted_ops_.cur_ratio <= accepted_ops_ratio.boundary_2
+	// heating-up factor is steadily decreased w/ increasing step count to
+	// enable convergence
+	else {
+		loop_factor = 1.0 - (double) iteration / this->conf_SA_loopLimit;
+
+		if (valid_layout_found) {
+			reheat_factor = this->conf_SA_temp_factor_phase3;
+
+			cur_temp *= loop_factor * reheat_factor;
+		}
+		// if no layout was found; heating up is increased exponentially
+		else {
+			reheat_factor = pow(this->conf_SA_temp_factor_phase3, 2.0);
+
+			cur_temp *= loop_factor * reheat_factor;
+		}
+
+		if (this->logMax()) {
+			cout << "SA>  temp factor: " << loop_factor * reheat_factor << " (phase 3)" << endl;
+		}
+	}
+}
+
+void FloorPlanner::initSA(const CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& accepted_ops_ratio) {
+	int i;
+	int accepted_ops;
+	double accepted_ops_ratio_offset;
+	bool op_success;
+	double cur_cost, prev_cost, cost_diff;
+	Cost cost;
+
+	// reset max cost
+	this->max_cost_WL = 0.0;
+	this->max_cost_TSVs = 0.0;
+	this->max_cost_temp = 0.0;
+	this->max_cost_alignments = 0.0;
+
+	// backup initial CBLs
+	corb.backupCBLs();
+
+	// init SA parameter: inner loop count
+	innerLoopMax = this->conf_SA_loopFactor * pow((double) this->blocks.size(), (double) 4/3);
+
+	/// initial sampling
+	//
+	if (this->logMed()) {
+		cout << "SA> Perform initial solution-space sampling..." << endl;
+	}
+
+	// init cost
+	corb.generateLayout();
+	cur_cost = this->determCost().cost;
+
+	// perform some random operations, for SA temperature = 0.0
+	// i.e., consider only solutions w/ improved cost
+	// track acceptance ratio and cost (phase one, area and AR mismatch)
+	// also trigger cost function to assume no fitting layouts
+	i = 1;
+	accepted_ops = 0;
+	cost_samples.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
+
+	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
+
+		op_success = this->performRandomLayoutOp(corb);
+
+		if (op_success) {
+
+			prev_cost = cur_cost;
+
+			// generate layout
+			corb.generateLayout();
+
+			// evaluate layout, new cost
+			cost = this->determCost();
+			cur_cost = cost.cost;
+			// cost difference
+			cost_diff = cur_cost - prev_cost;
+
+			// solution w/ worse cost, revert
+			if (cost_diff >= 0.0) {
+				// revert last op
+				this->performRandomLayoutOp(corb, true);
+				// reset cost according to reverted CBL
+				cur_cost = prev_cost;
+			}
+			// accept solution w/ improved cost
+			else {
+				// update ops count
+				accepted_ops++;
+			}
+			// store cost
+			cost_samples.push_back(cur_cost);
+
+			i++;
+		}
+	}
+
+	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
+	// Shahookar91]
+	init_temp = Math::stdDev(cost_samples) * SA_INIT_TEMP_FACTOR;
+	if (this->logMax()) {
+		cout << "SA> Initial temperature: " << init_temp << endl;
+	}
+
+	// determine ratio of accepted ops
+	accepted_ops_ratio_offset = (double) accepted_ops / i;
+	if (this->logMax()) {
+		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
+	}
+
+	/// derive related temperature-schedule boundaries
+	// upper boundary; for fast cooling
+	accepted_ops_ratio.boundary_1 = this->conf_SA_temp_phase_trans_12_factor * accepted_ops_ratio_offset;
+	// lower boundary; for slow cooling
+	accepted_ops_ratio.boundary_2 = this->conf_SA_temp_phase_trans_23_factor * accepted_ops_ratio_offset;
+
+	if (this->logMax()) {
+		cout << "SA> Temperature-scaling factors (dependent of acceptance ratio r): " << endl;
+		cout << "SA>  r > " << accepted_ops_ratio.boundary_1 << ": " << this->conf_SA_temp_factor_phase1 << endl;
+		cout << "SA>  " << accepted_ops_ratio.boundary_2 << " < r <= " << accepted_ops_ratio.boundary_1 << ": ";
+		cout << this->conf_SA_temp_factor_phase2 << endl;
+		// below lower boundary; peform reheating
+		cout << "SA>  r <= " << accepted_ops_ratio.boundary_2 << ": " << this->conf_SA_temp_factor_phase3 << endl;
+		cout << "SA>   Note: this ``reheating'' factor will decrease w/ increasing optimization step" << endl;
+	}
+
+	if (this->logMed()) {
+		cout << "SA> Done" << endl;
+		cout << "SA> " << endl;
+		cout << "SA> Perform simulated annealing process..." << endl;
+		cout << "SA> Phase I: packing blocks into outline..." << endl;
+	}
+	if (this->logMax()) {
+		cout << "SA> " << endl;
+	}
+
+	// restore initial CBLs
+	corb.restoreCBLs();
 }
 
 void FloorPlanner::finalize(const CorblivarCore& corb) {
