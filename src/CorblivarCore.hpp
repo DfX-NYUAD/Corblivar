@@ -14,18 +14,11 @@
 // debugging code switch
 static constexpr bool DBG_CORB = false;
 
-// CBL placement direction
-class Direction {
-	public:
-		static constexpr unsigned DIRECTION_VERT = 0;
-		static constexpr unsigned DIRECTION_HOR = 1;
-};
-
 class CornerBlockList {
 	private:
 		// CBL sequences
 		mutable vector<Block*> S;
-		mutable vector<unsigned> L;
+		mutable vector<Direction> L;
 		mutable vector<unsigned> T;
 
 	public:
@@ -81,7 +74,7 @@ class CornerBlockList {
 			this->S.push_back(block);
 		};
 
-		inline void L_push_back(unsigned const& l) const {
+		inline void L_push_back(Direction const& l) const {
 			this->L.push_back(l);
 		};
 
@@ -92,7 +85,7 @@ class CornerBlockList {
 		inline string itemString(unsigned const& i) const {
 			stringstream ret;
 
-			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
+			ret << "( " << S[i]->id << " " << (unsigned) L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
 
 			return ret.str();
 		};
@@ -175,7 +168,7 @@ class CorblivarDie {
 			return this->CBL.S[this->pi];
 		};
 
-		inline unsigned const& currentTupleDirection() const {
+		inline Direction const& currentTupleDirection() const {
 			return this->CBL.L[this->pi];
 		};
 
@@ -189,6 +182,80 @@ class CorblivarDie {
 
 		inline string currentTupleString() const {
 			return this->CBL.itemString(this->pi);
+		};
+};
+
+class CorblivarAlignmentReq {
+	private:
+		Block* s_i;
+		Block* s_j;
+		Alignment type_x, type_y;
+		double offset_range_x, offset_range_y;
+
+	public:
+		inline bool rangeX() const {
+			return (this->type_x == Alignment::RANGE);
+		};
+		inline bool rangeY() const {
+			return (this->type_y == Alignment::RANGE);
+		};
+		inline bool fixedOffsX() const {
+			return (this->type_x == Alignment::OFFSET);
+		};
+		inline bool fixedOffsY() const {
+			return (this->type_y == Alignment::OFFSET);
+		};
+		inline string tupleString() const {
+			stringstream ret;
+
+			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", ";
+			if (this->rangeX()) {
+				ret << "1";
+			}
+			else if (this->fixedOffsX()) {
+				ret << "0";
+			}
+			else {
+				ret << "lambda";
+			}
+			ret << "), (" << offset_range_y << ", ";
+			if (this->rangeY()) {
+				ret << "1";
+			}
+			else if (this->fixedOffsY()) {
+				ret << "0";
+			}
+			else {
+				ret << "lambda";
+			}
+			ret << ") )";
+
+			return ret.str();
+		};
+
+		CorblivarAlignmentReq(Block* si, Block* sj, Alignment typex, double offsetrangex, Alignment typey, double offsetrangey) {
+			s_i = si;
+			s_j = sj;
+			type_x = typex;
+			type_y = typey;
+			offset_range_x = offsetrangex;
+			offset_range_y = offsetrangey;
+
+			// fix invalid negative range
+			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
+				cout << "CorblivarAlignmentReq> ";
+				cout << "Fixing tuple (negative range):" << endl;
+				cout << " " << this->tupleString() << " to" << endl;
+
+				if (offset_range_x < 0) {
+					offset_range_x = 0;
+				}
+				if (offset_range_y < 0) {
+					offset_range_y = 0;
+				}
+
+				cout << " " << this->tupleString() << endl;
+			}
 		};
 };
 
@@ -279,11 +346,11 @@ class CorblivarCore {
 			}
 		};
 		inline void switchTupleDirection(int const& die, int const& tuple) const {
-			if (this->dies[die]->CBL.L[tuple] == Direction::DIRECTION_VERT) {
-				this->dies[die]->CBL.L[tuple] = Direction::DIRECTION_HOR;
+			if (this->dies[die]->CBL.L[tuple] == Direction::VERTICAL) {
+				this->dies[die]->CBL.L[tuple] = Direction::HORIZONTAL;
 			}
 			else {
-				this->dies[die]->CBL.L[tuple] = Direction::DIRECTION_VERT;
+				this->dies[die]->CBL.L[tuple] = Direction::VERTICAL;
 			}
 
 			if (DBG_CORB) {
@@ -338,7 +405,7 @@ class CorblivarCore {
 					b->bb_backup = b->bb;
 					die->CBLbackup.S.push_back(b);
 				}
-				for (unsigned const& dir : die->CBL.L) {
+				for (Direction const& dir : die->CBL.L) {
 					die->CBLbackup.L.push_back(dir);
 				}
 				for (unsigned const& t_juncts : die->CBL.T) {
@@ -359,7 +426,7 @@ class CorblivarCore {
 					b->bb = b->bb_backup;
 					die->CBL.S.push_back(b);
 				}
-				for (unsigned const& dir : die->CBLbackup.L) {
+				for (Direction const& dir : die->CBLbackup.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (unsigned const& t_juncts : die->CBLbackup.T) {
@@ -382,7 +449,7 @@ class CorblivarCore {
 					b->bb_best = b->bb;
 					die->CBLbest.S.push_back(b);
 				}
-				for (unsigned const& dir : die->CBL.L) {
+				for (Direction const& dir : die->CBL.L) {
 					die->CBLbest.L.push_back(dir);
 				}
 				for (unsigned const& t_juncts : die->CBL.T) {
@@ -411,7 +478,7 @@ class CorblivarCore {
 					b->bb = b->bb_best;
 					die->CBL.S.push_back(b);
 				}
-				for (unsigned const& dir : die->CBLbest.L) {
+				for (Direction const& dir : die->CBLbest.L) {
 					die->CBL.L.push_back(dir);
 				}
 				for (unsigned const& t_juncts : die->CBLbest.T) {
@@ -420,83 +487,6 @@ class CorblivarCore {
 			}
 
 			return true;
-		};
-};
-
-class CorblivarAlignmentReq {
-	private:
-		// TODO realize as constexpr
-		enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
-
-		Block* s_i;
-		Block* s_j;
-		Alignment type_x, type_y;
-		double offset_range_x, offset_range_y;
-
-	public:
-		inline bool rangeX() const {
-			return (this->type_x == ALIGNMENT_RANGE);
-		};
-		inline bool rangeY() const {
-			return (this->type_y == ALIGNMENT_RANGE);
-		};
-		inline bool fixedOffsX() const {
-			return (this->type_x == ALIGNMENT_OFFSET);
-		};
-		inline bool fixedOffsY() const {
-			return (this->type_y == ALIGNMENT_OFFSET);
-		};
-		inline string tupleString() const {
-			stringstream ret;
-
-			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", ";
-			if (this->rangeX()) {
-				ret << "1";
-			}
-			else if (this->fixedOffsX()) {
-				ret << "0";
-			}
-			else {
-				ret << "lambda";
-			}
-			ret << "), (" << offset_range_y << ", ";
-			if (this->rangeY()) {
-				ret << "1";
-			}
-			else if (this->fixedOffsY()) {
-				ret << "0";
-			}
-			else {
-				ret << "lambda";
-			}
-			ret << ") )";
-
-			return ret.str();
-		};
-
-		CorblivarAlignmentReq(Block* si, Block* sj, Alignment typex, double offsetrangex, Alignment typey, double offsetrangey) {
-			s_i = si;
-			s_j = sj;
-			type_x = typex;
-			type_y = typey;
-			offset_range_x = offsetrangex;
-			offset_range_y = offsetrangey;
-
-			// fix invalid negative range
-			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
-				cout << "CorblivarAlignmentReq> ";
-				cout << "Fixing tuple (negative range):" << endl;
-				cout << " " << this->tupleString() << " to" << endl;
-
-				if (offset_range_x < 0) {
-					offset_range_x = 0;
-				}
-				if (offset_range_y < 0) {
-					offset_range_y = 0;
-				}
-
-				cout << " " << this->tupleString() << endl;
-			}
 		};
 };
 

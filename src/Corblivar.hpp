@@ -35,17 +35,10 @@ using namespace std;
 /* forward declarations */
 class FloorPlanner;
 class CorblivarCore;
-class CorblivarDie;
-class CorblivarAlignmentReq;
-class CornerBlockList;
-class ThermalAnalyzer;
-class IO;
-class Point;
-class Block;
-class Net;
-class Rect;
-class Math;
-class Direction;
+
+/* typed enum classes */
+enum class Direction : unsigned {VERTICAL = 0, HORIZONTAL = 1};
+enum class Alignment : unsigned {OFFSET, RANGE, UNDEF};
 
 /* general classes */
 class Math {
