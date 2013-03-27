@@ -171,19 +171,19 @@ class CorblivarDie {
 			return this->CBL;
 		};
 
-		inline Block* currentBlock() const {
+		inline Block* const& currentBlock() const {
 			return this->CBL.S[this->pi];
 		};
 
-		inline unsigned currentTupleDirection() const {
+		inline unsigned const& currentTupleDirection() const {
 			return this->CBL.L[this->pi];
 		};
 
-		inline unsigned currentTupleJuncts() const {
+		inline unsigned const& currentTupleJuncts() const {
 			return this->CBL.T[this->pi];
 		};
 
-		inline unsigned tupleJuncts(unsigned const& tuple) const {
+		inline unsigned const& tupleJuncts(unsigned const& tuple) const {
 			return this->CBL.T[tuple];
 		};
 
@@ -211,7 +211,7 @@ class CorblivarCore {
 		//CorblivarDie* findDie(Block* Si);
 
 		// die handler
-		inline CorblivarDie* getDie(unsigned const& die) const {
+		inline CorblivarDie* const& getDie(unsigned const& die) const {
 			return this->dies[die];
 		};
 		inline unsigned diesSize() const {

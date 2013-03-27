@@ -108,7 +108,7 @@ class FloorPlanner {
 
 		// SA: helper for main handler
 		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
-		inline void updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found);
+		inline void updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) const;
 
 	public:
 		friend class IO;
@@ -133,10 +133,10 @@ class FloorPlanner {
 		};
 
 		// getter / setter
-		inline int getLayers() const {
+		inline int const& getLayers() const {
 			return this->conf_layer;
 		};
-		inline map<int, Block*> getBlocks() const {
+		inline map<int, Block*> const& getBlocks() const {
 			return this->blocks;
 		};
 		inline void setTimeStart() {

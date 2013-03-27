@@ -208,7 +208,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 	return valid_layout_found;
 }
 
-inline void FloorPlanner::updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) {
+inline void FloorPlanner::updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) const {
 	double loop_factor, reheat_factor;
 
 	/// reduce temp
