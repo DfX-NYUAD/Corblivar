@@ -283,12 +283,12 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 // (uneven) array.
 // Note that masks are 1D, sufficient for the separated convolution in
 // performPowerBlurring()
-void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log) {
+void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters) {
 	int i, ii;
-	double range_scale;
+	double scale;
 	double max_spread;
-	double spread;
-	double impulse_factor;
+	double layer_spread;
+	double layer_impulse_factor;
 	array<double,ThermalAnalyzer::mask_dim> mask;
 	int x_y;
 
@@ -305,28 +305,26 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log) {
 	this->thermal_masks.clear();
 	this->thermal_masks.reserve(layers);
 
-	// max_spread represents the spreading factor for the widest function g, i.e., relates
-	// to mask for point source on layer furthest away
-	// TODO vary this parameter
-	max_spread = layers;
-
-	// determine range scale factor, i.e. determine spread such that g = 0.01 at
-	// boundary corners of kernel
-	range_scale = sqrt(max_spread) * sqrt(std::log(2.0)+std::log(5.0));
-	// normalize range according to mask dimension
-	// decrement masks_dim such that subsequent impulse-response calculation
-	// determines values for center of each mask bin
-	range_scale /=  (ThermalAnalyzer::mask_dim - 1) / 2;
+	// determine scale factor, based on widest spread for gauss1D such that
+	// widest_mask_boundary_value is reached at the boundary of the final (2D) mask;
+	// widest spread relates to the mask describing a point source on the uppermost layer
+	max_spread = parameters.spread * layers;
+	scale = sqrt(max_spread * std::log(parameters.impulse_factor / parameters.widest_mask_boundary_value)) / sqrt(2.0);
+	// normalize factor according to half of mask dimension
+	scale /=  ThermalAnalyzer::mask_dim_half;
 
 	// determine masks for lowest layer, i.e., hottest layer
 	for (i = 1; i <= layers; i++) {
-		// TODO vary these calculations
-		spread = 1.0 / i;
-		impulse_factor = 1.0 / i;
+		// (TODO) consider other fcts like pow, exp
+		layer_spread = parameters.spread * i;
+		layer_impulse_factor = parameters.impulse_factor / i;
 
 		ii = 0;
-		for (x_y = -(ThermalAnalyzer::mask_dim - 1) / 2; x_y <= (ThermalAnalyzer::mask_dim - 1) / 2; x_y++) {
-			mask[ii] = Math::gauss1D(x_y * range_scale, impulse_factor, spread);
+		for (x_y = -ThermalAnalyzer::mask_dim_half; x_y <= ThermalAnalyzer::mask_dim_half; x_y++) {
+			// sqrt for impulse factor is mandatory since the mask is used for
+			// separated convolution (i.e., factor will be squared in final
+			// convolution result)
+			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), layer_spread);
 			ii++;
 		}
 
@@ -338,7 +336,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log) {
 		cout << fixed;
 		// dump mask
 		for (i = 0; i < layers; i++) {
-			cout << "DBG> Thermal 1D mask for layer " << i << ":" << endl;
+			cout << "DBG> Thermal 1D mask for layer 0 w/ point source on layer " << i << ":" << endl;
 			for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
 				cout << this->thermal_masks[i][x_y] << ", ";
 			}
@@ -346,6 +344,9 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log) {
 		}
 		// reset to default floating output
 		cout.unsetf(ios_base::floatfield);
+
+		cout << endl;
+		cout << "DBG> Note that these values will be multiplied w/ each other in the final 2D mask" << endl;
 	}
 
 	if (log) {

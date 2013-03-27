@@ -88,7 +88,7 @@ class Math {
 		// 1D gauss function; used for separated convolution w/ 2D gauss function,
 		// provides the impulse response function for power blurring
 		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
-			return sqrt(factor) * exp(-spread * pow(value, 2.0));
+			return factor * exp(-(1.0 / spread) * pow(value, 2.0));
 		}
 };
 

@@ -13,7 +13,6 @@
 
 class ThermalAnalyzer {
 	private:
-
 		// debugging code switch
 		static constexpr bool DBG_CALLS = false;
 		static constexpr bool DBG = false;
@@ -78,8 +77,15 @@ class ThermalAnalyzer {
 	public:
 		friend class IO;
 
+		// POD
+		struct MaskParameters {
+			double widest_mask_boundary_value;
+			double impulse_factor;
+			double spread;
+		};
+
 		// thermal modeling: handlers
-		void initThermalMasks(int const& layers, bool const& log);
+		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, double const& outline_x, double const& outline_y);
 		void generatePowerMaps(int const& layers, map<int, Block*> const& blocks) const;
 		// thermal-analyzer routine based on power blurring,
