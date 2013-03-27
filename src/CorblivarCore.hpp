@@ -428,7 +428,8 @@ class CorblivarAlignmentReq {
 		// TODO realize as constexpr
 		enum Alignment {ALIGNMENT_OFFSET, ALIGNMENT_RANGE, ALIGNMENT_UNDEF};
 
-		Block *s_i, *s_j;
+		Block* s_i;
+		Block* s_j;
 		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;
 

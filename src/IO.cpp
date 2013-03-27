@@ -227,7 +227,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	string tmpstr;
 	map<int, Block*>::iterator b;
-	Block *cur_block;
+	Block* cur_block;
 	int cur_layer;
 	int block_id;
 	unsigned dir;
@@ -319,7 +319,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 void IO::parseBlocks(FloorPlanner& fp) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
-	Block *cur_block;
+	Block* cur_block;
 	double power = 0.0;
 	double area = 0.0;
 	int id;
@@ -441,7 +441,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 	ifstream in;
 	string tmpstr;
-	Net *cur_net;
+	Net* cur_net;
 	int i, net_degree;
 	int net_block_id;
 	string net_block;
@@ -676,7 +676,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	int cur_layer;
 	int object_counter;
 	map<int, Block*>::iterator b;
-	Block *cur_block;
+	Block* cur_block;
 	double ratio_inv;
 	int tics;
 
@@ -761,7 +761,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	map<int, Block*>::iterator b;
-	Block *cur_block;
+	Block* cur_block;
 	int cur_layer;
 	// factor to scale um downto m;
 	static const double SCALE_UM_M = 0.000001;
