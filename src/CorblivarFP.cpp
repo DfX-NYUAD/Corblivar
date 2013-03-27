@@ -369,7 +369,7 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 	corb.restoreCBLs();
 }
 
-void FloorPlanner::finalize(CorblivarCore const& corb) {
+void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overall_cost) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -378,7 +378,7 @@ void FloorPlanner::finalize(CorblivarCore const& corb) {
 	CostInterconn interconn;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::finalize(" << &corb << ")" << endl;
+		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ")" << endl;
 	}
 
 	// apply best solution, if available, as final solution
@@ -390,7 +390,9 @@ void FloorPlanner::finalize(CorblivarCore const& corb) {
 	if (valid_solution) {
 
 		// determine overall cost
-		cost = this->determCost(1.0, true).cost;
+		if (determ_overall_cost) {
+			cost = this->determCost(1.0, true).cost;
+		}
 
 		// determine area cost, invert weight
 		// sanity check for zero cost weight
@@ -409,17 +411,22 @@ void FloorPlanner::finalize(CorblivarCore const& corb) {
 
 		// TODO alignment costs
 		if (this->logMin()) {
-			cout << "SA> Final (adapted) cost: " << cost << endl;
-			cout << "SA>  Max blocks-outline / die-outline ratio: " << area << endl;
-			cout << "SA>  HPWL: " << interconn.HPWL << endl;
-			cout << "SA>  TSVs: " << interconn.TSVs << endl;
-			cout << "SA>  Temp cost (no real temp): " << temp << endl;
+			if (determ_overall_cost) {
+				cout << "SA> Final (adapted) cost: " << cost << endl;
+			}
+			cout << "SA> Max blocks-outline / die-outline ratio: " << area << endl;
+			cout << "SA> HPWL: " << interconn.HPWL << endl;
+			cout << "SA> TSVs: " << interconn.TSVs << endl;
+			cout << "SA> Temp cost (no real temp): " << temp << endl;
 			cout << endl;
-			this->results << "Final (adapted) cost: " << cost << endl;
-			this->results << " Max die occupation [\%]: " << area << endl;
-			this->results << " HPWL: " << interconn.HPWL << endl;
-			this->results << " TSVs: " << interconn.TSVs << endl;
-			this->results << " Temp cost (no real temp): " << temp << endl;
+
+			if (determ_overall_cost) {
+				this->results << "Final (adapted) cost: " << cost << endl;
+			}
+			this->results << "Max die occupation [\%]: " << area << endl;
+			this->results << "HPWL: " << interconn.HPWL << endl;
+			this->results << "TSVs: " << interconn.TSVs << endl;
+			this->results << "Temp cost (no real temp): " << temp << endl;
 		}
 	}
 
@@ -452,7 +459,7 @@ void FloorPlanner::finalize(CorblivarCore const& corb) {
 	this->results.close();
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::finalize(" << &corb << ")" << endl;
+		cout << "<- FloorPlanner::finalize" << endl;
 	}
 
 	exit(0);

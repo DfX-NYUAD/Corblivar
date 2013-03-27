@@ -53,7 +53,9 @@ int main (int argc, char** argv) {
 
 	// (TODO) drop if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
-		fp.finalize(corb);
+		// overall cost is not determined; cost cannot be determined since no
+		// normalization during SA search was performed
+		fp.finalize(corb, false);
 	}
 
 	if (fp.logMin()) {
