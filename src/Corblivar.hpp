@@ -53,7 +53,7 @@ class Math {
 
 		// random functions
 		// note: range is [min, max)
-		inline static int randI(const int& min, const int& max) {
+		inline static int randI(int const& min, int const& max) {
 			if (max == min) {
 				return min;
 			}
@@ -72,19 +72,19 @@ class Math {
 		}
 
 		// standard deviation of samples
-		inline static double stdDev(const vector<double>& samples) {
+		inline static double stdDev(vector<double> const& samples) {
 			double avg, sq_diffs;
 
 			// determine avg of samples
 			avg = 0.0;
-			for (const double& s : samples) {
+			for (double const& s : samples) {
 				avg += s;
 			}
 			avg /= samples.size();
 
 			// determine sum of squared diffs for std dev
 			sq_diffs = 0.0;
-			for (const double& s : samples) {
+			for (double const& s : samples) {
 				sq_diffs += pow(s - avg, 2.0);
 			}
 
@@ -94,7 +94,7 @@ class Math {
 
 		// 1D gauss function; used for separated convolution w/ 2D gauss function,
 		// provides the impulse response function for power blurring
-		inline static double gauss1D(const double& value, const double& factor, const double& spread) {
+		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
 			return sqrt(factor) * exp(-spread * pow(value, 2.0));
 		}
 };
@@ -109,7 +109,7 @@ class Point {
 			x = y = UNDEF;
 		};
 
-		inline static double dist(const Point& a, const Point& b) {
+		inline static double dist(Point const& a, Point const& b) {
 			return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
 		};
 };
@@ -124,7 +124,7 @@ class Rect {
 			h = w = area = 0.0;
 		};
 
-		inline static Rect determBoundingBox(const vector<Rect*>& rects) {
+		inline static Rect determBoundingBox(vector<Rect*> const& rects) {
 			Rect ret;
 			unsigned r;
 
@@ -149,7 +149,7 @@ class Rect {
 			return ret;
 		};
 
-		inline static Rect determineIntersection(const Rect& a, const Rect& b) {
+		inline static Rect determineIntersection(Rect const& a, Rect const& b) {
 			Rect ret;
 
 			// left edge of b within a
@@ -193,32 +193,32 @@ class Rect {
 			return ret;
 		};
 
-		inline static bool rectsIntersectVertical(const Rect& a, const Rect& b) {
+		inline static bool rectsIntersectVertical(Rect const& a, Rect const& b) {
 			return (
 					(a.ll.y <= b.ll.y && b.ll.y < a.ur.y) ||
 					(b.ll.y <= a.ll.y && a.ll.y < b.ur.y)
 				);
 		};
 
-		inline static bool rectsIntersectHorizontal(const Rect& a, const Rect& b) {
+		inline static bool rectsIntersectHorizontal(Rect const& a, Rect const& b) {
 			return (
 					(a.ll.x <= b.ll.x && b.ll.x < a.ur.x) ||
 					(b.ll.x <= a.ll.x && a.ll.x < b.ur.x)
 				);
 		};
 
-		inline static bool rectsIntersect(const Rect& a, const Rect& b) {
+		inline static bool rectsIntersect(Rect const& a, Rect const& b) {
 			return rectsIntersectVertical(a, b) && rectsIntersectHorizontal(a, b);
 		};
 
-		inline static bool rectA_leftOf_rectB(const Rect& a, const Rect& b, const bool& considerVerticalIntersect) {
+		inline static bool rectA_leftOf_rectB(Rect const& a, Rect const& b, bool const& considerVerticalIntersect) {
 			bool leftOf = (a.ur.x <= b.ll.x);
 			bool verticalIntersect = rectsIntersectVertical(a, b);
 
 			return ((leftOf && verticalIntersect) || (leftOf && !considerVerticalIntersect));
 		};
 
-		inline static bool rectA_below_rectB(const Rect& a, const Rect& b, const bool& considerHorizontalIntersect) {
+		inline static bool rectA_below_rectB(Rect const& a, Rect const& b, bool const& considerHorizontalIntersect) {
 			bool below = (a.ur.y <= b.ll.y);
 			bool horizontalIntersect = rectsIntersectHorizontal(a, b);
 
@@ -235,7 +235,7 @@ class Block {
 		//double x_slack_forward, y_slack_forward;
 		Rect bb, bb_backup, bb_best;
 
-		Block(const int& id_i) {
+		Block(int const& id_i) {
 			id = id_i;
 			layer = -1;
 			power = 0.0;
@@ -252,12 +252,12 @@ class Net {
 		vector<Block*> blocks;
 		int layer_bottom, layer_top;
 
-		Net(const int& id_i) {
+		Net(int const& id_i) {
 			id = id_i;
 			hasExternalPin = false;
 		};
 
-		inline void setLayerBoundaries(const int& globalUpperLayer) {
+		inline void setLayerBoundaries(int const& globalUpperLayer) {
 			this->layer_bottom = globalUpperLayer;
 			this->layer_top = 0;
 

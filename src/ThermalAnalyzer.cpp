@@ -16,7 +16,7 @@
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns max value of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(const int& layers, double& max_cost_temp, const bool& set_max_cost, const bool& normalize) const {
+double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) const {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -154,7 +154,7 @@ double ThermalAnalyzer::performPowerBlurring(const int& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(const int& layers, const map<int, Block*>& blocks) const {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks) const {
 	int i;
 	int x, y;
 	Block *block;
@@ -233,7 +233,7 @@ void ThermalAnalyzer::generatePowerMaps(const int& layers, const map<int, Block*
 	}
 }
 
-void ThermalAnalyzer::initPowerMaps(const int& layers, const double& outline_x, const double& outline_y) {
+void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, double const& outline_y) {
 	array<array<double,ThermalAnalyzer::power_maps_dim>,ThermalAnalyzer::power_maps_dim> map;
 	unsigned b;
 	int i;
@@ -283,7 +283,7 @@ void ThermalAnalyzer::initPowerMaps(const int& layers, const double& outline_x, 
 // (uneven) array.
 // Note that masks are 1D, sufficient for the separated convolution in
 // performPowerBlurring()
-void ThermalAnalyzer::initThermalMasks(const int& layers, const bool& log) {
+void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log) {
 	int i, ii;
 	double range_scale;
 	double max_spread;

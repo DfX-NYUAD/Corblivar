@@ -14,7 +14,7 @@
 #include "CorblivarFP.hpp"
 
 // main handler
-bool FloorPlanner::performSA(const CorblivarCore& corb) {
+bool FloorPlanner::performSA(CorblivarCore const& corb) {
 	int i, ii;
 	int innerLoopMax;
 	int accepted_ops;
@@ -208,7 +208,7 @@ bool FloorPlanner::performSA(const CorblivarCore& corb) {
 	return valid_layout_found;
 }
 
-inline void FloorPlanner::updateTemp(double& cur_temp, const OpsRatios& accepted_ops_ratio, const int& iteration, const bool& valid_layout_found) {
+inline void FloorPlanner::updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) {
 	double loop_factor, reheat_factor;
 
 	/// reduce temp
@@ -252,7 +252,7 @@ inline void FloorPlanner::updateTemp(double& cur_temp, const OpsRatios& accepted
 	}
 }
 
-void FloorPlanner::initSA(const CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& accepted_ops_ratio) {
+void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& accepted_ops_ratio) {
 	int i;
 	int accepted_ops;
 	double accepted_ops_ratio_offset;
@@ -369,7 +369,7 @@ void FloorPlanner::initSA(const CorblivarCore& corb, vector<double>& cost_sample
 	corb.restoreCBLs();
 }
 
-void FloorPlanner::finalize(const CorblivarCore& corb) {
+void FloorPlanner::finalize(CorblivarCore const& corb) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -458,7 +458,7 @@ void FloorPlanner::finalize(const CorblivarCore& corb) {
 	exit(0);
 }
 
-bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp) const {
+bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp) const {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 	bool ret;
@@ -649,7 +649,7 @@ bool FloorPlanner::performRandomLayoutOp(const CorblivarCore& corb, const bool& 
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutions_fixed_outline, const bool& phase_two, const bool& set_max_cost) const {
+FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& phase_two, bool const& set_max_cost) const {
 	double cost_total, cost_temp, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
@@ -724,7 +724,7 @@ FloorPlanner::Cost FloorPlanner::determCost(const double& ratio_feasible_solutio
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_
 // depending on ratio of feasible solutions (solutions fitting into outline)
-FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline) const {
+FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -809,7 +809,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(const double& ratio_feasi
 // (TODO) implement other variants to compare w/ other floorplanners; consider static bool
 // in Corblivar.hpp for selecting appropriate version during compile time / config
 // parameter during runtime
-FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(const bool& set_max_cost, const bool& normalize) const {
+FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) const {
 	int i, ii;
 	vector<Rect*> blocks_to_consider;
 	Rect bb;

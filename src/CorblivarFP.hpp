@@ -36,7 +36,7 @@ class FloorPlanner {
 			bool fits_fixed_outline;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
-			friend ostream& operator<< (ostream& out, const Cost& cost) {
+			friend ostream& operator<< (ostream& out, Cost const& cost) {
 				out << "cost=" << cost.cost << ", fits_fixed_outline=" << cost.fits_fixed_outline;
 				return out;
 			}
@@ -45,7 +45,7 @@ class FloorPlanner {
 			double HPWL;
 			double TSVs;
 
-			friend ostream& operator<< (ostream& out, const CostInterconn& cost) {
+			friend ostream& operator<< (ostream& out, CostInterconn const& cost) {
 				out << "HPWL=" << cost.HPWL << ", TSVs=" << cost.TSVs;
 				return out;
 			}
@@ -92,23 +92,23 @@ class FloorPlanner {
 		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(const CorblivarCore& corb, const bool& revertLastOp = false) const;
+		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp = false) const;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(const double& ratio_feasible_solutions_fixed_outline = 0.0, const bool& phase_two = false, const bool& set_max_cost = false) const;
-		inline double determCostThermalDistr(const bool& set_max_cost = false, const bool& normalize = true) const {
+		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false) const;
+		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) const {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
 		};
-		Cost determCostAreaOutline(const double& ratio_feasible_solutions_fixed_outline = 0.0) const;
-		CostInterconn determCostInterconnects(const bool& set_max_cost = false, const bool& normalize = true) const;
+		Cost determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
+		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true) const;
 
 		// SA parameters: max cost values
 		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: helper for main handler
-		void initSA(const CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
-		inline void updateTemp(double& cur_temp, const OpsRatios& accepted_ops_ratio, const int& iteration, const bool& valid_layout_found);
+		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
+		inline void updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found);
 
 	public:
 		friend class IO;
@@ -147,8 +147,8 @@ class FloorPlanner {
 		};
 
 		// SA: handler
-		bool performSA(const CorblivarCore& corb);
-		void finalize(const CorblivarCore& corb);
+		bool performSA(CorblivarCore const& corb);
+		void finalize(CorblivarCore const& corb);
 };
 
 #endif

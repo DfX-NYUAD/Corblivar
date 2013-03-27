@@ -17,7 +17,7 @@
 constexpr unsigned Direction::DIRECTION_HOR;
 constexpr unsigned Direction::DIRECTION_VERT;
 
-void CorblivarCore::initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks) {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks) {
 	unsigned cur_dir;
 	int rand, cur_t;
 	Block *cur_block;
@@ -70,7 +70,7 @@ void CorblivarCore::initCorblivarRandomly(const bool& log, const int& layers, co
 	}
 }
 
-void CorblivarCore::generateLayout(const bool& dbgStack) const {
+void CorblivarCore::generateLayout(bool const& dbgStack) const {
 	Block *cur_block;
 	bool loop;
 
@@ -134,7 +134,7 @@ void CorblivarCore::generateLayout(const bool& dbgStack) const {
 	}
 }
 
-Block* CorblivarDie::placeCurrentBlock(const bool& dbgStack) {
+Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	Block *cur_block;
 	unsigned cur_dir;
 	unsigned cur_juncts;

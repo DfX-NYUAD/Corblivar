@@ -71,7 +71,7 @@ class CornerBlockList {
 			this->T.clear();
 		};
 
-		inline void reserve(const unsigned& elements) {
+		inline void reserve(unsigned const& elements) {
 			this->S.reserve(elements);
 			this->L.reserve(elements);
 			this->T.reserve(elements);
@@ -81,15 +81,15 @@ class CornerBlockList {
 			this->S.push_back(block);
 		};
 
-		inline void L_push_back(const unsigned& l) const {
+		inline void L_push_back(unsigned const& l) const {
 			this->L.push_back(l);
 		};
 
-		inline void T_push_back(const unsigned& t) const {
+		inline void T_push_back(unsigned const& t) const {
 			this->T.push_back(t);
 		};
 
-		inline string itemString(const unsigned& i) const {
+		inline string itemString(unsigned const& i) const {
 			stringstream ret;
 
 			ret << "( " << S[i]->id << " " << L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
@@ -158,13 +158,13 @@ class CorblivarDie {
 	public:
 		friend class CorblivarCore;
 
-		CorblivarDie(const int& i) {
+		CorblivarDie(int const& i) {
 			stalled = done = false;
 			id = i;
 		}
 
 		// layout generation functions
-		Block* placeCurrentBlock(const bool& dbgStack = false);
+		Block* placeCurrentBlock(bool const& dbgStack = false);
 
 		// getter
 		inline CornerBlockList const& getCBL() const {
@@ -183,7 +183,7 @@ class CorblivarDie {
 			return this->CBL.T[this->pi];
 		};
 
-		inline unsigned tupleJuncts(const unsigned& tuple) const {
+		inline unsigned tupleJuncts(unsigned const& tuple) const {
 			return this->CBL.T[tuple];
 		};
 
@@ -206,12 +206,12 @@ class CorblivarCore {
 
 	public:
 		// general operations
-		void initCorblivarRandomly(const bool& log, const int& layers, const map<int, Block*>& blocks);
-		void generateLayout(const bool& dbgStack = false) const;
+		void initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks);
+		void generateLayout(bool const& dbgStack = false) const;
 		//CorblivarDie* findDie(Block* Si);
 
 		// die handler
-		inline CorblivarDie* getDie(const unsigned& die) const {
+		inline CorblivarDie* getDie(unsigned const& die) const {
 			return this->dies[die];
 		};
 		inline unsigned diesSize() const {
@@ -219,7 +219,7 @@ class CorblivarCore {
 		};
 
 		// init handler
-		inline void initCorblivarDies(const int& layers, const unsigned& blocks) {
+		inline void initCorblivarDies(int const& layers, unsigned const& blocks) {
 			int i;
 			CorblivarDie* cur_die;
 
@@ -245,7 +245,7 @@ class CorblivarCore {
 		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
 
-		inline void switchBlocksWithinDie(const int& die, const int& tuple1, const int& tuple2) const {
+		inline void switchBlocksWithinDie(int const& die, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
 
 			if (DBG_CORB) {
@@ -254,7 +254,7 @@ class CorblivarCore {
 				cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
 			}
 		};
-		inline void switchBlocksAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
+		inline void switchBlocksAcrossDies(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 
 			if (DBG_CORB) {
@@ -263,7 +263,7 @@ class CorblivarCore {
 				cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
 			}
 		};
-		inline void moveTupleAcrossDies(const int& die1, const int& die2, const int& tuple1, const int& tuple2) const {
+		inline void moveTupleAcrossDies(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 
 			// insert tuple1 from die1 into die2 w/ offset tuple2
 			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
@@ -278,7 +278,7 @@ class CorblivarCore {
 				cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
-		inline void switchTupleDirection(const int& die, const int& tuple) const {
+		inline void switchTupleDirection(int const& die, int const& tuple) const {
 			if (this->dies[die]->CBL.L[tuple] == Direction::DIRECTION_VERT) {
 				this->dies[die]->CBL.L[tuple] = Direction::DIRECTION_HOR;
 			}
@@ -290,14 +290,14 @@ class CorblivarCore {
 				cout << "DBG_CORB> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};
-		inline void switchTupleJunctions(const int& die, const int& tuple, const int& juncts) const {
+		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) const {
 			this->dies[die]->CBL.T[tuple] = juncts;
 
 			if (DBG_CORB) {
 				cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
-		inline void switchBlockOrientation(const int& die, const int& tuple) const {
+		inline void switchBlockOrientation(int const& die, int const& tuple) const {
 			double w_tmp;
 
 			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
@@ -338,10 +338,10 @@ class CorblivarCore {
 					b->bb_backup = b->bb;
 					die->CBLbackup.S.push_back(b);
 				}
-				for (const unsigned& dir : die->CBL.L) {
+				for (unsigned const& dir : die->CBL.L) {
 					die->CBLbackup.L.push_back(dir);
 				}
-				for (const unsigned& t_juncts : die->CBL.T) {
+				for (unsigned const& t_juncts : die->CBL.T) {
 					die->CBLbackup.T.push_back(t_juncts);
 				}
 			}
@@ -359,10 +359,10 @@ class CorblivarCore {
 					b->bb = b->bb_backup;
 					die->CBL.S.push_back(b);
 				}
-				for (const unsigned& dir : die->CBLbackup.L) {
+				for (unsigned const& dir : die->CBLbackup.L) {
 					die->CBL.L.push_back(dir);
 				}
-				for (const unsigned& t_juncts : die->CBLbackup.T) {
+				for (unsigned const& t_juncts : die->CBLbackup.T) {
 					die->CBL.T.push_back(t_juncts);
 				}
 			}
@@ -382,15 +382,15 @@ class CorblivarCore {
 					b->bb_best = b->bb;
 					die->CBLbest.S.push_back(b);
 				}
-				for (const unsigned& dir : die->CBL.L) {
+				for (unsigned const& dir : die->CBL.L) {
 					die->CBLbest.L.push_back(dir);
 				}
-				for (const unsigned& t_juncts : die->CBL.T) {
+				for (unsigned const& t_juncts : die->CBL.T) {
 					die->CBLbest.T.push_back(t_juncts);
 				}
 			}
 		};
-		inline bool applyBestCBLs(const bool& log) const {
+		inline bool applyBestCBLs(bool const& log) const {
 
 			for (CorblivarDie* const& die : this->dies) {
 
@@ -411,10 +411,10 @@ class CorblivarCore {
 					b->bb = b->bb_best;
 					die->CBL.S.push_back(b);
 				}
-				for (const unsigned& dir : die->CBLbest.L) {
+				for (unsigned const& dir : die->CBLbest.L) {
 					die->CBL.L.push_back(dir);
 				}
-				for (const unsigned& t_juncts : die->CBLbest.T) {
+				for (unsigned const& t_juncts : die->CBLbest.T) {
 					die->CBL.T.push_back(t_juncts);
 				}
 			}

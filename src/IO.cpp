@@ -15,7 +15,7 @@
 #include "IO.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(FloorPlanner& fp, const int& argc, char** argv, const bool& log) {
+void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -543,7 +543,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 }
 
-void IO::writePowerThermalMaps(const FloorPlanner& fp) {
+void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	ofstream gp_out;
 	ofstream data_out;
 	int cur_layer;
@@ -671,7 +671,7 @@ void IO::writePowerThermalMaps(const FloorPlanner& fp) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(const FloorPlanner& fp, const string& file_suffix) {
+void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int object_counter;
@@ -758,7 +758,7 @@ void IO::writeFloorplanGP(const FloorPlanner& fp, const string& file_suffix) {
 }
 
 // generate files for HotSpot steady-state thermal simulation
-void IO::writeHotSpotFiles(const FloorPlanner& fp) {
+void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	map<int, Block*>::iterator b;
 	Block *cur_block;
