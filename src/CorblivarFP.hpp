@@ -97,7 +97,7 @@ class FloorPlanner {
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false) const;
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) const {
-			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks);
+			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
 		};
 		Cost determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;

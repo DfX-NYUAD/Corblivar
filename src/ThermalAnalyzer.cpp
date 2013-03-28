@@ -11,6 +11,8 @@
 #include "Corblivar.hpp"
 #include "ThermalAnalyzer.hpp"
 
+constexpr int ThermalAnalyzer::power_maps_dim;
+
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
@@ -154,7 +156,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks) const {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y) const {
 	int i;
 	int x, y;
 	Block* block;
@@ -162,7 +164,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 	int x_lower, x_upper, y_lower, y_upper;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ")" << endl;
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ")" << endl;
 	}
 
 	// determine maps for each layer
@@ -183,23 +185,41 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 				continue;
 			}
 
-			// determine offset block bb; relates to block's bb in padded
-			// power map
+			// determine offset, i.e., shifted, block bb; relates to block's
+			// bb in padded power map
 			block_offset = block->bb;
-			block_offset.ll.x += this->offset_x;
-			block_offset.ur.x += this->offset_x;
-			block_offset.ll.y += this->offset_y;
-			block_offset.ur.y += this->offset_y;
 
-			// determine index boundaries for block
+			// don't offset blocks at the left/lower chip boundaries,
+			// implicitly extend them into power-map padding zone; this way,
+			// during convolution, the thermal estimate increases for these
+			// blocks; blocks not at the boundaries are shifted
+			if (block->bb.ll.x != 0.0) {
+				block_offset.ll.x += this->offset_x;
+			}
+			if (block->bb.ll.y != 0.0) {
+				block_offset.ll.y += this->offset_y;
+			}
+
+			// shift blocks to the upper right
+			block_offset.ur.x += this->offset_x;
+			block_offset.ur.y += this->offset_y;
+			// also consider extending blocks into right/upper padding zone if
+			// they are close to the related chip boundaries
+			if (abs(outline_x + this->offset_x - block_offset.ur.x) < (outline_x * 0.01)) {
+				block_offset.ur.x = outline_x + 2.0 * this->offset_x;
+			}
+			if (abs(outline_y + this->offset_y - block_offset.ur.y) < (outline_y * 0.01)) {
+				block_offset.ur.y = outline_y + 2.0 * this->offset_y;
+			}
+
+			// determine index boundaries for offset block
 			x_lower = (int) (block_offset.ll.x / this->power_maps_dim_x);
 			x_upper = (int) (block_offset.ur.x / this->power_maps_dim_x) + 1;
 			y_lower = (int) (block_offset.ll.y / this->power_maps_dim_y);
 			y_upper = (int) (block_offset.ur.y / this->power_maps_dim_y) + 1;
-			// limit boundaries; restricts mapping of blocks' power to power
-			// map according to offset thermal-map dimensions
-			x_upper = min(x_upper, ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half);
-			y_upper = min(y_upper, ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half);
+			// limit boundaries to power-map indices
+			x_upper = min(x_upper, ThermalAnalyzer::power_maps_dim - 1);
+			y_upper = min(y_upper, ThermalAnalyzer::power_maps_dim - 1);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
