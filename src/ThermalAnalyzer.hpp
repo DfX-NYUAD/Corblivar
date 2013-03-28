@@ -79,9 +79,9 @@ class ThermalAnalyzer {
 
 		// POD
 		struct MaskParameters {
-			double widest_mask_boundary_value;
+			double mask_boundary_value;
 			double impulse_factor;
-			double spread;
+			double impulse_factor_scaling_exponent;
 		};
 
 		// thermal modeling: handlers

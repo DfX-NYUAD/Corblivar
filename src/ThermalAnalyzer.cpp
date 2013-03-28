@@ -286,8 +286,6 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters) {
 	int i, ii;
 	double scale;
-	double max_spread;
-	double layer_spread;
 	double layer_impulse_factor;
 	array<double,ThermalAnalyzer::mask_dim> mask;
 	int x_y;
@@ -305,26 +303,27 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	this->thermal_masks.clear();
 	this->thermal_masks.reserve(layers);
 
-	// determine scale factor, based on widest spread for gauss1D such that
-	// widest_mask_boundary_value is reached at the boundary of the final (2D) mask;
-	// widest spread relates to the mask describing a point source on the uppermost layer
-	max_spread = parameters.spread * layers;
-	scale = sqrt(max_spread * std::log(parameters.impulse_factor / parameters.widest_mask_boundary_value)) / sqrt(2.0);
+	// determine scale factor such that mask_boundary_value is reached at the boundary
+	// of the lowermost (2D) mask; based on general equation to determine x=y for
+	// gauss2D such that gauss2D(x=y) = mask_boundary_value; constant spread (e.g.,
+	// 1.0) is sufficient since this function fitting only requires two paramaters,
+	// i.e., varying spread has no impact
+	static constexpr double spread = 1.0;
+	scale = sqrt(spread * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / sqrt(2.0);
 	// normalize factor according to half of mask dimension
 	scale /=  ThermalAnalyzer::mask_dim_half;
 
 	// determine masks for lowest layer, i.e., hottest layer
 	for (i = 1; i <= layers; i++) {
-		// (TODO) consider other fcts like pow, exp
-		layer_spread = parameters.spread * i;
-		layer_impulse_factor = parameters.impulse_factor / i;
+		// impuls factor is to be reduced notably for increasing layer count
+		layer_impulse_factor = parameters.impulse_factor / pow(i, parameters.impulse_factor_scaling_exponent);
 
 		ii = 0;
 		for (x_y = -ThermalAnalyzer::mask_dim_half; x_y <= ThermalAnalyzer::mask_dim_half; x_y++) {
 			// sqrt for impulse factor is mandatory since the mask is used for
 			// separated convolution (i.e., factor will be squared in final
 			// convolution result)
-			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), layer_spread);
+			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), spread);
 			ii++;
 		}
 
