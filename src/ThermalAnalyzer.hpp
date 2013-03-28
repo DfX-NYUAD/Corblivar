@@ -32,10 +32,10 @@ class ThermalAnalyzer {
 		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
 		// [Park09]
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
-		// 100um thick dies; own value
-		static constexpr double THICKNESS_SI = 0.0001;
 		// 2um active Si layer; [Sridhar10]
 		static constexpr double THICKNESS_SI_ACTIVE = 0.000002;
+		// 100um thick dies; own value
+		static constexpr double THICKNESS_SI = 0.0001 - THICKNESS_SI_ACTIVE;
 		// 12um BEOL; [Sridhar10]
 		static constexpr double THICKNESS_BEOL = 0.000012;
 		// 20um BCB bond; [Sridhar10]
