@@ -110,6 +110,9 @@ class FloorPlanner {
 		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
 		inline void updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) const;
 
+		// ThermalAnalyzer parameters: mask fitting
+		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
+
 	public:
 		friend class IO;
 
@@ -128,9 +131,9 @@ class FloorPlanner {
 		inline void initThermalAnalyzer() {
 			// init thermal masks
 			ThermalAnalyzer::MaskParameters parameters;
-			parameters.impulse_factor = 1.0;
-			parameters.impulse_factor_scaling_exponent = 1.0;
-			parameters.mask_boundary_value = 0.01;
+			parameters.impulse_factor = this->conf_power_blurring_impulse_factor;
+			parameters.impulse_factor_scaling_exponent = this->conf_power_blurring_impulse_factor_scaling_exponent;
+			parameters.mask_boundary_value = this->conf_power_blurring_mask_boundary_value;
 			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), parameters);
 
 			// init power maps, i.e. predetermine maps parameters

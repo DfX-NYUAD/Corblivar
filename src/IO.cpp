@@ -201,14 +201,29 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		exit(1);
 	}
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_impulse_factor;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_impulse_factor_scaling_exponent;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_mask_boundary_value;
+
 	in.close();
 
 	if (log) {
 		cout << "IO> Config values:" << endl;
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
-		cout << "IO>  Layers for 3D IC: " << fp.conf_layer << endl;
-		cout << "IO>  Fixed die outline (width, x-dimension): " << fp.conf_outline_x << endl;
-		cout << "IO>  Fixed die outline (height, y-dimension): " << fp.conf_outline_y << endl;
+		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
+		cout << "IO>  Chip -- Fixed die outline (width, x-dimension): " << fp.conf_outline_x << endl;
+		cout << "IO>  Chip -- Fixed die outline (height, y-dimension): " << fp.conf_outline_y << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (fast cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
@@ -220,7 +235,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
 		cout << "IO>  SA -- Cost factor for area and outline violation: " << fp.conf_SA_cost_area_outline << endl;
-		cout << endl;
+		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
+		cout << "IO>  Power blurring -- Impulse factor down-scaling exponent: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
+		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
 	}
 }
 
