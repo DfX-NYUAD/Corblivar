@@ -289,7 +289,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			}
 			else {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
-				cur_block = NULL;
+				cur_block = nullptr;
 			}
 			// store block into S sequence
 			corb.getDie(cur_layer)->getCBL().S_push_back(cur_block);

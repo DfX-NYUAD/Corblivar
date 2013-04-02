@@ -143,7 +143,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
 		this->done = true;
-		return NULL;
+		return nullptr;
 	}
 
 	cur_block = this->currentBlock();
