@@ -28,6 +28,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 	int layout_fit_counter;
 	double layout_fit_ratio;
 	bool valid_layout_found;
+	bool best_sol_found;
 	bool accept;
 	bool phase_two, phase_two_transit;
 
@@ -61,6 +62,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 		accepted_ops = 0;
 		layout_fit_counter = 0.0;
 		phase_two_transit = false;
+		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
 		corb.generateLayout();
@@ -154,7 +156,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 
 							best_cost = fitting_cost;
 							corb.storeBestCBLs();
-							valid_layout_found = true;
+							valid_layout_found = best_sol_found = true;
 						}
 					}
 				}
@@ -188,6 +190,13 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 			cout << "SA>  avg cost: " << avg_cost << endl;
 			cout << "SA>  temp: " << cur_temp << endl;
 		}
+
+		// log temperature step
+		TempStep cur_step;
+		cur_step.step = i;
+		cur_step.temp = cur_temp;
+		cur_step.new_best_sol_found = best_sol_found;
+		this->tempSchedule.push_back(cur_step);
 
 		// update SA temperature
 		this->updateTemp(cur_temp, accepted_ops_ratio, i, valid_layout_found);
@@ -265,6 +274,9 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 	this->max_cost_TSVs = 0.0;
 	this->max_cost_temp = 0.0;
 	this->max_cost_alignments = 0.0;
+
+	// reset temperature-schedule log
+	this->tempSchedule.clear();
 
 	// backup initial CBLs
 	corb.backupCBLs();
@@ -430,10 +442,13 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 		}
 	}
 
+	// generate temperature-schedule data
+	IO::writeTempSchedule(*this);
+
 	// generate floorplan plots
 	IO::writeFloorplanGP(*this);
 
-	// generate Corblivar date if solution file is used as output
+	// generate Corblivar data if solution file is used as output
 	if (this->solution_out.is_open()) {
 		this->solution_out << corb.CBLsString() << endl;
 		this->solution_out.close();

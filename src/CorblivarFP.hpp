@@ -55,6 +55,11 @@ class FloorPlanner {
 			double boundary_1;
 			double boundary_2;
 		};
+		struct TempStep {
+			int step;
+			double temp;
+			bool new_best_sol_found;
+		};
 
 		// IO
 		string benchmark, blocks_file, power_file, nets_file;
@@ -90,6 +95,9 @@ class FloorPlanner {
 
 		// SA: layout-operation handler variables
 		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+
+		// SA: temperature-schedule log data
+		mutable vector<TempStep> tempSchedule;
 
 		// SA: layout-operation handler
 		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp = false) const;

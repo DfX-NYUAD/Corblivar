@@ -687,6 +687,98 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	}
 }
 
+void IO::writeTempSchedule(FloorPlanner const& fp) {
+	ofstream gp_out;
+	ofstream data_out;
+	double y_max;
+
+	// sanity check
+	if (fp.tempSchedule.empty()) {
+		return;
+	}
+
+	if (fp.logMed()) {
+		cout << "IO> ";
+		cout << "Generating GP scripts for SA temperature-schedule ..." << endl;
+	}
+
+	// build up file names
+	stringstream gp_out_name;
+	stringstream data_out_name;
+	gp_out_name << fp.benchmark << "_TempSchedule.gp";
+	data_out_name << fp.benchmark << "_TempSchedule.data";
+
+	// init file stream for gnuplot script
+	gp_out.open(gp_out_name.str().c_str());
+	// init file stream for data file
+	data_out.open(data_out_name.str().c_str());
+
+	// gp header
+	gp_out << "set title \"" << fp.benchmark << " - SA Temperature Schedule \"" << endl;
+	gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
+
+	// general settings for more attractive plots, extracted from
+	// http://youinfinitesnake.blogspot.de/2011/02/attractive-scientific-plots-with.html
+	gp_out << "set terminal pdfcairo font \"Gill Sans, 12\" linewidth 4 rounded" << endl;
+	gp_out << "# Line style for axes" << endl;
+	gp_out << "set style line 80 lt rgb \"#808080\"" << endl;
+	gp_out << "# Line style for grid" << endl;
+	gp_out << "set style line 81 lt 0  # dashed" << endl;
+	gp_out << "set style line 81 lt rgb \"#808080\"  # grey" << endl;
+	gp_out << "set grid back linestyle 81" << endl;
+	gp_out << "# Remove border on top and right." << endl;
+	gp_out << "# Also, put it in grey; no need for so much emphasis on a border." << endl;
+	gp_out << "set border 3 back linestyle 80" << endl;
+	gp_out << "set xtics nomirror" << endl;
+	gp_out << "set ytics nomirror" << endl;
+	gp_out << "# Line styles: try to pick pleasing colors, rather" << endl;
+	gp_out << "# than strictly primary colors or hard-to-see colors" << endl;
+	gp_out << "# like gnuplot's default yellow. Make the lines thick" << endl;
+	gp_out << "# so they're easy to see in small plots in papers." << endl;
+	gp_out << "set style line 1 lt rgb \"#A00000\" lw 2 pt 1" << endl;
+	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
+	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << endl;
+	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << endl;
+
+	// specific settings: labels
+	gp_out << "set xlabel \"SA Step\"" << endl;
+	gp_out << "set ylabel \"SA Temperature\"" << endl;
+
+	// specific settings: ranges
+	gp_out << "set xrange[0:" << fp.tempSchedule.size() + 1 << "]" << endl;
+
+	y_max = 0.0;
+	for (FloorPlanner::TempStep step : fp.tempSchedule) {
+		y_max = max(y_max, step.temp);
+	}
+	gp_out << "set yrange[" << 0.0 - (0.10 * y_max) << ":" << 1.10 * y_max << "]" << endl;
+
+	// data header
+	data_out << "# Step Temperature" << endl;
+
+	// output data
+	for (FloorPlanner::TempStep step : fp.tempSchedule) {
+		// data file: output SA step and SA temp
+		data_out << step.step << " " << step.temp << endl;
+		// gp script: generate marker for new best solutions
+		if (step.new_best_sol_found) {
+			gp_out << "set object circle at " << step.step << ", " << step.temp << " size 0.25" << endl;
+		}
+	}
+
+	// gp data plot command
+	gp_out << "plot \"" << data_out_name.str() << "\" using 1:2 notitle with linespoints linestyle 3" << endl;
+
+	// close file streams
+	gp_out.close();
+	data_out.close();
+
+	if (fp.logMed()) {
+		cout << "IO> ";
+		cout << "Done" << endl << endl;
+	}
+}
+
 // generate GP plots of FP
 void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;

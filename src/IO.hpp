@@ -24,6 +24,7 @@ class IO {
 		static void writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix = "");
 		static void writeHotSpotFiles(FloorPlanner const& fp);
 		static void writePowerThermalMaps(FloorPlanner const& fp);
+		static void writeTempSchedule(FloorPlanner const& fp);
 };
 
 #endif
