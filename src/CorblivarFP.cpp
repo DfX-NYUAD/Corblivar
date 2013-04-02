@@ -220,23 +220,23 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 
 inline void FloorPlanner::updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) const {
 	double loop_factor, reheat_factor;
+	double prev_temp;
+	int phase;
+
+	prev_temp = cur_temp;
 
 	/// reduce temp
 	// phase 1; fast cooling
 	if (accepted_ops_ratio.cur_ratio > accepted_ops_ratio.boundary_1) {
 		cur_temp *= this->conf_SA_temp_factor_phase1;
 
-		if (this->logMax()) {
-			cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase1 << " (phase 1)" << endl;
-		}
+		phase = 1;
 	}
 	// phase 2; slow cooling
 	else if (accepted_ops_ratio.boundary_2 < accepted_ops_ratio.cur_ratio && accepted_ops_ratio.cur_ratio <= accepted_ops_ratio.boundary_1) {
 		cur_temp *= this->conf_SA_temp_factor_phase2;
 
-		if (this->logMax()) {
-			cout << "SA>  temp factor: " << this->conf_SA_temp_factor_phase2 << " (phase 2)" << endl;
-		}
+		phase = 2;
 	}
 	// phase 3; reheating; accepted_ops_.cur_ratio <= accepted_ops_ratio.boundary_2
 	// heating-up factor is steadily decreased w/ increasing step count to
@@ -256,9 +256,11 @@ inline void FloorPlanner::updateTemp(double& cur_temp, OpsRatios const& accepted
 			cur_temp *= loop_factor * reheat_factor;
 		}
 
-		if (this->logMax()) {
-			cout << "SA>  temp factor: " << loop_factor * reheat_factor << " (phase 3)" << endl;
-		}
+		phase = 3;
+	}
+
+	if (this->logMax()) {
+		cout << "SA>  temp factor: " << cur_temp / prev_temp << " (phase " << phase << ")" << endl;
 	}
 }
 
