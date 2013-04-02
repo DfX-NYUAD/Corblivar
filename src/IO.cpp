@@ -730,7 +730,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "set mytics 10" << endl;
 
 	// gp data plot command
-	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 notitle with linespoints linestyle 4, \\" << endl;
+	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 notitle with linespoints linestyle 1, \\" << endl;
 	gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 notitle with points linestyle 2" << endl;
 
 	// close file stream
