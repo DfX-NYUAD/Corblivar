@@ -50,11 +50,6 @@ class FloorPlanner {
 				return out;
 			}
 		};
-		struct OpsRatios {
-			double cur_ratio;
-			double boundary_1;
-			double boundary_2;
-		};
 		struct TempStep {
 			int step;
 			double temp;
@@ -83,15 +78,13 @@ class FloorPlanner {
 		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: temperature-scaling factors
-		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
-		// SA parameters: temperature-phase-transition factos
-		double conf_SA_temp_phase_trans_12_factor, conf_SA_temp_phase_trans_23_factor;
+		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
-		static constexpr int SA_SAMPLING_LOOP_FACTOR = 2;
+		static constexpr int SA_SAMPLING_LOOP_FACTOR = 50;
 
 		// SA parameter: scaling factor for initial temp
-		static constexpr double SA_INIT_TEMP_FACTOR = 0.01;
+		static constexpr double SA_INIT_TEMP_FACTOR = 20;
 
 		// SA: layout-operation handler variables
 		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
@@ -115,8 +108,8 @@ class FloorPlanner {
 		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: helper for main handler
-		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp, OpsRatios& ratios);
-		inline void updateTemp(double& cur_temp, OpsRatios const& accepted_ops_ratio, int const& iteration, bool const& valid_layout_found) const;
+		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
+		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
 
 		// ThermalAnalyzer parameters: mask fitting
 		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;

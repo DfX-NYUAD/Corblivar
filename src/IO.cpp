@@ -163,21 +163,6 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_factor_phase3;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_SA_temp_phase_trans_12_factor;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_SA_temp_phase_trans_23_factor;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
 	in >> fp.conf_SA_cost_temp;
 
 	in >> tmpstr;
@@ -226,11 +211,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension): " << fp.conf_outline_y << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (fast cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (slow cooling): " << fp.conf_SA_temp_factor_phase2 << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (reheating): " << fp.conf_SA_temp_factor_phase3 << endl;
-		cout << "IO>  SA -- Boundary factor for transitions b/w phases 1, 2: " << fp.conf_SA_temp_phase_trans_12_factor << endl;
-		cout << "IO>  SA -- Boundary factor for transitions b/w phases 2, 3: " << fp.conf_SA_temp_phase_trans_23_factor << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
 		cout << "IO>  SA -- Cost factor for temperature: " << fp.conf_SA_cost_temp << endl;
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
