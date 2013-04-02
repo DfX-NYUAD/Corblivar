@@ -30,7 +30,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 	bool valid_layout_found;
 	bool best_sol_found;
 	bool accept;
-	bool phase_two, phase_two_transit;
+	bool phase_two, phase_two_init;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
@@ -43,7 +43,8 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 	//
 	// init loop parameters
 	i = 1;
-	phase_two = phase_two_transit = false;
+	cur_temp = init_temp;
+	phase_two = phase_two_init = false;
 	valid_layout_found = false;
 	layout_fit_ratio = 0.0;
 	// dummy large value to accept first fitting solution
@@ -61,7 +62,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 		avg_cost = 0.0;
 		accepted_ops = 0;
 		layout_fit_counter = 0.0;
-		phase_two_transit = false;
+		phase_two_init = false;
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
@@ -124,7 +125,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 						// switch to SA phase two when
 						// first fitting solution is found
 						if (!phase_two) {
-							phase_two = phase_two_transit = true;
+							phase_two = phase_two_init = true;
 						}
 
 						// in order to compare different fitting
@@ -133,8 +134,8 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 						//
 						// during switch to phase two, initialize
 						// current cost as max cost for further
-						// normalization (phase_two_transit)
-						fitting_cost = this->determCost(1.0, phase_two, phase_two_transit).cost;
+						// normalization (phase_two_init)
+						fitting_cost = this->determCost(1.0, phase_two, phase_two_init).cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -142,7 +143,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 								cout << "SA> Currently best solution found; (adapted) cost: " << fitting_cost << endl;
 							}
 
-							if (phase_two_transit) {
+							if (phase_two_init) {
 								if (this->logMax()) {
 									cout << "SA> " << endl;
 								}
@@ -163,7 +164,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 
 				// after phase transition, skip current global iteration
 				// in order to consider updated cost function
-				if (phase_two_transit) {
+				if (phase_two_init) {
 					break;
 				}
 				// consider next loop iteration
