@@ -690,7 +690,6 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 void IO::writeTempSchedule(FloorPlanner const& fp) {
 	ofstream gp_out;
 	ofstream data_out;
-	double y_max;
 
 	// sanity check
 	if (fp.tempSchedule.empty()) {
@@ -736,41 +735,42 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "# like gnuplot's default yellow. Make the lines thick" << endl;
 	gp_out << "# so they're easy to see in small plots in papers." << endl;
 	gp_out << "set style line 1 lt rgb \"#A00000\" lw 2 pt 1" << endl;
-	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
+	gp_out << "set style line 2 lt rgb \"#00A000\" lw 3 pt 6" << endl;
+	gp_out << "#set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
 	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << endl;
 	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << endl;
 
 	// specific settings: labels
 	gp_out << "set xlabel \"SA Step\"" << endl;
 	gp_out << "set ylabel \"SA Temperature\"" << endl;
+	// specific settings: log scale
+	gp_out << "set log y" << endl;
+	gp_out << "set mytics 10" << endl;
 
-	// specific settings: ranges
-	gp_out << "set xrange[0:" << fp.tempSchedule.size() + 1 << "]" << endl;
+	// gp data plot command
+	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 notitle with linespoints linestyle 4, \\" << endl;
+	gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 notitle with points linestyle 2" << endl;
 
-	y_max = 0.0;
+	// close file stream
+	gp_out.close();
+
+	// output data: SA step and SA temp
+	data_out << "# Step Temperature (index 0)" << endl;
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
-		y_max = max(y_max, step.temp);
-	}
-	gp_out << "set yrange[" << 0.0 - (0.10 * y_max) << ":" << 1.10 * y_max << "]" << endl;
-
-	// data header
-	data_out << "# Step Temperature" << endl;
-
-	// output data
-	for (FloorPlanner::TempStep step : fp.tempSchedule) {
-		// data file: output SA step and SA temp
 		data_out << step.step << " " << step.temp << endl;
-		// gp script: generate marker for new best solutions
+	}
+	// two blank lines trigger gnuplot to interpret data file as separate data sets
+	data_out << endl;
+	data_out << endl;
+	// output data: markers for best-solution steps
+	data_out << "# Step Temperature (only steps w/ new best solutions, index 1)" << endl;
+	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 		if (step.new_best_sol_found) {
-			gp_out << "set object circle at " << step.step << ", " << step.temp << " size 0.25" << endl;
+			data_out << step.step << " " << step.temp << endl;
 		}
 	}
 
-	// gp data plot command
-	gp_out << "plot \"" << data_out_name.str() << "\" using 1:2 notitle with linespoints linestyle 3" << endl;
-
-	// close file streams
-	gp_out.close();
+	// close file stream
 	data_out.close();
 
 	if (fp.logMed()) {
