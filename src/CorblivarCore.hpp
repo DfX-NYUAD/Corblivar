@@ -347,7 +347,6 @@ class CorblivarCore {
 				cout << "DBG_CORB> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
-		// TODO swapTupleDirection
 		inline void switchTupleDirection(int const& die, int const& tuple) const {
 			if (this->dies[die]->CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die]->CBL.L[tuple] = Direction::HORIZONTAL;
@@ -367,14 +366,9 @@ class CorblivarCore {
 				cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
-		// TODO swapBlockOrientation
 		inline void switchBlockOrientation(int const& die, int const& tuple) const {
-			double w_tmp;
 
-			// TODO use swap
-			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
-			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
-			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;
+			swap(this->dies[die]->CBL.S[tuple]->bb.w, this->dies[die]->CBL.S[tuple]->bb.h);
 
 			if (DBG_CORB) {
 				cout << "DBG_CORB> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
