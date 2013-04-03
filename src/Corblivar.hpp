@@ -24,7 +24,7 @@
 #include <map>
 #include <deque>
 #include <stack>
-#include <algorithm>
+#include <utility>
 #include <sys/timeb.h>
 #include <ctime>
 #include <cstdlib>
