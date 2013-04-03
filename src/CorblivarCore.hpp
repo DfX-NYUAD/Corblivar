@@ -85,7 +85,8 @@ class CornerBlockList {
 		inline string itemString(unsigned const& i) const {
 			stringstream ret;
 
-			ret << "( " << S[i]->id << " " << (unsigned) L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
+			ret << "tuple" << i << ": ";
+			ret << "(" << S[i]->id << ", " << (unsigned) L[i] << ", " << T[i] << ", " << S[i]->bb.w << ", " << S[i]->bb.h << ")";
 
 			return ret.str();
 		};
@@ -95,7 +96,7 @@ class CornerBlockList {
 			stringstream ret;
 
 			for (i = 0; i < this->size(); i++) {
-				ret << this->itemString(i) << " , ";
+				ret << this->itemString(i) << "; ";
 			}
 
 			return ret.str();
@@ -310,6 +311,8 @@ class CorblivarCore {
 		static constexpr int OP_SWITCH_TUPLE_DIR = 3;
 		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
+		// TODO implement; adapt FloorPlanner::performRandomLayoutOp
+		static constexpr int OP_SWITCH_BLOCK_SHAPE = 6;
 
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
@@ -320,21 +323,31 @@ class CorblivarCore {
 				cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
 			}
 		};
-		inline void moveTupleAcrossDies(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
+		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 
-			// insert tuple1 from die1 into die2 w/ offset tuple2
-			this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
-			this->dies[die2]->CBL.L.insert(this->dies[die2]->CBL.L.begin() + tuple2, *(this->dies[die1]->CBL.L.begin() + tuple1));
-			this->dies[die2]->CBL.T.insert(this->dies[die2]->CBL.T.begin() + tuple2, *(this->dies[die1]->CBL.T.begin() + tuple1));
-			// erase tuple1 from die1
-			this->dies[die1]->CBL.S.erase(this->dies[die1]->CBL.S.begin() + tuple1);
-			this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
-			this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
+			// move within same die: perform swaps
+			if (die1 == die2) {
+				swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
+				swap(this->dies[die1]->CBL.L[tuple1], this->dies[die2]->CBL.L[tuple2]);
+				swap(this->dies[die1]->CBL.T[tuple1], this->dies[die2]->CBL.T[tuple2]);
+			}
+			// move across dies: perform insert and delete
+			else {
+				// insert tuple1 from die1 into die2 w/ offset tuple2
+				this->dies[die2]->CBL.S.insert(this->dies[die2]->CBL.S.begin() + tuple2, *(this->dies[die1]->CBL.S.begin() + tuple1));
+				this->dies[die2]->CBL.L.insert(this->dies[die2]->CBL.L.begin() + tuple2, *(this->dies[die1]->CBL.L.begin() + tuple1));
+				this->dies[die2]->CBL.T.insert(this->dies[die2]->CBL.T.begin() + tuple2, *(this->dies[die1]->CBL.T.begin() + tuple1));
+				// erase tuple1 from die1
+				this->dies[die1]->CBL.S.erase(this->dies[die1]->CBL.S.begin() + tuple1);
+				this->dies[die1]->CBL.L.erase(this->dies[die1]->CBL.L.begin() + tuple1);
+				this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
+			}
 
 			if (DBG_CORB) {
-				cout << "DBG_CORB> moveTupleAcrossDies; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
+				cout << "DBG_CORB> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
+		// TODO swapTupleDirection
 		inline void switchTupleDirection(int const& die, int const& tuple) const {
 			if (this->dies[die]->CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die]->CBL.L[tuple] = Direction::HORIZONTAL;
@@ -354,9 +367,11 @@ class CorblivarCore {
 				cout << "DBG_CORB> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
+		// TODO swapBlockOrientation
 		inline void switchBlockOrientation(int const& die, int const& tuple) const {
 			double w_tmp;
 
+			// TODO use swap
 			w_tmp = this->dies[die]->CBL.S[tuple]->bb.w;
 			this->dies[die]->CBL.S[tuple]->bb.w = this->dies[die]->CBL.S[tuple]->bb.h;
 			this->dies[die]->CBL.S[tuple]->bb.h = w_tmp;

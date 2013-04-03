@@ -531,10 +531,6 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
-				// ensure that dies are different
-				while (die1 == die2) {
-					die2 = Math::randI(0, corb.diesSize());
-				}
 				// sanity check for empty (origin) die
 				if (corb.getDie(die1)->getCBL().empty()) {
 					ret = false;
@@ -544,10 +540,25 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
 				tuple2 = Math::randI(0, corb.getDie(die2)->getCBL().size());
 
-				corb.moveTupleAcrossDies(die1, die2, tuple1, tuple2);
+				// in case of moving w/in same die, ensure that tuples are
+				// different
+				if (die1 == die2) {
+					// this is, however, only possible if at least two
+					// tuples are given in that die
+					if (corb.getDie(die1)->getCBL().size() < 2) {
+						ret = false;
+						break;
+					}
+					// determine two different tuples
+					while (tuple1 == tuple2) {
+						tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+					}
+				}
+
+				corb.moveTuples(die1, die2, tuple1, tuple2);
 			}
 			else {
-				corb.moveTupleAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
