@@ -482,7 +482,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 		// see OP_ constants (encoding ``op-codes'') in class CorblivarCore
 		// to set op-code ranges
 		// recall that randI(x,y) is [x,y)
-		this->last_op = op = Math::randI(0, 6);
+		this->last_op = op = Math::randI(1, 6);
 	}
 
 	die1 = die2 = tuple1 = tuple2 = -1;
@@ -490,38 +490,11 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 	// specific op handler
 	switch (op) {
-		case CorblivarCore::OP_SWAP_BLOCKS_WI_DIE:
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				// sanity check for dies w/ one or zero tuples
-				if (corb.getDie(die1)->getCBL().size() <= 1) {
-					ret = false;
-					break;
-				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				// ensure that tuples are different
-				while (tuple1 == tuple2) {
-					tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				}
-
-				corb.switchBlocksWithinDie(die1, tuple1, tuple2);
-			}
-			else {
-				corb.switchBlocksWithinDie(this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-			}
-
-			break;
-
-		case CorblivarCore::OP_SWAP_BLOCKS_ACROSS_DIE:
+		case CorblivarCore::OP_SWAP_BLOCKS: // op-code: 1
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
-				// ensure that dies are different
-				while (die1 == die2) {
-					die2 = Math::randI(0, corb.diesSize());
-				}
 				// sanity check for empty dies
 				if (corb.getDie(die1)->getCBL().empty() || corb.getDie(die2)->getCBL().empty()) {
 					ret = false;
@@ -531,15 +504,30 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
 				tuple2 = Math::randI(0, corb.getDie(die2)->getCBL().size());
 
-				corb.switchBlocksAcrossDies(die1, die2, tuple1, tuple2);
+				// in case of swaps w/in same die, ensure that tuples are different
+				if (die1 == die2) {
+					// this is, however, only possible if at least two
+					// tuples are given in that die
+					if (corb.getDie(die1)->getCBL().size() < 2) {
+						ret = false;
+						break;
+					}
+					// determine two different tuples
+					while (tuple1 == tuple2) {
+						tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+					}
+				}
+
+				corb.swapBlocks(die1, die2, tuple1, tuple2);
 			}
 			else {
-				corb.switchBlocksAcrossDies(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+				corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarCore::OP_MOVE_TUPLE:
+		case CorblivarCore::OP_MOVE_TUPLE: // op-code: 2
+
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
@@ -564,7 +552,8 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_TUPLE_DIR:
+		case CorblivarCore::OP_SWITCH_TUPLE_DIR: // op-code: 3
+
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
@@ -583,7 +572,8 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_TUPLE_JUNCTS:
+		case CorblivarCore::OP_SWITCH_TUPLE_JUNCTS: // op-code: 4
+
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
@@ -617,7 +607,8 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_BLOCK_ORIENT:
+		case CorblivarCore::OP_SWITCH_BLOCK_ORIENT: // op-code: 5
+
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies

@@ -305,27 +305,17 @@ class CorblivarCore {
 		};
 
 		// layout operations for heuristic optimization
-		static constexpr int OP_SWAP_BLOCKS_WI_DIE = 0;
-		static constexpr int OP_SWAP_BLOCKS_ACROSS_DIE = 1;
+		static constexpr int OP_SWAP_BLOCKS = 1;
 		static constexpr int OP_MOVE_TUPLE = 2;
 		static constexpr int OP_SWITCH_TUPLE_DIR = 3;
 		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
 
-		inline void switchBlocksWithinDie(int const& die, int const& tuple1, int const& tuple2) const {
-			swap(this->dies[die]->CBL.S[tuple1], this->dies[die]->CBL.S[tuple2]);
-
-			if (DBG_CORB) {
-				cout << "DBG_CORB> switchBlocksWithinDie; d1=" << die;
-				cout << ", s1=" << this->dies[die]->CBL.S[tuple1]->id;
-				cout << ", s2=" << this->dies[die]->CBL.S[tuple2]->id << endl;
-			}
-		};
-		inline void switchBlocksAcrossDies(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
+		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 
 			if (DBG_CORB) {
-				cout << "DBG_CORB> switchBlocksAcrossDies; d1=" << die1 << ", d2=" << die2;
+				cout << "DBG_CORB> swapBlocks; d1=" << die1 << ", d2=" << die2;
 				cout << ", s1=" << this->dies[die1]->CBL.S[tuple1]->id;
 				cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
 			}
