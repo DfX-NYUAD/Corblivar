@@ -55,9 +55,8 @@ class Math {
 			}
 		};
 		inline static bool randB() {
-			int r;
 
-			r = rand();
+			int const r = rand();
 			return (r < (RAND_MAX / 2));
 		};
 		inline static double randF01() {
@@ -205,15 +204,15 @@ class Rect {
 		};
 
 		inline static bool rectA_leftOf_rectB(Rect const& a, Rect const& b, bool const& considerVerticalIntersect) {
-			bool leftOf = (a.ur.x <= b.ll.x);
-			bool verticalIntersect = rectsIntersectVertical(a, b);
+			bool const leftOf = (a.ur.x <= b.ll.x);
+			bool const verticalIntersect = rectsIntersectVertical(a, b);
 
 			return ((leftOf && verticalIntersect) || (leftOf && !considerVerticalIntersect));
 		};
 
 		inline static bool rectA_below_rectB(Rect const& a, Rect const& b, bool const& considerHorizontalIntersect) {
-			bool below = (a.ur.y <= b.ll.y);
-			bool horizontalIntersect = rectsIntersectHorizontal(a, b);
+			bool const below = (a.ur.y <= b.ll.y);
+			bool const horizontalIntersect = rectsIntersectHorizontal(a, b);
 
 			return ((below && horizontalIntersect) || (below && !considerHorizontalIntersect));
 		};

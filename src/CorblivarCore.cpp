@@ -67,7 +67,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 }
 
 void CorblivarCore::generateLayout(bool const& dbgStack) const {
-	Block* cur_block;
+	Block const* cur_block;
 	bool loop;
 
 	if (DBG_CORB) {
@@ -131,9 +131,6 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 }
 
 Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
-	Block* cur_block;
-	Direction cur_dir;
-	unsigned cur_juncts;
 	vector<Block*> relevBlocks;
 	unsigned relevBlocksCount, b;
 	double x, y;
@@ -146,9 +143,9 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		return nullptr;
 	}
 
-	cur_block = this->currentBlock();
-	cur_dir = this->currentTupleDirection();
-	cur_juncts = this->currentTupleJuncts();
+	Block* const cur_block = this->currentBlock();
+	Direction const cur_dir = this->currentTupleDirection();
+	unsigned const cur_juncts = this->currentTupleJuncts();
 
 	// assign layer to block
 	cur_block->layer = this->id;

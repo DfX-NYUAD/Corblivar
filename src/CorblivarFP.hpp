@@ -130,11 +130,13 @@ class FloorPlanner {
 
 		// ThermalAnalyzer: handler
 		inline void initThermalAnalyzer() {
-			// init thermal masks
+			// init masks parameters
 			ThermalAnalyzer::MaskParameters parameters;
 			parameters.impulse_factor = this->conf_power_blurring_impulse_factor;
 			parameters.impulse_factor_scaling_exponent = this->conf_power_blurring_impulse_factor_scaling_exponent;
 			parameters.mask_boundary_value = this->conf_power_blurring_mask_boundary_value;
+
+			// init thermal masks
 			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), parameters);
 
 			// init power maps, i.e. predetermine maps parameters

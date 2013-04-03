@@ -467,7 +467,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 // parse nets file
 void IO::parseNets(FloorPlanner& fp) {
-
 	ifstream in;
 	string tmpstr;
 	Net* cur_net;
@@ -797,7 +796,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	int cur_layer;
 	int object_counter;
 	map<int, Block*>::iterator b;
-	Block* cur_block;
+	Block const* cur_block;
 	double ratio_inv;
 	int tics;
 
@@ -882,10 +881,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	map<int, Block*>::iterator b;
-	Block* cur_block;
+	Block const* cur_block;
 	int cur_layer;
 	// factor to scale um downto m;
-	static const double SCALE_UM_M = 0.000001;
+	static constexpr double SCALE_UM_M = 0.000001;
 
 	if (fp.logMed()) {
 		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;

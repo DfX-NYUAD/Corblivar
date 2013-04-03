@@ -159,7 +159,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y) const {
 	int i;
 	int x, y;
-	Block* block;
+	Block const* block;
 	Rect bin, intersect, block_offset;
 	int x_lower, x_upper, y_lower, y_upper;
 

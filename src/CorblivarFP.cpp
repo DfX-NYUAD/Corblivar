@@ -742,7 +742,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 	vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
 	Cost ret;
-	Block* block;
+	Block const* block;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
