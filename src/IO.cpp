@@ -127,6 +127,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		in >> tmpstr;
 	in >> fp.conf_layer;
 
+	// sanity check for >= 2 layers
+	if (fp.conf_layer < 2) {
+		cout << "Corblivar only supports floorplanning on >= 2 layers!" << endl;
+		exit(1);
+	}
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -136,6 +142,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.conf_outline_y;
+
+	// sanity check for positive, non-zero dimensions
+	if (fp.conf_outline_x <= 0.0 || fp.conf_outline_y <= 0.0) {
+		cout << "Provde positive, non-zero outline dimensions!" << endl;
+		exit(1);
+	}
 
 	// determine outline aspect ratio
 	fp.outline_AR = fp.conf_outline_x / fp.conf_outline_y;
@@ -150,6 +162,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		in >> tmpstr;
 	in >> fp.conf_SA_loopLimit;
 
+	// sanity check for positive, non-zero parameters
+	if (fp.conf_SA_loopFactor <= 0.0 || fp.conf_SA_loopLimit <= 0.0) {
+		cout << "Provde positive, non-zero SA loop parameters!" << endl;
+		exit(1);
+	}
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -159,6 +177,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.conf_SA_temp_factor_phase2;
+
+	// sanity check for positive, non-zero parameters
+	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
+		cout << "Provde positive, non-zero SA cooling parameters!" << endl;
+		exit(1);
+	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -200,6 +224,12 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.conf_power_blurring_mask_boundary_value;
+
+	// sanity check for positive, non-zero parameters
+	if (fp.conf_power_blurring_impulse_factor <= 0.0 || fp.conf_power_blurring_impulse_factor_scaling_exponent <= 0.0 || fp.conf_power_blurring_mask_boundary_value <= 0.0) {
+		cout << "Provde positive, non-zero power blurring parameters!" << endl;
+		exit(1);
+	}
 
 	in.close();
 
