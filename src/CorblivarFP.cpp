@@ -848,7 +848,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			blocks_to_consider.clear();
 
 			// blocks for cur_net on this layer
-			for (Block* &b : cur_net->blocks) {
+			for (Block* const& b : cur_net->blocks) {
 				if (b->layer == i) {
 					blocks_to_consider.push_back(&b->bb);
 
@@ -869,7 +869,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			blocks_above_considered = false;
 			ii = i + 1;
 			while (ii <= cur_net->layer_top) {
-				for (Block* &b : cur_net->blocks) {
+				for (Block* const& b : cur_net->blocks) {
 					if (b->layer == ii) {
 						blocks_to_consider.push_back(&b->bb);
 						blocks_above_considered = true;

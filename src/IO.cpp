@@ -554,11 +554,11 @@ void IO::parseNets(FloorPlanner& fp) {
 	in.close();
 
 	if (IO::DBG) {
-		for (Net* &n : fp.nets) {
+		for (Net* const& n : fp.nets) {
 			cout << "DBG_IO> ";
 			cout << "net " << n->id << endl;
 
-			for (Block* &b : n->blocks) {
+			for (Block* const& b : n->blocks) {
 				cout << "DBG_IO> ";
 				cout << " block " << b->id << endl;
 			}

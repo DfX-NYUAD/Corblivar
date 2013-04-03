@@ -51,7 +51,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 	}
 
 	if (DBG_CORB) {
-		for (CorblivarDie* &die : this->dies) {
+		for (CorblivarDie* const& die : this->dies) {
 			cout << "DBG_CORB> ";
 			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
 			cout << die->CBL.itemString() << endl;
@@ -181,7 +181,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 
 		// determine x-coordinate for lower left corner of current block
 		x = 0;
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			// only consider blocks which intersect in y-direction
 			if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
 				// determine right front
@@ -196,7 +196,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// update vertical stack; add cur_block when no other relevant blocks
 		// are to its top side, indepent of overlap in x-direction
 		add_to_stack = true;
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
 			}
@@ -209,7 +209,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// update horizontal stack; add relevant blocks which have no block to the right,
 		// can be simplified by checking against cur_block (only new block which
 		// can be possibly right of others)
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Hi regarding their
@@ -220,7 +220,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// also consider new block cur_block as right of others
 		blocks_add_to_stack.push_front(cur_block);
 
-		for (Block* &b : blocks_add_to_stack) {
+		for (Block* const& b : blocks_add_to_stack) {
 			this->Hi.push(b);
 		}
 	}
@@ -252,7 +252,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 
 		// determine y-coordinate for lower left corner of current block
 		y = 0;
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			// only consider blocks which intersect in x-direction
 			if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
 				// determine upper front
@@ -267,7 +267,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// update horizontal stack; add cur_block when no other relevant blocks
 		// are to its right side, indepent of overlap in y-direction
 		add_to_stack = true;
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
 			}
@@ -280,7 +280,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// update vertical stack; add relevant blocks which have no block above,
 		// can be simplified by checking against cur_block (only new block which
 		// can be possibly above others)
-		for (Block* &b : relevBlocks) {
+		for (Block* const& b : relevBlocks) {
 			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Vi regarding their
@@ -291,7 +291,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		// also consider new block cur_block as above others
 		blocks_add_to_stack.push_front(cur_block);
 
-		for (Block* &b : blocks_add_to_stack) {
+		for (Block* const& b : blocks_add_to_stack) {
 			this->Vi.push(b);
 		}
 	}
