@@ -72,6 +72,7 @@ class ThermalAnalyzer {
 		double power_maps_dim_x, power_maps_dim_y;
 		double power_maps_bin_area;
 		double offset_x, offset_y;
+		double padding_right_boundary_blocks_distance, padding_upper_boundary_blocks_distance;
 		array<double,power_maps_dim> power_maps_bins_ll_x, power_maps_bins_ll_y;
 
 	public:
