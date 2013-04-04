@@ -87,7 +87,7 @@ class ThermalAnalyzer {
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, double const& outline_x, double const& outline_y);
-		void generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y) const;
+		void generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone = true) const;
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		// returns max value of convoluted 2D matrix

@@ -156,7 +156,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y) const {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) const {
 	int i;
 	int x, y;
 	Block const* block;
@@ -164,7 +164,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 	int x_lower, x_upper, y_lower, y_upper;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ")" << endl;
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
 	}
 
 	// determine maps for each layer
@@ -193,10 +193,14 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 			// implicitly extend them into power-map padding zone; this way,
 			// during convolution, the thermal estimate increases for these
 			// blocks; blocks not at the boundaries are shifted
-			if (block->bb.ll.x != 0.0) {
+			if (extend_boundary_blocks_into_padding_zone && block->bb.ll.x == 0.0) {
+			}
+			else {
 				block_offset.ll.x += this->offset_x;
 			}
-			if (block->bb.ll.y != 0.0) {
+			if (extend_boundary_blocks_into_padding_zone && block->bb.ll.y == 0.0) {
+			}
+			else {
 				block_offset.ll.y += this->offset_y;
 			}
 
@@ -205,10 +209,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 			block_offset.ur.y += this->offset_y;
 			// also consider extending blocks into right/upper padding zone if
 			// they are close to the related chip boundaries
-			if (abs(outline_x + this->offset_x - block_offset.ur.x) < (outline_x * 0.01)) {
+			if (extend_boundary_blocks_into_padding_zone && abs(outline_x + this->offset_x - block_offset.ur.x) < (outline_x * 0.01)) {
 				block_offset.ur.x = outline_x + 2.0 * this->offset_x;
 			}
-			if (abs(outline_y + this->offset_y - block_offset.ur.y) < (outline_y * 0.01)) {
+			if (extend_boundary_blocks_into_padding_zone && abs(outline_y + this->offset_y - block_offset.ur.y) < (outline_y * 0.01)) {
 				block_offset.ur.y = outline_y + 2.0 * this->offset_y;
 			}
 
