@@ -237,8 +237,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO> Config values:" << endl;
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
 		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
-		cout << "IO>  Chip -- Fixed die outline (width, x-dimension): " << fp.conf_outline_x << endl;
-		cout << "IO>  Chip -- Fixed die outline (height, y-dimension): " << fp.conf_outline_y << endl;
+		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
+		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
@@ -250,6 +250,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
 		cout << "IO>  Power blurring -- Impulse factor down-scaling exponent: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
+		cout << endl;
 	}
 }
 
@@ -452,7 +453,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in" << endl;
-		cout << "IO>  (blocks power: " << power << "; blocks area: " << area;
+		cout << "IO>  (blocks power [W]: " << power << "; blocks area [cm^2]: " << area * 1.0e-8;
 		cout << "; blocks area / total area: " << area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) << ")" << endl;
 		cout << endl;
 	}
