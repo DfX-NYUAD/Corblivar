@@ -241,17 +241,17 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 					bin.ll.y = this->power_maps_bins_ll_y[y];
 					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
-					// consider total block power for fully covered bins
+					// consider full block power density for fully covered bins
 					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-						this->power_maps[i][x][y] += block->power;
+						this->power_maps[i][x][y] += block->power_density;
 					}
 					// else consider intersection of bin and block at
 					// blocks' boundaries
 					else {
 						intersect = Rect::determineIntersection(bin, block_offset);
-						// scale power according to intersection
-						// area
-						this->power_maps[i][x][y] += block->power * (intersect.area / this->power_maps_bin_area);
+						// scale power density according to
+						// intersection area
+						this->power_maps[i][x][y] += block->power_density * (intersect.area / this->power_maps_bin_area);
 					}
 				}
 			}

@@ -20,7 +20,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	string config_file;
 	stringstream results_file, solution_file;
 	stringstream blocks_file;
-	stringstream power_file;
+	stringstream power_density_file;
 	stringstream nets_file;
 	string tmpstr;
 
@@ -43,8 +43,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
 	fp.blocks_file = blocks_file.str();
 
-	power_file << argv[3] << fp.benchmark << ".power";
-	fp.power_file = power_file.str();
+	power_density_file << argv[3] << fp.benchmark << ".power";
+	fp.power_density_file = power_density_file.str();
 
 	nets_file << argv[3] << fp.benchmark << ".nets";
 	fp.nets_file = nets_file.str();
@@ -71,11 +71,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	}
 	in.close();
 
-	in.open(fp.power_file.c_str());
+	in.open(fp.power_density_file.c_str());
 	if (!in.good())
 	{
 		cout << "IO> ";
-		cout << "No such power file: " << fp.power_file << endl;
+		cout << "No such power density file: " << fp.power_density_file << endl;
 		exit(1);
 	}
 	in.close();
@@ -360,7 +360,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// open files
 	blocks_in.open(fp.blocks_file.c_str());
-	power_in.open(fp.power_file.c_str());
+	power_in.open(fp.power_density_file.c_str());
 
 	// reset blocks
 	fp.blocks.clear();
@@ -385,17 +385,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		id++;
 		cur_block = new Block(id);
 
-		// assign power value
+		// determine power density
 		if (!power_in.eof()) {
-			power_in >> cur_block->power;
-			// normalize to watts
-			cur_block->power /= 1000.0;
-			// scale power values according to block scaling
-			// note that correct scaling (maintain power/area ratio)
-			// would imply using pow(FloorPlanner::BLOCKS_SCALE_UP, 2.0); which is
-			// rejected in order to limit overall power values
-			cur_block->power *= pow(FloorPlanner::BLOCKS_SCALE_UP, 3.0/2.0);
-			power += cur_block->power;
+			power_in >> cur_block->power_density;
+			// GSRC benchmarks provide power density in 10^5 W/(m^2);
+			// normalize to W/(um^2)
+			cur_block->power_density *= 1.0e-7;
 		}
 		else {
 			if (fp.logMin()) {
@@ -441,6 +436,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// calculate block area
 		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
 		area += cur_block->bb.area;
+
+		// memorize total block power
+		power += cur_block->power();
+
 		// store block
 		fp.blocks.insert( pair<int, Block*>(cur_block->id, cur_block) );
 	}
@@ -1062,7 +1061,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				continue;
 			}
 
-			file << cur_block->power << " ";
+			file << cur_block->power() << " ";
 		}
 
 		// dummy outline block

@@ -222,7 +222,7 @@ class Block {
 	public:
 		int id;
 		int layer;
-		double power;
+		double power_density;
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
 		Rect bb, bb_backup, bb_best;
@@ -230,10 +230,14 @@ class Block {
 		Block(int const& id_i) {
 			id = id_i;
 			layer = -1;
-			power = 0.0;
+			power_density= 0.0;
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
+
+		inline double power() const {
+			return this->power_density * this->bb.area;
+		}
 };
 
 class Net {
