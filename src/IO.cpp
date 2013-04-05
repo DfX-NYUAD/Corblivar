@@ -648,8 +648,19 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// the overall plot
 			// see also http://gnuplot.sourceforge.net/demo/pm3d.html
 			gp_out << "set pm3d map corners2color c1" << endl;
-			// color printable as gray
-			gp_out << "set palette rgbformulae 30,31,32" << endl;
+			//// color printable as gray
+			//gp_out << "set palette rgbformulae 30,31,32" << endl;
+			// mathlab color palette; see
+			// http://www.gnuplotting.org/matlab-colorbar-with-gnuplot/
+			gp_out << "set palette defined ( 0 \"#000090\",\\" << endl;
+			gp_out << "1 \"#000fff\",\\" << endl;
+			gp_out << "2 \"#0090ff\",\\" << endl;
+			gp_out << "3 \"#0fffee\",\\" << endl;
+			gp_out << "4 \"#90ff70\",\\" << endl;
+			gp_out << "5 \"#ffee00\",\\" << endl;
+			gp_out << "6 \"#ff7000\",\\" << endl;
+			gp_out << "7 \"#ee0000\",\\" << endl;
+			gp_out << "8 \"#7f0000\")" << endl;
 			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
 
 			// close file stream for gnuplot script
