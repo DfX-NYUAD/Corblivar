@@ -54,7 +54,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 		for (CorblivarDie* const& die : this->dies) {
 			cout << "DBG_CORB> ";
 			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
-			cout << die->CBL.itemString() << endl;
+			cout << die->CBL.CBLString() << endl;
 			cout << "DBG_CORB> ";
 			cout << endl;
 		}

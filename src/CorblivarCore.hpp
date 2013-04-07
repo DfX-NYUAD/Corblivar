@@ -50,7 +50,7 @@ class CornerBlockList {
 				if (mismatch) {
 					cout << "DBG_CORB> CBL has sequences size mismatch!" << endl;
 					cout << "DBG_CORB> CBL: " << endl;
-					cout << this->itemString() << endl;
+					cout << this->CBLString() << endl;
 				}
 			}
 
@@ -83,21 +83,22 @@ class CornerBlockList {
 			this->T.push_back(tuple.T);
 		};
 
-		inline string itemString(unsigned const& i) const {
+		inline string tupleString(unsigned const& tuple) const {
 			stringstream ret;
 
-			ret << "tuple " << i << " : ";
-			ret << "( " << S[i]->id << " " << (unsigned) L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
+			ret << "tuple " << tuple << " : ";
+			ret << "( " << this->S[tuple]->id << " " << (unsigned) this->L[tuple] << " " << this->T[tuple] << " ";
+			ret << this->S[tuple]->bb.w << " " << this->S[tuple]->bb.h << " )";
 
 			return ret.str();
 		};
 
-		inline string itemString() const {
+		inline string CBLString() const {
 			unsigned i;
 			stringstream ret;
 
 			for (i = 0; i < this->size(); i++) {
-				ret << this->itemString(i) << "; ";
+				ret << this->tupleString(i) << "; ";
 			}
 
 			return ret.str();
@@ -178,7 +179,7 @@ class CorblivarDie {
 		};
 
 		inline string currentTupleString() const {
-			return this->CBL.itemString(this->pi);
+			return this->CBL.tupleString(this->pi);
 		};
 };
 
@@ -380,7 +381,7 @@ class CorblivarCore {
 
 			for (CorblivarDie* const& die : this->dies) {
 				ret << "CBL [ " << die->id << " ]" << endl;
-				ret << die->CBL.itemString() << endl;
+				ret << die->CBL.CBLString() << endl;
 			}
 
 			return ret.str();
