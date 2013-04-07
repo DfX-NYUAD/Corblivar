@@ -17,13 +17,20 @@ static constexpr bool DBG_CORB = false;
 class CornerBlockList {
 	private:
 		// CBL sequences
-		mutable vector<Block*> S;
-		mutable vector<Direction> L;
-		mutable vector<unsigned> T;
+		vector<Block*> S;
+		vector<Direction> L;
+		vector<unsigned> T;
 
 	public:
 		friend class CorblivarCore;
 		friend class CorblivarDie;
+
+		// POD; wrapper for tuples of separate sequences
+		struct Tuple {
+			Block* S;
+			Direction L;
+			unsigned T;
+		};
 
 		// getter / setter
 		inline unsigned size() const {
@@ -70,16 +77,10 @@ class CornerBlockList {
 			this->T.reserve(elements);
 		};
 
-		inline void S_push_back(Block* const& block) const {
-			this->S.push_back(block);
-		};
-
-		inline void L_push_back(Direction const& l) const {
-			this->L.push_back(l);
-		};
-
-		inline void T_push_back(unsigned const& t) const {
-			this->T.push_back(t);
+		inline void insert(Tuple const& tuple) {
+			this->S.push_back(tuple.S);
+			this->L.push_back(tuple.L);
+			this->T.push_back(tuple.T);
 		};
 
 		inline string itemString(unsigned const& i) const {
@@ -149,6 +150,10 @@ class CorblivarDie {
 
 		// getter
 		inline CornerBlockList const& getCBL() const {
+			return this->CBL;
+		};
+
+		inline CornerBlockList& editCBL() {
 			return this->CBL;
 		};
 

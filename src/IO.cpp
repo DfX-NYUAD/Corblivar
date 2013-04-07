@@ -256,12 +256,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	string tmpstr;
 	map<int, Block*>::iterator b;
-	Block* cur_block;
+	CornerBlockList::Tuple tuple;
+	unsigned tuples;
 	int cur_layer;
 	int block_id;
 	unsigned dir;
-	int juncts;
-	double w, h;
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
@@ -276,6 +275,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 		fp.solution_in >> tmpstr;
 	}
 
+	tuples = 0;
 	while (!fp.solution_in.eof()) {
 		fp.solution_in >> tmpstr;
 
@@ -304,48 +304,44 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// find related block
 			b = fp.blocks.find(block_id);
 			if (b != fp.blocks.end()) {
-				cur_block = (*b).second;
+				tuple.S = (*b).second;
 			}
 			else {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
-				cur_block = nullptr;
+				tuple.S = nullptr;
 			}
-			// store block into S sequence
-			corb.getDie(cur_layer)->getCBL().S_push_back(cur_block);
 
 			// direction L
 			fp.solution_in >> dir;
-			// store direction into L sequence
-			if (dir == 0) {
-				corb.getDie(cur_layer)->getCBL().L_push_back(Direction::VERTICAL);
+			// parse direction; unsigned 
+			if (dir == (unsigned) Direction::VERTICAL) {
+				tuple.L = Direction::VERTICAL;
 			}
 			else {
-				corb.getDie(cur_layer)->getCBL().L_push_back(Direction::HORIZONTAL);
+				tuple.L = Direction::HORIZONTAL;
 			}
 
 			// T-junctions
-			fp.solution_in >> juncts;
-			// store junctions into T sequence
-			corb.getDie(cur_layer)->getCBL().T_push_back(juncts);
+			fp.solution_in >> tuple.T;
 
 			// block width
-			fp.solution_in >> w;
-			// store width in block
-			cur_block->bb.w = w;
+			fp.solution_in >> tuple.S->bb.w;
 
 			// block height
-			fp.solution_in >> h;
-			// store height in block
-			cur_block->bb.h = h;
+			fp.solution_in >> tuple.S->bb.h;
 
 			// drop ");"
 			fp.solution_in >> tmpstr;
+
+			// store parsed tuple into CBL
+			corb.getDie(cur_layer)->editCBL().insert(tuple);
+			tuples++;
 		}
 	}
 
 	if (fp.logMed()) {
 		cout << "Layout> ";
-		cout << "Done" << endl << endl;
+		cout << "Done; parsed " << tuples << " tuples" << endl << endl;
 	}
 }
 
