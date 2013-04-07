@@ -324,8 +324,13 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		}
 	}
 
-	// increment progress pointer, consider next tuple (block)
-	this->incrementTuplePointer();
+	// increment progress pointer, consider next tuple (block) or mark die as done
+	if (this->pi == (CBL.size() - 1)) {
+		this->done = true;
+	}
+	else {
+		this->pi++;
+	}
 
 	return cur_block;
 }

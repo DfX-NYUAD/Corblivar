@@ -122,19 +122,6 @@ class CorblivarDie {
 		// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
 
-		// false: last CBL tuple; true: not last tuple
-		inline bool incrementTuplePointer() {
-
-			if (this->pi == (CBL.size() - 1)) {
-				this->done = true;
-				return false;
-			}
-			else {
-				this->pi++;
-				return true;
-			}
-		};
-
 		inline void reset() {
 			// reset progress pointer
 			this->pi = 0;
