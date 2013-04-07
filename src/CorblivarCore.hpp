@@ -157,20 +157,24 @@ class CorblivarDie {
 			return this->CBL;
 		};
 
-		inline Block* const& currentBlock() const {
-			return this->CBL.S[this->pi];
+		inline CornerBlockList::Tuple currentTuple() const {
+			CornerBlockList::Tuple ret;
+
+			ret.S = this->CBL.S[this->pi];
+			ret.L = this->CBL.L[this->pi];
+			ret.T = this->CBL.T[this->pi];
+
+			return ret;
 		};
 
-		inline Direction const& currentTupleDirection() const {
-			return this->CBL.L[this->pi];
-		};
+		inline CornerBlockList::Tuple getTuple(unsigned const& tuple) const {
+			CornerBlockList::Tuple ret;
 
-		inline unsigned const& currentTupleJuncts() const {
-			return this->CBL.T[this->pi];
-		};
+			ret.S = this->CBL.S[tuple];
+			ret.L = this->CBL.L[tuple];
+			ret.T = this->CBL.T[tuple];
 
-		inline unsigned const& tupleJuncts(unsigned const& tuple) const {
-			return this->CBL.T[tuple];
+			return ret;
 		};
 
 		inline string currentTupleString() const {

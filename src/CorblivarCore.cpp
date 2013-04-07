@@ -136,6 +136,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	double x, y;
 	bool add_to_stack;
 	list<Block*> blocks_add_to_stack;
+	CornerBlockList::Tuple cur_tuple;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -143,9 +144,12 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		return nullptr;
 	}
 
-	Block* const cur_block = this->currentBlock();
-	Direction const cur_dir = this->currentTupleDirection();
-	unsigned const cur_juncts = this->currentTupleJuncts();
+	// retrieve current tuple
+	cur_tuple = this->currentTuple();
+	// local const aliases; r/o access execpt cur_block
+	Block* const cur_block = cur_tuple.S;
+	Direction const cur_dir = cur_tuple.L;
+	unsigned const cur_juncts = cur_tuple.T;
 
 	// assign layer to block
 	cur_block->layer = this->id;

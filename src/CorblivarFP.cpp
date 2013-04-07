@@ -594,7 +594,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				}
 
 				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				t = corb.getDie(die1)->tupleJuncts(tuple1);
+				t = corb.getDie(die1)->getTuple(tuple1).T;
 
 				this->last_op_juncts = t;
 
