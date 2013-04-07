@@ -85,8 +85,8 @@ class CornerBlockList {
 		inline string itemString(unsigned const& i) const {
 			stringstream ret;
 
-			ret << "tuple" << i << ": ";
-			ret << "(" << S[i]->id << ", " << (unsigned) L[i] << ", " << T[i] << ", " << S[i]->bb.w << ", " << S[i]->bb.h << ")";
+			ret << "tuple " << i << " : ";
+			ret << "( " << S[i]->id << " " << (unsigned) L[i] << " " << T[i] << " " << S[i]->bb.w << " " << S[i]->bb.h << " )";
 
 			return ret.str();
 		};

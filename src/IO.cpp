@@ -291,7 +291,14 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.solution_in >> tmpstr;
 		}
 		// new CBL tuple; new block
-		else if (tmpstr == "(") {
+		else if (tmpstr == "tuple") {
+			// drop tuple id
+			fp.solution_in >> tmpstr;
+			// drop ":"
+			fp.solution_in >> tmpstr;
+			// drop "("
+			fp.solution_in >> tmpstr;
+
 			// block id
 			fp.solution_in >> block_id;
 			// find related block
@@ -331,9 +338,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// store height in block
 			cur_block->bb.h = h;
 
-			// drop ")"
-			fp.solution_in >> tmpstr;
-			// drop ","
+			// drop ");"
 			fp.solution_in >> tmpstr;
 		}
 	}
