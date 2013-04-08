@@ -609,12 +609,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			stringstream gp_out_name;
 			stringstream data_out_name;
 			if (flag == 0) {
-				gp_out_name << fp.benchmark << "_" << cur_layer << "_power.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer << "_power.data";
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.gp";
+				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.data";
 			}
 			else {
-				gp_out_name << fp.benchmark << "_" << cur_layer << "_thermal.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer << "_thermal.data";
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.gp";
+				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.data";
 			}
 
 			// init file stream for gnuplot script
@@ -826,7 +826,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
 		stringstream out_name;
-		out_name << fp.benchmark << "_" << cur_layer;
+		out_name << fp.benchmark << "_" << cur_layer + 1;
 		if (file_suffix != "")
 			out_name << "_" << file_suffix;
 		out_name << ".gp";
