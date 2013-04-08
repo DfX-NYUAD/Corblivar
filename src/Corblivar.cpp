@@ -1,17 +1,18 @@
 /*
  * =====================================================================================
  *
- *    Description:  Main file for Corblivar
- *    			(Corner Block List for Varied [block] Alignment Requests)
+ *    Description:  Entry (main) for Corblivar
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#include "Corblivar.hpp"
-#include "CorblivarFP.hpp"
+
+// own Corblivar header
 #include "CorblivarCore.hpp"
+// required Corblivar headers
+#include "FloorPlanner.hpp"
 #include "IO.hpp"
 
 int main (int argc, char** argv) {

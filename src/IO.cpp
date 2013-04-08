@@ -3,16 +3,19 @@
  *
  *    Description:  Corblivar IO handler
  *
- *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#include "Corblivar.hpp"
-#include "CorblivarFP.hpp"
-#include "CorblivarCore.hpp"
+
+// own Corblivar header
 #include "IO.hpp"
+// required Corblivar headers
+#include "FloorPlanner.hpp"
+#include "CornerBlockList.hpp"
+#include "CorblivarCore.hpp"
+#include "Net.hpp"
 
 // parse program parameter and config file
 void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log) {

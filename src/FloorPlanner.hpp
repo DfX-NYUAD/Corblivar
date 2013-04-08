@@ -1,17 +1,24 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar floorplanning header (SA operations and related handler)
+ *    Description:  Corblivar floorplanner (SA operations and related handler)
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_FP_HPP
-#define _CORBLIVAR_FP_HPP
+#ifndef _CORBLIVAR_FLOORPLANNER
+#define _CORBLIVAR_FLOORPLANNER
 
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
 #include "ThermalAnalyzer.hpp"
+// forward declarations, if any
+class Block;
+class Net;
+class CorblivarCore;
 
 class FloorPlanner {
 	private:
@@ -20,6 +27,7 @@ class FloorPlanner {
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
 
+	private:
 		// chip data
 		map<int, Block*> blocks;
 		vector<Net*> nets;

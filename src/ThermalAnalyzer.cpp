@@ -8,10 +8,13 @@
  *
  * =====================================================================================
  */
-#include "Corblivar.hpp"
-#include "ThermalAnalyzer.hpp"
 
-constexpr int ThermalAnalyzer::power_maps_dim;
+// own Corblivar header
+#include "ThermalAnalyzer.hpp"
+// required Corblivar headers
+#include "Rect.hpp"
+#include "Block.hpp"
+#include "Math.hpp"
 
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.

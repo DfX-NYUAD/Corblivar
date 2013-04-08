@@ -1,110 +1,21 @@
 /*
  * =====================================================================================
  *
- *    Description:  Main header for Corblivar
- *    			(Corner Block List for Varied [block] Alignment Requests)
+ *    Description:  Corblivar layout box
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_HPP
-#define _CORBLIVAR_HPP
+#ifndef _CORBLIVAR_RECT
+#define _CORBLIVAR_RECT
 
-/* standard includes */
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cmath>
-#include <array>
-#include <vector>
-#include <list>
-#include <map>
-#include <deque>
-#include <stack>
-#include <utility>
-#include <sys/timeb.h>
-#include <ctime>
-#include <cstdlib>
-
-/* consider standard namespace */
-using namespace std;
-
-/* forward declarations */
-class FloorPlanner;
-class CorblivarCore;
-
-/* typed enum classes */
-enum class Direction : unsigned {VERTICAL = 0, HORIZONTAL = 1};
-enum class Alignment : unsigned {OFFSET, RANGE, UNDEF};
-
-/* general classes */
-class Math {
-	public:
-
-		// random functions
-		// note: range is [min, max)
-		inline static int randI(int const& min, int const& max) {
-			if (max == min) {
-				return min;
-			}
-			else {
-				return min + (rand() % (max - min));
-			}
-		};
-		inline static bool randB() {
-
-			int const r = rand();
-			return (r < (RAND_MAX / 2));
-		};
-		inline static double randF01() {
-			return ((double) rand() / RAND_MAX);
-		}
-
-		// standard deviation of samples
-		inline static double stdDev(vector<double> const& samples) {
-			double avg, sq_diffs;
-
-			// determine avg of samples
-			avg = 0.0;
-			for (double const& s : samples) {
-				avg += s;
-			}
-			avg /= samples.size();
-
-			// determine sum of squared diffs for std dev
-			sq_diffs = 0.0;
-			for (double const& s : samples) {
-				sq_diffs += pow(s - avg, 2.0);
-			}
-
-			// determine std dev
-			return sqrt(sq_diffs / ((double) samples.size()));
-		}
-
-		// 1D gauss function; used for separated convolution w/ 2D gauss function,
-		// provides the impulse response function for power blurring
-		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
-			return factor * exp(-(1.0 / spread) * pow(value, 2.0));
-		}
-};
-
-class Point {
-	public:
-		static constexpr int UNDEF = -1;
-
-		double x, y;
-
-		Point() {
-			x = y = UNDEF;
-		};
-
-		inline static double dist(Point const& a, Point const& b) {
-			return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
-		};
-};
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
+#include "Point.hpp"
+// forward declarations, if any
 
 class Rect {
 	public:
@@ -215,60 +126,6 @@ class Rect {
 			bool const horizontalIntersect = rectsIntersectHorizontal(a, b);
 
 			return ((below && horizontalIntersect) || (below && !considerHorizontalIntersect));
-		};
-};
-
-class Block {
-	public:
-		int id;
-		int layer;
-		// density in [uW/(um^2)]
-		double power_density;
-		//double x_slack_backward, y_slack_backward;
-		//double x_slack_forward, y_slack_forward;
-		Rect bb, bb_backup, bb_best;
-
-		Block(int const& id_i) {
-			id = id_i;
-			layer = -1;
-			power_density= 0.0;
-			//x_slack_backward = y_slack_backward = 0.0;
-			//x_slack_forward = y_slack_forward = 0.0;
-		};
-
-		// power in [W]
-		inline double power() const {
-			return this->power_density * this->bb.area * 1.0e-6;
-		}
-};
-
-class Net {
-	public:
-
-		int id;
-		bool hasExternalPin;
-		vector<Block*> blocks;
-		int layer_bottom, layer_top;
-
-		Net(int const& id_i) {
-			id = id_i;
-			hasExternalPin = false;
-		};
-
-		inline void setLayerBoundaries(int const& globalUpperLayer) {
-			this->layer_bottom = globalUpperLayer;
-			this->layer_top = 0;
-
-			if (this->blocks.empty()) {
-				return;
-			}
-			else {
-				for (Block* b : this->blocks) {
-					this->layer_bottom = min(this->layer_bottom, b->layer);
-					this->layer_top = max(this->layer_top, b->layer);
-
-				}
-			}
 		};
 };
 

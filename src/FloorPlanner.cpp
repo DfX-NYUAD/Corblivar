@@ -1,17 +1,22 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar floorplanning file (SA operations and related handler)
+ *    Description:  Corblivar floorplanner (SA operations and related handler)
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#include "Corblivar.hpp"
+
+// own Corblivar header
+#include "FloorPlanner.hpp"
+// required Corblivar headers
+#include "Point.hpp"
+#include "Math.hpp"
 #include "CorblivarCore.hpp"
+#include "Net.hpp"
 #include "IO.hpp"
-#include "CorblivarFP.hpp"
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore const& corb) {

@@ -1,22 +1,29 @@
 /*
  * =====================================================================================
  *
- *    Description:  Header for Corblivar thermal analyzer, based on power blurring
+ *    Description:  Corblivar thermal analyzer, based on power blurring
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_THERMAL_HPP
-#define _CORBLIVAR_THERMAL_HPP
+#ifndef _CORBLIVAR_THERMALANALYZER
+#define _CORBLIVAR_THERMALANALYZER
+
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
+// forward declarations, if any
+class Block;
 
 class ThermalAnalyzer {
 	private:
-		// debugging code switch
+		// debugging code switches
 		static constexpr bool DBG_CALLS = false;
 		static constexpr bool DBG = false;
 
+	private:
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
 		/// HotSpot configuration values)

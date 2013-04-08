@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *    Description:  Header for Corblivar IO handler
+ *    Description:  Corblivar IO handler
  *
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
@@ -9,11 +9,19 @@
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_IO_HPP
-#define _CORBLIVAR_IO_HPP
+#ifndef _CORBLIVAR_IO
+#define _CORBLIVAR_IO
+
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
+// forward declarations, if any
+class FloorPlanner;
+class CorblivarCore;
 
 class IO {
 	private:
+		// debugging code switch
 		static constexpr bool DBG = false;
 
 	public:
