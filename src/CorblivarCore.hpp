@@ -22,7 +22,7 @@ class Block;
 class CorblivarCore {
 	private:
 		// debugging code switch
-		static constexpr bool DBG_CORE = false;
+		static constexpr bool DBG = false;
 
 	private:
 		// die pointer
@@ -80,7 +80,7 @@ class CorblivarCore {
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1]->CBL.S[tuple1], this->dies[die2]->CBL.S[tuple2]);
 
-			if (DBG_CORE) {
+			if (DBG) {
 				cout << "DBG_CORE> swapBlocks; d1=" << die1 << ", d2=" << die2;
 				cout << ", s1=" << this->dies[die1]->CBL.S[tuple1]->id;
 				cout << ", s2=" << this->dies[die2]->CBL.S[tuple2]->id << endl;
@@ -106,7 +106,7 @@ class CorblivarCore {
 				this->dies[die1]->CBL.T.erase(this->dies[die1]->CBL.T.begin() + tuple1);
 			}
 
-			if (DBG_CORE) {
+			if (DBG) {
 				cout << "DBG_CORE> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
@@ -118,14 +118,14 @@ class CorblivarCore {
 				this->dies[die]->CBL.L[tuple] = Direction::VERTICAL;
 			}
 
-			if (DBG_CORE) {
+			if (DBG) {
 				cout << "DBG_CORE> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) const {
 			this->dies[die]->CBL.T[tuple] = juncts;
 
-			if (DBG_CORE) {
+			if (DBG) {
 				cout << "DBG_CORE> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
@@ -133,7 +133,7 @@ class CorblivarCore {
 
 			swap(this->dies[die]->CBL.S[tuple]->bb.w, this->dies[die]->CBL.S[tuple]->bb.h);
 
-			if (DBG_CORE) {
+			if (DBG) {
 				cout << "DBG_CORE> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};

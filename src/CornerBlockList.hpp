@@ -21,7 +21,7 @@
 class CornerBlockList {
 	private:
 		// debugging code switch
-		static constexpr bool DBG_CBL = false;
+		static constexpr bool DBG = false;
 
 	private:
 		// CBL sequences
@@ -43,7 +43,7 @@ class CornerBlockList {
 		// getter / setter
 		inline unsigned size() const {
 
-			if (DBG_CBL) {
+			if (DBG) {
 				unsigned ret;
 				bool mismatch = false;
 				unsigned prev_ret;

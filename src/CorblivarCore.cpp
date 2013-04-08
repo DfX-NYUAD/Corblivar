@@ -51,7 +51,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 		this->dies[rand]->CBL.T.push_back(cur_t);
 	}
 
-	if (DBG_CORE) {
+	if (CorblivarCore::DBG) {
 		for (CorblivarDie* const& die : this->dies) {
 			cout << "DBG_CORE> ";
 			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
@@ -71,7 +71,7 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 	Block const* cur_block;
 	bool loop;
 
-	if (DBG_CORE) {
+	if (CorblivarCore::DBG) {
 		cout << "DBG_CORE> ";
 		cout << "Performing layout generation..." << endl;
 	}
@@ -125,7 +125,7 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 		}
 	}
 
-	if (DBG_CORE) {
+	if (CorblivarCore::DBG) {
 		cout << "DBG_CORE> ";
 		cout << "Done" << endl;
 	}
