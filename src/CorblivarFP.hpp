@@ -63,7 +63,7 @@ class FloorPlanner {
 		struct timeb start;
 
 		// IO: scaling factor for block dimensions
-		static constexpr int BLOCKS_SCALE_UP = 50;
+		static constexpr int BLOCKS_SCALE_UP = 30;
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
