@@ -318,7 +318,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// direction L
 			fp.solution_in >> dir;
 			// parse direction; unsigned 
-			if (dir == (unsigned) Direction::VERTICAL) {
+			if (dir == static_cast<unsigned>(Direction::VERTICAL)) {
 				tuple.L = Direction::VERTICAL;
 			}
 			else {

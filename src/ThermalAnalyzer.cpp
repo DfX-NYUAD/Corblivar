@@ -226,10 +226,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 			}
 
 			// determine index boundaries for offset block
-			x_lower = (int) (block_offset.ll.x / this->power_maps_dim_x);
-			x_upper = (int) (block_offset.ur.x / this->power_maps_dim_x) + 1;
-			y_lower = (int) (block_offset.ll.y / this->power_maps_dim_y);
-			y_upper = (int) (block_offset.ur.y / this->power_maps_dim_y) + 1;
+			x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
+			x_upper = static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1;
+			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
+			y_upper = static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1;
 			// limit boundaries to power-map indices
 			x_upper = min(x_upper, ThermalAnalyzer::power_maps_dim - 1);
 			y_upper = min(y_upper, ThermalAnalyzer::power_maps_dim - 1);

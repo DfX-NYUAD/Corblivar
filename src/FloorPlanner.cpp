@@ -188,12 +188,12 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 		// determine ratio of solutions fitting into outline in prev temp step;
 		// note that during the temp step this ratio is fixed in order to avoid
 		// sudden changes of related cost terms during few iterations
-		layout_fit_ratio = (double) layout_fit_counter / accepted_ops;
+		layout_fit_ratio = static_cast<double>(layout_fit_counter) / accepted_ops;
 
 		// determine avg cost for temp step
 		avg_cost /= accepted_ops;
 		// determine accepted-ops ratio
-		accepted_ops_ratio = (double) accepted_ops / ii;
+		accepted_ops_ratio = static_cast<double>(accepted_ops) / ii;
 
 		if (this->logMax()) {
 			cout << "SA> Step done:" << endl;
@@ -239,7 +239,7 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	/// reduce temp
 	// phase 1; adaptive cooling (slows down from conf_SA_temp_factor_phase1 to 1.0)
 	if (iteration_first_valid_layout == Point::UNDEF) {
-		loop_factor = (double) (iteration - 1) / (this->conf_SA_loopLimit - 1.0) * (1.0 - this->conf_SA_temp_factor_phase1);
+		loop_factor = (1.0 - this->conf_SA_temp_factor_phase1) * static_cast<double>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
 		cur_temp *= this->conf_SA_temp_factor_phase1 + loop_factor;
@@ -251,7 +251,7 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	// enable convergence)
 	else {
 		// note that loop_factor must only consider the remaining iteration range
-		loop_factor = 1.0 - ((double) iteration - iteration_first_valid_layout) / ((double) this->conf_SA_loopLimit - iteration_first_valid_layout);
+		loop_factor = 1.0 - static_cast<double>(iteration - iteration_first_valid_layout) / static_cast<double>(this->conf_SA_loopLimit - iteration_first_valid_layout);
 		cur_temp *= this->conf_SA_temp_factor_phase2 * loop_factor;
 
 		phase = 2;
@@ -351,7 +351,7 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 	innerLoopMax *= this->conf_SA_loopFactor;
 
 	// determine ratio of accepted ops
-	accepted_ops_ratio_offset = (double) accepted_ops / i;
+	accepted_ops_ratio_offset = static_cast<double>(accepted_ops) / i;
 	if (this->logMax()) {
 		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
 	}
