@@ -391,8 +391,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		if (!power_in.eof()) {
 			power_in >> cur_block->power_density;
 			// GSRC benchmarks provide power density in 10^5 W/(m^2);
-			// normalize to W/(um^2)
-			cur_block->power_density *= 1.0e-7;
+			// normalize to 10^-1 uW/(um^2)
+			cur_block->power_density *= 0.1;
 		}
 		else {
 			if (fp.logMin()) {

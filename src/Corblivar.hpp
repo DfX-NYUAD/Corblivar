@@ -222,6 +222,7 @@ class Block {
 	public:
 		int id;
 		int layer;
+		// density in [uW/(um^2)]
 		double power_density;
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
@@ -235,8 +236,9 @@ class Block {
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
 
+		// power in [W]
 		inline double power() const {
-			return this->power_density * this->bb.area;
+			return this->power_density * this->bb.area * 1.0e-6;
 		}
 };
 
