@@ -54,7 +54,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 		for (CorblivarDie* const& die : this->dies) {
 			cout << "DBG_CORB> ";
 			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
-			cout << die->CBL.itemString() << endl;
+			cout << die->CBL.CBLString() << endl;
 			cout << "DBG_CORB> ";
 			cout << endl;
 		}
@@ -136,6 +136,7 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	double x, y;
 	bool add_to_stack;
 	list<Block*> blocks_add_to_stack;
+	CornerBlockList::Tuple cur_tuple;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -143,9 +144,12 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		return nullptr;
 	}
 
-	Block* const cur_block = this->currentBlock();
-	Direction const cur_dir = this->currentTupleDirection();
-	unsigned const cur_juncts = this->currentTupleJuncts();
+	// retrieve current tuple
+	cur_tuple = this->currentTuple();
+	// local const aliases; r/o access execpt cur_block
+	Block* const cur_block = cur_tuple.S;
+	Direction const cur_dir = cur_tuple.L;
+	unsigned const cur_juncts = cur_tuple.T;
 
 	// assign layer to block
 	cur_block->layer = this->id;
@@ -324,8 +328,13 @@ Block* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		}
 	}
 
-	// increment progress pointer, consider next tuple (block)
-	this->incrementTuplePointer();
+	// increment progress pointer, consider next tuple (block) or mark die as done
+	if (this->pi == (CBL.size() - 1)) {
+		this->done = true;
+	}
+	else {
+		this->pi++;
+	}
 
 	return cur_block;
 }

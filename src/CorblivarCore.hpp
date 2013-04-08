@@ -17,13 +17,20 @@ static constexpr bool DBG_CORB = false;
 class CornerBlockList {
 	private:
 		// CBL sequences
-		mutable vector<Block*> S;
-		mutable vector<Direction> L;
-		mutable vector<unsigned> T;
+		vector<Block*> S;
+		vector<Direction> L;
+		vector<unsigned> T;
 
 	public:
 		friend class CorblivarCore;
 		friend class CorblivarDie;
+
+		// POD; wrapper for tuples of separate sequences
+		struct Tuple {
+			Block* S;
+			Direction L;
+			unsigned T;
+		};
 
 		// getter / setter
 		inline unsigned size() const {
@@ -43,7 +50,7 @@ class CornerBlockList {
 				if (mismatch) {
 					cout << "DBG_CORB> CBL has sequences size mismatch!" << endl;
 					cout << "DBG_CORB> CBL: " << endl;
-					cout << this->itemString() << endl;
+					cout << this->CBLString() << endl;
 				}
 			}
 
@@ -70,33 +77,28 @@ class CornerBlockList {
 			this->T.reserve(elements);
 		};
 
-		inline void S_push_back(Block* const& block) const {
-			this->S.push_back(block);
+		inline void insert(Tuple const& tuple) {
+			this->S.push_back(tuple.S);
+			this->L.push_back(tuple.L);
+			this->T.push_back(tuple.T);
 		};
 
-		inline void L_push_back(Direction const& l) const {
-			this->L.push_back(l);
-		};
-
-		inline void T_push_back(unsigned const& t) const {
-			this->T.push_back(t);
-		};
-
-		inline string itemString(unsigned const& i) const {
+		inline string tupleString(unsigned const& tuple) const {
 			stringstream ret;
 
-			ret << "tuple" << i << ": ";
-			ret << "(" << S[i]->id << ", " << (unsigned) L[i] << ", " << T[i] << ", " << S[i]->bb.w << ", " << S[i]->bb.h << ")";
+			ret << "tuple " << tuple << " : ";
+			ret << "( " << this->S[tuple]->id << " " << (unsigned) this->L[tuple] << " " << this->T[tuple] << " ";
+			ret << this->S[tuple]->bb.w << " " << this->S[tuple]->bb.h << " )";
 
 			return ret.str();
 		};
 
-		inline string itemString() const {
+		inline string CBLString() const {
 			unsigned i;
 			stringstream ret;
 
 			for (i = 0; i < this->size(); i++) {
-				ret << this->itemString(i) << "; ";
+				ret << this->tupleString(i) << "; ";
 			}
 
 			return ret.str();
@@ -121,19 +123,6 @@ class CorblivarDie {
 
 		// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
-
-		// false: last CBL tuple; true: not last tuple
-		inline bool incrementTuplePointer() {
-
-			if (this->pi == (CBL.size() - 1)) {
-				this->done = true;
-				return false;
-			}
-			else {
-				this->pi++;
-				return true;
-			}
-		};
 
 		inline void reset() {
 			// reset progress pointer
@@ -165,24 +154,32 @@ class CorblivarDie {
 			return this->CBL;
 		};
 
-		inline Block* const& currentBlock() const {
-			return this->CBL.S[this->pi];
+		inline CornerBlockList& editCBL() {
+			return this->CBL;
 		};
 
-		inline Direction const& currentTupleDirection() const {
-			return this->CBL.L[this->pi];
+		inline CornerBlockList::Tuple currentTuple() const {
+			CornerBlockList::Tuple ret;
+
+			ret.S = this->CBL.S[this->pi];
+			ret.L = this->CBL.L[this->pi];
+			ret.T = this->CBL.T[this->pi];
+
+			return ret;
 		};
 
-		inline unsigned const& currentTupleJuncts() const {
-			return this->CBL.T[this->pi];
-		};
+		inline CornerBlockList::Tuple getTuple(unsigned const& tuple) const {
+			CornerBlockList::Tuple ret;
 
-		inline unsigned const& tupleJuncts(unsigned const& tuple) const {
-			return this->CBL.T[tuple];
+			ret.S = this->CBL.S[tuple];
+			ret.L = this->CBL.L[tuple];
+			ret.T = this->CBL.T[tuple];
+
+			return ret;
 		};
 
 		inline string currentTupleString() const {
-			return this->CBL.itemString(this->pi);
+			return this->CBL.tupleString(this->pi);
 		};
 };
 
@@ -384,7 +381,7 @@ class CorblivarCore {
 
 			for (CorblivarDie* const& die : this->dies) {
 				ret << "CBL [ " << die->id << " ]" << endl;
-				ret << die->CBL.itemString() << endl;
+				ret << die->CBL.CBLString() << endl;
 			}
 
 			return ret.str();
