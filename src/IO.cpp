@@ -13,6 +13,7 @@
 #include "IO.hpp"
 // required Corblivar headers
 #include "FloorPlanner.hpp"
+#include "ThermalAnalyzer.hpp"
 #include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
 #include "Net.hpp"
@@ -639,12 +640,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// different ranges for power map and thermal map
 			if (flag == 0) {
-				gp_out << "set xrange [0:" << fp.thermalAnalyzer.power_maps[cur_layer].size() - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << fp.thermalAnalyzer.power_maps[cur_layer][0].size() - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
 			}
 			else {
-				gp_out << "set xrange [0:" << fp.thermalAnalyzer.thermal_map.size() - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << fp.thermalAnalyzer.thermal_map[0].size() - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
 			}
 
 			gp_out << "set tics front" << endl;
@@ -671,11 +672,11 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "8 \"#7f0000\")" << endl;
 
 			// for padded power maps: draw rectangle for unpadded core
-			if (flag == 0 && fp.thermalAnalyzer.mask_dim_half > 0) {
+			if (flag == 0 && ThermalAnalyzer::mask_dim_half > 0) {
 				gp_out << "set obj rect from ";
-				gp_out << fp.thermalAnalyzer.mask_dim_half - 1 << ", " << fp.thermalAnalyzer.mask_dim_half - 1 << " to ";
-				gp_out << fp.thermalAnalyzer.power_maps_dim - fp.thermalAnalyzer.mask_dim_half << ", ";
-				gp_out << fp.thermalAnalyzer.power_maps_dim - fp.thermalAnalyzer.mask_dim_half << " ";
+				gp_out << ThermalAnalyzer::mask_dim_half - 1 << ", " << ThermalAnalyzer::mask_dim_half - 1 << " to ";
+				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << ", ";
+				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << " ";
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
 			}
 
@@ -694,12 +695,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// determine grid boundaries
 			if (flag == 0) {
-				x_limit = fp.thermalAnalyzer.power_maps[cur_layer].size();
-				y_limit = fp.thermalAnalyzer.power_maps[cur_layer][0].size();
+				x_limit = ThermalAnalyzer::power_maps_dim;
+				y_limit = ThermalAnalyzer::power_maps_dim;
 			}
 			else {
-				x_limit = fp.thermalAnalyzer.thermal_map.size();
-				y_limit = fp.thermalAnalyzer.thermal_map[0].size();
+				x_limit = ThermalAnalyzer::thermal_map_dim;
+				y_limit = ThermalAnalyzer::thermal_map_dim;
 			}
 
 			// output grid values
