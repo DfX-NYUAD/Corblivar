@@ -14,7 +14,7 @@
 // required Corblivar headers
 #include "Math.hpp"
 
-void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks) {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks) const {
 	Direction cur_dir;
 	int rand, cur_t;
 	Block* cur_block;
@@ -46,16 +46,16 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand]->CBL.S.push_back(cur_block);
-		this->dies[rand]->CBL.L.push_back(cur_dir);
-		this->dies[rand]->CBL.T.push_back(cur_t);
+		this->dies[rand].CBL.S.push_back(cur_block);
+		this->dies[rand].CBL.L.push_back(cur_dir);
+		this->dies[rand].CBL.T.push_back(cur_t);
 	}
 
 	if (CorblivarCore::DBG) {
-		for (CorblivarDie* const& die : this->dies) {
+		for (CorblivarDie const& die : this->dies) {
 			cout << "DBG_CORE> ";
-			cout << "Init CBL tuples for die " << die->id << "; " << die->CBL.size() << " tuples:" << endl;
-			cout << die->CBL.CBLString() << endl;
+			cout << "Init CBL tuples for die " << die.id << "; " << die.CBL.size() << " tuples:" << endl;
+			cout << die.CBL.CBLString() << endl;
 			cout << "DBG_CORE> ";
 			cout << endl;
 		}
@@ -77,11 +77,11 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 	}
 
 	// init (mutable) die pointer
-	this->p = this->dies[0];
+	this->p = &this->dies[0];
 
 	// reset die data, i.e., layout generation handler data
-	for (CorblivarDie* const& die : this->dies) {
-		die->reset();
+	for (CorblivarDie& die : this->dies) {
+		die.reset();
 	}
 
 	// perform layout generation in loop (until all blocks are placed)
@@ -112,9 +112,9 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 		// die done
 		if (this->p->done) {
 			// continue loop on yet unfinished die
-			for (CorblivarDie* const& die :  this->dies) {
-				if (!die->done) {
-					this->p = die;
+			for (CorblivarDie& die :  this->dies) {
+				if (!die.done) {
+					this->p = &die;
 					break;
 				}
 			}

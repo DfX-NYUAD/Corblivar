@@ -339,7 +339,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.solution_in >> tmpstr;
 
 			// store parsed tuple into CBL
-			corb.getDie(cur_layer)->editCBL().insert(tuple);
+			corb.editDie(cur_layer).editCBL().insert(tuple);
 			tuples++;
 		}
 	}

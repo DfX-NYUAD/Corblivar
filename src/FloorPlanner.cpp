@@ -499,25 +499,25 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
-				if (corb.getDie(die1)->getCBL().empty() || corb.getDie(die2)->getCBL().empty()) {
+				if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
 					ret = false;
 					break;
 				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				tuple2 = Math::randI(0, corb.getDie(die2)->getCBL().size());
+				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+				tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
 				// in case of swaps w/in same die, ensure that tuples are different
 				if (die1 == die2) {
 					// this is, however, only possible if at least two
 					// tuples are given in that die
-					if (corb.getDie(die1)->getCBL().size() < 2) {
+					if (corb.getDie(die1).getCBL().size() < 2) {
 						ret = false;
 						break;
 					}
 					// determine two different tuples
 					while (tuple1 == tuple2) {
-						tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+						tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
 					}
 				}
 
@@ -535,26 +535,26 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
 				// sanity check for empty (origin) die
-				if (corb.getDie(die1)->getCBL().empty()) {
+				if (corb.getDie(die1).getCBL().empty()) {
 					ret = false;
 					break;
 				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				tuple2 = Math::randI(0, corb.getDie(die2)->getCBL().size());
+				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+				tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
 				// in case of moving w/in same die, ensure that tuples are
 				// different
 				if (die1 == die2) {
 					// this is, however, only possible if at least two
 					// tuples are given in that die
-					if (corb.getDie(die1)->getCBL().size() < 2) {
+					if (corb.getDie(die1).getCBL().size() < 2) {
 						ret = false;
 						break;
 					}
 					// determine two different tuples
 					while (tuple1 == tuple2) {
-						tuple2 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+						tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
 					}
 				}
 
@@ -571,12 +571,12 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
-				if (corb.getDie(die1)->getCBL().empty()) {
+				if (corb.getDie(die1).getCBL().empty()) {
 					ret = false;
 					break;
 				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
 				corb.switchTupleDirection(die1, tuple1);
 			}
@@ -591,13 +591,13 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
-				if (corb.getDie(die1)->getCBL().empty()) {
+				if (corb.getDie(die1).getCBL().empty()) {
 					ret = false;
 					break;
 				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
-				t = corb.getDie(die1)->getTuple(tuple1).T;
+				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+				t = corb.getDie(die1).getTuple(tuple1).T;
 
 				this->last_op_juncts = t;
 
@@ -626,12 +626,12 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				// sanity check for empty dies
-				if (corb.getDie(die1)->getCBL().empty()) {
+				if (corb.getDie(die1).getCBL().empty()) {
 					ret = false;
 					break;
 				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1)->getCBL().size());
+				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
 				corb.switchBlockOrientation(die1, tuple1);
 			}
