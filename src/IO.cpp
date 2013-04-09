@@ -474,7 +474,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 void IO::parseNets(FloorPlanner& fp) {
 	ifstream in;
 	string tmpstr;
-	Net* cur_net;
 	int i, net_degree;
 	int net_block_id;
 	string net_block;
@@ -495,7 +494,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	// parse nets file
 	id = 0;
 	while (!in.eof()) {
-		cur_net = new Net(id);
+		Net cur_net = Net(id);
 
 		// parse net degree
 		//// NetDegree : 2
@@ -510,7 +509,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 		// read in blocks of net
 		in >> net_degree;
-		cur_net->blocks.clear();
+		cur_net.blocks.clear();
 		for (i = 0; i < net_degree; i++) {
 			in >> net_block;
 			// parse block
@@ -521,14 +520,14 @@ void IO::parseNets(FloorPlanner& fp) {
 				net_block_id = atoi(net_block.substr(2).c_str());
 				b = fp.blocks.find(net_block_id);
 				if (b != fp.blocks.end()) {
-					cur_net->blocks.push_back((*b).second);
+					cur_net.blocks.push_back((*b).second);
 				}
 			}
 			// parse terminal pin
 			//// p1
 			else if (net_block.find("p") != string::npos) {
 				// mark net as net w/ external pin
-				cur_net->hasExternalPin = true;
+				cur_net.hasExternalPin = true;
 			}
 			else {
 				// ignore unknown block
@@ -544,11 +543,8 @@ void IO::parseNets(FloorPlanner& fp) {
 		// store nets connecting two or more blocks
 		// ignores nets connecting only to external pins
 		// (TODO) consider external pins w/ position
-		if (cur_net->blocks.size() > 1) {
+		if (cur_net.blocks.size() > 1) {
 			fp.nets.push_back(cur_net);
-		}
-		else {
-			delete(cur_net);
 		}
 
 		id++;
@@ -558,11 +554,11 @@ void IO::parseNets(FloorPlanner& fp) {
 	in.close();
 
 	if (IO::DBG) {
-		for (Net* const& n : fp.nets) {
+		for (Net const& n : fp.nets) {
 			cout << "DBG_IO> ";
-			cout << "net " << n->id << endl;
+			cout << "net " << n.id << endl;
 
-			for (Block* const& b : n->blocks) {
+			for (Block* const& b : n.blocks) {
 				cout << "DBG_IO> ";
 				cout << " block " << b->id << endl;
 			}

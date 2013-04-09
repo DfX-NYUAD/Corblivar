@@ -14,10 +14,10 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Net.hpp"
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
 class Block;
-class Net;
 class CorblivarCore;
 
 class FloorPlanner {
@@ -30,7 +30,7 @@ class FloorPlanner {
 	private:
 		// chip data
 		map<int, Block*> blocks;
-		vector<Net*> nets;
+		mutable vector<Net> nets;
 
 		// config parameters
 		int conf_layer;

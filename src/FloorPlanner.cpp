@@ -834,24 +834,26 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	ret.HPWL = ret.TSVs = 0.0;
 	blocks_to_consider.reserve(this->blocks.size());
 
-	// determine HPWL and TSVs for each net
-	for (Net* const& cur_net : this->nets) {
+	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
+	// of net's blocks
+	for (Net& cur_net : this->nets) {
+		cur_net.setLayerBoundaries(this->conf_layer - 1);
+	}
 
-		// set layer boundaries for each net, i.e., determine lowest and uppermost
-		// layer of net's blocks
-		cur_net->setLayerBoundaries(this->conf_layer - 1);
+	// determine HPWL and TSVs for each net
+	for (Net const& cur_net : this->nets) {
 
 		// determine HPWL on each related layer separately
-		for (i = cur_net->layer_bottom; i <= cur_net->layer_top; i++) {
+		for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 			if (FloorPlanner::DBG_LAYOUT) {
-				cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net->id << " on layer " << i << " and above" << endl;
+				cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net.id << " on layer " << i << " and above" << endl;
 			}
 
 			blocks_to_consider.clear();
 
 			// blocks for cur_net on this layer
-			for (Block* const& b : cur_net->blocks) {
+			for (Block* const& b : cur_net.blocks) {
 				if (b->layer == i) {
 					blocks_to_consider.push_back(&b->bb);
 
@@ -871,8 +873,8 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			// one, thus stepwise consider layers until some blocks are found
 			blocks_above_considered = false;
 			ii = i + 1;
-			while (ii <= cur_net->layer_top) {
-				for (Block* const& b : cur_net->blocks) {
+			while (ii <= cur_net.layer_top) {
+				for (Block* const& b : cur_net.blocks) {
 					if (b->layer == ii) {
 						blocks_to_consider.push_back(&b->bb);
 						blocks_above_considered = true;
