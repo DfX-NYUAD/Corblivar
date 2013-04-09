@@ -46,7 +46,7 @@ class CorblivarCore {
 		void generateLayout(bool const& dbgStack = false) const;
 
 		// die getter
-		inline CorblivarDie& editDie(unsigned const& die) {
+		inline CorblivarDie& editDie(unsigned const& die) const {
 			return this->dies[die];
 		};
 		inline CorblivarDie const& getDie(unsigned const& die) const {
