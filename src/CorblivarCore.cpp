@@ -90,7 +90,9 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 			// place block, increment progress pointer
 			cur_block = this->p->placeCurrentBlock(dbgStack);
 			// TODO mark current block as placed in AS
-			//
+			if (cur_block != nullptr) {
+			}
+
 			// mark die as not stalled anymore
 			this->p->stalled = false;
 		}

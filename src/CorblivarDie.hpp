@@ -61,6 +61,8 @@ class CorblivarDie {
 		}
 
 		// layout generation functions
+		//
+		// may return nullptr
 		Block const* placeCurrentBlock(bool const& dbgStack = false);
 
 		// getter

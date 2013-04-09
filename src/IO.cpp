@@ -263,7 +263,6 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	CornerBlockList::Tuple tuple;
 	unsigned tuples;
 	int cur_layer;
-	Block const* b;
 	int block_id;
 	unsigned dir;
 
@@ -307,11 +306,8 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// block id
 			fp.solution_in >> block_id;
 			// find related block
-			b = fp.findBlock(block_id);
-			if (b != nullptr) {
-				tuple.S = b;
-			}
-			else {
+			tuple.S = fp.findBlock(block_id);
+			if (tuple.S == nullptr) {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
 				exit(1);
 			}
@@ -338,7 +334,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// drop ");"
 			fp.solution_in >> tmpstr;
 
-			// store parsed tuple into CBL
+			// store successfully parsed tuple into CBL
 			corb.editDie(cur_layer).editCBL().insert(tuple);
 			tuples++;
 		}
@@ -520,6 +516,9 @@ void IO::parseNets(FloorPlanner& fp) {
 				b = fp.findBlock(net_block_id);
 				if (b != nullptr) {
 					new_net.blocks.push_back(b);
+				}
+				else {
+					cout << "Block " << net_block_id << " cannot be retrieved; ensure that net file is correct!" << endl;
 				}
 			}
 			// parse terminal pin
