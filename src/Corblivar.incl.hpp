@@ -11,12 +11,11 @@
 #ifndef _CORBLIVAR_LIBRARY_INCLUDES
 #define _CORBLIVAR_LIBRARY_INCLUDES
 
-// include standard libraries
+// STL
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <cmath>
 #include <array>
 #include <vector>
 #include <list>
@@ -26,6 +25,9 @@
 #include <utility>
 // TODO replace w/ chrono
 #include <sys/timeb.h>
+
+// C libaries
+#include <cmath>
 #include <ctime>
 #include <cstdlib>
 
