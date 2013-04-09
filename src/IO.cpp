@@ -632,9 +632,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			else {
 				gp_out << "set title \"" << fp.benchmark << " - Thermal Map Layer " << cur_layer + 1 << "\"" << endl;
 			}
+
 			gp_out << "set terminal pdfcairo font \"Gill Sans, 12\"" << endl;
 			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
+
+			// different ranges for power map and thermal map
 			if (flag == 0) {
 				gp_out << "set xrange [0:" << fp.thermalAnalyzer.power_maps[cur_layer].size() - 1 << "]" << endl;
 				gp_out << "set yrange [0:" << fp.thermalAnalyzer.power_maps[cur_layer][0].size() - 1 << "]" << endl;
@@ -643,6 +646,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 				gp_out << "set xrange [0:" << fp.thermalAnalyzer.thermal_map.size() - 1 << "]" << endl;
 				gp_out << "set yrange [0:" << fp.thermalAnalyzer.thermal_map[0].size() - 1 << "]" << endl;
 			}
+
 			gp_out << "set tics front" << endl;
 			gp_out << "set grid xtics ytics ztics" << endl;
 			// pm3d algorithm determines an average value for each pixel,
@@ -665,6 +669,16 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "6 \"#ff7000\",\\" << endl;
 			gp_out << "7 \"#ee0000\",\\" << endl;
 			gp_out << "8 \"#7f0000\")" << endl;
+
+			// for padded power maps: draw rectangle for unpadded core
+			if (flag == 0 && fp.thermalAnalyzer.mask_dim_half > 0) {
+				gp_out << "set obj rect from ";
+				gp_out << fp.thermalAnalyzer.mask_dim_half - 1 << ", " << fp.thermalAnalyzer.mask_dim_half - 1 << " to ";
+				gp_out << fp.thermalAnalyzer.power_maps_dim - fp.thermalAnalyzer.mask_dim_half << ", ";
+				gp_out << fp.thermalAnalyzer.power_maps_dim - fp.thermalAnalyzer.mask_dim_half << " ";
+				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
+			}
+
 			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
 
 			// close file stream for gnuplot script
@@ -704,7 +718,6 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// close file stream for data file
 			data_out.close();
 		}
-
 	}
 
 	if (fp.logMed()) {
