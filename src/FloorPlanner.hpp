@@ -21,12 +21,13 @@
 class CorblivarCore;
 
 class FloorPlanner {
+	// debugging code switch (private)
 	private:
-		// debugging code switches
 		static constexpr bool DBG_SA = false;
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
 
+	// private data, functions
 	private:
 		// chip data
 		mutable vector<Block> blocks;
@@ -122,6 +123,10 @@ class FloorPlanner {
 		// ThermalAnalyzer parameters: mask fitting
 		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
 
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
 	public:
 		friend class IO;
 

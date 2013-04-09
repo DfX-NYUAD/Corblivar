@@ -271,9 +271,6 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 		cout << "Initializing Corblivar data from solution file ..." << endl;
 	}
 
-	// init dies data
-	corb.initCorblivarDies(fp.conf_layer, fp.blocks.size());
-
 	// drop solution file header
 	while (tmpstr != "data_start" && !fp.solution_in.eof()) {
 		fp.solution_in >> tmpstr;

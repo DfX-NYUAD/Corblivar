@@ -17,14 +17,23 @@
 // forward declarations, if any
 
 class Point {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	public:
+		Point() {
+			x = y = UNDEF;
+		};
+
+	// public data, functions
 	public:
 		static constexpr int UNDEF = -1;
 
 		double x, y;
-
-		Point() {
-			x = y = UNDEF;
-		};
 
 		inline static double dist(Point const& a, Point const& b) {
 			return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));

@@ -20,10 +20,20 @@ class FloorPlanner;
 class CorblivarCore;
 
 class IO {
+	// debugging code switch (private)
 	private:
-		// debugging code switch
 		static constexpr bool DBG = false;
 
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	// private in order to avoid instances of ``static'' class
+	private:
+		IO() {
+		}
+
+	// public data, functions
 	public:
 		static void parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log = true);
 		static void parseBlocks(FloorPlanner& fp);

@@ -17,6 +17,19 @@
 // forward declarations, if any
 
 class Math {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	// private in order to avoid instances of ``static'' class
+	private:
+		Math() {
+		}
+
+	// public data, functions
 	public:
 		// random-number functions
 		// note: range is [min, max)

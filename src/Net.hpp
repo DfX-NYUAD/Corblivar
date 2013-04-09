@@ -18,17 +18,25 @@
 // forward declarations, if any
 
 class Net {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
 	public:
-
-		int id;
-		bool hasExternalPin;
-		vector<Block const*> blocks;
-		int layer_bottom, layer_top;
-
 		Net(int const& id_i) {
 			id = id_i;
 			hasExternalPin = false;
 		};
+
+	// public data, functions
+	public:
+		int id;
+		bool hasExternalPin;
+		vector<Block const*> blocks;
+		int layer_bottom, layer_top;
 
 		inline void setLayerBoundaries(int const& globalUpperLayer) {
 			this->layer_bottom = globalUpperLayer;

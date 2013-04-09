@@ -18,14 +18,23 @@
 // forward declarations, if any
 
 class Rect {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	public:
+		Rect() {
+			h = w = area = 0.0;
+		};
+
+	// public data, functions
 	public:
 		Point ll, ur;
 		double h, w;
 		double area;
-
-		Rect() {
-			h = w = area = 0.0;
-		};
 
 		inline static Rect determBoundingBox(vector<Rect const*> const& rects) {
 			Rect ret;

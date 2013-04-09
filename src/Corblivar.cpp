@@ -17,7 +17,6 @@
 
 int main (int argc, char** argv) {
 	FloorPlanner fp;
-	CorblivarCore corb;
 	bool done;
 
 	// memorize start time
@@ -37,7 +36,10 @@ int main (int argc, char** argv) {
 	// parse nets
 	IO::parseNets(fp);
 
-	/// init Corblivar layout representation
+	// init Corblivar core
+	CorblivarCore corb = CorblivarCore(fp.getLayers(), fp.getBlocks().size());
+
+	/// init Corblivar layout data
 	if (fp.inputSolutionFileOpen()) {
 		// read from file
 		IO::parseCorblivarFile(fp, corb);

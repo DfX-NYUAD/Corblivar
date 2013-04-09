@@ -18,11 +18,12 @@
 class Block;
 
 class ThermalAnalyzer {
+	// debugging code switch (private)
 	private:
-		// debugging code switches
 		static constexpr bool DBG_CALLS = false;
 		static constexpr bool DBG = false;
 
+	// private data, functions
 	private:
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
@@ -82,6 +83,10 @@ class ThermalAnalyzer {
 		double padding_right_boundary_blocks_distance, padding_upper_boundary_blocks_distance;
 		array<double,power_maps_dim> power_maps_bins_ll_x, power_maps_bins_ll_y;
 
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
 	public:
 		friend class IO;
 

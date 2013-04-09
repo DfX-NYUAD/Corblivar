@@ -20,6 +20,10 @@
 class Block;
 
 class CorblivarDie {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
 	private:
 		int id;
 		// progress flags
@@ -52,13 +56,16 @@ class CorblivarDie {
 			}
 		};
 
+	// constructors, destructors, if any non-implicit
 	public:
-		friend class CorblivarCore;
-
 		CorblivarDie(int const& i) {
 			stalled = done = false;
 			id = i;
 		}
+
+	// public data, functions
+	public:
+		friend class CorblivarCore;
 
 		// layout generation functions
 		//

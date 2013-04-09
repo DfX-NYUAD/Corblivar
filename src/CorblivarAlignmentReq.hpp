@@ -21,12 +21,44 @@
 enum class Alignment : unsigned {OFFSET, RANGE, UNDEF};
 
 class CorblivarAlignmentReq {
+	// debugging code switch (private)
+	private:
+
+	// private data, functions
 	private:
 		Block* s_i;
 		Block* s_j;
 		Alignment type_x, type_y;
 		double offset_range_x, offset_range_y;
 
+	// constructors, destructors, if any non-implicit
+	public:
+		CorblivarAlignmentReq(Block* si, Block* sj, Alignment typex, double offsetrangex, Alignment typey, double offsetrangey) {
+			s_i = si;
+			s_j = sj;
+			type_x = typex;
+			type_y = typey;
+			offset_range_x = offsetrangex;
+			offset_range_y = offsetrangey;
+
+			// fix invalid negative range
+			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
+				cout << "CorblivarAlignmentReq> ";
+				cout << "Fixing tuple (negative range):" << endl;
+				cout << " " << this->tupleString() << " to" << endl;
+
+				if (offset_range_x < 0) {
+					offset_range_x = 0;
+				}
+				if (offset_range_y < 0) {
+					offset_range_y = 0;
+				}
+
+				cout << " " << this->tupleString() << endl;
+			}
+		};
+
+	// public data, functions
 	public:
 		inline bool rangeX() const {
 			return (this->type_x == Alignment::RANGE);
@@ -66,31 +98,6 @@ class CorblivarAlignmentReq {
 			ret << ") )";
 
 			return ret.str();
-		};
-
-		CorblivarAlignmentReq(Block* si, Block* sj, Alignment typex, double offsetrangex, Alignment typey, double offsetrangey) {
-			s_i = si;
-			s_j = sj;
-			type_x = typex;
-			type_y = typey;
-			offset_range_x = offsetrangex;
-			offset_range_y = offsetrangey;
-
-			// fix invalid negative range
-			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
-				cout << "CorblivarAlignmentReq> ";
-				cout << "Fixing tuple (negative range):" << endl;
-				cout << " " << this->tupleString() << " to" << endl;
-
-				if (offset_range_x < 0) {
-					offset_range_x = 0;
-				}
-				if (offset_range_y < 0) {
-					offset_range_y = 0;
-				}
-
-				cout << " " << this->tupleString() << endl;
-			}
 		};
 };
 

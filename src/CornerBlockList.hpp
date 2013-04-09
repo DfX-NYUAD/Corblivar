@@ -19,16 +19,21 @@
 // forward declarations, if any
 
 class CornerBlockList {
+	// debugging code switch (private)
 	private:
-		// debugging code switch
 		static constexpr bool DBG = false;
 
+	// private data, functions
 	private:
 		// CBL sequences
 		vector<Block const*> S;
 		vector<Direction> L;
 		vector<unsigned> T;
 
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
 	public:
 		friend class CorblivarCore;
 		friend class CorblivarDie;

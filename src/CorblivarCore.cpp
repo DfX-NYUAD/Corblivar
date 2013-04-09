@@ -23,9 +23,6 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 		cout << "Initializing Corblivar data for corb on " << layers << " layers..." << endl;
 	}
 
-	// init dies data
-	this->initCorblivarDies(layers, blocks.size());
-
 	// assign each block randomly to one die, generate L and T randomly as well
 	for (Block const& cur_block : blocks) {
 

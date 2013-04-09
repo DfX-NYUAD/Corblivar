@@ -38,6 +38,20 @@ class CorblivarCore {
 
 	// constructors, destructors, if any non-implicit
 	public:
+		CorblivarCore(int const& layers, unsigned const& blocks) {
+
+			// reserve mem for dies
+			this->dies.reserve(layers);
+
+			// init dies and their related structures
+			for (int i = 0; i < layers; i++) {
+				CorblivarDie cur_die = CorblivarDie(i);
+				// reserve mem for worst case, i.e., all blocks in one particular die
+				cur_die.CBL.reserve(blocks);
+
+				this->dies.push_back(cur_die);
+			}
+		};
 
 	// public data, functions
 	public:
@@ -54,24 +68,6 @@ class CorblivarCore {
 		};
 		inline unsigned diesSize() const {
 			return this->dies.size();
-		};
-
-		// init handler
-		inline void initCorblivarDies(int const& layers, unsigned const& blocks) const {
-			int i;
-
-			// clear and reserve mem for dies
-			this->dies.clear();
-			this->dies.reserve(layers);
-
-			// init dies and their related structures
-			for (i = 0; i < layers; i++) {
-				CorblivarDie cur_die = CorblivarDie(i);
-				// reserve mem for worst case, i.e., all blocks in one particular die
-				cur_die.CBL.reserve(blocks);
-
-				this->dies.push_back(cur_die);
-			}
 		};
 
 		// layout operations for heuristic optimization

@@ -22,10 +22,11 @@
 #include <deque>
 #include <stack>
 #include <utility>
-// TODO replace w/ chrono
+// (TODO) replace w/ chrono
 #include <sys/timeb.h>
 
 // C libaries
+// (TODO) replace w/ STL where possible
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
