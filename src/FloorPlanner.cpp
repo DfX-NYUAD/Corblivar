@@ -820,7 +820,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 // parameter during runtime
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) const {
 	int i, ii;
-	vector<Rect*> blocks_to_consider;
+	vector<Rect const*> blocks_to_consider;
 	Rect bb;
 	bool blocks_above_considered;
 	CostInterconn ret;
