@@ -25,7 +25,7 @@ class CornerBlockList {
 
 	private:
 		// CBL sequences
-		vector<Block*> S;
+		vector<Block const*> S;
 		vector<Direction> L;
 		vector<unsigned> T;
 
@@ -35,7 +35,7 @@ class CornerBlockList {
 
 		// POD; wrapper for tuples of separate sequences
 		struct Tuple {
-			Block* S;
+			Block const* S;
 			Direction L;
 			unsigned T;
 		};

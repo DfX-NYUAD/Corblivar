@@ -14,10 +14,9 @@
 // required Corblivar headers
 #include "Math.hpp"
 
-void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks) const {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) const {
 	Direction cur_dir;
 	int rand, cur_t;
-	Block* cur_block;
 
 	if (log) {
 		cout << "Layout> ";
@@ -28,8 +27,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 	this->initCorblivarDies(layers, blocks.size());
 
 	// assign each block randomly to one die, generate L and T randomly as well
-	for (auto& b : blocks) {
-		cur_block = b.second;
+	for (Block const& cur_block : blocks) {
 
 		// consider random die
 		rand = Math::randI(0, layers);
@@ -46,7 +44,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ma
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand].CBL.S.push_back(cur_block);
+		this->dies[rand].CBL.S.push_back(&cur_block);
 		this->dies[rand].CBL.L.push_back(cur_dir);
 		this->dies[rand].CBL.T.push_back(cur_t);
 	}

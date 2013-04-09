@@ -745,7 +745,6 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 	vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
 	Cost ret;
-	Block const* block;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
@@ -760,13 +759,12 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 
 		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		for (auto& b : this->blocks) {
-			block = b.second;
+		for (Block& block : this->blocks) {
 
-			if (block->layer == i) {
+			if (block.layer == i) {
 				// update max outline coords
-				max_outline_x = max(max_outline_x, block->bb.ur.x);
-				max_outline_y = max(max_outline_y, block->bb.ur.y);
+				max_outline_x = max(max_outline_x, block.bb.ur.x);
+				max_outline_y = max(max_outline_y, block.bb.ur.y);
 			}
 		}
 
@@ -853,7 +851,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			blocks_to_consider.clear();
 
 			// blocks for cur_net on this layer
-			for (Block* const& b : cur_net.blocks) {
+			for (Block const* b : cur_net.blocks) {
 				if (b->layer == i) {
 					blocks_to_consider.push_back(&b->bb);
 
@@ -874,7 +872,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			blocks_above_considered = false;
 			ii = i + 1;
 			while (ii <= cur_net.layer_top) {
-				for (Block* const& b : cur_net.blocks) {
+				for (Block const* b : cur_net.blocks) {
 					if (b->layer == ii) {
 						blocks_to_consider.push_back(&b->bb);
 						blocks_above_considered = true;

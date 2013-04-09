@@ -14,10 +14,10 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Block.hpp"
 #include "Net.hpp"
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
-class Block;
 class CorblivarCore;
 
 class FloorPlanner {
@@ -29,7 +29,7 @@ class FloorPlanner {
 
 	private:
 		// chip data
-		map<int, Block*> blocks;
+		mutable vector<Block> blocks;
 		mutable vector<Net> nets;
 
 		// config parameters
@@ -155,12 +155,24 @@ class FloorPlanner {
 		inline int const& getLayers() const {
 			return this->conf_layer;
 		};
-		inline map<int, Block*> const& getBlocks() const {
+
+		inline vector<Block> const& getBlocks() const {
 			return this->blocks;
 		};
+
+		inline Block const* findBlock(int const& id) const {
+			for (Block const& b : this->blocks) {
+				if (b.id == id) {
+					return &b;
+				}
+			}
+			return nullptr;
+		};
+
 		inline void setTimeStart() {
 			ftime(&(this->start));
 		};
+
 		inline bool inputSolutionFileOpen() const {
 			return this->solution_in.is_open();
 		};

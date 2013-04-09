@@ -22,7 +22,7 @@ class Net {
 
 		int id;
 		bool hasExternalPin;
-		vector<Block*> blocks;
+		vector<Block const*> blocks;
 		int layer_bottom, layer_top;
 
 		Net(int const& id_i) {
@@ -38,7 +38,7 @@ class Net {
 				return;
 			}
 			else {
-				for (Block* b : this->blocks) {
+				for (Block const* b : this->blocks) {
 					this->layer_bottom = min(this->layer_bottom, b->layer);
 					this->layer_top = max(this->layer_top, b->layer);
 

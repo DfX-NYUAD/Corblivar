@@ -30,7 +30,7 @@ class CorblivarDie {
 		unsigned pi;
 
 		// placement stacks
-		stack<Block*> Hi, Vi;
+		stack<Block const*> Hi, Vi;
 
 		// main CBL sequence
 		CornerBlockList CBL;
@@ -61,7 +61,7 @@ class CorblivarDie {
 		}
 
 		// layout generation functions
-		Block* placeCurrentBlock(bool const& dbgStack = false);
+		Block const* placeCurrentBlock(bool const& dbgStack = false);
 
 		// getter
 		inline CornerBlockList const& getCBL() const {

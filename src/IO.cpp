@@ -260,10 +260,10 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	string tmpstr;
-	map<int, Block*>::iterator b;
 	CornerBlockList::Tuple tuple;
 	unsigned tuples;
 	int cur_layer;
+	Block const* b;
 	int block_id;
 	unsigned dir;
 
@@ -307,13 +307,13 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// block id
 			fp.solution_in >> block_id;
 			// find related block
-			b = fp.blocks.find(block_id);
-			if (b != fp.blocks.end()) {
-				tuple.S = (*b).second;
+			b = fp.findBlock(block_id);
+			if (b != nullptr) {
+				tuple.S = b;
 			}
 			else {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
-				tuple.S = nullptr;
+				exit(1);
 			}
 
 			// direction L
@@ -354,7 +354,6 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 void IO::parseBlocks(FloorPlanner& fp) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
-	Block* cur_block;
 	double power = 0.0;
 	double area = 0.0;
 	int id;
@@ -389,14 +388,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// init block
 		id++;
-		cur_block = new Block(id);
+		Block new_block = Block(id);
 
 		// determine power density
 		if (!power_in.eof()) {
-			power_in >> cur_block->power_density;
+			power_in >> new_block.power_density;
 			// GSRC benchmarks provide power density in 10^5 W/(m^2);
 			// normalize to 10^-1 uW/(um^2)
-			cur_block->power_density *= 0.1;
+			new_block.power_density *= 0.1;
 		}
 		else {
 			if (fp.logMin()) {
@@ -420,10 +419,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> tmpstr;
 			// parse "(x,"
 			blocks_in >> tmpstr;
-			cur_block->bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
+			new_block.bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
 			// parse "y)"
 			blocks_in >> tmpstr;
-			cur_block->bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
+			new_block.bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
 			// drop "(x,"
 			blocks_in >> tmpstr;
 			// drop "0)"
@@ -436,18 +435,18 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 
 		// scale up dimensions
-		cur_block->bb.w *= FloorPlanner::BLOCKS_SCALE_UP;
-		cur_block->bb.h *= FloorPlanner::BLOCKS_SCALE_UP;
+		new_block.bb.w *= FloorPlanner::BLOCKS_SCALE_UP;
+		new_block.bb.h *= FloorPlanner::BLOCKS_SCALE_UP;
 
 		// calculate block area
-		cur_block->bb.area = cur_block->bb.w * cur_block->bb.h;
-		area += cur_block->bb.area;
+		new_block.bb.area = new_block.bb.w * new_block.bb.h;
+		area += new_block.bb.area;
 
 		// memorize total block power
-		power += cur_block->power();
+		power += new_block.power();
 
 		// store block
-		fp.blocks.insert( pair<int, Block*>(cur_block->id, cur_block) );
+		fp.blocks.push_back(new_block);
 	}
 
 	// close files
@@ -477,7 +476,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	int i, net_degree;
 	int net_block_id;
 	string net_block;
-	map<int, Block*>::iterator b;
+	Block const* b;
 	int id;
 
 	if (fp.logMed()) {
@@ -494,7 +493,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	// parse nets file
 	id = 0;
 	while (!in.eof()) {
-		Net cur_net = Net(id);
+		Net new_net = Net(id);
 
 		// parse net degree
 		//// NetDegree : 2
@@ -509,7 +508,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 		// read in blocks of net
 		in >> net_degree;
-		cur_net.blocks.clear();
+		new_net.blocks.clear();
 		for (i = 0; i < net_degree; i++) {
 			in >> net_block;
 			// parse block
@@ -518,16 +517,16 @@ void IO::parseNets(FloorPlanner& fp) {
 
 				// retrieve corresponding block
 				net_block_id = atoi(net_block.substr(2).c_str());
-				b = fp.blocks.find(net_block_id);
-				if (b != fp.blocks.end()) {
-					cur_net.blocks.push_back((*b).second);
+				b = fp.findBlock(net_block_id);
+				if (b != nullptr) {
+					new_net.blocks.push_back(b);
 				}
 			}
 			// parse terminal pin
 			//// p1
 			else if (net_block.find("p") != string::npos) {
 				// mark net as net w/ external pin
-				cur_net.hasExternalPin = true;
+				new_net.hasExternalPin = true;
 			}
 			else {
 				// ignore unknown block
@@ -543,8 +542,8 @@ void IO::parseNets(FloorPlanner& fp) {
 		// store nets connecting two or more blocks
 		// ignores nets connecting only to external pins
 		// (TODO) consider external pins w/ position
-		if (cur_net.blocks.size() > 1) {
-			fp.nets.push_back(cur_net);
+		if (new_net.blocks.size() > 1) {
+			fp.nets.push_back(new_net);
 		}
 
 		id++;
@@ -558,7 +557,7 @@ void IO::parseNets(FloorPlanner& fp) {
 			cout << "DBG_IO> ";
 			cout << "net " << n.id << endl;
 
-			for (Block* const& b : n.blocks) {
+			for (Block const* b : n.blocks) {
 				cout << "DBG_IO> ";
 				cout << " block " << b->id << endl;
 			}
@@ -820,8 +819,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int object_counter;
-	map<int, Block*>::iterator b;
-	Block const* cur_block;
 	double ratio_inv;
 	int tics;
 
@@ -865,10 +862,9 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 		object_counter = 1;
 
 		// output blocks
-		for (auto& b : fp.blocks) {
-			cur_block = b.second;
+		for (Block const& cur_block : fp.blocks) {
 
-			if (cur_block->layer != cur_layer) {
+			if (cur_block.layer != cur_layer) {
 				continue;
 			}
 
@@ -877,15 +873,15 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 
 			// blocks
 			gp_out << " rect";
-			gp_out << " from " << cur_block->bb.ll.x << "," << cur_block->bb.ll.y;
-			gp_out << " to " << cur_block->bb.ur.x << "," << cur_block->bb.ur.y;
+			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
+			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
 			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
 			gp_out << endl;
 
 			// label
-			gp_out << "set label \"b" << cur_block->id << "\"";
-			gp_out << " at " << cur_block->bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
-			gp_out << "," << cur_block->bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
+			gp_out << "set label \"b" << cur_block.id << "\"";
+			gp_out << " at " << cur_block.bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
+			gp_out << "," << cur_block.bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
 			gp_out << " font \"Gill Sans,4\"" << endl;
 		}
 
@@ -905,8 +901,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 // generate files for HotSpot steady-state thermal simulation
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
-	map<int, Block*>::iterator b;
-	Block const* cur_block;
 	int cur_layer;
 	// factor to scale um downto m;
 	static constexpr double SCALE_UM_M = 0.000001;
@@ -932,18 +926,17 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << endl;
 
 		// output blocks
-		for (auto& b : fp.blocks) {
-			cur_block = b.second;
+		for (Block const& cur_block : fp.blocks) {
 
-			if (cur_block->layer != cur_layer) {
+			if (cur_block.layer != cur_layer) {
 				continue;
 			}
 
-			file << "b" << cur_block->id;
-			file << "	" << cur_block->bb.w * SCALE_UM_M;
-			file << "	" << cur_block->bb.h * SCALE_UM_M;
-			file << "	" << cur_block->bb.ll.x * SCALE_UM_M;
-			file << "	" << cur_block->bb.ll.y * SCALE_UM_M;
+			file << "b" << cur_block.id;
+			file << "	" << cur_block.bb.w * SCALE_UM_M;
+			file << "	" << cur_block.bb.h * SCALE_UM_M;
+			file << "	" << cur_block.bb.ll.x * SCALE_UM_M;
+			file << "	" << cur_block.bb.ll.y * SCALE_UM_M;
 			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
 			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 			file << endl;
@@ -1062,14 +1055,13 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 
-		for (auto& b : fp.blocks) {
-			cur_block = b.second;
+		for (Block const& cur_block : fp.blocks) {
 
-			if (cur_block->layer != cur_layer) {
+			if (cur_block.layer != cur_layer) {
 				continue;
 			}
 
-			file << "b" << cur_block->id << " ";
+			file << "b" << cur_block.id << " ";
 		}
 
 		// dummy outline block
@@ -1080,14 +1072,13 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 
-		for (auto& b : fp.blocks) {
-			cur_block = b.second;
+		for (Block const& cur_block : fp.blocks) {
 
-			if (cur_block->layer != cur_layer) {
+			if (cur_block.layer != cur_layer) {
 				continue;
 			}
 
-			file << cur_block->power() << " ";
+			file << cur_block.power() << " ";
 		}
 
 		// dummy outline block

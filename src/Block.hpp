@@ -20,12 +20,12 @@
 class Block {
 	public:
 		int id;
-		int layer;
+		mutable int layer;
 		// density in [uW/(um^2)]
 		double power_density;
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
-		Rect bb, bb_backup, bb_best;
+		mutable Rect bb, bb_backup, bb_best;
 
 		Block(int const& id_i) {
 			id = id_i;

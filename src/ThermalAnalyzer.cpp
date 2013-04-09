@@ -159,10 +159,9 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) const {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) const {
 	int i;
 	int x, y;
-	Block const* block;
 	Rect bin, intersect, block_offset;
 	int x_lower, x_upper, y_lower, y_upper;
 
@@ -180,28 +179,27 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 		}
 
 		// consider each block on the related layer
-		for (auto& b : blocks) {
-			block = b.second;
+		for (Block const& block : blocks) {
 
 			// drop blocks assigned to other layers
-			if (block->layer != i) {
+			if (block.layer != i) {
 				continue;
 			}
 
 			// determine offset, i.e., shifted, block bb; relates to block's
 			// bb in padded power map
-			block_offset = block->bb;
+			block_offset = block.bb;
 
 			// don't offset blocks at the left/lower chip boundaries,
 			// implicitly extend them into power-map padding zone; this way,
 			// during convolution, the thermal estimate increases for these
 			// blocks; blocks not at the boundaries are shifted
-			if (extend_boundary_blocks_into_padding_zone && block->bb.ll.x == 0.0) {
+			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.x == 0.0) {
 			}
 			else {
 				block_offset.ll.x += this->offset_x;
 			}
-			if (extend_boundary_blocks_into_padding_zone && block->bb.ll.y == 0.0) {
+			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.y == 0.0) {
 			}
 			else {
 				block_offset.ll.y += this->offset_y;
@@ -246,7 +244,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 
 					// consider full block power density for fully covered bins
 					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-						this->power_maps[i][x][y] += block->power_density;
+						this->power_maps[i][x][y] += block.power_density;
 					}
 					// else consider intersection of bin and block at
 					// blocks' boundaries
@@ -254,7 +252,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, map<int, Block*> cons
 						intersect = Rect::determineIntersection(bin, block_offset);
 						// scale power density according to
 						// intersection area
-						this->power_maps[i][x][y] += block->power_density * (intersect.area / this->power_maps_bin_area);
+						this->power_maps[i][x][y] += block.power_density * (intersect.area / this->power_maps_bin_area);
 					}
 				}
 			}

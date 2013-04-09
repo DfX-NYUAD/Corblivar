@@ -42,7 +42,7 @@ class CorblivarCore {
 	// public data, functions
 	public:
 		// general operations
-		void initCorblivarRandomly(bool const& log, int const& layers, map<int, Block*> const& blocks) const;
+		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) const;
 		void generateLayout(bool const& dbgStack = false) const;
 
 		// die getter
@@ -167,7 +167,7 @@ class CorblivarCore {
 				die.CBLbackup.clear();
 				die.CBLbackup.reserve(die.CBL.capacity());
 
-				for (Block* const& b : die.CBL.S) {
+				for (Block const* b : die.CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
 					b->bb_backup = b->bb;
@@ -188,7 +188,7 @@ class CorblivarCore {
 				die.CBL.clear();
 				die.CBL.reserve(die.CBLbackup.capacity());
 
-				for (Block* const& b : die.CBLbackup.S) {
+				for (Block const* b : die.CBLbackup.S) {
 					// restore block dimensions (block shape) from
 					// block itself
 					b->bb = b->bb_backup;
@@ -211,7 +211,7 @@ class CorblivarCore {
 				die.CBLbest.clear();
 				die.CBLbest.reserve(die.CBL.capacity());
 
-				for (Block* const& b : die.CBL.S) {
+				for (Block const* b : die.CBL.S) {
 					// backup block dimensions (block shape) into
 					// block itself
 					b->bb_best = b->bb;
@@ -240,7 +240,7 @@ class CorblivarCore {
 				die.CBL.clear();
 				die.CBL.reserve(die.CBLbest.capacity());
 
-				for (Block* const& b : die.CBLbest.S) {
+				for (Block const* b : die.CBLbest.S) {
 					// restore block dimensions (block shape) from
 					// block itself
 					b->bb = b->bb_best;
