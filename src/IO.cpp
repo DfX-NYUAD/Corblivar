@@ -890,7 +890,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 			gp_out << "set label \"b" << cur_block->id << "\"";
 			gp_out << " at " << cur_block->bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
 			gp_out << "," << cur_block->bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
-			gp_out << " font \"Times,6\"" << endl;
+			gp_out << " font \"Gill Sans,4\"" << endl;
 		}
 
 		// file footer
