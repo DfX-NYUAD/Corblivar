@@ -632,8 +632,8 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			else {
 				gp_out << "set title \"" << fp.benchmark << " - Thermal Map Layer " << cur_layer + 1 << "\"" << endl;
 			}
-			gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
-			gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
+			gp_out << "set terminal pdfcairo font \"Gill Sans, 12\"" << endl;
+			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
 			if (flag == 0) {
 				gp_out << "set xrange [0:" << fp.thermalAnalyzer.power_maps[cur_layer].size() - 1 << "]" << endl;
@@ -740,7 +740,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 
 	// gp header
 	gp_out << "set title \"" << fp.benchmark << " - SA Temperature Schedule \"" << endl;
-	gp_out << "set output \"" << gp_out_name.str() << ".eps\"" << endl;
+	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 
 	// general settings for more attractive plots, extracted from
 	// http://youinfinitesnake.blogspot.de/2011/02/attractive-scientific-plots-with.html
@@ -839,8 +839,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 
 		// file header
 		gp_out << "set title \"" << fp.benchmark << " - Layer " << cur_layer + 1 << "\"" << endl;
-		gp_out << "set terminal postscript color enhanced \"Times\" 20" << endl;
-		gp_out << "set output \"" << out_name.str() << ".eps\"" << endl;
+		gp_out << "set terminal pdfcairo font \"Gill Sans, 12\"" << endl;
+		gp_out << "set output \"" << out_name.str() << ".pdf\"" << endl;
 		gp_out << "set size ratio " << ratio_inv << endl;
 		gp_out << "set xrange [0:" << fp.conf_outline_x << "]" << endl;
 		gp_out << "set yrange [0:" << fp.conf_outline_y << "]" << endl;
