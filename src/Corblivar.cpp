@@ -52,31 +52,35 @@ int main (int argc, char** argv) {
 	// init thermal analyzer, only reasonable after parsing config file
 	fp.initThermalAnalyzer();
 
-	// (TODO) drop if further optimization of read in data is desired
+	// non-regular run; read in solution file
+	// (TODO) adapt if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
 		// overall cost is not determined; cost cannot be determined since no
 		// normalization during SA search was performed
 		fp.finalize(corb, false);
 	}
+	// regular run; perform floorplanning
+	else {
 
-	if (fp.logMin()) {
-		cout << "Corblivar> ";
-		cout << "Performing SA floorplanning optimization..." << endl << endl;
-	}
-
-	// perform SA; main handler
-	done = fp.performSA(corb);
-
-	if (fp.logMin()) {
-		cout << "Corblivar> ";
-		if (done) {
-			cout << "Done, floorplanning was successful" << endl << endl;
+		if (fp.logMin()) {
+			cout << "Corblivar> ";
+			cout << "Performing SA floorplanning optimization..." << endl << endl;
 		}
-		else {
-			cout << "Done, floorplanning was _not_ successful" << endl << endl;
-		}
-	}
 
-	// finalize: generate output files, final logging
-	fp.finalize(corb);
+		// perform SA; main handler
+		done = fp.performSA(corb);
+
+		if (fp.logMin()) {
+			cout << "Corblivar> ";
+			if (done) {
+				cout << "Done, floorplanning was successful" << endl << endl;
+			}
+			else {
+				cout << "Done, floorplanning was _not_ successful" << endl << endl;
+			}
+		}
+
+		// finalize: generate output files, final logging
+		fp.finalize(corb);
+	}
 }

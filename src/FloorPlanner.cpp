@@ -465,8 +465,6 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "<- FloorPlanner::finalize" << endl;
 	}
-
-	exit(0);
 }
 
 bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp) const {
