@@ -15,8 +15,8 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "CorblivarDie.hpp"
+#include "CorblivarAlignmentReq.hpp"
 // forward declarations, if any
-class CorblivarAlignmentReq;
 class Block;
 
 class CorblivarCore {
@@ -34,7 +34,7 @@ class CorblivarCore {
 		mutable CorblivarDie* p;
 
 		// sequence A; alignment requirements
-		vector<CorblivarAlignmentReq*> A;
+		mutable vector<CorblivarAlignmentReq> A;
 
 	// constructors, destructors, if any non-implicit
 	public:
