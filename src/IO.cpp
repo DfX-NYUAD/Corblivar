@@ -814,6 +814,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
+	int object_counter;
 	double ratio_inv;
 	int tics;
 
@@ -853,8 +854,32 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 		gp_out << "set tics front" << endl;
 		gp_out << "set grid xtics ytics mxtics mytics" << endl;
 
+		// init obj counter
+		object_counter = 1;
+
 		// output blocks
-		gp_out << IO::blocksGP(fp.blocks, cur_layer);
+		for (Block const& cur_block : fp.blocks) {
+
+			if (cur_block.layer != cur_layer) {
+				continue;
+			}
+
+			gp_out << "set obj " << object_counter;
+			object_counter++;
+
+			// blocks
+			gp_out << " rect";
+			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
+			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
+			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
+			gp_out << endl;
+
+			// label
+			gp_out << "set label \"b" << cur_block.id << "\"";
+			gp_out << " at " << cur_block.bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
+			gp_out << "," << cur_block.bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
+			gp_out << " font \"Gill Sans,4\"" << endl;
+		}
 
 		// file footer
 		gp_out << "plot NaN notitle" << endl;
@@ -867,41 +892,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 		cout << "IO> ";
 		cout << "Done" << endl << endl;
 	}
-}
-
-string IO::blocksGP(vector<Block> const& blocks, int const& layer, bool const& solid, int const& start_id) {
-	stringstream ret;
-	int cnt = start_id;
-
-	for (Block const& cur_block : blocks) {
-
-		if (cur_block.layer != layer) {
-			continue;
-		}
-
-		ret << "set obj " << cnt;
-
-		// blocks
-		ret << " rect";
-		ret << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
-		ret << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
-		if (solid) {
-			ret << " fillcolor rgb \"#ac9d93\" fillstyle solid";
-		}
-		else {
-		}
-		ret << endl;
-
-		// label
-		ret << "set label \"b" << cur_block.id << "\"";
-		ret << " at " << cur_block.bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
-		ret << "," << cur_block.bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
-		ret << " font \"Gill Sans,4\"" << endl;
-
-		cnt++;
-	}
-
-	return ret.str();
 }
 
 // generate files for HotSpot steady-state thermal simulation

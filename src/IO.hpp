@@ -18,7 +18,6 @@
 // forward declarations, if any
 class FloorPlanner;
 class CorblivarCore;
-class Block;
 
 class IO {
 	// debugging code switch (private)
@@ -27,7 +26,6 @@ class IO {
 
 	// private data, functions
 	private:
-		static inline string blocksGP(vector<Block> const& blocks, int const& layer, bool const& solid = true, int const& start_id = 1);
 
 	// constructors, destructors, if any non-implicit
 	// private in order to avoid instances of ``static'' class
