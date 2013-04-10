@@ -99,10 +99,9 @@ class CorblivarCore {
 			// move across dies: perform insert and delete
 			else {
 				// insert tuple1 from die1 into die2 w/ offset tuple2
-				// TODO 2nd parameter: use move on S[tuple1] etc
-				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, *(this->dies[die1].CBL.S.begin() + tuple1));
-				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, *(this->dies[die1].CBL.L.begin() + tuple1));
-				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, *(this->dies[die1].CBL.T.begin() + tuple1));
+				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, move(this->dies[die1].CBL.S[tuple1]));
+				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, move(this->dies[die1].CBL.L[tuple1]));
+				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, move(this->dies[die1].CBL.T[tuple1]));
 				// erase tuple1 from die1
 				this->dies[die1].CBL.S.erase(this->dies[die1].CBL.S.begin() + tuple1);
 				this->dies[die1].CBL.L.erase(this->dies[die1].CBL.L.begin() + tuple1);
