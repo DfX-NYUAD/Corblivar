@@ -664,7 +664,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// for padded power maps: draw rectangle for unpadded core
 			if (flag == 0 && ThermalAnalyzer::mask_dim_half > 0) {
-				gp_out << "set obj rect from ";
+				gp_out << "set obj 1 rect from ";
 				gp_out << ThermalAnalyzer::mask_dim_half - 1 << ", " << ThermalAnalyzer::mask_dim_half - 1 << " to ";
 				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << ", ";
 				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << " ";
@@ -814,7 +814,6 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
-	int object_counter;
 	double ratio_inv;
 	int tics;
 
@@ -854,9 +853,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 		gp_out << "set tics front" << endl;
 		gp_out << "set grid xtics ytics mxtics mytics" << endl;
 
-		// init obj counter
-		object_counter = 1;
-
 		// output blocks
 		for (Block const& cur_block : fp.blocks) {
 
@@ -864,8 +860,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 				continue;
 			}
 
-			gp_out << "set obj " << object_counter;
-			object_counter++;
+			// block id + 1 since GP requires object ids to be > 0
+			gp_out << "set obj " << cur_block.id + 1;
 
 			// blocks
 			gp_out << " rect";
