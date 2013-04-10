@@ -74,9 +74,6 @@ class FloorPlanner {
 		// IO: scaling factor for block dimensions
 		static constexpr int BLOCKS_SCALE_UP = 30;
 
-		// thermal analyzer
-		ThermalAnalyzer thermalAnalyzer;
-
 		// logging
 		static constexpr int LOG_MINIMAL = 1;
 		static constexpr int LOG_MEDIUM = 2;
@@ -117,8 +114,12 @@ class FloorPlanner {
 		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: helper for main handler
+		// note that various parameters are return-by-reference
 		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
 		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
+
+		// thermal analyzer
+		ThermalAnalyzer thermalAnalyzer;
 
 		// ThermalAnalyzer parameters: mask fitting
 		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
