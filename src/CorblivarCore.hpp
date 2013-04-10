@@ -217,20 +217,21 @@ class CorblivarCore {
 				}
 			}
 		};
+		// returns false only if all dies from CBLbest are empty, i.e., no best
+		// solution at all is available
 		inline bool applyBestCBLs(bool const& log) const {
+			unsigned empty_dies = 0;
+			bool ret;
 
 			for (CorblivarDie& die : this->dies) {
 
-				// sanity check for existence of best solution
-				if (die.CBLbest.empty()) {
-					if (log) {
-						cout << "Corblivar> No best (fitting) solution available!" << endl;
-					}
-					return false;
-				}
-
 				die.CBL.clear();
 				die.CBL.reserve(die.CBLbest.capacity());
+
+				if (die.CBLbest.empty()) {
+					empty_dies++;
+					continue;
+				}
 
 				for (Block const* b : die.CBLbest.S) {
 					b->bb = b->bb_best;
@@ -244,7 +245,13 @@ class CorblivarCore {
 				}
 			}
 
-			return true;
+			ret = (empty_dies != this->dies.size());
+
+			if (!ret && log) {
+				cout << "Corblivar> No best (fitting) solution available!" << endl << endl;
+			}
+
+			return ret;
 		};
 };
 
