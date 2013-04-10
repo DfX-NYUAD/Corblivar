@@ -90,7 +90,7 @@ class CornerBlockList {
 			this->T.reserve(elements);
 		};
 
-		inline void insert(Tuple const& tuple) {
+		inline void insert(Tuple&& tuple) {
 			this->S.push_back(tuple.S);
 			this->L.push_back(tuple.L);
 			this->T.push_back(tuple.T);

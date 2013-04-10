@@ -208,7 +208,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 		cur_step.step = i;
 		cur_step.temp = cur_temp;
 		cur_step.new_best_sol_found = best_sol_found;
-		this->tempSchedule.push_back(cur_step);
+		this->tempSchedule.push_back(move(cur_step));
 
 		// update SA temperature
 		this->updateTemp(cur_temp, i, i_valid_layout_found);
@@ -853,7 +853,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			// blocks for cur_net on this layer
 			for (Block const* b : cur_net.blocks) {
 				if (b->layer == i) {
-					blocks_to_consider.push_back(&b->bb);
+					blocks_to_consider.push_back(move(&b->bb));
 
 					if (FloorPlanner::DBG_LAYOUT) {
 						cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
@@ -874,7 +874,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			while (ii <= cur_net.layer_top) {
 				for (Block const* b : cur_net.blocks) {
 					if (b->layer == ii) {
-						blocks_to_consider.push_back(&b->bb);
+						blocks_to_consider.push_back(move(&b->bb));
 						blocks_above_considered = true;
 
 						if (FloorPlanner::DBG_LAYOUT) {

@@ -49,7 +49,7 @@ class CorblivarCore {
 				// reserve mem for worst case, i.e., all blocks in one particular die
 				cur_die.CBL.reserve(blocks);
 
-				this->dies.push_back(cur_die);
+				this->dies.push_back(move(cur_die));
 			}
 		};
 
@@ -99,6 +99,7 @@ class CorblivarCore {
 			// move across dies: perform insert and delete
 			else {
 				// insert tuple1 from die1 into die2 w/ offset tuple2
+				// TODO 2nd parameter: use move on S[tuple1] etc
 				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, *(this->dies[die1].CBL.S.begin() + tuple1));
 				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, *(this->dies[die1].CBL.L.begin() + tuple1));
 				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, *(this->dies[die1].CBL.T.begin() + tuple1));
@@ -164,8 +165,7 @@ class CorblivarCore {
 				die.CBLbackup.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
-					// backup block dimensions (block shape) into
-					// block itself
+					// backup (copy) block box into block itself
 					b->bb_backup = b->bb;
 					die.CBLbackup.S.push_back(b);
 				}
@@ -185,8 +185,7 @@ class CorblivarCore {
 				die.CBL.reserve(die.CBLbackup.capacity());
 
 				for (Block const* b : die.CBLbackup.S) {
-					// restore block dimensions (block shape) from
-					// block itself
+					// restore (copy) block box from block itself
 					b->bb = b->bb_backup;
 					die.CBL.S.push_back(b);
 				}
@@ -208,8 +207,6 @@ class CorblivarCore {
 				die.CBLbest.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
-					// backup block dimensions (block shape) into
-					// block itself
 					b->bb_best = b->bb;
 					die.CBLbest.S.push_back(b);
 				}
@@ -237,8 +234,6 @@ class CorblivarCore {
 				die.CBL.reserve(die.CBLbest.capacity());
 
 				for (Block const* b : die.CBLbest.S) {
-					// restore block dimensions (block shape) from
-					// block itself
 					b->bb = b->bb_best;
 					die.CBL.S.push_back(b);
 				}

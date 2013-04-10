@@ -41,9 +41,9 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand].CBL.S.push_back(&cur_block);
-		this->dies[rand].CBL.L.push_back(cur_dir);
-		this->dies[rand].CBL.T.push_back(cur_t);
+		this->dies[rand].CBL.S.push_back(move(&cur_block));
+		this->dies[rand].CBL.L.push_back(move(cur_dir));
+		this->dies[rand].CBL.T.push_back(move(cur_t));
 	}
 
 	if (CorblivarCore::DBG) {

@@ -332,7 +332,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.solution_in >> tmpstr;
 
 			// store successfully parsed tuple into CBL
-			corb.editDie(cur_layer).editCBL().insert(tuple);
+			corb.editDie(cur_layer).editCBL().insert(move(tuple));
 			tuples++;
 		}
 	}
@@ -439,7 +439,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		power += new_block.power();
 
 		// store block
-		fp.blocks.push_back(new_block);
+		fp.blocks.push_back(move(new_block));
 	}
 
 	// close files
@@ -512,7 +512,7 @@ void IO::parseNets(FloorPlanner& fp) {
 				net_block_id = atoi(net_block.substr(2).c_str());
 				b = fp.findBlock(net_block_id);
 				if (b != nullptr) {
-					new_net.blocks.push_back(b);
+					new_net.blocks.push_back(move(b));
 				}
 				else {
 					cout << "Block " << net_block_id << " cannot be retrieved; ensure that net file is correct!" << endl;
@@ -539,7 +539,7 @@ void IO::parseNets(FloorPlanner& fp) {
 		// ignores nets connecting only to external pins
 		// (TODO) consider external pins w/ position
 		if (new_net.blocks.size() > 1) {
-			fp.nets.push_back(new_net);
+			fp.nets.push_back(move(new_net));
 		}
 
 		id++;

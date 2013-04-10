@@ -43,7 +43,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
 		relevBlocks.reserve(relevBlocksCount);
 		while (relevBlocksCount > relevBlocks.size()) {
-			relevBlocks.push_back(this->Hi.top());
+			relevBlocks.push_back(move(this->Hi.top()));
 			this->Hi.pop();
 		}
 
@@ -114,7 +114,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		relevBlocksCount = min(cur_juncts + 1, this->Vi.size());
 		relevBlocks.reserve(relevBlocksCount);
 		while (relevBlocksCount > relevBlocks.size()) {
-			relevBlocks.push_back(this->Vi.top());
+			relevBlocks.push_back(move(this->Vi.top()));
 			this->Vi.pop();
 		}
 
