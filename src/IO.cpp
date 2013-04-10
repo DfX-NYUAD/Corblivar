@@ -575,6 +575,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	unsigned x, y;
 	unsigned x_limit, y_limit;
 	int flag;
+	double max_power_density;
 
 	// sanity check
 	if (fp.thermalAnalyzer.power_maps.empty() || fp.thermalAnalyzer.thermal_map.empty()) {
@@ -584,6 +585,13 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 		cout << "Generating power maps and thermal profiles ..." << endl;
+	}
+
+	// for power maps: fixed scale for all layers to ease comparision, i.e. requires
+	// to determine max blocks' power
+	max_power_density = 0.0;
+	for (Block const& block : fp.blocks) {
+		max_power_density = max(max_power_density, block.power_density);
 	}
 
 	// flag=0: generate power maps
@@ -629,7 +637,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
 
-			// different ranges for power map and thermal map
+			// different 2D ranges for power map and thermal map
 			if (flag == 0) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
@@ -639,6 +647,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 				gp_out << "set yrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
 			}
 
+			// power maps: fixed scale for all layers to ease comparision
+			if (flag == 0) {
+				gp_out << "set cbrange [0:" << max_power_density << "]" << endl;
+			}
+
+			// tics
 			gp_out << "set tics front" << endl;
 			gp_out << "set grid xtics ytics ztics" << endl;
 			// pm3d algorithm determines an average value for each pixel,
