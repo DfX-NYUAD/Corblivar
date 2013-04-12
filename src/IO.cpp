@@ -450,6 +450,18 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	blocks_in.close();
 	power_in.close();
 
+	// sanity check of fixed outline
+	if (area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) > 1.0) {
+		cout << "IO> Outline too small; consider fixing the config file" << endl;
+		exit(1);
+	}
+
+	// sanity check for parsed blocks
+	if (fp.blocks.empty()) {
+		cout << "IO> No blocks parsed; consider checking the benchmark format" << endl;
+		exit(1);
+	}
+
 	// logging
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -457,12 +469,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		cout << "IO>  (blocks power [W]: " << power << "; blocks area [cm^2]: " << area * 1.0e-8;
 		cout << "; blocks area / total area: " << area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) << ")" << endl;
 		cout << endl;
-	}
-
-	// sanity check of fixed outline
-	if (area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) > 1.0) {
-		cout << "IO> Outline too small; consider fixing the config file" << endl;
-		exit(1);
 	}
 }
 
