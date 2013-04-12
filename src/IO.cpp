@@ -360,6 +360,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	blocks_in.open(fp.blocks_file.c_str());
 	power_in.open(fp.power_density_file.c_str());
 
+	// drop power density file header line
+	while (tmpstr != "end" && !power_in.eof())
+		power_in >> tmpstr;
+
 	// reset blocks
 	fp.blocks.clear();
 
