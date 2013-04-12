@@ -363,6 +363,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// drop power density file header line
 	while (tmpstr != "end" && !power_in.eof())
 		power_in >> tmpstr;
+	// if we reached eof, there was no header line; reset the input stream
+	if (power_in.eof()) {
+		power_in.clear() ;
+		power_in.seekg(0, power_in.beg);
+	}
 
 	// reset blocks
 	fp.blocks.clear();
