@@ -37,6 +37,7 @@ class Block {
 	// public data, functions
 	public:
 		int id;
+		string name;
 		mutable int layer;
 		// density in [uW/(um^2)]
 		double power_density;

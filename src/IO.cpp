@@ -34,8 +34,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO> ";
 		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
 		cout << endl;
-		cout << "Expected config_file format: see Corblivar.conf" << endl;
-		cout << "Expected benchmarks: GSRC n... sets" << endl;
+		cout << "Expected config_file format: see provided Corblivar.conf" << endl;
+		cout << "Expected benchmarks: any in GSRC Bookshelf format" << endl;
 		cout << "Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
 
 		exit(1);
@@ -349,6 +349,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	string tmpstr;
 	double power = 0.0;
 	double area = 0.0;
+	double blocks_outline_ratio;
 	int id;
 
 	if (fp.logMed()) {
@@ -373,42 +374,35 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.blocks.clear();
 
 	// drop block files header
-	while (tmpstr != "sb0" && !blocks_in.eof())
+	while (tmpstr != "NumTerminals" && !blocks_in.eof())
 		blocks_in >> tmpstr;
+	// drop ":"
+	blocks_in >> tmpstr;
+	// drop terminals count
+	blocks_in >> tmpstr;
 
 	// parse blocks
-	id = -1;
+	id = 0;
 	while (!blocks_in.eof()) {
 
-		// find line containing block
-		while (tmpstr.find("sb") == string::npos && !blocks_in.eof()) {
-			blocks_in >> tmpstr;
-		}
-		if (blocks_in.eof()) {
-			break;
-		}
+		// each line contains a block, two examples are below
+		// bk1 hardrectilinear 4 (0, 0) (0, 133) (336, 133) (336, 0)
+		// VSS terminal
 
 		// init block
-		id++;
 		Block new_block = Block(id);
 
-		// determine power density
-		if (!power_in.eof()) {
-			power_in >> new_block.power_density;
-			// GSRC benchmarks provide power density in 10^5 W/(m^2);
-			// normalize to 10^-1 uW/(um^2)
-			new_block.power_density *= 0.1;
-		}
-		else {
-			if (fp.logMin()) {
-				cout << "IO> ";
-				cout << "Block " << id << " has no power value assigned!" << endl;
-			}
-		}
+		// parse block identifier
+		blocks_in >> new_block.name;
 
 		// parse block type
 		blocks_in >> tmpstr;
-		if (tmpstr == "hardrectilinear") {
+		// drop terminal blocks
+		if (tmpstr == "terminal") {
+			continue;
+		}
+		// parse blocks coordinates
+		else if (tmpstr == "hardrectilinear" || tmpstr == "softrectilinear") {
 			// drop "4"
 			blocks_in >> tmpstr;
 			// drop "(0,"
@@ -417,22 +411,23 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> tmpstr;
 			// drop "(0,"
 			blocks_in >> tmpstr;
-			// drop "y)"
+			// drop "Y)"
 			blocks_in >> tmpstr;
-			// parse "(x,"
+			// parse "(X,"
 			blocks_in >> tmpstr;
 			new_block.bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
-			// parse "y)"
+			// parse "Y)"
 			blocks_in >> tmpstr;
 			new_block.bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
-			// drop "(x,"
+			// drop "(X,"
 			blocks_in >> tmpstr;
 			// drop "0)"
 			blocks_in >> tmpstr;
 		}
 		else {
 			cout << "IO> ";
-			cout << "Unhandled block type: " << tmpstr << endl;
+			cout << "Unknown block type: " << tmpstr << endl;
+			cout << "Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 			exit(1);
 		}
 
@@ -444,11 +439,26 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		new_block.bb.area = new_block.bb.w * new_block.bb.h;
 		area += new_block.bb.area;
 
+		// determine power density
+		if (!power_in.eof()) {
+			power_in >> new_block.power_density;
+			// GSRC benchmarks provide power density in 10^5 W/(m^2);
+			// normalize to 10^-1 uW/(um^2)
+			new_block.power_density *= 0.1;
+		}
+		else {
+			if (fp.logMin()) {
+				cout << "IO> Some blocks have no power value assigned, consider checking the power density file!";
+			}
+		}
+
 		// memorize total block power
 		power += new_block.power();
 
 		// store block
 		fp.blocks.push_back(move(new_block));
+
+		id++;
 	}
 
 	// close files
@@ -456,14 +466,16 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	power_in.close();
 
 	// sanity check of fixed outline
-	if (area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) > 1.0) {
+	blocks_outline_ratio = area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y);
+	if (blocks_outline_ratio > 1.0) {
 		cout << "IO> Outline too small; consider fixing the config file" << endl;
+		cout << "IO>  Blocks/dies area ratio: " << blocks_outline_ratio << endl;
 		exit(1);
 	}
 
 	// sanity check for parsed blocks
 	if (fp.blocks.empty()) {
-		cout << "IO> No blocks parsed; consider checking the benchmark format" << endl;
+		cout << "IO> No blocks parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 		exit(1);
 	}
 
@@ -471,8 +483,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in" << endl;
-		cout << "IO>  (blocks power [W]: " << power << "; blocks area [cm^2]: " << area * 1.0e-8;
-		cout << "; blocks area / total area: " << area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y) << ")" << endl;
+		cout << "IO>  summed blocks power [W]: " << power << "; summed blocks area [cm^2]: " << area * 1.0e-8;
+		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;
 	}
 }
