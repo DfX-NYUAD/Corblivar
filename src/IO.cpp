@@ -362,6 +362,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	string tmpstr;
 	double power = 0.0;
 	double area = 0.0;
+	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	string id;
 
@@ -462,6 +463,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// x^2 = AR * A
 			new_block.bb.w = sqrt(Math::randF(new_block.AR.min, new_block.AR.max) * new_block.bb.area);
 			new_block.bb.h = new_block.bb.area / new_block.bb.w;
+
+			// mark block as soft
+			new_block.soft = true;
+			// memorize soft blocks count
+			soft_blocks++;
 		}
 		// unknown block type
 		else {
@@ -514,7 +520,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in" << endl;
-		cout << "IO>  summed blocks power [W]: " << power << "; summed blocks area [cm^2]: " << area * 1.0e-8;
+		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
+		cout << "IO>  Summed blocks power [W]: " << power << "; summed blocks area [cm^2]: " << area * 1.0e-8;
 		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;
 	}

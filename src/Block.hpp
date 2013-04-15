@@ -31,6 +31,7 @@ class Block {
 			layer = -1;
 			power_density= 0.0;
 			AR.min = AR.max = 1.0;
+			soft = false;
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
@@ -39,16 +40,23 @@ class Block {
 	public:
 		string id;
 		mutable int layer;
+
 		// density in [uW/(um^2)]
 		double power_density;
+
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
+
+		// rectangle, represents block geometry and placement
 		mutable Rect bb, bb_backup, bb_best;
+
 		// aspect ratio AR, relates to blocks' dimensions by x / y
 		struct AR {
 			double min;
 			double max;
 		} AR;
+		// AR is only relevant for soft blocks
+		bool soft;
 
 		// power in [W]
 		inline double power() const {
