@@ -20,7 +20,7 @@
 #include "Math.hpp"
 
 // parse program parameter and config file
-void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log) {
+void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -30,8 +30,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	string tmpstr;
 
 	// program parameter
-	if (argc < 4)
-	{
+	if (argc < 4) {
 		cout << "IO> ";
 		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
 		cout << endl;
@@ -59,8 +58,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// test files
 	in.open(config_file.c_str());
-	if (!in.good())
-	{
+	if (!in.good()) {
 		cout << "IO> ";
 		cout << "No such config file: " << config_file<< endl;
 		exit(1);
@@ -68,28 +66,28 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	in.close();
 
 	in.open(fp.blocks_file.c_str());
-	if (!in.good())
-	{
+	if (!in.good()) {
 		cout << "IO> ";
-		cout << "No such blocks file: " << fp.blocks_file << endl;
+		cout << "Blocks file missing: " << fp.blocks_file << endl;
 		exit(1);
 	}
 	in.close();
 
 	in.open(fp.power_density_file.c_str());
-	if (!in.good())
-	{
+	// memorize file availability
+	fp.power_density_file_avail = in.good();
+	if (!in.good()) {
 		cout << "IO> ";
-		cout << "No such power density file: " << fp.power_density_file << endl;
-		exit(1);
+		cout << "Note: power density file missing : " << fp.power_density_file << endl;
+		cout << "IO> Thermal optimization cannot be performed." << endl;
+		cout << endl;
 	}
 	in.close();
 
 	in.open(fp.nets_file.c_str());
-	if (!in.good())
-	{
+	if (!in.good()) {
 		cout << "IO> ";
-		cout << "No such nets file: " << fp.nets_file << endl;
+		cout << "Nets file missing: " << fp.nets_file << endl;
 		exit(1);
 	}
 	in.close();
@@ -113,12 +111,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		fp.solution_out.open(solution_file.str().c_str());
 	}
 
-	// handle config file
-	if (log) {
-		cout << "IO> ";
-		cout << "Parsing config file..." << endl;
-	}
-
+	// open config file
 	in.open(config_file.c_str());
 
 	// parse in parameters
@@ -249,7 +242,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	in.close();
 
-	if (log) {
+	if (fp.logMin()) {
 		cout << "IO> Config values:" << endl;
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
 		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
@@ -260,7 +253,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
-		cout << "IO>  SA -- Cost factor for temperature: " << fp.conf_SA_cost_temp << endl;
+		if (fp.power_density_file_avail) {
+			cout << "IO>  SA -- Cost factor for temperature: " << fp.conf_SA_cost_temp << endl;
+		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
 		cout << "IO>  SA -- Cost factor for area and outline violation: " << fp.conf_SA_cost_area_outline << endl;
@@ -376,12 +371,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	power_in.open(fp.power_density_file.c_str());
 
 	// drop power density file header line
-	while (tmpstr != "end" && !power_in.eof())
-		power_in >> tmpstr;
-	// if we reached eof, there was no header line; reset the input stream
-	if (power_in.eof()) {
-		power_in.clear() ;
-		power_in.seekg(0, power_in.beg);
+	if (fp.power_density_file_avail) {
+		while (tmpstr != "end" && !power_in.eof())
+			power_in >> tmpstr;
+		// if we reached eof, there was no header line; reset the input stream
+		if (power_in.eof()) {
+			power_in.clear() ;
+			power_in.seekg(0, power_in.beg);
+		}
 	}
 
 	// reset blocks
@@ -478,15 +475,17 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 
 		// determine power density
-		if (!power_in.eof()) {
-			power_in >> new_block.power_density;
-			// GSRC benchmarks provide power density in 10^5 W/(m^2);
-			// normalize to 10^-1 uW/(um^2)
-			new_block.power_density *= 0.1;
-		}
-		else {
-			if (fp.logMin()) {
-				cout << "IO> Some blocks have no power value assigned, consider checking the power density file!";
+		if (fp.power_density_file_avail) {
+			if (!power_in.eof()) {
+				power_in >> new_block.power_density;
+				// GSRC benchmarks provide power density in 10^5 W/(m^2);
+				// normalize to 10^-1 uW/(um^2)
+				new_block.power_density *= 0.1;
+			}
+			else {
+				if (fp.logMin()) {
+					cout << "IO> Some blocks have no power value assigned, consider checking the power density file!";
+				}
 			}
 		}
 

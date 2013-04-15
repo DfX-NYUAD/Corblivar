@@ -418,7 +418,9 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 			cout << "SA> Max blocks-outline / die-outline ratio: " << area << endl;
 			cout << "SA> HPWL: " << interconn.HPWL << endl;
 			cout << "SA> TSVs: " << interconn.TSVs << endl;
-			cout << "SA> Temp cost (no real temp): " << temp << endl;
+			if (this->power_density_file_avail) {
+				cout << "SA> Temp cost (no real temp): " << temp << endl;
+			}
 			cout << endl;
 
 			if (determ_overall_cost) {
@@ -427,7 +429,9 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 			this->results << "Max die occupation [\%]: " << area << endl;
 			this->results << "HPWL: " << interconn.HPWL << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
-			this->results << "Temp cost (no real temp): " << temp << endl;
+			if (this->power_density_file_avail) {
+				this->results << "Temp cost (no real temp): " << temp << endl;
+			}
 		}
 	}
 
@@ -444,7 +448,7 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 	}
 
 	// thermal-analysis files
-	if (valid_solution) {
+	if (valid_solution && this->power_density_file_avail) {
 		// generate power and thermal maps
 		IO::writePowerThermalMaps(*this);
 		// generate HotSpot files
@@ -694,8 +698,8 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 
 		// normalized temperature-distribution cost
 		//
-		// sanity check for zero cost weight
-		if (this->conf_SA_cost_temp == 0.0) {
+		// sanity check for zero cost weight or no power density values
+		if (this->conf_SA_cost_temp == 0.0 || !this->power_density_file_avail) {
 			cost_temp = 0.0;
 		}
 		else {

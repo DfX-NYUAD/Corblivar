@@ -35,7 +35,7 @@ class IO {
 
 	// public data, functions
 	public:
-		static void parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log = true);
+		static void parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv);
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseNets(FloorPlanner& fp);
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
