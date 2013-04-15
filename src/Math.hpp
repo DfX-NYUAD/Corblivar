@@ -42,13 +42,13 @@ class Math {
 			}
 		};
 		inline static bool randB() {
-
 			int const r = rand();
 			return (r < (RAND_MAX / 2));
 		};
-		inline static double randF01() {
-			return ((double) rand() / RAND_MAX);
-		}
+		inline static double randF(double const& min, double const& max) {
+			double const r = static_cast<double>(rand()) / RAND_MAX;
+			return r * (max - min) + min;
+		};
 
 		// standard deviation of samples
 		inline static double stdDev(vector<double> const& samples) {

@@ -103,7 +103,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 				// revert solution w/ worse or same cost, depending on temperature
 				accept = true;
 				if (cost_diff >= 0.0) {
-					r = Math::randF01();
+					r = Math::randF(0, 1);
 					if (r > exp(- cost_diff / cur_temp)) {
 
 						if (FloorPlanner::DBG_SA) {
