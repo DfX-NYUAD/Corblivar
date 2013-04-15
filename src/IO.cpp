@@ -149,7 +149,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// sanity check for positive, non-zero dimensions
 	if (fp.conf_outline_x <= 0.0 || fp.conf_outline_y <= 0.0) {
-		cout << "Provde positive, non-zero outline dimensions!" << endl;
+		cout << "Provide positive, non-zero outline dimensions!" << endl;
 		exit(1);
 	}
 
@@ -163,7 +163,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// sanity check for block scaling factor
 	if (fp.conf_blocks_scale <= 0.0) {
-		cout << "Provde positive, non-zero outline dimensions!" << endl;
+		cout << "Provide positive, non-zero outline dimensions!" << endl;
 		exit(1);
 	}
 
@@ -179,7 +179,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_loopFactor <= 0.0 || fp.conf_SA_loopLimit <= 0.0) {
-		cout << "Provde positive, non-zero SA loop parameters!" << endl;
+		cout << "Provide positive, non-zero SA loop parameters!" << endl;
 		exit(1);
 	}
 
@@ -195,7 +195,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
-		cout << "Provde positive, non-zero SA cooling parameters!" << endl;
+		cout << "Provide positive, non-zero SA cooling parameters!" << endl;
 		exit(1);
 	}
 
@@ -242,7 +242,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_power_blurring_impulse_factor <= 0.0 || fp.conf_power_blurring_impulse_factor_scaling_exponent <= 0.0 || fp.conf_power_blurring_mask_boundary_value <= 0.0) {
-		cout << "Provde positive, non-zero power blurring parameters!" << endl;
+		cout << "Provide positive, non-zero power blurring parameters!" << endl;
 		exit(1);
 	}
 
