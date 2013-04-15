@@ -159,6 +159,17 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_blocks_scale;
+
+	// sanity check for block scaling factor
+	if (fp.conf_blocks_scale <= 0.0) {
+		cout << "Provde positive, non-zero outline dimensions!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_loopFactor;
 
 	in >> tmpstr;
@@ -243,6 +254,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bo
 		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
+		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
@@ -442,8 +454,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// scale up dimensions
 		// TODO soft blocks
-		new_block.bb.w *= FloorPlanner::BLOCKS_SCALE_UP;
-		new_block.bb.h *= FloorPlanner::BLOCKS_SCALE_UP;
+		new_block.bb.w *= fp.conf_blocks_scale;
+		new_block.bb.h *= fp.conf_blocks_scale;
 
 		// calculate block area
 		new_block.bb.area = new_block.bb.w * new_block.bb.h;
@@ -917,8 +929,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 
 			// label
 			gp_out << "set label \"" << cur_block.id << "\"";
-			gp_out << " at " << cur_block.bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
-			gp_out << "," << cur_block.bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
+			gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.conf_outline_x;
+			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.conf_outline_y;
 			gp_out << " font \"Gill Sans,4\"" << endl;
 		}
 

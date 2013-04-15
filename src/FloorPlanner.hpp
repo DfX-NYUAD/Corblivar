@@ -39,6 +39,7 @@ class FloorPlanner {
 		int conf_log;
 		double conf_outline_x, conf_outline_y;
 		double outline_AR;
+		double conf_blocks_scale;
 
 		// PODs
 		struct Cost {
@@ -71,9 +72,6 @@ class FloorPlanner {
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;
-
-		// IO: scaling factor for block dimensions
-		static constexpr int BLOCKS_SCALE_UP = 30;
 
 		// logging
 		static constexpr int LOG_MINIMAL = 1;
