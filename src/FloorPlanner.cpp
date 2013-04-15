@@ -137,6 +137,17 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 							// iteration we found the first
 							// valid layout
 							i_valid_layout_found = i;
+
+							// logging
+							if (this->logMax()) {
+								cout << "SA> " << endl;
+							}
+							if (this->logMed()) {
+								cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
+							}
+							if (this->logMax()) {
+								cout << "SA> " << endl;
+							}
 						}
 
 						// in order to compare different fitting
@@ -150,21 +161,6 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
-							if (this->logMax()) {
-								cout << "SA> Currently best solution found; (adapted) cost: " << fitting_cost << endl;
-							}
-
-							if (phase_two_init) {
-								if (this->logMax()) {
-									cout << "SA> " << endl;
-								}
-								if (this->logMed()) {
-									cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
-								}
-								if (this->logMax()) {
-									cout << "SA> " << endl;
-								}
-							}
 
 							best_cost = fitting_cost;
 							corb.storeBestCBLs();
@@ -197,6 +193,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 
 		if (this->logMax()) {
 			cout << "SA> Step done:" << endl;
+			cout << "SA>  new best solution found: " << best_sol_found << endl;
 			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
 			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
 			cout << "SA>  avg cost: " << avg_cost << endl;
