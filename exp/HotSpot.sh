@@ -7,7 +7,7 @@ if [ "$1" == "" ]; then
 	exit
 fi
 
-BOTTOM_FP=$1_HotSpot_0.flp
+BOTTOM_FP=$1_HotSpot_1.flp
 PTRACE=$1_HotSpot.ptrace
 GRID_LCF=$1_HotSpot.lcf
 STEADY_OUTPUT=$1_HotSpot.steady

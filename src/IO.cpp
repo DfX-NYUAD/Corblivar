@@ -962,7 +962,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
 		stringstream fp_file;
-		fp_file << fp.benchmark << "_HotSpot_" << cur_layer << ".flp";
+		fp_file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp";
 
 		// init file stream
 		file.open(fp_file.str().c_str());
@@ -992,7 +992,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		}
 
 		// dummy block to describe layer outline
-		file << "outline" << cur_layer;
+		file << "outline" << cur_layer + 1;
 		file << "	" << fp.conf_outline_x * SCALE_UM_M;
 		file << "	" << fp.conf_outline_y * SCALE_UM_M;
 		file << "	0.0";
@@ -1114,7 +1114,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		}
 
 		// dummy outline block
-		file << "outline" << cur_layer << " ";
+		file << "outline" << cur_layer + 1 << " ";
 	}
 	file << endl;
 
@@ -1180,7 +1180,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
 		file << ThermalAnalyzer::THICKNESS_SI_ACTIVE << endl;
-		file << fp.benchmark << "_HotSpot_" << cur_layer << ".flp" << endl;
+		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
 		file << "# Inactive Si layer " << cur_layer << endl;
