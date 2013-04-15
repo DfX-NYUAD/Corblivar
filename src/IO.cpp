@@ -185,11 +185,22 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_SA_temp_factor_phase1_limit;
+
+	// sanity check for dependent temperature-scaling factors
+	if (fp.conf_SA_temp_factor_phase1 >= fp.conf_SA_temp_factor_phase1_limit) {
+		cout << "Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_temp_factor_phase2;
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
-		cout << "Provide positive, non-zero SA cooling parameters!" << endl;
+		cout << "Provide positive, non-zero SA cooling factors!" << endl;
 		exit(1);
 	}
 
@@ -251,7 +262,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
+		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
+		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
 		if (fp.power_density_file_avail) {
 			cout << "IO>  SA -- Cost factor for temperature: " << fp.conf_SA_cost_temp << endl;

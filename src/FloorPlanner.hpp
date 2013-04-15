@@ -86,7 +86,7 @@ class FloorPlanner {
 		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
 
 		// SA parameters: temperature-scaling factors
-		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase2;
+		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase1_limit, conf_SA_temp_factor_phase2;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;

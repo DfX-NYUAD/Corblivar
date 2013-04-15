@@ -239,7 +239,8 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	/// reduce temp
 	// phase 1; adaptive cooling (slows down from conf_SA_temp_factor_phase1 to 1.0)
 	if (iteration_first_valid_layout == Point::UNDEF) {
-		loop_factor = (1.0 - this->conf_SA_temp_factor_phase1) * static_cast<double>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
+		loop_factor = (this->conf_SA_temp_factor_phase1_limit - this->conf_SA_temp_factor_phase1)
+			* static_cast<double>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
 		cur_temp *= this->conf_SA_temp_factor_phase1 + loop_factor;
@@ -251,7 +252,8 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	// enable convergence)
 	else {
 		// note that loop_factor must only consider the remaining iteration range
-		loop_factor = 1.0 - static_cast<double>(iteration - iteration_first_valid_layout) / static_cast<double>(this->conf_SA_loopLimit - iteration_first_valid_layout);
+		loop_factor = 1.0 - static_cast<double>(iteration - iteration_first_valid_layout) /
+			static_cast<double>(this->conf_SA_loopLimit - iteration_first_valid_layout);
 		cur_temp *= this->conf_SA_temp_factor_phase2 * loop_factor;
 
 		phase = 2;
