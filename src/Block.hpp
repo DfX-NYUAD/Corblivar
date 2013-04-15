@@ -26,7 +26,7 @@ class Block {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Block(int const& id_i) {
+		Block(string const& id_i) {
 			id = id_i;
 			layer = -1;
 			power_density= 0.0;
@@ -36,8 +36,7 @@ class Block {
 
 	// public data, functions
 	public:
-		int id;
-		string name;
+		string id;
 		mutable int layer;
 		// density in [uW/(um^2)]
 		double power_density;

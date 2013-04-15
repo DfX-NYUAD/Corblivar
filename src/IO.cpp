@@ -263,7 +263,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	CornerBlockList::Tuple tuple;
 	unsigned tuples;
 	int cur_layer;
-	int block_id;
+	string block_id;
 	unsigned dir;
 
 	if (fp.logMed()) {
@@ -303,7 +303,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// block id
 			fp.solution_in >> block_id;
 			// find related block
-			tuple.S = fp.findBlock(block_id);
+			tuple.S = fp.findBlock(block_id, fp.blocks);
 			if (tuple.S == nullptr) {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
 				exit(1);
@@ -350,7 +350,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	double power = 0.0;
 	double area = 0.0;
 	double blocks_outline_ratio;
-	int id;
+	string id;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -372,6 +372,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// reset blocks
 	fp.blocks.clear();
+	// reset terminals
+	fp.terminals.clear();
 
 	// drop block files header
 	while (tmpstr != "NumTerminals" && !blocks_in.eof())
@@ -382,27 +384,29 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	blocks_in >> tmpstr;
 
 	// parse blocks
-	id = 0;
 	while (!blocks_in.eof()) {
 
 		// each line contains a block, two examples are below
 		// bk1 hardrectilinear 4 (0, 0) (0, 133) (336, 133) (336, 0)
+		// BLOCK_7 softrectangular 2464 0.33 3.0
 		// VSS terminal
+
+		// parse block identifier
+		blocks_in >> id;
 
 		// init block
 		Block new_block = Block(id);
 
-		// parse block identifier
-		blocks_in >> new_block.name;
-
 		// parse block type
 		blocks_in >> tmpstr;
-		// drop terminal blocks
+
+		// terminal blocks: store separately, continue w/ next block
 		if (tmpstr == "terminal") {
+			fp.terminals.push_back(new_block);
 			continue;
 		}
-		// parse blocks coordinates
-		else if (tmpstr == "hardrectilinear" || tmpstr == "softrectilinear") {
+		// hard blocks: parse dimensions
+		else if (tmpstr == "hardrectilinear") {
 			// drop "4"
 			blocks_in >> tmpstr;
 			// drop "(0,"
@@ -424,6 +428,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// drop "0)"
 			blocks_in >> tmpstr;
 		}
+		// TODO
+		// soft blocks: parse area and AR range
+		else if (tmpstr == "softrectangular") {
+		}
+		// unknown block type
 		else {
 			cout << "IO> ";
 			cout << "Unknown block type: " << tmpstr << endl;
@@ -432,6 +441,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 
 		// scale up dimensions
+		// TODO soft blocks
 		new_block.bb.w *= FloorPlanner::BLOCKS_SCALE_UP;
 		new_block.bb.h *= FloorPlanner::BLOCKS_SCALE_UP;
 
@@ -457,8 +467,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// store block
 		fp.blocks.push_back(move(new_block));
-
-		id++;
 	}
 
 	// close files
@@ -494,7 +502,6 @@ void IO::parseNets(FloorPlanner& fp) {
 	ifstream in;
 	string tmpstr;
 	int i, net_degree;
-	int net_block_id;
 	string net_block;
 	Block const* b;
 	int id;
@@ -520,44 +527,38 @@ void IO::parseNets(FloorPlanner& fp) {
 		while (tmpstr != "NetDegree" && !in.eof()) {
 			in >> tmpstr;
 		}
-		if (in.eof()) {
-			break;
-		}
+
 		// drop ":"
 		in >> tmpstr;
+		// parse net degree
+		in >> net_degree;
 
 		// read in blocks of net
-		in >> net_degree;
 		new_net.blocks.clear();
 		for (i = 0; i < net_degree; i++) {
-			in >> net_block;
-			// parse block
-			//// sb31
-			if (net_block.find("sb") != string::npos) {
 
-				// retrieve corresponding block
-				net_block_id = atoi(net_block.substr(2).c_str());
-				b = fp.findBlock(net_block_id);
+			// parse block id
+			in >> net_block;
+
+			// terminal pins: mark net and drop (i.e., don't add) related block
+			if (fp.findBlock(net_block, fp.terminals) != nullptr) {
+				// mark net as net w/ external pin
+				new_net.hasExternalPin = true;
+			}
+			// regular block pin: retrieve and memorize corresponding block
+			else {
+				b = fp.findBlock(net_block, fp.blocks);
 				if (b != nullptr) {
 					new_net.blocks.push_back(move(b));
 				}
 				else {
-					cout << "Block " << net_block_id << " cannot be retrieved; ensure that net file is correct!" << endl;
+					if (fp.logMin()) {
+						cout << "Net " << id << "'s block " << net_block;
+						cout << " cannot be retrieved; consider checking net file" << endl;
+					}
 				}
 			}
-			// parse terminal pin
-			//// p1
-			else if (net_block.find("p") != string::npos) {
-				// mark net as net w/ external pin
-				new_net.hasExternalPin = true;
-			}
-			else {
-				// ignore unknown block
-				if (fp.logMin()) {
-					cout << "IO> ";
-					cout << "Drop unknown block \"" << net_block << "\" while parsing net " << id << endl;
-				}
-			}
+
 			// drop "B"
 			in >> tmpstr;
 		}
@@ -855,6 +856,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
+	int block_id;
 	double ratio_inv;
 	int tics;
 
@@ -868,6 +870,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 
 	ratio_inv = fp.conf_outline_y / fp.conf_outline_x;
 	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
+	block_id = 1;
 
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
@@ -901,10 +904,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 				continue;
 			}
 
-			// block id + 1 since GP requires object ids to be > 0
-			gp_out << "set obj " << cur_block.id + 1;
+			// GP requires numerical ids starting w/ q
+			gp_out << "set obj " << block_id;
+			block_id++;
 
-			// blocks
+			// block rectangles
 			gp_out << " rect";
 			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
 			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
@@ -912,7 +916,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 			gp_out << endl;
 
 			// label
-			gp_out << "set label \"b" << cur_block.id << "\"";
+			gp_out << "set label \"" << cur_block.id << "\"";
 			gp_out << " at " << cur_block.bb.ll.x + 2.0 * FloorPlanner::BLOCKS_SCALE_UP;
 			gp_out << "," << cur_block.bb.ll.y + 5.0 * FloorPlanner::BLOCKS_SCALE_UP;
 			gp_out << " font \"Gill Sans,4\"" << endl;
@@ -965,7 +969,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				continue;
 			}
 
-			file << "b" << cur_block.id;
+			file << cur_block.id;
 			file << "	" << cur_block.bb.w * SCALE_UM_M;
 			file << "	" << cur_block.bb.h * SCALE_UM_M;
 			file << "	" << cur_block.bb.ll.x * SCALE_UM_M;
@@ -1094,7 +1098,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				continue;
 			}
 
-			file << "b" << cur_block.id << " ";
+			file << cur_block.id << " ";
 		}
 
 		// dummy outline block

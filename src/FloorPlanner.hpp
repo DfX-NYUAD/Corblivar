@@ -31,6 +31,7 @@ class FloorPlanner {
 	private:
 		// chip data
 		mutable vector<Block> blocks;
+		mutable vector<Block> terminals;
 		mutable vector<Net> nets;
 
 		// config parameters
@@ -166,12 +167,14 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
-		inline Block const* findBlock(int const& id) const {
-			for (Block const& b : this->blocks) {
+		inline Block const* findBlock(string const& id, vector<Block> const& container) const {
+
+			for (Block const& b : container) {
 				if (b.id == id) {
 					return &b;
 				}
 			}
+
 			return nullptr;
 		};
 
