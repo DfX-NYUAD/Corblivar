@@ -165,17 +165,6 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
-		inline Block const* findBlock(string const& id, vector<Block> const& container) const {
-
-			for (Block const& b : container) {
-				if (b.id == id) {
-					return &b;
-				}
-			}
-
-			return nullptr;
-		};
-
 		inline void setTimeStart() {
 			ftime(&(this->start));
 		};

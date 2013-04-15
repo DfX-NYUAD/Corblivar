@@ -315,7 +315,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// block id
 			fp.solution_in >> block_id;
 			// find related block
-			tuple.S = fp.findBlock(block_id, fp.blocks);
+			tuple.S = Block::findBlock(block_id, fp.blocks);
 			if (tuple.S == nullptr) {
 				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
 				exit(1);
@@ -553,13 +553,13 @@ void IO::parseNets(FloorPlanner& fp) {
 			in >> net_block;
 
 			// terminal pins: mark net and drop (i.e., don't add) related block
-			if (fp.findBlock(net_block, fp.terminals) != nullptr) {
+			if (Block::findBlock(net_block, fp.terminals) != nullptr) {
 				// mark net as net w/ external pin
 				new_net.hasExternalPin = true;
 			}
 			// regular block pin: retrieve and memorize corresponding block
 			else {
-				b = fp.findBlock(net_block, fp.blocks);
+				b = Block::findBlock(net_block, fp.blocks);
 				if (b != nullptr) {
 					new_net.blocks.push_back(move(b));
 				}

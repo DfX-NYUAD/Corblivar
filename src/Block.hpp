@@ -48,6 +48,18 @@ class Block {
 		inline double power() const {
 			return this->power_density * this->bb.area * 1.0e-6;
 		}
+
+		// search blocks
+		static inline Block const* findBlock(string const& id, vector<Block> const& container) {
+
+			for (Block const& b : container) {
+				if (b.id == id) {
+					return &b;
+				}
+			}
+
+			return nullptr;
+		};
 };
 
 #endif
