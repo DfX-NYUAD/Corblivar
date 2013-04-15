@@ -17,6 +17,7 @@
 #include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
 #include "Net.hpp"
+#include "Math.hpp"
 
 // parse program parameter and config file
 void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv, bool const& log) {
@@ -439,10 +440,28 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> tmpstr;
 			// drop "0)"
 			blocks_in >> tmpstr;
+
+			// scale up dimensions
+			new_block.bb.w *= fp.conf_blocks_scale;
+			new_block.bb.h *= fp.conf_blocks_scale;
+
+			// calculate block area
+			new_block.bb.area = new_block.bb.w * new_block.bb.h;
 		}
-		// TODO
 		// soft blocks: parse area and AR range
 		else if (tmpstr == "softrectangular") {
+			// parse area, min AR, max AR
+			blocks_in >> new_block.bb.area;
+			blocks_in >> new_block.AR.min;
+			blocks_in >> new_block.AR.max;
+
+			// scale up blocks area
+			new_block.bb.area *= pow(fp.conf_blocks_scale, 2);
+
+			// init block dimensions randomly w/in AR range; note that
+			// x^2 = AR * A
+			new_block.bb.w = sqrt(Math::randF(new_block.AR.min, new_block.AR.max) * new_block.bb.area);
+			new_block.bb.h = new_block.bb.area / new_block.bb.w;
 		}
 		// unknown block type
 		else {
@@ -451,15 +470,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			cout << "Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 			exit(1);
 		}
-
-		// scale up dimensions
-		// TODO soft blocks
-		new_block.bb.w *= fp.conf_blocks_scale;
-		new_block.bb.h *= fp.conf_blocks_scale;
-
-		// calculate block area
-		new_block.bb.area = new_block.bb.w * new_block.bb.h;
-		area += new_block.bb.area;
 
 		// determine power density
 		if (!power_in.eof()) {
@@ -474,8 +484,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
-		// memorize total block power
+		// memorize summed block power and area
 		power += new_block.power();
+		area += new_block.bb.area;
 
 		// store block
 		fp.blocks.push_back(move(new_block));

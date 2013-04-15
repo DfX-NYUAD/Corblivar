@@ -30,6 +30,7 @@ class Block {
 			id = id_i;
 			layer = -1;
 			power_density= 0.0;
+			AR.min = AR.max = 1.0;
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
@@ -43,6 +44,11 @@ class Block {
 		//double x_slack_backward, y_slack_backward;
 		//double x_slack_forward, y_slack_forward;
 		mutable Rect bb, bb_backup, bb_best;
+		// aspect ratio AR, relates to blocks' dimensions by x / y
+		struct AR {
+			double min;
+			double max;
+		} AR;
 
 		// power in [W]
 		inline double power() const {
