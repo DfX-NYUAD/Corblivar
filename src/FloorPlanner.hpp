@@ -41,7 +41,7 @@ class FloorPlanner {
 		double outline_AR;
 		double conf_blocks_scale;
 
-		// PODs
+		// POD declarations
 		struct Cost {
 			double cost;
 			bool fits_fixed_outline;
@@ -101,7 +101,7 @@ class FloorPlanner {
 		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp = false) const;
+		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two = false, bool const& revertLastOp = false) const;
 
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false) const;
@@ -119,6 +119,16 @@ class FloorPlanner {
 		// note that various parameters are return-by-reference
 		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
 		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
+
+		// SA: helper for phase two
+		//
+		// auxilary chip data, tracks major block power density parameters
+		struct power_stats {
+			double max;
+			double min;
+			double range;
+			double avg;
+		} blocks_power_density_stats;
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;

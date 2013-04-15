@@ -78,6 +78,7 @@ class CorblivarCore {
 		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
 		// TODO implement; adapt FloorPlanner::performRandomLayoutOp
 		static constexpr int OP_SWITCH_BLOCK_SHAPE = 6;
+		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 7;
 
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);

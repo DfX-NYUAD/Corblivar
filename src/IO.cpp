@@ -399,6 +399,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// reset terminals
 	fp.terminals.clear();
 
+	// reset blocks power statistics
+	fp.blocks_power_density_stats.max = fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.avg = 0.0;
+	fp.blocks_power_density_stats.min = -1;
+
 	// drop block files header
 	while (tmpstr != "NumTerminals" && !blocks_in.eof())
 		blocks_in >> tmpstr;
@@ -502,15 +506,26 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
-		// memorize summed block power and area
+		// track block power statistics
 		power += new_block.power();
+		fp.blocks_power_density_stats.max = max(fp.blocks_power_density_stats.max, new_block.power_density);
+		if (fp.blocks_power_density_stats.min == -1) {
+			fp.blocks_power_density_stats.min = new_block.power_density;
+		}
+		fp.blocks_power_density_stats.min = min(fp.blocks_power_density_stats.min, new_block.power_density);
+		fp.blocks_power_density_stats.avg += new_block.power_density;
+
+		// memorize summed blocks area and largest block, needs to fit into die
 		area += new_block.bb.area;
-		// also memorize largest block, needs to fit into die
 		max_area = max(max_area, new_block.bb.area);
 
 		// store block
 		fp.blocks.push_back(move(new_block));
 	}
+
+	// determine block power statistics
+	fp.blocks_power_density_stats.avg /= fp.blocks.size();
+	fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.max - fp.blocks_power_density_stats.min;
 
 	// close files
 	blocks_in.close();
@@ -541,7 +556,15 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in" << endl;
 		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
-		cout << "IO>  Summed blocks power [W]: " << power << "; summed blocks area [cm^2]: " << area * 1.0e-8;
+		cout << "IO>  Summed blocks power [W]: " << power;
+		if (power != 0.0) {
+			cout << "; min power: " << fp.blocks_power_density_stats.min << ", max power: " << fp.blocks_power_density_stats.max;
+			cout << ", avg power: " << fp.blocks_power_density_stats.avg << endl;
+		}
+		else {
+			cout << endl;
+		}
+		cout << "IO>  Summed blocks area [cm^2]: " << area * 1.0e-8;
 		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;
 	}

@@ -80,7 +80,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
-			op_success = this->performRandomLayoutOp(corb);
+			op_success = this->performRandomLayoutOp(corb, phase_two);
 
 			if (op_success) {
 
@@ -112,7 +112,7 @@ bool FloorPlanner::performSA(CorblivarCore const& corb) {
 						accept = false;
 
 						// revert last op
-						this->performRandomLayoutOp(corb, true);
+						this->performRandomLayoutOp(corb, phase_two, true);
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
 					}
@@ -321,7 +321,7 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 			// solution w/ worse cost, revert
 			if (cost_diff > 0.0) {
 				// revert last op
-				this->performRandomLayoutOp(corb, true);
+				this->performRandomLayoutOp(corb, false, true);
 				// reset cost according to reverted CBL
 				cur_cost = prev_cost;
 			}
@@ -471,13 +471,13 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 	}
 }
 
-bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& revertLastOp) const {
+bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two, bool const& revertLastOp) const {
 	int op;
 	int die1, die2, tuple1, tuple2, t;
 	bool ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << revertLastOp << ")" << endl;
+		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << phase_two << ", " << revertLastOp << ")" << endl;
 	}
 
 	// revert last op
@@ -489,7 +489,21 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 		// see OP_ constants (encoding ``op-codes'') in class CorblivarCore
 		// to set op-code ranges
 		// recall that randI(x,y) is [x,y)
-		this->last_op = op = Math::randI(1, 6);
+		//
+		// for SA phase two, we consider an extended set of operations
+		if (phase_two) {
+			// includes thermal-optimization operations
+			if (this->power_density_file_avail) {
+				this->last_op = op = Math::randI(1, 8);
+			}
+			else {
+				this->last_op = op = Math::randI(1, 7);
+			}
+		}
+		// SA phase one, reduced set of operations
+		else {
+			this->last_op = op = Math::randI(1, 6);
+		}
 	}
 
 	die1 = die2 = tuple1 = tuple2 = -1;
@@ -523,6 +537,82 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 					while (tuple1 == tuple2) {
 						tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
 					}
+				}
+
+				corb.swapBlocks(die1, die2, tuple1, tuple2);
+			}
+			else {
+				corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+			}
+
+			break;
+
+		case CorblivarCore::OP_SWAP_HOT_COLD_BLOCKS: // op-code: 7
+								// relates to SA phase two;
+								// swap a hot block from the lower dies w/ a cold block on the upper dies
+
+			if (!revertLastOp) {
+				int middle_die;
+				unsigned tries;
+
+				// determine middle die by int division, i.e, results in
+				// lower die for uneven layer count, thus range for
+				// lower-die assignment is biased towards lower stack
+				middle_die = this->conf_layer / 2;
+				// random lower die
+				die1 = Math::randI(0, middle_die);
+				// random upper die
+				die2 = Math::randI(middle_die, corb.diesSize());
+
+				// sanity check for empty dies
+				if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
+					ret = false;
+					break;
+				}
+
+				// distinct dies, i.e., swapping w/in dies and thus
+				// checking for different tuples is not necessary
+
+				// determine random tuple on lower die
+				tries = 0;
+				while (tries < corb.getDie(die1).getCBL().size()) {
+
+					tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+
+					// check whether tuple has large power density
+					if (corb.getDie(die1).getTuple(tuple1).S->power_density > this->blocks_power_density_stats.avg) {
+						break;
+					}
+					// try next tuple
+					else {
+						tries++;
+					}
+				}
+				// no large power block on lower die
+				if (tries == corb.getDie(die1).getCBL().size() - 1) {
+					ret = false;
+					break;
+				}
+
+				// determine random tuple on upper die
+				tries = 0;
+				while (tries < corb.getDie(die2).getCBL().size()) {
+
+					tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+
+					// check whether tuple has low power density
+					if (corb.getDie(die2).getTuple(tuple2).S->power_density < this->blocks_power_density_stats.avg) {
+						break;
+					}
+					// try next tuple
+					else {
+						tries++;
+					}
+				}
+				// no low power block on upper die
+				if (tries == corb.getDie(die2).getCBL().size() - 1) {
+					ret = false;
+					break;
 				}
 
 				corb.swapBlocks(die1, die2, tuple1, tuple2);
