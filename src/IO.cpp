@@ -357,6 +357,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	string tmpstr;
 	double power = 0.0;
 	double area = 0.0;
+	double max_area = 0.0;
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	string id;
@@ -492,6 +493,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// memorize summed block power and area
 		power += new_block.power();
 		area += new_block.bb.area;
+		// also memorize largest block, needs to fit into die
+		max_area = max(max_area, new_block.bb.area);
 
 		// store block
 		fp.blocks.push_back(move(new_block));
@@ -504,8 +507,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// sanity check of fixed outline
 	blocks_outline_ratio = area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y);
 	if (blocks_outline_ratio > 1.0) {
-		cout << "IO> Outline too small; consider fixing the config file" << endl;
-		cout << "IO>  Blocks/dies area ratio: " << blocks_outline_ratio << endl;
+		cout << "IO> Chip too small; consider increasing the die outline or layers count" << endl;
+		cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << endl;
+		exit(1);
+	}
+	// sanity check for largest block
+	if (max_area > (fp.conf_outline_x * fp.conf_outline_y)) {
+		cout << "IO> Die outline too small; consider increasing it" << endl;
+		cout << "IO>  Largest-block/die area ratio: " << max_area / (fp.conf_outline_x * fp.conf_outline_y) << endl;
 		exit(1);
 	}
 
