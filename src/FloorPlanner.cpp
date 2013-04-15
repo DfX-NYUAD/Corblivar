@@ -265,7 +265,6 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {
 	int i;
 	int accepted_ops;
-	double accepted_ops_ratio_offset;
 	bool op_success;
 	double cur_cost, prev_cost, cost_diff;
 	Cost cost;
@@ -350,11 +349,13 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 	// on fixed sampling size for initial sampling
 	innerLoopMax *= this->conf_SA_loopFactor;
 
-	// determine ratio of accepted ops
-	accepted_ops_ratio_offset = static_cast<double>(accepted_ops) / i;
-	if (this->logMax()) {
-		cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
-	}
+	// (TODO) not required, drop
+	//double accepted_ops_ratio_offset;
+	//// determine ratio of accepted ops
+	//accepted_ops_ratio_offset = static_cast<double>(accepted_ops) / i;
+	//if (this->logMax()) {
+	//	cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
+	//}
 
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
