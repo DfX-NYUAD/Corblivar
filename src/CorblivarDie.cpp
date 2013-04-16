@@ -26,7 +26,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		return nullptr;
 	}
 
-	// current tuple; local const aliases; r/o access execpt mutable members of Block
+	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getBlock(this->pi);
 	Direction const cur_dir = this->getDirection(this->pi);
 	unsigned const cur_juncts = this->getJunctions(this->pi);

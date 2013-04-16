@@ -14,7 +14,7 @@
 // required Corblivar headers
 #include "Math.hpp"
 
-void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) const {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) {
 	Direction cur_dir;
 	int rand, cur_t;
 
@@ -62,7 +62,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
-void CorblivarCore::generateLayout(bool const& dbgStack) const {
+void CorblivarCore::generateLayout(bool const& dbgStack) {
 	Block const* cur_block;
 	bool loop;
 
@@ -71,7 +71,7 @@ void CorblivarCore::generateLayout(bool const& dbgStack) const {
 		cout << "Performing layout generation..." << endl;
 	}
 
-	// init (mutable) die pointer
+	// init die pointer
 	this->p = &this->dies[0];
 
 	// reset die data, i.e., layout generation handler data

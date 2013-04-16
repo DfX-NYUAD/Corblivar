@@ -21,7 +21,7 @@
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns max value of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) const {
+double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -159,7 +159,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) const {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
 	Rect bin, intersect, block_offset;

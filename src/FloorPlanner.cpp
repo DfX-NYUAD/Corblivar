@@ -19,7 +19,7 @@
 #include "IO.hpp"
 
 // main handler
-bool FloorPlanner::performSA(CorblivarCore const& corb) {
+bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
 	int accepted_ops;
@@ -261,7 +261,7 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	}
 }
 
-void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {
+void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {
 	int i;
 	int accepted_ops;
 	bool op_success;
@@ -370,7 +370,7 @@ void FloorPlanner::initSA(CorblivarCore const& corb, vector<double>& cost_sample
 	corb.restoreCBLs();
 }
 
-void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overall_cost) {
+void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -471,7 +471,7 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 	}
 }
 
-bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two, bool const& revertLastOp) const {
+bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_two, bool const& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, juncts;
 	bool ret;
@@ -561,7 +561,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 }
 
 
-bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const {
+bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		// sanity check for empty dies
@@ -580,7 +580,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore const& 
 	return true;
 }
 
-bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1, int& juncts) const {
+bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const {
 	int new_juncts;
 
 	if (!revert) {
@@ -616,7 +616,7 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 	return true;
 }
 
-bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const {
+bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		// sanity check for empty dies
@@ -635,7 +635,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 	return true;
 }
 
-bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -670,7 +670,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore const& c
 	return true;
 }
 
-bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -704,7 +704,7 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore const& 
 	return true;
 }
 
-bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	int middle_die;
 	unsigned tries;
 
@@ -778,7 +778,7 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore 
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& phase_two, bool const& set_max_cost) const {
+FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& phase_two, bool const& set_max_cost) {
 	double cost_total, cost_temp, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
@@ -877,7 +877,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 
 		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
-		for (Block& block : this->blocks) {
+		for (Block const& block : this->blocks) {
 
 			if (block.layer == i) {
 				// update max outline coords
@@ -936,7 +936,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 // (TODO) implement other variants to compare w/ other floorplanners; consider static bool
 // in Corblivar.hpp for selecting appropriate version during compile time / config
 // parameter during runtime
-FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) const {
+FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) {
 	int i, ii;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;

@@ -28,13 +28,13 @@ class CorblivarCore {
 	private:
 		// main data; encapsulated in CorblivarDie; Corblivar can thus be
 		// considered as 2.5D layout representation
-		mutable vector<CorblivarDie> dies;
+		vector<CorblivarDie> dies;
 
 		// current-die pointer
-		mutable CorblivarDie* p;
+		CorblivarDie* p;
 
 		// sequence A; alignment requirements
-		mutable vector<CorblivarAlignmentReq> A;
+		vector<CorblivarAlignmentReq> A;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -56,11 +56,11 @@ class CorblivarCore {
 	// public data, functions
 	public:
 		// general operations
-		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) const;
-		void generateLayout(bool const& dbgStack = false) const;
+		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks);
+		void generateLayout(bool const& dbgStack = false);
 
 		// die getter
-		inline CorblivarDie& editDie(unsigned const& die) const {
+		inline CorblivarDie& editDie(unsigned const& die) {
 			return this->dies[die];
 		};
 		inline CorblivarDie const& getDie(unsigned const& die) const {
@@ -70,7 +70,7 @@ class CorblivarCore {
 			return this->dies.size();
 		};
 
-		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
+		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
 			if (DBG) {
@@ -79,7 +79,7 @@ class CorblivarCore {
 				cout << ", s2=" << this->dies[die2].CBL.S[tuple2]->id << endl;
 			}
 		};
-		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
+		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 
 			// move within same die: perform swaps
 			if (die1 == die2) {
@@ -103,7 +103,7 @@ class CorblivarCore {
 				cout << "DBG_CORE> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
-		inline void switchInsertionDirection(int const& die, int const& tuple) const {
+		inline void switchInsertionDirection(int const& die, int const& tuple) {
 			if (this->dies[die].CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die].CBL.L[tuple] = Direction::HORIZONTAL;
 			}
@@ -115,14 +115,14 @@ class CorblivarCore {
 				cout << "DBG_CORE> switchInsertionDirection; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};
-		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) const {
+		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) {
 			this->dies[die].CBL.T[tuple] = juncts;
 
 			if (DBG) {
 				cout << "DBG_CORE> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
-		inline void rotateBlock(int const& die, int const& tuple) const {
+		inline void rotateBlock(int const& die, int const& tuple) {
 
 			swap(this->dies[die].CBL.S[tuple]->bb.w, this->dies[die].CBL.S[tuple]->bb.h);
 
@@ -147,7 +147,7 @@ class CorblivarCore {
 		};
 
 		// CBL backup handler
-		inline void backupCBLs() const {
+		inline void backupCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
 
@@ -167,7 +167,7 @@ class CorblivarCore {
 				}
 			}
 		};
-		inline void restoreCBLs() const {
+		inline void restoreCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
 
@@ -189,7 +189,7 @@ class CorblivarCore {
 		};
 
 		// CBL best-solution handler
-		inline void storeBestCBLs() const {
+		inline void storeBestCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
 
@@ -210,7 +210,7 @@ class CorblivarCore {
 		};
 		// returns false only if all dies from CBLbest are empty, i.e., no best
 		// solution at all is available
-		inline bool applyBestCBLs(bool const& log) const {
+		inline bool applyBestCBLs(bool const& log) {
 			unsigned empty_dies = 0;
 			bool ret;
 

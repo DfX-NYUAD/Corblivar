@@ -30,9 +30,9 @@ class FloorPlanner {
 	// private data, functions
 	private:
 		// chip data
-		mutable vector<Block> blocks;
-		mutable vector<Block> terminals;
-		mutable vector<Net> nets;
+		vector<Block> blocks;
+		vector<Block> terminals;
+		vector<Net> nets;
 
 		// config parameters
 		int conf_layer;
@@ -95,7 +95,7 @@ class FloorPlanner {
 		static constexpr double SA_INIT_TEMP_FACTOR = 20;
 
 		// SA: temperature-schedule log data
-		mutable vector<TempStep> tempSchedule;
+		vector<TempStep> tempSchedule;
 
 		// SA: layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;
@@ -107,17 +107,18 @@ class FloorPlanner {
 		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 6;
 
 		// SA: layout-operation handler variables
-		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
+		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two = false, bool const& revertLastOp = false) const;
-		// note that die and tuple parameters are return-by-reference
-		bool inline performOpSwapBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpMoveTuple(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const;
-		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1, int& juncts) const;
-		bool inline performOpShapeBlock(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const;
+		bool performRandomLayoutOp(CorblivarCore& corb, bool const& phase_two = false, bool const& revertLastOp = false);
+		// note that die and tuple parameters are return-by-reference; non-const
+		// reference for CorblivarCore in order to enable operations on CBL-encode data
+		bool inline performOpSwapBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpMoveTuple(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
+		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
+		bool inline performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 
 		// SA: helper for guided layout operations
 		//
@@ -130,20 +131,20 @@ class FloorPlanner {
 		} blocks_power_density_stats;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false) const;
-		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) const {
+		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false);
+		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
 		};
 		Cost determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
-		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true) const;
+		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
 
 		// SA parameters: max cost values
-		mutable double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference
-		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
+		void initSA(CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
 		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
 
 		// thermal analyzer
@@ -203,8 +204,8 @@ class FloorPlanner {
 		};
 
 		// SA: handler
-		bool performSA(CorblivarCore const& corb);
-		void finalize(CorblivarCore const& corb, bool const& determ_overall_cost = true);
+		bool performSA(CorblivarCore& corb);
+		void finalize(CorblivarCore& corb, bool const& determ_overall_cost = true);
 };
 
 #endif

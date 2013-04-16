@@ -74,7 +74,6 @@ class CorblivarDie {
 		inline CornerBlockList const& getCBL() const {
 			return this->CBL;
 		};
-
 		inline CornerBlockList& editCBL() {
 			return this->CBL;
 		};

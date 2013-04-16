@@ -72,9 +72,9 @@ class ThermalAnalyzer {
 		// Note that the masks are only 1D for the separated convolution
 		vector< array<double,mask_dim> > thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		mutable vector< array<array<double,power_maps_dim>,power_maps_dim> > power_maps;
+		vector< array<array<double,power_maps_dim>,power_maps_dim> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
-		mutable array<array<double,thermal_map_dim>,thermal_map_dim> thermal_map;
+		array<array<double,thermal_map_dim>,thermal_map_dim> thermal_map;
 
 		// thermal modeling: parameters for generating power maps
 		double power_maps_dim_x, power_maps_dim_y;
@@ -100,12 +100,12 @@ class ThermalAnalyzer {
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, double const& outline_x, double const& outline_y);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone = true) const;
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// returns max value of convoluted 2D matrix;
 		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true) const;
+		double performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true);
 };
 
 #endif
