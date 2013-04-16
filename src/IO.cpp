@@ -891,11 +891,14 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "set ylabel \"SA Temperature\"" << endl;
 	// specific settings: log scale
 	gp_out << "set log y" << endl;
+	// second, indepentend log scale for cost values
+	gp_out << "set log y2" << endl;
 	gp_out << "set mytics 10" << endl;
 
 	// gp data plot command
-	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 notitle with linespoints linestyle 1, \\" << endl;
-	gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 notitle with points linestyle 2" << endl;
+	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"Temperature Schedule\" with linespoints linestyle 1, \\" << endl;
+	gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best Solution\" with points linestyle 2, \\" << endl;
+	gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"Avg Solution Cost, Not To Scale\" with linespoints linestyle 4 axes x1y2" << endl;
 
 	// close file stream
 	gp_out.close();
@@ -905,15 +908,27 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 		data_out << step.step << " " << step.temp << endl;
 	}
+
 	// two blank lines trigger gnuplot to interpret data file as separate data sets
 	data_out << endl;
 	data_out << endl;
+
 	// output data: markers for best-solution steps
 	data_out << "# Step Temperature (only steps w/ new best solutions, index 1)" << endl;
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 		if (step.new_best_sol_found) {
 			data_out << step.step << " " << step.temp << endl;
 		}
+	}
+
+	// two blank lines trigger gnuplot to interpret data file as separate data sets
+	data_out << endl;
+	data_out << endl;
+
+	// output data: SA step and avg cost
+	data_out << "# Step Avg_Cost (index 2)" << endl;
+	for (FloorPlanner::TempStep step : fp.tempSchedule) {
+		data_out << step.step << " " << step.avg_cost << endl;
 	}
 
 	// close file stream

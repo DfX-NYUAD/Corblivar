@@ -204,6 +204,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		TempStep cur_step;
 		cur_step.step = i;
 		cur_step.temp = cur_temp;
+		cur_step.avg_cost = avg_cost;
 		cur_step.new_best_sol_found = best_sol_found;
 		this->tempSchedule.push_back(move(cur_step));
 

@@ -64,6 +64,7 @@ class FloorPlanner {
 		struct TempStep {
 			int step;
 			double temp;
+			double avg_cost;
 			bool new_best_sol_found;
 		};
 
