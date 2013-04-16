@@ -70,16 +70,6 @@ class CorblivarCore {
 			return this->dies.size();
 		};
 
-		// layout operations for heuristic optimization
-		static constexpr int OP_SWAP_BLOCKS = 1;
-		static constexpr int OP_MOVE_TUPLE = 2;
-		static constexpr int OP_SWITCH_TUPLE_DIR = 3;
-		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
-		static constexpr int OP_SWITCH_BLOCK_ORIENT = 5;
-		// TODO implement; adapt FloorPlanner::performRandomLayoutOp
-		static constexpr int OP_SWITCH_BLOCK_SHAPE = 6;
-		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 7;
-
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) const {
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
@@ -113,7 +103,7 @@ class CorblivarCore {
 				cout << "DBG_CORE> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
 			}
 		};
-		inline void switchTupleDirection(int const& die, int const& tuple) const {
+		inline void switchInsertionDirection(int const& die, int const& tuple) const {
 			if (this->dies[die].CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die].CBL.L[tuple] = Direction::HORIZONTAL;
 			}
@@ -122,7 +112,7 @@ class CorblivarCore {
 			}
 
 			if (DBG) {
-				cout << "DBG_CORE> switchTupleDirection; d1=" << die << ", t1=" << tuple << endl;
+				cout << "DBG_CORE> switchInsertionDirection; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) const {
@@ -132,12 +122,12 @@ class CorblivarCore {
 				cout << "DBG_CORE> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
-		inline void switchBlockOrientation(int const& die, int const& tuple) const {
+		inline void rotateBlock(int const& die, int const& tuple) const {
 
 			swap(this->dies[die].CBL.S[tuple]->bb.w, this->dies[die].CBL.S[tuple]->bb.h);
 
 			if (DBG) {
-				cout << "DBG_CORE> switchBlockOrientation; d1=" << die << ", t1=" << tuple << endl;
+				cout << "DBG_CORE> rotateBlock; d1=" << die << ", t1=" << tuple << endl;
 			}
 		};
 

@@ -97,11 +97,30 @@ class FloorPlanner {
 		// SA: temperature-schedule log data
 		mutable vector<TempStep> tempSchedule;
 
+		// SA: layout operations op-codes
+		static constexpr int OP_SWAP_BLOCKS = 1;
+		static constexpr int OP_MOVE_TUPLE = 2;
+		static constexpr int OP_SWITCH_INSERTION_DIR = 3;
+		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
+		static constexpr int OP_ROTATE_BLOCK__SHAPE_BLOCK = 5;
+		// used only in phase two
+		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 6;
+
 		// SA: layout-operation handler variables
 		mutable int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
 		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two = false, bool const& revertLastOp = false) const;
+
+		// SA: helper for guided layout operations
+		//
+		// auxilary chip data, tracks major block power density parameters
+		struct power_stats {
+			double max;
+			double min;
+			double range;
+			double avg;
+		} blocks_power_density_stats;
 
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false) const;
@@ -119,16 +138,6 @@ class FloorPlanner {
 		// note that various parameters are return-by-reference
 		void initSA(CorblivarCore const& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
 		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
-
-		// SA: helper for phase two
-		//
-		// auxilary chip data, tracks major block power density parameters
-		struct power_stats {
-			double max;
-			double min;
-			double range;
-			double avg;
-		} blocks_power_density_stats;
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;

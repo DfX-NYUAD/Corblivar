@@ -486,19 +486,13 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 	}
 	// perform new, random op
 	else {
-		// see OP_ constants (encoding ``op-codes'') in class CorblivarCore
-		// to set op-code ranges
+		// see defined op-codes in class FloorPlanner to set random-number ranges;
 		// recall that randI(x,y) is [x,y)
 		//
-		// for SA phase two, we consider an extended set of operations
-		if (phase_two) {
-			// includes thermal-optimization operations
-			if (this->power_density_file_avail) {
-				this->last_op = op = Math::randI(1, 8);
-			}
-			else {
-				this->last_op = op = Math::randI(1, 7);
-			}
+		// for SA phase two, we consider an extended set of operations related to
+		// thermal optimiziation
+		if (phase_two && this->power_density_file_avail) {
+			this->last_op = op = Math::randI(1, 7);
 		}
 		// SA phase one, reduced set of operations
 		else {
@@ -512,7 +506,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 	// specific op handler
 	switch (op) {
 
-		case CorblivarCore::OP_SWAP_BLOCKS: // op-code: 1
+		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
 				die2 = Math::randI(0, corb.diesSize());
@@ -547,7 +541,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWAP_HOT_COLD_BLOCKS: // op-code: 7
+		case FloorPlanner::OP_SWAP_HOT_COLD_BLOCKS: // op-code: 6
 								// relates to SA phase two;
 								// swap a hot block from the lower dies w/ a cold block on the upper dies
 
@@ -623,7 +617,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_MOVE_TUPLE: // op-code: 2
+		case FloorPlanner::OP_MOVE_TUPLE: // op-code: 2
 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
@@ -660,7 +654,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_TUPLE_DIR: // op-code: 3
+		case FloorPlanner::OP_SWITCH_INSERTION_DIR: // op-code: 3
 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
@@ -672,15 +666,15 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
-				corb.switchTupleDirection(die1, tuple1);
+				corb.switchInsertionDirection(die1, tuple1);
 			}
 			else {
-				corb.switchTupleDirection(this->last_op_die1, this->last_op_tuple1);
+				corb.switchInsertionDirection(this->last_op_die1, this->last_op_tuple1);
 			}
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_TUPLE_JUNCTS: // op-code: 4
+		case FloorPlanner::OP_SWITCH_TUPLE_JUNCTS: // op-code: 4
 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
@@ -715,7 +709,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 			break;
 
-		case CorblivarCore::OP_SWITCH_BLOCK_ORIENT: // op-code: 5
+		case FloorPlanner::OP_ROTATE_BLOCK__SHAPE_BLOCK: // op-code: 5
 
 			if (!revertLastOp) {
 				die1 = Math::randI(0, corb.diesSize());
@@ -727,10 +721,10 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 
 				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
-				corb.switchBlockOrientation(die1, tuple1);
+				corb.rotateBlock(die1, tuple1);
 			}
 			else {
-				corb.switchBlockOrientation(this->last_op_die1, this->last_op_tuple1);
+				corb.rotateBlock(this->last_op_die1, this->last_op_tuple1);
 			}
 
 			break;
