@@ -473,7 +473,7 @@ void FloorPlanner::finalize(CorblivarCore const& corb, bool const& determ_overal
 
 bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two, bool const& revertLastOp) const {
 	int op;
-	int die1, die2, tuple1, tuple2, t;
+	int die1, die2, tuple1, tuple2, juncts;
 	bool ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -500,232 +500,46 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 		}
 	}
 
-	die1 = die2 = tuple1 = tuple2 = -1;
-	ret = true;
+	die1 = die2 = tuple1 = tuple2 = juncts = -1;
 
 	// specific op handler
 	switch (op) {
 
 		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				die2 = Math::randI(0, corb.diesSize());
-				// sanity check for empty dies
-				if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
-					ret = false;
-					break;
-				}
 
-				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-				tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
-
-				// in case of swaps w/in same die, ensure that tuples are different
-				if (die1 == die2) {
-					// this is, however, only possible if at least two
-					// tuples are given in that die
-					if (corb.getDie(die1).getCBL().size() < 2) {
-						ret = false;
-						break;
-					}
-					// determine two different tuples
-					while (tuple1 == tuple2) {
-						tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
-					}
-				}
-
-				corb.swapBlocks(die1, die2, tuple1, tuple2);
-			}
-			else {
-				corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-			}
+			ret = this->performOpSwapBlocks(revertLastOp, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
 		case FloorPlanner::OP_SWAP_HOT_COLD_BLOCKS: // op-code: 6
-								// relates to SA phase two;
-								// swap a hot block from the lower dies w/ a cold block on the upper dies
 
-			if (!revertLastOp) {
-				int middle_die;
-				unsigned tries;
-
-				// determine middle die by int division, i.e, results in
-				// lower die for uneven layer count, thus range for
-				// lower-die assignment is biased towards lower stack
-				middle_die = this->conf_layer / 2;
-				// random lower die
-				die1 = Math::randI(0, middle_die);
-				// random upper die
-				die2 = Math::randI(middle_die, corb.diesSize());
-
-				// sanity check for empty dies
-				if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
-					ret = false;
-					break;
-				}
-
-				// distinct dies, i.e., swapping w/in dies and thus
-				// checking for different tuples is not necessary
-
-				// determine random tuple on lower die
-				tries = 0;
-				while (tries < corb.getDie(die1).getCBL().size()) {
-
-					tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-
-					// check whether tuple has large power density
-					if (corb.getDie(die1).getBlock(tuple1)->power_density > this->blocks_power_density_stats.avg) {
-						break;
-					}
-					// try next tuple
-					else {
-						tries++;
-					}
-				}
-				// no large power block on lower die
-				if (tries == corb.getDie(die1).getCBL().size() - 1) {
-					ret = false;
-					break;
-				}
-
-				// determine random tuple on upper die
-				tries = 0;
-				while (tries < corb.getDie(die2).getCBL().size()) {
-
-					tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
-
-					// check whether tuple has low power density
-					if (corb.getDie(die2).getBlock(tuple2)->power_density < this->blocks_power_density_stats.avg) {
-						break;
-					}
-					// try next tuple
-					else {
-						tries++;
-					}
-				}
-				// no low power block on upper die
-				if (tries == corb.getDie(die2).getCBL().size() - 1) {
-					ret = false;
-					break;
-				}
-
-				corb.swapBlocks(die1, die2, tuple1, tuple2);
-			}
-			else {
-				corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-			}
+			// relates to SA phase two; swap a hot block from the lower dies
+			// w/ a cold block on the upper dies
+			ret = this->performOpSwapHotColdBlocks(revertLastOp, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
 		case FloorPlanner::OP_MOVE_TUPLE: // op-code: 2
 
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				die2 = Math::randI(0, corb.diesSize());
-				// sanity check for empty (origin) die
-				if (corb.getDie(die1).getCBL().empty()) {
-					ret = false;
-					break;
-				}
-
-				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-				tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
-
-				// in case of moving w/in same die, ensure that tuples are
-				// different
-				if (die1 == die2) {
-					// this is, however, only possible if at least two
-					// tuples are given in that die
-					if (corb.getDie(die1).getCBL().size() < 2) {
-						ret = false;
-						break;
-					}
-					// determine two different tuples
-					while (tuple1 == tuple2) {
-						tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
-					}
-				}
-
-				corb.moveTuples(die1, die2, tuple1, tuple2);
-			}
-			else {
-				corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-			}
+			ret = this->performOpMoveTuple(revertLastOp, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
 		case FloorPlanner::OP_SWITCH_INSERTION_DIR: // op-code: 3
 
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				// sanity check for empty dies
-				if (corb.getDie(die1).getCBL().empty()) {
-					ret = false;
-					break;
-				}
-
-				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-
-				corb.switchInsertionDirection(die1, tuple1);
-			}
-			else {
-				corb.switchInsertionDirection(this->last_op_die1, this->last_op_tuple1);
-			}
+			ret = this->performOpSwitchInsertionDirection(revertLastOp, corb, die1, tuple1);
 
 			break;
 
 		case FloorPlanner::OP_SWITCH_TUPLE_JUNCTS: // op-code: 4
 
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				// sanity check for empty dies
-				if (corb.getDie(die1).getCBL().empty()) {
-					ret = false;
-					break;
-				}
-
-				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-				t = corb.getDie(die1).getJunctions(tuple1);
-
-				this->last_op_juncts = t;
-
-				if (t == 0) {
-					t++;
-				}
-				else {
-					if (Math::randB()) {
-						t++;
-					}
-					else {
-						t = max(0, t - 1);
-					}
-				}
-
-				corb.switchTupleJunctions(die1, tuple1, t);
-			}
-			else {
-				corb.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
-			}
+			ret = this->performOpSwitchTupleJunctions(revertLastOp, corb, die1, tuple1, juncts);
 
 			break;
 
 		case FloorPlanner::OP_ROTATE_BLOCK__SHAPE_BLOCK: // op-code: 5
 
-			if (!revertLastOp) {
-				die1 = Math::randI(0, corb.diesSize());
-				// sanity check for empty dies
-				if (corb.getDie(die1).getCBL().empty()) {
-					ret = false;
-					break;
-				}
-
-				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-
-				corb.rotateBlock(die1, tuple1);
-			}
-			else {
-				corb.rotateBlock(this->last_op_die1, this->last_op_tuple1);
-			}
+			ret = this->performOpShapeBlock(revertLastOp, corb, die1, tuple1);
 
 			break;
 	}
@@ -736,6 +550,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 		this->last_op_die2 = die2;
 		this->last_op_tuple1 = tuple1;
 		this->last_op_tuple2 = tuple2;
+		this->last_op_juncts = juncts;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -743,6 +558,221 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 	}
 
 	return ret;
+}
+
+
+bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const {
+	if (!revert) {
+		die1 = Math::randI(0, corb.diesSize());
+		// sanity check for empty dies
+		if (corb.getDie(die1).getCBL().empty()) {
+			return false;
+		}
+
+		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+
+		corb.rotateBlock(die1, tuple1);
+	}
+	else {
+		corb.rotateBlock(this->last_op_die1, this->last_op_tuple1);
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1, int& juncts) const {
+	int new_juncts;
+
+	if (!revert) {
+		die1 = Math::randI(0, corb.diesSize());
+		// sanity check for empty dies
+		if (corb.getDie(die1).getCBL().empty()) {
+			return false;
+		}
+
+		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		// juncts is return-by-reference, new_juncts for updating junctions
+		new_juncts = juncts = corb.getDie(die1).getJunctions(tuple1);
+
+		// junctions must be geq 0
+		if (new_juncts == 0) {
+			new_juncts++;
+		}
+		else {
+			if (Math::randB()) {
+				new_juncts++;
+			}
+			else {
+				new_juncts--;
+			}
+		}
+
+		corb.switchTupleJunctions(die1, tuple1, new_juncts);
+	}
+	else {
+		corb.switchTupleJunctions(this->last_op_die1, this->last_op_tuple1, this->last_op_juncts);
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const {
+	if (!revert) {
+		die1 = Math::randI(0, corb.diesSize());
+		// sanity check for empty dies
+		if (corb.getDie(die1).getCBL().empty()) {
+			return false;
+		}
+
+		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+
+		corb.switchInsertionDirection(die1, tuple1);
+	}
+	else {
+		corb.switchInsertionDirection(this->last_op_die1, this->last_op_tuple1);
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+	if (!revert) {
+		die1 = Math::randI(0, corb.diesSize());
+		die2 = Math::randI(0, corb.diesSize());
+		// sanity check for empty (origin) die
+		if (corb.getDie(die1).getCBL().empty()) {
+			return false;
+		}
+
+		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+
+		// in case of moving w/in same die, ensure that tuples are
+		// different
+		if (die1 == die2) {
+			// this is, however, only possible if at least two
+			// tuples are given in that die
+			if (corb.getDie(die1).getCBL().size() < 2) {
+				return false;
+			}
+			// determine two different tuples
+			while (tuple1 == tuple2) {
+				tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
+			}
+		}
+
+		corb.moveTuples(die1, die2, tuple1, tuple2);
+	}
+	else {
+		corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+	if (!revert) {
+		die1 = Math::randI(0, corb.diesSize());
+		die2 = Math::randI(0, corb.diesSize());
+		// sanity check for empty dies
+		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
+			return false;
+		}
+
+		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+
+		// in case of swaps w/in same die, ensure that tuples are different
+		if (die1 == die2) {
+			// this is, however, only possible if at least two
+			// tuples are given in that die
+			if (corb.getDie(die1).getCBL().size() < 2) {
+				return false;
+			}
+			// determine two different tuples
+			while (tuple1 == tuple2) {
+				tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
+			}
+		}
+
+		corb.swapBlocks(die1, die2, tuple1, tuple2);
+	}
+	else {
+		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+	int middle_die;
+	unsigned tries;
+
+	if (!revert) {
+		// determine middle die by int division, i.e, results in
+		// lower die for uneven layer count, thus range for
+		// lower-die assignment is biased towards lower stack
+		middle_die = this->conf_layer / 2;
+		// random lower die
+		die1 = Math::randI(0, middle_die);
+		// random upper die
+		die2 = Math::randI(middle_die, corb.diesSize());
+
+		// sanity check for empty dies
+		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
+			return false;
+		}
+
+		// distinct dies, i.e., swapping w/in dies and thus
+		// checking for different tuples is not necessary
+
+		// determine random tuple on lower die
+		tries = 0;
+		while (tries < corb.getDie(die1).getCBL().size()) {
+
+			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+
+			// check whether tuple has large power density
+			if (corb.getDie(die1).getBlock(tuple1)->power_density > this->blocks_power_density_stats.avg) {
+				break;
+			}
+			// try next tuple
+			else {
+				tries++;
+			}
+		}
+		// no large power block on lower die
+		if (tries == corb.getDie(die1).getCBL().size() - 1) {
+			return false;
+		}
+
+		// determine random tuple on upper die
+		tries = 0;
+		while (tries < corb.getDie(die2).getCBL().size()) {
+
+			tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+
+			// check whether tuple has low power density
+			if (corb.getDie(die2).getBlock(tuple2)->power_density < this->blocks_power_density_stats.avg) {
+				break;
+			}
+			// try next tuple
+			else {
+				tries++;
+			}
+		}
+		// no low power block on upper die
+		if (tries == corb.getDie(die2).getCBL().size() - 1) {
+			return false;
+		}
+
+		corb.swapBlocks(die1, die2, tuple1, tuple2);
+	}
+	else {
+		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+	}
+
+	return true;
 }
 
 // adaptive cost model w/ two phases;

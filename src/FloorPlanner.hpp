@@ -111,6 +111,13 @@ class FloorPlanner {
 
 		// SA: layout-operation handler
 		bool performRandomLayoutOp(CorblivarCore const& corb, bool const& phase_two = false, bool const& revertLastOp = false) const;
+		// note that die and tuple parameters are return-by-reference
+		bool inline performOpSwapBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpMoveTuple(bool const& revert, CorblivarCore const& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const;
+		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1, int& juncts) const;
+		bool inline performOpShapeBlock(bool const& revert, CorblivarCore const& corb, int& die1, int& tuple1) const;
 
 		// SA: helper for guided layout operations
 		//
