@@ -837,6 +837,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	ofstream gp_out;
 	ofstream data_out;
 	bool valid_solutions = false;
+	bool first_valid_sol = false;
 
 	// sanity check
 	if (fp.tempSchedule.empty()) {
@@ -863,18 +864,9 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out << "# Step Temperature (index 0)" << endl;
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 		data_out << step.step << " " << step.temp << endl;
-	}
-
-	// two blank lines trigger gnuplot to interpret data file as separate data sets
-	data_out << endl;
-	data_out << endl;
-
-	// output data: markers for best-solution steps
-	data_out << "# Step Temperature (only steps w/ new best solutions, index 1)" << endl;
-	for (FloorPlanner::TempStep step : fp.tempSchedule) {
+		// memorize if valid solutions are given at all
 		if (step.new_best_sol_found) {
 			valid_solutions = true;
-			data_out << step.step << " " << step.temp << endl;
 		}
 	}
 
@@ -882,16 +874,59 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out << endl;
 	data_out << endl;
 
-	// output data: SA step and avg cost; if no valid solutions are available, this
-	// data is represented by index 1
+	// output data: markers for best-solution steps
+	if (valid_solutions) {
+		data_out << "# Step Temperature (only steps w/ new best solutions, index 1)" << endl;
+		for (FloorPlanner::TempStep step : fp.tempSchedule) {
+			if (step.new_best_sol_found) {
+				data_out << step.step << " " << step.temp << endl;
+			}
+		}
+	}
+
+	// two blank lines trigger gnuplot to interpret data file as separate data sets
+	data_out << endl;
+	data_out << endl;
+
+	// output data: SA step and avg costs phase 1; if no valid solutions are
+	// available, this data is represented by index 1
 	if (!valid_solutions) {
-		data_out << "# Step Avg_Cost (index 1)" << endl;
+		data_out << "# Step Avg_Cost_Phase_1 (index 1)" << endl;
 	}
 	else {
-		data_out << "# Step Avg_Cost (index 2)" << endl;
+		data_out << "# Step Avg_Cost_Phase_1 (index 2)" << endl;
 	}
+	// avg costs for SA phase 1
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
+
 		data_out << step.step << " " << step.avg_cost << endl;
+
+		// output data until first valid solution is found
+		if (step.new_best_sol_found) {
+			break;
+		}
+	}
+
+	// two blank lines trigger gnuplot to interpret data file as separate data sets
+	data_out << endl;
+	data_out << endl;
+
+	// output data: SA step and avg costs phase 2; only available if some valid
+	// solutions are given
+	if (valid_solutions) {
+		data_out << "# Step Avg_Cost_Phase_2 (index 3)" << endl;
+		// avg costs for SA phase 2
+		for (FloorPlanner::TempStep step : fp.tempSchedule) {
+
+			// output data only after first solution is found
+			if (first_valid_sol) {
+				data_out << step.step << " " << step.avg_cost << endl;
+			}
+
+			if (step.new_best_sol_found) {
+				first_valid_sol = true;
+			}
+		}
 	}
 
 	// close file stream
@@ -936,16 +971,20 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 
 	// gp data plot command
 	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"Temperature Schedule\" with linespoints linestyle 1, \\" << endl;
-	// there may be no valid solutions, then the cost values are index 1
+	// there may be no valid solutions, then only the costs for phase 1 are plotted
+	// besides the temperature schedule
 	if (!valid_solutions) {
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
+		gp_out << " using 1:2 title \"Avg Solution Cost, Not To Scale\" with linespoints linestyle 3 axes x1y2" << endl;
 	}
-	// otherwise, we consider both data sets
+	// otherwise, we consider both cost and the best solutions data sets
 	else {
 		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best Solution\" with points linestyle 2, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 2";
+		gp_out << " using 1:2 title \"Avg Solution Cost Phase 1, Not To Scale\" with linespoints linestyle 3 axes x1y2, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 3";
+		gp_out << " using 1:2 title \"Avg Solution Cost Phase 2, Not To Scale\" with linespoints linestyle 4 axes x1y2" << endl;
 	}
-	gp_out << " using 1:2 title \"Avg Solution Cost, Not To Scale\" with linespoints linestyle 4 axes x1y2" << endl;
 
 	// close file stream
 	gp_out.close();
