@@ -349,14 +349,6 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	// on fixed sampling size for initial sampling
 	innerLoopMax *= this->conf_SA_loopFactor;
 
-	// (TODO) not required, drop
-	//double accepted_ops_ratio_offset;
-	//// determine ratio of accepted ops
-	//accepted_ops_ratio_offset = static_cast<double>(accepted_ops) / i;
-	//if (this->logMax()) {
-	//	cout << "SA> Acceptance ratio offset: " << accepted_ops_ratio_offset << endl;
-	//}
-
 	if (this->logMed()) {
 		cout << "SA> Done" << endl;
 		cout << "SA> " << endl;
