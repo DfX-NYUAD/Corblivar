@@ -574,7 +574,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 					tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
 					// check whether tuple has large power density
-					if (corb.getDie(die1).getTuple(tuple1).S->power_density > this->blocks_power_density_stats.avg) {
+					if (corb.getDie(die1).getBlock(tuple1)->power_density > this->blocks_power_density_stats.avg) {
 						break;
 					}
 					// try next tuple
@@ -595,7 +595,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 					tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
 					// check whether tuple has low power density
-					if (corb.getDie(die2).getTuple(tuple2).S->power_density < this->blocks_power_density_stats.avg) {
+					if (corb.getDie(die2).getBlock(tuple2)->power_density < this->blocks_power_density_stats.avg) {
 						break;
 					}
 					// try next tuple
@@ -685,7 +685,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore const& corb, bool const& 
 				}
 
 				tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-				t = corb.getDie(die1).getTuple(tuple1).T;
+				t = corb.getDie(die1).getJunctions(tuple1);
 
 				this->last_op_juncts = t;
 

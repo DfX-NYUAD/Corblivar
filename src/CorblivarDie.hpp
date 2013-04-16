@@ -67,9 +67,7 @@ class CorblivarDie {
 	public:
 		friend class CorblivarCore;
 
-		// layout generation functions
-		//
-		// may return nullptr
+		// layout generation; may return nullptr
 		Block const* placeCurrentBlock(bool const& dbgStack = false);
 
 		// getter
@@ -81,28 +79,14 @@ class CorblivarDie {
 			return this->CBL;
 		};
 
-		inline CornerBlockList::Tuple currentTuple() const {
-			CornerBlockList::Tuple ret;
-
-			ret.S = this->CBL.S[this->pi];
-			ret.L = this->CBL.L[this->pi];
-			ret.T = this->CBL.T[this->pi];
-
-			return ret;
+		inline Block const* getBlock(unsigned const& tuple) const {
+			return this->CBL.S[tuple];
 		};
-
-		inline CornerBlockList::Tuple getTuple(unsigned const& tuple) const {
-			CornerBlockList::Tuple ret;
-
-			ret.S = this->CBL.S[tuple];
-			ret.L = this->CBL.L[tuple];
-			ret.T = this->CBL.T[tuple];
-
-			return ret;
+		inline Direction const& getDirection(unsigned const& tuple) const {
+			return this->CBL.L[tuple];
 		};
-
-		inline string currentTupleString() const {
-			return this->CBL.tupleString(this->pi);
+		inline unsigned const& getJunctions(unsigned const& tuple) const {
+			return this->CBL.T[tuple];
 		};
 };
 

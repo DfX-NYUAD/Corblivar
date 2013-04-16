@@ -19,7 +19,6 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	double x, y;
 	bool add_to_stack;
 	list<Block const*> blocks_add_to_stack;
-	CornerBlockList::Tuple cur_tuple;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -27,12 +26,10 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		return nullptr;
 	}
 
-	// retrieve current tuple
-	cur_tuple = this->currentTuple();
-	// local const aliases; r/o access execpt mutable members of Block
-	Block const* cur_block = cur_tuple.S;
-	Direction const cur_dir = cur_tuple.L;
-	unsigned const cur_juncts = cur_tuple.T;
+	// current tuple; local const aliases; r/o access execpt mutable members of Block
+	Block const* cur_block = this->getBlock(this->pi);
+	Direction const cur_dir = this->getDirection(this->pi);
+	unsigned const cur_juncts = this->getJunctions(this->pi);
 
 	// assign layer to block
 	cur_block->layer = this->id;
@@ -182,7 +179,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 
 	if (dbgStack) {
 		cout << "DBG_CORB> ";
-		cout << "Processed (placed) CBL tuple " << this->currentTupleString() << " on die " << this->id << ": ";
+		cout << "Processed (placed) CBL tuple " << this->CBL.tupleString(this->pi) << " on die " << this->id << ": ";
 		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 		cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
