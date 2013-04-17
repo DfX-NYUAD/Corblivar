@@ -115,6 +115,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in.open(config_file.c_str());
 
 	// parse in parameters
+	// TODO add config version in header line, trigger check and program abort if
+	// wrong version
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
