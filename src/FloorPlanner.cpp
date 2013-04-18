@@ -392,13 +392,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 
 		// determine area cost, invert weight
-		// sanity check for zero cost weight
-		if (this->conf_SA_cost_area_outline == 0.0) {
-			area = 0.0;
-		}
-		else {
-			area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
-		}
+		// no sanity check for conf_SA_cost_area_outline != 0.0 required, handled in IO::parseParameterConfig
+		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
