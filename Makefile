@@ -71,6 +71,19 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 #=============================================================================#
+# Target for auxiliary binary: 3DFP Parser
+#=============================================================================#
+SRC_3DFP := src_aux/3DFP_Parser.cpp
+OBJ_3DFP := IO FloorPlanner ThermalAnalyzer CorblivarCore CorblivarDie
+OBJ_3DFP := $(addsuffix .o,$(OBJ_3DFP))
+OBJ_3DFP := $(addprefix $(BUILD_DIR)/,$(OBJ_3DFP))
+
+3DFP_Parser: $(BUILD_DIR) $(SRC_3DFP) $(OBJ_3DFP)
+	@echo
+	@echo compile and link 3DFP Parser
+	$(COMPILER) $(OPT) $(SRC_3DFP) $(OBJ_3DFP) -o $@
+
+#=============================================================================#
 # Compile Source Code to Object Files
 #=============================================================================#
 
