@@ -588,6 +588,9 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 					// check blocks in (implicitly constructed) row
 					row_max_height = shape_block->bb.h;
 					for (Block const& b : this->blocks) {
+						if (b.layer != shape_block->layer) {
+							continue;
+						}
 						if (shape_block->bb.ll.y == b.bb.ll.y) {
 							row_max_height = max(row_max_height, b.bb.h);
 						}
@@ -604,6 +607,9 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 					// check blocks in (implicitly constructed) column
 					col_max_width = shape_block->bb.w;
 					for (Block const& b : this->blocks) {
+						if (b.layer != shape_block->layer) {
+							continue;
+						}
 						if (shape_block->bb.ll.x == b.bb.ll.x) {
 							col_max_width = max(col_max_width, b.bb.w);
 						}
