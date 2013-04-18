@@ -1204,11 +1204,11 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file.close();
 	}
 
-	/// generate dummy floorplan for inactive Si layer
+	/// generate dummy floorplan for passive Si layer
 	//
 	// build up file name
 	stringstream Si_fp_file;
-	Si_fp_file << fp.benchmark << "_HotSpot_Si.flp";
+	Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
 
 	// init file stream
 	file.open(Si_fp_file.str().c_str());
@@ -1219,8 +1219,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "# comment lines begin with a '#'" << endl;
 	file << "# comments and empty lines are ignored" << endl;
 
-	// inactive Si ``block''
-	file << "Si";
+	// passive Si ``block''
+	file << "Si_passive";
 	file << "	" << fp.conf_outline_x * SCALE_UM_M;
 	file << "	" << fp.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
@@ -1382,14 +1382,14 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
-		file << "# Inactive Si layer " << cur_layer << endl;
+		file << "# Passive Si layer " << cur_layer << endl;
 		file << 4 * cur_layer + 2 << endl;
 		file << "Y" << endl;
 		file << "N" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << ThermalAnalyzer::THICKNESS_SI << endl;
-		file << fp.benchmark << "_HotSpot_Si.flp" << endl;
+		file << ThermalAnalyzer::THICKNESS_SI_PASSIVE << endl;
+		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
 		file << endl;
 
 		if (cur_layer < (fp.conf_layer - 1)) {

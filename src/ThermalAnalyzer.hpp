@@ -40,14 +40,16 @@ class ThermalAnalyzer {
 		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
 		// [Park09]
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
-		// 2um active Si layer; [Sridhar10]
-		static constexpr double THICKNESS_SI_ACTIVE = 0.000002;
 		// 100um thick dies; own value
-		static constexpr double THICKNESS_SI = 0.0001 - THICKNESS_SI_ACTIVE;
+		static constexpr double THICKNESS_SI = 100.0e-6;
+		// 2um active Si layer; [Sridhar10]
+		static constexpr double THICKNESS_SI_ACTIVE = 2.0e-06;
+		// passive Si layer, results in 98um
+		static constexpr double THICKNESS_SI_PASSIVE = THICKNESS_SI - THICKNESS_SI_ACTIVE;
 		// 12um BEOL; [Sridhar10]
-		static constexpr double THICKNESS_BEOL = 0.000012;
+		static constexpr double THICKNESS_BEOL = 12.0e-06;
 		// 20um BCB bond; [Sridhar10]
-		static constexpr double THICKNESS_BOND = 0.00002;
+		static constexpr double THICKNESS_BOND = 20.0e-06;
 
 		// thermal modeling: dimensions
 		// represents the thermal map's dimension
