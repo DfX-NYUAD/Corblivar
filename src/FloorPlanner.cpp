@@ -363,7 +363,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	corb.restoreCBLs();
 }
 
-void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost) {
+void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost, bool const& handle_corblivar) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
@@ -375,13 +375,16 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ")" << endl;
 	}
 
-	// apply best solution, if available, as final solution
-	valid_solution = corb.applyBestCBLs(this->logMin());
-	// generate final layout
-	corb.generateLayout();
+	// consider CorblivarCore data
+	if (handle_corblivar) {
+		// apply best solution, if available, as final solution
+		valid_solution = corb.applyBestCBLs(this->logMin());
+		// generate final layout
+		corb.generateLayout();
+	}
 
-	// determine cost for valid solutions
-	if (valid_solution) {
+	// determine final cost, also for non-Corblivar calls
+	if (valid_solution || !handle_corblivar) {
 
 		// determine overall cost
 		if (determ_overall_cost) {
@@ -443,13 +446,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	IO::writeFloorplanGP(*this);
 
 	// generate Corblivar data if solution file is used as output
-	if (this->solution_out.is_open()) {
+	if (handle_corblivar && this->solution_out.is_open()) {
 		this->solution_out << corb.CBLsString() << endl;
 		this->solution_out.close();
 	}
 
 	// thermal-analysis files
-	if (valid_solution && this->power_density_file_avail) {
+	if ((valid_solution || !handle_corblivar) && this->power_density_file_avail) {
 		// generate power and thermal maps
 		IO::writePowerThermalMaps(*this);
 		// generate HotSpot files

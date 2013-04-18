@@ -234,7 +234,7 @@ class FloorPlanner {
 
 		// SA: handler
 		bool performSA(CorblivarCore& corb);
-		void finalize(CorblivarCore& corb, bool const& determ_overall_cost = true);
+		void finalize(CorblivarCore& corb, bool const& determ_overall_cost = true, bool const& handle_corblivar = true);
 };
 
 #endif
