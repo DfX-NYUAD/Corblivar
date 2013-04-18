@@ -18,16 +18,10 @@ int main (int argc, char** argv) {
 	FloorPlanner fp;
 	bool done;
 
-	// memorize start time
-	fp.setTimeStart();
-
 	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	// (TODO) set version to 1.0 after release
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
-
-	// init random number gen
-	srand(time(0));
 
 	// parse program parameter and config file
 	IO::parseParameterConfig(fp, argc, argv);

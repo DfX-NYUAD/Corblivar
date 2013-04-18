@@ -184,6 +184,13 @@ class FloorPlanner {
 
 	// constructors, destructors, if any non-implicit
 	public:
+		FloorPlanner() {
+			// memorize start time
+			ftime(&(this->start));
+
+			// init random number generator
+			srand(time(0));
+		}
 
 	// public data, functions
 	public:
@@ -222,10 +229,6 @@ class FloorPlanner {
 
 		inline vector<Block> const& getBlocks() const {
 			return this->blocks;
-		};
-
-		inline void setTimeStart() {
-			ftime(&(this->start));
 		};
 
 		inline bool inputSolutionFileOpen() const {
