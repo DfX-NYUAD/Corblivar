@@ -405,12 +405,19 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 		// TODO alignment costs
 		if (this->logMin()) {
+
+			cout << "SA> Characteristica of final solution:" << endl;
+
 			if (determ_overall_cost) {
 				cout << "SA> Final (adapted) cost: " << cost << endl;
 			}
+
 			cout << "SA> Max blocks-outline / die-outline ratio: " << area << endl;
+
 			cout << "SA> HPWL: " << interconn.HPWL << endl;
 			cout << "SA> TSVs: " << interconn.TSVs << endl;
+			cout << "SA>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
+
 			if (this->power_density_file_avail) {
 				cout << "SA> Temp cost (no real temp): " << thermal << endl;
 			}
@@ -422,6 +429,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->results << "Max die occupation [\%]: " << area << endl;
 			this->results << "HPWL: " << interconn.HPWL << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
+			this->results << "Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
 			if (this->power_density_file_avail) {
 				this->results << "Temp cost (no real temp): " << thermal << endl;
 			}
@@ -1019,7 +1027,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 		cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
-	ret.HPWL = ret.TSVs = 0.0;
+	ret.HPWL = ret.TSVs = ret.TSVs_area_deadspace_ratio = 0.0;
 	blocks_to_consider.reserve(this->blocks.size());
 
 	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
@@ -1117,6 +1125,9 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
 	ret.HPWL += ret.TSVs * (FloorPlanner::THICKNESS_SI + FloorPlanner::THICKNESS_BOND);
+
+	// determine by TSVs occupied deadspace amount
+	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(FloorPlanner::TSV_DIMENSION, 2)) / this->stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {

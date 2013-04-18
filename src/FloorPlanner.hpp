@@ -45,6 +45,11 @@ class FloorPlanner {
 		static constexpr double THICKNESS_BEOL = 12.0e-06;
 		// 20um BCB bond; [Sridhar10]
 		static constexpr double THICKNESS_BOND = 20.0e-06;
+		// TSV properties; own values
+		// 5um dimension
+		static constexpr double TSV_DIMENSION = 5.0e-06;
+		// 10um pitch
+		static constexpr double TSV_PITCH = 10.0e-06;
 
 		// 3D IC config parameters
 		int conf_layer;
@@ -71,6 +76,7 @@ class FloorPlanner {
 		struct CostInterconn {
 			double HPWL;
 			double TSVs;
+			double TSVs_area_deadspace_ratio;
 
 			friend ostream& operator<< (ostream& out, CostInterconn const& cost) {
 				out << "HPWL=" << cost.HPWL << ", TSVs=" << cost.TSVs;
