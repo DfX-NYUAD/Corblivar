@@ -31,12 +31,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// program parameter
 	if (argc < 4) {
-		cout << "IO> ";
-		cout << "Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
-		cout << endl;
-		cout << "Expected config_file format: see provided Corblivar.conf" << endl;
-		cout << "Expected benchmarks: any in GSRC Bookshelf format" << endl;
-		cout << "Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
+		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
+		cout << "IO> " << endl;
+		cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
+		cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
+		cout << "IO> Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
 
 		exit(1);
 	}
@@ -129,7 +128,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for >= 2 layers
 	if (fp.conf_layer < 2) {
-		cout << "Corblivar only supports floorplanning on >= 2 layers!" << endl;
+		cout << "IO> Corblivar only supports floorplanning on >= 2 layers!" << endl;
 		exit(1);
 	}
 
@@ -145,7 +144,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero dimensions
 	if (fp.conf_outline_x <= 0.0 || fp.conf_outline_y <= 0.0) {
-		cout << "Provide positive, non-zero outline dimensions!" << endl;
+		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
 		exit(1);
 	}
 
@@ -159,7 +158,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for block scaling factor
 	if (fp.conf_blocks_scale <= 0.0) {
-		cout << "Provide positive, non-zero outline dimensions!" << endl;
+		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
 		exit(1);
 	}
 
@@ -175,7 +174,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for packing and block rotation
 	if (fp.conf_SA_layout_enhanced_hard_block_rotation && fp.conf_SA_layout_packing) {
-		cout << "Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
+		cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
 		exit(1);
 	}
 
@@ -196,7 +195,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_loopFactor <= 0.0 || fp.conf_SA_loopLimit <= 0.0) {
-		cout << "Provide positive, non-zero SA loop parameters!" << endl;
+		cout << "IO> Provide positive, non-zero SA loop parameters!" << endl;
 		exit(1);
 	}
 
@@ -212,7 +211,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for dependent temperature-scaling factors
 	if (fp.conf_SA_temp_factor_phase1 >= fp.conf_SA_temp_factor_phase1_limit) {
-		cout << "Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << endl;
+		cout << "IO> Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << endl;
 		exit(1);
 	}
 
@@ -223,7 +222,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
-		cout << "Provide positive, non-zero SA cooling factors!" << endl;
+		cout << "IO> Provide positive, non-zero SA cooling factors!" << endl;
 		exit(1);
 	}
 
@@ -231,12 +230,6 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_thermal;
-
-	// consider power-guided block swapping only if thermal optimization is on
-	if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
-		cout << "Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
-		fp.conf_SA_layout_power_guided_block_swapping = false;
-	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -255,7 +248,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for mandatory area, outline cost
 	if (fp.conf_SA_cost_area_outline == 0.0) {
-		cout << "A cost factor > 0 is required for area and outline optimization!" << endl;
+		cout << "IO> A cost factor > 0 is required for area and outline optimization!" << endl;
 		exit(1);
 	}
 
@@ -276,7 +269,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_power_blurring_impulse_factor <= 0.0 || fp.conf_power_blurring_impulse_factor_scaling_exponent <= 0.0 || fp.conf_power_blurring_mask_boundary_value <= 0.0) {
-		cout << "Provide positive, non-zero power blurring parameters!" << endl;
+		cout << "IO> Provide positive, non-zero power blurring parameters!" << endl;
 		exit(1);
 	}
 
@@ -284,28 +277,50 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	if (fp.logMin()) {
 		cout << "IO> Config values:" << endl;
+
+		// log
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
+
+		// 3D IC setup
 		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
+
+		// layout generation options
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
 		cout << "IO>  SA -- Layout generation; packing: " << fp.conf_SA_layout_packing << endl;
+		// consider power-guided block swapping only if thermal optimization is on
+		if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
+			fp.conf_SA_layout_power_guided_block_swapping = false;
+		}
 		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
+		if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
+			cout << "IO>     Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
+		}
+
+		// SA loop setup
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
+
+		// SA cooling schedule
 		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
+
+		// SA cost factors
 		if (fp.power_density_file_avail) {
 			cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
 		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
 		cout << "IO>  SA -- Cost factor for area and outline violation: " << fp.conf_SA_cost_area_outline << endl;
+
+		// power blurring parameters; for thermal analysis
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
 		cout << "IO>  Power blurring -- Impulse factor down-scaling exponent: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
+
 		cout << endl;
 	}
 }
@@ -357,7 +372,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// find related block
 			tuple.S = Block::findBlock(block_id, fp.blocks);
 			if (tuple.S == nullptr) {
-				cout << "Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
+				cout << "IO> Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
 				exit(1);
 			}
 
@@ -519,7 +534,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		else {
 			cout << "IO> ";
 			cout << "Unknown block type: " << tmpstr << endl;
-			cout << "Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+			cout << "IO> Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 			exit(1);
 		}
 
