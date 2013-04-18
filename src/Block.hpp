@@ -60,6 +60,8 @@ class Block {
 
 		// power in [W]
 		inline double power() const {
+			// power density is given in uW/um^2, area is given in um^2, thus
+			// we have to convert uW to W
 			return this->power_density * this->bb.area * 1.0e-6;
 		}
 
