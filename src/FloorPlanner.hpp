@@ -231,6 +231,16 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
+		inline Block* editBlock(string const& id) {
+			for (Block& b : this->blocks) {
+				if (id == b.id) {
+					return &b;
+				}
+			}
+
+			return nullptr;
+		};
+
 		inline bool inputSolutionFileOpen() const {
 			return this->solution_in.is_open();
 		};
