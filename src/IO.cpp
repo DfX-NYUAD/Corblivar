@@ -113,9 +113,19 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	// open config file
 	in.open(config_file.c_str());
 
+	// sanity check for file version
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+
+	int file_version;
+	in >> file_version;
+
+	if (file_version != IO::CONFIG_VERSION) {
+		cout << "IO> Wrong version of config file; required version is \"" << IO::CONFIG_VERSION << "\"; consider using matching config file!" << endl;
+		exit(1);
+	}
+
 	// parse in parameters
-	// TODO add config version in header line, trigger check and program abort if
-	// wrong version
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
