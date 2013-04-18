@@ -9,9 +9,8 @@
  * =====================================================================================
  */
 
-// own Corblivar header
-#include "CorblivarCore.hpp"
 // required Corblivar headers
+#include "CorblivarCore.hpp"
 #include "FloorPlanner.hpp"
 #include "IO.hpp"
 
