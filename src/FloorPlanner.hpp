@@ -34,6 +34,18 @@ class FloorPlanner {
 		vector<Block> terminals;
 		vector<Net> nets;
 
+		// 3D IC stack setup
+		// 100um thick dies; own value
+		static constexpr double THICKNESS_SI = 100.0e-6;
+		// 2um active Si layer; [Sridhar10]
+		static constexpr double THICKNESS_SI_ACTIVE = 2.0e-06;
+		// passive Si layer, results in 98um
+		static constexpr double THICKNESS_SI_PASSIVE = THICKNESS_SI - THICKNESS_SI_ACTIVE;
+		// 12um BEOL; [Sridhar10]
+		static constexpr double THICKNESS_BEOL = 12.0e-06;
+		// 20um BCB bond; [Sridhar10]
+		static constexpr double THICKNESS_BOND = 20.0e-06;
+
 		// config parameters
 		int conf_layer;
 		int conf_log;

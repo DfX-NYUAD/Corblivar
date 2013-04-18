@@ -1368,7 +1368,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "N" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-		file << ThermalAnalyzer::THICKNESS_BEOL << endl;
+		file << FloorPlanner::THICKNESS_BEOL << endl;
 		file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
 		file << endl;
 
@@ -1378,7 +1378,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "Y" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << ThermalAnalyzer::THICKNESS_SI_ACTIVE << endl;
+		file << FloorPlanner::THICKNESS_SI_ACTIVE << endl;
 		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
@@ -1388,7 +1388,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "N" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << ThermalAnalyzer::THICKNESS_SI_PASSIVE << endl;
+		file << FloorPlanner::THICKNESS_SI_PASSIVE << endl;
 		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
 		file << endl;
 
@@ -1399,7 +1399,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "N" << endl;
 			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-			file << ThermalAnalyzer::THICKNESS_BOND << endl;
+			file << FloorPlanner::THICKNESS_BOND << endl;
 			file << fp.benchmark << "_HotSpot_Bond.flp" << endl;
 			file << endl;
 		}

@@ -1116,7 +1116,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
-	ret.HPWL += ret.TSVs * (ThermalAnalyzer::THICKNESS_SI + ThermalAnalyzer::THICKNESS_BOND);
+	ret.HPWL += ret.TSVs * (FloorPlanner::THICKNESS_SI + FloorPlanner::THICKNESS_BOND);
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
