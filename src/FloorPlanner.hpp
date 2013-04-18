@@ -241,6 +241,18 @@ class FloorPlanner {
 			return nullptr;
 		};
 
+		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
+			// set outline
+			this->conf_outline_x = outline_x;
+			this->conf_outline_y = outline_y;
+
+			// also reset related properties
+			this->die_AR = this->conf_outline_x / this->conf_outline_y;
+			this->die_area = this->conf_outline_x * this->conf_outline_y;
+			this->stack_area = this->conf_layer * this->die_area;
+			this->stack_deadspace = this->stack_area - this->blocks_area;
+		}
+
 		inline bool inputSolutionFileOpen() const {
 			return this->solution_in.is_open();
 		};
