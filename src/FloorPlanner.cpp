@@ -575,52 +575,63 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		// TODO soft blocks: block shaping
 		if (shape_block->soft) {
 		}
-		// hard blocks: perform block rotation only if layout compaction is
-		// achievable; note that this implementation relies on non-compacted
-		// Corblivar layouts!
+		// hard blocks: simple rotation or enhanced rotation: perform block
+		// rotation only if layout compaction is achievable; note that enhanced
+		// rotation relies on non-compacted, i.e., non-packed layouts, this is
+		// ensured during config file parsing
 		else {
-			// horizontal block
-			if (shape_block->bb.w > shape_block->bb.h) {
-				// check blocks in (implicitly constructed) row
-				row_max_height = shape_block->bb.h;
-				for (Block const& b : this->blocks) {
-					if (shape_block->bb.ll.y == b.bb.ll.y) {
-						row_max_height = max(row_max_height, b.bb.h);
-					}
-				}
-				// gain in horizontal direction by rotation
-				gain = shape_block->bb.w - shape_block->bb.h;
-				// loss in vertical direction; only if new block height
-				// (current width) would be larger than the row currently
-				// high is
-				loss = shape_block->bb.w - row_max_height;
-			}
-			// vertical block
-			else {
-				// check blocks in (implicitly constructed) column
-				col_max_width = shape_block->bb.w;
-				for (Block const& b : this->blocks) {
-					if (shape_block->bb.ll.x == b.bb.ll.x) {
-						col_max_width = max(col_max_width, b.bb.w);
-					}
-				}
-				// gain in vertical direction by rotation
-				gain = shape_block->bb.h - shape_block->bb.w;
-				// loss in horizontal direction; only if new block width
-				// (current height) would be larger than the column
-				// currently wide is
-				loss = shape_block->bb.h - col_max_width;
-			}
+			// enhanced rotation
+			if (this->conf_SA_layout_enhanced_hard_block_rotation) {
 
-			// perform rotation if no loss or gain > loss
-			if (loss < 0.0 || gain > loss) {
-				corb.rotateBlock(die1, tuple1);
+				// horizontal block
+				if (shape_block->bb.w > shape_block->bb.h) {
+					// check blocks in (implicitly constructed) row
+					row_max_height = shape_block->bb.h;
+					for (Block const& b : this->blocks) {
+						if (shape_block->bb.ll.y == b.bb.ll.y) {
+							row_max_height = max(row_max_height, b.bb.h);
+						}
+					}
+					// gain in horizontal direction by rotation
+					gain = shape_block->bb.w - shape_block->bb.h;
+					// loss in vertical direction; only if new block height
+					// (current width) would be larger than the row currently
+					// high is
+					loss = shape_block->bb.w - row_max_height;
+				}
+				// vertical block
+				else {
+					// check blocks in (implicitly constructed) column
+					col_max_width = shape_block->bb.w;
+					for (Block const& b : this->blocks) {
+						if (shape_block->bb.ll.x == b.bb.ll.x) {
+							col_max_width = max(col_max_width, b.bb.w);
+						}
+					}
+					// gain in vertical direction by rotation
+					gain = shape_block->bb.h - shape_block->bb.w;
+					// loss in horizontal direction; only if new block width
+					// (current height) would be larger than the column
+					// currently wide is
+					loss = shape_block->bb.h - col_max_width;
+				}
+
+				// perform rotation if no loss or gain > loss
+				if (loss < 0.0 || gain > loss) {
+					corb.rotateBlock(die1, tuple1);
+				}
+				else {
+					return false;
+				}
+
 			}
+			// simple rotation, just perform rotation
 			else {
-				return false;
+				corb.rotateBlock(die1, tuple1);
 			}
 		}
 	}
+	// revert last rotation
 	else {
 		shape_block = corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1);
 
