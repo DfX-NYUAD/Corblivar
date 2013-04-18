@@ -79,7 +79,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	if (!in.good()) {
 		cout << "IO> ";
 		cout << "Note: power density file missing : " << fp.power_density_file << endl;
-		cout << "IO> Thermal optimization cannot be performed." << endl;
+		cout << "IO> Thermal optimization cannot be performed; is deactivated." << endl;
 		cout << endl;
 	}
 	in.close();
@@ -166,6 +166,27 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_SA_layout_enhanced_hard_block_rotation;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_SA_layout_packing;
+
+	// sanity check for packing and block rotation
+	if (fp.conf_SA_layout_enhanced_hard_block_rotation && fp.conf_SA_layout_packing) {
+		cout << "Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_SA_layout_power_guided_block_swapping;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_loopFactor;
 
 	in >> tmpstr;
@@ -209,7 +230,13 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_cost_temp;
+	in >> fp.conf_SA_cost_thermal;
+
+	// consider power-guided block swapping only if thermal optimization is on
+	if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
+		cout << "Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
+		fp.conf_SA_layout_power_guided_block_swapping = false;
+	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -262,13 +289,16 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
+		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
+		cout << "IO>  SA -- Layout generation; packing: " << fp.conf_SA_layout_packing << endl;
+		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
 		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
 		if (fp.power_density_file_avail) {
-			cout << "IO>  SA -- Cost factor for temperature: " << fp.conf_SA_cost_temp << endl;
+			cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
 		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;

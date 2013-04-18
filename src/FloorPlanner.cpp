@@ -272,7 +272,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	// reset max cost
 	this->max_cost_WL = 0.0;
 	this->max_cost_TSVs = 0.0;
-	this->max_cost_temp = 0.0;
+	this->max_cost_thermal = 0.0;
 	this->max_cost_alignments = 0.0;
 
 	// reset temperature-schedule log
@@ -368,7 +368,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
-	double area, temp;
+	double area, thermal;
 	CostInterconn interconn;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -401,7 +401,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		interconn = this->determCostInterconnects(false, false);
 
 		// determine non-normalized temperature cost
-		temp = this->determCostThermalDistr(false, false);
+		thermal = this->determCostThermalDistr(false, false);
 
 		// TODO alignment costs
 		if (this->logMin()) {
@@ -412,7 +412,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "SA> HPWL: " << interconn.HPWL << endl;
 			cout << "SA> TSVs: " << interconn.TSVs << endl;
 			if (this->power_density_file_avail) {
-				cout << "SA> Temp cost (no real temp): " << temp << endl;
+				cout << "SA> Temp cost (no real temp): " << thermal << endl;
 			}
 			cout << endl;
 
@@ -423,7 +423,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->results << "HPWL: " << interconn.HPWL << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
 			if (this->power_density_file_avail) {
-				this->results << "Temp cost (no real temp): " << temp << endl;
+				this->results << "Temp cost (no real temp): " << thermal << endl;
 			}
 		}
 	}
@@ -483,8 +483,10 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 		// recall that randI(x,y) is [x,y)
 		//
 		// for SA phase two, we consider an extended set of operations related to
-		// thermal optimiziation
-		if (phase_two && this->power_density_file_avail) {
+		// thermal optimiziation; the flag
+		// conf_SA_layout_power_guided_block_swapping also considers if thermal
+		// optimization is enabled and if a power density file is available
+		if (phase_two && this->conf_SA_layout_power_guided_block_swapping) {
 			this->last_op = op = Math::randI(1, 7);
 		}
 		// SA phase one, reduced set of operations
@@ -832,7 +834,7 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
 FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& phase_two, bool const& set_max_cost) {
-	double cost_total, cost_temp, cost_alignments;
+	double cost_total, cost_thermal, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
@@ -866,18 +868,18 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 		// normalized temperature-distribution cost
 		//
 		// sanity check for zero cost weight or no power density values
-		if (this->conf_SA_cost_temp == 0.0 || !this->power_density_file_avail) {
-			cost_temp = 0.0;
+		if (this->conf_SA_cost_thermal == 0.0 || !this->power_density_file_avail) {
+			cost_thermal = 0.0;
 		}
 		else {
-			cost_temp = this->determCostThermalDistr(set_max_cost);
+			cost_thermal = this->determCostThermalDistr(set_max_cost);
 		}
 
 		// cost function; sum up cost terms
 		cost_total =
 			this->conf_SA_cost_WL * cost_interconnects.HPWL
 			+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
-			+ this->conf_SA_cost_temp * cost_temp
+			+ this->conf_SA_cost_thermal * cost_thermal
 			// area, outline cost is already weighted
 			+ cost_area_outline.cost;
 		;

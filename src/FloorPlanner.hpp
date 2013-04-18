@@ -82,9 +82,14 @@ class FloorPlanner {
 		static constexpr int LOG_MEDIUM = 2;
 		static constexpr int LOG_MAXIMUM = 3;
 
-		// SA config parameters
+		// SA parameters: loop control
 		double conf_SA_loopFactor, conf_SA_loopLimit;
-		double conf_SA_cost_temp, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
+
+		// SA parameters: cost factors
+		double conf_SA_cost_thermal, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_area_outline;
+
+		// SA parameters: layout generation options
+		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_packing, conf_SA_layout_power_guided_block_swapping;
 
 		// SA parameters: temperature-scaling factors
 		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase1_limit, conf_SA_temp_factor_phase2;
@@ -135,13 +140,13 @@ class FloorPlanner {
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y);
-			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_temp, set_max_cost, normalize);
+			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
 		};
 		Cost determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
 
 		// SA parameters: max cost values
-		double max_cost_temp, max_cost_WL, max_cost_TSVs, max_cost_alignments;
+		double max_cost_thermal, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference
