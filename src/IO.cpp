@@ -158,8 +158,10 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// determine outline aspect ratio
-	fp.outline_AR = fp.conf_outline_x / fp.conf_outline_y;
+	// determine aspect ratio and area
+	fp.die_AR = fp.conf_outline_x / fp.conf_outline_y;
+	fp.die_area = fp.conf_outline_x * fp.conf_outline_y;
+	fp.stack_area = fp.die_area * fp.conf_layer;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -425,7 +427,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	ifstream blocks_in, power_in;
 	string tmpstr;
 	double power = 0.0;
-	double area = 0.0;
 	double max_area = 0.0;
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
@@ -452,6 +453,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 
 	// reset blocks
+	fp.blocks_area = 0.0;
 	fp.blocks.clear();
 	// reset terminals
 	fp.terminals.clear();
@@ -574,12 +576,16 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		fp.blocks_power_density_stats.avg += new_block.power_density;
 
 		// memorize summed blocks area and largest block, needs to fit into die
-		area += new_block.bb.area;
+		fp.blocks_area += new_block.bb.area;
 		max_area = max(max_area, new_block.bb.area);
 
 		// store block
 		fp.blocks.push_back(move(new_block));
 	}
+
+	// determine deadspace amount for whole stack, now that the occupied blocks area
+	// is known
+	fp.stack_deadspace = fp.stack_area - fp.blocks_area;
 
 	// determine block power statistics
 	fp.blocks_power_density_stats.avg /= fp.blocks.size();
@@ -590,16 +596,16 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	power_in.close();
 
 	// sanity check of fixed outline
-	blocks_outline_ratio = area / (fp.conf_layer * fp.conf_outline_x * fp.conf_outline_y);
+	blocks_outline_ratio = fp.blocks_area / fp.stack_area;
 	if (blocks_outline_ratio > 1.0) {
 		cout << "IO> Chip too small; consider increasing the die outline or layers count" << endl;
 		cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << endl;
 		exit(1);
 	}
 	// sanity check for largest block
-	if (max_area > (fp.conf_outline_x * fp.conf_outline_y)) {
+	if (max_area > fp.die_area) {
 		cout << "IO> Die outline too small; consider increasing it" << endl;
-		cout << "IO>  Largest-block/die area ratio: " << max_area / (fp.conf_outline_x * fp.conf_outline_y) << endl;
+		cout << "IO>  Largest-block/die area ratio: " << max_area / fp.die_area << endl;
 		exit(1);
 	}
 
@@ -622,7 +628,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		else {
 			cout << endl;
 		}
-		cout << "IO>  Summed blocks area [cm^2]: " << area * 1.0e-8;
+		cout << "IO>  Summed blocks area [cm^2]: " << fp.blocks_area * 1.0e-8;
 		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;
 	}
@@ -1077,7 +1083,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 			cout << "Generating GP scripts for floorplan ..." << endl;
 	}
 
-	ratio_inv = fp.conf_outline_y / fp.conf_outline_x;
+	ratio_inv = 1.0 / fp.die_AR;
 	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
 	block_id = 1;
 

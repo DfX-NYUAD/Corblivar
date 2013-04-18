@@ -34,7 +34,7 @@ class FloorPlanner {
 		vector<Block> terminals;
 		vector<Net> nets;
 
-		// 3D IC stack setup
+		// 3D IC die layer parameters
 		// 100um thick dies; own value
 		static constexpr double THICKNESS_SI = 100.0e-6;
 		// 2um active Si layer; [Sridhar10]
@@ -46,12 +46,16 @@ class FloorPlanner {
 		// 20um BCB bond; [Sridhar10]
 		static constexpr double THICKNESS_BOND = 20.0e-06;
 
-		// config parameters
+		// 3D IC config parameters
 		int conf_layer;
-		int conf_log;
 		double conf_outline_x, conf_outline_y;
-		double outline_AR;
 		double conf_blocks_scale;
+
+		// 3D IC characteristica, resulting from config
+		double die_AR, die_area;
+		// these parameters cover all dies
+		double blocks_area;
+		double stack_area, stack_deadspace;
 
 		// POD declarations
 		struct Cost {
@@ -90,6 +94,7 @@ class FloorPlanner {
 		bool power_density_file_avail;
 
 		// logging
+		int conf_log;
 		static constexpr int LOG_MINIMAL = 1;
 		static constexpr int LOG_MEDIUM = 2;
 		static constexpr int LOG_MAXIMUM = 3;

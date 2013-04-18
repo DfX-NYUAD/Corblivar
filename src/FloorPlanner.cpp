@@ -958,8 +958,8 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 			}
 		}
 
-		// area, represented by blocks' outline; normalized to die outline
-		dies_area.push_back((max_outline_x * max_outline_y) / (this->conf_outline_x * this->conf_outline_y));
+		// area, represented by blocks' outline; normalized to die area
+		dies_area.push_back((max_outline_x * max_outline_y) / (this->die_area));
 
 		// aspect ratio; used to guide optimization towards fixed outline (Chen 2006)
 		if (max_outline_y > 0.0) {
@@ -968,7 +968,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
 		// not impact cost function
 		else {
-			dies_AR.push_back(this->outline_AR);
+			dies_AR.push_back(this->die_AR);
 		}
 
 		// memorize whether layout fits into outline
@@ -980,7 +980,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 	// cost for AR mismatch (guides into fixed outline, Chen 2006)
 	cost_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
-		cost_outline = max(cost_outline, pow(dies_AR[i] - this->outline_AR, 2.0));
+		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
 	}
 	// determine cost function value
 	cost_outline *= 0.5 * this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline);
