@@ -497,9 +497,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		if (fp.power_density_file_avail) {
 			if (!power_in.eof()) {
 				power_in >> new_block.power_density;
-				// GSRC benchmarks provide power density in 10^5 W/(m^2);
-				// normalize to 10^-1 uW/(um^2)
-				new_block.power_density *= 0.1;
+				// GSRC benchmarks provide power density in 10^5 W/m^2
+				// (which equals 10^-1 uW/um^2); reduce by factor 10 in
+				// order to limit power consumption reasonably
+				new_block.power_density *= 1.0e-1;
 			}
 			else {
 				if (fp.logMin()) {
@@ -730,13 +731,13 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// file header for gnuplot script
 			if (flag == 0) {
-				gp_out << "set title \"" << fp.benchmark << " - Padded Power Map Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Padded Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
 			else {
-				gp_out << "set title \"" << fp.benchmark << " - Thermal Map Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
 
-			gp_out << "set terminal pdfcairo font \"Gill Sans, 12\"" << endl;
+			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
 			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
 
@@ -750,9 +751,17 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 				gp_out << "set yrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
 			}
 
-			// power maps: fixed scale for all layers to ease comparision
+			// power maps: scale, label for cbrange
 			if (flag == 0) {
+				// fixed scale for all layers to ease comparision
 				gp_out << "set cbrange [0:" << max_power_density << "]" << endl;
+				// label for power density
+				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << endl;
+			}
+			// thermal maps: label for cbrange
+			else {
+				// thermal estimation, correlates w/ power density
+				gp_out << "set cblabel \"Thermal Estimate [{/Symbol a}K]\"" << endl;
 			}
 
 			// tics
@@ -935,7 +944,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out.close();
 
 	// gp header
-	gp_out << "set title \"" << fp.benchmark << " - SA Temperature Schedule \"" << endl;
+	gp_out << "set title \"SA Temperature Schedule - " << fp.benchmark << "\"" << endl;
 	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 
 	// general settings for more attractive plots, extracted from
@@ -1029,12 +1038,14 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 		gp_out.open(out_name.str().c_str());
 
 		// file header
-		gp_out << "set title \"" << fp.benchmark << " - Layer " << cur_layer + 1 << "\"" << endl;
-		gp_out << "set terminal pdfcairo font \"Gill Sans, 12\"" << endl;
+		gp_out << "set title \"Floorplan - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+		gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
 		gp_out << "set output \"" << out_name.str() << ".pdf\"" << endl;
 		gp_out << "set size ratio " << ratio_inv << endl;
 		gp_out << "set xrange [0:" << fp.conf_outline_x << "]" << endl;
 		gp_out << "set yrange [0:" << fp.conf_outline_y << "]" << endl;
+		gp_out << "set xlabel \"Width [{/Symbol m}m]\"" << endl;
+		gp_out << "set ylabel \"Height [{/Symbol m}m]\"" << endl;
 		gp_out << "set xtics " << tics << endl;
 		gp_out << "set ytics " << tics << endl;
 		gp_out << "set mxtics 4" << endl;
