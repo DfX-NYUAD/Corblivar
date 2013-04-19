@@ -365,24 +365,19 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 		}
 	}
 
-	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
-	// Shahookar91]
-	init_temp = Math::stdDev(cost_samples) * SA_INIT_TEMP_FACTOR;
-	if (this->logMax()) {
-		cout << "SA> Initial temperature: " << init_temp << endl;
-	}
-
 	// adapt inner-loops paramter according to config; done only now in order to rely
 	// on fixed sampling size for initial sampling
 	innerLoopMax *= this->conf_SA_loopFactor;
 
+	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
+	// Shahookar91]
+	init_temp = Math::stdDev(cost_samples) * this->conf_SA_temp_init_factor;
+
 	if (this->logMed()) {
-		cout << "SA> Done" << endl;
+		cout << "SA> Done; std dev of cost: " << Math::stdDev(cost_samples) << ", initial temperature: " << init_temp << endl;
 		cout << "SA> " << endl;
 		cout << "SA> Perform simulated annealing process..." << endl;
 		cout << "SA> Phase I: packing blocks into outline..." << endl;
-	}
-	if (this->logMax()) {
 		cout << "SA> " << endl;
 	}
 

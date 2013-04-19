@@ -226,6 +226,17 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_SA_temp_init_factor;
+
+	// sanity check for positive, non-zero factor
+	if (fp.conf_SA_temp_init_factor <= 0.0) {
+		cout << "IO> Provide positive, non-zero SA start temperature scaling factor!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_temp_factor_phase1;
 
 	in >> tmpstr;
@@ -333,6 +344,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 
 		// SA cooling schedule
+		cout << "IO>  SA -- Start temperature scaling factor: " << fp.conf_SA_temp_init_factor << endl;
 		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
 		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.conf_SA_temp_factor_phase2 << endl;
