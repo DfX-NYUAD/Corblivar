@@ -507,11 +507,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// parse block type
 		blocks_in >> tmpstr;
 
-		// due to some empty lines at the end, we may have reached eof just now
-		if (blocks_in.eof()) {
-			break;
-		}
-
 		// terminal pins: store separately (as dummy blocks)
 		if (tmpstr == "terminal") {
 
@@ -592,6 +587,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			new_block.soft = true;
 			// memorize soft blocks count
 			soft_blocks++;
+		}
+		// due to some blank lines at the end, we may have reached eof just now
+		else if (blocks_in.eof()) {
+			break;
 		}
 		// unknown block type
 		else {
