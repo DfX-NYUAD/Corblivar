@@ -1093,7 +1093,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out.close();
 
 	// gp header
-	gp_out << "set title \"SA Temperature Schedule - " << fp.benchmark << "\"" << endl;
+	gp_out << "set title \"Temperature and Cost Schedule - " << fp.benchmark << "\"" << endl;
 	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 
 	// general settings for more attractive plots, extracted from
@@ -1115,37 +1115,39 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "# like gnuplot's default yellow. Make the lines thick" << endl;
 	gp_out << "# so they're easy to see in small plots in papers." << endl;
 	gp_out << "set style line 1 lt rgb \"#A00000\" lw 2 pt 1" << endl;
-	gp_out << "set style line 2 lt rgb \"#00A000\" lw 3 pt 6" << endl;
-	gp_out << "#set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
+	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
 	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << endl;
 	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << endl;
 
 	// specific settings: labels
 	gp_out << "set xlabel \"SA Step\"" << endl;
 	gp_out << "set ylabel \"SA Temperature\"" << endl;
+	gp_out << "set y2label \"Avg Solution Cost\"" << endl;
 	// specific settings: key, labels box
-	gp_out << "set key out bottom center" << endl;
+	gp_out << "set key box lt rgb \"#808080\" out bottom center" << endl;
 	// specific settings: log scale
 	gp_out << "set log y" << endl;
 	gp_out << "set mytics 10" << endl;
 	// second, indepentend log scale for cost values
+	gp_out << "set y2tics nomirror" << endl;
 	gp_out << "set log y2" << endl;
+	gp_out << "set mytics 10" << endl;
 
 	// gp data plot command
-	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"Temperature Schedule\" with linespoints linestyle 1, \\" << endl;
+	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"SA Temperature\" with lines linestyle 2, \\" << endl;
 	// there may be no valid solutions, then only the costs for phase 1 are plotted
 	// besides the temperature schedule
 	if (!valid_solutions) {
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Solution Cost, Not To Scale\" with linespoints linestyle 3 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Avg Cost\" with lines linestyle 3 axes x1y2" << endl;
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best Solution\" with points linestyle 2, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 2";
-		gp_out << " using 1:2 title \"Avg Solution Cost Phase 1, Not To Scale\" with linespoints linestyle 3 axes x1y2, \\" << endl;
+		gp_out << " using 1:2 title \"Avg Cost for SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 3";
-		gp_out << " using 1:2 title \"Avg Solution Cost Phase 2, Not To Scale\" with linespoints linestyle 4 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Avg Cost for SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
 	}
 
 	// close file stream
