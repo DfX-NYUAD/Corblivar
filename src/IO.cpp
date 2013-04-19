@@ -450,6 +450,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	double blocks_outline_ratio;
 	string id;
 	double pins_scale_x, pins_scale_y;
+	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -483,12 +484,22 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.blocks_power_density_stats.min = -1;
 
 	// drop block files header
-	while (tmpstr != "NumTerminals" && !blocks_in.eof())
+	while (tmpstr != "NumSoftRectangularBlocks" && !blocks_in.eof())
 		blocks_in >> tmpstr;
 	// drop ":"
 	blocks_in >> tmpstr;
-	// drop terminals count
+	// memorize how many soft blocks to be parsed
+	blocks_in >> to_parse_soft_blocks;
+	// drop "NumHardRectilinearBlocks" and ":"
 	blocks_in >> tmpstr;
+	blocks_in >> tmpstr;
+	// memorize how many hard blocks to be parsed
+	blocks_in >> to_parse_hard_blocks;
+	// drop "NumTerminals" and ":"
+	blocks_in >> tmpstr;
+	blocks_in >> tmpstr;
+	// memorize how many terminal pins to be parsed
+	blocks_in >> to_parse_terminals;
 
 	// parse blocks and pins
 	while (!blocks_in.eof()) {
@@ -678,8 +689,17 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 
 	// sanity check for parsed blocks
-	if (fp.blocks.empty()) {
-		cout << "IO>  No blocks parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+	if (fp.blocks.size() != (to_parse_soft_blocks + to_parse_hard_blocks)) {
+		cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+		cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << endl;
+		cout << "IO>   Parsed soft blocks: " << soft_blocks << ", expected soft blocks count: " << to_parse_soft_blocks << endl;
+		exit(1);
+	}
+
+	// sanity check for parsed terminals
+	if (fp.terminals.size() != to_parse_terminals) {
+		cout << "IO>  Not all given terminals could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+		cout << "IO>   Parsed pins: " << fp.terminals.size() << ", expected pins count: " << to_parse_terminals << endl;
 		exit(1);
 	}
 
@@ -711,6 +731,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	Block const* b;
 	int id;
 	bool pin_not_found_block, pin_not_found_terminal;
+	unsigned to_parse_nets;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -722,6 +743,14 @@ void IO::parseNets(FloorPlanner& fp) {
 
 	// open nets file
 	in.open(fp.nets_file.c_str());
+
+	// drop nets file header
+	while (tmpstr != "NumNets" && !in.eof())
+		in >> tmpstr;
+	// drop ":"
+	in >> tmpstr;
+	// memorize how many nets to be parsed
+	in >> to_parse_nets;
 
 	// parse nets file
 	id = 0;
@@ -814,6 +843,13 @@ void IO::parseNets(FloorPlanner& fp) {
 				cout << " block " << b->id << endl;
 			}
 		}
+	}
+
+	// sanity check for parsed nets
+	if (fp.nets.size() != to_parse_nets) {
+		cout << "IO>  Not all given nets could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+		cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << endl;
+		exit(1);
 	}
 
 	if (fp.logMed()) {
