@@ -794,11 +794,10 @@ void IO::parseNets(FloorPlanner& fp) {
 			}
 		}
 
-		// sanity check; store only nets connecting two or more blocks
-		if (new_net.blocks.size() > 1) {
-			fp.nets.push_back(move(new_net));
-		}
+		// store net
+		fp.nets.push_back(move(new_net));
 
+		// consider next net id
 		id++;
 	}
 
