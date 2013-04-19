@@ -170,7 +170,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for block scaling factor
 	if (fp.conf_blocks_scale <= 0.0) {
-		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
+		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
 		exit(1);
 	}
 
@@ -280,8 +280,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> fp.conf_power_blurring_mask_boundary_value;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.conf_power_blurring_impulse_factor <= 0.0 || fp.conf_power_blurring_impulse_factor_scaling_exponent <= 0.0 || fp.conf_power_blurring_mask_boundary_value <= 0.0) {
-		cout << "IO> Provide positive, non-zero power blurring parameters!" << endl;
+	if (fp.conf_power_blurring_impulse_factor <= 0.0) {
+		cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << endl;
 		exit(1);
 	}
 
