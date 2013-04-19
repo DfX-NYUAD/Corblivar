@@ -1035,7 +1035,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
 	// of net's blocks
 	for (Net& cur_net : this->nets) {
-		cur_net.setLayerBoundaries(this->conf_layer - 1);
+		cur_net.setLayerBoundaries();
 	}
 
 	// determine HPWL and TSVs for each net

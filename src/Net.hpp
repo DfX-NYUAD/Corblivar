@@ -29,6 +29,7 @@ class Net {
 		Net(int const& id_i) {
 			id = id_i;
 			hasExternalPin = false;
+			layer_bottom = layer_top = -1;
 		};
 
 	// public data, functions
@@ -36,20 +37,20 @@ class Net {
 		int id;
 		bool hasExternalPin;
 		vector<Block const*> blocks;
+		vector<Block const*> terminals;
 		int layer_bottom, layer_top;
 
-		inline void setLayerBoundaries(int const& globalUpperLayer) {
-			this->layer_bottom = globalUpperLayer;
-			this->layer_top = 0;
+		inline void setLayerBoundaries() {
 
 			if (this->blocks.empty()) {
 				return;
 			}
 			else {
+				this->layer_bottom = this->layer_top = this->blocks[0]->layer;
+
 				for (Block const* b : this->blocks) {
 					this->layer_bottom = min(this->layer_bottom, b->layer);
 					this->layer_top = max(this->layer_top, b->layer);
-
 				}
 			}
 		};

@@ -25,6 +25,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	string config_file;
 	stringstream results_file, solution_file;
 	stringstream blocks_file;
+	stringstream pins_file;
 	stringstream power_density_file;
 	stringstream nets_file;
 	string tmpstr;
@@ -45,6 +46,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
 	fp.blocks_file = blocks_file.str();
+
+	pins_file << argv[3] << fp.benchmark << ".pl";
+	fp.pins_file = pins_file.str();
 
 	power_density_file << argv[3] << fp.benchmark << ".power";
 	fp.power_density_file = power_density_file.str();
@@ -68,6 +72,14 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	if (!in.good()) {
 		cout << "IO> ";
 		cout << "Blocks file missing: " << fp.blocks_file << endl;
+		exit(1);
+	}
+	in.close();
+
+	in.open(fp.pins_file.c_str());
+	if (!in.good()) {
+		cout << "IO> ";
+		cout << "Pins file missing: " << fp.pins_file << endl;
 		exit(1);
 	}
 	in.close();
@@ -424,13 +436,14 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 
 // parse blocks file
 void IO::parseBlocks(FloorPlanner& fp) {
-	ifstream blocks_in, power_in;
+	ifstream blocks_in, pins_in, power_in;
 	string tmpstr;
 	double power = 0.0;
 	double max_area = 0.0;
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	string id;
+	double pins_scale_x, pins_scale_y;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -439,6 +452,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// open files
 	blocks_in.open(fp.blocks_file.c_str());
+	pins_in.open(fp.pins_file.c_str());
 	power_in.open(fp.power_density_file.c_str());
 
 	// drop power density file header line
@@ -470,7 +484,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// drop terminals count
 	blocks_in >> tmpstr;
 
-	// parse blocks
+	// parse blocks and pins
 	while (!blocks_in.eof()) {
 
 		// each line contains a block, two examples are below
@@ -487,13 +501,43 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// parse block type
 		blocks_in >> tmpstr;
 
-		// terminal blocks: store separately, continue w/ next block
+		// due to some empty lines at the end, we may have reached eof just now
+		if (blocks_in.eof()) {
+			break;
+		}
+
+		// terminal pins: store separately (as dummy blocks)
 		if (tmpstr == "terminal") {
+
+			// parse pins file for related coordinates
+			while (tmpstr != id && !pins_in.eof()) {
+				pins_in >> tmpstr;
+			}
+
+			// pin cannot be found; log
+			if (pins_in.eof() && fp.logMin()) {
+				cout << "IO> Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << endl;
+			}
+			// initially, parse coordinates of found pin; they will be scaled
+			// after parsing whole blocks file
+			else {
+				pins_in >> new_block.bb.ll.x;
+				pins_in >> new_block.bb.ll.y;
+			}
+
+			// store pin (block)
 			fp.terminals.push_back(new_block);
+
+			// reset pins file stream for next search
+			pins_in.clear() ;
+			pins_in.seekg(0, pins_in.beg);
+
+			// skip further block related handling
 			continue;
 		}
 		// hard blocks: parse dimensions
 		else if (tmpstr == "hardrectilinear") {
+
 			// drop "4"
 			blocks_in >> tmpstr;
 			// drop "(0,"
@@ -524,6 +568,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 		// soft blocks: parse area and AR range
 		else if (tmpstr == "softrectangular") {
+
 			// parse area, min AR, max AR
 			blocks_in >> new_block.bb.area;
 			blocks_in >> new_block.AR.min;
@@ -561,7 +606,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 			else {
 				if (fp.logMin()) {
-					cout << "IO> Some blocks have no power value assigned, consider checking the power density file!";
+					cout << "IO> Some blocks have no power value assigned, consider checking the power density file!" << endl;
 				}
 			}
 		}
@@ -583,6 +628,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		fp.blocks.push_back(move(new_block));
 	}
 
+	// close files
+	blocks_in.close();
+	power_in.close();
+	pins_in.close();
+
 	// determine deadspace amount for whole stack, now that the occupied blocks area
 	// is known
 	fp.stack_deadspace = fp.stack_area - fp.blocks_area;
@@ -591,9 +641,23 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.blocks_power_density_stats.avg /= fp.blocks.size();
 	fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.max - fp.blocks_power_density_stats.min;
 
-	// close files
-	blocks_in.close();
-	power_in.close();
+	// scale terminal pins; first determine original pins outline
+	pins_scale_x = pins_scale_y = 0.0;
+	for (Block const& pin : fp.terminals) {
+		pins_scale_x = max(pins_scale_x, pin.bb.ll.x);
+		pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
+	}
+	// scale terminal pins; scale pin coordinates according to die outline
+	pins_scale_x = fp.conf_outline_x / pins_scale_x;
+	pins_scale_y = fp.conf_outline_y / pins_scale_y;
+	for (Block& pin : fp.terminals) {
+		pin.bb.ll.x *= pins_scale_x;
+		pin.bb.ll.y *= pins_scale_y;
+		// also set upper right to same coordinates, thus pins are ``point''
+		// blocks w/ zero area
+		pin.bb.ur.x = pin.bb.ll.x;
+		pin.bb.ur.y = pin.bb.ll.y;
+	}
 
 	// sanity check of fixed outline
 	blocks_outline_ratio = fp.blocks_area / fp.stack_area;
@@ -618,7 +682,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// logging
 	if (fp.logMed()) {
 		cout << "IO> ";
-		cout << "Done; " << fp.blocks.size() << " blocks read in" << endl;
+		cout << "Done; " << fp.blocks.size() << " blocks read in, " << fp.terminals.size() << " terminal pins read in" << endl;
 		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
 		cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
@@ -642,6 +706,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	string net_block;
 	Block const* b;
 	int id;
+	bool pin_not_found_block, pin_not_found_terminal;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -670,39 +735,57 @@ void IO::parseNets(FloorPlanner& fp) {
 		// parse net degree
 		in >> net_degree;
 
-		// read in blocks of net
+		// read in blocks and terminals of net
 		new_net.blocks.clear();
+		new_net.terminals.clear();
 		for (i = 0; i < net_degree; i++) {
 
 			// parse block id
 			in >> net_block;
 
-			// terminal pins: mark net and drop (i.e., don't add) related block
-			if (Block::findBlock(net_block, fp.terminals) != nullptr) {
+			// try to parse pin as terminal pin
+			pin_not_found_terminal = false;
+			b = Block::findBlock(net_block, fp.terminals);
+			if (b != nullptr) {
 				// mark net as net w/ external pin
 				new_net.hasExternalPin = true;
+				// store terminal
+				new_net.terminals.push_back(move(b));
 			}
-			// regular block pin: retrieve and memorize corresponding block
 			else {
+				pin_not_found_terminal = true;
+			}
+
+			// try to parse pin as regular block pin
+			pin_not_found_block = false;
+			if (b == nullptr) {
 				b = Block::findBlock(net_block, fp.blocks);
 				if (b != nullptr) {
+					// store block
 					new_net.blocks.push_back(move(b));
 				}
 				else {
-					if (fp.logMin()) {
-						cout << "Net " << id << "'s block " << net_block;
-						cout << " cannot be retrieved; consider checking net file" << endl;
-					}
+					pin_not_found_block = true;
 				}
 			}
 
 			// drop "B"
 			in >> tmpstr;
+
+			// log pin parsing failure
+			if (fp.logMin()) {
+				if (pin_not_found_block && !pin_not_found_terminal) {
+					cout << "Net " << id << "'s block pin \"" << net_block << "\"";
+					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
+				}
+				else if (pin_not_found_block && pin_not_found_terminal) {
+					cout << "Net " << id << "'s terminal pin \"" << net_block << "\"";
+					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
+				}
+			}
 		}
 
-		// store nets connecting two or more blocks
-		// ignores nets connecting only to external pins
-		// (TODO) consider external pins w/ position
+		// sanity check; store only nets connecting two or more blocks
 		if (new_net.blocks.size() > 1) {
 			fp.nets.push_back(move(new_net));
 		}
