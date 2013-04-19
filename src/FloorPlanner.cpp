@@ -1015,9 +1015,6 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 	return ret;
 }
 
-// (TODO) implement other variants to compare w/ other floorplanners; consider static bool
-// in Corblivar.hpp for selecting appropriate version during compile time / config
-// parameter during runtime
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) {
 	int i, ii;
 	vector<Rect const*> blocks_to_consider;
@@ -1089,6 +1086,15 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 				}
 				else {
 					ii++;
+				}
+			}
+
+			// also consider routes to terminal pins on each layer
+			for (Block const* pin :  cur_net.terminals) {
+				blocks_to_consider.push_back(move(&pin->bb));
+
+				if (FloorPlanner::DBG_LAYOUT) {
+					cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
 				}
 			}
 
