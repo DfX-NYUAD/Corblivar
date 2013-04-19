@@ -114,17 +114,21 @@ class FloorPlanner {
 		// SA parameters: layout generation options
 		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_packing, conf_SA_layout_power_guided_block_swapping;
 
-		// SA parameters: temperature-scaling factors
-		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase1_limit, conf_SA_temp_factor_phase2;
-
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;
 
 		// SA parameter: scaling factor for initial temp
 		static constexpr double SA_INIT_TEMP_FACTOR = 20;
 
+		// SA parameters: temperature-scaling factors
+		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase1_limit, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
+
 		// SA: temperature-schedule log data
 		vector<TempStep> tempSchedule;
+
+		// SA: reheating parameters
+		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
+		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
 		// SA: layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;

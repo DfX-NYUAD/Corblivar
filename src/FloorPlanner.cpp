@@ -231,12 +231,39 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	double loop_factor;
 	double prev_temp;
 	int phase;
+	vector<double> prev_avg_cost;
+	double std_dev_avg_cost;
+	unsigned i, temp_schedule_size;
 
 	prev_temp = cur_temp;
 
-	/// reduce temp
-	// phase 1; adaptive cooling (slows down from conf_SA_temp_factor_phase1 to 1.0)
-	if (iteration_first_valid_layout == Point::UNDEF) {
+	// consider reheating in case the SA search has converged in some (possibly local) minima
+	//
+	// determine std dev of avg cost of some previous temperature steps
+
+	temp_schedule_size = this->tempSchedule.size();
+
+	if (temp_schedule_size >= FloorPlanner::SA_REHEAT_COST_SAMPLES) {
+
+		for (i = 1; i <= FloorPlanner::SA_REHEAT_COST_SAMPLES; i++) {
+			prev_avg_cost.push_back(this->tempSchedule[temp_schedule_size - i].avg_cost);
+		}
+
+		std_dev_avg_cost = Math::stdDev(prev_avg_cost);
+	}
+	else {
+		std_dev_avg_cost = FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT + 1;
+	}
+
+	// phase 3; brief reheating due to cost convergence
+	if (this->conf_SA_temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
+		cur_temp *= this->conf_SA_temp_factor_phase3;
+
+		phase = 3;
+	}
+	// phase 1; adaptive cooling (slows down from conf_SA_temp_factor_phase1 to
+	// conf_SA_temp_factor_phase1_limit)
+	else if (iteration_first_valid_layout == Point::UNDEF) {
 		loop_factor = (this->conf_SA_temp_factor_phase1_limit - this->conf_SA_temp_factor_phase1)
 			* static_cast<double>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is

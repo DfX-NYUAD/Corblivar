@@ -246,9 +246,14 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
-		cout << "IO> Provide positive, non-zero SA cooling factors!" << endl;
+		cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << endl;
 		exit(1);
 	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_SA_temp_factor_phase3;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -330,7 +335,8 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		// SA cooling schedule
 		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
 		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and converging): " << fp.conf_SA_temp_factor_phase2 << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.conf_SA_temp_factor_phase2 << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.conf_SA_temp_factor_phase3 << endl;
 
 		// SA cost factors
 		if (fp.power_density_file_avail) {
