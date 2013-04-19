@@ -522,7 +522,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 			// pin cannot be found; log
 			if (pins_in.eof() && fp.logMin()) {
-				cout << "IO> Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << endl;
+				cout << "IO>  Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << endl;
 			}
 			// initially, parse coordinates of found pin; they will be scaled
 			// after parsing whole blocks file
@@ -595,9 +595,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 		// unknown block type
 		else {
-			cout << "IO> ";
-			cout << "Unknown block type: " << tmpstr << endl;
-			cout << "IO> Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+			cout << "IO>  Unknown block type: " << tmpstr << endl;
+			cout << "IO>  Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 			exit(1);
 		}
 
@@ -612,7 +611,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 			else {
 				if (fp.logMin()) {
-					cout << "IO> Some blocks have no power value assigned, consider checking the power density file!" << endl;
+					cout << "IO>  Some blocks have no power value assigned, consider checking the power density file!" << endl;
 				}
 			}
 		}
@@ -668,20 +667,20 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// sanity check of fixed outline
 	blocks_outline_ratio = fp.blocks_area / fp.stack_area;
 	if (blocks_outline_ratio > 1.0) {
-		cout << "IO> Chip too small; consider increasing the die outline or layers count" << endl;
+		cout << "IO>  Chip too small; consider increasing the die outline or layers count" << endl;
 		cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << endl;
 		exit(1);
 	}
 	// sanity check for largest block
 	if (max_area > fp.die_area) {
-		cout << "IO> Die outline too small; consider increasing it" << endl;
+		cout << "IO>  Die outline too small; consider increasing it" << endl;
 		cout << "IO>  Largest-block/die area ratio: " << max_area / fp.die_area << endl;
 		exit(1);
 	}
 
 	// sanity check for parsed blocks
 	if (fp.blocks.empty()) {
-		cout << "IO> No blocks parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+		cout << "IO>  No blocks parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 		exit(1);
 	}
 
@@ -786,11 +785,11 @@ void IO::parseNets(FloorPlanner& fp) {
 			// log pin parsing failure
 			if (fp.logMin()) {
 				if (pin_not_found_block && !pin_not_found_terminal) {
-					cout << "Net " << id << "'s block pin \"" << net_block << "\"";
+					cout << "IO>  Net " << id << "'s block pin \"" << net_block << "\"";
 					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
 				}
 				else if (pin_not_found_block && pin_not_found_terminal) {
-					cout << "Net " << id << "'s terminal pin \"" << net_block << "\"";
+					cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
 					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
 				}
 			}
