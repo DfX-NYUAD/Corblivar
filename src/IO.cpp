@@ -330,12 +330,10 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		// layout generation options
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
 		cout << "IO>  SA -- Layout generation; packing: " << fp.conf_SA_layout_packing << endl;
+		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
 		// consider power-guided block swapping only if thermal optimization is on
 		if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
 			fp.conf_SA_layout_power_guided_block_swapping = false;
-		}
-		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
-		if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
 			cout << "IO>     Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
 		}
 
@@ -351,8 +349,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.conf_SA_temp_factor_phase3 << endl;
 
 		// SA cost factors
-		if (fp.power_density_file_avail) {
-			cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
+		cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
+		if (!fp.power_density_file_avail) {
+			cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << endl;
 		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
