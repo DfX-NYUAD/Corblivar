@@ -866,14 +866,22 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 		cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << phase_two << ", " << set_max_cost << ")" << endl;
 	}
 
-	// cost area and outline, returns weighted (and normalized) cost using an adaptive cost model
-	// also determine whether layout fits into outline
-	//
-	// no sanity check required, handled in IO::parseParameterConfig
-	cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
+	// phase one: consider only cost for packing into outline
+	if (!phase_two) {
+		// determine area and outline cost; no sanity check for
+		// conf_SA_cost_area_outline != 0.0 required, handled in
+		// IO::parseParameterConfig
+		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
+		// invert weight since it's the only cost term
+		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
+	}
+	// phase two: consider further cost factors
+	else {
 
-	// consider further cost factors
-	if (phase_two) {
+		// area and outline cost
+		//
+		// no sanity check required, handled in IO::parseParameterConfig
+		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 		// normalized interconnects cost
 		//
@@ -899,7 +907,7 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 			cost_thermal = this->determCostThermalDistr(set_max_cost);
 		}
 
-		// cost function; sum up cost terms
+		// cost function; weight and sum up cost terms
 		cost_total =
 			this->conf_SA_cost_WL * cost_interconnects.HPWL
 			+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
@@ -908,18 +916,13 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 			+ cost_area_outline.cost;
 		;
 	}
-	else {
-		// invert cost-factor weight since only one factor defines the cost fct
-		//
-		// no sanity check required, handled in IO::parseParameterConfig
-		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
-	}
 
 	if (FloorPlanner::DBG_LAYOUT) {
 		cout << "DBG_LAYOUT> ";
 		cout << "Layout cost: " << cost_total << endl;
 	}
 
+	// return total cost and whether layout fits into outline
 	ret.cost = cost_total;
 	ret.fits_fixed_outline = cost_area_outline.fits_fixed_outline;
 
