@@ -1035,11 +1035,13 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	// specific settings: labels
 	gp_out << "set xlabel \"SA Step\"" << endl;
 	gp_out << "set ylabel \"SA Temperature\"" << endl;
+	// specific settings: key, labels box
+	gp_out << "set key out bottom center" << endl;
 	// specific settings: log scale
 	gp_out << "set log y" << endl;
+	gp_out << "set mytics 10" << endl;
 	// second, indepentend log scale for cost values
 	gp_out << "set log y2" << endl;
-	gp_out << "set mytics 10" << endl;
 
 	// gp data plot command
 	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"Temperature Schedule\" with linespoints linestyle 1, \\" << endl;
