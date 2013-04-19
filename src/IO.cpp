@@ -735,6 +735,11 @@ void IO::parseNets(FloorPlanner& fp) {
 		// parse net degree
 		in >> net_degree;
 
+		// due to some empty lines at the end, we may have reached eof just now
+		if (in.eof()) {
+			break;
+		}
+
 		// read in blocks and terminals of net
 		new_net.blocks.clear();
 		new_net.terminals.clear();
