@@ -391,9 +391,10 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cost = this->determCost(1.0, true).cost;
 		}
 
-		// determine area cost, invert weight
-		// no sanity check for conf_SA_cost_area_outline != 0.0 required, handled in IO::parseParameterConfig
-		area = (1.0 / this->conf_SA_cost_area_outline) * this->determCostAreaOutline(1.0).cost;
+		// determine area (max blocks-outline / die-outline ratio); no sanity
+		// check for conf_SA_cost_area_outline != 0.0 required, handled in
+		// IO::parseParameterConfig; invert weight in order to retrieve area ratio
+		area = (1.0 / this->conf_SA_cost_area_outline) * this->determWeightedCostAreaOutline(1.0).cost;
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
@@ -869,7 +870,7 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 	// also determine whether layout fits into outline
 	//
 	// no sanity check required, handled in IO::parseParameterConfig
-	cost_area_outline = this->determCostAreaOutline(ratio_feasible_solutions_fixed_outline);
+	cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 	// consider further cost factors
 	if (phase_two) {
@@ -931,7 +932,7 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_
 // depending on ratio of feasible solutions (solutions fitting into outline)
-FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline) const {
+FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -943,7 +944,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 	Cost ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::determCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
+		cout << "-> FloorPlanner::determWeightedCostAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
 	}
 
 	dies_AR.reserve(this->conf_layer);
@@ -1005,7 +1006,7 @@ FloorPlanner::Cost FloorPlanner::determCostAreaOutline(double const& ratio_feasi
 	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::determCostAreaOutline : " << ret << endl;
+		cout << "<- FloorPlanner::determWeightedCostAreaOutline : " << ret << endl;
 	}
 
 	return ret;

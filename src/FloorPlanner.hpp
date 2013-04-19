@@ -165,7 +165,7 @@ class FloorPlanner {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
 		};
-		Cost determCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
+		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
 
 		// SA parameters: max cost values
