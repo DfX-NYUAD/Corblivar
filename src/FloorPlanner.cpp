@@ -308,8 +308,8 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	// backup initial CBLs
 	corb.backupCBLs();
 
-	// init SA parameter: inner loop count
-	innerLoopMax = pow((double) this->blocks.size(), (double) 4/3);
+	// init SA parameter: inner loop ops
+	innerLoopMax = pow(static_cast<double>(this->blocks.size()), this->conf_SA_loopFactor);
 
 	/// initial sampling
 	//
@@ -327,9 +327,9 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	// also trigger cost function to assume no fitting layouts
 	i = 1;
 	accepted_ops = 0;
-	cost_samples.reserve(SA_SAMPLING_LOOP_FACTOR * innerLoopMax);
+	cost_samples.reserve(SA_SAMPLING_LOOP_FACTOR * this->blocks.size());
 
-	while (i <= SA_SAMPLING_LOOP_FACTOR * innerLoopMax) {
+	while (i <= SA_SAMPLING_LOOP_FACTOR * static_cast<int>(this->blocks.size())) {
 
 		op_success = this->performRandomLayoutOp(corb);
 
@@ -364,10 +364,6 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			i++;
 		}
 	}
-
-	// adapt inner-loops paramter according to config; done only now in order to rely
-	// on fixed sampling size for initial sampling
-	innerLoopMax *= this->conf_SA_loopFactor;
 
 	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
 	// Shahookar91]

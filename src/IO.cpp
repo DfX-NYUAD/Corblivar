@@ -340,7 +340,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 
 		// SA loop setup
-		cout << "IO>  SA -- Inner-loop operation-count a (iterations = a * N^(4/3) for N blocks): " << fp.conf_SA_loopFactor << endl;
+		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.conf_SA_loopFactor << endl;
 		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 
 		// SA cooling schedule
