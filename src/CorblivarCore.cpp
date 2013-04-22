@@ -14,11 +14,15 @@
 // required Corblivar headers
 #include "Math.hpp"
 
+// memory allocation
+constexpr int CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE;
+
 void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) {
 	Direction cur_dir;
 	int rand, cur_t;
 
 	if (log) {
+		// TODO replace layout w/ Corblivar, also in other cases
 		cout << "Layout> ";
 		cout << "Initializing Corblivar data for corb on " << layers << " layers..." << endl;
 	}
@@ -62,6 +66,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
+// TODO log
 void CorblivarCore::generateLayout(bool const& dbgStack) {
 	Block const* cur_block;
 	bool loop;
@@ -125,5 +130,73 @@ void CorblivarCore::generateLayout(bool const& dbgStack) {
 	if (CorblivarCore::DBG) {
 		cout << "DBG_CORE> ";
 		cout << "Done" << endl;
+	}
+}
+
+void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
+	vector<vector<CornerBlockList::Tuple>> tuples;
+	vector<CornerBlockList::Tuple> tuples_die;
+	CornerBlockList::Tuple cur_tuple;
+
+	// log
+	if (log) {
+		switch (mode) {
+
+			case CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE:
+				cout << "Corblivar> ";
+				cout << "Sorting CBL tuples by block sizes ..." << endl;
+
+				break;
+		}
+	}
+
+	// construct temp vectors w/ CBL tuples, assign separate CBL sequences to tuple vectors
+	for (CorblivarDie& die : this->dies) {
+
+		tuples_die.clear();
+
+		for (unsigned t = 0; t < die.CBL.size(); t++) {
+
+			cur_tuple.S = move(die.CBL.S[t]);
+			cur_tuple.L = move(die.CBL.L[t]);
+			cur_tuple.T = move(die.CBL.T[t]);
+
+			tuples_die.push_back(move(cur_tuple));
+		}
+
+		tuples.push_back(move(tuples_die));
+	}
+
+	// perfom sorting
+	switch (mode) {
+
+		// sort tuple vector by blocks size
+		case CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE:
+
+			for (auto& tuples_die : tuples) {
+				sort(tuples_die.begin(), tuples_die.end(), CornerBlockList::sortingLargerBlocks);
+			}
+
+			break;
+	}
+
+	// reassign CBL sequences from tuple vectors
+	unsigned d = 0;
+	for (CorblivarDie& die : this->dies) {
+
+		for (unsigned t = 0; t < die.CBL.size(); t++) {
+
+			die.CBL.S[t] = move(tuples[d][t].S);
+			die.CBL.L[t] = move(tuples[d][t].L);
+			die.CBL.T[t] = move(tuples[d][t].T);
+		}
+
+		d++;
+	}
+
+	// log
+	if (log) {
+		cout << "Corblivar> ";
+		cout << "Done" << endl << endl;
 	}
 }

@@ -468,7 +468,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	ifstream blocks_in, pins_in, power_in;
 	string tmpstr;
 	double power = 0.0;
-	double max_area = 0.0;
+	double blocks_max_area = 0.0, blocks_avg_area = 0.0;
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	string id;
@@ -660,7 +660,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// memorize summed blocks area and largest block, needs to fit into die
 		fp.blocks_area += new_block.bb.area;
-		max_area = max(max_area, new_block.bb.area);
+		blocks_max_area = max(blocks_max_area, new_block.bb.area);
 
 		// store block
 		fp.blocks.push_back(move(new_block));
@@ -674,6 +674,15 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// determine deadspace amount for whole stack, now that the occupied blocks area
 	// is known
 	fp.stack_deadspace = fp.stack_area - fp.blocks_area;
+
+	// determine if floorplacement case, i.e., some very large blocks exist
+	blocks_avg_area = fp.blocks_area / fp.blocks.size();
+	if (blocks_max_area >= FloorPlanner::FP_AREA_RATIO_LIMIT * blocks_avg_area) {
+		fp.conf_floorplacement = true;
+	}
+	else {
+		fp.conf_floorplacement = false;
+	}
 
 	// determine block power statistics
 	fp.blocks_power_density_stats.avg /= fp.blocks.size();
@@ -705,9 +714,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		exit(1);
 	}
 	// sanity check for largest block
-	if (max_area > fp.die_area) {
+	if (blocks_max_area > fp.die_area) {
 		cout << "IO>  Die outline too small; consider increasing it" << endl;
-		cout << "IO>  Largest-block/die area ratio: " << max_area / fp.die_area << endl;
+		cout << "IO>  Largest-block/die area ratio: " << blocks_max_area / fp.die_area << endl;
 		exit(1);
 	}
 
@@ -715,7 +724,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	if (fp.blocks.size() != (to_parse_soft_blocks + to_parse_hard_blocks)) {
 		cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
 		cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << endl;
-		cout << "IO>   Parsed soft blocks: " << soft_blocks << ", expected soft blocks count: " << to_parse_soft_blocks << endl;
 		exit(1);
 	}
 
@@ -731,6 +739,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in, " << fp.terminals.size() << " terminal pins read in" << endl;
 		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
+		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", handle as floorplacement: " << fp.conf_floorplacement << endl;
 		cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
 			cout << "; min power: " << fp.blocks_power_density_stats.min << ", max power: " << fp.blocks_power_density_stats.max;

@@ -70,14 +70,15 @@ class CorblivarDie {
 		// layout generation; may return nullptr
 		Block const* placeCurrentBlock(bool const& dbgStack = false);
 
-		// getter
-		inline CornerBlockList const& getCBL() const {
-			return this->CBL;
-		};
+		// setter
 		inline CornerBlockList& editCBL() {
 			return this->CBL;
 		};
 
+		// getter
+		inline CornerBlockList const& getCBL() const {
+			return this->CBL;
+		};
 		inline Block const* getBlock(unsigned const& tuple) const {
 			return this->CBL.S[tuple];
 		};

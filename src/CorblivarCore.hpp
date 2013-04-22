@@ -146,6 +146,10 @@ class CorblivarCore {
 			return ret.str();
 		};
 
+		// CBL sorting handler
+		static constexpr int SORT_CBLS_BY_BLOCKS_SIZE = 1;
+		void sortCBLs(bool const& log, int const& mode);
+
 		// CBL backup handler
 		inline void backupCBLs() {
 

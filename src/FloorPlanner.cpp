@@ -42,6 +42,13 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
 	}
 
+	// for handling floorplacement benchmarks, i.e., floorplanning w/ very large
+	// blocks, we handle this trivially by preferring large blocks in the lower left
+	// corner, i.e., perform a sorting of the sequences by block size
+	if (this->conf_floorplacement) {
+		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
+	}
+
 	// init SA: initial sampling; setup parameters, setup temperature schedule
 	this->initSA(corb, cost_samples, innerLoopMax, init_temp);
 

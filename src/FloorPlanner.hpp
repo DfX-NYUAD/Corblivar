@@ -183,6 +183,13 @@ class FloorPlanner {
 			double avg;
 		} blocks_power_density_stats;
 
+		// SA: ``floorplacement'' parameters, i.e., there should be different
+		// processes for floorplanning and placement; here, we use this mode for
+		// floorplanning very large blocks w/ small or medium blocks in parallel
+		//
+		static constexpr unsigned FP_AREA_RATIO_LIMIT = 50;
+		bool conf_floorplacement;
+
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference
 		void initSA(CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);

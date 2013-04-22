@@ -22,6 +22,7 @@
 #include <deque>
 #include <stack>
 #include <utility>
+#include <algorithm>
 // (TODO) replace w/ chrono
 #include <sys/timeb.h>
 
