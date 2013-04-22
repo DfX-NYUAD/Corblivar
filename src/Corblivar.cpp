@@ -33,30 +33,27 @@ int main (int argc, char** argv) {
 	// init Corblivar core
 	CorblivarCore corb = CorblivarCore(fp.getLayers(), fp.getBlocks().size());
 
-	/// init Corblivar layout data
-	if (fp.inputSolutionFileOpen()) {
-		// read from file
-		IO::parseCorblivarFile(fp, corb);
-		// assume read in data as currently best solution
-		corb.storeBestCBLs();
-	}
-	// generate new, random data set
-	else {
-		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks());
-	}
-
 	// init thermal analyzer, only reasonable after parsing config file
 	fp.initThermalAnalyzer();
 
 	// non-regular run; read in solution file
 	// (TODO) adapt if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
+
+		// read from file
+		IO::parseCorblivarFile(fp, corb);
+
+		// assume read in data as currently best solution
+		corb.storeBestCBLs();
+
 		// overall cost is not determined; cost cannot be determined since no
 		// normalization during SA search was performed
 		fp.finalize(corb, false);
 	}
 	// regular run; perform floorplanning
 	else {
+		// generate new, random data set
+		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks());
 
 		if (fp.logMin()) {
 			cout << "Corblivar> ";
