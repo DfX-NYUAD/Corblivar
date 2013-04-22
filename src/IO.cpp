@@ -281,7 +281,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_TSVs;
 
-	// TODO sanity check for sum of cost factors ~ 1
+	// sanity check for sum of cost factors
+	if (abs(fp.conf_SA_cost_thermal + fp.conf_SA_cost_WL + fp.conf_SA_cost_TSVs - 1.0) > 0.1) {
+		cout << "IO> Cost factors should sum up to approx. 1!" << endl;
+		exit(1);
+	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
