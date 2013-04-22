@@ -356,7 +356,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	}
 
 	if (log) {
-		cout << "Layout> ";
+		cout << "ThermalAnalyzer> ";
 		cout << "Initializing thermals masks for power blurring ..." << endl;
 	}
 
@@ -410,7 +410,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	}
 
 	if (log) {
-		cout << "Layout> ";
+		cout << "ThermalAnalyzer> ";
 		cout << "Done" << endl << endl;
 	}
 

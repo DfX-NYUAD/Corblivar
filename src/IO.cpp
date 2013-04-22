@@ -387,7 +387,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	unsigned dir;
 
 	if (fp.logMed()) {
-		cout << "Layout> ";
+		cout << "IO> ";
 		cout << "Initializing Corblivar data from solution file ..." << endl;
 	}
 
@@ -458,7 +458,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	}
 
 	if (fp.logMed()) {
-		cout << "Layout> ";
+		cout << "IO> ";
 		cout << "Done; parsed " << tuples << " tuples" << endl << endl;
 	}
 }

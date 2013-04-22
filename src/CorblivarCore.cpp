@@ -22,8 +22,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	int rand, cur_t;
 
 	if (log) {
-		// TODO replace layout w/ Corblivar, also in other cases
-		cout << "Layout> ";
+		cout << "Corblivar> ";
 		cout << "Initializing Corblivar data for corb on " << layers << " layers..." << endl;
 	}
 
@@ -61,12 +60,11 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 
 	if (log) {
-		cout << "Layout> ";
+		cout << "Corblivar> ";
 		cout << "Done" << endl << endl;
 	}
 }
 
-// TODO log
 void CorblivarCore::generateLayout(bool const& dbgStack) {
 	Block const* cur_block;
 	bool loop;
