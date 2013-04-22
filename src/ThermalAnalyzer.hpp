@@ -43,37 +43,38 @@ class ThermalAnalyzer {
 
 		// thermal modeling: dimensions
 		// represents the thermal map's dimension
-		static constexpr int thermal_map_dim = 64;
+		static constexpr int THERMAL_MAP_DIM = 64;
 		// represents the thermal mask's dimension (i.e., the 2D gauss function
 		// representing the thermal impulse response);
 		// note that value should be uneven!
-		static constexpr int mask_dim = 7;
+		static constexpr int THERMAL_MASK_DIM = 7;
 		// represents the center index of the center originated mask
-		static constexpr int mask_center = mask_dim / 2;
+		static constexpr int THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
 		// represents the amount of padded bins at power maps' boundaries
-		static constexpr int mask_dim_half = mask_center;
+		static constexpr int POWER_MAPS_PADDED_BINS = THERMAL_MASK_CENTER;
 		// represents the power maps' dimension
 		// (note that maps are padded at the boundaries according to mask
 		// dim in order to handle boundary values for convolution)
-		static constexpr int power_maps_dim = thermal_map_dim + (mask_dim - 1);
+		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
 		// thermal modeling: vector masks and maps
 		// mask[i][x/y], whereas mask[0] relates to the mask for layer 0 obtained
 		// by considering heat source in layer 0, mask[1] relates to the mask for
 		// layer 0 obtained by considering heat source in layer 1 and so forth.
 		// Note that the masks are only 1D for the separated convolution
-		vector< array<double,mask_dim> > thermal_masks;
+		vector< array<double,THERMAL_MASK_DIM> > thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		vector< array<array<double,power_maps_dim>,power_maps_dim> > power_maps;
+		vector< array<array<double,POWER_MAPS_DIM>,POWER_MAPS_DIM> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
-		array<array<double,thermal_map_dim>,thermal_map_dim> thermal_map;
+		array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> thermal_map;
 
 		// thermal modeling: parameters for generating power maps
 		double power_maps_dim_x, power_maps_dim_y;
 		double power_maps_bin_area;
-		double offset_x, offset_y;
+		double blocks_offset_x, blocks_offset_y;
 		double padding_right_boundary_blocks_distance, padding_upper_boundary_blocks_distance;
-		array<double,power_maps_dim> power_maps_bins_ll_x, power_maps_bins_ll_y;
+		array<double,POWER_MAPS_DIM> power_maps_bins_ll_x, power_maps_bins_ll_y;
+		static constexpr double PADDING_ZONE_BLOCKS_DISTANCE_LIMIT = 0.01;
 
 	// constructors, destructors, if any non-implicit
 	public:

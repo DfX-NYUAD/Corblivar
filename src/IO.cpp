@@ -942,12 +942,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// different 2D ranges for power map and thermal map
 			if (flag == 0) {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::power_maps_dim - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM - 1 << "]" << endl;
 			}
 			else {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::thermal_map_dim - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM - 1 << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM - 1 << "]" << endl;
 			}
 
 			// power maps: scale, label for cbrange
@@ -988,11 +988,11 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "8 \"#7f0000\")" << endl;
 
 			// for padded power maps: draw rectangle for unpadded core
-			if (flag == 0 && ThermalAnalyzer::mask_dim_half > 0) {
+			if (flag == 0 && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
 				gp_out << "set obj 1 rect from ";
-				gp_out << ThermalAnalyzer::mask_dim_half - 1 << ", " << ThermalAnalyzer::mask_dim_half - 1 << " to ";
-				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << ", ";
-				gp_out << ThermalAnalyzer::power_maps_dim - ThermalAnalyzer::mask_dim_half << " ";
+				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1 << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1 << " to ";
+				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
+				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " ";
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
 			}
 
@@ -1011,12 +1011,12 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// determine grid boundaries
 			if (flag == 0) {
-				x_limit = ThermalAnalyzer::power_maps_dim;
-				y_limit = ThermalAnalyzer::power_maps_dim;
+				x_limit = ThermalAnalyzer::POWER_MAPS_DIM;
+				y_limit = ThermalAnalyzer::POWER_MAPS_DIM;
 			}
 			else {
-				x_limit = ThermalAnalyzer::thermal_map_dim;
-				y_limit = ThermalAnalyzer::thermal_map_dim;
+				x_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
+				y_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
 			}
 
 			// output grid values

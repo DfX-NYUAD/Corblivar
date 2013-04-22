@@ -30,7 +30,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
 	// convolution of padded power maps
-	array<array<double,ThermalAnalyzer::power_maps_dim>,ThermalAnalyzer::power_maps_dim> thermal_map_tmp;
+	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << max_cost_temp << ", ";
@@ -55,15 +55,15 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 
 		// walk power-map grid for horizontal convolution; store into thermal_map_tmp;
 		// consider offset due to padding of power map; also walk only according
-		// to thermal_map_dim which is the relevant input dimension
-		for (y = ThermalAnalyzer::mask_dim_half; y < ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half; y++) {
+		// to THERMAL_MAP_DIM which is the relevant input dimension
+		for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
 
-			for (x = ThermalAnalyzer::mask_dim_half; x < ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half; x++) {
+			for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
 				// perform horizontal 1D convolution, i.e., multiply
 				// input[x] w/ mask
 				//
-				// e.g., for x = 0, mask_dim = 3
+				// e.g., for x = 0, THERMAL_MASK_DIM = 3
 				// convol1D(x=0) = input[-1] * mask[0] + input[0] * mask[1] + input[1] * mask[2]
 				//
 				// can be also illustrated by aligning and multiplying
@@ -75,15 +75,15 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 				// mask:
 				// |m=0 |m=1|m=2|
 				//
-				for (mask_i = 0; mask_i < ThermalAnalyzer::mask_dim; mask_i++) {
+				for (mask_i = 0; mask_i < ThermalAnalyzer::THERMAL_MASK_DIM; mask_i++) {
 
 					// determine power-map index; note that it is not
 					// out of range due to the padded power maps
-					i = x + (mask_i - ThermalAnalyzer::mask_center);
+					i = x + (mask_i - ThermalAnalyzer::THERMAL_MASK_CENTER);
 
 					if (ThermalAnalyzer::DBG) {
 						cout << "y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << endl;
-						if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
+						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
 							cout << "i out of range (should be limited by x)" << endl;
 						}
 					}
@@ -101,27 +101,27 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 
 		// walk power-map grid for horizontal convolution; use data from
 		// thermal_map_tmp and store into thermal_map
-		for (x = ThermalAnalyzer::mask_dim_half; x < ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half; x++) {
+		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
 			// adapt index for thermal map according to padding
-			map_x = x - ThermalAnalyzer::mask_dim_half;
+			map_x = x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
-			for (y = ThermalAnalyzer::mask_dim_half; y < ThermalAnalyzer::thermal_map_dim + ThermalAnalyzer::mask_dim_half; y++) {
+			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
 
 				// adapt index for thermal map according to padding
-				map_y = y - ThermalAnalyzer::mask_dim_half;
+				map_y = y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
 				// perform 1D vertical convolution
-				for (mask_i = 0; mask_i < ThermalAnalyzer::mask_dim; mask_i++) {
+				for (mask_i = 0; mask_i < ThermalAnalyzer::THERMAL_MASK_DIM; mask_i++) {
 
 					// determine power-map index; note that it is not
 					// out of range due to the padded power maps
-					i = y + (mask_i - ThermalAnalyzer::mask_center);
+					i = y + (mask_i - ThermalAnalyzer::THERMAL_MASK_CENTER);
 
 					if (ThermalAnalyzer::DBG) {
 						cout << "x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
 						cout << ", mask_i=" << mask_i << ", i=" << i << endl;
-						if (i < 0 || i >= ThermalAnalyzer::power_maps_dim) {
+						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
 							cout << "i out of range (should be limited by y)" << endl;
 						}
 					}
@@ -136,8 +136,8 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 
 	// determine max value
 	max_temp = 0.0;
-	for (x = 0; x < ThermalAnalyzer::thermal_map_dim; x++) {
-		for (y = 0; y < ThermalAnalyzer::thermal_map_dim; y++) {
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 			max_temp = max(max_temp, this->thermal_map[x][y]);
 		}
 	}
@@ -197,30 +197,30 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.x == 0.0) {
 			}
 			else {
-				block_offset.ll.x += this->offset_x;
+				block_offset.ll.x += this->blocks_offset_x;
 			}
 			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.y == 0.0) {
 			}
 			else {
-				block_offset.ll.y += this->offset_y;
+				block_offset.ll.y += this->blocks_offset_y;
 			}
 
 			// shift blocks to the upper right
-			block_offset.ur.x += this->offset_x;
-			block_offset.ur.y += this->offset_y;
+			block_offset.ur.x += this->blocks_offset_x;
+			block_offset.ur.y += this->blocks_offset_y;
 			// also consider extending blocks into right/upper padding zone if
 			// they are close to the related chip boundaries
 			if (
 					extend_boundary_blocks_into_padding_zone &&
-					abs(outline_x + this->offset_x - block_offset.ur.x) < this->padding_right_boundary_blocks_distance
+					abs(outline_x + this->blocks_offset_x - block_offset.ur.x) < this->padding_right_boundary_blocks_distance
 			   ) {
-				block_offset.ur.x = outline_x + 2.0 * this->offset_x;
+				block_offset.ur.x = outline_x + 2.0 * this->blocks_offset_x;
 			}
 			if (
 					extend_boundary_blocks_into_padding_zone
-					&& abs(outline_y + this->offset_y - block_offset.ur.y) < this->padding_upper_boundary_blocks_distance
+					&& abs(outline_y + this->blocks_offset_y - block_offset.ur.y) < this->padding_upper_boundary_blocks_distance
 			   ) {
-				block_offset.ur.y = outline_y + 2.0 * this->offset_y;
+				block_offset.ur.y = outline_y + 2.0 * this->blocks_offset_y;
 			}
 
 			// determine index boundaries for offset block
@@ -229,8 +229,8 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
 			y_upper = static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1;
 			// limit boundaries to power-map indices
-			x_upper = min(x_upper, ThermalAnalyzer::power_maps_dim - 1);
-			y_upper = min(y_upper, ThermalAnalyzer::power_maps_dim - 1);
+			x_upper = min(x_upper, ThermalAnalyzer::POWER_MAPS_DIM - 1);
+			y_upper = min(y_upper, ThermalAnalyzer::POWER_MAPS_DIM - 1);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
@@ -265,7 +265,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 }
 
 void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, double const& outline_y) {
-	array<array<double,ThermalAnalyzer::power_maps_dim>,ThermalAnalyzer::power_maps_dim> map;
+	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> map;
 	unsigned b;
 	int i;
 
@@ -287,17 +287,17 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 
 	// scale power map dimensions to outline of thermal map; this way the padding of
 	// power maps doesn't distort the block outlines in the thermal map
-	this->power_maps_dim_x = outline_x / ThermalAnalyzer::thermal_map_dim;
-	this->power_maps_dim_y = outline_y / ThermalAnalyzer::thermal_map_dim;
+	this->power_maps_dim_x = outline_x / ThermalAnalyzer::THERMAL_MAP_DIM;
+	this->power_maps_dim_y = outline_y / ThermalAnalyzer::THERMAL_MAP_DIM;
 
 	// determine offset for blocks, related to padding of power maps
-	this->offset_x = (outline_x / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
-	this->offset_y = (outline_y / ThermalAnalyzer::power_maps_dim) * ThermalAnalyzer::mask_dim_half;
+	this->blocks_offset_x = (outline_x / ThermalAnalyzer::POWER_MAPS_DIM) * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+	this->blocks_offset_y = (outline_y / ThermalAnalyzer::POWER_MAPS_DIM) * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
 	// determine max distance for blocks' upper/right boundaries to upper/right die
 	// outline to be padded
-	this->padding_right_boundary_blocks_distance = 0.01 * outline_x;
-	this->padding_upper_boundary_blocks_distance = 0.01 * outline_y;
+	this->padding_right_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_x;
+	this->padding_upper_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_y;
 
 	// predetermine map bins' area and lower-left corner coordinates
 	this->power_maps_bin_area = this->power_maps_dim_x * this->power_maps_dim_y;
@@ -323,7 +323,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	int i, ii;
 	double scale;
 	double layer_impulse_factor;
-	array<double,ThermalAnalyzer::mask_dim> mask;
+	array<double,ThermalAnalyzer::THERMAL_MASK_DIM> mask;
 	int x_y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
@@ -344,10 +344,10 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	// gauss2D such that gauss2D(x=y) = mask_boundary_value; constant spread (e.g.,
 	// 1.0) is sufficient since this function fitting only requires two paramaters,
 	// i.e., varying spread has no impact
-	static constexpr double spread = 1.0;
-	scale = sqrt(spread * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / sqrt(2.0);
+	static constexpr double SPREAD = 1.0;
+	scale = sqrt(SPREAD * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / sqrt(2.0);
 	// normalize factor according to half of mask dimension
-	scale /=  ThermalAnalyzer::mask_dim_half;
+	scale /=  ThermalAnalyzer::THERMAL_MASK_CENTER;
 
 	// determine masks for lowest layer, i.e., hottest layer
 	for (i = 1; i <= layers; i++) {
@@ -355,11 +355,11 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 		layer_impulse_factor = parameters.impulse_factor / pow(i, parameters.impulse_factor_scaling_exponent);
 
 		ii = 0;
-		for (x_y = -ThermalAnalyzer::mask_dim_half; x_y <= ThermalAnalyzer::mask_dim_half; x_y++) {
+		for (x_y = -ThermalAnalyzer::THERMAL_MASK_CENTER; x_y <= ThermalAnalyzer::THERMAL_MASK_CENTER; x_y++) {
 			// sqrt for impulse factor is mandatory since the mask is used for
 			// separated convolution (i.e., factor will be squared in final
 			// convolution result)
-			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), spread);
+			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), SPREAD);
 			ii++;
 		}
 
@@ -372,7 +372,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 		// dump mask
 		for (i = 0; i < layers; i++) {
 			cout << "DBG> Thermal 1D mask for layer 0 w/ point source on layer " << i << ":" << endl;
-			for (x_y = 0; x_y < ThermalAnalyzer::mask_dim; x_y++) {
+			for (x_y = 0; x_y < ThermalAnalyzer::THERMAL_MASK_DIM; x_y++) {
 				cout << this->thermal_masks[i][x_y] << ", ";
 			}
 			cout << endl;
