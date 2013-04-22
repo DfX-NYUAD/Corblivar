@@ -281,16 +281,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_TSVs;
 
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_SA_cost_area_outline;
-
-	// sanity check for mandatory area, outline cost
-	if (fp.conf_SA_cost_area_outline == 0.0) {
-		cout << "IO> A cost factor > 0 is required for area and outline optimization!" << endl;
-		exit(1);
-	}
+	// TODO sanity check for sum of cost factors ~ 1
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -355,7 +346,6 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
-		cout << "IO>  SA -- Cost factor for area and outline violation: " << fp.conf_SA_cost_area_outline << endl;
 
 		// power blurring parameters; for thermal analysis
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
