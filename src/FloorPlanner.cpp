@@ -409,7 +409,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	}
 
 	// determine final cost, also for non-Corblivar calls
-	if (valid_solution || !handle_corblivar) {
+	if (!handle_corblivar || valid_solution) {
 
 		// determine overall cost
 		if (determ_overall_cost) {
@@ -472,7 +472,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	}
 
 	// thermal-analysis files
-	if ((valid_solution || !handle_corblivar) && this->power_density_file_avail) {
+	if ((!handle_corblivar || valid_solution) && this->power_density_file_avail) {
 		// generate power and thermal maps
 		IO::writePowerThermalMaps(*this);
 		// generate HotSpot files
