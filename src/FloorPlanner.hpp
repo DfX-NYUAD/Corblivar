@@ -108,6 +108,9 @@ class FloorPlanner {
 		// SA parameters: loop control
 		double conf_SA_loopFactor, conf_SA_loopLimit;
 
+		// SA parameters: optimization flags
+		bool conf_SA_opt_thermal, conf_SA_opt_interconnects;
+
 		// SA parameters: cost factors
 		double conf_SA_cost_thermal, conf_SA_cost_WL, conf_SA_cost_TSVs;
 

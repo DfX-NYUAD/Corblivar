@@ -271,6 +271,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_thermal;
 
+	// memorize if thermal optimization should be performed
+	fp.conf_SA_opt_thermal = (fp.conf_SA_cost_thermal > 0.0 && fp.power_density_file_avail);
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -280,6 +283,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.conf_SA_cost_TSVs;
+
+	// memorize if interconnects optimization should be performed
+	fp.conf_SA_opt_interconnects = (fp.conf_SA_cost_WL > 0.0 || fp.conf_SA_cost_TSVs > 0.0);
 
 	// sanity check for sum of cost factors
 	if (abs(fp.conf_SA_cost_thermal + fp.conf_SA_cost_WL + fp.conf_SA_cost_TSVs - 1.0) > 0.1) {
@@ -327,7 +333,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Layout generation; packing: " << fp.conf_SA_layout_packing << endl;
 		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
 		// consider power-guided block swapping only if thermal optimization is on
-		if (!fp.power_density_file_avail || fp.conf_SA_cost_thermal == 0.0) {
+		if (!fp.conf_SA_opt_thermal) {
 			fp.conf_SA_layout_power_guided_block_swapping = false;
 			cout << "IO>     Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
 		}

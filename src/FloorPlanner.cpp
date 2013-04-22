@@ -901,30 +901,26 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 		// area and outline cost, already weigthed w/ global weight factor
 		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
-		// normalized interconnects cost
+		// normalized interconnects cost; only if interconnect opt is on
 		//
-		// sanity check for zero cost weight
-		// TODO replace w/ bool flags for optimization run, determine in IO
-		if (this->conf_SA_cost_WL == 0.0 && this->conf_SA_cost_TSVs == 0.0) {
-			cost_interconnects.HPWL = 0.0;
-			cost_interconnects.TSVs = 0.0;
+		if (this->conf_SA_opt_interconnects) {
+			cost_interconnects = this->determCostInterconnects(set_max_cost);
 		}
 		else {
-			cost_interconnects = this->determCostInterconnects(set_max_cost);
+			cost_interconnects.HPWL = 0.0;
+			cost_interconnects.TSVs = 0.0;
 		}
 
 		// TODO cost (failed) alignments
 		cost_alignments = 0.0;
 
-		// normalized temperature-distribution cost
+		// normalized temperature-distribution cost; only if thermal opt is on
 		//
-		// sanity check for zero cost weight or no power density values
-		// TODO replace w/ bool flags for optimization run, determine in IO
-		if (this->conf_SA_cost_thermal == 0.0 || !this->power_density_file_avail) {
-			cost_thermal = 0.0;
+		if (this->conf_SA_opt_thermal) {
+			cost_thermal = this->determCostThermalDistr(set_max_cost);
 		}
 		else {
-			cost_thermal = this->determCostThermalDistr(set_max_cost);
+			cost_thermal = 0.0;
 		}
 
 		// cost function; weight and sum up cost terms
