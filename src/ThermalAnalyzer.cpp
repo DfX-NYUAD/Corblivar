@@ -159,14 +159,15 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& extend_boundary_blocks_into_padding_zone) {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, double const& power_density_scaling_padding_zone, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
 	Rect bin, intersect, block_offset;
 	int x_lower, x_upper, y_lower, y_upper;
+	bool padding_zone;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ", " << power_density_scaling_padding_zone << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
 	}
 
 	// determine maps for each layer
@@ -242,17 +243,41 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 					bin.ll.y = this->power_maps_bins_ll_y[y];
 					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
+					// determine if bin w/in padding zone
+					if (
+							x < ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1
+							|| x >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
+							|| y < ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1
+							|| y >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
+					   ) {
+						padding_zone = true;
+					}
+					else {
+						padding_zone = false;
+					}
+
 					// consider full block power density for fully covered bins
 					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-						this->power_maps[i][x][y] += block.power_density;
+						if (padding_zone) {
+							this->power_maps[i][x][y] += block.power_density * power_density_scaling_padding_zone;
+						}
+						else {
+							this->power_maps[i][x][y] += block.power_density;
+						}
 					}
 					// else consider intersection of bin and block at
 					// blocks' boundaries
 					else {
-						intersect = Rect::determineIntersection(bin, block_offset);
 						// scale power density according to
 						// intersection area
-						this->power_maps[i][x][y] += block.power_density * (intersect.area / this->power_maps_bin_area);
+						intersect = Rect::determineIntersection(bin, block_offset);
+
+						if (padding_zone) {
+							this->power_maps[i][x][y] += block.power_density * power_density_scaling_padding_zone * (intersect.area / this->power_maps_bin_area);
+						}
+						else {
+							this->power_maps[i][x][y] += block.power_density * (intersect.area / this->power_maps_bin_area);
+						}
 					}
 				}
 			}
