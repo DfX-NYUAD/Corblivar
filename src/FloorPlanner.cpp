@@ -808,9 +808,9 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 	unsigned tries;
 
 	if (!revert) {
-		// determine middle die by int division, i.e, results in
-		// lower die for uneven layer count, thus range for
-		// lower-die assignment is biased towards lower stack
+		// determine middle (boundary) die by int division, i.e, results in lower
+		// number for uneven layer count, thus range for lower-die selection is
+		// biased towards the lower stack, i.e., the hotter stack region
 		middle_die = this->conf_layer / 2;
 		// random lower die
 		die1 = Math::randI(0, middle_die);
@@ -822,6 +822,9 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 			return false;
 		}
 
+		// power density boundary, i.e., blocks above this value should be swapped
+		double const power_density_boundary = this->blocks_power_density_stats.avg;
+
 		// distinct dies, i.e., swapping w/in dies and thus
 		// checking for different tuples is not necessary
 
@@ -832,7 +835,7 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 
 			// check whether tuple has large power density
-			if (corb.getDie(die1).getBlock(tuple1)->power_density > this->blocks_power_density_stats.avg) {
+			if (corb.getDie(die1).getBlock(tuple1)->power_density > power_density_boundary) {
 				break;
 			}
 			// try next tuple
@@ -852,7 +855,7 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 			tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
 			// check whether tuple has low power density
-			if (corb.getDie(die2).getBlock(tuple2)->power_density < this->blocks_power_density_stats.avg) {
+			if (corb.getDie(die2).getBlock(tuple2)->power_density < power_density_boundary) {
 				break;
 			}
 			// try next tuple
