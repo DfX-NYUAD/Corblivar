@@ -409,10 +409,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cost = this->determCost(1.0, true).cost;
 		}
 
-		// determine area (max blocks-outline / die-outline ratio); no sanity
-		// check for conf_SA_cost_area_outline != 0.0 required, handled in
-		// IO::parseParameterConfig; invert weight in order to retrieve area ratio
-		area = (1.0 / this->conf_SA_cost_area_outline) * this->determWeightedCostAreaOutline(1.0).cost;
+		// determine area cost; invert weight in order to retrieve area ratio
+		// (max blocks-outline / die-outline ratio)
+		area = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * this->determWeightedCostAreaOutline(1.0).cost;
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
@@ -891,24 +890,21 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 
 	// phase one: consider only cost for packing into outline
 	if (!phase_two) {
-		// determine area and outline cost; no sanity check for
-		// conf_SA_cost_area_outline != 0.0 required, handled in
-		// IO::parseParameterConfig
+		// determine area and outline cost
 		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 		// invert weight since it's the only cost term
-		cost_total = (1.0 / this->conf_SA_cost_area_outline) * cost_area_outline.cost;
+		cost_total = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost_area_outline.cost;
 	}
 	// phase two: consider further cost factors
 	else {
 
-		// area and outline cost
-		//
-		// no sanity check required, handled in IO::parseParameterConfig
+		// area and outline cost, already weigthed w/ global weight factor
 		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 
 		// normalized interconnects cost
 		//
 		// sanity check for zero cost weight
+		// TODO replace w/ bool flags for optimization run, determine in IO
 		if (this->conf_SA_cost_WL == 0.0 && this->conf_SA_cost_TSVs == 0.0) {
 			cost_interconnects.HPWL = 0.0;
 			cost_interconnects.TSVs = 0.0;
@@ -923,6 +919,7 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 		// normalized temperature-distribution cost
 		//
 		// sanity check for zero cost weight or no power density values
+		// TODO replace w/ bool flags for optimization run, determine in IO
 		if (this->conf_SA_cost_thermal == 0.0 || !this->power_density_file_avail) {
 			cost_thermal = 0.0;
 		}
@@ -932,9 +929,11 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 
 		// cost function; weight and sum up cost terms
 		cost_total =
-			this->conf_SA_cost_WL * cost_interconnects.HPWL
-			+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
-			+ this->conf_SA_cost_thermal * cost_thermal
+			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
+					this->conf_SA_cost_WL * cost_interconnects.HPWL
+					+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
+					+ this->conf_SA_cost_thermal * cost_thermal
+				)
 			// area, outline cost is already weighted
 			+ cost_area_outline.cost;
 		;
@@ -956,8 +955,9 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 	return ret;
 }
 
-// adaptive cost model: terms for area and AR mismatch are _mutually_
-// depending on ratio of feasible solutions (solutions fitting into outline)
+// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
+// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
+// ``Modern floorplanning based on B*-Tree and fast simulated annealing''
 FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline) const {
 	double cost_area;
 	double cost_outline;
@@ -994,7 +994,7 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 		// area, represented by blocks' outline; normalized to die area
 		dies_area.push_back((max_outline_x * max_outline_y) / (this->die_area));
 
-		// aspect ratio; used to guide optimization towards fixed outline (Chen 2006)
+		// aspect ratio; used to guide optimization towards fixed outline
 		if (max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
 		}
@@ -1010,23 +1010,22 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// cost for AR mismatch (guides into fixed outline, Chen 2006)
+	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
 	for (i = 0; i < this->conf_layer; i++) {
 		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
 	}
 	// determine cost function value
-	cost_outline *= 0.5 * this->conf_SA_cost_area_outline * (1.0 - ratio_feasible_solutions_fixed_outline);
+	cost_outline *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 - ratio_feasible_solutions_fixed_outline);
 
-	// cost for area
+	// cost for area, considering max value of (blocks-outline area) / (die-outline
+	// area) guides towards balanced die occupation and area minimization
 	cost_area = 0.0;
-	// determine max value of (blocks-outline area) / (die-outline area);
-	// guides into balanced die occupation and area minimization
 	for (i = 0; i < this->conf_layer; i++) {
 		cost_area = max(cost_area, dies_area[i]);
 	}
 	// determine cost function value
-	cost_area *= 0.5 * this->conf_SA_cost_area_outline * (1.0 + ratio_feasible_solutions_fixed_outline);
+	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + ratio_feasible_solutions_fixed_outline);
 
 	ret.cost = cost_outline + cost_area;
 	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
