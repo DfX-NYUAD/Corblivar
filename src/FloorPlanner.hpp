@@ -166,9 +166,11 @@ class FloorPlanner {
 		bool performRandomLayoutOp(CorblivarCore& corb, bool const& phase_two = false, bool const& revertLastOp = false);
 		// note that die and tuple parameters are return-by-reference; non-const
 		// reference for CorblivarCore in order to enable operations on CBL-encode data
-		bool inline performOpSwapBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpSwapBlocks(bool const& revert, bool const& phase_one, CorblivarCore& corb,
+				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpMoveTuple(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
+		bool inline performOpMoveTuple(bool const& revert, bool const& phase_one, CorblivarCore& corb,
+				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
 		bool inline performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;

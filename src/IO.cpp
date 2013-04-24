@@ -677,11 +677,15 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// determine if floorplacement case, i.e., some very large blocks exist
 	blocks_avg_area = fp.blocks_area / fp.blocks.size();
-	if (blocks_max_area >= FloorPlanner::FP_AREA_RATIO_LIMIT * blocks_avg_area) {
-		fp.conf_floorplacement = true;
-	}
-	else {
-		fp.conf_floorplacement = false;
+	fp.conf_floorplacement = false;
+	for (Block& block : fp.blocks) {
+
+		if (block.bb.area >= FloorPlanner::FP_AREA_RATIO_LIMIT * blocks_avg_area) {
+
+			fp.conf_floorplacement = true;
+			// also mark block as floorplacement instance
+			block.floorplacement = true;
+		}
 	}
 
 	// determine block power statistics

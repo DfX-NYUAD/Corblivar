@@ -43,8 +43,11 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	}
 
 	// for handling floorplacement benchmarks, i.e., floorplanning w/ very large
-	// blocks, we handle this trivially by preferring large blocks in the lower left
-	// corner, i.e., perform a sorting of the sequences by block size
+	// blocks, we handle this naively by preferring these large blocks in the lower
+	// left corner, i.e., perform a sorting of the sequences by block size
+	//
+	// also, for random layout operations in SA phase one, these blocks are not
+	// allowed to be swapped or moved, see performOpSwapBlocks, performOpMoveTuple
 	if (this->conf_floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
@@ -533,7 +536,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 
 		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
 
-			ret = this->performOpSwapBlocks(revertLastOp, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpSwapBlocks(revertLastOp, !phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -547,7 +550,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 
 		case FloorPlanner::OP_MOVE_TUPLE: // op-code: 2
 
-			ret = this->performOpMoveTuple(revertLastOp, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpMoveTuple(revertLastOp, !phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -740,7 +743,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 	return true;
 }
 
-bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -766,7 +769,15 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore& corb, i
 			}
 		}
 
-		corb.moveTuples(die1, die2, tuple1, tuple2);
+		// for SA phase one, floorplacement blocks, i.e., large macros, should not
+		// be moved
+		if (this->conf_floorplacement && phase_one
+				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
+			return false;
+		}
+		else {
+			corb.moveTuples(die1, die2, tuple1, tuple2);
+		}
 	}
 	else {
 		corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
@@ -775,7 +786,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, CorblivarCore& corb, i
 	return true;
 }
 
-bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -800,7 +811,15 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, CorblivarCore& corb, 
 			}
 		}
 
-		corb.swapBlocks(die1, die2, tuple1, tuple2);
+		// for SA phase one, floorplacement blocks, i.e., large macros, should not
+		// be swapped
+		if (this->conf_floorplacement && phase_one
+				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
+			return false;
+		}
+		else {
+			corb.swapBlocks(die1, die2, tuple1, tuple2);
+		}
 	}
 	else {
 		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);

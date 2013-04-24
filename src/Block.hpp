@@ -32,6 +32,7 @@ class Block {
 			power_density= 0.0;
 			AR.min = AR.max = 1.0;
 			soft = false;
+			floorplacement = false;
 			//x_slack_backward = y_slack_backward = 0.0;
 			//x_slack_forward = y_slack_forward = 0.0;
 		};
@@ -57,6 +58,9 @@ class Block {
 		} AR;
 		// AR is only relevant for soft blocks
 		bool soft;
+
+		// large macro, flag for floorplacement handling
+		bool floorplacement;
 
 		// power in [W]
 		inline double power() const {
