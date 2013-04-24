@@ -148,7 +148,7 @@ class FloorPlanner {
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
 		// SA parameters: layout generation options
-		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_packing, conf_SA_layout_power_guided_block_swapping;
+		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_packing, conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
 
 		// SA: layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;
@@ -186,11 +186,11 @@ class FloorPlanner {
 		} blocks_power_density_stats;
 
 		// SA: ``floorplacement'' parameters, i.e., there should be different
-		// processes for floorplanning and placement; here, we use this mode for
-		// floorplanning very large blocks w/ small or medium blocks in parallel
+		// processes for floorplanning and placement; here, we use this limit to
+		// detect if floorplanning of very large blocks w/ small (/medium) blocks
+		// is required
 		//
 		static constexpr unsigned FP_AREA_RATIO_LIMIT = 50;
-		bool conf_floorplacement;
 
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference

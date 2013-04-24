@@ -210,6 +210,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_SA_layout_floorplacement;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_loopFactor;
 
 	in >> tmpstr;
@@ -348,6 +353,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 			fp.conf_SA_layout_power_guided_block_swapping = false;
 			cout << "IO>     Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
 		}
+		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
 
 		// SA loop setup
 		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.conf_SA_loopFactor << endl;
@@ -474,6 +480,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	string id;
 	double pins_scale_x, pins_scale_y;
 	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
+	bool floorplacement;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -677,16 +684,18 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// determine if floorplacement case, i.e., some very large blocks exist
 	blocks_avg_area = fp.blocks_area / fp.blocks.size();
-	fp.conf_floorplacement = false;
+	floorplacement = false;
 	for (Block& block : fp.blocks) {
 
 		if (block.bb.area >= FloorPlanner::FP_AREA_RATIO_LIMIT * blocks_avg_area) {
 
-			fp.conf_floorplacement = true;
+			floorplacement = true;
 			// also mark block as floorplacement instance
 			block.floorplacement = true;
 		}
 	}
+	// update config parameter, i.e., deactivated floorplacement if not required
+	fp.conf_SA_layout_floorplacement &= floorplacement;
 
 	// determine block power statistics
 	fp.blocks_power_density_stats.avg /= fp.blocks.size();
@@ -743,7 +752,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		cout << "IO> ";
 		cout << "Done; " << fp.blocks.size() << " blocks read in, " << fp.terminals.size() << " terminal pins read in" << endl;
 		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
-		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", handle as floorplacement: " << fp.conf_floorplacement << endl;
+
+		// floorplacement
+		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", to be handled as floorplacement: " << floorplacement << endl;
+		if (!fp.conf_SA_layout_floorplacement && floorplacement) {
+			cout << "IO>   Note: floorplacement is ignored since it's deactivated" << endl;
+		}
+
+		// blocks power
 		cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
 			cout << "; min power: " << fp.blocks_power_density_stats.min << ", max power: " << fp.blocks_power_density_stats.max;
@@ -752,6 +768,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		else {
 			cout << endl;
 		}
+
+		// blocks area
 		cout << "IO>  Summed blocks area [cm^2]: " << fp.blocks_area * 1.0e-8;
 		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;

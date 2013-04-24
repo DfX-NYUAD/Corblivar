@@ -48,7 +48,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	//
 	// also, for random layout operations in SA phase one, these blocks are not
 	// allowed to be swapped or moved, see performOpSwapBlocks, performOpMoveTuple
-	if (this->conf_floorplacement) {
+	if (this->conf_SA_layout_floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
 
@@ -771,7 +771,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& phase_one,
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be moved
-		if (this->conf_floorplacement && phase_one
+		if (this->conf_SA_layout_floorplacement && phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
@@ -813,7 +813,7 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& phase_one
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be swapped
-		if (this->conf_floorplacement && phase_one
+		if (this->conf_SA_layout_floorplacement && phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
