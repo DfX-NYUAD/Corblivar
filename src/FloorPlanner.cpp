@@ -36,7 +36,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i_valid_layout_found;
 	bool best_sol_found;
 	bool accept;
-	bool phase_two, phase_two_init;
+	bool SA_phase_two, SA_phase_two_init;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
@@ -60,7 +60,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	// init loop parameters
 	i = 1;
 	cur_temp = init_temp;
-	phase_two = phase_two_init = false;
+	SA_phase_two = SA_phase_two_init = false;
 	valid_layout_found = false;
 	i_valid_layout_found = Point::UNDEF;
 	layout_fit_ratio = 0.0;
@@ -79,18 +79,18 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		avg_cost = 0.0;
 		accepted_ops = 0;
 		layout_fit_counter = 0.0;
-		phase_two_init = false;
+		SA_phase_two_init = false;
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
 		corb.generateLayout();
-		cur_cost = this->determCost(layout_fit_ratio, phase_two).cost;
+		cur_cost = this->determCost(layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
-			op_success = this->performRandomLayoutOp(corb, phase_two);
+			op_success = this->performRandomLayoutOp(corb, SA_phase_two);
 
 			if (op_success) {
 
@@ -100,7 +100,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				corb.generateLayout();
 
 				// evaluate layout, new cost
-				cost = this->determCost(layout_fit_ratio, phase_two);
+				cost = this->determCost(layout_fit_ratio, SA_phase_two);
 				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -122,7 +122,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						accept = false;
 
 						// revert last op
-						this->performRandomLayoutOp(corb, phase_two, true);
+						this->performRandomLayoutOp(corb, SA_phase_two, true);
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
 					}
@@ -141,8 +141,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 						// switch to SA phase two when
 						// first fitting solution is found
-						if (!phase_two) {
-							phase_two = phase_two_init = true;
+						if (!SA_phase_two) {
+							SA_phase_two = SA_phase_two_init = true;
 							// also memorize in which
 							// iteration we found the first
 							// valid layout
@@ -166,8 +166,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						//
 						// during switch to phase two, initialize
 						// current cost as max cost for further
-						// normalization (phase_two_init)
-						fitting_cost = this->determCost(1.0, phase_two, phase_two_init).cost;
+						// normalization (SA_phase_two_init)
+						fitting_cost = this->determCost(1.0, SA_phase_two, SA_phase_two_init).cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -181,7 +181,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 				// after phase transition, skip current global iteration
 				// in order to consider updated cost function
-				if (phase_two_init) {
+				if (SA_phase_two_init) {
 					break;
 				}
 				// consider next loop iteration
@@ -498,13 +498,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	}
 }
 
-bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_two, bool const& revertLastOp) {
+bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, juncts;
 	bool ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << phase_two << ", " << revertLastOp << ")" << endl;
+		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << endl;
 	}
 
 	// revert last op
@@ -520,7 +520,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 		// thermal optimiziation; the flag
 		// conf_SA_layout_power_guided_block_swapping also considers if thermal
 		// optimization is enabled and if a power density file is available
-		if (phase_two && this->conf_SA_layout_power_guided_block_swapping) {
+		if (SA_phase_two && this->conf_SA_layout_power_guided_block_swapping) {
 			this->last_op = op = Math::randI(1, 7);
 		}
 		// SA phase one, reduced set of operations
@@ -536,7 +536,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 
 		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
 
-			ret = this->performOpSwapBlocks(revertLastOp, !phase_two, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpSwapBlocks(revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -550,7 +550,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& phase_
 
 		case FloorPlanner::OP_MOVE_TUPLE: // op-code: 2
 
-			ret = this->performOpMoveTuple(revertLastOp, !phase_two, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpMoveTuple(revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -743,7 +743,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 	return true;
 }
 
-bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -771,7 +771,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& phase_one,
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be moved
-		if (this->conf_SA_layout_floorplacement && phase_one
+		if (this->conf_SA_layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
@@ -786,7 +786,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& phase_one,
 	return true;
 }
 
-bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
 		die2 = Math::randI(0, corb.diesSize());
@@ -813,7 +813,7 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& phase_one
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be swapped
-		if (this->conf_SA_layout_floorplacement && phase_one
+		if (this->conf_SA_layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
@@ -905,17 +905,17 @@ bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore&
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& phase_two, bool const& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& SA_phase_two, bool const& set_max_cost) {
 	double cost_total, cost_thermal, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << phase_two << ", " << set_max_cost << ")" << endl;
+		cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
 	}
 
 	// phase one: consider only cost for packing into outline
-	if (!phase_two) {
+	if (!SA_phase_two) {
 		// determine area and outline cost
 		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 		// invert weight since it's the only cost term

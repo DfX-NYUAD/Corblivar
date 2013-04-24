@@ -123,7 +123,7 @@ class FloorPlanner {
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& phase_two = false, bool const& set_max_cost = false);
+		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y, this->conf_power_blurring_power_density_scaling_padding_zone);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
@@ -163,13 +163,13 @@ class FloorPlanner {
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
 		// SA: layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore& corb, bool const& phase_two = false, bool const& revertLastOp = false);
+		bool performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two = false, bool const& revertLastOp = false);
 		// note that die and tuple parameters are return-by-reference; non-const
 		// reference for CorblivarCore in order to enable operations on CBL-encode data
-		bool inline performOpSwapBlocks(bool const& revert, bool const& phase_one, CorblivarCore& corb,
+		bool inline performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
 				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpMoveTuple(bool const& revert, bool const& phase_one, CorblivarCore& corb,
+		bool inline performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
 				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
