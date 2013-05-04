@@ -45,11 +45,15 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		}
 
 		// determine y-coordinate for lower left corner of current block
+		//
+		// all rows are to be covered (according to T-juncts), thus place the
+		// block at the bottom die boundary
 		if (this->Hi.empty()) {
 			y = 0;
 		}
+		// only some rows are to be covered, thus determine the lower front of
+		// the related blocks
 		else {
-			// determine min value
 			y = relevBlocks[0]->bb.ll.y;
 			for (b = 1; b < relevBlocks.size(); b++) {
 				y = min(y, relevBlocks[b]->bb.ll.y);
@@ -60,7 +64,8 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		cur_block->bb.ll.y = y;
 		cur_block->bb.ur.y = cur_block->bb.h + y;
 
-		// determine x-coordinate for lower left corner of current block
+		// determine x-coordinate for lower left corner of current block, consider
+		// right front of blocks to be covered
 		x = 0;
 		for (Block const* b : relevBlocks) {
 			// only consider blocks which intersect in y-direction
@@ -98,7 +103,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				blocks_add_to_stack.push_front(b);
 			}
 		}
-		// also consider new block cur_block as right of others
+		// always consider cur_block as it's current corner block, i.e., right to others
 		blocks_add_to_stack.push_front(cur_block);
 
 		for (Block const* b : blocks_add_to_stack) {
@@ -116,11 +121,15 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		}
 
 		// determine x-coordinate for lower left corner of current block
+		//
+		// all columns are to be covered (according to T-juncts), thus place the
+		// block at the left die boundary
 		if (this->Vi.empty()) {
 			x = 0;
 		}
+		// only some columns are to be covered, thus determine the left front of
+		// the related blocks
 		else {
-			// determine min value
 			x = relevBlocks[0]->bb.ll.x;
 			for (b = 1; b < relevBlocks.size(); b++) {
 				x = min(x, relevBlocks[b]->bb.ll.x);
@@ -131,7 +140,8 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		cur_block->bb.ll.x = x;
 		cur_block->bb.ur.x = cur_block->bb.w + x;
 
-		// determine y-coordinate for lower left corner of current block
+		// determine y-coordinate for lower left corner of current block, consider
+		// upper front of blocks to be covered
 		y = 0;
 		for (Block const* b : relevBlocks) {
 			// only consider blocks which intersect in x-direction
@@ -169,7 +179,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				blocks_add_to_stack.push_front(b);
 			}
 		}
-		// also consider new block cur_block as above others
+		// always consider cur_block as it's current corner block, i.e., above others
 		blocks_add_to_stack.push_front(cur_block);
 
 		for (Block const* b : blocks_add_to_stack) {
