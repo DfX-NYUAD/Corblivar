@@ -83,7 +83,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
-		corb.generateLayout();
+		corb.generateLayout(this->conf_SA_layout_packing);
 		cur_cost = this->determCost(layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
@@ -97,7 +97,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				prev_cost = cur_cost;
 
 				// generate layout
-				corb.generateLayout();
+				corb.generateLayout(this->conf_SA_layout_packing);
 
 				// evaluate layout, new cost
 				cost = this->determCost(layout_fit_ratio, SA_phase_two);
@@ -328,7 +328,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	}
 
 	// init cost
-	corb.generateLayout();
+	corb.generateLayout(this->conf_SA_layout_packing);
 	cur_cost = this->determCost().cost;
 
 	// perform some random operations, for SA temperature = 0.0
@@ -348,7 +348,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			prev_cost = cur_cost;
 
 			// generate layout
-			corb.generateLayout();
+			corb.generateLayout(this->conf_SA_layout_packing);
 
 			// evaluate layout, new cost
 			cost = this->determCost();
@@ -408,7 +408,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
 		// generate final layout
-		corb.generateLayout();
+		corb.generateLayout(this->conf_SA_layout_packing);
 	}
 
 	// determine final cost, also for non-Corblivar calls

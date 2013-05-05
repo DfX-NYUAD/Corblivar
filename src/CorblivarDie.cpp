@@ -228,3 +228,92 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 
 	return cur_block;
 }
+
+// TODO consider alignment requirements; perform packing such that alignment is not
+// undermined
+void CorblivarDie::performPacking(Direction const& dir) {
+	list<Block const*> blocks;
+	double x, y;
+
+	// sanity check for empty dies
+	if (this->CBL.empty()) {
+		return;
+	}
+
+	// store blocks in separate list, for subsequent sorting
+	for (Block const* block : this->CBL.S) {
+		blocks.push_back(block);
+	}
+
+	// sort blocks by lower-left corner coordinate, in ascending order
+	if (dir == Direction::HORIZONTAL) {
+		blocks.sort(
+			// lambda expression for sorting by x-coordinate
+			[&](Block const* b1, Block const* b2){
+				return b1->bb.ll.x < b2->bb.ll.x;
+			}
+		);
+	}
+	else {
+		blocks.sort(
+			// lambda expression for sorting by y-coordinate
+			[&](Block const* b1, Block const* b2){
+				return b1->bb.ll.y < b2->bb.ll.y;
+			}
+		);
+	}
+
+	// for each block, perform packing by considering the gap b/w itself and the
+	// left/lower adjacent block
+	for (Block const* block : blocks) {
+
+		// skip blocks at left/bottom boundary
+		if (dir == Direction::HORIZONTAL) {
+			if (block->bb.ll.x == 0.0) {
+				continue;
+			}
+		}
+		else {
+			if (block->bb.ll.y == 0.0) {
+				continue;
+			}
+		}
+
+		// for remaining blocks, consider other blocks as neighbor block
+		x = y = 0.0;
+		for (Block const* neighbor : blocks) {
+
+			// only consider blocks left/below the block itself, i.e., stop
+			// walk on sorted list when we reach the block itself
+			if (neighbor->id == block->id) {
+				break;
+			}
+
+			// determine packed coordinates by considering the nearest,
+			// adjacent block and its upper right corner as new lower left
+			// corner for the block of interest
+			if (dir == Direction::HORIZONTAL) {
+				if (Rect::rectA_leftOf_rectB(neighbor->bb, block->bb, true)) {
+					x = max(x, neighbor->bb.ur.x);
+				}
+			}
+			else {
+				if (Rect::rectA_below_rectB(neighbor->bb, block->bb, true)) {
+					y = max(y, neighbor->bb.ur.y);
+				}
+			}
+		}
+
+		// update coordinate on block itself, effects the final layout as well as
+		// the currently walked list (which is required for step-wise packing from
+		// left/bottom to right/top boundary)
+		if (dir == Direction::HORIZONTAL) {
+			block->bb.ll.x = x;
+			block->bb.ur.x = block->bb.w + x;
+		}
+		else {
+			block->bb.ll.y = y;
+			block->bb.ur.y = block->bb.h + y;
+		}
+	}
+}

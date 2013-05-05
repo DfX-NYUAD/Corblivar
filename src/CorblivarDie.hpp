@@ -42,6 +42,7 @@ class CorblivarDie {
 		// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
 
+		// reset handler
 		inline void reset() {
 			// reset progress pointer
 			this->pi = 0;
@@ -56,6 +57,12 @@ class CorblivarDie {
 			}
 		};
 
+		// layout generation; may return nullptr
+		Block const* placeCurrentBlock(bool const& dbgStack = false);
+
+		// layout packing
+		void performPacking(Direction const& dir);
+
 	// constructors, destructors, if any non-implicit
 	public:
 		CorblivarDie(int const& i) {
@@ -66,9 +73,6 @@ class CorblivarDie {
 	// public data, functions
 	public:
 		friend class CorblivarCore;
-
-		// layout generation; may return nullptr
-		Block const* placeCurrentBlock(bool const& dbgStack = false);
 
 		// setter
 		inline CornerBlockList& editCBL() {

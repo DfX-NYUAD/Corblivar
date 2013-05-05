@@ -65,7 +65,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
-void CorblivarCore::generateLayout(bool const& dbgStack) {
+void CorblivarCore::generateLayout(bool const& pack, bool const& dbgStack) {
 	Block const* cur_block;
 	bool loop;
 
@@ -111,13 +111,27 @@ void CorblivarCore::generateLayout(bool const& dbgStack) {
 
 		// die done
 		if (this->p->done) {
-			// continue loop on yet unfinished die
+
+			// perform packing if desired; perform for each dimension
+			// separately and subsequently
+			if (pack) {
+				this->p->performPacking(Direction::HORIZONTAL);
+				this->p->performPacking(Direction::VERTICAL);
+				// pack again since previous packing likely results in new
+				// neighbor relations, i.e., new gaps; pack only in one
+				// dimension for efficiency, further packing is expected
+				// to only marginally effect layout
+				this->p->performPacking(Direction::HORIZONTAL);
+			}
+
+			// continue layout generation on yet unfinished die
 			for (CorblivarDie& die :  this->dies) {
 				if (!die.done) {
 					this->p = &die;
 					break;
 				}
 			}
+
 			// all dies handled, stop loop
 			if (this->p->done) {
 				loop = false;
