@@ -12,6 +12,8 @@
 
 // own Corblivar header
 #include "CorblivarDie.hpp"
+// required Corblivar headers
+#include "Math.hpp"
 
 Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	vector<Block const*> relevBlocks;
@@ -233,7 +235,12 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 // undermined
 void CorblivarDie::performPacking(Direction const& dir) {
 	list<Block const*> blocks;
+	list<Block const*>::iterator i1;
+	list<Block const*>::reverse_iterator i2;
+	Block const* block;
+	Block const* neighbor;
 	double x, y;
+	double block_front_checked;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -242,76 +249,141 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 	// store blocks in separate list, for subsequent sorting
 	for (Block const* block : this->CBL.S) {
-		blocks.push_back(block);
+		blocks.push_back(move(block));
 	}
 
-	// sort blocks by lower-left corner coordinate, in ascending order
 	if (dir == Direction::HORIZONTAL) {
+
+		// sort blocks by lower-left x-coordinate (ascending order)
 		blocks.sort(
-			// lambda expression for sorting by x-coordinate
+			// lambda expression
 			[&](Block const* b1, Block const* b2){
-				return b1->bb.ll.x < b2->bb.ll.x;
+				return (b1->bb.ll.x < b2->bb.ll.x)
+					// for blocks on same column, sort additionally by
+					// their width, putting the bigger back in the
+					// list, thus consider them first during
+					// subsequent checking for adjacent blocks
+					// (reverse list traversal)
+					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x < b2->bb.ur.x))
+					// for blocks on same column and w/ same width,
+					// order additionally by y-coordinate to ease list
+					// traversal (relevant blocks are adjacent tuples
+					// in list)
+					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x == b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
+					;
 			}
 		);
-	}
-	else {
-		blocks.sort(
-			// lambda expression for sorting by y-coordinate
-			[&](Block const* b1, Block const* b2){
-				return b1->bb.ll.y < b2->bb.ll.y;
-			}
-		);
-	}
 
-	// for each block, perform packing by considering the gap b/w itself and the
-	// left/lower adjacent block
-	for (Block const* block : blocks) {
+		// for each block, check the adjacent blocks and perform packing by
+		// considering the neighbors' nearest right front
+		for (i1 = blocks.begin(); i1 != blocks.end(); ++i1) {
+			block= *i1;
 
-		// skip blocks at left/bottom boundary
-		if (dir == Direction::HORIZONTAL) {
+			// skip blocks at left boundary, they are implicitly packed
 			if (block->bb.ll.x == 0.0) {
 				continue;
 			}
-		}
-		else {
-			if (block->bb.ll.y == 0.0) {
-				continue;
-			}
-		}
 
-		// for remaining blocks, consider other blocks as neighbor block
-		x = y = 0.0;
-		for (Block const* neighbor : blocks) {
+			// init packed coordinate
+			x = 0.0;
+			// init search stop flag
+			block_front_checked = 0.0;
 
-			// only consider blocks left/below the block itself, i.e., stop
-			// walk on sorted list when we reach the block itself
-			if (neighbor->id == block->id) {
-				break;
-			}
+			// check other blocks; walk in reverse order since we only need to
+			// consider the blocks to the left; note that, for some reason, we
+			// need to start iteration w/ the block itself, otherwise packing
+			// results in invalid layouts
+			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+				neighbor = *i2;
 
-			// determine packed coordinates by considering the nearest,
-			// adjacent block and its upper right corner as new lower left
-			// corner for the block of interest
-			if (dir == Direction::HORIZONTAL) {
 				if (Rect::rectA_leftOf_rectB(neighbor->bb, block->bb, true)) {
-					x = max(x, neighbor->bb.ur.x);
-				}
-			}
-			else {
-				if (Rect::rectA_below_rectB(neighbor->bb, block->bb, true)) {
-					y = max(y, neighbor->bb.ur.y);
-				}
-			}
-		}
 
-		// update coordinate on block itself, effects the final layout as well as
-		// the currently walked list (which is required for step-wise packing from
-		// left/bottom to right/top boundary)
-		if (dir == Direction::HORIZONTAL) {
+					// determine the packed coordinate by considering
+					// the neigbors nearest right front
+					x = max(x, neighbor->bb.ur.x);
+
+					// memorize the covered range of the block front
+					block_front_checked += Rect::determineIntersection(neighbor->bb, block->bb).h;
+				}
+				// in case the full block front was checked, we can stop
+				// checking other blocks
+				if (Math::doubleComp(block->bb.h, block_front_checked)) {
+					break;
+				}
+			}
+
+			// update coordinate on block itself, effects the final layout as well as
+			// the currently walked list (which is required for step-wise packing from
+			// left to right boundary)
 			block->bb.ll.x = x;
 			block->bb.ur.x = block->bb.w + x;
 		}
-		else {
+	}
+
+	// vertical direction
+	else {
+
+		// sort blocks by lower-left y-coordinate (ascending order)
+		blocks.sort(
+			// lambda expression
+			[&](Block const* b1, Block const* b2){
+				return (b1->bb.ll.y < b2->bb.ll.y)
+					// for blocks on same row, sort additionally by
+					// their height, putting the bigger back in the
+					// list, thus consider them first during
+					// subsequent checking for adjacent blocks
+					// (reverse list traversal)
+					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y < b2->bb.ur.y))
+					// for blocks on same row and w/ same height,
+					// order additionally by x-coordinate to ease list
+					// traversal (relevant blocks are adjacent tuples
+					// in list)
+					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y == b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
+					;
+			}
+		);
+
+		// for each block, check the adjacent blocks and perform packing by
+		// considering the neighbors' nearest upper front
+		for (i1 = blocks.begin(); i1 != blocks.end(); ++i1) {
+			block= *i1;
+
+			// skip blocks at bottom boundary, they are implicitly packed
+			if (block->bb.ll.y == 0.0) {
+				continue;
+			}
+
+			// init packed coordinate
+			y = 0.0;
+			// init search stop flag
+			block_front_checked = 0.0;
+
+			// check other blocks; walk in reverse order since we only need to
+			// consider the blocks below; note that, for some reason, we need
+			// to start iteration w/ the block itself, otherwise packing
+			// results in invalid layouts
+			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+				neighbor = *i2;
+
+				if (Rect::rectA_below_rectB(neighbor->bb, block->bb, true)) {
+
+					// determine the packed coordinate by considering
+					// the neigbors nearest right front
+					y = max(y, neighbor->bb.ur.y);
+
+					// memorize the covered range of the block front
+					block_front_checked += Rect::determineIntersection(neighbor->bb, block->bb).w;
+				}
+				// in case the full block front was checked, we can stop
+				// checking other blocks
+				if (Math::doubleComp(block->bb.w, block_front_checked)) {
+					break;
+				}
+			}
+
+			// update coordinate on block itself, effects the final layout as
+			// well as the currently walked list (which is required for
+			// step-wise packing from bottom to top boundary)
 			block->bb.ll.y = y;
 			block->bb.ur.y = block->bb.h + y;
 		}

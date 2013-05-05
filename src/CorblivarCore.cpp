@@ -118,10 +118,9 @@ void CorblivarCore::generateLayout(bool const& pack, bool const& dbgStack) {
 				this->p->performPacking(Direction::HORIZONTAL);
 				this->p->performPacking(Direction::VERTICAL);
 				// pack again since previous packing likely results in new
-				// neighbor relations, i.e., new gaps; pack only in one
-				// dimension for efficiency, further packing is expected
-				// to only marginally effect layout
+				// neighbor relations, i.e., possibly new gaps
 				this->p->performPacking(Direction::HORIZONTAL);
+				this->p->performPacking(Direction::VERTICAL);
 			}
 
 			// continue layout generation on yet unfinished die

@@ -69,13 +69,18 @@ class Math {
 
 			// determine std dev
 			return sqrt(sq_diffs / ((double) samples.size()));
-		}
+		};
 
 		// 1D gauss function; used for separated convolution w/ 2D gauss function,
 		// provides the impulse response function for power blurring
 		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
 			return factor * exp(-(1.0 / spread) * pow(value, 2.0));
-		}
+		};
+
+		// comparison of double values, allows minor deviation
+		inline static bool doubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
+			return abs(d1 - d2) < precision;
+		};
 };
 
 #endif
