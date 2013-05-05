@@ -168,11 +168,16 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 	// perfom sorting
 	switch (mode) {
 
-		// sort tuple vector by blocks size
+		// sort tuple vector by blocks size, in descending order
 		case CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE:
 
 			for (auto& tuples_die : tuples) {
-				sort(tuples_die.begin(), tuples_die.end(), CornerBlockList::sortingLargerBlocks);
+				sort(tuples_die.begin(), tuples_die.end(),
+					// lambda expression to provide compare function
+					[&](CornerBlockList::Tuple t1, CornerBlockList::Tuple t2) {
+						return t1.S->bb.area > t2.S->bb.area;
+					}
+				);
 			}
 
 			break;

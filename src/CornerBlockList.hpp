@@ -45,12 +45,6 @@ class CornerBlockList {
 			unsigned T;
 		};
 
-		// tuple-related helper
-		//
-		static inline bool sortingLargerBlocks(Tuple const& t1, Tuple const& t2) {
-			return t1.S->bb.area > t2.S->bb.area;
-		}
-
 		// getter / setter
 		inline unsigned size() const {
 
