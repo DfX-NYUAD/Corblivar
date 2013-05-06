@@ -194,10 +194,16 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_packing;
+	in >> fp.conf_SA_layout_packing_iterations;
+
+	// sanity check for packing iterations
+	if (fp.conf_SA_layout_packing_iterations < 0) {
+		cout << "IO> Provide a positive packing iterations count or set 0 to disable!" << endl;
+		exit(1);
+	}
 
 	// sanity check for packing and block rotation
-	if (fp.conf_SA_layout_enhanced_hard_block_rotation && fp.conf_SA_layout_packing) {
+	if (fp.conf_SA_layout_enhanced_hard_block_rotation && (fp.conf_SA_layout_packing_iterations > 0)) {
 		cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
 		exit(1);
 	}
@@ -346,7 +352,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 		// layout generation options
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
-		cout << "IO>  SA -- Layout generation; packing: " << fp.conf_SA_layout_packing << endl;
+		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
 		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
 		// consider power-guided block swapping only if thermal optimization is on
 		if (!fp.conf_SA_opt_thermal) {

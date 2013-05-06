@@ -148,7 +148,8 @@ class FloorPlanner {
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
 		// SA parameters: layout generation options
-		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_packing, conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
+		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
+		int conf_SA_layout_packing_iterations;
 
 		// SA: layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;
