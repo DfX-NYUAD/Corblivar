@@ -123,17 +123,11 @@ class Rect {
 		};
 
 		inline static bool rectA_leftOf_rectB(Rect const& a, Rect const& b, bool const& considerVerticalIntersect) {
-			bool const leftOf = (a.ur.x <= b.ll.x);
-			bool const verticalIntersect = rectsIntersectVertical(a, b);
-
-			return ((leftOf && verticalIntersect) || (leftOf && !considerVerticalIntersect));
+			return (a.ur.x <= b.ll.x) && (!considerVerticalIntersect || rectsIntersectVertical(a, b));
 		};
 
 		inline static bool rectA_below_rectB(Rect const& a, Rect const& b, bool const& considerHorizontalIntersect) {
-			bool const below = (a.ur.y <= b.ll.y);
-			bool const horizontalIntersect = rectsIntersectHorizontal(a, b);
-
-			return ((below && horizontalIntersect) || (below && !considerHorizontalIntersect));
+			return (a.ur.y <= b.ll.y) && (!considerHorizontalIntersect || rectsIntersectHorizontal(a, b));
 		};
 };
 
