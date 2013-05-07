@@ -41,6 +41,9 @@ class ThermalAnalyzer {
 		// [Park09]
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
 
+		// thermal modeling: offset for room temperature
+		static constexpr double ROOM_TEMPERATURE_K = 293.0;
+
 		// thermal modeling: dimensions
 		// represents the thermal map's dimension
 		static constexpr int THERMAL_MAP_DIM = 64;

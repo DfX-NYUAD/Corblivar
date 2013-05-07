@@ -1009,7 +1009,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// thermal maps: label for cbrange
 			else {
 				// thermal estimation, correlates w/ power density
-				gp_out << "set cblabel \"Thermal Estimate [{/Symbol a}K]\"" << endl;
+				gp_out << "set cblabel \"Estimated Temperature [K]\"" << endl;
 			}
 
 			// tics

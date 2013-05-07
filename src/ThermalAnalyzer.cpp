@@ -16,6 +16,9 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
+// memory allocation
+constexpr double ThermalAnalyzer::ROOM_TEMPERATURE_K;
+
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
@@ -37,14 +40,14 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 		cout << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
-	// init temp map to zero
+	// init temp map w/ zero
 	for (auto& m : thermal_map_tmp) {
 		m.fill(0.0);
 	}
 
-	// reset thermal map to zero
+	// reset final map to room temperature
 	for (auto& m : this->thermal_map) {
-		m.fill(0.0);
+		m.fill(ThermalAnalyzer::ROOM_TEMPERATURE_K);
 	}
 
 	/// perform 2D convolution by performing two separated 1D convolution iterations;
