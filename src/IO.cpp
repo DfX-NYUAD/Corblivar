@@ -1051,7 +1051,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// for padded power maps: draw rectangle for unpadded core
 			if (flag == 0 && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
 				gp_out << "set obj 1 rect from ";
-				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1 << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1 << " to ";
+				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " to ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " ";
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
