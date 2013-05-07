@@ -57,11 +57,16 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	// start w/ horizontal convolution (with which to start doesn't matter actually)
 	for (layer = 0; layer < layers; layer++) {
 
-		// walk power-map grid for horizontal convolution; store into thermal_map_tmp;
-		// consider offset due to padding of power map; also walk only according
-		// to THERMAL_MAP_DIM which is the relevant input dimension
-		for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+		// walk power-map grid for horizontal convolution; store into
+		// thermal_map_tmp; note that during horizontal convolution we need to
+		// walk the full y-dimension related to the padded power map in order to
+		// reasonably model the thermal effect in the padding zone during
+		// subsequent vertical convolution
+		for (y = 0; y < ThermalAnalyzer::POWER_MAPS_DIM; y++) {
 
+			// for the x-dimension during horizontal convolution, we need to
+			// restrict the considered range according to the thermal map in
+			// order to exploit the padded power map w/o mask boundary checks
 			for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
 				// perform horizontal 1D convolution, i.e., multiply
@@ -103,16 +108,16 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	// continue w/ vertical convolution
 	for (layer = 0; layer < layers; layer++) {
 
-		// walk power-map grid for horizontal convolution; use data from
-		// thermal_map_tmp and store into thermal_map
+		// walk power-map grid for vertical convolution; convolute mask w/ data
+		// obtained by horizontal convolution (thermal_map_tmp)
 		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
-			// adapt index for thermal map according to padding
+			// adapt index for final thermal map according to padding
 			map_x = x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
 			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
 
-				// adapt index for thermal map according to padding
+				// adapt index for final thermal map according to padding
 				map_y = y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
 				// perform 1D vertical convolution
