@@ -18,6 +18,7 @@
 
 // memory allocation
 constexpr double ThermalAnalyzer::ROOM_TEMPERATURE_K;
+constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
@@ -209,32 +210,38 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 				block_offset.ll.y += this->blocks_offset_y;
 			}
 
-			// shift blocks to the upper right
-			block_offset.ur.x += this->blocks_offset_x;
-			block_offset.ur.y += this->blocks_offset_y;
 			// also consider extending blocks into right/upper padding zone if
 			// they are close to the related chip boundaries
 			if (
 					extend_boundary_blocks_into_padding_zone &&
-					abs(outline_x + this->blocks_offset_x - block_offset.ur.x) < this->padding_right_boundary_blocks_distance
+					abs(outline_x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
 			   ) {
 				block_offset.ur.x = outline_x + 2.0 * this->blocks_offset_x;
 			}
+			// simple shift otherwise; compensate for padding of left/bottom
+			// boundaries
+			else {
+				block_offset.ur.x += this->blocks_offset_x;
+			}
+
 			if (
 					extend_boundary_blocks_into_padding_zone
-					&& abs(outline_y + this->blocks_offset_y - block_offset.ur.y) < this->padding_upper_boundary_blocks_distance
+					&& abs(outline_y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
 			   ) {
 				block_offset.ur.y = outline_y + 2.0 * this->blocks_offset_y;
 			}
+			else {
+				block_offset.ur.y += this->blocks_offset_y;
+			}
 
-			// determine index boundaries for offset block
+			// determine index boundaries for offset block; based on boundary
+			// of blocks and the covered bins; note that cast to int truncates
+			// toward zero, i.e., performs like floor for positive numbers
 			x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
-			x_upper = static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1;
 			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
+			// +1 in order to efficiently obtain the result of ceil() w/o cast
+			x_upper = static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1;
 			y_upper = static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1;
-			// limit boundaries to power-map indices
-			x_upper = min(x_upper, ThermalAnalyzer::POWER_MAPS_DIM - 1);
-			y_upper = min(y_upper, ThermalAnalyzer::POWER_MAPS_DIM - 1);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
@@ -242,15 +249,20 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 
 					// determine real coords of map bin
 					bin.ll.x = this->power_maps_bins_ll_x[x];
-					bin.ur.x = this->power_maps_bins_ll_x[x + 1];
 					bin.ll.y = this->power_maps_bins_ll_y[y];
+					// note that +1 is guaranteed to be within bounds
+					// of power_maps_bins_ll_x/y (size =
+					// ThermalAnalyzer::POWER_MAPS_DIM + 1); the
+					// related last tuple describes the upper-right
+					// corner coordinates of the right/top boundary
+					bin.ur.x = this->power_maps_bins_ll_x[x + 1];
 					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
 					// determine if bin w/in padding zone
 					if (
-							x < ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1
+							x < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
 							|| x >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
-							|| y < ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1
+							|| y < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
 							|| y >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
 					   ) {
 						padding_zone = true;
@@ -268,8 +280,8 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 							this->power_maps[i][x][y] += block.power_density;
 						}
 					}
-					// else consider intersection of bin and block at
-					// blocks' boundaries
+					// else consider block power according to
+					// intersection of bin and block
 					else {
 						// scale power density according to
 						// intersection area
@@ -319,20 +331,21 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 	this->power_maps_dim_y = outline_y / ThermalAnalyzer::THERMAL_MAP_DIM;
 
 	// determine offset for blocks, related to padding of power maps
-	this->blocks_offset_x = (outline_x / ThermalAnalyzer::POWER_MAPS_DIM) * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
-	this->blocks_offset_y = (outline_y / ThermalAnalyzer::POWER_MAPS_DIM) * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+	this->blocks_offset_x = this->power_maps_dim_x * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+	this->blocks_offset_y = this->power_maps_dim_y * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
 	// determine max distance for blocks' upper/right boundaries to upper/right die
 	// outline to be padded
 	this->padding_right_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_x;
 	this->padding_upper_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_y;
 
-	// predetermine map bins' area and lower-left corner coordinates
+	// predetermine map bins' area and lower-left corner coordinates; note that the
+	// last bin represents the upper-right coordinates for the penultimate bin
 	this->power_maps_bin_area = this->power_maps_dim_x * this->power_maps_dim_y;
-	for (b = 0; b < this->power_maps_bins_ll_x.size(); b++) {
+	for (b = 0; b <= ThermalAnalyzer::POWER_MAPS_DIM; b++) {
 		this->power_maps_bins_ll_x[b] = b * this->power_maps_dim_x;
 	}
-	for (b = 0; b < this->power_maps_bins_ll_y.size(); b++) {
+	for (b = 0; b <= ThermalAnalyzer::POWER_MAPS_DIM; b++) {
 		this->power_maps_bins_ll_y[b] = b * this->power_maps_dim_y;
 	}
 

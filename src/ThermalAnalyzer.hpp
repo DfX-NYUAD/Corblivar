@@ -76,7 +76,7 @@ class ThermalAnalyzer {
 		double power_maps_bin_area;
 		double blocks_offset_x, blocks_offset_y;
 		double padding_right_boundary_blocks_distance, padding_upper_boundary_blocks_distance;
-		array<double,POWER_MAPS_DIM> power_maps_bins_ll_x, power_maps_bins_ll_y;
+		array<double, POWER_MAPS_DIM + 1> power_maps_bins_ll_x, power_maps_bins_ll_y;
 		static constexpr double PADDING_ZONE_BLOCKS_DISTANCE_LIMIT = 0.01;
 
 	// constructors, destructors, if any non-implicit
