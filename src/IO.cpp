@@ -999,14 +999,16 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
 
-			// different 2D ranges for power map and thermal map
+			// different 2D ranges for power map and thermal map; consider
+			// dummy data row and column, since gnuplot option corners2color
+			// cuts off last row and column
 			if (flag == 0) {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
 			}
 			else {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM - 1 << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM - 1 << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
 			}
 
 			// power maps: scale, label for cbrange
@@ -1026,11 +1028,11 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			gp_out << "set tics front" << endl;
 			gp_out << "set grid xtics ytics ztics" << endl;
 			// pm3d algorithm determines an average value for each pixel,
-			// considering sourrounding pixels
+			// considering sourrounding pixels;
 			// skip this behaviour w/ ``corners2color''; c1 means to select
 			// the lower-left value, practically loosing one row and column in
-			// the overall plot
-			// see also http://gnuplot.sourceforge.net/demo/pm3d.html
+			// the overall plot (compensated for by dummy data; see also
+			// http://gnuplot.sourceforge.net/demo/pm3d.html
 			gp_out << "set pm3d map corners2color c1" << endl;
 			//// color printable as gray
 			//gp_out << "set palette rgbformulae 30,31,32" << endl;
@@ -1080,6 +1082,8 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// output grid values
 			for (x = 0; x < x_limit; x++) {
+
+				// real data
 				for (y = 0; y < y_limit; y++) {
 					if (flag == 0) {
 						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
@@ -1088,7 +1092,27 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
 					}
 				}
+
+				// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+				if (flag == 0) {
+					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
+				}
+				else {
+					data_out << x << "	" << y_limit << "	" << ThermalAnalyzer::ROOM_TEMPERATURE_K << endl;
+				}
+
+				// blank line marks new row for gnuplot
 				data_out << endl;
+			}
+
+			// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+			for (y = 0; y <= y_limit; y++) {
+				if (flag == 0) {
+					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
+				}
+				else {
+					data_out << x_limit << "	" << y << "	" << ThermalAnalyzer::ROOM_TEMPERATURE_K << endl;
+				}
 			}
 
 			// close file stream for data file
