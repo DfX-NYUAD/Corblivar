@@ -191,13 +191,21 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			}
 		}
 
-		// determine ratio of solutions fitting into outline in prev temp step;
-		// note that during the temp step this ratio is fixed in order to avoid
-		// sudden changes of related cost terms during few iterations
-		layout_fit_ratio = static_cast<double>(layout_fit_counter) / accepted_ops;
+		// determine ratio of solutions fitting into outline in current temp step;
+		// note that during the next temp step this ratio is fixed in order to
+		// avoid sudden changes of related cost terms during few iterations
+		if (accepted_ops > 0) {
+			layout_fit_ratio = static_cast<double>(layout_fit_counter) / accepted_ops;
+		}
+		else {
+			layout_fit_ratio = 0.0;
+		}
 
 		// determine avg cost for temp step
-		avg_cost /= accepted_ops;
+		if (accepted_ops > 0) {
+			avg_cost /= accepted_ops;
+		}
+
 		// determine accepted-ops ratio
 		accepted_ops_ratio = static_cast<double>(accepted_ops) / ii;
 
