@@ -46,7 +46,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 		m.fill(0.0);
 	}
 
-	// reset final map to room temperature
+	// init final map w/ room temperature
 	for (auto& m : this->thermal_map) {
 		m.fill(ThermalAnalyzer::ROOM_TEMPERATURE_K);
 	}
@@ -247,21 +247,13 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			// +1 in order to efficiently obtain the result of ceil() w/o cast
 			x_upper = static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1;
 			y_upper = static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1;
+			// limit upper bound according to power-maps dimension
+			x_upper = min(x_upper, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = min(y_upper, ThermalAnalyzer::POWER_MAPS_DIM);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
 				for (y = y_lower; y < y_upper; y++) {
-
-					// determine real coords of map bin
-					bin.ll.x = this->power_maps_bins_ll_x[x];
-					bin.ll.y = this->power_maps_bins_ll_y[y];
-					// note that +1 is guaranteed to be within bounds
-					// of power_maps_bins_ll_x/y (size =
-					// ThermalAnalyzer::POWER_MAPS_DIM + 1); the
-					// related last tuple describes the upper-right
-					// corner coordinates of the right/top boundary
-					bin.ur.x = this->power_maps_bins_ll_x[x + 1];
-					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
 					// determine if bin w/in padding zone
 					if (
@@ -286,17 +278,29 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 						}
 					}
 					// else consider block power according to
-					// intersection of bin and block
+					// intersection of current bin and block
 					else {
-						// scale power density according to
-						// intersection area
+						// determine real coords of map bin
+						bin.ll.x = this->power_maps_bins_ll_x[x];
+						bin.ll.y = this->power_maps_bins_ll_y[y];
+						// note that +1 is guaranteed to be within bounds
+						// of power_maps_bins_ll_x/y (size =
+						// ThermalAnalyzer::POWER_MAPS_DIM + 1); the
+						// related last tuple describes the upper-right
+						// corner coordinates of the right/top boundary
+						bin.ur.x = this->power_maps_bins_ll_x[x + 1];
+						bin.ur.y = this->power_maps_bins_ll_y[y + 1];
+
+						// determine intersection
 						intersect = Rect::determineIntersection(bin, block_offset);
+						// normalize to full bin area
+						intersect.area /= this->power_maps_bin_area;
 
 						if (padding_zone) {
-							this->power_maps[i][x][y] += block.power_density * power_density_scaling_padding_zone * (intersect.area / this->power_maps_bin_area);
+							this->power_maps[i][x][y] += block.power_density * intersect.area * power_density_scaling_padding_zone;
 						}
 						else {
-							this->power_maps[i][x][y] += block.power_density * (intersect.area / this->power_maps_bin_area);
+							this->power_maps[i][x][y] += block.power_density * intersect.area;
 						}
 					}
 				}
@@ -310,7 +314,6 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 }
 
 void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, double const& outline_y) {
-	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> map;
 	unsigned b;
 	int i;
 
@@ -321,13 +324,18 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 	// init power maps
 	this->power_maps.clear();
 	this->power_maps.reserve(layers);
-	// init temp map to zero
-	for (auto& m : map) {
-		m.fill(0.0);
-	}
-	// push back temp map in order to allocate power-maps memory
+
+	// allocate power-maps arrays
 	for (i = 0; i < layers; i++) {
-		this->power_maps.push_back(map);
+		this->power_maps.emplace_back(
+			array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM>()
+		);
+	}
+	// init the maps w/ zero values
+	for (i = 0; i < layers; i++) {
+		for (auto& partial_map : this->power_maps[i]) {
+			partial_map.fill(0.0);
+		}
 	}
 
 	// scale power map dimensions to outline of thermal map; this way the padding of
@@ -369,7 +377,6 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	int i, ii;
 	double scale;
 	double layer_impulse_factor;
-	array<double,ThermalAnalyzer::THERMAL_MASK_DIM> mask;
 	int x_y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
@@ -381,9 +388,16 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 		cout << "Initializing thermals masks for power blurring ..." << endl;
 	}
 
-	// clear masks
+	// init masks
 	this->thermal_masks.clear();
 	this->thermal_masks.reserve(layers);
+
+	// allocate mask arrays
+	for (i = 0; i < layers; i++) {
+		this->thermal_masks.emplace_back(
+			array<double,ThermalAnalyzer::THERMAL_MASK_DIM>()
+		);
+	}
 
 	// determine scale factor such that mask_boundary_value is reached at the boundary
 	// of the lowermost (2D) mask; based on general equation to determine x=y for
@@ -405,11 +419,9 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 			// sqrt for impulse factor is mandatory since the mask is used for
 			// separated convolution (i.e., factor will be squared in final
 			// convolution result)
-			mask[ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), SPREAD);
+			this->thermal_masks[i - 1][ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), SPREAD);
 			ii++;
 		}
-
-		this->thermal_masks.push_back(mask);
 	}
 
 	if (ThermalAnalyzer::DBG) {

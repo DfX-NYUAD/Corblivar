@@ -102,14 +102,14 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Hi regarding their
 				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(move(b));
+				blocks_add_to_stack.push_front(b);
 			}
 		}
 		// always consider cur_block as it's current corner block, i.e., right to others
 		blocks_add_to_stack.push_front(cur_block);
 
 		for (Block const* b : blocks_add_to_stack) {
-			this->Hi.push(move(b));
+			this->Hi.push(b);
 		}
 	}
 	// vertical placement
@@ -178,14 +178,14 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				// prepending blocks to list retains the (implicit)
 				// ordering of blocks popped from stack Vi regarding their
 				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(move(b));
+				blocks_add_to_stack.push_front(b);
 			}
 		}
 		// always consider cur_block as it's current corner block, i.e., above others
 		blocks_add_to_stack.push_front(cur_block);
 
 		for (Block const* b : blocks_add_to_stack) {
-			this->Vi.push(move(b));
+			this->Vi.push(b);
 		}
 	}
 
