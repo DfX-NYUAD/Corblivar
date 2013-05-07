@@ -405,13 +405,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	bool valid_solution;
 	double cost;
 	double area, thermal;
+	double x, y;
 	CostInterconn interconn;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ")" << endl;
 	}
 
-	// consider CorblivarCore data
+	// consider as regular Corblivar run
 	if (handle_corblivar) {
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
@@ -431,6 +432,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// (max blocks-outline / die-outline ratio)
 		area = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * this->determWeightedCostAreaOutline(1.0).cost;
 
+		// determine overall blocks outline; reasonable die outline for whole
+		// 3D-IC stack
+		x = y = 0.0;
+		for (Block const& b : this->blocks) {
+			x = max(x, b.bb.ur.x);
+			y = max(y, b.bb.ur.y);
+		}
+
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
 
@@ -447,13 +456,16 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			cout << "SA> Max blocks-outline / die-outline ratio: " << area << endl;
+			cout << "SA> Overall blocks outline (reasonable stack outline):" << endl;
+			cout << "SA>  x = " << x << endl;
+			cout << "SA>  y = " << y << endl;
 
 			cout << "SA> HPWL: " << interconn.HPWL << endl;
 			cout << "SA> TSVs: " << interconn.TSVs << endl;
 			cout << "SA>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
 
 			if (this->power_density_file_avail) {
-				cout << "SA> Temp cost (no real temp): " << thermal << endl;
+				cout << "SA> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
 			}
 			cout << endl;
 
@@ -461,11 +473,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->results << "Final (adapted) cost: " << cost << endl;
 			}
 			this->results << "Max die occupation [\%]: " << area << endl;
+			this->results << "Overall blocks outline (reasonable stack outline):" << endl;
+			this->results << " x = " << x << endl;
+			this->results << " y = " << y << endl;
 			this->results << "HPWL: " << interconn.HPWL << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
-			this->results << "Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
+			this->results << " Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
 			if (this->power_density_file_avail) {
-				this->results << "Temp cost (no real temp): " << thermal << endl;
+				this->results << "Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
 			}
 		}
 	}
