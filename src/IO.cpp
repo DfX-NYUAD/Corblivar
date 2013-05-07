@@ -1272,15 +1272,15 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	// besides the temperature schedule
 	if (!valid_solutions) {
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost\" with lines linestyle 3 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.)\" with lines linestyle 3 axes x1y2" << endl;
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best, Valid Solution\" with points linestyle 1, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 2";
-		gp_out << " using 1:2 title \"Avg Cost for SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 3";
-		gp_out << " using 1:2 title \"Avg Cost for SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
 	}
 
 	// close file stream
