@@ -221,6 +221,8 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 					extend_boundary_blocks_into_padding_zone &&
 					abs(outline_x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
 			   ) {
+				// consider offset twice in order to reach right/uppper
+				// boundary related to layout described by padded power map
 				block_offset.ur.x = outline_x + 2.0 * this->blocks_offset_x;
 			}
 			// simple shift otherwise; compensate for padding of left/bottom
@@ -244,12 +246,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			// toward zero, i.e., performs like floor for positive numbers
 			x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
 			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
-			// +1 in order to efficiently obtain the result of ceil() w/o cast
-			x_upper = static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1;
-			y_upper = static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1;
-			// limit upper bound according to power-maps dimension
-			x_upper = min(x_upper, ThermalAnalyzer::POWER_MAPS_DIM);
-			y_upper = min(y_upper, ThermalAnalyzer::POWER_MAPS_DIM);
+			// +1 in order to efficiently emulate the result of ceil(); limit
+			// upper bound to power-maps dimenions
+			x_upper = min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
