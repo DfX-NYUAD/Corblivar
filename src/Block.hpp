@@ -74,6 +74,8 @@ class Block {
 			// reshape block randomly w/in AR range; note that x^2 = AR * A
 			this->bb.w = sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
 			this->bb.h = this->bb.area / this->bb.w;
+			this->bb.ur.x = this->bb.ll.x + this->bb.w;
+			this->bb.ur.y = this->bb.ll.y + this->bb.h;
 		};
 		inline bool shapeByWidthHeight(double const& width, double const& height) const {
 			double AR;
