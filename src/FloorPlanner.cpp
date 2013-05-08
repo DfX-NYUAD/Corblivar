@@ -612,7 +612,6 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	return ret;
 }
 
-
 bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	Block const* shape_block;
 
@@ -630,20 +629,27 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		// backup current shape
 		shape_block->bb_backup = shape_block->bb;
 
-		// TODO soft blocks: block shaping
+		// soft blocks: enhanced block shaping
 		if (shape_block->soft) {
-			shape_block->rotate();
+			// enhanced shaping, according to [Chen06]
+			if (this->conf_SA_layout_enhanced_soft_block_shaping) {
+				return this->performOpEnhancedSoftBlockShaping(shape_block);
+			}
+			// simple random shaping
+			else {
+				shape_block->shapeRandomlyByAR();
+			}
 		}
-		// hard blocks: simple rotation or enhanced rotation: perform block
-		// rotation only if layout compaction is achievable; note that enhanced
-		// rotation relies on non-compacted, i.e., non-packed layouts, this is
-		// ensured during config file parsing
+		// hard blocks: simple rotation or enhanced rotation (perform block
+		// rotation only if layout compaction is achievable); note that this
+		// enhanced rotation relies on non-compacted, i.e., non-packed layouts,
+		// which is checked during config file parsing
 		else {
 			// enhanced rotation
 			if (this->conf_SA_layout_enhanced_hard_block_rotation) {
 				return this->performOpEnhancedHardBlockRotation(shape_block);
 			}
-			// simple rotation, just perform rotation
+			// simple rotation
 			else {
 				shape_block->rotate();
 			}
@@ -653,6 +659,123 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	else {
 		// revert by restoring backup bb
 		corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1)->rotate();
+	}
+
+	return true;
+}
+
+bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) const {
+	int op;
+	double boundary_x, boundary_y;
+	double width, height;
+
+	// see defined op-codes in class FloorPlanner to set random-number ranges;
+	// recall that randI(x,y) is [x,y)
+	op = Math::randI(10, 15);
+
+	switch (op) {
+
+		// stretch such that shape_block's right front aligns w/ the right front
+		// of the nearest other block
+		case FloorPlanner::OP_SHAPE_BLOCK__STRETCH_HORIZONTAL: // op-code: 10
+
+			boundary_x = this->conf_outline_x;
+
+			for (Block const& b : this->blocks) {
+				if (b.layer != shape_block->layer) {
+					continue;
+				}
+
+				// determine nearest right front of other blocks
+				if (b.bb.ur.x > shape_block->bb.ur.x) {
+					boundary_x = min(boundary_x, b.bb.ur.x);
+				}
+			}
+
+			// determine resulting new dimensions
+			width = boundary_x - shape_block->bb.ll.x;
+			height = shape_block->bb.area / width;
+
+			// apply new dimensions in case the resulting AR is allowed
+			return shape_block->shapeByWidthHeight(width, height);
+
+		// shrink such that shape_block's right front aligns w/ the left front of
+		// the nearest other block
+		case FloorPlanner::OP_SHAPE_BLOCK__SHRINK_HORIZONTAL: // op-code: 12
+
+			boundary_x = 0.0;
+
+			for (Block const& b : this->blocks) {
+				if (b.layer != shape_block->layer) {
+					continue;
+				}
+
+				// determine nearest left front of other blocks
+				if (b.bb.ll.x < shape_block->bb.ur.x) {
+					boundary_x = max(boundary_x, b.bb.ll.x);
+				}
+			}
+
+			// determine resulting new dimensions
+			width = boundary_x - shape_block->bb.ll.x;
+			height = shape_block->bb.area / width;
+
+			// apply new dimensions in case the resulting AR is allowed
+			return shape_block->shapeByWidthHeight(width, height);
+
+		// stretch such that shape_block's top front aligns w/ the top front of
+		// the nearest other block
+		case FloorPlanner::OP_SHAPE_BLOCK__STRETCH_VERTICAL: // op-code: 11
+
+			boundary_y = this->conf_outline_y;
+
+			for (Block const& b : this->blocks) {
+				if (b.layer != shape_block->layer) {
+					continue;
+				}
+
+				// determine nearest top front of other blocks
+				if (b.bb.ur.y > shape_block->bb.ur.y) {
+					boundary_y = min(boundary_y, b.bb.ur.y);
+				}
+			}
+
+			// determine resulting new dimensions
+			height = boundary_y - shape_block->bb.ll.y;
+			width = shape_block->bb.area / height;
+
+			// apply new dimensions in case the resulting AR is allowed
+			return shape_block->shapeByWidthHeight(width, height);
+
+		// shrink such that shape_block's top front aligns w/ the bottom front of
+		// the nearest other block
+		case FloorPlanner::OP_SHAPE_BLOCK__SHRINK_VERTICAL: // op-code: 13
+
+			boundary_y = 0.0;
+
+			for (Block const& b : this->blocks) {
+				if (b.layer != shape_block->layer) {
+					continue;
+				}
+
+				// determine nearest bottom front of other blocks
+				if (b.bb.ll.y < shape_block->bb.ur.y) {
+					boundary_y = max(boundary_y, b.bb.ll.y);
+				}
+			}
+
+			// determine resulting new dimensions
+			height = boundary_y - shape_block->bb.ll.y;
+			width = shape_block->bb.area / height;
+
+			// apply new dimensions in case the resulting AR is allowed
+			return shape_block->shapeByWidthHeight(width, height);
+
+		case FloorPlanner::OP_SHAPE_BLOCK__RANDOM_AR: // op-code: 14
+
+			shape_block->shapeRandomlyByAR();
+
+			break;
 	}
 
 	return true;

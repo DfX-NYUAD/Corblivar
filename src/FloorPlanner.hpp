@@ -148,7 +148,8 @@ class FloorPlanner {
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
 		// SA parameters: layout generation options
-		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
+		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_enhanced_soft_block_shaping;
+		bool conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
 		int conf_SA_layout_packing_iterations;
 
 		// SA: layout operations op-codes
@@ -159,6 +160,12 @@ class FloorPlanner {
 		static constexpr int OP_ROTATE_BLOCK__SHAPE_BLOCK = 5;
 		// used only in phase two
 		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 6;
+		// used only for soft block shaping
+		static constexpr int OP_SHAPE_BLOCK__STRETCH_HORIZONTAL = 10;
+		static constexpr int OP_SHAPE_BLOCK__STRETCH_VERTICAL = 11;
+		static constexpr int OP_SHAPE_BLOCK__SHRINK_HORIZONTAL = 12;
+		static constexpr int OP_SHAPE_BLOCK__SHRINK_VERTICAL = 13;
+		static constexpr int OP_SHAPE_BLOCK__RANDOM_AR = 14;
 
 		// SA: layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
@@ -176,6 +183,7 @@ class FloorPlanner {
 		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
 		bool inline performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 		bool inline performOpEnhancedHardBlockRotation(Block const* shape_block) const;
+		bool inline performOpEnhancedSoftBlockShaping(Block const* shape_block) const;
 
 		// SA: helper for guided layout operations
 		//
