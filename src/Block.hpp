@@ -62,6 +62,13 @@ class Block {
 		// large macro, flag for floorplacement handling
 		bool floorplacement;
 
+		// layout-generation related helper
+		//
+		// perform swap on mutable bb, thus marked const
+		inline void rotate() const {
+			swap(this->bb.w, this->bb.h);
+		}
+
 		// power in [W]
 		inline double power() const {
 			// power density is given in uW/um^2, area is given in um^2, thus

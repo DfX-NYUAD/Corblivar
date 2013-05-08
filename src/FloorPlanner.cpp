@@ -631,7 +631,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 		// TODO soft blocks: block shaping
 		if (shape_block->soft) {
-			corb.rotateBlock(die1, tuple1);
+			shape_block->rotate();
 		}
 		// hard blocks: simple rotation or enhanced rotation: perform block
 		// rotation only if layout compaction is achievable; note that enhanced
@@ -682,7 +682,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 				// perform rotation if no loss or gain > loss
 				if (loss < 0.0 || gain > loss) {
-					corb.rotateBlock(die1, tuple1);
+					shape_block->rotate();
 				}
 				else {
 					return false;
@@ -691,7 +691,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 			}
 			// simple rotation, just perform rotation
 			else {
-				corb.rotateBlock(die1, tuple1);
+				shape_block->rotate();
 			}
 		}
 	}
@@ -701,10 +701,10 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 		// TODO adapt reverting for block shaping
 		if (shape_block->soft) {
-			corb.rotateBlock(this->last_op_die1, this->last_op_tuple1);
+			shape_block->rotate();
 		}
 		else {
-			corb.rotateBlock(this->last_op_die1, this->last_op_tuple1);
+			shape_block->rotate();
 		}
 	}
 

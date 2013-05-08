@@ -122,14 +122,6 @@ class CorblivarCore {
 				cout << "DBG_CORE> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
 			}
 		};
-		inline void rotateBlock(int const& die, int const& tuple) {
-
-			swap(this->dies[die].CBL.S[tuple]->bb.w, this->dies[die].CBL.S[tuple]->bb.h);
-
-			if (DBG) {
-				cout << "DBG_CORE> rotateBlock; d1=" << die << ", t1=" << tuple << endl;
-			}
-		};
 
 		// CBL logging
 		inline string CBLsString() const {
