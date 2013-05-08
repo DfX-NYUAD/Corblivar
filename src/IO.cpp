@@ -635,13 +635,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// scale up blocks area
 			new_block.bb.area *= pow(fp.conf_blocks_scale, 2);
 
-			// init block dimensions randomly w/in AR range; note that
-			// x^2 = AR * A
-			new_block.bb.w = sqrt(Math::randF(new_block.AR.min, new_block.AR.max) * new_block.bb.area);
-			new_block.bb.h = new_block.bb.area / new_block.bb.w;
-
+			// init block dimensions randomly
+			new_block.shapeRandomlyByAR();
 			// mark block as soft
 			new_block.soft = true;
+
 			// memorize soft blocks count
 			soft_blocks++;
 		}

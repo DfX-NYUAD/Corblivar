@@ -15,6 +15,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Rect.hpp"
+#include "Math.hpp"
 // forward declarations, if any
 
 class Block {
@@ -62,11 +63,17 @@ class Block {
 		// large macro, flag for floorplacement handling
 		bool floorplacement;
 
-		// layout-generation related helper
+		// layout-generation related helper; perform operations on mutable bb,
+		// thus marked const
 		//
-		// perform swap on mutable bb, thus marked const
 		inline void rotate() const {
 			swap(this->bb.w, this->bb.h);
+		};
+		inline void shapeRandomlyByAR() const {
+
+			// reshape block randomly w/in AR range; note that x^2 = AR * A
+			this->bb.w = sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
+			this->bb.h = this->bb.area / this->bb.w;
 		}
 
 		// power in [W]
