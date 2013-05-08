@@ -615,8 +615,6 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 
 bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	Block const* shape_block;
-	double col_max_width, row_max_height;
-	double gain, loss;
 
 	if (!revert) {
 		die1 = Math::randI(0, corb.diesSize());
@@ -643,54 +641,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		else {
 			// enhanced rotation
 			if (this->conf_SA_layout_enhanced_hard_block_rotation) {
-
-				// horizontal block
-				if (shape_block->bb.w > shape_block->bb.h) {
-					// check blocks in (implicitly constructed) row
-					row_max_height = shape_block->bb.h;
-					for (Block const& b : this->blocks) {
-						if (b.layer != shape_block->layer) {
-							continue;
-						}
-						if (shape_block->bb.ll.y == b.bb.ll.y) {
-							row_max_height = max(row_max_height, b.bb.h);
-						}
-					}
-					// gain in horizontal direction by rotation
-					gain = shape_block->bb.w - shape_block->bb.h;
-					// loss in vertical direction; only if new block height
-					// (current width) would be larger than the row currently
-					// high is
-					loss = shape_block->bb.w - row_max_height;
-				}
-				// vertical block
-				else {
-					// check blocks in (implicitly constructed) column
-					col_max_width = shape_block->bb.w;
-					for (Block const& b : this->blocks) {
-						if (b.layer != shape_block->layer) {
-							continue;
-						}
-						if (shape_block->bb.ll.x == b.bb.ll.x) {
-							col_max_width = max(col_max_width, b.bb.w);
-						}
-					}
-					// gain in vertical direction by rotation
-					gain = shape_block->bb.h - shape_block->bb.w;
-					// loss in horizontal direction; only if new block width
-					// (current height) would be larger than the column
-					// currently wide is
-					loss = shape_block->bb.h - col_max_width;
-				}
-
-				// perform rotation if no loss or gain > loss
-				if (loss < 0.0 || gain > loss) {
-					shape_block->rotate();
-				}
-				else {
-					return false;
-				}
-
+				return this->performOpEnhancedHardBlockRotation(shape_block);
 			}
 			// simple rotation, just perform rotation
 			else {
@@ -706,6 +657,61 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 	return true;
 }
+
+bool FloorPlanner::performOpEnhancedHardBlockRotation(Block const* shape_block) const {
+	double col_max_width, row_max_height;
+	double gain, loss;
+
+	// horizontal block
+	if (shape_block->bb.w > shape_block->bb.h) {
+		// check blocks in (implicitly constructed) row
+		row_max_height = shape_block->bb.h;
+		for (Block const& b : this->blocks) {
+			if (b.layer != shape_block->layer) {
+				continue;
+			}
+			if (shape_block->bb.ll.y == b.bb.ll.y) {
+				row_max_height = max(row_max_height, b.bb.h);
+			}
+		}
+		// gain in horizontal direction by rotation
+		gain = shape_block->bb.w - shape_block->bb.h;
+		// loss in vertical direction; only if new block
+		// height (current width) would be larger than the
+		// row's current height
+		loss = shape_block->bb.w - row_max_height;
+	}
+	// vertical block
+	else {
+		// check blocks in (implicitly constructed) column
+		col_max_width = shape_block->bb.w;
+		for (Block const& b : this->blocks) {
+			if (b.layer != shape_block->layer) {
+				continue;
+			}
+			if (shape_block->bb.ll.x == b.bb.ll.x) {
+				col_max_width = max(col_max_width, b.bb.w);
+			}
+		}
+		// gain in vertical direction by rotation
+		gain = shape_block->bb.h - shape_block->bb.w;
+		// loss in horizontal direction; only if new block
+		// width (current height) would be larger than the
+		// column's current width
+		loss = shape_block->bb.h - col_max_width;
+	}
+
+	// perform rotation if no loss or gain > loss
+	if (loss < 0.0 || gain > loss) {
+		shape_block->rotate();
+
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 
 bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const {
 	int new_juncts;
