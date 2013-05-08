@@ -626,8 +626,11 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		}
 
 		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-		// related block to be shaped
+		// determine related block to be shaped
 		shape_block = corb.getDie(die1).getBlock(tuple1);
+
+		// backup current shape
+		shape_block->bb_backup = shape_block->bb;
 
 		// TODO soft blocks: block shaping
 		if (shape_block->soft) {
@@ -697,15 +700,8 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	}
 	// revert last rotation
 	else {
-		shape_block = corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1);
-
-		// TODO adapt reverting for block shaping
-		if (shape_block->soft) {
-			shape_block->rotate();
-		}
-		else {
-			shape_block->rotate();
-		}
+		// revert by restoring backup bb
+		corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1)->rotate();
 	}
 
 	return true;
