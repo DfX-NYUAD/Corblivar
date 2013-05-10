@@ -658,7 +658,8 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	// revert last rotation
 	else {
 		// revert by restoring backup bb
-		corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1)->rotate();
+		corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1)->bb =
+			corb.getDie(this->last_op_die1).getBlock(this->last_op_tuple1)->bb_backup;
 	}
 
 	return true;
