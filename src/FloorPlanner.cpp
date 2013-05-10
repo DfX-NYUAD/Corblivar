@@ -680,7 +680,8 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 		// of the nearest other block
 		case FloorPlanner::OP_SHAPE_BLOCK__STRETCH_HORIZONTAL: // op-code: 10
 
-			boundary_x = this->conf_outline_x;
+			// dummy value, to be large than right front
+			boundary_x = 2.0 * shape_block->bb.ur.x;
 
 			for (Block const& b : this->blocks) {
 				if (b.layer != shape_block->layer) {
@@ -728,7 +729,8 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 		// the nearest other block
 		case FloorPlanner::OP_SHAPE_BLOCK__STRETCH_VERTICAL: // op-code: 11
 
-			boundary_y = this->conf_outline_y;
+			// dummy value, to be large than top front
+			boundary_y = 2.0 * shape_block->bb.ur.y;
 
 			for (Block const& b : this->blocks) {
 				if (b.layer != shape_block->layer) {
@@ -776,10 +778,13 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 
 			shape_block->shapeRandomlyByAR();
 
-			break;
-	}
+			return true;
 
-	return true;
+		// to avoid compiler warnings, non-reachable code due to
+		// constrained op value
+		default:
+			return false;
+	}
 }
 
 bool FloorPlanner::performOpEnhancedHardBlockRotation(Block const* shape_block) const {
