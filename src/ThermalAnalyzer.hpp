@@ -36,9 +36,9 @@ class ThermalAnalyzer {
 		static constexpr double HEAT_CAPACITY_BEOL = 1208150.0;
 		// [Sridhar10]
 		static constexpr double THERMAL_RESISTIVITY_BEOL = 0.4444;
-		// [Park09]
+		// [Park09]; BCB polymer
 		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
-		// [Park09]
+		// [Park09]; BCB polymer
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
 		// [Park09]
 		static constexpr double HEAT_CAPACITY_CU = 3.546401e06;

@@ -1521,22 +1521,22 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// close file stream
 	file.close();
 
-	/// generate dummy floorplan for Bond layer
+	/// generate dummy floorplan for bond layer
 	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
 	//
 	for (flag = 0; flag <= 1; flag++) {
 
 		// build up file name
-		stringstream Bond_fp_file;
+		stringstream bond_fp_file;
 		if (flag == 0) {
-			Bond_fp_file << fp.benchmark << "_HotSpot_Bond.flp";
+			bond_fp_file << fp.benchmark << "_HotSpot_bond.flp";
 		}
 		else {
-			Bond_fp_file << fp.benchmark << "_HotSpot_Bond_TSVs.flp";
+			bond_fp_file << fp.benchmark << "_HotSpot_bond_TSVs.flp";
 		}
 
 		// init file stream
-		file.open(Bond_fp_file.str().c_str());
+		file.open(bond_fp_file.str().c_str());
 
 		// file header
 		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
@@ -1544,8 +1544,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "# comment lines begin with a '#'" << endl;
 		file << "# comments and empty lines are ignored" << endl;
 
-		// Bond ``block''
-		file << "Bond";
+		// bond ``block''
+		file << "bond";
 		file << "	" << fp.conf_outline_x * SCALE_UM_M;
 		file << "	" << fp.conf_outline_y * SCALE_UM_M;
 		file << "	0.0";
@@ -1691,7 +1691,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << endl;
 
 			if (cur_layer < (fp.conf_layer - 1)) {
-				file << "# Bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
+				file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
 				file << 4 * cur_layer + 3 << endl;
 				file << "Y" << endl;
 				file << "N" << endl;
@@ -1700,10 +1700,10 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				file << FloorPlanner::THICKNESS_BOND << endl;
 
 				if (flag == 0) {
-					file << fp.benchmark << "_HotSpot_Bond.flp" << endl;
+					file << fp.benchmark << "_HotSpot_bond.flp" << endl;
 				}
 				else {
-					file << fp.benchmark << "_HotSpot_Bond_TSVs.flp" << endl;
+					file << fp.benchmark << "_HotSpot_bond_TSVs.flp" << endl;
 				}
 				file << endl;
 			}
