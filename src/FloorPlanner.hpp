@@ -129,7 +129,7 @@ class FloorPlanner {
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
 		};
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
-		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
+		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true, bool const& trivial_HPWL = false);
 
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;
