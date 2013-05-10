@@ -53,20 +53,22 @@ do
 	DIE=$(($DIE + 1))
 done
 
-DIE=1
-for (( layer = 1; layer < ($2 * 4); layer = layer + 4 ))
-do
-	echo "Generate temperature map w/ TSVs for die $DIE"
+if [ "$3" == "1" ]; then
+	DIE=1
+	for (( layer = 1; layer < ($2 * 4); layer = layer + 4 ))
+	do
+		echo "Generate temperature map w/ TSVs for die $DIE"
 
-	FP=$1_HotSpot_$DIE.flp
+		FP=$1_HotSpot_$DIE.flp
 
-	# render SVG
-	$HS/grid_thermal_map.pl $FP $STEADY_GRID_OUTPUT_TSVS.layer_$layer $DIM $DIM > $FP"_TSVs.svg"
-	# generate PDF
-	cairosvg-py3 $FP"_TSVs.svg" -f pdf -o $FP"_TSVs.pdf"
-	# drop svg
-	rm $FP"_TSVs.svg"
+		# render SVG
+		$HS/grid_thermal_map.pl $FP $STEADY_GRID_OUTPUT_TSVS.layer_$layer $DIM $DIM > $FP"_TSVs.svg"
+		# generate PDF
+		cairosvg-py3 $FP"_TSVs.svg" -f pdf -o $FP"_TSVs.pdf"
+		# drop svg
+		rm $FP"_TSVs.svg"
 
-	# consider next die
-	DIE=$(($DIE + 1))
-done
+		# consider next die
+		DIE=$(($DIE + 1))
+	done
+fi
