@@ -40,6 +40,10 @@ class ThermalAnalyzer {
 		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
 		// [Park09]
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
+		// [Park09]
+		static constexpr double HEAT_CAPACITY_CU = 3.546401e06;
+		// [Park09]
+		static constexpr double THERMAL_RESISTIVITY_CU = 0.002531646;
 
 		// thermal modeling: offset for room temperature
 		static constexpr double ROOM_TEMPERATURE_K = 293.0;

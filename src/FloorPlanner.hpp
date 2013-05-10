@@ -216,6 +216,22 @@ class FloorPlanner {
 		// thermal analyzer parameters: power masks
 		double conf_power_blurring_power_density_scaling_padding_zone;
 
+		// IO helper: determines the achievable density of TSVs given their
+		// dimensions and pitch, assuming a close packing
+		double inline dummyTVSsDensity() const {
+			double TSVs;
+
+			// in the range TSV_DIMENSION + TSV_PITCH, we could fit two TSVs
+			TSVs = (2.0 * this->conf_outline_x / (FloorPlanner::TSV_DIMENSION + FloorPlanner::TSV_PITCH))
+				* (2.0 * this->conf_outline_y /(FloorPlanner::TSV_DIMENSION + FloorPlanner::TSV_PITCH));
+
+			return 
+				// area occupied by TSVs
+				TSVs * pow(FloorPlanner::TSV_DIMENSION, 2)
+				// normalize to overall die area; i.e. TSV density
+				/ (this->conf_outline_x * this->conf_outline_y);
+		};
+
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {

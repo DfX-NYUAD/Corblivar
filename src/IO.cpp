@@ -1385,6 +1385,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	int cur_layer;
+	int flag;
+	double TSV_density;
 	// factor to scale um downto m;
 	static constexpr double SCALE_UM_M = 0.000001;
 
@@ -1439,11 +1441,22 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file.close();
 	}
 
+	// determine reachable TSV density considering given pitch, dimension
+	TSV_density = fp.dummyTVSsDensity();
+
 	/// generate dummy floorplan for passive Si layer
+	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
 	//
+	for (flag = 0; flag <= 1; flag++) {
+
 	// build up file name
 	stringstream Si_fp_file;
-	Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
+	if (flag == 0) {
+		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
+	}
+	else {
+		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive_TSVs.flp";
+	}
 
 	// init file stream
 	file.open(Si_fp_file.str().c_str());
@@ -1460,12 +1473,25 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	" << fp.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
-	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
-	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
+
+	if (flag == 0) {
+		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
+		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
+	}
+	else {
+		// determine average heat capacity, considering TSV density
+		file << "	" << TSV_density * ThermalAnalyzer::HEAT_CAPACITY_CU + (1.0 - TSV_density) * ThermalAnalyzer::HEAT_CAPACITY_SI;
+		// determine average thermal resistivity; note that the averaged thermal
+		// conductivity has to be considered and resistivity has to be derived
+		file << "	" << 1.0 / 
+			(TSV_density * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_CU)
+			 + (1.0 - TSV_density) * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_SI));
+	}
 	file << endl;
 
 	// close file stream
 	file.close();
+	}
 
 	/// generate dummy floorplan for BEOL layer
 	//
@@ -1496,29 +1522,53 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file.close();
 
 	/// generate dummy floorplan for Bond layer
+	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
 	//
-	// build up file name
-	stringstream Bond_fp_file;
-	Bond_fp_file << fp.benchmark << "_HotSpot_Bond.flp";
+	for (flag = 0; flag <= 1; flag++) {
 
-	// init file stream
-	file.open(Bond_fp_file.str().c_str());
+		// build up file name
+		stringstream Bond_fp_file;
+		if (flag == 0) {
+			Bond_fp_file << fp.benchmark << "_HotSpot_Bond.flp";
+		}
+		else {
+			Bond_fp_file << fp.benchmark << "_HotSpot_Bond_TSVs.flp";
+		}
 
-	// file header
-	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-	file << "# all dimensions are in meters" << endl;
-	file << "# comment lines begin with a '#'" << endl;
-	file << "# comments and empty lines are ignored" << endl;
+		// init file stream
+		file.open(Bond_fp_file.str().c_str());
 
-	// Bond ``block''
-	file << "Bond";
-	file << "	" << fp.conf_outline_x * SCALE_UM_M;
-	file << "	" << fp.conf_outline_y * SCALE_UM_M;
-	file << "	0.0";
-	file << "	0.0";
-	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BOND;
-	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
-	file << endl;
+		// file header
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+		file << "# all dimensions are in meters" << endl;
+		file << "# comment lines begin with a '#'" << endl;
+		file << "# comments and empty lines are ignored" << endl;
+
+		// Bond ``block''
+		file << "Bond";
+		file << "	" << fp.conf_outline_x * SCALE_UM_M;
+		file << "	" << fp.conf_outline_y * SCALE_UM_M;
+		file << "	0.0";
+		file << "	0.0";
+
+		if (flag == 0) {
+			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BOND;
+			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
+		}
+		else {
+			// determine average heat capacity, considering the TSV density
+			file << "	" << TSV_density * ThermalAnalyzer::HEAT_CAPACITY_CU + (1.0 - TSV_density) * ThermalAnalyzer::HEAT_CAPACITY_BOND;
+			// determine average thermal resistivity; note that the averaged thermal
+			// conductivity has to be considered and resistivity has to be derived
+			file << "	" << 1.0 / 
+				(TSV_density * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_CU)
+				 + (1.0 - TSV_density) * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_BOND));
+		}
+		file << endl;
+
+		// close file stream
+		file.close();
+	}
 
 	// close file stream
 	file.close();
@@ -1573,75 +1623,96 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file.close();
 
 	/// generate 3D-IC description file
-	//
-	// build up file name
-	stringstream stack_file;
-	stack_file << fp.benchmark << "_HotSpot.lcf";
+	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
+	for (flag = 0; flag <= 1; flag++) {
 
-	// init file stream
-	file.open(stack_file.str().c_str());
+		// build up file name
+		stringstream stack_file;
+		if (flag == 0) {
+			stack_file << fp.benchmark << "_HotSpot.lcf";
+		}
+		else {
+			stack_file << fp.benchmark << "_HotSpot_TSVs.lcf";
+		}
 
-	// file header
-	file << "#Lines starting with # are used for commenting" << endl;
-	file << "#Blank lines are also ignored" << endl;
-	file << endl;
-	file << "#File Format:" << endl;
-	file << "#<Layer Number>" << endl;
-	file << "#<Lateral heat flow Y/N?>" << endl;
-	file << "#<Power Dissipation Y/N?>" << endl;
-	file << "#<Specific heat capacity in J/(m^3K)>" << endl;
-	file << "#<Resistivity in (m-K)/W>" << endl;
-	file << "#<Thickness in m>" << endl;
-	file << "#<floorplan file>" << endl;
-	file << endl;
+		// init file stream
+		file.open(stack_file.str().c_str());
 
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
-
-		file << "# BEOL (interconnects) layer " << cur_layer << endl;
-		file << 4 * cur_layer << endl;
-		file << "Y" << endl;
-		file << "N" << endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-		file << FloorPlanner::THICKNESS_BEOL << endl;
-		file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
+		// file header
+		file << "#Lines starting with # are used for commenting" << endl;
+		file << "#Blank lines are also ignored" << endl;
+		file << endl;
+		file << "#File Format:" << endl;
+		file << "#<Layer Number>" << endl;
+		file << "#<Lateral heat flow Y/N?>" << endl;
+		file << "#<Power Dissipation Y/N?>" << endl;
+		file << "#<Specific heat capacity in J/(m^3K)>" << endl;
+		file << "#<Resistivity in (m-K)/W>" << endl;
+		file << "#<Thickness in m>" << endl;
+		file << "#<floorplan file>" << endl;
 		file << endl;
 
-		file << "# Active Si layer; design layer " << cur_layer << endl;
-		file << 4 * cur_layer + 1 << endl;
-		file << "Y" << endl;
-		file << "Y" << endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << FloorPlanner::THICKNESS_SI_ACTIVE << endl;
-		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
-		file << endl;
+		for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 
-		file << "# Passive Si layer " << cur_layer << endl;
-		file << 4 * cur_layer + 2 << endl;
-		file << "Y" << endl;
-		file << "N" << endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << FloorPlanner::THICKNESS_SI_PASSIVE << endl;
-		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
-		file << endl;
-
-		if (cur_layer < (fp.conf_layer - 1)) {
-			file << "# Bond layer " << cur_layer << "; for F2B bonding to next die " << cur_layer + 1 << endl;
-			file << 4 * cur_layer + 3 << endl;
+			file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
+			file << 4 * cur_layer << endl;
 			file << "Y" << endl;
 			file << "N" << endl;
-			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-			file << FloorPlanner::THICKNESS_BOND << endl;
-			file << fp.benchmark << "_HotSpot_Bond.flp" << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
+			file << FloorPlanner::THICKNESS_BEOL << endl;
+			file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
 			file << endl;
-		}
-	}
 
-	// close file stream
-	file.close();
+			file << "# Active Si layer; design layer " << cur_layer + 1 << endl;
+			file << 4 * cur_layer + 1 << endl;
+			file << "Y" << endl;
+			file << "Y" << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
+			file << FloorPlanner::THICKNESS_SI_ACTIVE << endl;
+			file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
+			file << endl;
+
+			file << "# Passive Si layer " << cur_layer + 1 << endl;
+			file << 4 * cur_layer + 2 << endl;
+			file << "Y" << endl;
+			file << "N" << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
+			file << FloorPlanner::THICKNESS_SI_PASSIVE << endl;
+
+			if (flag == 0) {
+				file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
+			}
+			else {
+				file << fp.benchmark << "_HotSpot_Si_passive_TSVs.flp" << endl;
+			}
+			file << endl;
+
+			if (cur_layer < (fp.conf_layer - 1)) {
+				file << "# Bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
+				file << 4 * cur_layer + 3 << endl;
+				file << "Y" << endl;
+				file << "N" << endl;
+				file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
+				file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
+				file << FloorPlanner::THICKNESS_BOND << endl;
+
+				if (flag == 0) {
+					file << fp.benchmark << "_HotSpot_Bond.flp" << endl;
+				}
+				else {
+					file << fp.benchmark << "_HotSpot_Bond_TSVs.flp" << endl;
+				}
+				file << endl;
+			}
+		}
+
+		// close file stream
+		file.close();
+
+	}
 
 	if (fp.logMed()) {
 		cout << "IO> Done" << endl << endl;
