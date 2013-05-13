@@ -453,35 +453,36 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			if (determ_overall_cost) {
 				cout << "SA> Final (adapted) cost: " << cost << endl;
+				this->results << "Final (adapted) cost: " << cost << endl;
 			}
 
 			cout << "SA> Max blocks-outline / die-outline ratio: " << area << endl;
+			this->results << "Max die occupation [\%]: " << area << endl;
+
+			cout << "SA> Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
+			this->results << "Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
+
 			cout << "SA> Overall blocks outline (reasonable stack outline):" << endl;
 			cout << "SA>  x = " << x << endl;
 			cout << "SA>  y = " << y << endl;
-
-			cout << "SA> HPWL: " << interconn.HPWL << endl;
-			cout << "SA> TSVs: " << interconn.TSVs << endl;
-			cout << "SA>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
-
-			if (this->power_density_file_avail) {
-				cout << "SA> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
-			}
-			cout << endl;
-
-			if (determ_overall_cost) {
-				this->results << "Final (adapted) cost: " << cost << endl;
-			}
-			this->results << "Max die occupation [\%]: " << area << endl;
 			this->results << "Overall blocks outline (reasonable stack outline):" << endl;
 			this->results << " x = " << x << endl;
 			this->results << " y = " << y << endl;
+
+			cout << "SA> HPWL: " << interconn.HPWL << endl;
 			this->results << "HPWL: " << interconn.HPWL << endl;
+
+			cout << "SA> TSVs: " << interconn.TSVs << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
+
+			cout << "SA>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
 			this->results << " Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
+
 			if (this->power_density_file_avail) {
+				cout << "SA> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
 				this->results << "Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
 			}
+			cout << endl;
 		}
 	}
 
