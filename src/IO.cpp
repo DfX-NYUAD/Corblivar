@@ -189,6 +189,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.conf_outline_shrink;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.conf_SA_layout_enhanced_hard_block_rotation;
 
 	in >> tmpstr;
@@ -364,6 +369,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
+		cout << "IO>  Chip -- Final die outline shrink: " << fp.conf_outline_shrink << endl;
 
 		// layout generation options
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;

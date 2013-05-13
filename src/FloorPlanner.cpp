@@ -423,6 +423,23 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	// determine final cost, also for non-Corblivar calls
 	if (!handle_corblivar || valid_solution) {
 
+		// determine overall blocks outline; reasonable die outline for whole
+		// 3D-IC stack
+		x = y = 0.0;
+		for (Block const& b : this->blocks) {
+			x = max(x, b.bb.ur.x);
+			y = max(y, b.bb.ur.y);
+		}
+
+		// shrink fixed outline considering the final layout
+		if (this->conf_outline_shrink) {
+
+			this->resetDieProperties(x, y);
+
+			// this also requires to reset the power maps setting
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_outline_x, this->conf_outline_y);
+		}
+
 		// determine overall cost
 		if (determ_overall_cost) {
 			cost = this->determCost(1.0, true).cost;
@@ -431,14 +448,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine area cost; invert weight in order to retrieve area ratio
 		// (max blocks-outline / die-outline ratio)
 		area = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * this->determWeightedCostAreaOutline(1.0).cost;
-
-		// determine overall blocks outline; reasonable die outline for whole
-		// 3D-IC stack
-		x = y = 0.0;
-		for (Block const& b : this->blocks) {
-			x = max(x, b.bb.ur.x);
-			y = max(y, b.bb.ur.y);
-		}
 
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);

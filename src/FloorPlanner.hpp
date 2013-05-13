@@ -55,6 +55,7 @@ class FloorPlanner {
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
 		double conf_blocks_scale;
+		bool conf_outline_shrink;
 
 		// 3D IC characteristica, resulting from config
 		double die_AR, die_area;
