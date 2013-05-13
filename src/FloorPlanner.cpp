@@ -626,7 +626,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	Block const* shape_block;
 
 	if (!revert) {
-		die1 = Math::randI(0, corb.diesSize());
+		die1 = Math::randI(0, this->conf_layer);
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
@@ -856,7 +856,7 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 	int new_juncts;
 
 	if (!revert) {
-		die1 = Math::randI(0, corb.diesSize());
+		die1 = Math::randI(0, this->conf_layer);
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
@@ -890,7 +890,7 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 
 bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	if (!revert) {
-		die1 = Math::randI(0, corb.diesSize());
+		die1 = Math::randI(0, this->conf_layer);
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
@@ -909,8 +909,8 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 
 bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
-		die1 = Math::randI(0, corb.diesSize());
-		die2 = Math::randI(0, corb.diesSize());
+		die1 = Math::randI(0, this->conf_layer);
+		die2 = Math::randI(0, this->conf_layer);
 		// sanity check for empty (origin) die
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
@@ -952,8 +952,8 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_o
 
 bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 	if (!revert) {
-		die1 = Math::randI(0, corb.diesSize());
-		die2 = Math::randI(0, corb.diesSize());
+		die1 = Math::randI(0, this->conf_layer);
+		die2 = Math::randI(0, this->conf_layer);
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
 			return false;
