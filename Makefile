@@ -1,7 +1,8 @@
 #=============================================================================#
 # Application Name:
 #=============================================================================#
-APP=Corblivar
+APP := Corblivar
+AUX := 3DFP_Parser 3DSTAF_Parser
 
 #=============================================================================#
 # Define Compiler Executable:
@@ -39,11 +40,18 @@ OPT := $(OPT) -march=native
 BUILD_DIR := build
 SRC_DIR := src
 LIBS_DIR := libs
+SRC_AUX := src_aux
+
+# derive related variables
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(SRC:%.cpp=%.o)
 OBJ := $(notdir $(OBJ))
 OBJ := $(addprefix $(BUILD_DIR)/,$(OBJ))
 DEP := $(OBJ:%.o=%.d)
+# assume all objects to be required for aux binaries, expect main object
+OBJ_AUX := $(filter-out $(BUILD_DIR)/$(APP).o, $(OBJ))
+# variable to monitor changes in aux src
+SRC_AUX_ALL := $(wildcard $(SRC_AUX)/*.cpp)
 
 #=============================================================================#
 # Library Options:
@@ -62,7 +70,7 @@ all: libs $(APP)
 
 $(APP): $(BUILD_DIR) $(OBJ)
 	@echo
-	@echo linking binary
+	@echo linking main binary
 	$(COMPILER) $(OBJ) $(LIBS) -o $@
 
 $(BUILD_DIR):
@@ -71,17 +79,12 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 #=============================================================================#
-# Target for auxiliary binary: 3DFP Parser
+# Target for auxiliary binaries: each target represents one binary
 #=============================================================================#
-SRC_3DFP := src_aux/3DFP_Parser.cpp
-OBJ_3DFP := IO FloorPlanner ThermalAnalyzer CorblivarCore CorblivarDie
-OBJ_3DFP := $(addsuffix .o,$(OBJ_3DFP))
-OBJ_3DFP := $(addprefix $(BUILD_DIR)/,$(OBJ_3DFP))
-
-3DFP_Parser: $(BUILD_DIR) $(SRC_3DFP) $(OBJ_3DFP)
+$(AUX): $(BUILD_DIR) $(SRC_AUX_ALL) $(OBJ_AUX)
 	@echo
-	@echo compile and link 3DFP Parser
-	$(COMPILER) $(OPT) $(SRC_3DFP) $(OBJ_3DFP) -o $@
+	@echo compile and link aux binary $@
+	$(COMPILER) $(OPT) $(SRC_AUX)/$@.cpp $(OBJ_AUX) -o $@
 
 #=============================================================================#
 # Compile Source Code to Object Files
@@ -137,8 +140,8 @@ cleanlibs:
 # Cleanup build
 #=============================================================================#
 clean:
-	@echo "removing: $(BUILD_DIR)/* $(APP)"
-	@rm -f $(BUILD_DIR)/* $(APP)
+	@echo "removing: $(BUILD_DIR)/* $(APP) $(AUX)"
+	@rm -f $(BUILD_DIR)/* $(APP) $(AUX)
 
 #=============================================================================#
 # Purge build

@@ -283,6 +283,10 @@ class FloorPlanner {
 			return this->conf_layer;
 		};
 
+		inline string const& getBenchmark() const {
+			return this->benchmark;
+		};
+
 		inline vector<Block> const& getBlocks() const {
 			return this->blocks;
 		};

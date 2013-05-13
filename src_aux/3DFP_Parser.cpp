@@ -47,7 +47,7 @@ int main (int argc, char** argv) {
 	// reset die outline and related stuff
 	fp.resetDieProperties(x, y);
 
-	// init thermal analyzer, only reasonable after parsing config file
+	// init thermal analyzer, only reasonable after reseting die outline
 	fp.initThermalAnalyzer();
 
 	// generate 3DFP related output data
