@@ -129,7 +129,13 @@ class FloorPlanner {
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
 		};
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
-		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true, bool const& trivial_HPWL = false);
+		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
+
+		// SA: parameters for cost functions
+		//
+		// trivial HPWL refers to one global bounding box for each net;
+		// non-trivial considers the bounding boxes on each layer separately
+		static constexpr bool SA_COST_INTERCONNECTS_TRIVIAL_HPWL = false;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;

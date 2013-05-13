@@ -1213,7 +1213,7 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 	return ret;
 }
 
-FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize, bool const& trivial_HPWL) {
+FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) {
 	int i, ii;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;
@@ -1238,7 +1238,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
-		if (trivial_HPWL) {
+		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
 
 			blocks_to_consider.clear();
 
@@ -1359,7 +1359,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
-	if (!trivial_HPWL) {
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
 		ret.HPWL += ret.TSVs * (FloorPlanner::THICKNESS_SI + FloorPlanner::THICKNESS_BOND);
 	}
 
