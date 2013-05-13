@@ -993,71 +993,47 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_
 }
 
 bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
-	int middle_die;
-	unsigned tries;
+	unsigned tries, max_tries;
 
 	if (!revert) {
-		// determine middle (boundary) die by int division, i.e, results in lower
-		// number for uneven layer count, thus range for lower-die selection is
-		// biased towards the lower stack, i.e., the hotter stack region
-		middle_die = this->conf_layer / 2;
 		// random lower die
-		die1 = Math::randI(0, middle_die);
+		die1 = Math::randI(0, this->conf_layer - 1);
 		// random upper die
-		die2 = Math::randI(middle_die, corb.diesSize());
+		die2 = Math::randI(die1 + 1, this->conf_layer);
 
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
 			return false;
 		}
 
-		// power density boundary, i.e., blocks above this value should be swapped
-		double const power_density_boundary = this->blocks_power_density_stats.avg;
-
-		// distinct dies, i.e., swapping w/in dies and thus
-		// checking for different tuples is not necessary
-
 		// determine random tuple on lower die
 		tries = 0;
-		while (tries < corb.getDie(die1).getCBL().size()) {
+		max_tries = 2 * max(corb.getDie(die1).getCBL().size(), corb.getDie(die2).getCBL().size());
+
+		while (true) {
 
 			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-
-			// check whether tuple has large power density
-			if (corb.getDie(die1).getBlock(tuple1)->power_density > power_density_boundary) {
-				break;
-			}
-			// try next tuple
-			else {
-				tries++;
-			}
-		}
-		// no large power block on lower die
-		if (tries == corb.getDie(die1).getCBL().size() - 1) {
-			return false;
-		}
-
-		// determine random tuple on upper die
-		tries = 0;
-		while (tries < corb.getDie(die2).getCBL().size()) {
-
 			tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
-			// check whether tuple has low power density
-			if (corb.getDie(die2).getBlock(tuple2)->power_density < power_density_boundary) {
+			// check whether tuple on lower die has larger power density
+			if (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density) {
+
+				// in case we found some canidates, perform the swap
+				corb.swapBlocks(die1, die2, tuple1, tuple2);
+
 				break;
 			}
 			// try next tuple
 			else {
 				tries++;
+
+				// no large power block found on lower die
+				if (tries == max_tries) {
+					return false;
+				}
 			}
 		}
-		// no low power block on upper die
-		if (tries == corb.getDie(die2).getCBL().size() - 1) {
-			return false;
-		}
 
-		corb.swapBlocks(die1, die2, tuple1, tuple2);
 	}
 	else {
 		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
