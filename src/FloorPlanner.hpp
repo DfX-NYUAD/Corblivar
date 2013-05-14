@@ -119,8 +119,9 @@ class FloorPlanner {
 		double max_cost_thermal, max_cost_WL, max_cost_TSVs, max_cost_alignments;
 
 		// SA cost paramters: global weights, enforce that area and outline
-		// violation is constantly considered; related weight must be > 0!
-		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.66;
+		// violation is constantly considered; related weight should be >= 0.5 in
+		// order to enforce guiding into outline during whole optimization run
+		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.5;
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA: cost functions, i.e., layout-evalutions
