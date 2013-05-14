@@ -18,6 +18,10 @@
 #include "Net.hpp"
 #include "IO.hpp"
 
+// memory allocation
+constexpr int FloorPlanner::OP_SWAP_BLOCKS;
+constexpr int FloorPlanner::OP_MOVE_TUPLE;
+
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i, ii;
@@ -47,7 +51,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	// left corner, i.e., perform a sorting of the sequences by block size
 	//
 	// also, for random layout operations in SA phase one, these blocks are not
-	// allowed to be swapped or moved, see performOpSwapBlocks, performOpMoveTuple
+	// allowed to be swapped or moved, see performOpMoveOrSwapBlocks
 	if (this->conf_SA_layout_floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
@@ -558,13 +562,13 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 
 		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
 
-			ret = this->performOpSwapBlocks(revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpMoveOrSwapBlocks(FloorPlanner::OP_SWAP_BLOCKS, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
 		case FloorPlanner::OP_MOVE_TUPLE: // op-code: 2
 
-			ret = this->performOpMoveTuple(revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpMoveOrSwapBlocks(FloorPlanner::OP_MOVE_TUPLE, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -888,20 +892,30 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 	return true;
 }
 
-bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
 
 	if (!revert) {
+
 		die1 = Math::randI(0, this->conf_layer);
 		die2 = Math::randI(0, this->conf_layer);
-		// sanity check for empty (origin) die
-		if (corb.getDie(die1).getCBL().empty()) {
-			return false;
+
+		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
+			// sanity check for empty (origin) die
+			if (corb.getDie(die1).getCBL().empty()) {
+				return false;
+			}
+		}
+		else if (mode == FloorPlanner::OP_SWAP_BLOCKS) {
+			// sanity check for empty dies
+			if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
+				return false;
+			}
 		}
 
 		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
 		tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
 
-		// in case of moving w/in same die, ensure that tuples are
+		// in case of swapping/moving w/in same die, ensure that tuples are
 		// different
 		if (die1 == die2) {
 			// this is, however, only possible if at least two
@@ -915,7 +929,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_o
 			}
 		}
 
-		// for power-aware block handling, ensure that only blocks w/ lower power
+		// for power-aware block handling, ensure that blocks w/ lower power
 		// density remain in lower layer
 		if (this->conf_SA_layout_power_aware_block_handling) {
 			if (die1 < die2
@@ -929,73 +943,27 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_o
 		}
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
-		// be moved
+		// be moved/swapped
 		if (this->conf_SA_layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
 
-		// perform move; applies only to valid candidates
-		corb.moveTuples(die1, die2, tuple1, tuple2);
+		// perform move/swap; applies only to valid candidates
+		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
+			corb.moveTuples(die1, die2, tuple1, tuple2);
+		}
+		else if (mode == FloorPlanner::OP_SWAP_BLOCKS) {
+			corb.swapBlocks(die1, die2, tuple1, tuple2);
+		}
 	}
 	else {
-		corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-	}
-
-	return true;
-}
-
-bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
-
-	if (!revert) {
-		die1 = Math::randI(0, this->conf_layer);
-		die2 = Math::randI(0, this->conf_layer);
-		// sanity check for empty dies
-		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
-			return false;
+		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
+			corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 		}
-
-		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-		tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
-
-		// in case of swaps w/in same die, ensure that tuples are different
-		if (die1 == die2) {
-			// this is, however, only possible if at least two
-			// tuples are given in that die
-			if (corb.getDie(die1).getCBL().size() < 2) {
-				return false;
-			}
-			// determine two different tuples
-			while (tuple1 == tuple2) {
-				tuple2 = Math::randI(0, corb.getDie(die1).getCBL().size());
-			}
+		else if (mode == FloorPlanner::OP_SWAP_BLOCKS) {
+			corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 		}
-
-		// for power-aware block handling, ensure that only blocks w/ lower power
-		// density remain in lower layer
-		if (this->conf_SA_layout_power_aware_block_handling) {
-			if (die1 < die2
-					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
-				return false;
-			}
-			else if (die1 > die2
-					&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)) {
-				return false;
-			}
-		}
-
-		// for SA phase one, floorplacement blocks, i.e., large macros, should not
-		// be swapped
-		if (this->conf_SA_layout_floorplacement && SA_phase_one
-				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
-			return false;
-		}
-
-		// perform swap; applies only to valid candidates
-		corb.swapBlocks(die1, die2, tuple1, tuple2);
-	}
-	else {
-		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 	}
 
 	return true;
