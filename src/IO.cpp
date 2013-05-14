@@ -376,11 +376,6 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.conf_SA_layout_enhanced_soft_block_shaping << endl;
 		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
 		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.conf_SA_layout_power_aware_block_handling << endl;
-		// consider power-aware block handling only if thermal optimization is on
-		if (!fp.conf_SA_opt_thermal) {
-			fp.conf_SA_layout_power_aware_block_handling = false;
-			cout << "IO>     Note: power-aware block handling is ignored since thermal optimization is disabled" << endl;
-		}
 		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
 
 		// SA loop setup
