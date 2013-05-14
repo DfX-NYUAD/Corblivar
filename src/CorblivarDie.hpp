@@ -44,10 +44,13 @@ class CorblivarDie {
 
 		// reset handler
 		inline void reset() {
+
 			// reset progress pointer
 			this->pi = 0;
+
 			// reset done flag
 			this->done = false;
+
 			// reset placement stacks
 			while (!this->Hi.empty()) {
 				this->Hi.pop();
@@ -55,7 +58,22 @@ class CorblivarDie {
 			while (!this->Vi.empty()) {
 				this->Vi.pop();
 			}
+
+			// reset placed flags
+			for (Block const* b : this->CBL.S) {
+				b->placed = false;
+			}
 		};
+
+		// handler for progress pointer, flag
+		inline void updateProgressPointerFlag() {
+			if (this->pi == (CBL.size() - 1)) {
+				this->done = true;
+			}
+			else {
+				this->pi++;
+			}
+		}
 
 		// layout generation; may return nullptr
 		Block const* placeCurrentBlock(bool const& dbgStack = false);
@@ -85,6 +103,9 @@ class CorblivarDie {
 		};
 		inline Block const* getBlock(unsigned const& tuple) const {
 			return this->CBL.S[tuple];
+		};
+		inline Block const* getCurrentBlock() const {
+			return this->CBL.S[this->pi];
 		};
 		inline Direction const& getDirection(unsigned const& tuple) const {
 			return this->CBL.L[tuple];

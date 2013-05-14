@@ -55,6 +55,11 @@ int main (int argc, char** argv) {
 		// generate new, random data set
 		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks(), fp.powerAwareBlockHandling());
 
+		// TODO drop; test data for alignment handling
+		corb.A.push_back(CorblivarAlignmentReq(0, &fp.getBlocks()[5], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		corb.A.push_back(CorblivarAlignmentReq(1, &fp.getBlocks()[5], &fp.getBlocks()[8], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+
 		if (fp.logMin()) {
 			cout << "Corblivar> ";
 			cout << "Performing SA floorplanning optimization..." << endl << endl;

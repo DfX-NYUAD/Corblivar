@@ -458,6 +458,9 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 				exit(1);
 			}
 
+			// memorize layer in block itself
+			tuple.S->layer = cur_layer;
+
 			// direction L
 			fp.solution_in >> dir;
 			// parse direction; unsigned 
