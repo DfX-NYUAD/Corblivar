@@ -156,7 +156,7 @@ class FloorPlanner {
 
 		// SA parameters: layout generation options
 		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_enhanced_soft_block_shaping;
-		bool conf_SA_layout_power_guided_block_swapping, conf_SA_layout_floorplacement;
+		bool conf_SA_layout_power_aware_block_handling, conf_SA_layout_floorplacement;
 		int conf_SA_layout_packing_iterations;
 
 		// SA: layout operations op-codes
@@ -285,7 +285,7 @@ class FloorPlanner {
 		};
 
 		inline bool const& powerAwareBlockHandling() {
-			return this->conf_SA_layout_power_guided_block_swapping;
+			return this->conf_SA_layout_power_aware_block_handling;
 		};
 
 		inline string const& getBenchmark() const {

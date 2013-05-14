@@ -221,7 +221,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_power_guided_block_swapping;
+	in >> fp.conf_SA_layout_power_aware_block_handling;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -375,11 +375,11 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
 		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.conf_SA_layout_enhanced_soft_block_shaping << endl;
 		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
-		cout << "IO>  SA -- Layout generation; power-guided block swapping: " << fp.conf_SA_layout_power_guided_block_swapping << endl;
-		// consider power-guided block swapping only if thermal optimization is on
+		cout << "IO>  SA -- Layout generation; power-guided block handling: " << fp.conf_SA_layout_power_aware_block_handling << endl;
+		// consider power-guided block handling only if thermal optimization is on
 		if (!fp.conf_SA_opt_thermal) {
-			fp.conf_SA_layout_power_guided_block_swapping = false;
-			cout << "IO>     Note: power-guided block swapping is ignored since thermal optimization is disabled" << endl;
+			fp.conf_SA_layout_power_aware_block_handling = false;
+			cout << "IO>     Note: power-guided block handling is ignored since thermal optimization is disabled" << endl;
 		}
 		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
 

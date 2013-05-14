@@ -551,9 +551,9 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 		//
 		// for SA phase two, we consider an extended set of operations related to
 		// thermal optimiziation; the flag
-		// conf_SA_layout_power_guided_block_swapping also considers if thermal
+		// conf_SA_layout_power_aware_block_handling also considers if thermal
 		// optimization is enabled and if a power density file is available
-		if (SA_phase_two && this->conf_SA_layout_power_guided_block_swapping) {
+		if (SA_phase_two && this->conf_SA_layout_power_aware_block_handling) {
 			this->last_op = op = Math::randI(1, 7);
 		}
 		// SA phase one, reduced set of operations
