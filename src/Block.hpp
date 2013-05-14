@@ -32,6 +32,7 @@ class Block {
 			layer = -1;
 			power_density= 0.0;
 			AR.min = AR.max = 1.0;
+			placed = false;
 			soft = false;
 			floorplacement = false;
 			//x_slack_backward = y_slack_backward = 0.0;
@@ -42,6 +43,9 @@ class Block {
 	public:
 		string id;
 		mutable int layer;
+
+		// flag to monitor placement; also required for alignment handling
+		mutable bool placed;
 
 		// density in [uW/(um^2)]
 		double power_density;
