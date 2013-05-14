@@ -66,9 +66,6 @@ class CorblivarCore {
 		inline CorblivarDie const& getDie(unsigned const& die) const {
 			return this->dies[die];
 		};
-		inline unsigned diesSize() const {
-			return this->dies.size();
-		};
 
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
