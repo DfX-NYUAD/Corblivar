@@ -58,7 +58,7 @@ void parse3DSTAF(FloorPlanner& fp) {
 	ifstream file_3DSTAF;
 	stringstream name_3DSTAF;
 	string tmpstr;
-	Block* block;
+	Block const* block;
 	vector<Block> blocks;
 	int layer;
 	int id;
@@ -121,7 +121,7 @@ void parse3DSTAF(FloorPlanner& fp) {
 		}
 
 		// try to find related block
-		block = fp.editBlock(blocks[id].id);
+		block = Block::findBlock(blocks[id].id, fp.getBlocks());
 		if (block == nullptr) {
 			cout << "Block parsed from 3DSTAF file cannot be found, block id: " << tmpstr << endl;
 			exit(1);

@@ -57,7 +57,7 @@ int main (int argc, char** argv) {
 void parse3DFP(FloorPlanner& fp) {
 	ifstream layer_3DFP_file;
 	string tmpstr;
-	Block* block;
+	Block const* block;
 	
 	for (int layer = 1; layer <= fp.getLayers(); layer++) {
 
@@ -92,7 +92,7 @@ void parse3DFP(FloorPlanner& fp) {
 				break;
 
 			// try to find related block
-			block = fp.editBlock(tmpstr);
+			block = Block::findBlock(tmpstr, fp.getBlocks());
 			if (block == nullptr) {
 				cout << "Block parsed from 3DFP file cannot be found, block id: " << tmpstr << endl;
 				exit(1);

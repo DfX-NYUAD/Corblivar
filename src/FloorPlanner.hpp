@@ -296,16 +296,6 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
-		inline Block* editBlock(string const& id) {
-			for (Block& b : this->blocks) {
-				if (id == b.id) {
-					return &b;
-				}
-			}
-
-			return nullptr;
-		};
-
 		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
 			// set outline
 			this->conf_outline_x = outline_x;
