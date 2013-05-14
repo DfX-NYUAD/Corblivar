@@ -56,7 +56,7 @@ class CorblivarCore {
 	// public data, functions
 	public:
 		// general operations
-		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks);
+		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
 		void generateLayout(int const& packing_iterations, bool const& dbgStack = false);
 
 		// die getter

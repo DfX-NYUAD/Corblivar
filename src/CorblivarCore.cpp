@@ -13,24 +13,80 @@
 #include "CorblivarCore.hpp"
 // required Corblivar headers
 #include "Math.hpp"
+#include "Block.hpp"
 
 // memory allocation
 constexpr int CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE;
 
-void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks) {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment) {
 	Direction cur_dir;
-	int rand, cur_t;
+	int die, cur_t, cur_layer;
+	double blocks_area_per_layer, cur_blocks_area;
+	vector<Block> blocks_copy;
+	Block const* cur_block;
 
 	if (log) {
 		cout << "Corblivar> ";
-		cout << "Initializing Corblivar data for corb on " << layers << " layers..." << endl;
+		cout << "Initializing Corblivar data for corb on " << layers << " layers; ";
+		if (power_aware_assignment) {
+			cout << "w/ power-aware block handling..." << endl;
+		}
+		else {
+			cout << "w/o power-aware block handling..." << endl;
+		}
 	}
 
-	// assign each block randomly to one die, generate L and T randomly as well
-	for (Block const& cur_block : blocks) {
+	// local copy; used for blocks order
+	blocks_copy = blocks;
 
-		// consider random die
-		rand = Math::randI(0, layers);
+	// prepare power-aware assignment
+	if (power_aware_assignment) {
+
+		// init vars
+		blocks_area_per_layer = cur_blocks_area = 0.0;
+		cur_layer = 0;
+
+		// sort blocks by power density; use local (mutable) copy of blocks
+		sort(blocks_copy.begin(), blocks_copy.end(),
+			// lambda expression
+			[&](Block b1, Block b2) {
+				return b1.power_density < b2.power_density;
+			}
+		    );
+
+		// determine blocks / die area ratio for balanced assignment
+		blocks_area_per_layer = 0.0;
+		for (Block const& cur_block : blocks) {
+			blocks_area_per_layer += cur_block.bb.area;
+		}
+		blocks_area_per_layer /= layers;
+	}
+
+	// assign each block to one die, generate L and T as well; consider local, sorted
+	// copy of blocks container
+	for (Block& cur_block_copy : blocks_copy) {
+
+		// determine related block from original blocks container
+		cur_block = Block::findBlock(cur_block_copy.id, blocks);
+
+		// for power-aware assignment, fill layers w/ (sorted) blocks until the
+		// dies are evenly occupied
+		if (power_aware_assignment) {
+
+			cur_blocks_area += cur_block->bb.area;
+
+			if (cur_blocks_area > blocks_area_per_layer) {
+				cur_layer++;
+				cur_blocks_area = 0.0;
+			}
+
+			// sanity check to limit die
+			die = min(cur_layer, layers - 1);
+		}
+		else {
+			// consider random die
+			die = Math::randI(0, layers);
+		}
 
 		// generate direction L
 		if (Math::randB()) {
@@ -44,9 +100,9 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[rand].CBL.S.push_back(move(&cur_block));
-		this->dies[rand].CBL.L.push_back(move(cur_dir));
-		this->dies[rand].CBL.T.push_back(move(cur_t));
+		this->dies[die].CBL.S.push_back(move(cur_block));
+		this->dies[die].CBL.L.push_back(move(cur_dir));
+		this->dies[die].CBL.T.push_back(move(cur_t));
 	}
 
 	if (CorblivarCore::DBG) {

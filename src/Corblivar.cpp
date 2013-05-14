@@ -53,7 +53,7 @@ int main (int argc, char** argv) {
 	// regular run; perform floorplanning
 	else {
 		// generate new, random data set
-		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks());
+		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks(), fp.powerAwareBlockHandling());
 
 		if (fp.logMin()) {
 			cout << "Corblivar> ";

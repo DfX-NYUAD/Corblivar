@@ -284,6 +284,10 @@ class FloorPlanner {
 			return this->conf_layer;
 		};
 
+		inline bool const& powerAwareBlockHandling() {
+			return this->conf_SA_layout_power_guided_block_swapping;
+		};
+
 		inline string const& getBenchmark() const {
 			return this->benchmark;
 		};
