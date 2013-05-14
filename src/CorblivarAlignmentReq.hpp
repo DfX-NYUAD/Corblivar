@@ -1,15 +1,15 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar alignment requirements data
+ *    Description:  Corblivar alignment requests data
  *
  *         Author:  Johann Knechtel, johann.knechtel@ifte.de
  *        Company:  Institute of Electromechanical and Electronic Design, www.ifte.de
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_ALIGNMENT_REQUIREMENT
-#define _CORBLIVAR_ALIGNMENT_REQUIREMENT
+#ifndef _CORBLIVAR_ALIGNMENT_REQUEST
+#define _CORBLIVAR_ALIGNMENT_REQUEST
 
 // library includes
 #include "Corblivar.incl.hpp"
@@ -18,7 +18,7 @@
 // forward declarations, if any
 
 // alignment types
-enum class AlignmentType : unsigned {OFFSET, RANGE, UNDEF};
+enum class AlignmentType : int {OFFSET = 0, RANGE = 1, UNDEF = -1};
 
 class CorblivarAlignmentReq {
 	// debugging code switch (private)
@@ -26,14 +26,16 @@ class CorblivarAlignmentReq {
 
 	// private data, functions
 	private:
-		Block* s_i;
-		Block* s_j;
+		int id;
+		Block const* s_i;
+		Block const* s_j;
 		AlignmentType type_x, type_y;
 		double offset_range_x, offset_range_y;
 
 	// constructors, destructors, if any non-implicit
 	public:
-		CorblivarAlignmentReq(Block* si, Block* sj, AlignmentType typex, double offsetrangex, AlignmentType typey, double offsetrangey) {
+		CorblivarAlignmentReq(int const& id_i, Block const* si, Block const* sj, AlignmentType const& typex, double const& offsetrangex, AlignmentType const& typey, double const& offsetrangey) {
+			id = id_i;
 			s_i = si;
 			s_j = sj;
 			type_x = typex;
@@ -60,6 +62,8 @@ class CorblivarAlignmentReq {
 
 	// public data, functions
 	public:
+		friend class CorblivarCore;
+
 		inline bool rangeX() const {
 			return (this->type_x == AlignmentType::RANGE);
 		};
