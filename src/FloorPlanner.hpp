@@ -166,8 +166,6 @@ class FloorPlanner {
 		static constexpr int OP_SWITCH_INSERTION_DIR = 3;
 		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
 		static constexpr int OP_ROTATE_BLOCK__SHAPE_BLOCK = 5;
-		// used only in phase two
-		static constexpr int OP_SWAP_HOT_COLD_BLOCKS = 6;
 		// used only for soft block shaping
 		static constexpr int OP_SHAPE_BLOCK__STRETCH_HORIZONTAL = 10;
 		static constexpr int OP_SHAPE_BLOCK__STRETCH_VERTICAL = 11;
@@ -184,7 +182,6 @@ class FloorPlanner {
 		// reference for CorblivarCore in order to enable operations on CBL-encode data
 		bool inline performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
 				int& die1, int& die2, int& tuple1, int& tuple2) const;
-		bool inline performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
 				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;

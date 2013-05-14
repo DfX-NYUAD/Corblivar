@@ -548,18 +548,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	else {
 		// see defined op-codes in class FloorPlanner to set random-number ranges;
 		// recall that randI(x,y) is [x,y)
-		//
-		// for SA phase two, we consider an extended set of operations related to
-		// thermal optimiziation; the flag
-		// conf_SA_layout_power_aware_block_handling also considers if thermal
-		// optimization is enabled and if a power density file is available
-		if (SA_phase_two && this->conf_SA_layout_power_aware_block_handling) {
-			this->last_op = op = Math::randI(1, 7);
-		}
-		// SA phase one, reduced set of operations
-		else {
-			this->last_op = op = Math::randI(1, 6);
-		}
+		this->last_op = op = Math::randI(1, 6);
 	}
 
 	die1 = die2 = tuple1 = tuple2 = juncts = -1;
@@ -570,14 +559,6 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 		case FloorPlanner::OP_SWAP_BLOCKS: // op-code: 1
 
 			ret = this->performOpSwapBlocks(revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
-
-			break;
-
-		case FloorPlanner::OP_SWAP_HOT_COLD_BLOCKS: // op-code: 6
-
-			// relates to SA phase two; swap a hot block from the lower dies
-			// w/ a cold block on the upper dies
-			ret = this->performOpSwapHotColdBlocks(revertLastOp, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -908,6 +889,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 }
 
 bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+
 	if (!revert) {
 		die1 = Math::randI(0, this->conf_layer);
 		die2 = Math::randI(0, this->conf_layer);
@@ -933,15 +915,28 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_o
 			}
 		}
 
+		// for power-aware block handling, ensure that only blocks w/ lower power
+		// density remain in lower layer
+		if (this->conf_SA_layout_power_aware_block_handling) {
+			if (die1 < die2
+					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
+				return false;
+			}
+			else if (die1 > die2
+					&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)) {
+				return false;
+			}
+		}
+
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be moved
 		if (this->conf_SA_layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
-		else {
-			corb.moveTuples(die1, die2, tuple1, tuple2);
-		}
+
+		// perform move; applies only to valid candidates
+		corb.moveTuples(die1, die2, tuple1, tuple2);
 	}
 	else {
 		corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
@@ -951,6 +946,7 @@ bool FloorPlanner::performOpMoveTuple(bool const& revert, bool const& SA_phase_o
 }
 
 bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+
 	if (!revert) {
 		die1 = Math::randI(0, this->conf_layer);
 		die2 = Math::randI(0, this->conf_layer);
@@ -975,65 +971,28 @@ bool FloorPlanner::performOpSwapBlocks(bool const& revert, bool const& SA_phase_
 			}
 		}
 
+		// for power-aware block handling, ensure that only blocks w/ lower power
+		// density remain in lower layer
+		if (this->conf_SA_layout_power_aware_block_handling) {
+			if (die1 < die2
+					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
+				return false;
+			}
+			else if (die1 > die2
+					&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)) {
+				return false;
+			}
+		}
+
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be swapped
 		if (this->conf_SA_layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
-		else {
-			corb.swapBlocks(die1, die2, tuple1, tuple2);
-		}
-	}
-	else {
-		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
-	}
 
-	return true;
-}
-
-bool FloorPlanner::performOpSwapHotColdBlocks(bool const& revert, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
-	unsigned tries, max_tries;
-
-	if (!revert) {
-		// random lower die
-		die1 = Math::randI(0, this->conf_layer - 1);
-		// random upper die
-		die2 = Math::randI(die1 + 1, this->conf_layer);
-
-		// sanity check for empty dies
-		if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
-			return false;
-		}
-
-		// determine random tuple on lower die
-		tries = 0;
-		max_tries = 2 * max(corb.getDie(die1).getCBL().size(), corb.getDie(die2).getCBL().size());
-
-		while (true) {
-
-			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-			tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
-
-			// check whether tuple on lower die has larger power density
-			if (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density) {
-
-				// in case we found some canidates, perform the swap
-				corb.swapBlocks(die1, die2, tuple1, tuple2);
-
-				break;
-			}
-			// try next tuple
-			else {
-				tries++;
-
-				// no large power block found on lower die
-				if (tries == max_tries) {
-					return false;
-				}
-			}
-		}
-
+		// perform swap; applies only to valid candidates
+		corb.swapBlocks(die1, die2, tuple1, tuple2);
 	}
 	else {
 		corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
