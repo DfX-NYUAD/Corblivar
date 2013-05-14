@@ -126,7 +126,7 @@ class FloorPlanner {
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) {
-			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->conf_outline_x, this->conf_outline_y, this->conf_power_blurring_power_density_scaling_padding_zone);
+			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(), this->conf_power_blurring_power_density_scaling_padding_zone);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
 		};
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
@@ -276,12 +276,21 @@ class FloorPlanner {
 			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), parameters);
 
 			// init power maps, i.e. predetermine maps parameters
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_outline_x, this->conf_outline_y);
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
 		};
 
 		// getter / setter
 		inline int const& getLayers() const {
 			return this->conf_layer;
+		};
+
+		inline Point getOutline() const {
+			Point ret;
+
+			ret.x = this->conf_outline_x;
+			ret.y = this->conf_outline_y;
+
+			return ret;
 		};
 
 		inline bool const& powerAwareBlockHandling() {

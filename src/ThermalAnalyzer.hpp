@@ -16,6 +16,7 @@
 // Corblivar includes, if any
 // forward declarations, if any
 class Block;
+class Point;
 
 class ThermalAnalyzer {
 	// debugging code switch (private)
@@ -99,8 +100,8 @@ class ThermalAnalyzer {
 
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
-		void initPowerMaps(int const& layers, double const& outline_x, double const& outline_y);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, double const& power_density_scaling_padding_zone = 1.0, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void initPowerMaps(int const& layers, Point const& die_outline);
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, double const& power_density_scaling_padding_zone = 1.0, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// returns max value of convoluted 2D matrix;

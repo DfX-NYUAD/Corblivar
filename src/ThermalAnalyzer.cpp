@@ -168,7 +168,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	return max_temp;
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, double const& outline_x, double const& outline_y, double const& power_density_scaling_padding_zone, bool const& extend_boundary_blocks_into_padding_zone) {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, double const& power_density_scaling_padding_zone, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
 	Rect bin, intersect, block_offset;
@@ -176,7 +176,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	bool padding_zone;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", " << outline_x << ", " << outline_y << ", " << power_density_scaling_padding_zone << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
+		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", (" << die_outline.x << ", " << die_outline.y << "), " << power_density_scaling_padding_zone << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
 	}
 
 	// determine maps for each layer
@@ -219,11 +219,11 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			// they are close to the related chip boundaries
 			if (
 					extend_boundary_blocks_into_padding_zone &&
-					abs(outline_x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
+					abs(die_outline.x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
 			   ) {
 				// consider offset twice in order to reach right/uppper
 				// boundary related to layout described by padded power map
-				block_offset.ur.x = outline_x + 2.0 * this->blocks_offset_x;
+				block_offset.ur.x = die_outline.x + 2.0 * this->blocks_offset_x;
 			}
 			// simple shift otherwise; compensate for padding of left/bottom
 			// boundaries
@@ -233,9 +233,9 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 
 			if (
 					extend_boundary_blocks_into_padding_zone
-					&& abs(outline_y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
+					&& abs(die_outline.y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
 			   ) {
-				block_offset.ur.y = outline_y + 2.0 * this->blocks_offset_y;
+				block_offset.ur.y = die_outline.y + 2.0 * this->blocks_offset_y;
 			}
 			else {
 				block_offset.ur.y += this->blocks_offset_y;
@@ -313,12 +313,12 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, double const& outline_y) {
+void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline) {
 	unsigned b;
 	int i;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::initPowerMaps(" << outline_x << ", " << outline_y << ")" << endl;
+		cout << "-> ThermalAnalyzer::initPowerMaps(" << layers << ", " << die_outline.x << ", " << die_outline.y << ")" << endl;
 	}
 
 	// init power maps
@@ -340,8 +340,8 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 
 	// scale power map dimensions to outline of thermal map; this way the padding of
 	// power maps doesn't distort the block outlines in the thermal map
-	this->power_maps_dim_x = outline_x / ThermalAnalyzer::THERMAL_MAP_DIM;
-	this->power_maps_dim_y = outline_y / ThermalAnalyzer::THERMAL_MAP_DIM;
+	this->power_maps_dim_x = die_outline.x / ThermalAnalyzer::THERMAL_MAP_DIM;
+	this->power_maps_dim_y = die_outline.y / ThermalAnalyzer::THERMAL_MAP_DIM;
 
 	// determine offset for blocks, related to padding of power maps
 	this->blocks_offset_x = this->power_maps_dim_x * ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
@@ -349,8 +349,8 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, double const& outline_x, 
 
 	// determine max distance for blocks' upper/right boundaries to upper/right die
 	// outline to be padded
-	this->padding_right_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_x;
-	this->padding_upper_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * outline_y;
+	this->padding_right_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * die_outline.x;
+	this->padding_upper_boundary_blocks_distance = ThermalAnalyzer::PADDING_ZONE_BLOCKS_DISTANCE_LIMIT * die_outline.y;
 
 	// predetermine map bins' area and lower-left corner coordinates; note that the
 	// last bin represents the upper-right coordinates for the penultimate bin
