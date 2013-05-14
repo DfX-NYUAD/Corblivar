@@ -51,7 +51,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	// left corner, i.e., perform a sorting of the sequences by block size
 	//
 	// also, for random layout operations in SA phase one, these blocks are not
-	// allowed to be swapped or moved, see performOpSwapBlocks, performOpMoveTuple
+	// allowed to be swapped or moved, see performOpMoveOrSwapBlocks
 	if (this->conf_SA_layout_floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
