@@ -288,11 +288,6 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 			}
 			// no alignment requested for current block
 			else {
-
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>  No unhandled request for block " << cur_block->id << "; place block" << endl;
-				}
-
 				// place block, increment progress pointer
 				this->p->placeCurrentBlock(dbgStack);
 				this->p->updateProgressPointerFlag();

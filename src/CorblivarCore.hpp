@@ -63,10 +63,6 @@ class CorblivarCore {
 		inline list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const {
 			list<CorblivarAlignmentReq const*> ret;
 
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>  Determine unhandled alignment requests" << endl;
-			}
-
 			for (CorblivarAlignmentReq const& req : this->A) {
 
 				if (req.s_i->id == b->id || req.s_j->id == b->id) {
@@ -76,7 +72,7 @@ class CorblivarCore {
 					if (!req.s_i->placed || !req.s_j->placed) {
 
 						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-							cout << "DBG_ALIGNMENT>   request: " << req.tupleString() << endl;
+							cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << endl;
 						}
 
 						ret.push_back(&req);
