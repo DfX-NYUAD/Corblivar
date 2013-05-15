@@ -67,7 +67,7 @@ class CorblivarDie {
 
 		// handler for progress pointer, flag
 		inline void updateProgressPointerFlag() {
-			if (this->pi == (CBL.size() - 1)) {
+			if (this->pi == (this->CBL.size() - 1)) {
 				this->done = true;
 			}
 			else {
