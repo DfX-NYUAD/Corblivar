@@ -225,8 +225,10 @@ class CorblivarCore {
 				die.CBLbackup.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
-					// backup (copy) block box into block itself
+
+					// backup bb into block itself
 					b->bb_backup = b->bb;
+
 					die.CBLbackup.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBL.L) {
@@ -245,8 +247,12 @@ class CorblivarCore {
 				die.CBL.reserve(die.CBLbackup.capacity());
 
 				for (Block const* b : die.CBLbackup.S) {
-					// restore (copy) block box from block itself
+
+					// restore bb from block itself
 					b->bb = b->bb_backup;
+					// update layer assignment
+					b->layer = die.id;
+
 					die.CBL.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBLbackup.L) {
@@ -267,7 +273,10 @@ class CorblivarCore {
 				die.CBLbest.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
+
+					// backup bb into block itself
 					b->bb_best = b->bb;
+
 					die.CBLbest.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBL.L) {
@@ -295,7 +304,12 @@ class CorblivarCore {
 				}
 
 				for (Block const* b : die.CBLbest.S) {
+
+					// restore bb from block itself
 					b->bb = b->bb_best;
+					// update layer assignment
+					b->layer = die.id;
+
 					die.CBL.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBLbest.L) {
