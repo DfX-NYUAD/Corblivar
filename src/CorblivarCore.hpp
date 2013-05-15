@@ -134,13 +134,14 @@ class CorblivarCore {
 
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 
-			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
-
-			// update layer assignments if required
+			// pre-update layer assignments if swapping across dies
 			if (die1 != die2) {
-				this->dies[die1].CBL.S[tuple1]->layer = die1;
-				this->dies[die2].CBL.S[tuple2]->layer = die2;
+				this->dies[die1].CBL.S[tuple1]->layer = die2;
+				this->dies[die2].CBL.S[tuple2]->layer = die1;
 			}
+
+			// perform swap
+			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
 			if (DBG) {
 				cout << "DBG_CORE> swapBlocks; d1=" << die1 << ", d2=" << die2;
@@ -158,9 +159,8 @@ class CorblivarCore {
 			}
 			// move across dies: perform insert and delete
 			else {
-				// pre-update layer assignment
+				// pre-update layer assignment for block to be moved
 				this->dies[die1].CBL.S[tuple1]->layer = die2;
-				this->dies[die2].CBL.S[tuple2]->layer = die1;
 
 				// insert tuple1 from die1 into die2 w/ offset tuple2
 				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, move(this->dies[die1].CBL.S[tuple1]));
