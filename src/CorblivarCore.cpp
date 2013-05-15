@@ -174,6 +174,7 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 
 			// place block, increment progress pointer
 			this->p->placeCurrentBlock(dbgStack);
+			this->p->updateProgressPointerFlag();
 			// mark die as not stalled anymore
 			this->p->stalled = false;
 		}
@@ -216,16 +217,24 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 								cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << endl;
 							}
 
-							// TODO alignBlocks(cur_block,
-							// other_block);
-							// in alignBlocks, we need to
-							// check for previously placed
-							// blocks and mark blocks as
-							// placed afterwards; also, the
-							// progress pointer for this layer
-							// must not be increased
-							cur_block->placed = true;
-							other_block->placed = true;
+							// TODO replace w/
+							// alignBlocks(cur_block,
+							// other_block); in alignBlocks,
+							// we need to check for previously
+							// placed blocks and mark blocks
+							// as placed afterwards; also, the
+							// progress pointer must not be
+							// increased
+							//
+							// TODO ok?
+							this->dies[cur_block->layer].placeCurrentBlock(dbgStack);
+							this->dies[other_block->layer].placeCurrentBlock(dbgStack);
+							// simply marking as placed not
+							// ok, some initial coordinates /
+							// coordinates related to covering
+							// blocks will be the result
+							//cur_block->placed = true;
+							//other_block->placed = true;
 
 							// mark die related w/ other block
 							// as not stalled any more;
@@ -286,6 +295,7 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 
 				// place block, increment progress pointer
 				this->p->placeCurrentBlock(dbgStack);
+				this->p->updateProgressPointerFlag();
 			}
 		}
 

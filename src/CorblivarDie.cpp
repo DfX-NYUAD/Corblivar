@@ -226,9 +226,6 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	// mark block as placed
 	cur_block->placed = true;
 
-	// increment progress pointer, consider next tuple (block) or mark die as done
-	this->updateProgressPointerFlag();
-
 	return cur_block;
 }
 
