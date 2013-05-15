@@ -33,8 +33,11 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	Direction const cur_dir = this->getDirection(this->pi);
 	unsigned const cur_juncts = this->getJunctions(this->pi);
 
-	// assign layer to block
-	cur_block->layer = this->id;
+	// sanity check for previously placed blocks; may occur due to resolving alignment
+	// requests in process
+	if (cur_block->placed) {
+		return cur_block;
+	}
 
 	// horizontal placement
 	if (cur_dir == Direction::HORIZONTAL) {
@@ -220,19 +223,13 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		}
 	}
 
-	// increment progress pointer, consider next tuple (block) or mark die as done
-	if (this->pi == (CBL.size() - 1)) {
-		this->done = true;
-	}
-	else {
-		this->pi++;
-	}
+	// mark block as placed
+	cur_block->placed = true;
 
 	return cur_block;
 }
 
-// TODO consider alignment requirements; perform packing such that alignment is not
-// undermined
+// TODO consider alignment requests; perform packing such that alignment is not undermined
 void CorblivarDie::performPacking(Direction const& dir) {
 	list<Block const*> blocks;
 	list<Block const*>::iterator i1;

@@ -936,8 +936,8 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
 				return false;
 			}
-			else if (die1 > die2
-					&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)) {
+			else if (die2 < die1
+					&& (corb.getDie(die2).getBlock(tuple2)->power_density < corb.getDie(die1).getBlock(tuple1)->power_density)) {
 				return false;
 			}
 		}

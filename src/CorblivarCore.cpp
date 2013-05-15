@@ -88,6 +88,9 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 			die = Math::randI(0, layers);
 		}
 
+		// memorize layer in block itself
+		cur_block->layer = die;
+
 		// generate direction L
 		if (Math::randB()) {
 			cur_dir = Direction::HORIZONTAL;
@@ -121,8 +124,12 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
+// (TODO?) dbgStack as compile-time flag
 void CorblivarCore::generateLayout(int const& packing_iterations, bool const& dbgStack) {
 	Block const* cur_block;
+	Block const* other_block;
+	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
+	CorblivarAlignmentReq const* req_processed;
 	bool loop;
 
 	if (CorblivarCore::DBG) {
@@ -138,30 +145,152 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 		die.reset();
 	}
 
+	// reset alignments-in-process list
+	AL.clear();
+
+	if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		cout << "DBG_ALIGNMENT>" << endl;
+		cout << "DBG_ALIGNMENT> New layout-generation run..." << endl;
+		cout << "DBG_ALIGNMENT>" << endl;
+	}
+
 	// perform layout generation in loop (until all blocks are placed)
 	loop = true;
 	while (loop) {
-		// handle stalled die / resolve open alignment process by placing current block
+
+		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
+			cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
+		}
+
+		// handle stalled die, i.e., resolve paused alignment process by placing
+		// current block
 		if (this->p->stalled) {
-			// place block, increment progress pointer
-			cur_block = this->p->placeCurrentBlock(dbgStack);
-			// TODO mark current block as placed in AS
-			if (cur_block != nullptr) {
+
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id;
+				cout << " place current block : " << this->p->getCurrentBlock()->id << endl;
 			}
 
+			// place block, increment progress pointer
+			this->p->placeCurrentBlock(dbgStack);
+			this->p->updateProgressPointerFlag();
 			// mark die as not stalled anymore
 			this->p->stalled = false;
 		}
 		// die is not stalled
 		else {
-			// TODO check for alignment tuples for current block
-			//
-			if (false) {
+			// check for alignment tuples for current block
+			// (TODO) hold pointer to reqs in blocks themselves for efficiency
+			cur_block = this->p->getCurrentBlock();
+			cur_block_alignment_reqs = this->findAlignmentReqs(cur_block);
+
+			// some requests are given, handle them stepwise
+			if (!cur_block_alignment_reqs.empty()) {
+
+				// handle each request
+				for (auto* cur_req : cur_block_alignment_reqs) {
+
+					if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+						cout << "DBG_ALIGNMENT>  Handling alignment request for block " << cur_block->id << endl;
+						cout << "DBG_ALIGNMENT>   Request: " << cur_req->tupleString() << endl;
+					}
+
+					// determine other block of request
+					if (cur_req->s_i->id == cur_block->id) {
+						other_block = cur_req->s_j;
+					}
+					else {
+						other_block = cur_req->s_i;
+					}
+
+					// check if request is already in process; if so,
+					// the die related to the other block is currently
+					// stalled, i.e., waiting for this block to be
+					// placed / both blocks to be aligned
+					req_processed = nullptr;
+					for (auto* req_in_process : this->AL) {
+
+						if (cur_req->id == req_in_process->id) {
+
+							if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+								cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << endl;
+							}
+
+							// TODO replace w/
+							// alignBlocks(cur_block,
+							// other_block); in alignBlocks,
+							// we need to check for previously
+							// placed blocks and mark blocks
+							// as placed afterwards; also, the
+							// progress pointer must not be
+							// increased
+							//
+							// TODO ok?
+							this->dies[cur_block->layer].placeCurrentBlock(dbgStack);
+							this->dies[other_block->layer].placeCurrentBlock(dbgStack);
+							// simply marking as placed not
+							// ok, some initial coordinates /
+							// coordinates related to covering
+							// blocks will be the result
+							//cur_block->placed = true;
+							//other_block->placed = true;
+
+							// mark die related w/ other block
+							// as not stalled any more;
+							// re-enables further layout
+							// generation on that die in next
+							// iterations
+							this->dies[other_block->layer].stalled = false;
+
+							// memorize processed request
+							req_processed = cur_req;
+
+							break;
+						}
+					}
+
+					// request is not in process yet;
+					if (req_processed == nullptr) {
+
+						// stall layout generation on this die;
+						this->dies[cur_block->layer].stalled = true;
+						// memorize alignment as in process;
+						this->AL.push_back(cur_req);
+						// continue layout generation on die
+						// related to other block of request
+						this->p = &this->dies[other_block->layer];
+
+						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+							cout << "DBG_ALIGNMENT>    Request not (yet) in process" << endl;
+							cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer;
+							cout << ", continue on die " << this->p->id << endl;
+						}
+					}
+					// request is processed; drop from list of
+					// requests-in-process
+					else {
+						this->AL.remove(req_processed);
+					}
+				}
+
+				// all requests are handled and further layout generation
+				// to be continued on this die; increment progress pointer
+				// since block and related alignment requests are handled
+				if (!this->dies[cur_block->layer].stalled) {
+
+					if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+						cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << endl;
+					}
+
+					this->p->updateProgressPointerFlag();
+				}
 			}
-			// no alignment tuple assigned for current block
+			// no alignment requested for current block
 			else {
 				// place block, increment progress pointer
 				this->p->placeCurrentBlock(dbgStack);
+				this->p->updateProgressPointerFlag();
 			}
 		}
 
@@ -176,18 +305,8 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 				this->p->performPacking(Direction::VERTICAL);
 			}
 
-			// continue layout generation on yet unfinished die
-			for (CorblivarDie& die :  this->dies) {
-				if (!die.done) {
-					this->p = &die;
-					break;
-				}
-			}
-
-			// all dies handled, stop loop
-			if (this->p->done) {
-				loop = false;
-			}
+			// continue layout generation on next, yet unfinished die
+			loop = this->switchDie();
 		}
 	}
 

@@ -23,6 +23,7 @@ class CorblivarCore {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = false;
+		static constexpr bool DBG_ALIGNMENT_REQ = false;
 
 	// private data, functions
 	private:
@@ -33,7 +34,67 @@ class CorblivarCore {
 		// current-die pointer
 		CorblivarDie* p;
 
-		// sequence A; alignment requirements
+		// die-selection handler
+		inline bool switchDie() {
+
+			// try to continue on unfinished die
+			for (CorblivarDie& die :  this->dies) {
+				if (!die.done) {
+					this->p = &die;
+					break;
+				}
+			}
+
+			// all dies handled, continue w/ next die not possible
+			if (this->p->done) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		};
+
+		// alignments-in-process list
+		list<CorblivarAlignmentReq const*> AL;
+
+		// alignment-requests helper
+		//
+		// determine open requests covering block b
+		inline list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const {
+			list<CorblivarAlignmentReq const*> ret;
+
+			for (CorblivarAlignmentReq const& req : this->A) {
+
+				if (req.s_i->id == b->id || req.s_j->id == b->id) {
+
+					// only consider request which are still in
+					// process, i.e., not both blocks are placed yet
+					if (!req.s_i->placed || !req.s_j->placed) {
+
+						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+							cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << endl;
+						}
+
+						ret.push_back(&req);
+					}
+				}
+			}
+
+			// sort such that requests w/ placed blocks are considered
+			// first; eases handling of intersecting requests
+			ret.sort(
+				// lambda expression
+				[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
+					return (req1->s_i->placed || req2->s_j->placed);
+				}
+			);
+
+			return ret;
+		}
+
+	// TODO declare private; public for testing only
+	public:
+		// sequence A; alignment requests
 		vector<CorblivarAlignmentReq> A;
 
 	// constructors, destructors, if any non-implicit
@@ -68,6 +129,14 @@ class CorblivarCore {
 		};
 
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
+
+			// pre-update layer assignments if swapping across dies
+			if (die1 != die2) {
+				this->dies[die1].CBL.S[tuple1]->layer = die2;
+				this->dies[die2].CBL.S[tuple2]->layer = die1;
+			}
+
+			// perform swap
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
 			if (DBG) {
@@ -86,10 +155,14 @@ class CorblivarCore {
 			}
 			// move across dies: perform insert and delete
 			else {
+				// pre-update layer assignment for block to be moved
+				this->dies[die1].CBL.S[tuple1]->layer = die2;
+
 				// insert tuple1 from die1 into die2 w/ offset tuple2
 				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, move(this->dies[die1].CBL.S[tuple1]));
 				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, move(this->dies[die1].CBL.L[tuple1]));
 				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, move(this->dies[die1].CBL.T[tuple1]));
+
 				// erase tuple1 from die1
 				this->dies[die1].CBL.S.erase(this->dies[die1].CBL.S.begin() + tuple1);
 				this->dies[die1].CBL.L.erase(this->dies[die1].CBL.L.begin() + tuple1);
@@ -148,8 +221,10 @@ class CorblivarCore {
 				die.CBLbackup.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
-					// backup (copy) block box into block itself
+
+					// backup bb into block itself
 					b->bb_backup = b->bb;
+
 					die.CBLbackup.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBL.L) {
@@ -168,8 +243,12 @@ class CorblivarCore {
 				die.CBL.reserve(die.CBLbackup.capacity());
 
 				for (Block const* b : die.CBLbackup.S) {
-					// restore (copy) block box from block itself
+
+					// restore bb from block itself
 					b->bb = b->bb_backup;
+					// update layer assignment
+					b->layer = die.id;
+
 					die.CBL.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBLbackup.L) {
@@ -190,7 +269,10 @@ class CorblivarCore {
 				die.CBLbest.reserve(die.CBL.capacity());
 
 				for (Block const* b : die.CBL.S) {
+
+					// backup bb into block itself
 					b->bb_best = b->bb;
+
 					die.CBLbest.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBL.L) {
@@ -218,7 +300,12 @@ class CorblivarCore {
 				}
 
 				for (Block const* b : die.CBLbest.S) {
+
+					// restore bb from block itself
 					b->bb = b->bb_best;
+					// update layer assignment
+					b->layer = die.id;
+
 					die.CBL.S.push_back(b);
 				}
 				for (Direction const& dir : die.CBLbest.L) {
