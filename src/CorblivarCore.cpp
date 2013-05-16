@@ -181,7 +181,6 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 		// die is not stalled
 		else {
 			// check for alignment tuples for current block
-			// (TODO) hold pointer to reqs in blocks themselves for efficiency
 			cur_block = this->p->getCurrentBlock();
 			cur_block_alignment_reqs = this->findAlignmentReqs(cur_block);
 
@@ -217,24 +216,24 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 								cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << endl;
 							}
 
-							// TODO replace w/
-							// alignBlocks(cur_block,
-							// other_block); in alignBlocks,
-							// we need to check for previously
-							// placed blocks and mark blocks
-							// as placed afterwards; also, the
-							// progress pointer must not be
-							// increased
+							// TODO alignBlocks; requires to
+							// adapt placeCurrentBlock such
+							// that a) virtual CBL adaption is
+							// considered (blocks are only
+							// shifted such that no other
+							// blocks are overlapped, stacks
+							// Hi/Vi must be updated w/
+							// changed blocks to consider) and
+							// b) only just placed blocks are
+							// shifted, previously placed
+							// blocks remain fixed
 							//
-							// TODO ok?
+							// place/align blocks, but keep
+							// progress pointer for now in
+							// order to handle all alignment
+							// requests for current blocks
 							this->dies[cur_block->layer].placeCurrentBlock(dbgStack);
 							this->dies[other_block->layer].placeCurrentBlock(dbgStack);
-							// simply marking as placed not
-							// ok, some initial coordinates /
-							// coordinates related to covering
-							// blocks will be the result
-							//cur_block->placed = true;
-							//other_block->placed = true;
 
 							// mark die related w/ other block
 							// as not stalled any more;

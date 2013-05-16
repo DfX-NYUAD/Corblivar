@@ -33,8 +33,8 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	Direction const cur_dir = this->getDirection(this->pi);
 	unsigned const cur_juncts = this->getJunctions(this->pi);
 
-	// sanity check for previously placed blocks; may occur due to resolving alignment
-	// requests in process
+	// sanity check for previously placed blocks; may occur due to multiple alignment
+	// requests in process covering this particular block
 	if (cur_block->placed) {
 		return cur_block;
 	}
