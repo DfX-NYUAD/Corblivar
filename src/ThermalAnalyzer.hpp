@@ -46,9 +46,6 @@ class ThermalAnalyzer {
 		// [Park09]
 		static constexpr double THERMAL_RESISTIVITY_CU = 0.002531646;
 
-		// thermal modeling: offset for room temperature
-		static constexpr double ROOM_TEMPERATURE_K = 293.0;
-
 		// thermal modeling: dimensions
 		// represents the thermal map's dimension
 		static constexpr int THERMAL_MAP_DIM = 64;
@@ -106,7 +103,7 @@ class ThermalAnalyzer {
 		// i.e., convolution of thermals masks and power maps;
 		// returns max value of convoluted 2D matrix;
 		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true);
+		double performPowerBlurring(int const& layers, double const& temp_offset, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true);
 };
 
 #endif

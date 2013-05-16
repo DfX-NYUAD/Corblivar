@@ -356,6 +356,17 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_temp_offset;
+
+	// sanity check for positive parameter
+	if (fp.conf_power_blurring_temp_offset < 0.0) {
+		cout << "IO> Provide a positive temperature offset!" << endl;
+		exit(1);
+	}
+
 	in.close();
 
 	if (fp.logMin()) {
@@ -402,6 +413,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Power blurring -- Impulse scaling-factor: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
 		cout << "IO>  Power blurring -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_power_density_scaling_padding_zone << endl;
+		cout << "IO>  Power blurring -- Temperature offset: " << fp.conf_power_blurring_temp_offset << endl;
 
 		cout << endl;
 	}
@@ -1106,7 +1118,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
 				}
 				else {
-					data_out << x << "	" << y_limit << "	" << ThermalAnalyzer::ROOM_TEMPERATURE_K << endl;
+					data_out << x << "	" << y_limit << "	" << fp.conf_power_blurring_temp_offset << endl;
 				}
 
 				// blank line marks new row for gnuplot
@@ -1119,7 +1131,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
 				}
 				else {
-					data_out << x_limit << "	" << y << "	" << ThermalAnalyzer::ROOM_TEMPERATURE_K << endl;
+					data_out << x_limit << "	" << y << "	" << fp.conf_power_blurring_temp_offset << endl;
 				}
 			}
 

@@ -26,7 +26,7 @@ class IO {
 
 	// private data, functions
 	private:
-		static constexpr int CONFIG_VERSION = 8;
+		static constexpr int CONFIG_VERSION = 9;
 
 	// constructors, destructors, if any non-implicit
 	// private in order to avoid instances of ``static'' class

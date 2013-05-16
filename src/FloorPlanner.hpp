@@ -127,8 +127,10 @@ class FloorPlanner {
 		// SA: cost functions, i.e., layout-evalutions
 		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true) {
-			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(), this->conf_power_blurring_power_density_scaling_padding_zone);
-			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->max_cost_thermal, set_max_cost, normalize);
+			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(),
+					this->conf_power_blurring_power_density_scaling_padding_zone);
+			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->conf_power_blurring_temp_offset,
+					this->max_cost_thermal, set_max_cost, normalize);
 		};
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
@@ -215,6 +217,7 @@ class FloorPlanner {
 
 		// thermal analyzer parameters: thermal mask fitting
 		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
+		double conf_power_blurring_temp_offset;
 
 		// thermal analyzer parameters: power masks
 		double conf_power_blurring_power_density_scaling_padding_zone;

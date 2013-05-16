@@ -17,7 +17,6 @@
 #include "Math.hpp"
 
 // memory allocation
-constexpr double ThermalAnalyzer::ROOM_TEMPERATURE_K;
 constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 
 // Thermal-analyzer routine based on power blurring,
@@ -25,7 +24,7 @@ constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns max value of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) {
+double ThermalAnalyzer::performPowerBlurring(int const& layers, double const& temp_offset, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -37,7 +36,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << max_cost_temp << ", ";
+		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << ", " << temp_offset << ", " << max_cost_temp << ", ";
 		cout << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
@@ -46,9 +45,9 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double& max_cost
 		m.fill(0.0);
 	}
 
-	// init final map w/ room temperature
+	// init final map w/ temperature offset
 	for (auto& m : this->thermal_map) {
-		m.fill(ThermalAnalyzer::ROOM_TEMPERATURE_K);
+		m.fill(temp_offset);
 	}
 
 	/// perform 2D convolution by performing two separated 1D convolution iterations;
