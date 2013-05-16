@@ -80,12 +80,13 @@ class CorblivarCore {
 				}
 			}
 
-			// sort such that requests w/ placed blocks are considered
-			// first; eases handling of intersecting requests
+			// requests w/ placed blocks are considered first; eases handling
+			// of alignment requests such that blocks ready for alignment are
+			// placed/aligned first
 			ret.sort(
 				// lambda expression
 				[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
-					return (req1->s_i->placed || req2->s_j->placed);
+					return (req1->s_i->placed || req1->s_j->placed) && (!req2->s_i->placed && !req2->s_j->placed);
 				}
 			);
 
