@@ -311,20 +311,19 @@
 
   %% save maximum values and Error in "eval.txt" file
 
-   save eval.txt maxHS minHS maxCbl minCbl Error
-
+   save (sprintf('%s_thermal_analysis_fitting_ranges.txt', bench), "maxHS", "minHS", "maxCbl", "minCbl", "Error");
 
   %% save history of sampling in a reloadable "hist.data" file
 
    helpHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
 
-   save hist.data helpHist hist
+   save (sprintf('%s_thermal_analysis_fitting_hist.data', bench), "helpHist", "hist");
 
   %% save history of optimal Parameters in a reloadable file
 
    helpOptHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
  
-   save optHist.data helpOptHist optHist
+   save (sprintf('%s_thermal_analysis_fitting_opt_hist.data', bench), "helpOptHist", "optHist");
 
 
   %% output elapsed time fo optimization process
