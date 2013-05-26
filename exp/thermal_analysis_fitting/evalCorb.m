@@ -38,13 +38,6 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    Cbl = dataCbl(:,3);
 
-   cd (dir)
-
-
-   % save length of Cbl vector
-
-   m = length(Cbl);
-
    % find maximum values of HotSpot and Corblivar 
 
    maxHS = max(HS);
@@ -57,7 +50,8 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
   %% converting HS and Cbl vector into fitting matrices
    % necessary because of differences between reading directions of HotSpot and Corblivar
- 
+
+   %TODO 64x64 (not 65) matrix; put parameter n into parameters.m
    n = 65;
 
    A = HS((n-1)*0+1:(n-1)*1);
@@ -75,6 +69,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    A = A';
    
 
+   %TODO remove/ignore last row and column of Cbl matrix (dummy data for gnuplot)
    Cbl = flipud(Cbl);
 
    B = Cbl(n*0+1:n*1);
@@ -92,17 +87,22 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    HS = A;
 
+%   disp(HS);
+   disp(length(HS));
+
    % redefine Corblivar data a a matrix
 
    Cbl = B;
 
+%   disp(Cbl);
+   disp(length(Cbl));
 
   %% visual test of resulting matrices
 
-    %imagesc(A) , colorbar ;
-    %print('HS.eps','-deps');
-    %imagesc(B) , colorbar;
-    %print('Cbl.eps','-deps');
+    imagesc(A) , colorbar ;
+    print('HS.eps','-deps');
+    imagesc(B) , colorbar;
+    print('Cbl.eps','-deps');
 
 
   %% start interpretation
@@ -111,15 +111,19 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    matError = HS - Cbl;
 
+%   disp(length(matError));
+
 
  %%% evaluation of the error
    % to emphazise the importance of big differences the values of the error matrix are squared
    % Error can be interpreted as a weighted average
    % ! because the character of the Octave sum-function the double sum is necessary
 
-   Error = 1/m*sum(sum(matError.^2));
+   Error = 1/(n*n) * sum(sum(matError.^2));
 
  %%% end of evaluation process
+
+   cd (dir)
 
 end
 
