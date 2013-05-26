@@ -21,6 +21,9 @@
 
    [step, j, h , minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ] = parameters();
 
+  %% memorize working directory
+
+   dir = pwd()
 
   %% get imput from user
    % the needed benchmark and the number of iterations must be chosen by the user
@@ -32,7 +35,7 @@
 
   %% ask user for benchmark
 
-   inputBench = sprintf('Please pick a benchmark! \nYou are able to choose between:\n  n100\n  n200\n  n300\n\n benchmark = ');
+   inputBench = sprintf('Please pick a benchmark! \n benchmark = ');
    bench = input(inputBench,'s');
 
   %% ask user for number of iterations the optimization should perfom
@@ -100,7 +103,7 @@
 
   
 
-   cd opt
+   cd (dir)
 
   %% use config function to write new "Corblivar.conf" file with initial values
 
@@ -131,12 +134,12 @@
    toc
 
 
-   cd opt
+   cd (dir)
 
 
   %%% start the eval function to assess error between HotSpot and Corblivar solution vectors
 
-   [maxHS, minHS, maxCbl,minCbl, Error] = eval(bench);
+   [maxHS, minHS, maxCbl,minCbl, Error] = eval(bench, dir);
 
 
    %% initialization of history for sample parameters and errors
@@ -216,11 +219,11 @@
 	  system (pathCblsolnt);
 
 	
-	  cd opt	
+	  cd (dir)	
 	
 	 %% reevaluate the error between HotSpot and Corblivar
 	
-	  [maxHS, minHS, maxCbl, minCbl, Error] = eval(bench);
+	  [maxHS, minHS, maxCbl, minCbl, Error] = eval(bench, dir);
 
 
 	 %% update history 
@@ -297,11 +300,11 @@
    system ('./gp.sh');
 
 
-   cd opt
+   cd (dir)
 
   %% evaluate the optimal solution
 
-   [maxHS, minHS, maxCbl, minCbl, Error, matError] = eval(bench);
+   [maxHS, minHS, maxCbl, minCbl, Error, matError] = eval(bench, dir);
 
 
    cd ..
