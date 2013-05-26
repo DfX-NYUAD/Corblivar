@@ -88,14 +88,14 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    HS = A;
 
 %   disp(HS);
-   disp(length(HS));
+%   disp(length(HS));
 
    % redefine Corblivar data a a matrix
 
    Cbl = B;
 
 %   disp(Cbl);
-   disp(length(Cbl));
+%   disp(length(Cbl));
 
   %% visual test of resulting matrices
 

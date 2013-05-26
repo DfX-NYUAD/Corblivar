@@ -19,7 +19,7 @@
 
   %% use parameters function to import all general initialization parameters 
 
-   [step, j, h , minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ] = parameters();
+   [step, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ] = parameters();
 
   %% memorize working directory
 
@@ -160,52 +160,51 @@
  %%% start for-loop for randomized sampling 
   %% generators use normal curve of distribution with optimal parameters as mu and sigma
 
+  j = 0;
+
    for iter = 1:iter
 
-	I = optI + randn * sigma_I;			% randomly generated I with mean value opt I and standard deviation sigma_I
-
-		while I < 0				% parameter must be positive
-		I = optI + randn * sigma_I;
-		end
+	I = 0;
+	while I <= 0				% parameter must be positive
+		I = optI + randn * sigma_I;	% randomly generated I with mean value optI and variance sigma_I
+	end
 	
-	If = optIf + randn * sigma_If;
-
-		while If < 0
+	If = 0;
+	while If <= 0
 		If = optIf + randn * sigma_If;
-		end
+	end
 
+
+	% Mb
+	i = 0;
+	a = 0;
+	b = 0;
+	count = 0;
+	
+	while i < 2				% Mb hast two preconditions: it has to be positive and smaller than I
+	
 	Mb = optMb + randn * sigma_Mb;
-
-		i = 0;
-		a = 0;
-		b = 0;
-		count = 0;
 		
-		while i < 2				% Mb hast two preconditions: it has to be positive and smaller than I
+		a = Mb > 0;
+		b = Mb < I;
 		
-		Mb = optMb + randn * sigma_Mb;
-			
-			a = Mb > 0;
-			b = Mb < I;
-			
-			i = a + b;
-			
-			count++;			
-			
-			if count > 100			% if means are too widely apart and sigma was refined it's possible by chance that I becomes so small that Mb can't get smaller
+		i = a + b;
+		
+		count++;			
+		
+		if count > 100			% if means are too widely apart and sigma was refined it's possible by chance that I becomes so small that Mb can't get smaller
 
-				I = I + 0.1;		% forces I to increase
-				count = 0;
+			I = I * 1.05;		% forces I to increase
+			count = 0;
 
-			endif				
+		endif				
 
-		end
+	end
 
-	PDPZ = optPDPZ + randn * sigma_PDPZ;
-
-		while PDPZ < 0
+	PDPZ = 0;
+	while PDPZ < 1.0	% power density < 1 is not reasonable
 		PDPZ = optPDPZ + randn * sigma_PDPZ;
-		end
+	end
 
 	%% end of random generation of parameters
 	
@@ -261,12 +260,12 @@
 
 	if j==step;				% stepsize can be edited in the parameters function
 	
-	sigma_I = sigma_I * 0.75;		% std dev will be diminished: 25%
- 	sigma_If = sigma_If * 0.75;
- 	sigma_Mb = sigma_Mb * 0.75;
- 	sigma_PDPZ = sigma_PDPZ * 0.75;
+		sigma_I = sigma_I * sigma_update;
+		sigma_If = sigma_If * sigma_update;
+		sigma_Mb = sigma_Mb * sigma_update;
+		sigma_PDPZ = sigma_PDPZ * sigma_update;
 
-	j = 0;					% set back counter
+		j = 0;					% set back counter
 	
 	end
 
