@@ -30,7 +30,7 @@
 
    % print recommendation for editing the .conf-file
 
-   helpConf = sprintf('Please make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\n');
+   helpConf = sprintf('\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\n');
    printf(helpConf); 
 
   %% ask user for benchmark
@@ -139,7 +139,7 @@
 
   %%% start the eval function to assess error between HotSpot and Corblivar solution vectors
 
-   [maxHS, minHS, maxCbl,minCbl, Error] = eval(bench, dir);
+   [maxHS, minHS, maxCbl,minCbl, Error] = evalCorb(bench, dir);
 
 
    %% initialization of history for sample parameters and errors
@@ -223,7 +223,7 @@
 	
 	 %% reevaluate the error between HotSpot and Corblivar
 	
-	  [maxHS, minHS, maxCbl, minCbl, Error] = eval(bench, dir);
+	  [maxHS, minHS, maxCbl, minCbl, Error] = evalCorb(bench, dir);
 
 
 	 %% update history 
@@ -304,7 +304,7 @@
 
   %% evaluate the optimal solution
 
-   [maxHS, minHS, maxCbl, minCbl, Error, matError] = eval(bench, dir);
+   [maxHS, minHS, maxCbl, minCbl, Error, matError] = evalCorb(bench, dir);
 
 
    cd ..

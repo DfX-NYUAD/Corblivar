@@ -1,4 +1,4 @@
-function [maxHS, minHS, maxCbl,minCbl, Error, matError] = eval(bench, dir)
+function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
   %% Description:  Integrated Octave function for the evaluation of the thermal analysis of Corblivar
 
