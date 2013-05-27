@@ -19,7 +19,7 @@
 
   %% use parameters function to import all general initialization parameters 
 
-   [step, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ] = parameters();
+   [step, iter, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ, max_PDPZ] = parameters();
 
   %% memorize working directory
 
@@ -38,10 +38,10 @@
    inputBench = sprintf('Please pick a benchmark! \n benchmark = ');
    bench = input(inputBench,'s');
 
-  %% ask user for number of iterations the optimization should perfom
-
-   inputIter = sprintf('\nHow many iterations shell to optimization circle perform?\nChoose a number between 100 (fast) and 1000 (best results)\n\n iterations = ');
-   iter = input(inputIter); 
+%  %% ask user for number of iterations the optimization should perfom
+%
+%   inputIter = sprintf('\nHow many iterations shell to optimization circle perform?\nChoose a number between 100 (fast) and 1000 (best results)\n\n iterations = ');
+%   iter = input(inputIter); 
 
 
   %% start timers for measuring the elapsed time for the Floorplanning and HotSpot analysis and for the whole process 
@@ -201,8 +201,8 @@
 
 	end
 
-	PDPZ = 0;
-	while PDPZ < 1.0	% power density < 1 is not reasonable
+	PDPZ = 0.99;
+	while PDPZ < 1.0 || PDPZ > max_PDPZ	% power density < 1 is not reasonable; also consider max value
 		PDPZ = optPDPZ + randn * sigma_PDPZ;
 	end
 
@@ -236,15 +236,27 @@
 
 		  if Error < optError
 	
-		  optError = Error 
-		  optI = I
-		  optIf = If
-		  optMb = Mb
-		  optPDPZ = PDPZ
+			  optError = Error 
+			  optI = I
+			  optIf = If
+			  optMb = Mb
+			  optPDPZ = PDPZ
 
-		 %% update optimal history
+			 %% update optimal history
 
-		  optHist = [optHist; optI optIf optMb optPDPZ optError];
+			  optHist = [optHist; optI optIf optMb optPDPZ optError];
+	
+			%% adjust the variance of the random generators 
+			sigma_I = sigma_I * sigma_update;
+			sigma_If = sigma_If * sigma_update;
+			sigma_Mb = sigma_Mb * sigma_update;
+			sigma_PDPZ = sigma_PDPZ * sigma_update;
+
+			% output sigmas
+			sigma_I
+			sigma_If
+			sigma_Mb
+			sigma_PDPZ
 		
 		  endif
 
@@ -255,15 +267,18 @@
 
    j++;
 
-	
-	%% adjust the standart deviation of the random generators after predefined stepsize   
-
 	if j==step;				% stepsize can be edited in the parameters function
 	
 		sigma_I = sigma_I * sigma_update;
 		sigma_If = sigma_If * sigma_update;
 		sigma_Mb = sigma_Mb * sigma_update;
 		sigma_PDPZ = sigma_PDPZ * sigma_update;
+
+		% output sigmas
+		sigma_I
+		sigma_If
+		sigma_Mb
+		sigma_PDPZ
 
 		j = 0;					% set back counter
 	

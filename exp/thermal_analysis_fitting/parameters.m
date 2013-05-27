@@ -1,4 +1,4 @@
-function [step, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ] = parameters() 
+function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ, max_PDPZ] = parameters() 
 
   %% Description:  Integrated Octave function providing parameters for the optimization of the thermal analysis of Corblivar
 
@@ -10,11 +10,15 @@ function [step, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDP
   %% define after how many iterations the sigma of the normal distribution curve of the random generator will be refined
    % if the generator should not be refined set step > number of iterations
   
-   step = 10;
+   step = 5;
+
+  %% total iterations, i.e., tries for parameter fitting
+
+   iterations = 50;
 
   %% refinement factor of sigma
  
-   sigma_update = 0.66;
+   sigma_update = 0.8;
 
   %% define the initial minimum of the HotSpot analysis (only needed for the first writing of the config-file
    % set to 293 K which corresponds to 20°C (room temperature)
@@ -25,30 +29,32 @@ function [step, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDP
   %% define initial impulse factor I, for the dominant mask (lowest layer)
   %% define initial sigma for the random generator of I
  
-   I = 5;
+   I = 0.5;
    
-   sigma_I = 3;
+   sigma_I = 0.5;
 
   %% define initial impulse-scaling factor If, I(layer) = I / (layer^If)
   %% define initial sigma for the random generator of If
  
-   If = 5;
+   If = 8;
  
-   sigma_If = 3;
+   sigma_If = 4;
 
   %% define initial mask-boundary /value/ b, gauss2D(x=y) = b at mask boundaries x=y, relates to dominant mask
   %% define initial sigma for the random generator of mask boundary
 
-   Mb = 5;
+   Mb = 0.1;
 
-   sigma_Mb = 3;
+   sigma_Mb = 0.1;
 
  %%% Power blurring -- Power maps parameters
   %% define initial Power-density scaling factor in padding zone
   %% define initial sigma for the random generator of power-density scaling factor
 
-   PDPZ = 2;
+   PDPZ = 1;
  
-   sigma_PDPZ = 1;
+   sigma_PDPZ = 0.5;
+
+   max_PDPZ = 2.5;
 
 end

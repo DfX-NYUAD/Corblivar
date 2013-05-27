@@ -69,7 +69,6 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    A = A';
    
 
-   %TODO remove/ignore last row and column of Cbl matrix (dummy data for gnuplot)
    Cbl = flipud(Cbl);
 
    B = Cbl(n*0+1:n*1);
@@ -85,12 +84,20 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    % redefine HotSpot data as a matrix
 
+   % drop last column, first row (dummy data)
+   A(:,[65]) = [];
+   A([1],:) = [];
+
    HS = A;
 
 %   disp(HS);
 %   disp(length(HS));
 
    % redefine Corblivar data a a matrix
+
+   % drop last column, first row (dummy data)
+   B(:,[65]) = [];
+   B([1],:) = [];
 
    Cbl = B;
 
@@ -99,10 +106,10 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
   %% visual test of resulting matrices
 
-    imagesc(A) , colorbar ;
-    print('HS.eps','-deps');
-    imagesc(B) , colorbar;
-    print('Cbl.eps','-deps');
+%    imagesc(HS) , colorbar ;
+%    print('HS.eps','-deps');
+%    imagesc(Cbl) , colorbar;
+%    print('Cbl.eps','-deps');
 
 
   %% start interpretation
