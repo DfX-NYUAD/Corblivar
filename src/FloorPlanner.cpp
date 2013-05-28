@@ -456,8 +456,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
 
-		// determine non-normalized temperature cost
-		thermal = this->determCostThermalDistr(false, false);
+		// determine non-normalized max temperature
+		thermal = this->determCostThermalDistr(false, false, true);
 
 		// TODO alignment costs
 		if (this->logMin()) {

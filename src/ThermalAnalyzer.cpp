@@ -22,14 +22,14 @@ constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
-// Returns max value of thermal map of lowest layer, i.e., hottest layer
+// Returns cost (max * avg temp estimate) of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(int const& layers, double const& temp_offset, double& max_cost_temp, bool const& set_max_cost, bool const& normalize) {
+double ThermalAnalyzer::performPowerBlurring(int const& layers, double const& temp_offset, double& max_cost_temp, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
 	int mask_i;
-	double max_temp;
+	double max_temp, avg_temp, cost_temp;
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
 	// convolution of padded power maps
@@ -37,7 +37,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double const& te
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << ", " << temp_offset << ", " << max_cost_temp << ", ";
-		cout << set_max_cost << ", " << normalize << ")" << endl;
+		cout << set_max_cost << ", " << normalize << ", " << return_max_temp << ")" << endl;
 	}
 
 	// init temp map w/ zero
@@ -142,29 +142,45 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, double const& te
 		}
 	}
 
-	// determine max value
-	max_temp = 0.0;
+	// determine max and avg value
+	max_temp = avg_temp = 0.0;
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 			max_temp = max(max_temp, this->thermal_map[x][y]);
+			avg_temp += this->thermal_map[x][y];
 		}
 	}
+	avg_temp /= pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
+	// determine cost: max temp estimation, weighted w/ avg temp
+	cost_temp = avg_temp * max_temp;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		max_cost_temp = max_temp;
+		max_cost_temp = cost_temp;
 	}
 
 	// normalize to max value from initial sampling
 	if (normalize) {
-		max_temp /= max_cost_temp;
+		cost_temp /= max_cost_temp;
 	}
 
-	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
-	}
+	// return max temperature estimate
+	if (return_max_temp) {
+		if (ThermalAnalyzer::DBG_CALLS) {
+			cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
+		}
 
-	return max_temp;
+		return max_temp;
+	}
+	// return thermal cost
+	else {
+		if (ThermalAnalyzer::DBG_CALLS) {
+			cout << "<- ThermalAnalyzer::performPowerBlurring : " << cost_temp << endl;
+		}
+
+		return cost_temp;
+	}
 }
 
 void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, double const& power_density_scaling_padding_zone, bool const& extend_boundary_blocks_into_padding_zone) {
