@@ -1149,8 +1149,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 void IO::writeTempSchedule(FloorPlanner const& fp) {
 	ofstream gp_out;
 	ofstream data_out;
-	bool valid_solutions = false;
-	bool first_valid_sol = false;
+	bool valid_solutions, first_valid_sol;
 
 	// sanity check
 	if (fp.tempSchedule.empty()) {
@@ -1175,65 +1174,83 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 
 	// output data: SA step and SA temp
 	data_out << "# Step Temperature (index 0)" << endl;
+
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 		data_out << step.step << " " << step.temp << endl;
-		// memorize if valid solutions are given at all
-		if (step.new_best_sol_found) {
-			valid_solutions = true;
-		}
 	}
 
 	// two blank lines trigger gnuplot to interpret data file as separate data sets
 	data_out << endl;
 	data_out << endl;
 
-	// output data: markers for best-solution steps
-	if (valid_solutions) {
-		data_out << "# Step Temperature (only steps w/ new best solutions, index 1)" << endl;
-		for (FloorPlanner::TempStep step : fp.tempSchedule) {
-			if (step.new_best_sol_found) {
-				data_out << step.step << " " << step.temp << endl;
-			}
-		}
-	}
+	// output data: SA step and avg costs phase 1
+	data_out << "# Step Avg_Cost_Phase_1 (index 1)" << endl;
 
-	// two blank lines trigger gnuplot to interpret data file as separate data sets
-	data_out << endl;
-	data_out << endl;
+	// memorize if valid solutions are given at all
+	valid_solutions = false;
 
-	// output data: SA step and avg costs phase 1; if no valid solutions are
-	// available, this data is represented by index 1
-	if (!valid_solutions) {
-		data_out << "# Step Avg_Cost_Phase_1 (index 1)" << endl;
-	}
-	else {
-		data_out << "# Step Avg_Cost_Phase_1 (index 2)" << endl;
-	}
-	// avg costs for SA phase 1
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
 		data_out << step.step << " " << step.avg_cost << endl;
 
 		// output data until first valid solution is found
 		if (step.new_best_sol_found) {
+
+			valid_solutions = true;
+
 			break;
 		}
 	}
 
-	// two blank lines trigger gnuplot to interpret data file as separate data sets
-	data_out << endl;
-	data_out << endl;
-
-	// output data: SA step and avg costs phase 2; only available if some valid
-	// solutions are given
 	if (valid_solutions) {
+
+		// two blank lines trigger gnuplot to interpret data file as separate data sets
+		data_out << endl;
+		data_out << endl;
+
+		// output data: markers for best-solution steps
+		data_out << "# Step Temperature (only steps w/ new best solutions, index 2)" << endl;
+
+		for (FloorPlanner::TempStep step : fp.tempSchedule) {
+
+			if (step.new_best_sol_found) {
+				data_out << step.step << " " << step.temp << endl;
+			}
+		}
+
+		// two blank lines trigger gnuplot to interpret data file as separate data sets
+		data_out << endl;
+		data_out << endl;
+
+		// output data: SA step and avg costs phase 2
 		data_out << "# Step Avg_Cost_Phase_2 (index 3)" << endl;
-		// avg costs for SA phase 2
+
+		first_valid_sol = false;
 		for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
 			// output data only after first solution is found
 			if (first_valid_sol) {
 				data_out << step.step << " " << step.avg_cost << endl;
+			}
+
+			if (step.new_best_sol_found) {
+				first_valid_sol = true;
+			}
+		}
+
+		// two blank lines trigger gnuplot to interpret data file as separate data sets
+		data_out << endl;
+		data_out << endl;
+
+		// output data: SA step and best costs phase 2
+		data_out << "# Step Best_Cost_Phase_2 (index 4)" << endl;
+
+		first_valid_sol = false;
+		for (FloorPlanner::TempStep step : fp.tempSchedule) {
+
+			// output data only after first solution is found
+			if (first_valid_sol) {
+				data_out << step.step << " " << step.cost_best_sol << endl;
 			}
 
 			if (step.new_best_sol_found) {
@@ -1296,11 +1313,13 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 1 using 1:2 title \"New Best, Valid Solution\" with points linestyle 1, \\" << endl;
-		gp_out << "\"" << data_out_name.str() << "\" index 2";
+		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best, Valid Solution\" with points linestyle 1, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 1";
 		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
-		gp_out << "\"" << data_out_name.str() << "\" index 3";
-		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		//gp_out << "\"" << data_out_name.str() << "\" index 3";
+		//gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 4";
+		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
 	}
 
 	// close file stream

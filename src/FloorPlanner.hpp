@@ -89,6 +89,7 @@ class FloorPlanner {
 			double temp;
 			double avg_cost;
 			bool new_best_sol_found;
+			double cost_best_sol;
 		};
 
 		// IO
