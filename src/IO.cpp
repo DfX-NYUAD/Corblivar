@@ -1292,16 +1292,17 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	// specific settings: labels
 	gp_out << "set xlabel \"SA Step\"" << endl;
 	gp_out << "set ylabel \"SA Temperature\"" << endl;
-	gp_out << "set y2label \"Avg Solution Cost\"" << endl;
+	gp_out << "set y2label \"Normalized Avg Solution Cost\"" << endl;
 	// specific settings: key, labels box
 	gp_out << "set key box lt rgb \"#808080\" out bottom center" << endl;
-	// specific settings: log scale
+	// specific settings: log scale (for SA temp)
 	gp_out << "set log y" << endl;
 	gp_out << "set mytics 10" << endl;
-	// second, indepentend log scale for cost values
+	// second, indepentend scale for cost values
 	gp_out << "set y2tics nomirror" << endl;
-	gp_out << "set log y2" << endl;
 	gp_out << "set mytics 10" << endl;
+	// cut cost above 1 in order to emphasize cost trend
+	gp_out << "set y2range [:1]" << endl;
 
 	// gp data plot command
 	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"SA Temperature\" with lines linestyle 2, \\" << endl;
@@ -1315,9 +1316,9 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	else {
 		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best, Valid Solution\" with points linestyle 1, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
 		//gp_out << "\"" << data_out_name.str() << "\" index 3";
-		//gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		//gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 4";
 		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
 	}
