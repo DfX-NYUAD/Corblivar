@@ -29,32 +29,32 @@ function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, s
   %% define initial impulse factor I, for the dominant mask (lowest layer)
   %% define initial sigma for the random generator of I
  
-   I = 0.5;
+   I = 1;
    
    sigma_I = 0.5;
 
   %% define initial impulse-scaling factor If, I(layer) = I / (layer^If)
   %% define initial sigma for the random generator of If
  
-   If = 8;
+   If = 10;
  
-   sigma_If = 4;
+   sigma_If = 5;
 
   %% define initial mask-boundary /value/ b, gauss2D(x=y) = b at mask boundaries x=y, relates to dominant mask
   %% define initial sigma for the random generator of mask boundary
 
    Mb = 0.1;
 
-   sigma_Mb = 0.1;
+   sigma_Mb = 0.25;
 
  %%% Power blurring -- Power maps parameters
   %% define initial Power-density scaling factor in padding zone
   %% define initial sigma for the random generator of power-density scaling factor
 
-   PDPZ = 1;
+   PDPZ = 1.1;
  
-   sigma_PDPZ = 0.5;
+   sigma_PDPZ = 0.2;
 
-   max_PDPZ = 2.5;
+   max_PDPZ = 1.5;
 
 end

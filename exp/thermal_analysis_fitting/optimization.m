@@ -43,6 +43,10 @@
 %   inputIter = sprintf('\nHow many iterations shell to optimization circle perform?\nChoose a number between 100 (fast) and 1000 (best results)\n\n iterations = ');
 %   iter = input(inputIter); 
 
+  %% ask user for initial run
+  inputInit = sprintf('Perform an initial run of Corblivar and HotSpot to gain data for optimization? \n Run [y/n] = ');
+  init = input(inputInit, 's');
+
 
   %% start timers for measuring the elapsed time for the Floorplanning and HotSpot analysis and for the whole process 
 
@@ -121,12 +125,24 @@
 
  %%% execute Corblivar floorplanning
 
+ if init == 'y'
+
    system (pathCbl);	% system function uses terminal and bash notation
 
 
  %%% execute HotSpot thermal analysis
 
    system (pathHS);
+
+ else
+
+  %% execute Corblivar with given floorplan and initial parameters
+   system (pathCblsol);
+
+ endif
+
+   %% plot thermal and power maps
+   system ('./gp.sh');
 
 
   %% print the elapsed time for floorplanning and HotSpot analysis
@@ -245,18 +261,6 @@
 			 %% update optimal history
 
 			  optHist = [optHist; optI optIf optMb optPDPZ optError];
-	
-			%% adjust the variance of the random generators 
-			sigma_I = sigma_I * sigma_update;
-			sigma_If = sigma_If * sigma_update;
-			sigma_Mb = sigma_Mb * sigma_update;
-			sigma_PDPZ = sigma_PDPZ * sigma_update;
-
-			% output sigmas
-			sigma_I
-			sigma_If
-			sigma_Mb
-			sigma_PDPZ
 		
 		  endif
 

@@ -51,7 +51,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
   %% converting HS and Cbl vector into fitting matrices
    % necessary because of differences between reading directions of HotSpot and Corblivar
 
-   %TODO 64x64 (not 65) matrix; put parameter n into parameters.m
+   % matrix dimension + 1
    n = 65;
 
    A = HS((n-1)*0+1:(n-1)*1);
@@ -64,7 +64,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 	end
    
 
-   A = [A ; A(64,:)];
+   A = [A ; A(n-1,:)];
 
    A = A';
    
@@ -85,7 +85,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    % redefine HotSpot data as a matrix
 
    % drop last column, first row (dummy data)
-   A(:,[65]) = [];
+   A(:,[n]) = [];
    A([1],:) = [];
 
    HS = A;
@@ -96,7 +96,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    % redefine Corblivar data a a matrix
 
    % drop last column, first row (dummy data)
-   B(:,[65]) = [];
+   B(:,[n]) = [];
    B([1],:) = [];
 
    Cbl = B;
@@ -120,13 +120,17 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
 %   disp(length(matError));
 
+%    imagesc(matError) , colorbar;
+%    print('matError.eps','-deps');
+
 
  %%% evaluation of the error
    % to emphazise the importance of big differences the values of the error matrix are squared
    % Error can be interpreted as a weighted average
    % ! because the character of the Octave sum-function the double sum is necessary
 
-   Error = 1/(n*n) * sum(sum(matError.^2));
+   % avg squared error
+   Error = 1/((n-1)^2) * sum(sum(matError.^2));
 
  %%% end of evaluation process
 
