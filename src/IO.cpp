@@ -957,7 +957,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	unsigned x, y;
 	unsigned x_limit, y_limit;
 	int flag;
-	double max_power_density;
+	double max_power_density, max_temp;
 
 	// sanity check
 	if (fp.thermalAnalyzer.power_maps.empty() || fp.thermalAnalyzer.thermal_map.empty()) {
@@ -1007,6 +1007,69 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// init file stream for data file
 			data_out.open(data_out_name.str().c_str());
 
+			// file header for data file
+			if (flag == 0) {
+				data_out << "# X Y power" << endl;
+			}
+			else {
+				data_out << "# X Y thermal" << endl;
+			}
+
+			// determine grid boundaries
+			if (flag == 0) {
+				x_limit = ThermalAnalyzer::POWER_MAPS_DIM;
+				y_limit = ThermalAnalyzer::POWER_MAPS_DIM;
+			}
+			else {
+				x_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
+				y_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
+			}
+
+			// reset max temp
+			if (flag == 1) {
+				max_temp = 0.0;
+			}
+
+			// output grid values
+			for (x = 0; x < x_limit; x++) {
+
+				// real data
+				for (y = 0; y < y_limit; y++) {
+					if (flag == 0) {
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
+					}
+					else {
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
+						// also track max temp
+						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y]);
+					}
+				}
+
+				// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+				if (flag == 0) {
+					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
+				}
+				else {
+					data_out << x << "	" << y_limit << "	" << fp.conf_power_blurring_temp_offset << endl;
+				}
+
+				// blank line marks new row for gnuplot
+				data_out << endl;
+			}
+
+			// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+			for (y = 0; y <= y_limit; y++) {
+				if (flag == 0) {
+					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
+				}
+				else {
+					data_out << x_limit << "	" << y << "	" << fp.conf_power_blurring_temp_offset << endl;
+				}
+			}
+
+			// close file stream for data file
+			data_out.close();
+
 			// file header for gnuplot script
 			if (flag == 0) {
 				gp_out << "set title \"Padded Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
@@ -1040,6 +1103,8 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			}
 			// thermal maps: label for cbrange
 			else {
+				// fixed scale to avoid remapping to extended range
+				gp_out << "set cbrange [" << fp.conf_power_blurring_temp_offset << ":" << max_temp << "]" << endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << endl;
 			}
@@ -1081,62 +1146,6 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 			// close file stream for gnuplot script
 			gp_out.close();
-
-			// file header for data file
-			if (flag == 0) {
-				data_out << "# X Y power" << endl;
-			}
-			else {
-				data_out << "# X Y thermal" << endl;
-			}
-
-			// determine grid boundaries
-			if (flag == 0) {
-				x_limit = ThermalAnalyzer::POWER_MAPS_DIM;
-				y_limit = ThermalAnalyzer::POWER_MAPS_DIM;
-			}
-			else {
-				x_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
-				y_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
-			}
-
-			// output grid values
-			for (x = 0; x < x_limit; x++) {
-
-				// real data
-				for (y = 0; y < y_limit; y++) {
-					if (flag == 0) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
-					}
-					else {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
-					}
-				}
-
-				// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-				if (flag == 0) {
-					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
-				}
-				else {
-					data_out << x << "	" << y_limit << "	" << fp.conf_power_blurring_temp_offset << endl;
-				}
-
-				// blank line marks new row for gnuplot
-				data_out << endl;
-			}
-
-			// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
-			for (y = 0; y <= y_limit; y++) {
-				if (flag == 0) {
-					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
-				}
-				else {
-					data_out << x_limit << "	" << y << "	" << fp.conf_power_blurring_temp_offset << endl;
-				}
-			}
-
-			// close file stream for data file
-			data_out.close();
 		}
 	}
 
