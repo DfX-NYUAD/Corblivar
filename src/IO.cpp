@@ -1025,44 +1025,47 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 				y_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
 			}
 
-			// reset max temp
-			if (flag == 1) {
-				max_temp = 0.0;
-			}
+			// output grid values for power maps
+			if (flag == 0) {
 
-			// output grid values
-			for (x = 0; x < x_limit; x++) {
-
-				// real data
-				for (y = 0; y < y_limit; y++) {
-					if (flag == 0) {
+				for (x = 0; x < x_limit; x++) {
+					for (y = 0; y < y_limit; y++) {
 						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
 					}
-					else {
+
+					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
+
+					// blank line marks new row for gnuplot
+					data_out << endl;
+				}
+
+				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+				for (y = 0; y <= y_limit; y++) {
+					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
+				}
+
+			}
+			// output grid values for thermal maps
+			else {
+				max_temp = 0.0;
+
+				for (x = 0; x < x_limit; x++) {
+					for (y = 0; y < y_limit; y++) {
 						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
 						// also track max temp
 						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y]);
 					}
-				}
 
-				// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-				if (flag == 0) {
-					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
-				}
-				else {
+					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
 					data_out << x << "	" << y_limit << "	" << fp.conf_power_blurring_temp_offset << endl;
+
+					// blank line marks new row for gnuplot
+					data_out << endl;
 				}
 
-				// blank line marks new row for gnuplot
-				data_out << endl;
-			}
-
-			// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
-			for (y = 0; y <= y_limit; y++) {
-				if (flag == 0) {
-					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
-				}
-				else {
+				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+				for (y = 0; y <= y_limit; y++) {
 					data_out << x_limit << "	" << y << "	" << fp.conf_power_blurring_temp_offset << endl;
 				}
 			}
