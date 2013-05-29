@@ -58,11 +58,11 @@ int main (int argc, char** argv) {
 		// TODO drop; test data for alignment handling
 		corb.A.push_back(CorblivarAlignmentReq(0, &fp.getBlocks()[5], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
 		corb.A.push_back(CorblivarAlignmentReq(1, &fp.getBlocks()[5], &fp.getBlocks()[8], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
-		corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
-		corb.A.push_back(CorblivarAlignmentReq(3, &fp.getBlocks()[8], &fp.getBlocks()[2], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
-		corb.A.push_back(CorblivarAlignmentReq(4, &fp.getBlocks()[8], &fp.getBlocks()[3], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
-		corb.A.push_back(CorblivarAlignmentReq(5, &fp.getBlocks()[8], &fp.getBlocks()[4], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
-		corb.A.push_back(CorblivarAlignmentReq(6, &fp.getBlocks()[7], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		//corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		//corb.A.push_back(CorblivarAlignmentReq(3, &fp.getBlocks()[8], &fp.getBlocks()[2], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		//corb.A.push_back(CorblivarAlignmentReq(4, &fp.getBlocks()[8], &fp.getBlocks()[3], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		//corb.A.push_back(CorblivarAlignmentReq(5, &fp.getBlocks()[8], &fp.getBlocks()[4], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
+		//corb.A.push_back(CorblivarAlignmentReq(6, &fp.getBlocks()[7], &fp.getBlocks()[1], AlignmentType::RANGE, 10.0, AlignmentType::RANGE, 10.0));
 
 		if (fp.logMin()) {
 			cout << "Corblivar> ";

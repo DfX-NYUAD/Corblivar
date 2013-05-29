@@ -41,6 +41,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 
 	// horizontal placement
 	if (cur_dir == Direction::HORIZONTAL) {
+
 		// pop relevant blocks from stack
 		relevBlocksCount = min(cur_juncts + 1, this->Hi.size());
 		relevBlocks.reserve(relevBlocksCount);
@@ -90,9 +91,10 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		for (Block const* b : relevBlocks) {
 			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
+				break;
 			}
 		}
-
+		// actual stack update
 		if (add_to_stack) {
 			this->Vi.push(cur_block);
 		}
@@ -108,9 +110,10 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				blocks_add_to_stack.push_front(b);
 			}
 		}
-		// always consider cur_block as it's current corner block, i.e., right to others
+		// always consider cur_block since it's one of the right-most blocks now
 		blocks_add_to_stack.push_front(cur_block);
 
+		// actual stack update
 		for (Block const* b : blocks_add_to_stack) {
 			this->Hi.push(b);
 		}
@@ -166,9 +169,10 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 		for (Block const* b : relevBlocks) {
 			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
 				add_to_stack = false;
+				break;
 			}
 		}
-
+		// actual stack update
 		if (add_to_stack) {
 			this->Hi.push(cur_block);
 		}
@@ -184,14 +188,19 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 				blocks_add_to_stack.push_front(b);
 			}
 		}
-		// always consider cur_block as it's current corner block, i.e., above others
+		// always consider cur_block since it's one of the top-most blocks now
 		blocks_add_to_stack.push_front(cur_block);
 
+		// actual stack update
 		for (Block const* b : blocks_add_to_stack) {
 			this->Vi.push(b);
 		}
 	}
 
+	// mark block as placed
+	cur_block->placed = true;
+
+	// debug logging
 	if (dbgStack) {
 		cout << "DBG_CORB> ";
 		cout << "Processed (placed) CBL tuple " << this->CBL.tupleString(this->pi) << " on die " << this->id << ": ";
@@ -222,9 +231,6 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 			tmp_Vi.pop();
 		}
 	}
-
-	// mark block as placed
-	cur_block->placed = true;
 
 	return cur_block;
 }
