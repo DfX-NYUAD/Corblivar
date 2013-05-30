@@ -303,6 +303,9 @@ void CorblivarCore::generateLayout(int const& packing_iterations) {
 
 void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	Block const* shift_block;
+	Block const* fixed_block;
+	CorblivarDie* die_shift_block;
+	vector<Block const*> shift_block_relev_blocks;
 
 	// scenario I: one block is already placed
 	if (req->s_i->placed || req->s_j->placed) {
@@ -310,12 +313,60 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// determine yet unplaced block
 		if (!req->s_i->placed) {
 			shift_block = req->s_i;
+			fixed_block = req->s_j;
 		}
 		else {
 			shift_block = req->s_j;
+			fixed_block = req->s_i;
 		}
+
+		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			cout << "DBG_ALIGNMENT>     Block " << fixed_block << " previously placed; try to shift block " << shift_block->id << endl;
+		}
+
+		// retrieve related die pointer
+		die_shift_block = &this->dies[shift_block->layer];
+
+		// pop relevant blocks from related placement stack
+		shift_block_relev_blocks = die_shift_block->popRelevantBlocks();
+
+		// horizontal placement
+		if (die_shift_block->getDirection(die_shift_block->pi) == Direction::HORIZONTAL) {
+
+			// first, determine block's y-coordinates
+			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
+
+			// TODO perform shift in y-dir, if required and possible
+			//
+			// second, determine block's x-coordinates (depends on y-coord)
+			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
+
+			// TODO perform shift in x-dir, if required and possible
+			//
+		}
+		// vertical placement
+		else {
+
+			// first, determine block's x-coordinates
+			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
+
+			// TODO perform shift in x-dir, if required and possible
+			//
+			// second, determine block's y-coordinates (depends on x-coord)
+			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
+
+			// TODO perform shift in y-dir, if required and possible
+			//
+		}
+
+		// update placement stacks
+		die_shift_block->updatePlacementStacks(shift_block_relev_blocks);
+
+		// mark shifted block as placed
+		shift_block->placed = true;
 	}
 
+	// TODO
 	// scenario II: both blocks are yet unplaced
 	else if (!req->s_i->placed && !req->s_j->placed) {
 	}
