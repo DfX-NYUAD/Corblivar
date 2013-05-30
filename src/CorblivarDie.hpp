@@ -87,6 +87,8 @@ class CorblivarDie {
 		vector<Block const*> inline popRelevantBlocks();
 		// layout-generation helper: update placement stack (after placement)
 		void inline updatePlacementStacks(vector<Block const*> relev_blocks_stack);
+		// layout-generation helper: placement stacks debugging
+		void inline debugStacks() const;
 
 		// layout generation: packing, to be performed as post-placement operation
 		void performPacking(Direction const& dir);

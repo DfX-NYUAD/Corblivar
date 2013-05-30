@@ -59,6 +59,13 @@ void CorblivarDie::placeCurrentBlock() {
 	// mark block as placed
 	cur_block->placed = true;
 
+	// placement stacks debugging
+	this->debugStacks();
+}
+
+void CorblivarDie::debugStacks() const {
+	Block const* cur_block = this->getBlock(this->pi);
+
 	// debug logging
 	if (CorblivarDie::DBG) {
 		cout << "DBG_CORB> ";
