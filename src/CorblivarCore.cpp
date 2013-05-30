@@ -124,8 +124,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
-// (TODO?) dbgStack as compile-time flag
-void CorblivarCore::generateLayout(int const& packing_iterations, bool const& dbgStack) {
+void CorblivarCore::generateLayout(int const& packing_iterations) {
 	Block const* cur_block;
 	Block const* other_block;
 	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
@@ -173,7 +172,7 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 			}
 
 			// place block, increment progress pointer
-			this->p->placeCurrentBlock(dbgStack);
+			this->p->placeCurrentBlock();
 			this->p->updateProgressPointerFlag();
 			// mark die as not stalled anymore
 			this->p->stalled = false;
@@ -232,8 +231,8 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 							// progress pointer for now in
 							// order to handle all alignment
 							// requests for current blocks
-							this->dies[cur_block->layer].placeCurrentBlock(dbgStack);
-							this->dies[other_block->layer].placeCurrentBlock(dbgStack);
+							this->dies[cur_block->layer].placeCurrentBlock();
+							this->dies[other_block->layer].placeCurrentBlock();
 
 							// mark die related w/ other block
 							// as not stalled any more;
@@ -288,7 +287,7 @@ void CorblivarCore::generateLayout(int const& packing_iterations, bool const& db
 			// no alignment requested for current block
 			else {
 				// place block, increment progress pointer
-				this->p->placeCurrentBlock(dbgStack);
+				this->p->placeCurrentBlock();
 				this->p->updateProgressPointerFlag();
 			}
 		}

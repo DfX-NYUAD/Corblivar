@@ -22,6 +22,7 @@ class Block;
 class CorblivarDie {
 	// debugging code switch (private)
 	private:
+		static constexpr bool DBG = false;
 
 	// private data, functions
 	private:
@@ -75,8 +76,8 @@ class CorblivarDie {
 			}
 		}
 
-		// layout generation; may return nullptr
-		Block const* placeCurrentBlock(bool const& dbgStack = false);
+		// layout generation; place current block
+		void placeCurrentBlock();
 
 		// layout packing
 		void performPacking(Direction const& dir);

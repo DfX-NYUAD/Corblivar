@@ -15,7 +15,7 @@
 // required Corblivar headers
 #include "Math.hpp"
 
-Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
+void CorblivarDie::placeCurrentBlock() {
 	vector<Block const*> relevBlocks;
 	unsigned relevBlocksCount, b;
 	double x, y;
@@ -25,19 +25,19 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
 		this->done = true;
-		return nullptr;
+		return;
+	}
+
+	// sanity check for previously placed blocks; may occur due to multiple alignment
+	// requests in process covering this particular block
+	if (this->getBlock(this->pi)->placed) {
+		return;
 	}
 
 	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getBlock(this->pi);
 	Direction const cur_dir = this->getDirection(this->pi);
 	unsigned const cur_juncts = this->getJunctions(this->pi);
-
-	// sanity check for previously placed blocks; may occur due to multiple alignment
-	// requests in process covering this particular block
-	if (cur_block->placed) {
-		return cur_block;
-	}
 
 	// horizontal placement
 	if (cur_dir == Direction::HORIZONTAL) {
@@ -201,7 +201,7 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 	cur_block->placed = true;
 
 	// debug logging
-	if (dbgStack) {
+	if (CorblivarDie::DBG) {
 		cout << "DBG_CORB> ";
 		cout << "Processed (placed) CBL tuple " << this->CBL.tupleString(this->pi) << " on die " << this->id << ": ";
 		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
@@ -231,8 +231,6 @@ Block const* CorblivarDie::placeCurrentBlock(bool const& dbgStack) {
 			tmp_Vi.pop();
 		}
 	}
-
-	return cur_block;
 }
 
 // TODO consider alignment requests; perform packing such that alignment is not undermined
