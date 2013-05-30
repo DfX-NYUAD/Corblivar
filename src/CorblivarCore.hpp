@@ -57,9 +57,10 @@ class CorblivarCore {
 		// alignments-in-process list
 		list<CorblivarAlignmentReq const*> AL;
 
-		// alignment-requests helper
-		//
-		// determine open requests covering block b
+		// handler for block alignment
+		void alignBlocks(CorblivarAlignmentReq const* req);
+
+		// alignment-requests helper: determine open requests covering block b
 		inline list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const {
 			list<CorblivarAlignmentReq const*> ret;
 

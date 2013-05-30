@@ -215,24 +215,11 @@ void CorblivarCore::generateLayout(int const& packing_iterations) {
 								cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << endl;
 							}
 
-							// TODO alignBlocks; requires to
-							// adapt placeCurrentBlock such
-							// that a) virtual CBL adaption is
-							// considered (blocks are only
-							// shifted such that no other
-							// blocks are overlapped, stacks
-							// Hi/Vi must be updated w/
-							// changed blocks to consider) and
-							// b) only just placed blocks are
-							// shifted, previously placed
-							// blocks remain fixed
-							//
 							// place/align blocks, but keep
 							// progress pointer for now in
 							// order to handle all alignment
 							// requests for current blocks
-							this->dies[cur_block->layer].placeCurrentBlock();
-							this->dies[other_block->layer].placeCurrentBlock();
+							this->alignBlocks(cur_req);
 
 							// mark die related w/ other block
 							// as not stalled any more;
@@ -312,6 +299,36 @@ void CorblivarCore::generateLayout(int const& packing_iterations) {
 		cout << "DBG_CORE> ";
 		cout << "Done" << endl;
 	}
+}
+
+void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
+	Block const* shift_block;
+
+	// scenario I: one block is already placed
+	if (req->s_i->placed || req->s_j->placed) {
+
+		// determine yet unplaced block
+		if (!req->s_i->placed) {
+			shift_block = req->s_i;
+		}
+		else {
+			shift_block = req->s_j;
+		}
+	}
+
+	// scenario II: both blocks are yet unplaced
+	else if (!req->s_i->placed && !req->s_j->placed) {
+	}
+
+	// (dummy) scenario III: both blocks are already placed, further shifting for
+	// block alignment is not feasible
+	else {
+	}
+
+	// TODO drop
+	// dummy handler; simply place blocks
+	this->dies[req->s_i->layer].placeCurrentBlock();
+	this->dies[req->s_j->layer].placeCurrentBlock();
 }
 
 void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
