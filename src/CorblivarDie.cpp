@@ -18,6 +18,9 @@
 void CorblivarDie::placeCurrentBlock() {
 	vector<Block const*> relevBlocks;
 
+	// current tuple; only mutable block parameters can be edited
+	Block const* cur_block = this->getBlock(this->pi);
+
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
 		this->done = true;
@@ -26,12 +29,9 @@ void CorblivarDie::placeCurrentBlock() {
 
 	// sanity check for previously placed blocks; may occur due to multiple alignment
 	// requests in process covering this particular block
-	if (this->getBlock(this->pi)->placed) {
+	if (cur_block->placed) {
 		return;
 	}
-
-	// current tuple; only mutable block parameters can be edited
-	Block const* cur_block = this->getBlock(this->pi);
 
 	// pop relevant blocks from related placement stack
 	relevBlocks = this->popRelevantBlocks();
@@ -39,18 +39,18 @@ void CorblivarDie::placeCurrentBlock() {
 	// horizontal placement
 	if (this->getDirection(this->pi) == Direction::HORIZONTAL) {
 
-		// update block's y-coordinates
-		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
-		// update block's x-coordinates
-		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
+		// first, determine block's y-coordinates
+		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks);
+		// second, determine block's x-coordinates (depends on y-coord)
+		this->determCurrentBlockCoords(Coordinate::X, relevBlocks);
 	}
 	// vertical placement
 	else {
 
-		// update block's x-coordinates
-		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
-		// update block's y-coordinates
-		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
+		// first, determine block's x-coordinates
+		this->determCurrentBlockCoords(Coordinate::X, relevBlocks);
+		// second, determine block's y-coordinates (depends on x-coord)
+		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks);
 	}
 
 	// update placement stacks
@@ -211,7 +211,7 @@ void CorblivarDie::updatePlacementStacks(vector<Block const*> relev_blocks_stack
 	}
 }
 
-void CorblivarDie::updateCurrentBlockCoords(Coordinate const& coord, vector<Block const*> relev_blocks_stack) const {
+void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, vector<Block const*> relev_blocks_stack) const {
 	double x, y;
 	unsigned b;
 
