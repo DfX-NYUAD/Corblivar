@@ -17,8 +17,6 @@
 
 void CorblivarDie::placeCurrentBlock() {
 	vector<Block const*> relevBlocks;
-	bool add_to_stack;
-	list<Block const*> blocks_add_to_stack;
 
 	// sanity check for empty dies
 	if (this->CBL.empty()) {
@@ -35,7 +33,7 @@ void CorblivarDie::placeCurrentBlock() {
 	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getBlock(this->pi);
 
-	// pop relevant blocks from stack
+	// pop relevant blocks from related placement stack
 	relevBlocks = this->popRelevantBlocks();
 
 	// horizontal placement
@@ -45,39 +43,6 @@ void CorblivarDie::placeCurrentBlock() {
 		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
 		// update block's x-coordinates
 		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
-
-		// update vertical stack; add cur_block when no other relevant blocks
-		// are to its top side, indepent of overlap in x-direction
-		add_to_stack = true;
-		for (Block const* b : relevBlocks) {
-			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
-				add_to_stack = false;
-				break;
-			}
-		}
-		// actual stack update
-		if (add_to_stack) {
-			this->Vi.push(cur_block);
-		}
-
-		// update horizontal stack; add relevant blocks which have no block to the right,
-		// can be simplified by checking against cur_block (only new block which
-		// can be possibly right of others)
-		for (Block const* b : relevBlocks) {
-			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
-				// prepending blocks to list retains the (implicit)
-				// ordering of blocks popped from stack Hi regarding their
-				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(b);
-			}
-		}
-		// always consider cur_block since it's one of the right-most blocks now
-		blocks_add_to_stack.push_front(cur_block);
-
-		// actual stack update
-		for (Block const* b : blocks_add_to_stack) {
-			this->Hi.push(b);
-		}
 	}
 	// vertical placement
 	else {
@@ -86,40 +51,10 @@ void CorblivarDie::placeCurrentBlock() {
 		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
 		// update block's y-coordinates
 		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
-
-		// update horizontal stack; add cur_block when no other relevant blocks
-		// are to its right side, indepent of overlap in y-direction
-		add_to_stack = true;
-		for (Block const* b : relevBlocks) {
-			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
-				add_to_stack = false;
-				break;
-			}
-		}
-		// actual stack update
-		if (add_to_stack) {
-			this->Hi.push(cur_block);
-		}
-
-		// update vertical stack; add relevant blocks which have no block above,
-		// can be simplified by checking against cur_block (only new block which
-		// can be possibly above others)
-		for (Block const* b : relevBlocks) {
-			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
-				// prepending blocks to list retains the (implicit)
-				// ordering of blocks popped from stack Vi regarding their
-				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(b);
-			}
-		}
-		// always consider cur_block since it's one of the top-most blocks now
-		blocks_add_to_stack.push_front(cur_block);
-
-		// actual stack update
-		for (Block const* b : blocks_add_to_stack) {
-			this->Vi.push(b);
-		}
 	}
+
+	// update placement stacks
+	this->updatePlacementStacks(relevBlocks);
 
 	// mark block as placed
 	cur_block->placed = true;
@@ -191,6 +126,89 @@ vector<Block const*> CorblivarDie::popRelevantBlocks() {
 	}
 
 	return ret;
+}
+
+void CorblivarDie::updatePlacementStacks(vector<Block const*> relev_blocks_stack) {
+	bool add_to_stack;
+	list<Block const*> blocks_add_to_stack;
+
+	// current block
+	Block const* cur_block = this->getBlock(this->pi);
+	// current block's insertion direction
+	Direction const cur_dir = this->getDirection(this->pi);
+
+	// horizontal placement
+	if (cur_dir == Direction::HORIZONTAL) {
+
+		// update vertical stack; add cur_block when no other relevant blocks
+		// are to its top side, indepent of overlap in x-direction
+		add_to_stack = true;
+		for (Block const* b : relev_blocks_stack) {
+			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
+				add_to_stack = false;
+				break;
+			}
+		}
+		// actual stack update
+		if (add_to_stack) {
+			this->Vi.push(cur_block);
+		}
+
+		// update horizontal stack; add relevant blocks which have no block to the right,
+		// can be simplified by checking against cur_block (only new block which
+		// can be possibly right of others)
+		for (Block const* b : relev_blocks_stack) {
+			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
+				// prepending blocks to list retains the (implicit)
+				// ordering of blocks popped from stack Hi regarding their
+				// insertion order; required for proper stack manipulation
+				blocks_add_to_stack.push_front(b);
+			}
+		}
+		// always consider cur_block since it's one of the right-most blocks now
+		blocks_add_to_stack.push_front(cur_block);
+
+		// actual stack update
+		for (Block const* b : blocks_add_to_stack) {
+			this->Hi.push(b);
+		}
+	}
+	// vertical placement
+	else {
+
+		// update horizontal stack; add cur_block when no other relevant blocks
+		// are to its right side, indepent of overlap in y-direction
+		add_to_stack = true;
+		for (Block const* b : relev_blocks_stack) {
+			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
+				add_to_stack = false;
+				break;
+			}
+		}
+		// actual stack update
+		if (add_to_stack) {
+			this->Hi.push(cur_block);
+		}
+
+		// update vertical stack; add relevant blocks which have no block above,
+		// can be simplified by checking against cur_block (only new block which
+		// can be possibly above others)
+		for (Block const* b : relev_blocks_stack) {
+			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
+				// prepending blocks to list retains the (implicit)
+				// ordering of blocks popped from stack Vi regarding their
+				// insertion order; required for proper stack manipulation
+				blocks_add_to_stack.push_front(b);
+			}
+		}
+		// always consider cur_block since it's one of the top-most blocks now
+		blocks_add_to_stack.push_front(cur_block);
+
+		// actual stack update
+		for (Block const* b : blocks_add_to_stack) {
+			this->Vi.push(b);
+		}
+	}
 }
 
 void CorblivarDie::updateCurrentBlockCoords(Coordinate const& coord, vector<Block const*> relev_blocks_stack) const {
