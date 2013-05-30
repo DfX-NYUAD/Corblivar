@@ -17,8 +17,7 @@
 
 void CorblivarDie::placeCurrentBlock() {
 	vector<Block const*> relevBlocks;
-	unsigned relevBlocksCount, b;
-	double x, y;
+	unsigned relevBlocksCount;
 	bool add_to_stack;
 	list<Block const*> blocks_add_to_stack;
 
@@ -50,40 +49,10 @@ void CorblivarDie::placeCurrentBlock() {
 			this->Hi.pop();
 		}
 
-		// determine y-coordinate for lower left corner of current block
-		//
-		// all rows are to be covered (according to T-juncts), thus place the
-		// block at the bottom die boundary
-		if (this->Hi.empty()) {
-			y = 0;
-		}
-		// only some rows are to be covered, thus determine the lower front of
-		// the related blocks
-		else {
-			y = relevBlocks[0]->bb.ll.y;
-			for (b = 1; b < relevBlocks.size(); b++) {
-				y = min(y, relevBlocks[b]->bb.ll.y);
-			}
-		}
-
 		// update block's y-coordinates
-		cur_block->bb.ll.y = y;
-		cur_block->bb.ur.y = cur_block->bb.h + y;
-
-		// determine x-coordinate for lower left corner of current block, consider
-		// right front of blocks to be covered
-		x = 0;
-		for (Block const* b : relevBlocks) {
-			// only consider blocks which intersect in y-direction
-			if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
-				// determine right front
-				x = max(x, b->bb.ur.x);
-			}
-		}
-
+		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
 		// update block's x-coordinates
-		cur_block->bb.ll.x = x;
-		cur_block->bb.ur.x = cur_block->bb.w + x;
+		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
 
 		// update vertical stack; add cur_block when no other relevant blocks
 		// are to its top side, indepent of overlap in x-direction
@@ -128,40 +97,10 @@ void CorblivarDie::placeCurrentBlock() {
 			this->Vi.pop();
 		}
 
-		// determine x-coordinate for lower left corner of current block
-		//
-		// all columns are to be covered (according to T-juncts), thus place the
-		// block at the left die boundary
-		if (this->Vi.empty()) {
-			x = 0;
-		}
-		// only some columns are to be covered, thus determine the left front of
-		// the related blocks
-		else {
-			x = relevBlocks[0]->bb.ll.x;
-			for (b = 1; b < relevBlocks.size(); b++) {
-				x = min(x, relevBlocks[b]->bb.ll.x);
-			}
-		}
-
 		// update block's x-coordinates
-		cur_block->bb.ll.x = x;
-		cur_block->bb.ur.x = cur_block->bb.w + x;
-
-		// determine y-coordinate for lower left corner of current block, consider
-		// upper front of blocks to be covered
-		y = 0;
-		for (Block const* b : relevBlocks) {
-			// only consider blocks which intersect in x-direction
-			if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
-				// determine upper front
-				y = max(y, b->bb.ur.y);
-			}
-		}
-
+		this->updateCurrentBlockCoords(Coordinate::X, relevBlocks);
 		// update block's y-coordinates
-		cur_block->bb.ll.y = y;
-		cur_block->bb.ur.y = cur_block->bb.h + y;
+		this->updateCurrentBlockCoords(Coordinate::Y, relevBlocks);
 
 		// update horizontal stack; add cur_block when no other relevant blocks
 		// are to its right side, indepent of overlap in y-direction
@@ -230,6 +169,103 @@ void CorblivarDie::placeCurrentBlock() {
 			}
 			tmp_Vi.pop();
 		}
+	}
+}
+
+void CorblivarDie::updateCurrentBlockCoords(Coordinate const& coord, vector<Block const*> relev_blocks_stack) const {
+	double x, y;
+	unsigned b;
+
+	// current block
+	Block const* cur_block = this->getBlock(this->pi);
+	Direction const cur_dir = this->getDirection(this->pi);
+
+	// update x-coordinates
+	if (coord == Coordinate::X) {
+
+		// for vertical block insertion; x-coordinate is first coordinate, thus
+		// not dependent on y-coordinate
+		if (cur_dir == Direction::VERTICAL) {
+
+			// determine x-coordinate for lower left corner of current block
+			//
+			// all columns are to be covered (according to T-juncts), thus place the
+			// block at the left die boundary
+			if (this->Vi.empty()) {
+				x = 0;
+			}
+			// only some columns are to be covered, thus determine the left front of
+			// the related blocks
+			else {
+				x = relev_blocks_stack[0]->bb.ll.x;
+				for (b = 1; b < relev_blocks_stack.size(); b++) {
+					x = min(x, relev_blocks_stack[b]->bb.ll.x);
+				}
+			}
+		}
+		// for horizontal insertion; x-coordinate is second coordinate, thus
+		// dependent on y-coordinate
+		else {
+
+			// determine x-coordinate for lower left corner of current block, consider
+			// right front of blocks to be covered
+			x = 0;
+			for (Block const* b : relev_blocks_stack) {
+				// only consider blocks which intersect in y-direction
+				if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
+					// determine right front
+					x = max(x, b->bb.ur.x);
+				}
+			}
+		}
+
+		// update block's x-coordinates
+		cur_block->bb.ll.x = x;
+		cur_block->bb.ur.x = cur_block->bb.w + x;
+	}
+
+	// update y-coordinates
+	else {
+
+		// for horizontal block insertion; y-coordinate is first coordinate, thus
+		// not dependent on x-coordinate
+		if (cur_dir == Direction::HORIZONTAL) {
+
+			// determine y-coordinate for lower left corner of current block
+			//
+			// all rows are to be covered (according to T-juncts), thus place the
+			// block at the bottom die boundary
+			if (this->Hi.empty()) {
+				y = 0;
+			}
+			// only some rows are to be covered, thus determine the lower front of
+			// the related blocks
+			else {
+				y = relev_blocks_stack[0]->bb.ll.y;
+				for (b = 1; b < relev_blocks_stack.size(); b++) {
+					y = min(y, relev_blocks_stack[b]->bb.ll.y);
+				}
+			}
+		}
+		// for vertical insertion; y-coordinate is second coordinate, thus
+		// dependent on x-coordinate
+		else {
+
+			// determine y-coordinate for lower left corner of current block, consider
+			// upper front of blocks to be covered
+			y = 0;
+			for (Block const* b : relev_blocks_stack) {
+				// only consider blocks which intersect in x-direction
+				if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
+					// determine upper front
+					y = max(y, b->bb.ur.y);
+				}
+			}
+		}
+
+		// update block's y-coordinates
+		cur_block->bb.ll.y = y;
+		cur_block->bb.ur.y = cur_block->bb.h + y;
 	}
 }
 

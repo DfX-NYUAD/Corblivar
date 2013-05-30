@@ -16,6 +16,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "CornerBlockList.hpp"
+#include "Coordinate.hpp"
 // forward declarations, if any
 class Block;
 
@@ -79,7 +80,10 @@ class CorblivarDie {
 		// layout generation; place current block
 		void placeCurrentBlock();
 
-		// layout packing
+		// layout-generation helper: determine coordinates of block in process
+		void inline updateCurrentBlockCoords(Coordinate const& coord, vector<Block const*> relev_blocks_stack) const;
+
+		// layout generation: packing, to be performed as post-placement operation
 		void performPacking(Direction const& dir);
 
 	// constructors, destructors, if any non-implicit
