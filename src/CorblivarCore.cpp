@@ -307,8 +307,27 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	CorblivarDie* die_shift_block;
 	vector<Block const*> shift_block_relev_blocks;
 
-	// scenario I: one block is already placed
-	if (req->s_i->placed || req->s_j->placed) {
+	// TODO
+	// scenario I: both blocks are yet unplaced
+	if (!req->s_i->placed && !req->s_j->placed) {
+
+		// TODO drop
+		// dummy handler; simply place blocks
+		this->dies[req->s_i->layer].placeCurrentBlock();
+		this->dies[req->s_j->layer].placeCurrentBlock();
+	}
+
+	// (dummy) scenario II: both blocks are already placed, further shifting for block
+	// alignment is not feasible
+	else if (req->s_i->placed && req->s_j->placed) {
+
+		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			cout << "DBG_ALIGNMENT>     Both blocks previously placed; alignment not possible!" << endl;
+		}
+	}
+
+	// scenario III: one block is already placed
+	else {
 
 		// determine yet unplaced block
 		if (!req->s_i->placed) {
@@ -321,7 +340,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		}
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-			cout << "DBG_ALIGNMENT>     Block " << fixed_block << " previously placed; try to shift block " << shift_block->id << endl;
+			cout << "DBG_ALIGNMENT>     Block " << fixed_block->id << " previously placed; try to shift block " << shift_block->id << endl;
 		}
 
 		// retrieve related die pointer
@@ -365,21 +384,6 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// mark shifted block as placed
 		shift_block->placed = true;
 	}
-
-	// TODO
-	// scenario II: both blocks are yet unplaced
-	else if (!req->s_i->placed && !req->s_j->placed) {
-	}
-
-	// (dummy) scenario III: both blocks are already placed, further shifting for
-	// block alignment is not feasible
-	else {
-	}
-
-	// TODO drop
-	// dummy handler; simply place blocks
-	this->dies[req->s_i->layer].placeCurrentBlock();
-	this->dies[req->s_j->layer].placeCurrentBlock();
 }
 
 void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
