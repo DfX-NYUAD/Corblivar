@@ -17,26 +17,27 @@
 #include "Block.hpp"
 // forward declarations, if any
 
-// alignment types
-enum class AlignmentType : int {OFFSET = 0, RANGE = 1, UNDEF = -1};
-
 class CorblivarAlignmentReq {
 	// debugging code switch (private)
 	private:
+
+	// enum class for alignment types; has to be defined first
+	public:
+		enum class Type : int {OFFSET = 0, RANGE = 1, UNDEF = -1};
 
 	// private data, functions
 	private:
 		int id;
 		Block const* s_i;
 		Block const* s_j;
-		AlignmentType type_x, type_y;
+		CorblivarAlignmentReq::Type type_x, type_y;
 		double offset_range_x, offset_range_y;
 
 	// constructors, destructors, if any non-implicit
 	public:
 		CorblivarAlignmentReq(int const& id, Block const* s_i, Block const* s_j,
-				AlignmentType const& type_x, double const& offset_range_x,
-				AlignmentType const& type_y, double const& offset_range_y) {
+				CorblivarAlignmentReq::Type const& type_x, double const& offset_range_x,
+				CorblivarAlignmentReq::Type const& type_y, double const& offset_range_y) {
 			this->id = id;
 			this->s_i = s_i;
 			this->s_j = s_j;
@@ -68,16 +69,16 @@ class CorblivarAlignmentReq {
 		friend class CorblivarCore;
 
 		inline bool rangeX() const {
-			return (this->type_x == AlignmentType::RANGE);
+			return (this->type_x == CorblivarAlignmentReq::Type::RANGE);
 		};
 		inline bool rangeY() const {
-			return (this->type_y == AlignmentType::RANGE);
+			return (this->type_y == CorblivarAlignmentReq::Type::RANGE);
 		};
 		inline bool fixedOffsX() const {
-			return (this->type_x == AlignmentType::OFFSET);
+			return (this->type_x == CorblivarAlignmentReq::Type::OFFSET);
 		};
 		inline bool fixedOffsY() const {
-			return (this->type_y == AlignmentType::OFFSET);
+			return (this->type_y == CorblivarAlignmentReq::Type::OFFSET);
 		};
 		inline string tupleString() const {
 			stringstream ret;
