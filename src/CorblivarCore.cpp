@@ -355,13 +355,14 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			// first, determine block's y-coordinates
 			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
 
-			// TODO perform shift in y-dir, if required and possible
-			//
+			// perform shift in y-dir, if required and possible
+			this->shiftBlock(Direction::VERTICAL, req, shift_block);
+
 			// second, determine block's x-coordinates (depends on y-coord)
 			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
 
-			// TODO perform shift in x-dir, if required and possible
-			//
+			// perform shift in x-dir, if required and possible
+			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
 		}
 		// vertical placement
 		else {
@@ -369,13 +370,14 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			// first, determine block's x-coordinates
 			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
 
-			// TODO perform shift in x-dir, if required and possible
-			//
+			// perform shift in x-dir, if required and possible
+			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
+
 			// second, determine block's y-coordinates (depends on x-coord)
 			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
 
-			// TODO perform shift in y-dir, if required and possible
-			//
+			// perform shift in y-dir, if required and possible
+			this->shiftBlock(Direction::VERTICAL, req, shift_block);
 		}
 
 		// update placement stacks
@@ -383,6 +385,154 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 		// mark shifted block as placed
 		shift_block->placed = true;
+	}
+}
+
+Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) const {
+	Block const* shift_block;
+
+	// determine which block to shift in horizontal direction
+	if (dir == Direction::HORIZONTAL) {
+
+		// alignment range
+		if (req->type_x == CorblivarAlignmentReq::Type::RANGE) {
+
+			// blocks are aligned w/ their left edges
+			if (req->s_i->bb.ll.x == req->s_j->bb.ll.x) {
+				// the resulting overlap is the best we can
+				// achieve, thus ignore further shifting
+				return nullptr;
+			}
+			// blocks are not aligned; the block to be shifted is the block
+			// further left, since shifting is only allowed and effective w/in
+			// positive x-direction
+			else if (req->s_i->bb.ll.x < req->s_j->bb.ll.x) {
+				shift_block = req->s_i;
+			}
+			else {
+				shift_block = req->s_j;
+			}
+		}
+		// alignment offsets
+		// TODO
+		else if (req->type_x == CorblivarAlignmentReq::Type::OFFSET) {
+
+			// TODO drop
+			return nullptr;
+		}
+		// alignment is not defined, i.e., not required
+		else {
+			return nullptr;
+		}
+	}
+
+	// determine which block to shift in horizontal direction
+	else {
+
+		// alignment range
+		if (req->type_y == CorblivarAlignmentReq::Type::RANGE) {
+
+			// blocks are aligned w/ their bottom edges
+			if (req->s_i->bb.ll.y == req->s_j->bb.ll.y) {
+				// the resulting overlap is the best we can
+				// achieve, thus ignore further shifting
+				return nullptr;
+			}
+			// blocks are not aligned; the block to be shifted is the block
+			// further below, since shifting is only allowed and effective
+			// w/in positive y-direction
+			else if (req->s_i->bb.ll.y < req->s_j->bb.ll.y) {
+				shift_block = req->s_i;
+			}
+			else {
+				shift_block = req->s_j;
+			}
+		}
+		// alignment offsets
+		// TODO
+		else if (req->type_y == CorblivarAlignmentReq::Type::OFFSET) {
+
+			// TODO drop
+			return nullptr;
+		}
+		// alignment is not defined, i.e., not required
+		else {
+			return nullptr;
+		}
+	}
+
+	// sanity check for placed blocks
+	if (shift_block->placed) {
+		shift_block = nullptr;
+	}
+
+	return shift_block;
+}
+
+void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const {
+	Block const* fix_block;
+	double overlap_x, overlap_y;
+
+	// first, determine fixed block
+	if (shift_block->id == req->s_i->id) {
+		fix_block = req->s_j;
+	}
+	else {
+		fix_block = req->s_i;
+	}
+
+	// second, perform actual shift
+	//
+	// shift in horizontal direction
+	if (dir == Direction::HORIZONTAL) {
+
+		// for shifting range, we need to ensure that the blocks have an overlap in
+		// x-direction >= range
+		if (req->type_x == CorblivarAlignmentReq::Type::RANGE) {
+
+			// determine inherent overlap; for non-overlapping blocks this
+			// will be < 0
+			overlap_x = shift_block->bb.ur.x - fix_block->bb.ll.x;
+
+			// shift left block to the right
+			if (overlap_x < req->offset_range_x) {
+
+				shift_block->bb.ll.x += req->offset_range_x - overlap_x;
+				shift_block->bb.ur.x += req->offset_range_x - overlap_x;
+			}
+
+		}
+		// for shifting offset, we need to ensure that the blocks have an exact
+		// offset w.r.t. their lower left corners
+		// TODO
+		else if (req->type_x == CorblivarAlignmentReq::Type::OFFSET) {
+		}
+	}
+
+	// shift in vertical direction
+	else {
+
+		// for shifting range, we need to ensure that the blocks have an overlap in
+		// y-direction >= range
+		if (req->type_y == CorblivarAlignmentReq::Type::RANGE) {
+
+			// determine inherent overlap; for non-overlapping blocks this
+			// will be < 0
+			overlap_y = shift_block->bb.ur.y - fix_block->bb.ll.y;
+
+			// shift left block to the right
+			if (overlap_y < req->offset_range_y) {
+
+				shift_block->bb.ll.y += req->offset_range_y - overlap_y;
+				shift_block->bb.ur.y += req->offset_range_y - overlap_y;
+			}
+
+		}
+		// for shifting offset, we need to ensure that the blocks have an exact
+		// offset w.r.t. their lower left corners
+		// TODO
+		else if (req->type_y == CorblivarAlignmentReq::Type::OFFSET) {
+		}
 	}
 }
 
