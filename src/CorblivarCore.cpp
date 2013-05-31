@@ -476,6 +476,8 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const {
 	Block const* reference_block;
 	double overlap_x, overlap_y;
+	double shift_x, shift_y;
+	double range_x, range_y;
 
 	// first, determine reference block
 	if (shift_block->id == req->s_i->id) {
@@ -494,19 +496,27 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// x-direction >= range
 		if (req->type_x == CorblivarAlignmentReq::Type::RANGE) {
 
+			// limit desired range, i.e., consider current block dimensions
+			range_x = min(shift_block->bb.w, reference_block->bb.w);
+			range_x = min(range_x, req->offset_range_x);
+
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
 			overlap_x = shift_block->bb.ur.x - reference_block->bb.ll.x;
 
 			// shift left block to the right
-			if (overlap_x < req->offset_range_x) {
+			if (overlap_x < range_x) {
 
-				shift_block->bb.ll.x += req->offset_range_x - overlap_x;
-				shift_block->bb.ur.x += req->offset_range_x - overlap_x;
+				// determine required additional shifting amount
+				shift_x = range_x - overlap_x;
+
+				// apply shifting range
+				shift_block->bb.ll.x += shift_x;
+				shift_block->bb.ur.x += shift_x;
 
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in x-direction by " << req->offset_range_x - overlap_x << endl;
+					cout << " in x-direction by " << shift_x << endl;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
@@ -515,11 +525,10 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 				overlap_x = reference_block->bb.ur.x - shift_block->bb.ll.x;
 
-				if (overlap_x < req->offset_range_x) {
+				if (overlap_x < range_x) {
 					cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in x-direction not effective; other block would need to be shifted!" << endl;
 				}
 			}
-
 		}
 
 		// for shifting offset, we need to ensure that the blocks have an exact
@@ -541,19 +550,27 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// y-direction >= range
 		if (req->type_y == CorblivarAlignmentReq::Type::RANGE) {
 
+			// limit desired range, i.e., consider current block dimensions
+			range_y = min(shift_block->bb.h, reference_block->bb.h);
+			range_y = min(range_y, req->offset_range_y);
+
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
 			overlap_y = shift_block->bb.ur.y - reference_block->bb.ll.y;
 
-			// shift lower block to the top
-			if (overlap_y < req->offset_range_y) {
+			// shift lower block upwards
+			if (overlap_y < range_y) {
 
-				shift_block->bb.ll.y += req->offset_range_y - overlap_y;
-				shift_block->bb.ur.y += req->offset_range_y - overlap_y;
+				// determine required additional shifting amount
+				shift_y = range_y - overlap_y;
+
+				// apply shifting range
+				shift_block->bb.ll.y += shift_y;
+				shift_block->bb.ur.y += shift_y;
 
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in y-direction by " << req->offset_range_y - overlap_y << endl;
+					cout << " in y-direction by " << shift_y << endl;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
@@ -562,11 +579,10 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 				overlap_y = reference_block->bb.ur.y - shift_block->bb.ll.y;
 
-				if (overlap_y < req->offset_range_y) {
+				if (overlap_y < range_y) {
 					cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in y-direction not effective; other block would need to be shifted!" << endl;
 				}
 			}
-
 		}
 
 		// for shifting offset, we need to ensure that the blocks have an exact
