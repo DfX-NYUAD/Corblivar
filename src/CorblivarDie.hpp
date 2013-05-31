@@ -95,9 +95,10 @@ class CorblivarDie {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		CorblivarDie(int const& i) {
-			stalled = done = false;
-			id = i;
+		CorblivarDie(int const& id) {
+			this->stalled = false;
+			this->done = false;
+			this->id = id;
 		}
 
 	// public data, functions

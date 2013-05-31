@@ -27,7 +27,9 @@ class Rect {
 	// constructors, destructors, if any non-implicit
 	public:
 		Rect() {
-			h = w = area = 0.0;
+			this->h = 0.0;
+			this->w = 0.0;
+			this->area = 0.0;
 		};
 
 	// public data, functions

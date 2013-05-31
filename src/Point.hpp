@@ -26,7 +26,8 @@ class Point {
 	// constructors, destructors, if any non-implicit
 	public:
 		Point() {
-			x = y = UNDEF;
+			this->x = Point::UNDEF;
+			this->y = Point::UNDEF;
 		};
 
 	// public data, functions

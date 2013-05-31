@@ -26,10 +26,11 @@ class Net {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Net(int const& id_i) {
-			id = id_i;
-			hasExternalPin = false;
-			layer_bottom = layer_top = -1;
+		Net(int const& id) {
+			this->id = id;
+			this->hasExternalPin = false;
+			this->layer_bottom = -1;
+			this->layer_top = -1;
 		};
 
 	// public data, functions

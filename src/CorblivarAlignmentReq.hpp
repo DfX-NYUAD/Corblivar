@@ -34,17 +34,21 @@ class CorblivarAlignmentReq {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		CorblivarAlignmentReq(int const& id_i, Block const* si, Block const* sj, AlignmentType const& typex, double const& offsetrangex, AlignmentType const& typey, double const& offsetrangey) {
-			id = id_i;
-			s_i = si;
-			s_j = sj;
-			type_x = typex;
-			type_y = typey;
-			offset_range_x = offsetrangex;
-			offset_range_y = offsetrangey;
+		CorblivarAlignmentReq(int const& id, Block const* s_i, Block const* s_j,
+				AlignmentType const& type_x, double const& offset_range_x,
+				AlignmentType const& type_y, double const& offset_range_y) {
+			this->id = id;
+			this->s_i = s_i;
+			this->s_j = s_j;
+			this->type_x = type_x;
+			this->type_y = type_y;
+			this->offset_range_x = offset_range_x;
+			this->offset_range_y = offset_range_y;
 
 			// fix invalid negative range
-			if ((this->rangeX() && offset_range_x < 0) || (this->rangeY() && offset_range_y < 0)) {
+			// TODO check for allowed range, offsets; negative can be
+			// transformed to positive via block swapping
+			if ((this->rangeX() && this->offset_range_x < 0) || (this->rangeY() && this->offset_range_y < 0)) {
 
 				// logging
 				cout << "Corblivar> ";
@@ -52,8 +56,8 @@ class CorblivarAlignmentReq {
 				cout << " " << this->tupleString() << " to" << endl;
 
 				// actual fixing
-				offset_range_x = abs(offset_range_x);
-				offset_range_y = abs(offset_range_y);
+				this->offset_range_x = abs(this->offset_range_x);
+				this->offset_range_y = abs(this->offset_range_y);
 
 				cout << " " << this->tupleString() << endl;
 			}

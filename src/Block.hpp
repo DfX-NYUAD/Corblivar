@@ -27,16 +27,14 @@ class Block {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Block(string const& id_i) {
-			id = id_i;
-			layer = -1;
-			power_density= 0.0;
-			AR.min = AR.max = 1.0;
-			placed = false;
-			soft = false;
-			floorplacement = false;
-			//x_slack_backward = y_slack_backward = 0.0;
-			//x_slack_forward = y_slack_forward = 0.0;
+		Block(string const& id) {
+			this->id = id;
+			this->layer = -1;
+			this->power_density= 0.0;
+			this->AR.min = AR.max = 1.0;
+			this->placed = false;
+			this->soft = false;
+			this->floorplacement = false;
 		};
 
 	// public data, functions
@@ -49,9 +47,6 @@ class Block {
 
 		// density in [uW/(um^2)]
 		double power_density;
-
-		//double x_slack_backward, y_slack_backward;
-		//double x_slack_forward, y_slack_forward;
 
 		// rectangle, represents block geometry and placement
 		mutable Rect bb, bb_backup, bb_best;
