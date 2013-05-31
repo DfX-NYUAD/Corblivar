@@ -315,9 +315,13 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// dummy handler; simply place blocks
 		this->dies[req->s_i->layer].placeCurrentBlock();
 		this->dies[req->s_j->layer].placeCurrentBlock();
+
+		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << endl;
+		}
 	}
 
-	// (dummy) scenario II: both blocks are already placed, further shifting for block
+	// scenario II: both blocks are already placed, further shifting for block
 	// alignment is not feasible
 	else if (req->s_i->placed && req->s_j->placed) {
 
