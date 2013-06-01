@@ -27,11 +27,8 @@ class CorblivarAlignmentReq {
 
 	// private data, functions
 	private:
-		int id;
-		Block const* s_i;
-		Block const* s_j;
-		CorblivarAlignmentReq::Type type_x, type_y;
-		double offset_range_x, offset_range_y;
+		CorblivarAlignmentReq::Type type_x;
+		CorblivarAlignmentReq::Type type_y;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -46,64 +43,49 @@ class CorblivarAlignmentReq {
 			this->offset_range_x = offset_range_x;
 			this->offset_range_y = offset_range_y;
 
-			// fix invalid negative range
-			// TODO check for allowed range, offsets; negative can be
-			// transformed to positive via block swapping
-			if ((this->rangeX() && this->offset_range_x < 0) || (this->rangeY() && this->offset_range_y < 0)) {
+			// fix negative range, if required
+			if (
+				(this->range_x() && this->offset_range_x < 0) ||
+				(this->range_y() && this->offset_range_y < 0)
+			   ) {
 
-				// logging
-				cout << "Corblivar> ";
-				cout << "Fixing alignment request (negative range):" << endl;
-				cout << " " << this->tupleString() << " to" << endl;
-
-				// actual fixing
+				// negative range can be trivially resolved
 				this->offset_range_x = abs(this->offset_range_x);
 				this->offset_range_y = abs(this->offset_range_y);
-
-				cout << " " << this->tupleString() << endl;
 			}
 		};
 
 	// public data, functions
 	public:
-		friend class CorblivarCore;
+		int id;
+		Block const* s_i;
+		Block const* s_j;
+		double offset_range_x, offset_range_y;
 
-		inline bool rangeX() const {
+		friend ostream& operator<< (ostream& out, CorblivarAlignmentReq::Type const& type) {
+			out << static_cast<int>(type);
+			return out;
+		}
+
+		inline bool range_x() const {
 			return (this->type_x == CorblivarAlignmentReq::Type::RANGE);
-		};
-		inline bool rangeY() const {
+		}
+		inline bool range_y() const {
 			return (this->type_y == CorblivarAlignmentReq::Type::RANGE);
-		};
-		inline bool fixedOffsX() const {
+		}
+		inline bool offset_x() const {
 			return (this->type_x == CorblivarAlignmentReq::Type::OFFSET);
-		};
-		inline bool fixedOffsY() const {
+		}
+		inline bool offset_y() const {
 			return (this->type_y == CorblivarAlignmentReq::Type::OFFSET);
-		};
+		}
+
 		inline string tupleString() const {
 			stringstream ret;
 
-			ret << "(" << s_i->id << ", " << s_j->id << ", (" << offset_range_x << ", ";
-			if (this->rangeX()) {
-				ret << "1";
-			}
-			else if (this->fixedOffsX()) {
-				ret << "0";
-			}
-			else {
-				ret << "lambda";
-			}
-			ret << "), (" << offset_range_y << ", ";
-			if (this->rangeY()) {
-				ret << "1";
-			}
-			else if (this->fixedOffsY()) {
-				ret << "0";
-			}
-			else {
-				ret << "lambda";
-			}
-			ret << ") )";
+			ret << "(" << this->s_i->id << ", " << this->s_j->id << ", ";
+			ret << "(" << this->type_x << ", " << this->offset_range_x << "), ";
+			ret << "(" << this->type_y << ", " << this->offset_range_y << ") )";
 
 			return ret.str();
 		};

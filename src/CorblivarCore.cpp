@@ -399,7 +399,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 	if (dir == Direction::HORIZONTAL) {
 
 		// alignment range
-		if (req->type_x == CorblivarAlignmentReq::Type::RANGE) {
+		if (req->range_x()) {
 
 			// blocks are aligned w/ their left edges
 			if (req->s_i->bb.ll.x == req->s_j->bb.ll.x) {
@@ -419,7 +419,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 		}
 		// alignment offsets
 		// TODO
-		else if (req->type_x == CorblivarAlignmentReq::Type::OFFSET) {
+		else if (req->offset_x()) {
 
 			// TODO drop
 			return nullptr;
@@ -434,7 +434,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 	else {
 
 		// alignment range
-		if (req->type_y == CorblivarAlignmentReq::Type::RANGE) {
+		if (req->range_y()) {
 
 			// blocks are aligned w/ their bottom edges
 			if (req->s_i->bb.ll.y == req->s_j->bb.ll.y) {
@@ -454,7 +454,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 		}
 		// alignment offsets
 		// TODO
-		else if (req->type_y == CorblivarAlignmentReq::Type::OFFSET) {
+		else if (req->offset_y()) {
 
 			// TODO drop
 			return nullptr;
@@ -494,7 +494,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 		// for shifting range, we need to ensure that the blocks have an overlap in
 		// x-direction >= range
-		if (req->type_x == CorblivarAlignmentReq::Type::RANGE) {
+		if (req->range_x()) {
 
 			// limit desired range, i.e., consider current block dimensions
 			range_x = min(shift_block->bb.w, reference_block->bb.w);
@@ -534,7 +534,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// for shifting offset, we need to ensure that the blocks have an exact
 		// offset w.r.t. their lower left corners
 		// TODO
-		else if (req->type_x == CorblivarAlignmentReq::Type::OFFSET) {
+		else if (req->offset_x()) {
 		}
 
 		// alignment is not defined, i.e., not required
@@ -548,7 +548,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 		// for shifting range, we need to ensure that the blocks have an overlap in
 		// y-direction >= range
-		if (req->type_y == CorblivarAlignmentReq::Type::RANGE) {
+		if (req->range_y()) {
 
 			// limit desired range, i.e., consider current block dimensions
 			range_y = min(shift_block->bb.h, reference_block->bb.h);
@@ -588,7 +588,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// for shifting offset, we need to ensure that the blocks have an exact
 		// offset w.r.t. their lower left corners
 		// TODO
-		else if (req->type_y == CorblivarAlignmentReq::Type::OFFSET) {
+		else if (req->offset_y()) {
 		}
 
 		// alignment is not defined, i.e., not required

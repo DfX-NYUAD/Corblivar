@@ -96,11 +96,6 @@ class CorblivarCore {
 			return ret;
 		}
 
-	// TODO declare private; public for testing only
-	public:
-		// sequence A; alignment requests
-		vector<CorblivarAlignmentReq> A;
-
 	// constructors, destructors, if any non-implicit
 	public:
 		CorblivarCore(int const& layers, unsigned const& blocks) {
@@ -120,6 +115,9 @@ class CorblivarCore {
 
 	// public data, functions
 	public:
+		// sequence A; alignment requests
+		vector<CorblivarAlignmentReq> A;
+
 		// general operations
 		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
 		void generateLayout(int const& packing_iterations);
