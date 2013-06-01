@@ -87,7 +87,7 @@ class CorblivarCore {
 
 		// general operations
 		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
-		void generateLayout(int const& packing_iterations);
+		void generateLayout(bool const& perform_alignment, int const& packing_iterations);
 
 		// die getter
 		inline CorblivarDie& editDie(unsigned const& die) {

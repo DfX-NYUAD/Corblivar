@@ -87,7 +87,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
-		corb.generateLayout(this->conf_SA_layout_packing_iterations);
+		corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 		cur_cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
@@ -101,7 +101,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				prev_cost = cur_cost;
 
 				// generate layout
-				corb.generateLayout(this->conf_SA_layout_packing_iterations);
+				corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 
 				// evaluate layout, new cost
 				cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two);
@@ -341,7 +341,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	}
 
 	// init cost
-	corb.generateLayout(this->conf_SA_layout_packing_iterations);
+	corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 	cur_cost = this->determCost(corb.A).cost;
 
 	// perform some random operations, for SA temperature = 0.0
@@ -361,7 +361,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			prev_cost = cur_cost;
 
 			// generate layout
-			corb.generateLayout(this->conf_SA_layout_packing_iterations);
+			corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 
 			// evaluate layout, new cost
 			cost = this->determCost(corb.A);
@@ -422,7 +422,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
 		// generate final layout
-		corb.generateLayout(this->conf_SA_layout_packing_iterations);
+		corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 	}
 
 	// determine final cost, also for non-Corblivar calls
