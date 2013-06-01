@@ -308,8 +308,22 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	// memorize if interconnects optimization should be performed
 	fp.conf_SA_opt_interconnects = (fp.conf_SA_cost_WL > 0.0 || fp.conf_SA_cost_TSVs > 0.0);
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_SA_cost_alignment;
+
+	// memorize if alignment optimization should be performed
+	fp.conf_SA_opt_alignment = fp.conf_SA_cost_alignment > 0.0;
+
+	// sanity check for positive cost factors
+	if (fp.conf_SA_cost_thermal < 0.0 || fp.conf_SA_cost_WL < 0.0 || fp.conf_SA_cost_TSVs < 0.0 || fp.conf_SA_cost_alignment < 0.0) {
+		cout << "IO> Provide positive cost factors!" << endl;
+		exit(1);
+	}
+
 	// sanity check for sum of cost factors
-	if (abs(fp.conf_SA_cost_thermal + fp.conf_SA_cost_WL + fp.conf_SA_cost_TSVs - 1.0) > 0.1) {
+	if (abs(fp.conf_SA_cost_thermal + fp.conf_SA_cost_WL + fp.conf_SA_cost_TSVs + fp.conf_SA_cost_alignment - 1.0) > 0.1) {
 		cout << "IO> Cost factors should sum up to approx. 1!" << endl;
 		exit(1);
 	}
@@ -407,6 +421,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
+		cout << "IO>  SA -- Cost factor for block alignment: " << fp.conf_SA_cost_alignment << endl;
 
 		// power blurring parameters; for thermal analysis
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
