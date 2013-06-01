@@ -40,6 +40,11 @@ int main (int argc, char** argv) {
 	// (TODO) adapt if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
 
+		if (fp.logMin()) {
+			cout << "Corblivar> ";
+			cout << "Handling given solution file ..." << endl << endl;
+		}
+
 		// read from file
 		IO::parseCorblivarFile(fp, corb);
 
@@ -73,7 +78,7 @@ int main (int argc, char** argv) {
 
 		if (fp.logMin()) {
 			cout << "Corblivar> ";
-			cout << "Performing SA floorplanning optimization..." << endl << endl;
+			cout << "Performing SA floorplanning optimization ..." << endl << endl;
 		}
 
 		// perform SA; main handler
