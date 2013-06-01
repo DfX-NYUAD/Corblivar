@@ -88,7 +88,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		// init cost for current layout and fitting ratio
 		corb.generateLayout(this->conf_SA_layout_packing_iterations);
-		cur_cost = this->determCost(layout_fit_ratio, SA_phase_two).cost;
+		cur_cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -104,7 +104,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				corb.generateLayout(this->conf_SA_layout_packing_iterations);
 
 				// evaluate layout, new cost
-				cost = this->determCost(layout_fit_ratio, SA_phase_two);
+				cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two);
 				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -171,7 +171,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// during switch to phase two, initialize
 						// current cost as max cost for further
 						// normalization (SA_phase_two_init)
-						fitting_cost = this->determCost(1.0, SA_phase_two, SA_phase_two_init).cost;
+						fitting_cost = this->determCost(corb.A, 1.0, SA_phase_two, SA_phase_two_init).cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -342,7 +342,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 	// init cost
 	corb.generateLayout(this->conf_SA_layout_packing_iterations);
-	cur_cost = this->determCost().cost;
+	cur_cost = this->determCost(corb.A).cost;
 
 	// perform some random operations, for SA temperature = 0.0
 	// i.e., consider only solutions w/ improved cost
@@ -364,7 +364,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			corb.generateLayout(this->conf_SA_layout_packing_iterations);
 
 			// evaluate layout, new cost
-			cost = this->determCost();
+			cost = this->determCost(corb.A);
 			cur_cost = cost.cost;
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
@@ -409,7 +409,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	stringstream runtime;
 	bool valid_solution;
 	double cost;
-	double area, thermal;
+	double area, thermal, alignment_mismatch;
 	double x, y;
 	CostInterconn interconn;
 
@@ -447,7 +447,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 		// determine overall cost
 		if (determ_overall_cost) {
-			cost = this->determCost(1.0, true).cost;
+			cost = this->determCost(corb.A, 1.0, true).cost;
 		}
 
 		// determine area cost; invert weight in order to retrieve area ratio
@@ -460,7 +460,10 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized max temperature
 		thermal = this->determCostThermalDistr(false, false, true);
 
-		// TODO alignment costs
+		// determine non-normalized alignment mismatches
+		alignment_mismatch = this->determCostAlignment(corb.A, false, false);
+
+		// logging results
 		if (this->logMin()) {
 
 			cout << "Corblivar> Characteristica of final solution:" << endl;
@@ -482,6 +485,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->results << "Overall blocks outline (reasonable stack outline):" << endl;
 			this->results << " x = " << x << endl;
 			this->results << " y = " << y << endl;
+
+			if (!corb.A.empty()) {
+				cout << "Corblivar> Alignment mismatches [um]: " << alignment_mismatch << endl;
+				this->results << "Alignment mismatches [um]: " << alignment_mismatch << endl;
+			}
 
 			cout << "Corblivar> HPWL: " << interconn.HPWL << endl;
 			this->results << "HPWL: " << interconn.HPWL << endl;
@@ -973,13 +981,13 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 // adaptive cost model w/ two phases;
 // first phase considers only cost for packing into outline
 // second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutions_fixed_outline, bool const& SA_phase_two, bool const& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const& alignments, double const& ratio_feasible_solutions_fixed_outline, bool const& SA_phase_two, bool const& set_max_cost) {
 	double cost_total, cost_thermal, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::determCost(" << ratio_feasible_solutions_fixed_outline << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
+		cout << "-> FloorPlanner::determCost(" << &alignments << ", " << ratio_feasible_solutions_fixed_outline << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
 	}
 
 	// phase one: consider only cost for packing into outline
@@ -1005,8 +1013,13 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 			cost_interconnects.TSVs = 0.0;
 		}
 
-		// TODO cost (failed) alignments
-		cost_alignments = 0.0;
+		// cost failed alignments, i.e., alignment mismatches
+		if (this->conf_SA_opt_alignment) {
+			cost_alignments = this->determCostAlignment(alignments, set_max_cost);
+		}
+		else {
+			cost_alignments = 0.0;
+		}
 
 		// normalized temperature-distribution cost; only if thermal opt is on
 		//
@@ -1022,6 +1035,7 @@ FloorPlanner::Cost FloorPlanner::determCost(double const& ratio_feasible_solutio
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
 					this->conf_SA_cost_WL * cost_interconnects.HPWL
 					+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
+					+ this->conf_SA_cost_alignment * cost_alignments
 					+ this->conf_SA_cost_thermal * cost_thermal
 				)
 			// area, outline cost is already weighted
@@ -1297,4 +1311,70 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	}
 
 	return ret;
+}
+
+// costs are derived from spatial mismatch b/w blocks' alignment and indented alignment
+double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize) {
+	double cost = 0.0;
+	Rect blocks_intersect;
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::determCostAlignment(" << &alignments << ", " << set_max_cost << ", " << normalize << ")" << endl;
+	}
+
+	// determine cost considering all alignment requests
+	for (CorblivarAlignmentReq const& req : alignments) {
+
+		// for request w/ alignment ranges, we verify the alignment via the
+		// blocks' intersection
+		if (req.range_x() || req.range_y()) {
+			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+		}
+
+		// check partial request, horizontal aligment
+		//
+		// alignment range
+		if (req.range_x()) {
+
+			// consider the spatial mismatch of the alignment request as cost
+			if (blocks_intersect.w < req.offset_range_x) {
+				cost += req.offset_range_x - blocks_intersect.w;
+			}
+		}
+		// alignment offset
+		// TODO
+		else if (req.offset_x()) {
+		}
+
+		// check partial request, vertical aligment
+		//
+		// alignment range
+		if (req.range_y()) {
+
+			// consider the spatial mismatch of the alignment request as cost
+			if (blocks_intersect.h < req.offset_range_y) {
+				cost += req.offset_range_y - blocks_intersect.h;
+			}
+		}
+		// alignment offset
+		// TODO
+		else if (req.offset_y()) {
+		}
+	}
+
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_alignments = cost;
+	}
+
+	// normalize to max value from initial sampling
+	if (normalize) {
+		cost /= this->max_cost_alignments;
+	}
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::determCostAlignment : " << cost << endl;
+	}
+
+	return cost;
 }

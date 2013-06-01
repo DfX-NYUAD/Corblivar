@@ -19,6 +19,7 @@
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
 class CorblivarCore;
+class CorblivarAlignmentReq;
 
 class FloorPlanner {
 	// debugging code switch (private)
@@ -126,13 +127,15 @@ class FloorPlanner {
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(double const& ratio_feasible_solutions_fixed_outline = 0.0, bool const& SA_phase_two = false, bool const& set_max_cost = false);
+		Cost determCost(vector<CorblivarAlignmentReq> const& alignments, double const& ratio_feasible_solutions_fixed_outline = 0.0,
+				bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(),
 					this->conf_power_blurring_power_density_scaling_padding_zone);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->conf_power_blurring_temp_offset,
 					this->max_cost_thermal, set_max_cost, normalize, return_max_temp);
 		};
+		double determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost = false, bool const& normalize = true);
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn determCostInterconnects(bool const& set_max_cost = false, bool const& normalize = true);
 
