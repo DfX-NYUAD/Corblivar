@@ -61,40 +61,7 @@ class CorblivarCore {
 		void alignBlocks(CorblivarAlignmentReq const* req);
 		inline Block const* determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) const;
 		inline void shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const;
-
-		// alignment-requests helper: determine open requests covering block b
-		inline list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const {
-			list<CorblivarAlignmentReq const*> ret;
-
-			for (CorblivarAlignmentReq const& req : this->A) {
-
-				if (req.s_i->id == b->id || req.s_j->id == b->id) {
-
-					// only consider request which are still in
-					// process, i.e., not both blocks are placed yet
-					if (!req.s_i->placed || !req.s_j->placed) {
-
-						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-							cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << endl;
-						}
-
-						ret.push_back(&req);
-					}
-				}
-			}
-
-			// requests w/ placed blocks are considered first; eases handling
-			// of alignment requests such that blocks ready for alignment are
-			// placed/aligned first
-			ret.sort(
-				// lambda expression
-				[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
-					return (req1->s_i->placed || req1->s_j->placed) && (!req2->s_i->placed && !req2->s_j->placed);
-				}
-			);
-
-			return ret;
-		}
+		list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit
 	public:
