@@ -317,6 +317,7 @@ void CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	Block const* shift_block;
 	Block const* fixed_block;
+	int shift_block_tuple;
 	CorblivarDie* die_shift_block;
 	vector<Block const*> shift_block_relev_blocks;
 
@@ -362,20 +363,45 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// retrieve related die pointer
 		die_shift_block = &this->dies[shift_block->layer];
 
+		// determine related CBL tuple; may differ from die's pointer pi (if
+		// blocks are on same die and shift block != current block)
+		if (shift_block-> layer == fixed_block->layer && shift_block->id != die_shift_block->getCurrentBlock()->id) {
+
+			// dummy value, -1 to indicate error if no other tuple is found
+			shift_block_tuple = -1;
+
+			// determine related tuple index from die's CBL
+			for (unsigned i = 0; i < die_shift_block->getCBL().size(); i++) {
+
+				if (die_shift_block->getBlock(i)->id == shift_block->id) {
+					shift_block_tuple = i;
+					break;
+				}
+			}
+
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				cout << "DBG_ALIGNMENT>     Shift block " << shift_block-> id << " : die=" << die_shift_block->id << ", tuple=" << shift_block_tuple << endl;
+			}
+		}
+		// usually the tuple is given by the related die pointer
+		else {
+			shift_block_tuple = die_shift_block->pi;
+		}
+
 		// pop relevant blocks from related placement stack
-		shift_block_relev_blocks = die_shift_block->popRelevantBlocks();
+		shift_block_relev_blocks = die_shift_block->popRelevantBlocks(shift_block_tuple);
 
 		// horizontal placement
-		if (die_shift_block->getDirection(die_shift_block->pi) == Direction::HORIZONTAL) {
+		if (die_shift_block->getDirection(shift_block_tuple) == Direction::HORIZONTAL) {
 
 			// first, determine block's y-coordinates
-			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
 			this->shiftBlock(Direction::VERTICAL, req, shift_block);
 
 			// second, determine block's x-coordinates (depends on y-coord)
-			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks);
 
 			// perform shift in x-dir, if required and possible
 			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
@@ -384,20 +410,20 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		else {
 
 			// first, determine block's x-coordinates
-			die_shift_block->determCurrentBlockCoords(Coordinate::X, shift_block_relev_blocks);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks);
 
 			// perform shift in x-dir, if required and possible
 			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
 
 			// second, determine block's y-coordinates (depends on x-coord)
-			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
 			this->shiftBlock(Direction::VERTICAL, req, shift_block);
 		}
 
 		// update placement stacks
-		die_shift_block->updatePlacementStacks(shift_block_relev_blocks);
+		die_shift_block->updatePlacementStacks(shift_block_tuple, shift_block_relev_blocks);
 
 		// mark shifted block as placed
 		shift_block->placed = true;
