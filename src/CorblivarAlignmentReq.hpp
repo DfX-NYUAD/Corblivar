@@ -68,10 +68,10 @@ class CorblivarAlignmentReq {
 		}
 
 		inline bool range_x() const {
-			return (this->type_x == CorblivarAlignmentReq::Type::RANGE);
+			return (this->type_x == CorblivarAlignmentReq::Type::RANGE && this->offset_range_x != 0.0);
 		}
 		inline bool range_y() const {
-			return (this->type_y == CorblivarAlignmentReq::Type::RANGE);
+			return (this->type_y == CorblivarAlignmentReq::Type::RANGE && this->offset_range_y != 0.0);
 		}
 		inline bool offset_x() const {
 			return (this->type_x == CorblivarAlignmentReq::Type::OFFSET);
