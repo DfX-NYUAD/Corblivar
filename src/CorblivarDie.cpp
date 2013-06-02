@@ -316,7 +316,12 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, vector<Bloc
 	}
 }
 
-// TODO consider alignment requests; perform packing such that alignment is not undermined
+// note that packing may undermine alignment requests; for fixed-offset requests, this is
+// more likely to happen than for range-based request
+// (TODO) perform packing such that fixed-offset request are enabled/maintained;
+// considering that the SA cost optimization covers any alignment mismatch, such
+// additional checks for each block / parallel processing of affected dies seems too
+// expansive
 void CorblivarDie::performPacking(Direction const& dir) {
 	list<Block const*> blocks;
 	list<Block const*>::iterator i1;
