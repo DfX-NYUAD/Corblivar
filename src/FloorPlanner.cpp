@@ -512,7 +512,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	IO::writeTempSchedule(*this);
 
 	// generate floorplan plots
-	IO::writeFloorplanGP(*this);
+	IO::writeFloorplanGP(*this, corb.A);
 
 	// generate Corblivar data if solution file is used as output
 	if (handle_corblivar && this->solution_out.is_open()) {

@@ -18,6 +18,7 @@
 // forward declarations, if any
 class FloorPlanner;
 class CorblivarCore;
+class CorblivarAlignmentReq;
 
 class IO {
 	// debugging code switch (private)
@@ -40,7 +41,7 @@ class IO {
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseNets(FloorPlanner& fp);
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
-		static void writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix = "");
+		static void writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix = "");
 		static void writeHotSpotFiles(FloorPlanner const& fp);
 		static void writePowerThermalMaps(FloorPlanner const& fp);
 		static void writeTempSchedule(FloorPlanner const& fp);

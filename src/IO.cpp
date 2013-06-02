@@ -1360,12 +1360,14 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
+void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
 	int block_id;
 	double ratio_inv;
 	int tics;
+	Rect alignment_intersect;
+	string alignment_color;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -1429,6 +1431,89 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, string const& file_suffix) {
 			gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.conf_outline_x;
 			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.conf_outline_y;
 			gp_out << " font \"Gill Sans,4\"" << endl;
+		}
+
+		// check alignment fullfillment
+		for (Block const& cur_block : fp.blocks) {
+
+			if (cur_block.layer != cur_layer) {
+				continue;
+			}
+
+			// for each alignment request defined for the block; draw the
+			// related intersection/offset to illustrate block alignment
+			for (CorblivarAlignmentReq const& req :  alignment) {
+
+				if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
+
+					// determine the given blocks' intersection
+					alignment_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
+					// standard color for alignment rectangle; for
+					// fullfiled alignment, green-ish color
+					alignment_color = "#00A000";
+
+					// a range is defined for one/two dimensions,
+					// i.e., the blocks should overlap somehow
+					if (req.range_x() || req.range_y()) {
+
+						// in case the alignment is not fulfilled
+						// at all, ignore it for illustration
+						if (alignment_intersect.w == 0.0 && alignment_intersect.h == 0.0) {
+							continue;
+						}
+
+						// in case the blocks' intersection
+						// doesn't cover both dimensions, extend
+						// it such that it's strechted across the
+						// blocks for illustration purposes
+						//
+						// extend in horizontal direction
+						if (alignment_intersect.w == 0) {
+
+							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
+							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
+
+							// alignment not fulfilled,
+							// red-ish color
+							if (req.range_x()) {
+								alignment_color = "#A00000";
+							}
+						}
+						// extend in vertical direction
+						else if (alignment_intersect.h == 0) {
+
+							alignment_intersect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
+							alignment_intersect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+
+							// alignment not fulfilled,
+							// red-ish color
+							if (req.range_y()) {
+								alignment_color = "#A00000";
+							}
+						}
+					}
+
+					// TODO
+					// an offset is defined for one/two dimensions,
+					// i.e., the blocks' lower-left corners should hae
+					// an fixed distance
+					// if (req.offset_x() || req.offset_y()) {
+					// }
+
+					// draw alignment rectangle, independent of layer,
+					// i.e., will be given on all affected layers
+					gp_out << "set obj " << block_id;
+					block_id++;
+
+					// block rectangles
+					gp_out << " rect";
+					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
+					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
+					gp_out << " fillstyle empty border lc rgb \"" << alignment_color << "\" lw 2";
+					gp_out << endl;
+				}
+			}
 		}
 
 		// file footer
