@@ -320,8 +320,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	CorblivarDie* die_shift_block;
 	vector<Block const*> shift_block_relev_blocks;
 
-	// TODO
-	// scenario I: both blocks are yet unplaced
+	// TODO scenario I: both blocks are yet unplaced
 	if (!req->s_i->placed && !req->s_j->placed) {
 
 		// TODO drop
@@ -430,8 +429,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 				shift_block = req->s_j;
 			}
 		}
-		// alignment offsets
-		// TODO
+		// TODO alignment offsets
 		else if (req->offset_x()) {
 
 			// TODO drop
@@ -465,8 +463,7 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 				shift_block = req->s_j;
 			}
 		}
-		// alignment offsets
-		// TODO
+		// TODO alignment offsets
 		else if (req->offset_y()) {
 
 			// TODO drop
@@ -546,7 +543,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 		// for shifting offset, we need to ensure that the blocks have an exact
 		// offset w.r.t. their lower left corners
-		// TODO
+		// TODO offsets
 		else if (req->offset_x()) {
 		}
 
@@ -600,7 +597,7 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 		// for shifting offset, we need to ensure that the blocks have an exact
 		// offset w.r.t. their lower left corners
-		// TODO
+		// TODO offsets
 		else if (req->offset_y()) {
 		}
 

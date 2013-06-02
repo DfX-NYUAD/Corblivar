@@ -36,6 +36,22 @@ int main (int argc, char** argv) {
 	// init thermal analyzer, only reasonable after parsing config file
 	fp.initThermalAnalyzer();
 
+	// TODO drop; test data for alignment handling
+	corb.A.push_back(CorblivarAlignmentReq(0, &fp.getBlocks()[5], &fp.getBlocks()[1],
+				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE, 100.0));
+	corb.A.push_back(CorblivarAlignmentReq(1, &fp.getBlocks()[5], &fp.getBlocks()[8],
+				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE, 100.0));
+	//corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1],
+	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+	//corb.A.push_back(CorblivarAlignmentReq(3, &fp.getBlocks()[8], &fp.getBlocks()[2],
+	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+	//corb.A.push_back(CorblivarAlignmentReq(4, &fp.getBlocks()[8], &fp.getBlocks()[3],
+	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+	//corb.A.push_back(CorblivarAlignmentReq(5, &fp.getBlocks()[8], &fp.getBlocks()[4],
+	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+	//corb.A.push_back(CorblivarAlignmentReq(6, &fp.getBlocks()[7], &fp.getBlocks()[1],
+	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+
 	// non-regular run; read in solution file
 	// (TODO) adapt if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
@@ -50,22 +66,6 @@ int main (int argc, char** argv) {
 
 		// assume read in data as currently best solution
 		corb.storeBestCBLs();
-
-		// TODO drop; test data for alignment handling
-		corb.A.push_back(CorblivarAlignmentReq(0, &fp.getBlocks()[5], &fp.getBlocks()[1],
-					CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		corb.A.push_back(CorblivarAlignmentReq(1, &fp.getBlocks()[5], &fp.getBlocks()[8],
-					CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		//corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1],
-		//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		//corb.A.push_back(CorblivarAlignmentReq(3, &fp.getBlocks()[8], &fp.getBlocks()[2],
-		//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		//corb.A.push_back(CorblivarAlignmentReq(4, &fp.getBlocks()[8], &fp.getBlocks()[3],
-		//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		//corb.A.push_back(CorblivarAlignmentReq(5, &fp.getBlocks()[8], &fp.getBlocks()[4],
-		//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
-		//corb.A.push_back(CorblivarAlignmentReq(6, &fp.getBlocks()[7], &fp.getBlocks()[1],
-		//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
 
 		// overall cost is not determined; cost cannot be determined since no
 		// normalization during SA search was performed

@@ -1341,8 +1341,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				cost += req.offset_range_x - blocks_intersect.w;
 			}
 		}
-		// alignment offset
-		// TODO
+		// TODO alignment offset
 		else if (req.offset_x()) {
 		}
 
@@ -1356,8 +1355,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				cost += req.offset_range_y - blocks_intersect.h;
 			}
 		}
-		// alignment offset
-		// TODO
+		// TODO alignment offset
 		else if (req.offset_y()) {
 		}
 	}
