@@ -1363,7 +1363,6 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix) {
 	ofstream gp_out;
 	int cur_layer;
-	int block_id;
 	double ratio_inv;
 	int tics;
 	Rect alignment_intersect;
@@ -1379,7 +1378,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 	ratio_inv = 1.0 / fp.die_AR;
 	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
-	block_id = 1;
 
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
@@ -1415,12 +1413,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 				continue;
 			}
 
-			// GP requires numerical ids starting w/ q
-			gp_out << "set obj " << block_id;
-			block_id++;
-
 			// block rectangles
-			gp_out << " rect";
+			gp_out << "set obj rect";
 			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
 			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
 			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
@@ -1503,11 +1497,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 					// draw alignment rectangle, independent of layer,
 					// i.e., will be given on all affected layers
-					gp_out << "set obj " << block_id;
-					block_id++;
-
-					// block rectangles
-					gp_out << " rect";
+					gp_out << "set obj rect";
 					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
 					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
 					gp_out << " fillstyle empty border lc rgb \"" << alignment_color << "\" lw 2";
