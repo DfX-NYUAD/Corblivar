@@ -247,9 +247,11 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block con
 	}
 }
 
-void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> relev_blocks_stack) const {
+void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> relev_blocks_stack, bool shifted) const {
 	double x, y;
 	unsigned b;
+	stack<Block const*> Hi, Vi;
+	Block const* stack_block;
 
 	// current block
 	Block const* cur_block = this->getBlock(tuple);
@@ -291,6 +293,29 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 				if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
 					// determine right front
 					x = max(x, b->bb.ur.x);
+				}
+			}
+
+			// additional check for shifted blocks; the x-coordinate of a
+			// shifted block may be furthermore dependend on corner blocks in
+			// vertical (shifting) direction; thus we also need to check the
+			// stack Vi
+			if (shifted) {
+
+				// check against all blocks; use a local stack copy
+				Vi = this->Vi;
+
+				while (!Vi.empty()) {
+
+					// current block on stack
+					stack_block = Vi.top();
+					Vi.pop();
+
+					// determine right front, consider only
+					// vertically intersecting blocks
+					if (Rect::rectsIntersectVertical(cur_block->bb, stack_block->bb)) {
+						x = max(x, stack_block->bb.ur.x);
+					}
 				}
 			}
 		}
@@ -335,6 +360,29 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 				if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
 					// determine upper front
 					y = max(y, b->bb.ur.y);
+				}
+			}
+
+			// additional check for shifted blocks; the y-coordinate of a
+			// shifted block may be furthermore dependend on corner blocks in
+			// horizontal (shifting) direction; thus we also need to check the
+			// stack Hi
+			if (shifted) {
+
+				// check against all blocks; use a local stack copy
+				Hi = this->Hi;
+
+				while (!Hi.empty()) {
+
+					// current block on stack
+					stack_block = Hi.top();
+					Hi.pop();
+
+					// determine upper front, consider only
+					// horizontally intersecting blocks
+					if (Rect::rectsIntersectHorizontal(cur_block->bb, stack_block->bb)) {
+						y = max(y, stack_block->bb.ur.y);
+					}
 				}
 			}
 		}

@@ -417,8 +417,9 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			// perform shift in y-dir, if required and possible
 			this->shiftBlock(Direction::VERTICAL, req, shift_block);
 
-			// second, determine block's x-coordinates (depends on y-coord)
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks);
+			// second, determine block's x-coordinates (depends on y-coord);
+			// also, consider relevant blocks on stack Vi
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks, true);
 
 			// perform shift in x-dir, if required and possible
 			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
@@ -437,8 +438,9 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			// perform shift in x-dir, if required and possible
 			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
 
-			// second, determine block's y-coordinates (depends on x-coord)
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
+			// second, determine block's y-coordinates (depends on x-coord);
+			// also, consider relevant blocks on stack Hi
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks, true);
 
 			// perform shift in y-dir, if required and possible
 			this->shiftBlock(Direction::VERTICAL, req, shift_block);

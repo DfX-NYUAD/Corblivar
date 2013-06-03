@@ -81,7 +81,7 @@ class CorblivarDie {
 		void placeCurrentBlock();
 
 		// layout-generation helper: determine coordinates of block in process
-		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> relev_blocks_stack) const;
+		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> relev_blocks_stack, bool shifted = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
 		vector<Block const*> inline popRelevantBlocks(unsigned const& tuple);
