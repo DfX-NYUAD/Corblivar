@@ -24,6 +24,7 @@ class CorblivarCore {
 	private:
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_ALIGNMENT_REQ = false;
+		static constexpr bool DBG_VALID_LAYOUT = false;
 
 	// private data, functions
 	private:
@@ -87,7 +88,7 @@ class CorblivarCore {
 
 		// general operations
 		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
-		void generateLayout(bool const& perform_alignment, int const& packing_iterations);
+		bool generateLayout(bool const& perform_alignment, int const& packing_iterations);
 
 		// die getter
 		inline CorblivarDie& editDie(unsigned const& die) {

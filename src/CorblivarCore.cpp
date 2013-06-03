@@ -124,7 +124,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
-void CorblivarCore::generateLayout(bool const& perform_alignment, int const& packing_iterations) {
+bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& packing_iterations) {
 	Block const* cur_block;
 	Block const* other_block;
 	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
@@ -304,7 +304,13 @@ void CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 			}
 
 			// dbg: sanity check for valid layout
-			this->p->debugLayout();
+			if (CorblivarCore::DBG_VALID_LAYOUT) {
+
+				// if true, the layout is buggy, i.e., invalid
+				if (this->p->debugLayout()) {
+					return false;
+				}
+			}
 
 			// continue layout generation on next, yet unfinished die
 			loop = this->switchDie();
@@ -315,6 +321,8 @@ void CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 		cout << "DBG_CORE> ";
 		cout << "Done" << endl;
 	}
+
+	return true;
 }
 
 void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {

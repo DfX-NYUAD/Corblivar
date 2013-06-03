@@ -60,42 +60,41 @@ void CorblivarDie::placeCurrentBlock() {
 	cur_block->placed = true;
 
 	// placement stacks debugging
-	this->debugStacks();
+	if (CorblivarDie::DBG_STACKS) {
+		this->debugStacks();
+	}
 }
 
 void CorblivarDie::debugStacks() const {
 	Block const* cur_block = this->getCurrentBlock();
 
-	// debug logging
-	if (CorblivarDie::DBG_STACKS) {
-		cout << "DBG_CORB> ";
-		cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
-		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
-		cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
+	cout << "DBG_CORB> ";
+	cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
+	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
+	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
-		stack<Block const*> tmp_Hi = this->Hi;
-		cout << "DBG_CORB> stack Hi: ";
-		while (!tmp_Hi.empty()) {
-			if (tmp_Hi.size() > 1) {
-				cout << tmp_Hi.top()->id << ", ";
-			}
-			else {
-				cout << tmp_Hi.top()->id << endl;
-			}
-			tmp_Hi.pop();
+	stack<Block const*> tmp_Hi = this->Hi;
+	cout << "DBG_CORB> stack Hi: ";
+	while (!tmp_Hi.empty()) {
+		if (tmp_Hi.size() > 1) {
+			cout << tmp_Hi.top()->id << ", ";
 		}
+		else {
+			cout << tmp_Hi.top()->id << endl;
+		}
+		tmp_Hi.pop();
+	}
 
-		stack<Block const*> tmp_Vi = this->Vi;
-		cout << "DBG_CORB> stack Vi: ";
-		while (!tmp_Vi.empty()) {
-			if (tmp_Vi.size() > 1) {
-				cout << tmp_Vi.top()->id << ", ";
-			}
-			else {
-				cout << tmp_Vi.top()->id << endl;
-			}
-			tmp_Vi.pop();
+	stack<Block const*> tmp_Vi = this->Vi;
+	cout << "DBG_CORB> stack Vi: ";
+	while (!tmp_Vi.empty()) {
+		if (tmp_Vi.size() > 1) {
+			cout << tmp_Vi.top()->id << ", ";
 		}
+		else {
+			cout << tmp_Vi.top()->id << endl;
+		}
+		tmp_Vi.pop();
 	}
 }
 
@@ -103,28 +102,25 @@ bool CorblivarDie::debugLayout() const {
 	bool invalid = false;
 	bool flag_inner;
 
-	if (CorblivarDie::DBG_LAYOUT) {
+	// check blocks against each other for (faulty) overlaps
+	for (Block const* a : this->getCBL().S) {
 
-		// check blocks against each other for (faulty) overlaps
-		for (Block const* a : this->getCBL().S) {
+		flag_inner = false;
 
-			flag_inner = false;
+		for (Block const* b : this->getCBL().S) {
 
-			for (Block const* b : this->getCBL().S) {
+			// ignore in outer loop checked blocks; start inner loop
+			// after current block is self-checked
+			if (a->id == b->id) {
+				flag_inner = true;
+				continue;
+			}
 
-				// ignore in outer loop checked blocks; start inner loop
-				// after current block is self-checked
-				if (a->id == b->id) {
-					flag_inner = true;
-					continue;
-				}
+			// check for block overlaps
+			if (flag_inner && Rect::rectsIntersect(a->bb, b->bb)) {
+				cout << "DBG_LAYOUT> Invalid layout! die: " << this->id << "; overlapping blocks: " << a->id << ", " << b->id << endl;
 
-				// check for block overlaps
-				if (flag_inner && Rect::rectsIntersect(a->bb, b->bb)) {
-					cout << "DBG_CORB> Invalid layout! die: " << this->id << "; overlapping blocks: " << a->id << ", " << b->id << endl;
-
-					invalid = true;
-				}
+				invalid = true;
 			}
 		}
 	}

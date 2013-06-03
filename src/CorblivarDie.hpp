@@ -24,7 +24,6 @@ class CorblivarDie {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG_STACKS = false;
-		static constexpr bool DBG_LAYOUT = true;
 
 	// private data, functions
 	private:

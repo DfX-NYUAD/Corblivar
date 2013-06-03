@@ -41,6 +41,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	bool best_sol_found;
 	bool accept;
 	bool SA_phase_two, SA_phase_two_init;
+	bool valid_layout;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
@@ -100,8 +101,24 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 				prev_cost = cur_cost;
 
-				// generate layout
-				corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
+				// generate layout; also memorize whether layout is valid;
+				// note that this return value is only affect if
+				// CorblivarCore::DBG_VALID_LAYOUT is set
+				valid_layout = corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
+
+				// dbg invalid valid
+				if (!valid_layout) {
+
+					// generate invalid floorplan for dbg
+					IO::writeFloorplanGP(*this, corb.A, "invalid_layout");
+					// generate related Corblivar solution
+					if (this->solution_out.is_open()) {
+						this->solution_out << corb.CBLsString() << endl;
+						this->solution_out.close();
+					}
+					// abort further run
+					exit(1);
+				}
 
 				// evaluate layout, new cost
 				cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two);
