@@ -331,6 +331,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	int shift_block_tuple;
 	CorblivarDie* die_shift_block;
 	vector<Block const*> shift_block_relev_blocks;
+	bool block_shifted;
 
 	// TODO scenario I: both blocks are yet unplaced
 	if (!req->s_i->placed && !req->s_j->placed) {
@@ -415,11 +416,11 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
-			this->shiftBlock(Direction::VERTICAL, req, shift_block);
+			block_shifted = this->shiftBlock(Direction::VERTICAL, req, shift_block);
 
 			// second, determine block's x-coordinates (depends on y-coord);
 			// also, consider relevant blocks on stack Vi
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks, true);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks, block_shifted);
 
 			// perform shift in x-dir, if required and possible
 			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
@@ -436,18 +437,26 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks);
 
 			// perform shift in x-dir, if required and possible
-			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
+			block_shifted = this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
 
 			// second, determine block's y-coordinates (depends on x-coord);
 			// also, consider relevant blocks on stack Hi
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks, true);
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks, block_shifted);
 
 			// perform shift in y-dir, if required and possible
 			this->shiftBlock(Direction::VERTICAL, req, shift_block);
 		}
 
-		// update placement stacks
-		die_shift_block->updatePlacementStacks(shift_block_tuple, shift_block_relev_blocks);
+		// if the block was shifted, we need to rebuild the placement stacks since
+		// the corner-block front in both dimensions may be different now
+		if (block_shifted) {
+			// TODO die_shift_block->rebuildPlacementStacks();
+			die_shift_block->updatePlacementStacks(shift_block_tuple, shift_block_relev_blocks);
+		}
+		// if the block was not shifted, we can simply update the placement stacks
+		else {
+			die_shift_block->updatePlacementStacks(shift_block_tuple, shift_block_relev_blocks);
+		}
 
 		// mark shifted block as placed
 		shift_block->placed = true;
@@ -538,11 +547,15 @@ Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarA
 	return shift_block;
 }
 
-void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const {
+bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const {
 	Block const* reference_block;
 	double overlap_x, overlap_y;
 	double shift_x, shift_y;
 	double range_x, range_y;
+	bool shifted;
+
+	// flag for monitoring shifting itself
+	shifted = false;
 
 	// first, determine reference block
 	if (shift_block->id == req->s_i->id) {
@@ -571,6 +584,9 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 			// shift left block to the right
 			if (overlap_x < range_x) {
+
+				// memorize that shifting was required
+				shifted = true;
 
 				// determine required additional shifting amount
 				shift_x = range_x - overlap_x;
@@ -601,11 +617,6 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// TODO offsets
 		else if (req->offset_x()) {
 		}
-
-		// alignment is not defined, i.e., not required
-		else {
-			return;
-		}
 	}
 
 	// shift in vertical direction
@@ -625,6 +636,9 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 
 			// shift lower block upwards
 			if (overlap_y < range_y) {
+
+				// memorize that shifting was required
+				shifted = true;
 
 				// determine required additional shifting amount
 				shift_y = range_y - overlap_y;
@@ -655,12 +669,9 @@ void CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 		// TODO offsets
 		else if (req->offset_y()) {
 		}
-
-		// alignment is not defined, i.e., not required
-		else {
-			return;
-		}
 	}
+
+	return shifted;
 }
 
 list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
