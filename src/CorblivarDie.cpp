@@ -19,10 +19,10 @@ void CorblivarDie::placeCurrentBlock() {
 	vector<Block const*> relevBlocks;
 
 	// current tuple; only mutable block parameters can be edited
-	Block const* cur_block = this->getBlock(this->pi);
+	Block const* cur_block = this->getCurrentBlock();
 
 	// sanity check for empty dies
-	if (this->CBL.empty()) {
+	if (this->getCBL().empty()) {
 		this->done = true;
 		return;
 	}
@@ -64,12 +64,12 @@ void CorblivarDie::placeCurrentBlock() {
 }
 
 void CorblivarDie::debugStacks() const {
-	Block const* cur_block = this->getBlock(this->pi);
+	Block const* cur_block = this->getCurrentBlock();
 
 	// debug logging
 	if (CorblivarDie::DBG) {
 		cout << "DBG_CORB> ";
-		cout << "Processed (placed) CBL tuple " << this->CBL.tupleString(this->pi) << " on die " << this->id << ": ";
+		cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
 		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 		cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
@@ -332,12 +332,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	double block_front_checked;
 
 	// sanity check for empty dies
-	if (this->CBL.empty()) {
+	if (this->getCBL().empty()) {
 		return;
 	}
 
 	// store blocks in separate list, for subsequent sorting
-	for (Block const* block : this->CBL.S) {
+	for (Block const* block : this->getCBL().S) {
 		blocks.push_back(move(block));
 	}
 
