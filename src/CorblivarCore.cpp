@@ -406,6 +406,11 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// horizontal placement
 		if (die_shift_block->getDirection(shift_block_tuple) == Direction::HORIZONTAL) {
 
+			// dbg placement direction
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				cout << "DBG_ALIGNMENT>     Block is to be placed horizontally" << endl;
+			}
+
 			// first, determine block's y-coordinates
 			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
 
@@ -420,6 +425,11 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		}
 		// vertical placement
 		else {
+
+			// dbg placement direction
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				cout << "DBG_ALIGNMENT>     Block is to be placed vertically" << endl;
+			}
 
 			// first, determine block's x-coordinates
 			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks);
@@ -439,6 +449,11 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 		// mark shifted block as placed
 		shift_block->placed = true;
+
+		// placement stacks debugging
+		if (CorblivarDie::DBG_STACKS) {
+			die_shift_block->debugStacks();
+		}
 	}
 }
 
