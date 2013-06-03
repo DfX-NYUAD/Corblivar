@@ -368,7 +368,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 		// determine related CBL tuple; may differ from die's pointer pi (if
 		// blocks are on same die and shift block != current block)
-		if (shift_block-> layer == fixed_block->layer && shift_block->id != die_shift_block->getCurrentBlock()->id) {
+		if (shift_block->layer == fixed_block->layer && shift_block->id != die_shift_block->getCurrentBlock()->id) {
 
 			// dummy value, -1 to indicate error if no other tuple is found
 			shift_block_tuple = -1;
@@ -383,7 +383,8 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			}
 
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Shift block " << shift_block-> id << " : die=" << die_shift_block->id << ", tuple=" << shift_block_tuple << endl;
+				cout << "DBG_ALIGNMENT>     Shift block is not current block; " << shift_block->id << " :";
+				cout << " die=" << die_shift_block->id << ", tuple=" << shift_block_tuple << endl;
 			}
 		}
 		// usually the tuple is given by the related die pointer

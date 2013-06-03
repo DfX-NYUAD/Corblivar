@@ -97,6 +97,8 @@ class CorblivarCore {
 			return this->dies[die];
 		};
 
+		// abstract layout-modification operations
+		//
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 
 			// pre-update layer assignments if swapping across dies
@@ -109,12 +111,27 @@ class CorblivarCore {
 			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
 			if (DBG) {
-				cout << "DBG_CORE> swapBlocks; d1=" << die1 << ", d2=" << die2;
+				cout << "DBG_CORE> swapBlocks;";
+				cout << " d1=" << die1;
 				cout << ", s1=" << this->dies[die1].CBL.S[tuple1]->id;
-				cout << ", s2=" << this->dies[die2].CBL.S[tuple2]->id << endl;
+				cout << ", d2=" << die2;
+				cout << ", s2=" << this->dies[die2].CBL.S[tuple2]->id;
+				cout << endl;
 			}
 		};
+
 		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
+
+			if (DBG) {
+				cout << "DBG_CORE> moveTuples;";
+				cout << " d1=" << die1;
+				cout << ", t1=" << tuple1;
+				cout << " (s1=" << this->dies[die1].CBL.S[tuple1]->id << ")";
+				cout << ", d2=" << die2;
+				cout << ", t2=" << tuple2;
+				cout << " (s2=" << this->dies[die2].CBL.S[tuple2]->id << ")";
+				cout << endl;
+			}
 
 			// move within same die: perform swaps
 			if (die1 == die2) {
@@ -137,11 +154,8 @@ class CorblivarCore {
 				this->dies[die1].CBL.L.erase(this->dies[die1].CBL.L.begin() + tuple1);
 				this->dies[die1].CBL.T.erase(this->dies[die1].CBL.T.begin() + tuple1);
 			}
-
-			if (DBG) {
-				cout << "DBG_CORE> moveTuples; d1=" << die1 << ", d2=" << die2 << ", t1=" << tuple1 << ", t2=" << tuple2 << endl;
-			}
 		};
+
 		inline void switchInsertionDirection(int const& die, int const& tuple) {
 			if (this->dies[die].CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die].CBL.L[tuple] = Direction::HORIZONTAL;
@@ -151,14 +165,24 @@ class CorblivarCore {
 			}
 
 			if (DBG) {
-				cout << "DBG_CORE> switchInsertionDirection; d1=" << die << ", t1=" << tuple << endl;
+				cout << "DBG_CORE> switchInsertionDirection;";
+				cout << " d1=" << die;
+				cout << ", t1=" << tuple;
+				cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
+				cout << endl;
 			}
 		};
+
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) {
 			this->dies[die].CBL.T[tuple] = juncts;
 
 			if (DBG) {
-				cout << "DBG_CORE> switchTupleJunctions; d1=" << die << ", t1=" << tuple << ", juncts=" << juncts << endl;
+				cout << "DBG_CORE> switchTupleJunctions;";
+				cout << " d1=" << die;
+				cout << ", t1=" << tuple;
+				cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
+				cout << ", juncts=" << juncts;
+				cout << endl;
 			}
 		};
 
