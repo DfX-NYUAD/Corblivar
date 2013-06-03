@@ -971,7 +971,7 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 			corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 		}
 		else if (mode == FloorPlanner::OP_SWAP_BLOCKS) {
-			corb.swapBlocks(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
+			corb.swapBlocks(this->last_op_die1, this->last_op_die2, this->last_op_tuple1, this->last_op_tuple2);
 		}
 	}
 
