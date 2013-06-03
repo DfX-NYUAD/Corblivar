@@ -303,6 +303,9 @@ void CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 				this->p->performPacking(Direction::VERTICAL);
 			}
 
+			// dbg: sanity check for valid layout
+			this->p->debugLayout();
+
 			// continue layout generation on next, yet unfinished die
 			loop = this->switchDie();
 		}

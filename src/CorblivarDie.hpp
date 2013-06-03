@@ -23,7 +23,8 @@ class Block;
 class CorblivarDie {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG_STACKS = false;
+		static constexpr bool DBG_LAYOUT = true;
 
 	// private data, functions
 	private:
@@ -89,6 +90,9 @@ class CorblivarDie {
 		void inline updatePlacementStacks(unsigned const& tuple, vector<Block const*> relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
 		void inline debugStacks() const;
+		// layout-generation helper: sanity check and debugging for valid layout,
+		// i.e., overlap-free block arrangement
+		bool debugLayout() const;
 
 		// layout generation: packing, to be performed as post-placement operation
 		void performPacking(Direction const& dir);

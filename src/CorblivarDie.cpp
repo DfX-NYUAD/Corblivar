@@ -67,7 +67,7 @@ void CorblivarDie::debugStacks() const {
 	Block const* cur_block = this->getCurrentBlock();
 
 	// debug logging
-	if (CorblivarDie::DBG) {
+	if (CorblivarDie::DBG_STACKS) {
 		cout << "DBG_CORB> ";
 		cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
 		cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
@@ -97,6 +97,39 @@ void CorblivarDie::debugStacks() const {
 			tmp_Vi.pop();
 		}
 	}
+}
+
+bool CorblivarDie::debugLayout() const {
+	bool invalid = false;
+	bool flag_inner;
+
+	if (CorblivarDie::DBG_LAYOUT) {
+
+		// check blocks against each other for (faulty) overlaps
+		for (Block const* a : this->getCBL().S) {
+
+			flag_inner = false;
+
+			for (Block const* b : this->getCBL().S) {
+
+				// ignore in outer loop checked blocks; start inner loop
+				// after current block is self-checked
+				if (a->id == b->id) {
+					flag_inner = true;
+					continue;
+				}
+
+				// check for block overlaps
+				if (flag_inner && Rect::rectsIntersect(a->bb, b->bb)) {
+					cout << "DBG_CORB> Invalid layout! die: " << this->id << "; overlapping blocks: " << a->id << ", " << b->id << endl;
+
+					invalid = true;
+				}
+			}
+		}
+	}
+
+	return invalid;
 }
 
 vector<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
