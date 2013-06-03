@@ -1366,7 +1366,9 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	double ratio_inv;
 	int tics;
 	Rect alignment_intersect;
-	string alignment_color;
+	bool req_x_fulfilled, req_y_fulfilled;
+	string alignment_color_fulfilled;
+	string alignment_color_failed;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -1376,8 +1378,14 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			cout << "Generating GP scripts for floorplan ..." << endl;
 	}
 
+	// GP parameters
 	ratio_inv = 1.0 / fp.die_AR;
 	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
+
+	// color for alignment rects; for fullfiled alignment, green-ish color
+	alignment_color_fulfilled = "#00A000";
+	// color for alignment rects; for failed alignment, red-ish color
+	alignment_color_failed = "#A00000";
 
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
@@ -1440,21 +1448,37 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 				if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
 
+					// init alignment flags
+					req_x_fulfilled = req_y_fulfilled = true;
+
 					// determine the given blocks' intersection
 					alignment_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
-
-					// standard color for alignment rectangle; for
-					// fullfiled alignment, green-ish color
-					alignment_color = "#00A000";
 
 					// a range is defined for one/two dimensions,
 					// i.e., the blocks should overlap somehow
 					if (req.range_x() || req.range_y()) {
 
 						// in case the alignment is not fulfilled
-						// at all, ignore it for illustration
+						// at all, construct rect w/ related
+						// blocks' bounding box
 						if (alignment_intersect.w == 0.0 && alignment_intersect.h == 0.0) {
-							continue;
+
+							// determine blocks' bounding box
+							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
+							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
+							alignment_intersect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
+							alignment_intersect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+
+							// annotate failed horizontal
+							// alignment
+							if (req.range_x()) {
+								req_x_fulfilled = false;
+							}
+							// annotate failed vertical
+							// alignment
+							if (req.range_y()) {
+								req_y_fulfilled = false;
+							}
 						}
 
 						// in case the blocks' intersection
@@ -1468,10 +1492,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
 							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
 
-							// alignment not fulfilled,
-							// red-ish color
+							// annotate failed horizontal
+							// alignment
 							if (req.range_x()) {
-								alignment_color = "#A00000";
+								req_x_fulfilled = false;
 							}
 						}
 						// extend in vertical direction
@@ -1480,10 +1504,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							alignment_intersect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
 							alignment_intersect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
 
-							// alignment not fulfilled,
-							// red-ish color
+							// annotate failed vertical
+							// alignment
 							if (req.range_y()) {
-								alignment_color = "#A00000";
+								req_y_fulfilled = false;
 							}
 						}
 					}
@@ -1495,12 +1519,65 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					// if (req.offset_x() || req.offset_y()) {
 					// }
 
-					// draw alignment rectangle, independent of layer,
-					// i.e., will be given on all affected layers
-					gp_out << "set obj rect";
+					// construct the alignment rectangle w/ separate,
+					// possibly different color-coded lines, in order
+					// to represent particular failed/fulfilled
+					// alignment requests
+
+					// lower horizontal line
+					gp_out << "set arrow";
 					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
+					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
+					gp_out << " nohead lc rgb";
+					if (req_x_fulfilled) {
+						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else {
+						gp_out << " \"" << alignment_color_failed << "\"";
+					}
+					gp_out << " lw 3";
+					gp_out << endl;
+
+					// upper horizontal line
+					gp_out << "set arrow";
+					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
 					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
-					gp_out << " fillstyle empty border lc rgb \"" << alignment_color << "\" lw 2";
+					gp_out << " nohead lc rgb";
+					if (req_x_fulfilled) {
+						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else {
+						gp_out << " \"" << alignment_color_failed << "\"";
+					}
+					gp_out << " lw 3";
+					gp_out << endl;
+
+					// left vertical line
+					gp_out << "set arrow";
+					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
+					gp_out << " to " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
+					gp_out << " nohead lc rgb";
+					if (req_y_fulfilled) {
+						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else {
+						gp_out << " \"" << alignment_color_failed << "\"";
+					}
+					gp_out << " lw 3";
+					gp_out << endl;
+
+					// righ vertical line
+					gp_out << "set arrow";
+					gp_out << " from " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
+					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
+					gp_out << " nohead lc rgb";
+					if (req_y_fulfilled) {
+						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else {
+						gp_out << " \"" << alignment_color_failed << "\"";
+					}
+					gp_out << " lw 3";
 					gp_out << endl;
 				}
 			}
