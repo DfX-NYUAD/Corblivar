@@ -164,7 +164,7 @@ vector<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
 	return ret;
 }
 
-void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block const*> relev_blocks_stack) {
+void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block const*> const& relev_blocks_stack) {
 	bool add_to_stack;
 	list<Block const*> blocks_add_to_stack;
 
@@ -247,7 +247,7 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block con
 	}
 }
 
-void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> relev_blocks_stack, bool shifted) const {
+void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> const& relev_blocks_stack, bool shifted) const {
 	double x, y;
 	unsigned b;
 	stack<Block const*> Hi, Vi;
