@@ -19,8 +19,6 @@
 #include <array>
 #include <vector>
 #include <list>
-#include <deque>
-#include <stack>
 #include <utility>
 #include <algorithm>
 // (TODO) replace w/ chrono

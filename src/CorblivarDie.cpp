@@ -16,7 +16,7 @@
 #include "Math.hpp"
 
 void CorblivarDie::placeCurrentBlock() {
-	vector<Block const*> relevBlocks;
+	list<Block const*> relevBlocks;
 
 	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getCurrentBlock();
@@ -65,36 +65,35 @@ void CorblivarDie::placeCurrentBlock() {
 	}
 }
 
-void CorblivarDie::debugStacks() const {
+void CorblivarDie::debugStacks() {
 	Block const* cur_block = this->getCurrentBlock();
+	list<Block const*>::iterator iter;
 
 	cout << "DBG_CORB> ";
 	cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
-	stack<Block const*> tmp_Hi = this->Hi;
 	cout << "DBG_CORB> stack Hi: ";
-	while (!tmp_Hi.empty()) {
-		if (tmp_Hi.size() > 1) {
-			cout << tmp_Hi.top()->id << ", ";
+	for (iter = this->Hi.begin(); iter != this->Hi.end(); ++iter) {
+
+		if (*iter != this->Hi.back()) {
+			cout << (*iter)->id << ", ";
 		}
 		else {
-			cout << tmp_Hi.top()->id << endl;
+			cout << (*iter)->id << endl;
 		}
-		tmp_Hi.pop();
 	}
 
-	stack<Block const*> tmp_Vi = this->Vi;
 	cout << "DBG_CORB> stack Vi: ";
-	while (!tmp_Vi.empty()) {
-		if (tmp_Vi.size() > 1) {
-			cout << tmp_Vi.top()->id << ", ";
+	for (iter = this->Vi.begin(); iter != this->Vi.end(); ++iter) {
+
+		if (*iter != this->Vi.back()) {
+			cout << (*iter)->id << ", ";
 		}
 		else {
-			cout << tmp_Vi.top()->id << endl;
+			cout << (*iter)->id << endl;
 		}
-		tmp_Vi.pop();
 	}
 }
 
@@ -128,22 +127,21 @@ bool CorblivarDie::debugLayout() const {
 	return invalid;
 }
 
-vector<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
-	vector<Block const*> ret;
-	unsigned relevBlocksCount;
+list<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
+	list<Block const*> ret;
+	unsigned blocks_count;
 
 	// horizontal placement; consider stack Hi
 	if (this->getDirection(tuple) == Direction::HORIZONTAL) {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		relevBlocksCount = min(this->getJunctions(tuple) + 1, this->Hi.size());
-		ret.reserve(relevBlocksCount);
+		blocks_count = min(this->getJunctions(tuple) + 1, this->Hi.size());
 
-		// pop relevant blocks into vector for further handling
-		while (relevBlocksCount > ret.size()) {
-			ret.push_back(move(this->Hi.top()));
-			this->Hi.pop();
+		// pop relevant blocks from stack into return list
+		while (blocks_count > ret.size()) {
+			ret.push_back(move(this->Hi.front()));
+			this->Hi.pop_front();
 		}
 	}
 	// vertical placement; consider stack Vi
@@ -151,22 +149,21 @@ vector<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		relevBlocksCount = min(this->getJunctions(tuple) + 1, this->Vi.size());
-		ret.reserve(relevBlocksCount);
+		blocks_count = min(this->getJunctions(tuple) + 1, this->Vi.size());
 
-		// pop relevant blocks into vector for further handling
-		while (relevBlocksCount > ret.size()) {
-			ret.push_back(move(this->Vi.top()));
-			this->Vi.pop();
+		// pop relevant blocks from stack into return list
+		while (blocks_count > ret.size()) {
+			ret.push_back(move(this->Vi.front()));
+			this->Vi.pop_front();
 		}
 	}
 
 	return ret;
 }
 
-void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block const*> const& relev_blocks_stack) {
+void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
 	bool add_to_stack;
-	list<Block const*> blocks_add_to_stack;
+	Block const* b;
 
 	// current block
 	Block const* cur_block = this->getBlock(tuple);
@@ -187,26 +184,25 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block con
 		}
 		// actual stack update
 		if (add_to_stack) {
-			this->Vi.push(cur_block);
+			this->Vi.push_front(cur_block);
 		}
 
-		// update horizontal stack; add relevant blocks which have no block to the right,
-		// can be simplified by checking against cur_block (only new block which
-		// can be possibly right of others)
-		for (Block const* b : relev_blocks_stack) {
-			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
-				// prepending blocks to list retains the (implicit)
-				// ordering of blocks popped from stack Hi regarding their
-				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(b);
-			}
-		}
+		// update horizontal stack
+		//
 		// always consider cur_block since it's one of the right-most blocks now
-		blocks_add_to_stack.push_front(cur_block);
+		this->Hi.push_front(cur_block);
+		//
+		// add relevant blocks which have no block to the right, simplified by
+		// checking against cur_block (only block which can be right of others);
+		// by reverse iteration, we retain the (implicit) ordering of blocks
+		// popped from stack Hi regarding their insertion order; required for
+		// proper stack manipulation
+		for (list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
+			b = *r_iter;
 
-		// actual stack update
-		for (Block const* b : blocks_add_to_stack) {
-			this->Hi.push(b);
+			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
+				this->Hi.push_front(b);
+			}
 		}
 	}
 	// vertical placement
@@ -223,35 +219,31 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, vector<Block con
 		}
 		// actual stack update
 		if (add_to_stack) {
-			this->Hi.push(cur_block);
+			this->Hi.push_front(cur_block);
 		}
 
-		// update vertical stack; add relevant blocks which have no block above,
-		// can be simplified by checking against cur_block (only new block which
-		// can be possibly above others)
-		for (Block const* b : relev_blocks_stack) {
-			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
-				// prepending blocks to list retains the (implicit)
-				// ordering of blocks popped from stack Vi regarding their
-				// insertion order; required for proper stack manipulation
-				blocks_add_to_stack.push_front(b);
-			}
-		}
+		// update vertical stack
+		//
 		// always consider cur_block since it's one of the top-most blocks now
-		blocks_add_to_stack.push_front(cur_block);
+		this->Vi.push_front(cur_block);
+		//
+		// add relevant blocks which have no block above, simplified by checking
+		// against cur_block (only block which can be above others); by reverse
+		// iteration, we retain the (implicit) ordering of blocks popped from
+		// stack Vi regarding their insertion order; required for proper stack
+		// manipulation
+		for (list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
+			b = *r_iter;
 
-		// actual stack update
-		for (Block const* b : blocks_add_to_stack) {
-			this->Vi.push(b);
+			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
+				this->Vi.push_front(b);
+			}
 		}
 	}
 }
 
-void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> const& relev_blocks_stack, bool shifted) const {
+void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool shifted) const {
 	double x, y;
-	unsigned b;
-	stack<Block const*> Hi, Vi;
-	Block const* stack_block;
 
 	// current block
 	Block const* cur_block = this->getBlock(tuple);
@@ -275,9 +267,14 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 			// only some columns are to be covered, thus determine the left front of
 			// the related blocks
 			else {
-				x = relev_blocks_stack[0]->bb.ll.x;
-				for (b = 1; b < relev_blocks_stack.size(); b++) {
-					x = min(x, relev_blocks_stack[b]->bb.ll.x);
+				x = -1;
+				for (Block const* b : relev_blocks_stack) {
+					if (x == -1) {
+						x = b->bb.ll.x;
+					}
+					else {
+						x = min(x, b->bb.ll.x);
+					}
 				}
 			}
 		}
@@ -302,17 +299,10 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 			// stack Vi
 			if (shifted) {
 
-				// check against all blocks; use a local stack copy
-				Vi = this->Vi;
+				for (Block const* stack_block : this->Vi) {
 
-				while (!Vi.empty()) {
-
-					// current block on stack
-					stack_block = Vi.top();
-					Vi.pop();
-
-					// determine right front, consider only
-					// vertically intersecting blocks
+					// update right front, consider only vertically
+					// intersecting blocks
 					if (Rect::rectsIntersectVertical(cur_block->bb, stack_block->bb)) {
 						x = max(x, stack_block->bb.ur.x);
 					}
@@ -342,9 +332,14 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 			// only some rows are to be covered, thus determine the lower front of
 			// the related blocks
 			else {
-				y = relev_blocks_stack[0]->bb.ll.y;
-				for (b = 1; b < relev_blocks_stack.size(); b++) {
-					y = min(y, relev_blocks_stack[b]->bb.ll.y);
+				y = -1;
+				for (Block const* b : relev_blocks_stack) {
+					if (y == -1) {
+						y = b->bb.ll.y;
+					}
+					else {
+						y = min(y, b->bb.ll.y);
+					}
 				}
 			}
 		}
@@ -369,17 +364,10 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 			// stack Hi
 			if (shifted) {
 
-				// check against all blocks; use a local stack copy
-				Hi = this->Hi;
+				for (Block const* stack_block : this->Hi) {
 
-				while (!Hi.empty()) {
-
-					// current block on stack
-					stack_block = Hi.top();
-					Hi.pop();
-
-					// determine upper front, consider only
-					// horizontally intersecting blocks
+					// update upper front, consider only horizontally
+					// intersecting blocks
 					if (Rect::rectsIntersectHorizontal(cur_block->bb, stack_block->bb)) {
 						y = max(y, stack_block->bb.ur.y);
 					}

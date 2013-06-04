@@ -330,7 +330,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	Block const* fixed_block;
 	int shift_block_tuple;
 	CorblivarDie* die_shift_block;
-	vector<Block const*> shift_block_relev_blocks;
+	list<Block const*> shift_block_relev_blocks;
 	bool block_shifted;
 
 	// TODO scenario I: both blocks are yet unplaced

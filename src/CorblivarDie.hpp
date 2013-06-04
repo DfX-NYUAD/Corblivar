@@ -35,8 +35,8 @@ class CorblivarDie {
 		// progress pointer, CBL vector index
 		unsigned pi;
 
-		// placement stacks
-		stack<Block const*> Hi, Vi;
+		// placement stacks; for efficiency implemented as list
+		list<Block const*> Hi, Vi;
 
 		// main CBL sequence
 		CornerBlockList CBL;
@@ -54,12 +54,8 @@ class CorblivarDie {
 			this->done = false;
 
 			// reset placement stacks
-			while (!this->Hi.empty()) {
-				this->Hi.pop();
-			}
-			while (!this->Vi.empty()) {
-				this->Vi.pop();
-			}
+			this->Hi.clear();
+			this->Vi.clear();
 
 			// reset placed flags
 			for (Block const* b : this->CBL.S) {
@@ -81,14 +77,14 @@ class CorblivarDie {
 		void placeCurrentBlock();
 
 		// layout-generation helper: determine coordinates of block in process
-		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, vector<Block const*> const& relev_blocks_stack, bool shifted = false) const;
+		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool shifted = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
-		vector<Block const*> inline popRelevantBlocks(unsigned const& tuple);
+		list<Block const*> inline popRelevantBlocks(unsigned const& tuple);
 		// layout-generation helper: update placement stack (after placement)
-		void inline updatePlacementStacks(unsigned const& tuple, vector<Block const*> const& relev_blocks_stack);
+		void inline updatePlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
-		void inline debugStacks() const;
+		void inline debugStacks();
 		// layout-generation helper: sanity check and debugging for valid layout,
 		// i.e., overlap-free block arrangement
 		bool debugLayout() const;
