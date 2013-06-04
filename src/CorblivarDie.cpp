@@ -242,6 +242,77 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	}
 }
 
+void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
+	list<Block const*>::iterator iter;
+
+	// current block
+	Block const* cur_block = this->getBlock(tuple);
+
+	// after block shifting, we cannot easily make assumption on the resulting layout
+	// and thus how to update the stacks (note that even the insertion direction may
+	// be different after shifting); thus, we simply a) update the stacks w/ all
+	// relevant, uncovered blocks (includes previously popped blocks and blocks still
+	// on stack), b) push back the current block itself and c) sort the stacks by
+	// related dimensions, i.e., block-insertion order; note that this process has to
+	// be done for both stacks
+
+	// horizontal stack Hi
+	//
+	// a) check remainin blocks if they are covered now (by current block)
+	for (iter = this->Hi.begin(); iter != this->Hi.end(); ++iter) {
+		// block is now covered
+		if (Rect::rectA_leftOf_rectB((*iter)->bb, cur_block->bb, true)) {
+			// drop block from stack
+			iter = this->Hi.erase(iter);
+		}
+	}
+	// a) push back relevant blocks in case they are not covered
+	for (Block const* b : relev_blocks_stack) {
+		if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
+			this->Hi.push_front(b);
+		}
+	}
+	// b) push back the current block itself
+	this->Hi.push_back(cur_block);
+	// c) sort stack by y-dimension in descending order; retains the proper stack
+	// structure for further horizontal block insertion
+	this->Hi.sort(
+		// lambda expression
+		[&](Block const* b1, Block const* b2) {
+			// descending order, b1 above b2
+			return !Rect::rectA_below_rectB(b1->bb, b2->bb, false);
+		}
+	);
+
+	// vertical stack Vi
+	//
+	// a) check remainin blocks if they are covered now (by current block)
+	for (iter = this->Vi.begin(); iter != this->Vi.end(); ++iter) {
+		// block is now covered
+		if (Rect::rectA_below_rectB((*iter)->bb, cur_block->bb, true)) {
+			// drop block from stack
+			iter = this->Vi.erase(iter);
+		}
+	}
+	// a) push back relevant blocks in case they are not covered
+	for (Block const* b : relev_blocks_stack) {
+		if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
+			this->Vi.push_front(b);
+		}
+	}
+	// b) push back the current block itself
+	this->Vi.push_back(cur_block);
+	// c) sort stack by x-dimension in descending order; retains the proper stack
+	// structure for further vertical block insertion
+	this->Vi.sort(
+		// lambda expression
+		[&](Block const* b1, Block const* b2) {
+			// descending order, b1 right of b2
+			return !Rect::rectA_leftOf_rectB(b1->bb, b2->bb, false);
+		}
+	);
+}
+
 void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool shifted) const {
 	double x, y;
 

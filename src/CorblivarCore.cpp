@@ -450,8 +450,7 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// if the block was shifted, we need to rebuild the placement stacks since
 		// the corner-block front in both dimensions may be different now
 		if (block_shifted) {
-			// TODO die_shift_block->rebuildPlacementStacks();
-			die_shift_block->updatePlacementStacks(shift_block_tuple, shift_block_relev_blocks);
+			die_shift_block->rebuildPlacementStacks(shift_block_tuple, shift_block_relev_blocks);
 		}
 		// if the block was not shifted, we can simply update the placement stacks
 		else {

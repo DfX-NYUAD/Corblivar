@@ -83,6 +83,8 @@ class CorblivarDie {
 		list<Block const*> inline popRelevantBlocks(unsigned const& tuple);
 		// layout-generation helper: update placement stack (after placement)
 		void inline updatePlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack);
+		// layout-generation helper: rebuild placement stack (after block shifting)
+		void rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
 		void inline debugStacks();
 		// layout-generation helper: sanity check and debugging for valid layout,
