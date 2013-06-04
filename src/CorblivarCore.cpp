@@ -158,8 +158,12 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 	while (loop) {
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-			cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
-			cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
+
+			// sanity check for empty dies
+			if (!this->p->getCBL().empty()) {
+				cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
+				cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
+			}
 		}
 
 		// handle stalled die, i.e., resolve paused alignment process by placing
