@@ -174,7 +174,11 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	if (cur_dir == Direction::HORIZONTAL) {
 
 		// update vertical stack; add cur_block when no other relevant blocks
-		// are to its top side, indepent of overlap in x-direction
+		// are to its top side
+		//
+		// note that this check is indepent of overlap in x-direction; this way,
+		// we avoid situations where different blocks on both stacks Hi/Vi are
+		// current corner block which would result in invalid layouts
 		add_to_stack = true;
 		for (Block const* b : relev_blocks_stack) {
 			if (Rect::rectA_below_rectB(cur_block->bb, b->bb, false)) {
@@ -209,7 +213,11 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	else {
 
 		// update horizontal stack; add cur_block when no other relevant blocks
-		// are to its right side, indepent of overlap in y-direction
+		// are to its right side
+		//
+		// note that this check is indepent of overlap in y-direction; this way,
+		// we avoid situations where different blocks on both stacks Hi/Vi are
+		// current corner block which would result in invalid layouts
 		add_to_stack = true;
 		for (Block const* b : relev_blocks_stack) {
 			if (Rect::rectA_leftOf_rectB(cur_block->bb, b->bb, false)) {
