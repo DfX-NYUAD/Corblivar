@@ -82,6 +82,7 @@ void CorblivarDie::debugStacks() {
 		}
 		else {
 			cout << (*iter)->id << endl;
+			break;
 		}
 	}
 
@@ -93,6 +94,7 @@ void CorblivarDie::debugStacks() {
 		}
 		else {
 			cout << (*iter)->id << endl;
+			break;
 		}
 	}
 }
