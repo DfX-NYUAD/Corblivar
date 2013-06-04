@@ -21,12 +21,6 @@ void CorblivarDie::placeCurrentBlock() {
 	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getCurrentBlock();
 
-	// sanity check for empty dies
-	if (this->getCBL().empty()) {
-		this->done = true;
-		return;
-	}
-
 	// sanity check for previously placed blocks; may occur due to multiple alignment
 	// requests in process covering this particular block
 	if (cur_block->placed) {
@@ -468,11 +462,6 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	Block const* neighbor;
 	double x, y;
 	double block_front_checked;
-
-	// sanity check for empty dies
-	if (this->getCBL().empty()) {
-		return;
-	}
 
 	// store blocks in separate list, for subsequent sorting
 	for (Block const* block : this->getCBL().S) {

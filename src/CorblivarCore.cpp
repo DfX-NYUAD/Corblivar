@@ -129,7 +129,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 	Block const* other_block;
 	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
 	CorblivarAlignmentReq const* req_processed;
-	bool loop;
 
 	if (CorblivarCore::DBG) {
 		cout << "DBG_CORE> ";
@@ -154,16 +153,51 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 	}
 
 	// perform layout generation in loop (until all blocks are placed)
-	loop = true;
-	while (loop) {
+	while (true) {
 
+		// sanity check for empty die
+		if (this->p->getCBL().empty()) {
+			this->p->done = true;
+		}
+
+		// die done in previous loop; or just marked done since it's empty
+		if (this->p->done) {
+
+			// perform packing if desired; perform for each dimension
+			// separately and subsequently; multiple iterations may provide
+			// denser packing configurations
+			//
+			// sanity check for empty dies
+			if (!this->p->getCBL().empty()) {
+
+				for (int i = 1; i <= packing_iterations; i++) {
+					this->p->performPacking(Direction::HORIZONTAL);
+					this->p->performPacking(Direction::VERTICAL);
+				}
+			}
+
+			// dbg: sanity check for valid layout
+			if (CorblivarCore::DBG_VALID_LAYOUT) {
+
+				// if true, the layout is buggy, i.e., invalid
+				if (this->p->debugLayout()) {
+					return false;
+				}
+			}
+
+			// continue layout generation on next, yet unfinished die; or
+			// abort loop if all dies marked as done
+			if (!this->switchDie()) {
+				break;
+			}
+		}
+
+		// dbg logging for current block
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 
 			// sanity check for empty dies
-			if (!this->p->getCBL().empty()) {
-				cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
-				cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
-			}
+			cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
+			cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
 		}
 
 		// handle stalled die, i.e., resolve paused alignment process by placing
@@ -294,30 +328,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 				this->p->placeCurrentBlock();
 				this->p->updateProgressPointerFlag();
 			}
-		}
-
-		// die done
-		if (this->p->done) {
-
-			// perform packing if desired; perform for each dimension
-			// separately and subsequently; multiple iterations may provide
-			// denser packing configurations
-			for (int i = 1; i <= packing_iterations; i++) {
-				this->p->performPacking(Direction::HORIZONTAL);
-				this->p->performPacking(Direction::VERTICAL);
-			}
-
-			// dbg: sanity check for valid layout
-			if (CorblivarCore::DBG_VALID_LAYOUT) {
-
-				// if true, the layout is buggy, i.e., invalid
-				if (this->p->debugLayout()) {
-					return false;
-				}
-			}
-
-			// continue layout generation on next, yet unfinished die
-			loop = this->switchDie();
 		}
 	}
 
