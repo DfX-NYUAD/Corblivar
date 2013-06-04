@@ -68,7 +68,7 @@ void CorblivarDie::debugStacks() {
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
-	cout << "DBG_CORB> stack Hi: ";
+	cout << "DBG_CORB>  new stack Hi: ";
 	for (iter = this->Hi.begin(); iter != this->Hi.end(); ++iter) {
 
 		if (*iter != this->Hi.back()) {
@@ -80,7 +80,7 @@ void CorblivarDie::debugStacks() {
 		}
 	}
 
-	cout << "DBG_CORB> stack Vi: ";
+	cout << "DBG_CORB>  new stack Vi: ";
 	for (iter = this->Vi.begin(); iter != this->Vi.end(); ++iter) {
 
 		if (*iter != this->Vi.back()) {
@@ -161,6 +161,10 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	bool add_to_stack;
 	Block const* b;
 
+	if (CorblivarDie::DBG_STACKS) {
+		cout << "DBG_CORB> Update stacks" << endl;
+	}
+
 	// current block
 	Block const* cur_block = this->getBlock(tuple);
 	// current block's insertion direction
@@ -240,6 +244,10 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 
 void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
 	list<Block const*>::iterator iter;
+
+	if (CorblivarDie::DBG_STACKS) {
+		cout << "DBG_CORB> Rebuild stacks" << endl;
+	}
 
 	// current block
 	Block const* cur_block = this->getBlock(tuple);
