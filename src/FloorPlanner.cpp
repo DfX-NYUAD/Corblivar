@@ -102,7 +102,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				prev_cost = cur_cost;
 
 				// generate layout; also memorize whether layout is valid;
-				// note that this return value is only affect if
+				// note that this return value is only effective if
 				// CorblivarCore::DBG_VALID_LAYOUT is set
 				valid_layout = corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 
