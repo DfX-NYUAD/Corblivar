@@ -262,7 +262,13 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 								// progress pointer for now in
 								// order to handle all alignment
 								// requests for current blocks
-								this->alignBlocks(cur_req);
+								if (this->alignBlocks(cur_req)) {
+
+									// in case the request was
+									// handled, memorize
+									// processed request
+									req_processed = cur_req;
+								}
 
 								// mark die related w/ other block
 								// as not stalled any more;
@@ -270,9 +276,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 								// generation on that die in next
 								// iterations
 								this->dies[other_block->layer].stalled = false;
-
-								// memorize processed request
-								req_processed = cur_req;
 
 								break;
 							}
@@ -339,7 +342,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 	return true;
 }
 
-void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
+bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	Block const* shift_block;
 	Block const* fixed_block;
 	int shift_block_tuple;
@@ -389,30 +392,21 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// retrieve related die pointer
 		die_shift_block = &this->dies[shift_block->layer];
 
-		// determine related CBL tuple; may differ from die's pointer pi (if
-		// blocks are on same die and shift block != current block)
+		// determine related CBL tuple; in normal cases, it is given by the
+		// related die pointer
+		shift_block_tuple = die_shift_block->pi;
+
+		// sanity check for differing CBL tuples; that's happening when the placed
+		// block and the block to be shifted are on the same die, and the block to
+		// be shifted is not the current block, i.e., a block to be processed
+		// later on; thus, we skip the alignment for now
 		if (shift_block->layer == fixed_block->layer && shift_block->id != die_shift_block->getCurrentBlock()->id) {
 
-			// dummy value, -1 to indicate error if no other tuple is found
-			shift_block_tuple = -1;
-
-			// determine related tuple index from die's CBL
-			for (unsigned i = 0; i < die_shift_block->getCBL().size(); i++) {
-
-				if (die_shift_block->getBlock(i)->id == shift_block->id) {
-					shift_block_tuple = i;
-					break;
-				}
-			}
-
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Shift block is not current block; " << shift_block->id << " :";
-				cout << " die=" << die_shift_block->id << ", tuple=" << shift_block_tuple << endl;
+				cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << endl;
 			}
-		}
-		// usually the tuple is given by the related die pointer
-		else {
-			shift_block_tuple = die_shift_block->pi;
+
+			return false;
 		}
 
 		// pop relevant blocks from related placement stack
@@ -481,6 +475,8 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_shift_block->debugStacks();
 		}
 	}
+
+	return true;
 }
 
 Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) const {

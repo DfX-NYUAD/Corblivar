@@ -24,7 +24,7 @@ class CorblivarCore {
 	private:
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_ALIGNMENT_REQ = false;
-		static constexpr bool DBG_VALID_LAYOUT = false;
+		static constexpr bool DBG_VALID_LAYOUT = true;
 
 	// private data, functions
 	private:
@@ -59,7 +59,7 @@ class CorblivarCore {
 		list<CorblivarAlignmentReq const*> AL;
 
 		// handler for block alignment
-		void alignBlocks(CorblivarAlignmentReq const* req);
+		bool alignBlocks(CorblivarAlignmentReq const* req);
 		inline Block const* determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) const;
 		inline bool shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const;
 		list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
