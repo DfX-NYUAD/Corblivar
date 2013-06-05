@@ -380,30 +380,46 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 		// for horizontal insertion; x-coordinate is second coordinate, thus
 		// dependent on y-coordinate
 		else {
-
-			// determine x-coordinate for lower left corner of current block, consider
-			// right front of blocks to be covered
 			x = 0;
-			for (Block const* b : relev_blocks_stack) {
-				// only consider blocks which intersect in y-direction
-				if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
-					// determine right front
-					x = max(x, b->bb.ur.x);
-				}
-			}
 
-			// additional check for shifted blocks; the x-coordinate of a
-			// shifted block may be furthermore dependend on corner blocks in
-			// vertical (shifting) direction; thus we also need to check the
-			// stack Vi
+			// extended check for shifted blocks; the coordinate of a shifted
+			// block depends basically on all previously placed blocks, not
+			// only the ones currently on the stack, since some placed blocks
+			// may be partially covered by blocks on the stack (and are thus
+			// not on the stack itself) but can be nevertheless the new
+			// adjacent blocks for the shifted block
+			//
 			if (shifted) {
 
-				for (Block const* stack_block : this->Vi) {
+				// walk all blocks (implicitly ordered such that placed
+				// blocks are first)
+				for (unsigned b = 0; b < this->getCBL().size(); b++) {
 
-					// update right front, consider only vertically
-					// intersecting blocks
-					if (Rect::rectsIntersectVertical(cur_block->bb, stack_block->bb)) {
-						x = max(x, stack_block->bb.ur.x);
+					// if not yet placed block is reached, the
+					// following blocks are also not placed, i.e., not
+					// relevant; break loop
+					if (!this->getBlock(b)->placed) {
+						break;
+					}
+					else {
+						// only consider blocks which intersect in y-direction
+						if (Rect::rectsIntersectVertical(cur_block->bb, this->getBlock(b)->bb)) {
+							// determine right front
+							x = max(x, this->getBlock(b)->bb.ur.x);
+						}
+					}
+				}
+			}
+			// non shifted block; simply check against blocks to be covered
+			//
+			else {
+				// determine x-coordinate for lower left corner of current block, consider
+				// right front of blocks to be covered
+				for (Block const* b : relev_blocks_stack) {
+					// only consider blocks which intersect in y-direction
+					if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
+						// determine right front
+						x = max(x, b->bb.ur.x);
 					}
 				}
 			}
@@ -445,30 +461,46 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 		// for vertical insertion; y-coordinate is second coordinate, thus
 		// dependent on x-coordinate
 		else {
-
-			// determine y-coordinate for lower left corner of current block, consider
-			// upper front of blocks to be covered
 			y = 0;
-			for (Block const* b : relev_blocks_stack) {
-				// only consider blocks which intersect in x-direction
-				if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
-					// determine upper front
-					y = max(y, b->bb.ur.y);
-				}
-			}
 
-			// additional check for shifted blocks; the y-coordinate of a
-			// shifted block may be furthermore dependend on corner blocks in
-			// horizontal (shifting) direction; thus we also need to check the
-			// stack Hi
+			// extended check for shifted blocks; the coordinate of a shifted
+			// block depends basically on all previously placed blocks, not
+			// only the ones currently on the stack, since some placed blocks
+			// may be partially covered by blocks on the stack (and are thus
+			// not on the stack itself) but can be nevertheless the new
+			// adjacent blocks for the shifted block
+			//
 			if (shifted) {
 
-				for (Block const* stack_block : this->Hi) {
+				// walk all blocks (implicitly ordered such that placed
+				// blocks are first)
+				for (unsigned b = 0; b < this->getCBL().size(); b++) {
 
-					// update upper front, consider only horizontally
-					// intersecting blocks
-					if (Rect::rectsIntersectHorizontal(cur_block->bb, stack_block->bb)) {
-						y = max(y, stack_block->bb.ur.y);
+					// if not yet placed block is reached, the
+					// following blocks are also not placed, i.e., not
+					// relevant; break loop
+					if (!this->getBlock(b)->placed) {
+						break;
+					}
+					else {
+						// only consider blocks which intersect in x-direction
+						if (Rect::rectsIntersectHorizontal(cur_block->bb, this->getBlock(b)->bb)) {
+							// determine upper front
+							y = max(y, this->getBlock(b)->bb.ur.y);
+						}
+					}
+				}
+			}
+			// non shifted block; simply check against blocks to be covered
+			//
+			else {
+				// determine y-coordinate for lower left corner of current block, consider
+				// upper front of blocks to be covered
+				for (Block const* b : relev_blocks_stack) {
+					// only consider blocks which intersect in x-direction
+					if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
+						// determine upper front
+						y = max(y, b->bb.ur.y);
 					}
 				}
 			}
