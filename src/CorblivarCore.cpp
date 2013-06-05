@@ -210,7 +210,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 			}
 
 			// place block, increment progress pointer
-			this->p->placeCurrentBlock();
+			this->p->placeCurrentBlock(perform_alignment);
 			this->p->updateProgressPointerFlag();
 			// mark die as not stalled anymore
 			this->p->stalled = false;
@@ -318,14 +318,14 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 				// no alignment requested given for current block
 				else {
 					// place block, increment progress pointer
-					this->p->placeCurrentBlock();
+					this->p->placeCurrentBlock(perform_alignment);
 					this->p->updateProgressPointerFlag();
 				}
 			}
 
 			// handling block alignment is not desired, simply place blocks
 			else {
-				this->p->placeCurrentBlock();
+				this->p->placeCurrentBlock(perform_alignment);
 				this->p->updateProgressPointerFlag();
 			}
 		}
@@ -352,8 +352,8 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 		// TODO drop
 		// dummy handler; simply place blocks
-		this->dies[req->s_i->layer].placeCurrentBlock();
-		this->dies[req->s_j->layer].placeCurrentBlock();
+		this->dies[req->s_i->layer].placeCurrentBlock(true);
+		this->dies[req->s_j->layer].placeCurrentBlock(true);
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 			cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << endl;
@@ -430,14 +430,15 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
-			block_shifted = this->shiftBlock(Direction::VERTICAL, req, shift_block);
+			block_shifted = shiftBlock(Direction::VERTICAL, req, shift_block);
 
-			// second, determine block's x-coordinates (depends on y-coord);
-			// also, consider relevant blocks on stack Vi
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks, block_shifted);
+			// second, determine block's x-coordinates (depends on y-coord of
+			// previously placed blocks); also perform extended check since
+			// alignment is enabled while calling alignBlocks()
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::X, shift_block_relev_blocks, true);
 
 			// perform shift in x-dir, if required and possible
-			this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
+			block_shifted = this->shiftBlock(Direction::HORIZONTAL, req, shift_block) || block_shifted;
 		}
 		// vertical placement
 		else {
@@ -453,12 +454,13 @@ void CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			// perform shift in x-dir, if required and possible
 			block_shifted = this->shiftBlock(Direction::HORIZONTAL, req, shift_block);
 
-			// second, determine block's y-coordinates (depends on x-coord);
-			// also, consider relevant blocks on stack Hi
-			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks, block_shifted);
+			// second, determine block's y-coordinates (depends on x-coord of
+			// previously placed blocks); also perform extended check since
+			// alignment is enabled while calling alignBlocks()
+			die_shift_block->determBlockCoords(shift_block_tuple, Coordinate::Y, shift_block_relev_blocks, true);
 
 			// perform shift in y-dir, if required and possible
-			this->shiftBlock(Direction::VERTICAL, req, shift_block);
+			block_shifted = this->shiftBlock(Direction::VERTICAL, req, shift_block) || block_shifted;
 		}
 
 		// if the block was shifted, we need to rebuild the placement stacks since

@@ -74,10 +74,10 @@ class CorblivarDie {
 		}
 
 		// layout generation; place current block
-		void placeCurrentBlock();
+		void placeCurrentBlock(bool const& alignment_enabled);
 
 		// layout-generation helper: determine coordinates of block in process
-		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool shifted = false) const;
+		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
 		list<Block const*> inline popRelevantBlocks(unsigned const& tuple);

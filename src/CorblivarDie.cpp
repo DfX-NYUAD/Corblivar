@@ -15,7 +15,7 @@
 // required Corblivar headers
 #include "Math.hpp"
 
-void CorblivarDie::placeCurrentBlock() {
+void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 	list<Block const*> relevBlocks;
 
 	// current tuple; only mutable block parameters can be edited
@@ -35,16 +35,18 @@ void CorblivarDie::placeCurrentBlock() {
 
 		// first, determine block's y-coordinates
 		this->determBlockCoords(this->pi, Coordinate::Y, relevBlocks);
-		// second, determine block's x-coordinates (depends on y-coord)
-		this->determBlockCoords(this->pi, Coordinate::X, relevBlocks);
+		// second, determine block's x-coordinates (depends on y-coord; extended
+		// check depends on whether alignment is enabled)
+		this->determBlockCoords(this->pi, Coordinate::X, relevBlocks, alignment_enabled);
 	}
 	// vertical placement
 	else {
 
 		// first, determine block's x-coordinates
 		this->determBlockCoords(this->pi, Coordinate::X, relevBlocks);
-		// second, determine block's y-coordinates (depends on x-coord)
-		this->determBlockCoords(this->pi, Coordinate::Y, relevBlocks);
+		// second, determine block's y-coordinates (depends on x-coord; extended
+		// check depends on whether alignment is enabled)
+		this->determBlockCoords(this->pi, Coordinate::Y, relevBlocks, alignment_enabled);
 	}
 
 	// update placement stacks
@@ -341,7 +343,7 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 	);
 }
 
-void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool shifted) const {
+void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
 	double x, y;
 
 	// current block
@@ -382,14 +384,14 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 		else {
 			x = 0;
 
-			// extended check for shifted blocks; the coordinate of a shifted
-			// block depends basically on all previously placed blocks, not
-			// only the ones currently on the stack, since some placed blocks
-			// may be partially covered by blocks on the stack (and are thus
-			// not on the stack itself) but can be nevertheless the new
-			// adjacent blocks for the shifted block
+			// extended check in case of block alignment is required: for
+			// shifted blocks, and generally for all blocks to be placed w/
+			// alignment enabled (relying on possibly shifted blocks given on
+			// the placement stacks), we cannot assume that the current stacks
+			// block are the relevant boundaries; thus, we need to check
+			// against all previously placed blocks
 			//
-			if (shifted) {
+			if (extended_check) {
 
 				// walk all blocks (implicitly ordered such that placed
 				// blocks are first)
@@ -410,7 +412,8 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 					}
 				}
 			}
-			// non shifted block; simply check against blocks to be covered
+			// non shifted block / trivial case w/o alignment; simply check
+			// against blocks to be covered
 			//
 			else {
 				// determine x-coordinate for lower left corner of current block, consider
@@ -463,14 +466,14 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 		else {
 			y = 0;
 
-			// extended check for shifted blocks; the coordinate of a shifted
-			// block depends basically on all previously placed blocks, not
-			// only the ones currently on the stack, since some placed blocks
-			// may be partially covered by blocks on the stack (and are thus
-			// not on the stack itself) but can be nevertheless the new
-			// adjacent blocks for the shifted block
+			// extended check in case of block alignment is required: for
+			// shifted blocks, and generally for all blocks to be placed w/
+			// alignment enabled (relying on possibly shifted blocks given on
+			// the placement stacks), we cannot assume that the current stacks
+			// block are the relevant boundaries; thus, we need to check
+			// against all previously placed blocks
 			//
-			if (shifted) {
+			if (extended_check) {
 
 				// walk all blocks (implicitly ordered such that placed
 				// blocks are first)
@@ -491,7 +494,8 @@ void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& co
 					}
 				}
 			}
-			// non shifted block; simply check against blocks to be covered
+			// non shifted block / trivial case w/o alignment; simply check
+			// against blocks to be covered
 			//
 			else {
 				// determine y-coordinate for lower left corner of current block, consider
