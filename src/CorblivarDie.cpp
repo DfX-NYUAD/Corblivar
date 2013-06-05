@@ -115,7 +115,7 @@ bool CorblivarDie::debugLayout() const {
 
 			// check for block overlaps
 			if (flag_inner && Rect::rectsIntersect(a->bb, b->bb)) {
-				cout << "DBG_LAYOUT> Invalid layout! die: " << this->id << "; overlapping blocks: " << a->id << ", " << b->id << endl;
+				cout << "DBG_LAYOUT> Invalid layout! die: " << this->id + 1 << "; overlapping blocks: " << a->id << ", " << b->id << endl;
 
 				invalid = true;
 			}
@@ -529,12 +529,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	Block const* block;
 	Block const* neighbor;
 	double x, y;
-	double block_front_checked;
+	vector<Rect> blocks_checked;
+	double range_checked;
+	Rect cur_intersect, cur_prev_intersect;
 
 	// store blocks in separate list, for subsequent sorting
-	for (Block const* block : this->getCBL().S) {
-		blocks.push_back(move(block));
-	}
+	blocks.insert(blocks.begin(), this->getCBL().S.begin(), this->getCBL().S.end());
 
 	if (dir == Direction::HORIZONTAL) {
 
@@ -571,12 +571,11 @@ void CorblivarDie::performPacking(Direction const& dir) {
 			// init packed coordinate
 			x = 0.0;
 			// init search stop flag
-			block_front_checked = 0.0;
+			blocks_checked.clear();
+			range_checked = 0.0;
 
-			// check other blocks; walk in reverse order since we only need to
-			// consider the blocks to the left; note that, for some reason, we
-			// need to start iteration w/ the block itself, otherwise packing
-			// results in invalid layouts
+			// check against other blocks; walk in reverse order since we only need to
+			// consider the blocks to the left
 			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
@@ -586,13 +585,35 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// the neigbors nearest right front
 					x = max(x, neighbor->bb.ur.x);
 
-					// memorize the covered range of the block front
-					block_front_checked += Rect::determineIntersection(neighbor->bb, block->bb).h;
-				}
-				// in case the full block front was checked, we can stop
-				// checking other blocks
-				if (Math::doubleComp(block->bb.h, block_front_checked)) {
-					break;
+					// current blocks' intersection
+					cur_intersect = Rect::determineIntersection(neighbor->bb, block->bb);
+
+					// initially, consider the full intersection range
+					// as relevant
+					range_checked += cur_intersect.h;
+
+					// check the intersection w/ previous
+					// intersections in order to avoid redundant
+					// considerations of ranges
+					for (Rect const& r : blocks_checked) {
+
+						cur_prev_intersect = Rect::determineIntersection(cur_intersect, r);
+						// drop the additionally, redundant
+						// covered range
+						if (cur_prev_intersect.h > 0.0) {
+							range_checked -= cur_prev_intersect.h;
+						}
+					}
+
+					// memorize the actually covered range of the
+					// block front; use a set of rectangles
+					blocks_checked.push_back(cur_intersect);
+
+					// in case the full block front was checked, we
+					// can stop checking other blocks
+					if (Math::doubleComp(block->bb.h, range_checked)) {
+						break;
+					}
 				}
 			}
 
@@ -640,12 +661,11 @@ void CorblivarDie::performPacking(Direction const& dir) {
 			// init packed coordinate
 			y = 0.0;
 			// init search stop flag
-			block_front_checked = 0.0;
+			blocks_checked.clear();
+			range_checked = 0.0;
 
-			// check other blocks; walk in reverse order since we only need to
-			// consider the blocks below; note that, for some reason, we need
-			// to start iteration w/ the block itself, otherwise packing
-			// results in invalid layouts
+			// check against other blocks; walk in reverse order since we only need to
+			// consider the blocks below
 			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
@@ -655,13 +675,35 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// the neigbors nearest right front
 					y = max(y, neighbor->bb.ur.y);
 
-					// memorize the covered range of the block front
-					block_front_checked += Rect::determineIntersection(neighbor->bb, block->bb).w;
-				}
-				// in case the full block front was checked, we can stop
-				// checking other blocks
-				if (Math::doubleComp(block->bb.w, block_front_checked)) {
-					break;
+					// current blocks' intersection
+					cur_intersect = Rect::determineIntersection(neighbor->bb, block->bb);
+
+					// initially, consider the full intersection range
+					// as relevant
+					range_checked += cur_intersect.w;
+
+					// check the intersection w/ previous
+					// intersections in order to avoid redundant
+					// considerations of ranges
+					for (Rect const& r : blocks_checked) {
+
+						cur_prev_intersect = Rect::determineIntersection(cur_intersect, r);
+						// drop the additionally, redundant
+						// covered range
+						if (cur_prev_intersect.w > 0.0) {
+							range_checked -= cur_prev_intersect.w;
+						}
+					}
+
+					// memorize the actually covered range of the
+					// block front; use a set of rectangles
+					blocks_checked.push_back(cur_intersect);
+
+					// in case the full block front was checked, we
+					// can stop checking other blocks
+					if (Math::doubleComp(block->bb.w, range_checked)) {
+						break;
+					}
 				}
 			}
 
