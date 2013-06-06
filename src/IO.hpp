@@ -39,6 +39,7 @@ class IO {
 	public:
 		static void parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv);
 		static void parseBlocks(FloorPlanner& fp);
+		static void parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments);
 		static void parseNets(FloorPlanner& fp);
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
 		static void writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix = "");

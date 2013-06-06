@@ -16,6 +16,7 @@
 #include "ThermalAnalyzer.hpp"
 #include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
+#include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "Math.hpp"
 
@@ -25,6 +26,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	string config_file;
 	stringstream results_file, solution_file;
 	stringstream blocks_file;
+	stringstream alignments_file;
 	stringstream pins_file;
 	stringstream power_density_file;
 	stringstream nets_file;
@@ -46,6 +48,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
 	fp.blocks_file = blocks_file.str();
+
+	alignments_file << argv[3] << fp.benchmark << ".alr";
+	fp.alignments_file = alignments_file.str();
 
 	pins_file << argv[3] << fp.benchmark << ".pl";
 	fp.pins_file = pins_file.str();
@@ -73,6 +78,17 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO> ";
 		cout << "Blocks file missing: " << fp.blocks_file << endl;
 		exit(1);
+	}
+	in.close();
+
+	in.open(fp.alignments_file.c_str());
+	// memorize file availability
+	fp.alignments_file_avail = in.good();
+	if (!in.good()) {
+		cout << "IO> ";
+		cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
+		cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
+		cout << endl;
 	}
 	in.close();
 
@@ -314,7 +330,7 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> fp.conf_SA_cost_alignment;
 
 	// memorize if alignment optimization should be performed
-	fp.conf_SA_opt_alignment = fp.conf_SA_cost_alignment > 0.0;
+	fp.conf_SA_opt_alignment = (fp.conf_SA_cost_alignment > 0.0 && fp.alignments_file_avail);
 
 	// sanity check for positive cost factors
 	if (fp.conf_SA_cost_thermal < 0.0 || fp.conf_SA_cost_WL < 0.0 || fp.conf_SA_cost_TSVs < 0.0 || fp.conf_SA_cost_alignment < 0.0) {
@@ -422,6 +438,9 @@ void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
 		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
 		cout << "IO>  SA -- Cost factor for block alignment: " << fp.conf_SA_cost_alignment << endl;
+		if (!fp.alignments_file_avail) {
+			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
+		}
 
 		// power blurring parameters; for thermal analysis
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
@@ -519,6 +538,125 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 		cout << "Done; parsed " << tuples << " tuples" << endl << endl;
+	}
+}
+
+// parse alignment-requests file
+void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments) {
+	ifstream al_in;
+	string tmpstr;
+	int tuple;
+	string block_id;
+	Block const* b1;
+	Block const* b2;
+	string type;
+	CorblivarAlignmentReq::Type type_x;
+	CorblivarAlignmentReq::Type type_y;
+	double offset_range_x;
+	double offset_range_y;
+
+	// sanity check for unavailable file
+	if (!fp.alignments_file_avail) {
+		return;
+	}
+
+	if (fp.logMed()) {
+		cout << "IO> ";
+		cout << "Parsing alignment requests..." << endl;
+	}
+
+	// open file
+	al_in.open(fp.alignments_file.c_str());
+
+	// reset alignments
+	alignments.clear();
+
+	// drop file header
+	while (tmpstr != "data_start" && !al_in.eof()) {
+		al_in >> tmpstr;
+	}
+
+	// parse alignment tuples
+	// e.g.
+	// ( sb1 sb5 RANGE 10.0 RANGE_MAX 1000.0 )
+	tuple = 0;
+	while (!al_in.eof()) {
+
+		// drop "("
+		al_in >> tmpstr;
+
+		// block 1 id
+		al_in >> block_id;
+
+		// find related block
+		b1 = Block::findBlock(block_id, fp.blocks);
+		if (b1 == nullptr) {
+			cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+			exit(1);
+		}
+
+		// block 2 id
+		al_in >> block_id;
+
+		// find related block
+		b2 = Block::findBlock(block_id, fp.blocks);
+		if (b2 == nullptr) {
+			cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+			exit(1);
+		}
+
+		// alignment type for x-dimension
+		al_in >> type;
+
+		if (type == "RANGE") {
+			type_x = CorblivarAlignmentReq::Type::RANGE;
+		}
+		else if (type == "RANGE_MAX") {
+			type_x = CorblivarAlignmentReq::Type::RANGE_MAX;
+		}
+		else if (type == "OFFSET") {
+			type_x = CorblivarAlignmentReq::Type::OFFSET;
+		}
+		else {
+			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
+			exit(1);
+		}
+
+		// alignment range/offset for x-dimension
+		al_in >> offset_range_x;
+
+		// alignment type for y-dimension
+		al_in >> type;
+
+		if (type == "RANGE") {
+			type_y = CorblivarAlignmentReq::Type::RANGE;
+		}
+		else if (type == "RANGE_MAX") {
+			type_y = CorblivarAlignmentReq::Type::RANGE_MAX;
+		}
+		else if (type == "OFFSET") {
+			type_y = CorblivarAlignmentReq::Type::OFFSET;
+		}
+		else {
+			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
+			exit(1);
+		}
+
+		// alignment range/offset for y-dimension
+		al_in >> offset_range_y;
+
+		// drop ");"
+		al_in >> tmpstr;
+
+		// generate and store successfully parsed request
+		alignments.push_back(CorblivarAlignmentReq(tuple, b1, b2, type_x, offset_range_x, type_y, offset_range_y));
+
+		tuple++;
+	}
+
+	if (fp.logMed()) {
+		cout << "IO> ";
+		cout << "Done; parsed " << tuple << " alignment requests" << endl << endl;
 	}
 }
 

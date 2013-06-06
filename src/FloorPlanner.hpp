@@ -94,13 +94,15 @@ class FloorPlanner {
 		};
 
 		// IO
-		string benchmark, blocks_file, pins_file, power_density_file, nets_file;
+		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file;
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;
 		// flag whether power density file is available / was handled / thermal
 		// analysis should be performed / thermal files should be generated
 		bool power_density_file_avail;
+		// similar flag for alignment requests
+		bool alignments_file_avail;
 
 		// logging
 		int conf_log;
