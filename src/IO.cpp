@@ -1366,9 +1366,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	double ratio_inv;
 	int tics;
 	Rect alignment_intersect;
-	bool req_x_fulfilled, req_y_fulfilled;
+	int req_x_fulfilled, req_y_fulfilled;
 	string alignment_color_fulfilled;
 	string alignment_color_failed;
+	string alignment_color_undefined;
 
 	if (fp.logMed()) {
 		cout << "IO> ";
@@ -1386,6 +1387,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	alignment_color_fulfilled = "#00A000";
 	// color for alignment rects; for failed alignment, red-ish color
 	alignment_color_failed = "#A00000";
+	// color for alignment rects; for undefined alignment, blue-ish color
+	alignment_color_undefined = "#0000A0";
 
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 		// build up file name
@@ -1448,8 +1451,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 				if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
 
-					// init alignment flags
-					req_x_fulfilled = req_y_fulfilled = true;
+					// init alignment flags; -1 equals undefined
+					req_x_fulfilled = req_y_fulfilled = -1;
 
 					// determine the given blocks' intersection
 					alignment_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
@@ -1472,22 +1475,21 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							// annotate failed horizontal
 							// alignment
 							if (req.range_x()) {
-								req_x_fulfilled = false;
+								req_x_fulfilled = 0;
 							}
 							// annotate failed vertical
 							// alignment
 							if (req.range_y()) {
-								req_y_fulfilled = false;
+								req_y_fulfilled = 0;
 							}
 						}
-
 						// in case the blocks' intersection
 						// doesn't cover both dimensions, extend
 						// it such that it's strechted across the
 						// blocks for illustration purposes
 						//
 						// extend in horizontal direction
-						if (alignment_intersect.w == 0) {
+						else if (alignment_intersect.w == 0) {
 
 							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
 							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
@@ -1495,7 +1497,16 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							// annotate failed horizontal
 							// alignment
 							if (req.range_x()) {
-								req_x_fulfilled = false;
+								req_x_fulfilled = 0;
+							}
+							// check and annotate
+							// success/failure for vertical
+							// alignment
+							if (req.range_y() && alignment_intersect.h >= req.offset_range_y) {
+								req_y_fulfilled = 1;
+							}
+							else if (req.range_y() && alignment_intersect.h < req.offset_range_y) {
+								req_y_fulfilled = 0;
 							}
 						}
 						// extend in vertical direction
@@ -1507,7 +1518,36 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							// annotate failed vertical
 							// alignment
 							if (req.range_y()) {
-								req_y_fulfilled = false;
+								req_y_fulfilled = 0;
+							}
+							// check and annotate
+							// success/failure for horizontal
+							// alignment
+							if (req.range_x() && alignment_intersect.w >= req.offset_range_x) {
+								req_x_fulfilled = 1;
+							}
+							else if (req.range_x() && alignment_intersect.w < req.offset_range_x) {
+								req_x_fulfilled = 0;
+							}
+						}
+						// in case the blocks' intersection covers
+						// both dimensions, we only need to check
+						// for alignments success/failure
+						else {
+
+							// horizontal alignment
+							if (req.range_x() && alignment_intersect.w >= req.offset_range_x) {
+								req_x_fulfilled = 1;
+							}
+							else if (req.range_x() && alignment_intersect.w < req.offset_range_x) {
+								req_x_fulfilled = 0;
+							}
+							// vertical alignment
+							if (req.range_y() && alignment_intersect.h >= req.offset_range_y) {
+								req_y_fulfilled = 1;
+							}
+							else if (req.range_y() && alignment_intersect.h < req.offset_range_y) {
+								req_y_fulfilled = 0;
 							}
 						}
 					}
@@ -1529,8 +1569,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
 					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
 					gp_out << " nohead lc rgb";
-					if (req_x_fulfilled) {
+					if (req_x_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else if (req_x_fulfilled == -1) {
+						gp_out << " \"" << alignment_color_undefined << "\"";
 					}
 					else {
 						gp_out << " \"" << alignment_color_failed << "\"";
@@ -1543,8 +1586,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
 					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
 					gp_out << " nohead lc rgb";
-					if (req_x_fulfilled) {
+					if (req_x_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else if (req_x_fulfilled == -1) {
+						gp_out << " \"" << alignment_color_undefined << "\"";
 					}
 					else {
 						gp_out << " \"" << alignment_color_failed << "\"";
@@ -1557,8 +1603,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
 					gp_out << " to " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
 					gp_out << " nohead lc rgb";
-					if (req_y_fulfilled) {
+					if (req_y_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else if (req_y_fulfilled == -1) {
+						gp_out << " \"" << alignment_color_undefined << "\"";
 					}
 					else {
 						gp_out << " \"" << alignment_color_failed << "\"";
@@ -1571,8 +1620,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					gp_out << " from " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
 					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
 					gp_out << " nohead lc rgb";
-					if (req_y_fulfilled) {
+					if (req_y_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
+					}
+					else if (req_y_fulfilled == -1) {
+						gp_out << " \"" << alignment_color_undefined << "\"";
 					}
 					else {
 						gp_out << " \"" << alignment_color_failed << "\"";
