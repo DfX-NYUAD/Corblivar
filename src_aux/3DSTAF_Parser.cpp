@@ -25,8 +25,8 @@ int main (int argc, char** argv) {
 	cout << "3DSTAF Results Parser" << endl;
 	cout << endl;
 
-	// parse program parameter and config file
-	IO::parseParameterConfig(fp, argc, argv);
+	// parse program parameter, config file, and further files
+	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
 	// parse nets

@@ -20,8 +20,8 @@
 #include "Net.hpp"
 #include "Math.hpp"
 
-// parse program parameter and config file
-void IO::parseParameterConfig(FloorPlanner& fp, int const& argc, char** argv) {
+// parse program parameter, config file, and further files
+void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;

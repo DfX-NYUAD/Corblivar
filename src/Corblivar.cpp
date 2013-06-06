@@ -23,8 +23,8 @@ int main (int argc, char** argv) {
 	// (TODO) set version to 1.0 after release
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
 
-	// parse program parameter and config file
-	IO::parseParameterConfig(fp, argc, argv);
+	// parse program parameter, config file, and further files
+	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
 	// parse nets
