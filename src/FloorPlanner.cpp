@@ -89,7 +89,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		// init cost for current layout and fitting ratio
 		corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
-		cur_cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two).cost;
+		cur_cost = this->determCost(corb.getAlignments(), layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -110,7 +110,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				if (!valid_layout) {
 
 					// generate invalid floorplan for dbg
-					IO::writeFloorplanGP(*this, corb.A, "invalid_layout");
+					IO::writeFloorplanGP(*this, corb.getAlignments(), "invalid_layout");
 					// generate related Corblivar solution
 					if (this->solution_out.is_open()) {
 						this->solution_out << corb.CBLsString() << endl;
@@ -121,7 +121,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				}
 
 				// evaluate layout, new cost
-				cost = this->determCost(corb.A, layout_fit_ratio, SA_phase_two);
+				cost = this->determCost(corb.getAlignments(), layout_fit_ratio, SA_phase_two);
 				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -188,7 +188,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// during switch to phase two, initialize
 						// current cost as max cost for further
 						// normalization (SA_phase_two_init)
-						fitting_cost = this->determCost(corb.A, 1.0, SA_phase_two, SA_phase_two_init).cost;
+						fitting_cost = this->determCost(corb.getAlignments(), 1.0, SA_phase_two, SA_phase_two_init).cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -359,7 +359,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 	// init cost
 	corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
-	cur_cost = this->determCost(corb.A).cost;
+	cur_cost = this->determCost(corb.getAlignments()).cost;
 
 	// perform some random operations, for SA temperature = 0.0
 	// i.e., consider only solutions w/ improved cost
@@ -381,7 +381,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 
 			// evaluate layout, new cost
-			cost = this->determCost(corb.A);
+			cost = this->determCost(corb.getAlignments());
 			cur_cost = cost.cost;
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
@@ -464,7 +464,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 		// determine overall cost
 		if (determ_overall_cost) {
-			cost = this->determCost(corb.A, 1.0, true).cost;
+			cost = this->determCost(corb.getAlignments(), 1.0, true).cost;
 		}
 
 		// determine area cost; invert weight in order to retrieve area ratio
@@ -478,7 +478,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		thermal = this->determCostThermalDistr(false, false, true);
 
 		// determine non-normalized alignment mismatches
-		alignment_mismatch = this->determCostAlignment(corb.A, false, false);
+		alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
 
 		// logging results
 		if (this->logMin()) {
@@ -503,7 +503,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->results << " x = " << x << endl;
 			this->results << " y = " << y << endl;
 
-			if (!corb.A.empty()) {
+			if (!corb.getAlignments().empty()) {
 				cout << "Corblivar> Alignment mismatches [um]: " << alignment_mismatch << endl;
 				this->results << "Alignment mismatches [um]: " << alignment_mismatch << endl;
 			}
@@ -529,7 +529,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	IO::writeTempSchedule(*this);
 
 	// generate floorplan plots
-	IO::writeFloorplanGP(*this, corb.A);
+	IO::writeFloorplanGP(*this, corb.getAlignments());
 
 	// generate Corblivar data if solution file is used as output
 	if (handle_corblivar && this->solution_out.is_open()) {

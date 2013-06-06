@@ -55,6 +55,9 @@ class CorblivarCore {
 			}
 		};
 
+		// sequence A; alignment requests
+		vector<CorblivarAlignmentReq> A;
+
 		// alignments-in-process list
 		list<CorblivarAlignmentReq const*> AL;
 
@@ -83,19 +86,23 @@ class CorblivarCore {
 
 	// public data, functions
 	public:
-		// sequence A; alignment requests
-		vector<CorblivarAlignmentReq> A;
 
 		// general operations
 		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
 		bool generateLayout(bool const& perform_alignment, int const& packing_iterations);
 
-		// die getter
+		// getter
 		inline CorblivarDie& editDie(unsigned const& die) {
 			return this->dies[die];
 		};
 		inline CorblivarDie const& getDie(unsigned const& die) const {
 			return this->dies[die];
+		};
+		inline vector<CorblivarAlignmentReq>& editAlignments() {
+			return this->A;
+		};
+		inline vector<CorblivarAlignmentReq> const& getAlignments() const {
+			return this->A;
 		};
 
 		// abstract layout-modification operations
