@@ -85,6 +85,24 @@ class Rect {
 			return ret;
 		};
 
+		inline static Rect determBoundingBox(Rect const& r1, Rect const& r2) {
+			Rect ret;
+
+			// determine bounding box considering minx, max ranges of both
+			// rects
+			ret.ll.x = min(r1.ll.x, r2.ll.x);
+			ret.ll.y = min(r1.ll.y, r2.ll.y);
+			ret.ur.x = max(r1.ur.x, r2.ur.x);
+			ret.ur.y = max(r1.ur.y, r2.ur.y);
+
+			// determine rect properties
+			ret.w = ret.ur.x - ret.ll.x;
+			ret.h = ret.ur.y - ret.ll.y;
+			ret.area = ret.w * ret.h;
+
+			return ret;
+		};
+
 		inline static Rect determineIntersection(Rect const& a, Rect const& b) {
 			Rect ret;
 

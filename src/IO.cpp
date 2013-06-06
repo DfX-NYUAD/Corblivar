@@ -1467,10 +1467,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						if (alignment_intersect.w == 0.0 && alignment_intersect.h == 0.0) {
 
 							// determine blocks' bounding box
-							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
-							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
-							alignment_intersect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
-							alignment_intersect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+							alignment_intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
 
 							// annotate failed horizontal
 							// alignment
