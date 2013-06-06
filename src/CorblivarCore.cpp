@@ -268,14 +268,14 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 									// handled, memorize
 									// processed request
 									req_processed = cur_req;
-								}
 
-								// mark die related w/ other block
-								// as not stalled any more;
-								// re-enables further layout
-								// generation on that die in next
-								// iterations
-								this->dies[other_block->layer].stalled = false;
+									// mark die related w/ other block
+									// as not stalled any more;
+									// re-enables further layout
+									// generation on that die in next
+									// iterations
+									this->dies[other_block->layer].stalled = false;
+								}
 
 								break;
 							}
@@ -392,15 +392,10 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// retrieve related die pointer
 		die_shift_block = &this->dies[shift_block->layer];
 
-		// determine related CBL tuple; in normal cases, it is given by the
-		// related die pointer
-		shift_block_tuple = die_shift_block->pi;
-
-		// sanity check for differing CBL tuples; that's happening when the placed
-		// block and the block to be shifted are on the same die, and the block to
-		// be shifted is not the current block, i.e., a block to be processed
-		// later on; thus, we skip the alignment for now
-		if (shift_block->layer == fixed_block->layer && shift_block->id != die_shift_block->getCurrentBlock()->id) {
+		// sanity check for diff b/w current CBL tuple and current block; that's
+		// happening when the block to be shifted is not the current block, i.e.,
+		// a block to be processed later on; thus, we skip the alignment for now
+		if (shift_block->id != die_shift_block->getCurrentBlock()->id) {
 
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 				cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << endl;
@@ -408,6 +403,9 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 			return false;
 		}
+
+		// determine current block's CBL tuple; it is given by the related die pointer
+		shift_block_tuple = die_shift_block->pi;
 
 		// pop relevant blocks from related placement stack
 		shift_block_relev_blocks = die_shift_block->popRelevantBlocks(shift_block_tuple);
