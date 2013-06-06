@@ -1334,6 +1334,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize) {
 	double cost = 0.0;
 	Rect blocks_intersect;
+	Rect blocks_bb;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::determCostAlignment(" << &alignments << ", " << set_max_cost << ", " << normalize << ")" << endl;
@@ -1347,15 +1348,28 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 		if (req.range_x() || req.range_y()) {
 			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
 		}
+		// for requests w/ max distance ranges, we verify the alignment via the
+		// blocks' bounding box (considering the blocks' center points)
+		if (req.range_max_x() || req.range_max_y()) {
+			blocks_bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+		}
 
 		// check partial request, horizontal aligment
 		//
 		// alignment range
 		if (req.range_x()) {
 
-			// consider the spatial mismatch of the alignment request as cost
+			// consider the spatial mismatch as cost; overlap too small
 			if (blocks_intersect.w < req.offset_range_x) {
 				cost += req.offset_range_x - blocks_intersect.w;
+			}
+		}
+		// max distance range
+		else if (req.range_max_x()) {
+
+			// consider the spatial mismatch as cost; distance too large
+			if (blocks_bb.w > req.offset_range_x) {
+				cost += blocks_bb.w - req.offset_range_x;
 			}
 		}
 		// TODO alignment offset
@@ -1367,9 +1381,17 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 		// alignment range
 		if (req.range_y()) {
 
-			// consider the spatial mismatch of the alignment request as cost
+			// consider the spatial mismatch as cost; overlap too small
 			if (blocks_intersect.h < req.offset_range_y) {
 				cost += req.offset_range_y - blocks_intersect.h;
+			}
+		}
+		// max distance range
+		else if (req.range_max_y()) {
+
+			// consider the spatial mismatch as cost; distance too large
+			if (blocks_bb.h > req.offset_range_y) {
+				cost += blocks_bb.h - req.offset_range_y;
 			}
 		}
 		// TODO alignment offset

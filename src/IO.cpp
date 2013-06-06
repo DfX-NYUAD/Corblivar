@@ -1365,7 +1365,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	int cur_layer;
 	double ratio_inv;
 	int tics;
-	Rect alignment_intersect;
+	Rect alignment_rect, alignment_rect_tmp;
 	int req_x_fulfilled, req_y_fulfilled;
 	string alignment_color_fulfilled;
 	string alignment_color_failed;
@@ -1454,107 +1454,158 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					// init alignment flags; -1 equals undefined
 					req_x_fulfilled = req_y_fulfilled = -1;
 
-					// determine the given blocks' intersection
-					alignment_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
-
-					// a range is defined for one/two dimensions,
-					// i.e., the blocks should overlap somehow
-					if (req.range_x() || req.range_y()) {
-
-						// in case the alignment is not fulfilled
-						// at all, construct rect w/ related
-						// blocks' bounding box
-						if (alignment_intersect.w == 0.0 && alignment_intersect.h == 0.0) {
-
-							// determine blocks' bounding box
-							alignment_intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
-
-							// annotate failed horizontal
-							// alignment
-							if (req.range_x()) {
-								req_x_fulfilled = 0;
-							}
-							// annotate failed vertical
-							// alignment
-							if (req.range_y()) {
-								req_y_fulfilled = 0;
-							}
-						}
-						// in case the blocks' intersection
-						// doesn't cover both dimensions, extend
-						// it such that it's strechted across the
-						// blocks for illustration purposes
-						//
-						// extend in horizontal direction
-						else if (alignment_intersect.w == 0) {
-
-							alignment_intersect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
-							alignment_intersect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
-
-							// annotate failed horizontal
-							// alignment
-							if (req.range_x()) {
-								req_x_fulfilled = 0;
-							}
-							// check and annotate
-							// success/failure for vertical
-							// alignment
-							if (req.range_y() && alignment_intersect.h >= req.offset_range_y) {
-								req_y_fulfilled = 1;
-							}
-							else if (req.range_y() && alignment_intersect.h < req.offset_range_y) {
-								req_y_fulfilled = 0;
-							}
-						}
-						// extend in vertical direction
-						else if (alignment_intersect.h == 0) {
-
-							alignment_intersect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
-							alignment_intersect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
-
-							// annotate failed vertical
-							// alignment
-							if (req.range_y()) {
-								req_y_fulfilled = 0;
-							}
-							// check and annotate
-							// success/failure for horizontal
-							// alignment
-							if (req.range_x() && alignment_intersect.w >= req.offset_range_x) {
-								req_x_fulfilled = 1;
-							}
-							else if (req.range_x() && alignment_intersect.w < req.offset_range_x) {
-								req_x_fulfilled = 0;
-							}
-						}
-						// in case the blocks' intersection covers
-						// both dimensions, we only need to check
-						// for alignments success/failure
-						else {
-
-							// horizontal alignment
-							if (req.range_x() && alignment_intersect.w >= req.offset_range_x) {
-								req_x_fulfilled = 1;
-							}
-							else if (req.range_x() && alignment_intersect.w < req.offset_range_x) {
-								req_x_fulfilled = 0;
-							}
-							// vertical alignment
-							if (req.range_y() && alignment_intersect.h >= req.offset_range_y) {
-								req_y_fulfilled = 1;
-							}
-							else if (req.range_y() && alignment_intersect.h < req.offset_range_y) {
-								req_y_fulfilled = 0;
-							}
-						}
-					}
-
 					// TODO
 					// an offset is defined for one/two dimensions,
 					// i.e., the blocks' lower-left corners should hae
 					// an fixed distance
 					// if (req.offset_x() || req.offset_y()) {
 					// }
+
+					// check partial request, horizontal aligment
+					//
+					// alignment range
+					if (req.range_x()) {
+
+						// determine the blocks' intersection in
+						// x-dimensions; equals the partial
+						// alignment rect
+						alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
+						alignment_rect.ll.x = alignment_rect_tmp.ll.x;
+						alignment_rect.ur.x = alignment_rect_tmp.ur.x;
+						alignment_rect.w = alignment_rect_tmp.w;
+
+						// overlap and thus alignment fulfilled
+						if (alignment_rect.w >= req.offset_range_x) {
+
+							req_x_fulfilled = 1;
+						}
+						// overlap and thus alignment failed
+						else {
+
+							req_x_fulfilled = 0;
+
+							// extend the intersection such
+							// that inner block fronts are
+							// covered w.r.t. the failed
+							// dimension
+							if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+								alignment_rect.ll.x = req.s_i->bb.ur.x;
+								alignment_rect.ur.x = req.s_j->bb.ll.x;
+							}
+							else {
+								alignment_rect.ll.x = req.s_j->bb.ur.x;
+								alignment_rect.ur.x = req.s_i->bb.ll.x;
+							}
+						}
+					}
+					// max distance range
+					else if (req.range_max_x()) {
+
+						// determine the blocks' bounding box in
+						// x-dimensions; equals the partial
+						// alignment rect; consider the blocks'
+						// center points
+						alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+
+						alignment_rect.ll.x = alignment_rect_tmp.ll.x;
+						alignment_rect.ur.x = alignment_rect_tmp.ur.x;
+						alignment_rect.w = alignment_rect_tmp.w;
+
+						// distance and thus alignment fulfilled
+						if (alignment_rect.w <= req.offset_range_x) {
+
+							req_x_fulfilled = 1;
+						}
+						// distance and thus alignment failed
+						else {
+
+							req_x_fulfilled = 0;
+						}
+					}
+					// TODO alignment offset
+					else if (req.offset_x()) {
+					}
+					// undefined request
+					else {
+						// define the rect as a bounding box
+						// w.r.t. the undefined dimension
+						alignment_rect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
+						alignment_rect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
+					}
+
+					// check partial request, vertical aligment
+					//
+					// alignment range
+					if (req.range_y()) {
+
+						// determine the blocks' intersection in
+						// y-dimensions; equals the partial
+						// alignment rect
+						alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
+						alignment_rect.ll.y = alignment_rect_tmp.ll.y;
+						alignment_rect.ur.y = alignment_rect_tmp.ur.y;
+						alignment_rect.h = alignment_rect_tmp.h;
+
+						// overlap and thus alignment fulfilled
+						if (alignment_rect.h >= req.offset_range_y) {
+
+							req_y_fulfilled = 1;
+						}
+						// overlap and thus alignment failed
+						else {
+
+							req_y_fulfilled = 0;
+
+							// extend the intersection such
+							// that inner block fronts are
+							// covered w.r.t. the failed
+							// dimension
+							if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+								alignment_rect.ll.y = req.s_i->bb.ur.y;
+								alignment_rect.ur.y = req.s_j->bb.ll.y;
+							}
+							else {
+								alignment_rect.ll.y = req.s_j->bb.ur.y;
+								alignment_rect.ur.y = req.s_i->bb.ll.y;
+							}
+						}
+					}
+					// max distance range
+					else if (req.range_max_y()) {
+
+						// determine the blocks' bounding box in
+						// y-dimensions; equals the partial
+						// alignment rect; consider the blocks'
+						// center points
+						alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+
+						alignment_rect.ll.y = alignment_rect_tmp.ll.y;
+						alignment_rect.ur.y = alignment_rect_tmp.ur.y;
+						alignment_rect.h = alignment_rect_tmp.h;
+
+						// distance and thus alignment fulfilled
+						if (alignment_rect.h <= req.offset_range_y) {
+
+							req_y_fulfilled = 1;
+						}
+						// distance and thus alignment failed
+						else {
+
+							req_y_fulfilled = 0;
+						}
+					}
+					// TODO alignment offset
+					else if (req.offset_y()) {
+					}
+					// undefined request
+					else {
+						// define the rect as a bounding box
+						// w.r.t. the undefined dimension
+						alignment_rect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
+						alignment_rect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+					}
 
 					// construct the alignment rectangle w/ separate,
 					// possibly different color-coded lines, in order
@@ -1563,8 +1614,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 					// lower horizontal line
 					gp_out << "set arrow";
-					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
-					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
+					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
 					gp_out << " nohead lc rgb";
 					if (req_x_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
@@ -1580,8 +1631,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 					// upper horizontal line
 					gp_out << "set arrow";
-					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
-					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
+					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
 					gp_out << " nohead lc rgb";
 					if (req_x_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
@@ -1597,8 +1648,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 					// left vertical line
 					gp_out << "set arrow";
-					gp_out << " from " << alignment_intersect.ll.x << "," << alignment_intersect.ll.y;
-					gp_out << " to " << alignment_intersect.ll.x << "," << alignment_intersect.ur.y;
+					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+					gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
 					gp_out << " nohead lc rgb";
 					if (req_y_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";
@@ -1612,10 +1663,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					gp_out << " lw 3";
 					gp_out << endl;
 
-					// righ vertical line
+					// right vertical line
 					gp_out << "set arrow";
-					gp_out << " from " << alignment_intersect.ur.x << "," << alignment_intersect.ll.y;
-					gp_out << " to " << alignment_intersect.ur.x << "," << alignment_intersect.ur.y;
+					gp_out << " from " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
 					gp_out << " nohead lc rgb";
 					if (req_y_fulfilled == 1) {
 						gp_out << " \"" << alignment_color_fulfilled << "\"";

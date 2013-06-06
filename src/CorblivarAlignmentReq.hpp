@@ -23,7 +23,7 @@ class CorblivarAlignmentReq {
 
 	// enum class for alignment types; has to be defined first
 	public:
-		enum class Type : int {OFFSET = 0, RANGE = 1, UNDEF = -1};
+		enum class Type : int {OFFSET = 0, RANGE = 1, RANGE_MAX = 2, UNDEF = -1};
 
 	// private data, functions
 	private:
@@ -72,6 +72,12 @@ class CorblivarAlignmentReq {
 		}
 		inline bool range_y() const {
 			return (this->type_y == CorblivarAlignmentReq::Type::RANGE && this->offset_range_y != 0.0);
+		}
+		inline bool range_max_x() const {
+			return (this->type_x == CorblivarAlignmentReq::Type::RANGE_MAX && this->offset_range_x != 0.0);
+		}
+		inline bool range_max_y() const {
+			return (this->type_y == CorblivarAlignmentReq::Type::RANGE_MAX && this->offset_range_y != 0.0);
 		}
 		inline bool offset_x() const {
 			return (this->type_x == CorblivarAlignmentReq::Type::OFFSET);

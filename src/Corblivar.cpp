@@ -38,11 +38,11 @@ int main (int argc, char** argv) {
 
 	// TODO drop; test data for alignment handling
 	corb.A.push_back(CorblivarAlignmentReq(0, &fp.getBlocks()[5], &fp.getBlocks()[1],
-				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE, 100.0));
+				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE_MAX, 2000.0));
 	corb.A.push_back(CorblivarAlignmentReq(1, &fp.getBlocks()[5], &fp.getBlocks()[8],
-				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE, 100.0));
-	//corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[8], &fp.getBlocks()[1],
-	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
+				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE_MAX, 2000.0));
+	corb.A.push_back(CorblivarAlignmentReq(2, &fp.getBlocks()[5], &fp.getBlocks()[2],
+				CorblivarAlignmentReq::Type::RANGE, 100.0, CorblivarAlignmentReq::Type::RANGE_MAX, 2000.0));
 	//corb.A.push_back(CorblivarAlignmentReq(3, &fp.getBlocks()[8], &fp.getBlocks()[2],
 	//			CorblivarAlignmentReq::Type::RANGE, 1000.0, CorblivarAlignmentReq::Type::RANGE, 1000.0));
 	//corb.A.push_back(CorblivarAlignmentReq(4, &fp.getBlocks()[8], &fp.getBlocks()[3],
