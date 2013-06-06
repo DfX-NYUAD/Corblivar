@@ -1361,7 +1361,23 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 			// consider the spatial mismatch as cost; overlap too small
 			if (blocks_intersect.w < req.offset_range_x) {
+
+				// missing overlap
 				cost += req.offset_range_x - blocks_intersect.w;
+
+				// in case blocks don't overlap at all, also consider the
+				// blocks' distance as further cost
+				if (blocks_intersect.w == 0) {
+
+					if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+
+						cost += req.s_j->bb.ll.x - req.s_i->bb.ur.x;
+					}
+					else {
+
+						cost += req.s_i->bb.ll.x - req.s_j->bb.ur.x;
+					}
+				}
 			}
 		}
 		// max distance range
@@ -1383,7 +1399,23 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 			// consider the spatial mismatch as cost; overlap too small
 			if (blocks_intersect.h < req.offset_range_y) {
+
+				// missing overlap
 				cost += req.offset_range_y - blocks_intersect.h;
+
+				// in case blocks don't overlap at all, also consider the
+				// blocks' distance as further cost
+				if (blocks_intersect.h == 0) {
+
+					if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+
+						cost += req.s_j->bb.ll.y - req.s_i->bb.ur.y;
+					}
+					else {
+
+						cost += req.s_i->bb.ll.y - req.s_j->bb.ur.y;
+					}
+				}
 			}
 		}
 		// max distance range
