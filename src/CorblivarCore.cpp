@@ -111,7 +111,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	if (CorblivarCore::DBG) {
 		for (CorblivarDie const& die : this->dies) {
 			cout << "DBG_CORE> ";
-			cout << "Init CBL tuples for die " << die.id << "; " << die.CBL.size() << " tuples:" << endl;
+			cout << "Init CBL tuples for die " << die.id + 1 << "; " << die.CBL.size() << " tuples:" << endl;
 			cout << die.CBL.CBLString() << endl;
 			cout << "DBG_CORE> ";
 			cout << endl;
@@ -196,7 +196,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 
 			// sanity check for empty dies
-			cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id;
+			cout << "DBG_ALIGNMENT> Processing block " << this->p->getCurrentBlock()->id << " on die " << this->p->id + 1;
 			cout << "; (#tuple w/in die: " << this->p->pi << ")" << endl;
 		}
 
@@ -205,7 +205,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 		if (this->p->stalled) {
 
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id;
+				cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id + 1;
 				cout << " place current block : " << this->p->getCurrentBlock()->id << endl;
 			}
 
@@ -294,8 +294,8 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 
 							if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 								cout << "DBG_ALIGNMENT>    Request not (yet) in process" << endl;
-								cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer;
-								cout << ", continue on die " << this->p->id << endl;
+								cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer + 1;
+								cout << ", continue on die " << this->p->id + 1 << endl;
 							}
 						}
 						// request is processed; drop from list of
