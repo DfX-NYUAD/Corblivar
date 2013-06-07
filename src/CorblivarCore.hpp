@@ -63,8 +63,8 @@ class CorblivarCore {
 
 		// handler for block alignment
 		bool alignBlocks(CorblivarAlignmentReq const* req);
-		inline Block const* determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) const;
-		inline bool shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) const;
+		static Block const* determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req);
+		static bool shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block);
 		list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit
