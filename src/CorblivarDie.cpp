@@ -66,7 +66,7 @@ void CorblivarDie::debugStacks() {
 	list<Block const*>::iterator iter;
 
 	cout << "DBG_CORB> ";
-	cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id << ": ";
+	cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id + 1 << ": ";
 	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
 	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
 
