@@ -254,6 +254,8 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 
 void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
 	list<Block const*>::iterator iter;
+	list<Block const*> stack_backup;
+	bool covered;
 
 	if (CorblivarDie::DBG_STACKS) {
 		cout << "DBG_CORB> Rebuild stacks" << endl;
@@ -283,8 +285,8 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 		}
 	}
 
-	// a) push back relevant blocks in case they are not covered; only for related
-	// insertion direction
+	// a) push back relevant blocks in case they are not covered (by current block);
+	// only for related insertion direction
 	if (cur_dir == Direction::HORIZONTAL) {
 
 		for (Block const* b : relev_blocks_stack) {
@@ -294,8 +296,26 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 		}
 	}
 
-	// b) push back the current block itself
-	this->Hi.push_back(cur_block);
+	// b) push back the current block itself; only if not covered by any placed block
+	covered = false;
+	// walk all blocks (implicitly ordered such that placed blocks are first)
+	for (unsigned b = 0; b < this->getCBL().size(); b++) {
+
+		// if not yet placed block is reached, the following blocks are also not
+		// placed, i.e., not relevant; break loop
+		if (!this->getBlock(b)->placed) {
+			break;
+		}
+		else {
+			if (Rect::rectA_leftOf_rectB(cur_block->bb, this->getBlock(b)->bb, true)) {
+				covered = true;
+				break;
+			}
+		}
+	}
+	if (!covered) {
+		this->Hi.push_back(cur_block);
+	}
 
 	// c) sort stack by y-dimension in descending order; retains the proper stack
 	// structure for further horizontal block insertion
@@ -318,8 +338,8 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 		}
 	}
 
-	// a) push back relevant blocks in case they are not covered; only for related
-	// insertion direction
+	// a) push back relevant blocks in case they are not covered (by current block);
+	// only for related insertion direction
 	if (cur_dir == Direction::VERTICAL) {
 
 		for (Block const* b : relev_blocks_stack) {
@@ -329,8 +349,26 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 		}
 	}
 
-	// b) push back the current block itself
-	this->Vi.push_back(cur_block);
+	// b) push back the current block itself; only if not covered by any placed block
+	covered = false;
+	// walk all blocks (implicitly ordered such that placed blocks are first)
+	for (unsigned b = 0; b < this->getCBL().size(); b++) {
+
+		// if not yet placed block is reached, the following blocks are also not
+		// placed, i.e., not relevant; break loop
+		if (!this->getBlock(b)->placed) {
+			break;
+		}
+		else {
+			if (Rect::rectA_below_rectB(cur_block->bb, this->getBlock(b)->bb, true)) {
+				covered = true;
+				break;
+			}
+		}
+	}
+	if (!covered) {
+		this->Vi.push_back(cur_block);
+	}
 
 	// c) sort stack by x-dimension in descending order; retains the proper stack
 	// structure for further vertical block insertion
@@ -341,6 +379,62 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 			return !Rect::rectA_leftOf_rectB(b1->bb, b2->bb, false);
 		}
 	);
+
+	// sanity check for different corner blocks; may result due to shifting of blocks;
+	// we need to try fixing both stacks since we cannot assume which is the correct
+	// corner block in this case
+	if (this->Hi.front() != this->Vi.front()) {
+
+		// first, try to fix Hi
+		//
+		// local copy Hi for backup
+		stack_backup = this->Hi;
+
+		// try dropping blocks until corner blocks match
+		while (this->Hi.front() != this->Vi.front()) {
+
+			if (this->Hi.empty()) {
+				break;
+			}
+			else {
+				this->Hi.pop_front();
+			}
+		}
+
+		// fixing this stack failed, retry w/ Vi
+		if (this->Hi.empty()) {
+
+			// restore Hi
+			this->Hi = stack_backup;
+
+			// local copy Vi for backup
+			stack_backup = this->Vi;
+
+			// try dropping blocks until corner blocks match
+			while (this->Hi.front() != this->Vi.front()) {
+
+				if (this->Vi.empty()) {
+					break;
+				}
+				else {
+					this->Vi.pop_front();
+				}
+			}
+
+			// 2nd stack fix failed; this will most likely result in invalid
+			// layouts
+			if (this->Vi.empty()) {
+
+				// restore Vi
+				this->Vi = stack_backup;
+
+				// dbg log for failure
+				if (CorblivarDie::DBG_STACKS) {
+					cout << "DBG_CORB>  Differing corner blocks on Hi, Vi; related stack fixing failed!" << endl;
+				}
+			}
+		}
+	}
 }
 
 void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
