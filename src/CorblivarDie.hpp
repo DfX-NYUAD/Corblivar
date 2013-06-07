@@ -77,14 +77,14 @@ class CorblivarDie {
 		void placeCurrentBlock(bool const& alignment_enabled);
 
 		// layout-generation helper: determine coordinates of block in process
-		void inline determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
+		void inline determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
-		list<Block const*> inline popRelevantBlocks(unsigned const& tuple);
+		list<Block const*> inline popRelevantBlocks();
 		// layout-generation helper: update placement stack (after placement)
-		void inline updatePlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack);
+		void inline updatePlacementStacks(list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: rebuild placement stack (after block shifting)
-		void rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack);
+		void rebuildPlacementStacks(list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
 		void inline debugStacks();
 		// layout-generation helper: sanity check and debugging for valid layout,
@@ -121,8 +121,8 @@ class CorblivarDie {
 		inline Block const* getCurrentBlock() const {
 			return this->CBL.S[this->pi];
 		};
-		inline Direction const& getDirection(unsigned const& tuple) const {
-			return this->CBL.L[tuple];
+		inline Direction const& getCurrentDirection() const {
+			return this->CBL.L[this->pi];
 		};
 		inline unsigned const& getJunctions(unsigned const& tuple) const {
 			return this->CBL.T[tuple];

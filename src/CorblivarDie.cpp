@@ -28,29 +28,29 @@ void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 	}
 
 	// pop relevant blocks from related placement stack
-	relevBlocks = this->popRelevantBlocks(this->pi);
+	relevBlocks = this->popRelevantBlocks();
 
 	// horizontal placement
-	if (this->getDirection(this->pi) == Direction::HORIZONTAL) {
+	if (this->getCurrentDirection() == Direction::HORIZONTAL) {
 
 		// first, determine block's y-coordinates
-		this->determBlockCoords(this->pi, Coordinate::Y, relevBlocks);
+		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks);
 		// second, determine block's x-coordinates (depends on y-coord; extended
 		// check depends on whether alignment is enabled)
-		this->determBlockCoords(this->pi, Coordinate::X, relevBlocks, alignment_enabled);
+		this->determCurrentBlockCoords(Coordinate::X, relevBlocks, alignment_enabled);
 	}
 	// vertical placement
 	else {
 
 		// first, determine block's x-coordinates
-		this->determBlockCoords(this->pi, Coordinate::X, relevBlocks);
+		this->determCurrentBlockCoords(Coordinate::X, relevBlocks);
 		// second, determine block's y-coordinates (depends on x-coord; extended
 		// check depends on whether alignment is enabled)
-		this->determBlockCoords(this->pi, Coordinate::Y, relevBlocks, alignment_enabled);
+		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks, alignment_enabled);
 	}
 
 	// update placement stacks
-	this->updatePlacementStacks(this->pi, relevBlocks);
+	this->updatePlacementStacks(relevBlocks);
 
 	// mark block as placed
 	cur_block->placed = true;
@@ -125,16 +125,16 @@ bool CorblivarDie::debugLayout() const {
 	return invalid;
 }
 
-list<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
+list<Block const*> CorblivarDie::popRelevantBlocks() {
 	list<Block const*> ret;
 	unsigned blocks_count;
 
 	// horizontal placement; consider stack Hi
-	if (this->getDirection(tuple) == Direction::HORIZONTAL) {
+	if (this->getCurrentDirection() == Direction::HORIZONTAL) {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min(this->getJunctions(tuple) + 1, this->Hi.size());
+		blocks_count = min(this->getJunctions(this->pi) + 1, this->Hi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {
@@ -147,7 +147,7 @@ list<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min(this->getJunctions(tuple) + 1, this->Vi.size());
+		blocks_count = min(this->getJunctions(this->pi) + 1, this->Vi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {
@@ -159,7 +159,7 @@ list<Block const*> CorblivarDie::popRelevantBlocks(unsigned const& tuple) {
 	return ret;
 }
 
-void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
+void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack) {
 	bool add_to_stack;
 	Block const* b;
 
@@ -168,9 +168,9 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	}
 
 	// current block
-	Block const* cur_block = this->getBlock(tuple);
+	Block const* cur_block = this->getCurrentBlock();
 	// current block's insertion direction
-	Direction const cur_dir = this->getDirection(tuple);
+	Direction const& cur_dir = this->getCurrentDirection();
 
 	// horizontal placement
 	if (cur_dir == Direction::HORIZONTAL) {
@@ -252,7 +252,7 @@ void CorblivarDie::updatePlacementStacks(unsigned const& tuple, list<Block const
 	}
 }
 
-void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block const*>& relev_blocks_stack) {
+void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack) {
 	list<Block const*>::iterator iter;
 	list<Block const*> stack_backup;
 	bool covered;
@@ -262,9 +262,9 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 	}
 
 	// current block
-	Block const* cur_block = this->getBlock(tuple);
+	Block const* cur_block = this->getCurrentBlock();
 	// current block's insertion direction
-	Direction const cur_dir = this->getDirection(tuple);
+	Direction const& cur_dir = this->getCurrentDirection();
 
 	// after block shifting, we cannot easily make assumption on the resulting layout
 	// and thus how to update the stacks (note that even the insertion direction may
@@ -437,13 +437,13 @@ void CorblivarDie::rebuildPlacementStacks(unsigned const& tuple, list<Block cons
 	}
 }
 
-void CorblivarDie::determBlockCoords(unsigned const& tuple, Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
+void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
 	double x, y;
 
 	// current block
-	Block const* cur_block = this->getBlock(tuple);
+	Block const* cur_block = this->getCurrentBlock();
 	// current block's insertion direction
-	Direction const cur_dir = this->getDirection(tuple);
+	Direction const& cur_dir = this->getCurrentDirection();
 
 	// update x-coordinates
 	if (coord == Coordinate::X) {
