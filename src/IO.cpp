@@ -585,6 +585,11 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		// drop "("
 		al_in >> tmpstr;
 
+		// due to some empty lines at the end, we may have reached eof just now
+		if (al_in.eof()) {
+			break;
+		}
+
 		// block 1 id
 		al_in >> block_id;
 
@@ -652,6 +657,12 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		alignments.push_back(CorblivarAlignmentReq(tuple, b1, b2, type_x, offset_range_x, type_y, offset_range_y));
 
 		tuple++;
+	}
+
+	if (IO::DBG) {
+		for (CorblivarAlignmentReq const& req : alignments) {
+			cout << "DBG_IO> " << req.tupleString() << endl;
+		}
 	}
 
 	if (fp.logMed()) {
