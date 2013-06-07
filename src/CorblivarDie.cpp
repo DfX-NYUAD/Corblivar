@@ -163,14 +163,26 @@ void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack)
 	bool add_to_stack;
 	Block const* b;
 
-	if (CorblivarDie::DBG_STACKS) {
-		cout << "DBG_CORB> Update stacks" << endl;
-	}
-
 	// current block
 	Block const* cur_block = this->getCurrentBlock();
 	// current block's insertion direction
 	Direction const& cur_dir = this->getCurrentDirection();
+
+	if (CorblivarDie::DBG_STACKS) {
+		cout << "DBG_CORB> Update stacks; current block: " << cur_block->id << "; block's dir: " << static_cast<unsigned>(cur_dir);
+
+		cout << "; relevant blocks: ";
+		for (Block const* b : relev_blocks_stack) {
+			if (b->id != relev_blocks_stack.back()->id) {
+				cout << b->id << ", ";
+			}
+			else {
+				cout << b->id;
+			}
+		}
+
+		cout << endl;
+	}
 
 	// horizontal placement
 	if (cur_dir == Direction::HORIZONTAL) {
@@ -257,14 +269,26 @@ void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack
 	list<Block const*> stack_backup;
 	bool covered;
 
-	if (CorblivarDie::DBG_STACKS) {
-		cout << "DBG_CORB> Rebuild stacks" << endl;
-	}
-
 	// current block
 	Block const* cur_block = this->getCurrentBlock();
 	// current block's insertion direction
 	Direction const& cur_dir = this->getCurrentDirection();
+
+	if (CorblivarDie::DBG_STACKS) {
+		cout << "DBG_CORB> Rebuild stacks; current block: " << cur_block->id << ", block's dir: " << static_cast<unsigned>(cur_dir);
+
+		cout << "; relevant blocks: ";
+		for (Block const* b : relev_blocks_stack) {
+			if (b->id != relev_blocks_stack.back()->id) {
+				cout << b->id << ", ";
+			}
+			else {
+				cout << b->id;
+			}
+		}
+
+		cout << endl;
+	}
 
 	// after block shifting, we cannot easily make assumption on the resulting layout
 	// and thus how to update the stacks (note that even the insertion direction may
