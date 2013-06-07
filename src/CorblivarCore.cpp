@@ -343,6 +343,15 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 }
 
 bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
+	// vars for scenario II
+	Block const* b1;
+	Block const* b2;
+	CorblivarDie* die_b1;
+	CorblivarDie* die_b2;
+	list<Block const*> b1_relev_blocks, b2_relev_blocks;
+	Direction dir_b1, dir_b2;
+	bool b1_shifted, b2_shifted;
+	// vars for scenario III
 	Block const* shift_block;
 	Block const* fixed_block;
 	CorblivarDie* die_shift_block;
@@ -352,13 +361,119 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	// TODO scenario I: both blocks are yet unplaced
 	if (!req->s_i->placed && !req->s_j->placed) {
 
-		// TODO drop
-		// dummy handler; simply place blocks
-		this->dies[req->s_i->layer].placeCurrentBlock(true);
-		this->dies[req->s_j->layer].placeCurrentBlock(true);
-
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 			cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << endl;
+		}
+
+		// local mapping of blocks
+		b1 = req->s_i;
+		b2 = req->s_j;
+
+		// retrieve related die pointers
+		die_b1 = &this->dies[b1->layer];
+		die_b2 = &this->dies[b2->layer];
+
+		// first, we need to determine which insertion direction is to be applied
+		// for each block
+		dir_b1 = die_b1->getCurrentDirection();
+		dir_b2 = die_b2->getCurrentDirection();
+
+		// second, depending on insertion direction, there are various
+		// subscenarios
+		//
+		// subscenario IIa: both blocks have the same insertion direction, i.e.,
+		// can be processed in parallel
+		if (dir_b1 == dir_b2) {
+
+			// pop relevant blocks from related placement stacks
+			b1_relev_blocks = die_b1->popRelevantBlocks();
+			b2_relev_blocks = die_b2->popRelevantBlocks();
+
+			// horizontal placement
+			if (dir_b1 == Direction::HORIZONTAL) {
+
+				// dbg placement direction
+				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+					cout << "DBG_ALIGNMENT>     Blocks are to be placed horizontally" << endl;
+				}
+
+				// first, determine blocks' y-coordinates
+				die_b1->determCurrentBlockCoords(Coordinate::Y, b1_relev_blocks);
+				die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks);
+
+				// perform shift in y-dir, if required and possible
+				b1_shifted = this->shiftBlock(Direction::VERTICAL, req, b1);
+				b2_shifted = this->shiftBlock(Direction::VERTICAL, req, b2);
+
+				// second, determine block's x-coordinates (depends on
+				// y-coord of relevant blocks or, if block was shifted in
+				// y-dir, on placed blocks in general)
+				die_b1->determCurrentBlockCoords(Coordinate::X, b1_relev_blocks, b1_shifted);
+				die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks, b2_shifted);
+
+				// perform shift in x-dir, if required and possible
+				b1_shifted = this->shiftBlock(Direction::HORIZONTAL, req, b1) || b1_shifted;
+				b2_shifted = this->shiftBlock(Direction::HORIZONTAL, req, b2) || b2_shifted;
+			}
+			// vertical placement
+			else {
+
+				// dbg placement direction
+				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+					cout << "DBG_ALIGNMENT>     Blocks are to be placed vertically" << endl;
+				}
+
+				// first, determine blocks' x-coordinates
+				die_b1->determCurrentBlockCoords(Coordinate::X, b1_relev_blocks);
+				die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks);
+
+				// perform shift in x-dir, if required and possible
+				b1_shifted = this->shiftBlock(Direction::HORIZONTAL, req, b1);
+				b2_shifted = this->shiftBlock(Direction::HORIZONTAL, req, b2);
+
+				// second, determine block's y-coordinates (depends on
+				// x-coord of relevant blocks or, if block was shifted in
+				// x-dir, on placed blocks in general)
+				die_b1->determCurrentBlockCoords(Coordinate::Y, b1_relev_blocks, b1_shifted);
+				die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks, b2_shifted);
+
+				// perform shift in y-dir, if required and possible
+				b1_shifted = this->shiftBlock(Direction::VERTICAL, req, b1) || b1_shifted;
+				b2_shifted = this->shiftBlock(Direction::VERTICAL, req, b2) || b2_shifted;
+			}
+
+			// if a block was shifted, we need to rebuild the related placement stacks
+			// since the corner-block front in both dimensions may be different now
+			//
+			if (b1_shifted) {
+				die_b1->rebuildPlacementStacks(b1_relev_blocks);
+			}
+			// if a block was not shifted, we can simply update the placement stacks
+			else {
+				die_b1->updatePlacementStacks(b1_relev_blocks);
+			}
+
+			if (b2_shifted) {
+				die_b2->rebuildPlacementStacks(b2_relev_blocks);
+			}
+			else {
+				die_b2->updatePlacementStacks(b2_relev_blocks);
+			}
+
+			// mark (shifted) blocks as placed
+			b1->placed = true;
+			b2->placed = true;
+
+			// placement stacks debugging
+			if (CorblivarDie::DBG_STACKS) {
+				die_b1->debugStacks();
+				die_b2->debugStacks();
+			}
+		}
+		// TODO drop, dummy handler
+		else {
+			die_b1->placeCurrentBlock(true);
+			die_b2->placeCurrentBlock(true);
 		}
 	}
 
@@ -418,7 +533,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_shift_block->determCurrentBlockCoords(Coordinate::Y, shift_block_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
-			block_shifted = shiftBlock(Direction::VERTICAL, req, shift_block);
+			block_shifted = this->shiftBlock(Direction::VERTICAL, req, shift_block);
 
 			// second, determine block's x-coordinates (depends on y-coord of
 			// relevant blocks or, if block was shifted in y-dir, on placed
