@@ -100,7 +100,7 @@ class CornerBlockList {
 			stringstream ret;
 
 			ret << "tuple " << tuple << " : ";
-			ret << "( " << this->S[tuple]->id << " " << (unsigned) this->L[tuple] << " " << this->T[tuple] << " ";
+			ret << "( " << this->S[tuple]->id << " " << static_cast<unsigned>(this->L[tuple]) << " " << this->T[tuple] << " ";
 			ret << this->S[tuple]->bb.w << " " << this->S[tuple]->bb.h << " )";
 
 			return ret.str();
