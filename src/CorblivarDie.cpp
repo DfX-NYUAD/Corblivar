@@ -37,7 +37,8 @@ void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 		// first, determine block's y-coordinates
 		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks);
 		// second, determine block's x-coordinates (depends on y-coord; extended
-		// check depends on whether alignment is enabled)
+		// check depends on whether alignment is enabled, i.e., whether some
+		// blocks might be shifted)
 		this->determCurrentBlockCoords(Coordinate::X, relevBlocks, alignment_enabled);
 	}
 	// vertical placement
@@ -46,7 +47,8 @@ void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 		// first, determine block's x-coordinates
 		this->determCurrentBlockCoords(Coordinate::X, relevBlocks);
 		// second, determine block's y-coordinates (depends on x-coord; extended
-		// check depends on whether alignment is enabled)
+		// check depends on whether alignment is enabled, i.e., whether some
+		// blocks might be shifted)
 		this->determCurrentBlockCoords(Coordinate::Y, relevBlocks, alignment_enabled);
 	}
 
