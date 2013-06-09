@@ -640,6 +640,8 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 	double overlap_x, overlap_y;
 	double shift_x, shift_y;
 	double range_x, range_y;
+	double neighbor_x, neighbor_y;
+	bool neighbor_x_found, neighbor_y_found;
 	bool shifted;
 
 	// block to shift is current block
@@ -673,30 +675,67 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// will be < 0
 			overlap_x = shift_block->bb.ur.x - reference_block->bb.ll.x;
 
-			// shift left block to the right
+			// try to shift left block to the right
 			if (overlap_x < range_x) {
-
-				// memorize that shifting was required
-				shifted = true;
 
 				// determine required additional shifting amount
 				shift_x = range_x - overlap_x;
 
-				// apply shifting range
-				if (!dry_run) {
-					shift_block->bb.ll.x += shift_x;
-					shift_block->bb.ur.x += shift_x;
+				// check previously placed blocks; they might limit
+				// shifting ranges in cases where the block to be shifted
+				// is implicitly packed w/in the corner-blocks front
+				//
+				neighbor_x = 0.0;
+				neighbor_x_found =  false;
+				// walk all blocks (implicitly ordered such that placed blocks are first)
+				for (unsigned b = 0; b < this->getCBL().size(); b++) {
+
+					if (this->getBlock(b)->id == shift_block->id) {
+						break;
+					}
+					else {
+						// for shifting to the right, check for
+						// right neigbhors
+						if (Rect::rectA_leftOf_rectB(shift_block->bb, this->getBlock(b)->bb, true)) {
+
+							if (!neighbor_x_found) {
+								neighbor_x_found = true;
+								neighbor_x = this->getBlock(b)->bb.ll.x;
+							}
+							else {
+								neighbor_x = min(neighbor_x, this->getBlock(b)->bb.ll.x);
+							}
+						}
+					}
 				}
 
+				// some relevant neighbor found, i.e., shifting is
+				// restricted in order to avoid overlaps
+				if (neighbor_x_found) {
+
+					shift_x = min(shift_x, neighbor_x - shift_block->bb.ur.x);
+				}
+
+				// memorize that shifting is possible (and conducted)
+				shifted = (shift_x > 0.0);
+
+				// dbg logging
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in x-direction by " << shift_x;
+					cout << " in x-direction by " << range_x - overlap_x;
+					cout << " (feasible: " << shift_x << ")";
 
 					if (dry_run) {
 						cout << " is required, but not performed now (dry run)";
 					}
 
 					cout << endl;
+				}
+
+				// apply shifting
+				if (!dry_run) {
+					shift_block->bb.ll.x += shift_x;
+					shift_block->bb.ur.x += shift_x;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
@@ -733,30 +772,67 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// will be < 0
 			overlap_y = shift_block->bb.ur.y - reference_block->bb.ll.y;
 
-			// shift lower block upwards
+			// try to shift lower block upwards
 			if (overlap_y < range_y) {
-
-				// memorize that shifting was required
-				shifted = true;
 
 				// determine required additional shifting amount
 				shift_y = range_y - overlap_y;
 
-				// apply shifting range
-				if (!dry_run) {
-					shift_block->bb.ll.y += shift_y;
-					shift_block->bb.ur.y += shift_y;
+				// check previously placed blocks; they might limit
+				// shifting ranges in cases where the block to be shifted
+				// is implicitly packed w/in the corner-blocks front
+				//
+				neighbor_y = 0.0;
+				neighbor_y_found =  false;
+				// walk all blocks (implicitly ordered such that placed blocks are first)
+				for (unsigned b = 0; b < this->getCBL().size(); b++) {
+
+					if (this->getBlock(b)->id == shift_block->id) {
+						break;
+					}
+					else {
+						// for shifting to the top, check for
+						// neigbhors above
+						if (Rect::rectA_below_rectB(shift_block->bb, this->getBlock(b)->bb, true)) {
+
+							if (!neighbor_y_found) {
+								neighbor_y_found = true;
+								neighbor_y = this->getBlock(b)->bb.ll.y;
+							}
+							else {
+								neighbor_y = min(neighbor_y, this->getBlock(b)->bb.ll.y);
+							}
+						}
+					}
 				}
 
+				// some relevant neighbor found, i.e., shifting is
+				// restricted in order to avoid overlaps
+				if (neighbor_y_found) {
+
+					shift_y = min(shift_y, neighbor_y - shift_block->bb.ur.y);
+				}
+
+				// memorize that shifting is possible (and conducted)
+				shifted = (shift_y > 0.0);
+
+				// dbg logging
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in y-direction by " << shift_y;
+					cout << " in y-direction by " << range_y - overlap_y;
+					cout << " (feasible: " << shift_y << ")";
 
 					if (dry_run) {
 						cout << " is required, but not performed now (dry run)";
 					}
 
 					cout << endl;
+				}
+
+				// apply shifting
+				if (!dry_run) {
+					shift_block->bb.ll.y += shift_y;
+					shift_block->bb.ur.y += shift_y;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
