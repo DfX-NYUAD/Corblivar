@@ -23,8 +23,11 @@ class CorblivarCore {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = false;
-		static constexpr bool DBG_ALIGNMENT_REQ = false;
 		static constexpr bool DBG_VALID_LAYOUT = true;
+
+	// debugging code switch (public)
+	public:
+		static constexpr bool DBG_ALIGNMENT_REQ = false;
 
 	// private data, functions
 	private:
@@ -63,8 +66,12 @@ class CorblivarCore {
 
 		// handler for block alignment
 		bool alignBlocks(CorblivarAlignmentReq const* req);
-		static bool shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block, bool const& dry_run = false);
-		static void sequentialShiftingHelper(Block const* b1, Block const* b2, CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted);
+		static void sequentialShiftingHelper(
+				CorblivarDie* die_b1, CorblivarDie* die_b2,
+				CorblivarAlignmentReq const* req,
+				list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks,
+				Direction const& dir_b1,
+				bool& b1_shifted, bool& b2_shifted);
 		list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit

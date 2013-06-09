@@ -16,6 +16,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "CornerBlockList.hpp"
+#include "CorblivarAlignmentReq.hpp"
 #include "Coordinate.hpp"
 // forward declarations, if any
 class Block;
@@ -75,6 +76,8 @@ class CorblivarDie {
 
 		// layout generation; place current block
 		void placeCurrentBlock(bool const& alignment_enabled);
+		// layout generation: block shifting
+		bool shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq const* req, bool const& dry_run = false);
 
 		// layout-generation helper: determine coordinates of block in process
 		void inline determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;

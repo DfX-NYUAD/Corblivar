@@ -395,8 +395,8 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks);
 
 				// perform shift in y-dir, if required and possible
-				b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
-				b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2);
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
 
 				// second, determine block's x-coordinates (depends on
 				// y-coord of relevant blocks or, if block was shifted in
@@ -405,8 +405,8 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks, b2_shifted);
 
 				// perform shift in x-dir, if required and possible
-				b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1) || b1_shifted;
-				b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2) || b2_shifted;
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req) || b1_shifted;
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req) || b2_shifted;
 			}
 			// vertical placement
 			else {
@@ -421,8 +421,8 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks);
 
 				// perform shift in x-dir, if required and possible
-				b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
-				b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2);
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
 
 				// second, determine block's y-coordinates (depends on
 				// x-coord of relevant blocks or, if block was shifted in
@@ -431,8 +431,8 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks, b2_shifted);
 
 				// perform shift in y-dir, if required and possible
-				b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1) || b1_shifted;
-				b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2) || b2_shifted;
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req) || b1_shifted;
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req) || b2_shifted;
 			}
 		}
 		// subscenario IIb: blocks have different insertion direction, i.e.,
@@ -463,10 +463,10 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			}
 
 			// second, determine which block is to be shifted in which direction
-			b1_to_shift_horizontal = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1, true);
-			b1_to_shift_vertical = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1, true);
-			b2_to_shift_horizontal = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2, true);
-			b2_to_shift_vertical = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2, true);
+			b1_to_shift_horizontal = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req, true);
+			b1_to_shift_vertical = die_b1->shiftCurrentBlock(Direction::VERTICAL, req, true);
+			b2_to_shift_horizontal = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req, true);
+			b2_to_shift_vertical = die_b2->shiftCurrentBlock(Direction::VERTICAL, req, true);
 
 			// third, catch the various cases for possibly required shifting
 			b1_shifted = b2_shifted = false;
@@ -477,7 +477,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				// perform shifting of b1; helper also considers to shift
 				// b2 if required
 				CorblivarCore::sequentialShiftingHelper(
-						b1, b2, die_b1, die_b2, req, b1_relev_blocks, b2_relev_blocks, dir_b1, b1_shifted, b2_shifted);
+						die_b1, die_b2, req, b1_relev_blocks, b2_relev_blocks, dir_b1, b1_shifted, b2_shifted);
 			}
 
 			else if (b2_to_shift_horizontal && b2_to_shift_vertical) {
@@ -485,7 +485,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				// perform shifting of b2; helper also considers to shift
 				// b1 if required
 				CorblivarCore::sequentialShiftingHelper(
-						b2, b1, die_b2, die_b1, req, b2_relev_blocks, b1_relev_blocks, dir_b2, b2_shifted, b1_shifted);
+						die_b2, die_b1, req, b2_relev_blocks, b1_relev_blocks, dir_b2, b2_shifted, b1_shifted);
 			}
 
 			else {
@@ -494,16 +494,16 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				// direction has to be shifted in x-direction / the block w/
 				// vertical insertion direction has to be shifted in y-direction
 				if (dir_b1 == Direction::HORIZONTAL && b1_to_shift_horizontal) {
-					b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
+					b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
 				}
 				else if (dir_b1 == Direction::VERTICAL && b1_to_shift_vertical) {
-					b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
+					b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
 				}
 				if (dir_b2 == Direction::HORIZONTAL && b2_to_shift_horizontal) {
-					b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2);
+					b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
 				}
 				else if (dir_b2 == Direction::VERTICAL && b2_to_shift_vertical) {
-					b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2);
+					b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
 				}
 			}
 		}
@@ -593,7 +593,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_b1->determCurrentBlockCoords(Coordinate::Y, b1_relev_blocks);
 
 			// perform shift in y-dir, if required and possible
-			b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
+			b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
 
 			// second, determine block's x-coordinates (depends on y-coord of
 			// relevant blocks or, if block was shifted in y-dir, on placed
@@ -601,7 +601,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_b1->determCurrentBlockCoords(Coordinate::X, b1_relev_blocks, b1_shifted);
 
 			// perform shift in x-dir, if required and possible
-			b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1) || b1_shifted;
+			b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req) || b1_shifted;
 		}
 		// vertical placement
 		else {
@@ -615,7 +615,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_b1->determCurrentBlockCoords(Coordinate::X, b1_relev_blocks);
 
 			// perform shift in x-dir, if required and possible
-			b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
+			b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
 
 			// second, determine block's y-coordinates (depends on x-coord of
 			// relevant blocks or, if block was shifted in x-dir, on placed
@@ -623,7 +623,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			die_b1->determCurrentBlockCoords(Coordinate::Y, b1_relev_blocks, b1_shifted);
 
 			// perform shift in y-dir, if required and possible
-			b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1) || b1_shifted;
+			b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req) || b1_shifted;
 		}
 
 		// if the block was shifted, we need to rebuild the placement stacks since
@@ -648,151 +648,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	return true;
 }
 
-bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block, bool const& dry_run) {
-	Block const* reference_block;
-	double overlap_x, overlap_y;
-	double shift_x, shift_y;
-	double range_x, range_y;
-	bool shifted;
-
-	// flag for monitoring shifting itself
-	shifted = false;
-
-	// first, determine reference block
-	if (shift_block->id == req->s_i->id) {
-		reference_block = req->s_j;
-	}
-	else {
-		reference_block = req->s_i;
-	}
-
-	// second, perform actual shift
-	//
-	// shift in horizontal direction
-	if (dir == Direction::HORIZONTAL) {
-
-		// for shifting range, we need to ensure that the blocks have an overlap in
-		// x-direction >= range
-		if (req->range_x()) {
-
-			// limit desired range, i.e., consider current block dimensions
-			range_x = min(shift_block->bb.w, reference_block->bb.w);
-			range_x = min(range_x, req->offset_range_x);
-
-			// determine inherent overlap; for non-overlapping blocks this
-			// will be < 0
-			overlap_x = shift_block->bb.ur.x - reference_block->bb.ll.x;
-
-			// shift left block to the right
-			if (overlap_x < range_x) {
-
-				// memorize that shifting was required
-				shifted = true;
-
-				// determine required additional shifting amount
-				shift_x = range_x - overlap_x;
-
-				// apply shifting range
-				if (!dry_run) {
-					shift_block->bb.ll.x += shift_x;
-					shift_block->bb.ur.x += shift_x;
-				}
-
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in x-direction by " << shift_x;
-
-					if (dry_run) {
-						cout << " is required, but not performed now (dry run)";
-					}
-
-					cout << endl;
-				}
-			}
-			// sanity check for impossible shifting, i.e., other block should
-			// be shifted
-			else if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-
-				overlap_x = reference_block->bb.ur.x - shift_block->bb.ll.x;
-
-				if (overlap_x < range_x) {
-					cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in x-direction not effective; other block would need to be shifted!" << endl;
-				}
-			}
-		}
-
-		// for shifting offset, we need to ensure that the blocks have an exact
-		// offset w.r.t. their lower left corners
-		// TODO offsets
-		else if (req->offset_x()) {
-		}
-	}
-
-	// shift in vertical direction
-	else {
-
-		// for shifting range, we need to ensure that the blocks have an overlap in
-		// y-direction >= range
-		if (req->range_y()) {
-
-			// limit desired range, i.e., consider current block dimensions
-			range_y = min(shift_block->bb.h, reference_block->bb.h);
-			range_y = min(range_y, req->offset_range_y);
-
-			// determine inherent overlap; for non-overlapping blocks this
-			// will be < 0
-			overlap_y = shift_block->bb.ur.y - reference_block->bb.ll.y;
-
-			// shift lower block upwards
-			if (overlap_y < range_y) {
-
-				// memorize that shifting was required
-				shifted = true;
-
-				// determine required additional shifting amount
-				shift_y = range_y - overlap_y;
-
-				// apply shifting range
-				if (!dry_run) {
-					shift_block->bb.ll.y += shift_y;
-					shift_block->bb.ur.y += shift_y;
-				}
-
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in y-direction by " << shift_y;
-
-					if (dry_run) {
-						cout << " is required, but not performed now (dry run)";
-					}
-
-					cout << endl;
-				}
-			}
-			// sanity check for impossible shifting, i.e., other block should
-			// be shifted
-			else if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-
-				overlap_y = reference_block->bb.ur.y - shift_block->bb.ll.y;
-
-				if (overlap_y < range_y) {
-					cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in y-direction not effective; other block would need to be shifted!" << endl;
-				}
-			}
-		}
-
-		// for shifting offset, we need to ensure that the blocks have an exact
-		// offset w.r.t. their lower left corners
-		// TODO offsets
-		else if (req->offset_y()) {
-		}
-	}
-
-	return shifted;
-}
-
-
-void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted) {
+void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted) {
 
 	// annotate that b1 is shifted at least in one direction
 	b1_shifted = true;
@@ -802,7 +658,7 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 
 		// perform shift in first direction, for
 		// horizontal insertion that's the y-coordinate
-		CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
+		die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
 
 		// redetermine second coordinate, i.e.,
 		// x-coordinate
@@ -810,14 +666,14 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 
 		// try to shift b1 also in second direction; if
 		// that's not possible we need to try shifting b2
-		if (!CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1)) {
+		if (!die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req)) {
 
 			// b2's insertion direction is vertical
 			// (since b1's direction is horizontal and
 			// different from b2's direction); thus we
 			// shift b2 in its first direction
 			// (horizontal)
-			b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2);
+			b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
 
 			// redetermine b2's second coordinate,
 			// i.e., y-coordinate
@@ -831,7 +687,7 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 			// iteratively; thus, we ignore for
 			// simplified handling such (rare?) cases
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				if (CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1, true)) {
+				if (die_b1->shiftCurrentBlock(Direction::VERTICAL, req, true)) {
 					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
 				}
 			}
@@ -843,7 +699,7 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 
 		// perform shift in first direction, for
 		// vertical insertion that's the x-coordinate
-		CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
+		die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
 
 		// redetermine second coordinate, i.e.,
 		// y-coordinate
@@ -851,14 +707,14 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 
 		// try to shift b1 also in second direction; if
 		// that's not possible we need to try shifting b2
-		if (!CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1)) {
+		if (!die_b1->shiftCurrentBlock(Direction::VERTICAL, req)) {
 
 			// b2's insertion direction is horizontal
 			// (since b1's direction is vertical and
 			// different from b2's direction); thus we
 			// shift b2 in its first direction
 			// (vertical)
-			b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2);
+			b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
 
 			// redetermine b2's second coordinate,
 			// i.e., x-coordinate
@@ -872,7 +728,7 @@ void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, C
 			// iteratively; thus, we ignore for
 			// simplified handling such (rare?) cases
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				if (CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1, true)) {
+				if (die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req, true)) {
 					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
 				}
 			}
