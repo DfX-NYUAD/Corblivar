@@ -488,23 +488,35 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 						die_b2, die_b1, req, b2_relev_blocks, b1_relev_blocks, dir_b2, b2_shifted, b1_shifted);
 			}
 
-			else {
-				//
-				// b) trivial cases where the block w/ horizontal insertion
-				// direction has to be shifted in x-direction / the block w/
-				// vertical insertion direction has to be shifted in y-direction
-				if (dir_b1 == Direction::HORIZONTAL && b1_to_shift_horizontal) {
-					b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
-				}
-				else if (dir_b1 == Direction::VERTICAL && b1_to_shift_vertical) {
-					b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
-				}
-				if (dir_b2 == Direction::HORIZONTAL && b2_to_shift_horizontal) {
-					b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
-				}
-				else if (dir_b2 == Direction::VERTICAL && b2_to_shift_vertical) {
-					b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
-				}
+			// b) one or both blocks are to be shifted in their first direction
+			if (!b1_shifted && b1_to_shift_vertical && dir_b1 == Direction::HORIZONTAL) {
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
+			}
+			else if (!b1_shifted && b1_to_shift_horizontal && dir_b1 == Direction::VERTICAL) {
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
+			}
+
+			if (!b2_shifted && b2_to_shift_vertical && dir_b2 == Direction::HORIZONTAL) {
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
+			}
+			else if (!b2_shifted && b2_to_shift_horizontal && dir_b2 == Direction::VERTICAL) {
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
+			}
+
+			// c) trivial cases where one or both blocks are to be shifted in
+			// their second direction
+			if (!b1_shifted && b1_to_shift_horizontal && dir_b1 == Direction::HORIZONTAL) {
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req);
+			}
+			else if (!b1_shifted && b1_to_shift_vertical && dir_b1 == Direction::VERTICAL) {
+				b1_shifted = die_b1->shiftCurrentBlock(Direction::VERTICAL, req);
+			}
+
+			if (!b2_shifted && b2_to_shift_horizontal && dir_b2 == Direction::HORIZONTAL) {
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::HORIZONTAL, req);
+			}
+			else if (!b2_shifted && b2_to_shift_vertical && dir_b2 == Direction::VERTICAL) {
+				b2_shifted = die_b2->shiftCurrentBlock(Direction::VERTICAL, req);
 			}
 		}
 
