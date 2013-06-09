@@ -605,86 +605,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	return true;
 }
 
-Block const* CorblivarCore::determineShiftBlock(Direction const& dir, CorblivarAlignmentReq const* req) {
-	Block const* shift_block;
-
-	// determine which block to shift in horizontal direction
-	if (dir == Direction::HORIZONTAL) {
-
-		// alignment range
-		if (req->range_x()) {
-
-			// blocks are aligned w/ their left edges
-			if (req->s_i->bb.ll.x == req->s_j->bb.ll.x) {
-				// the resulting overlap is the best we can
-				// achieve, thus ignore further shifting
-				return nullptr;
-			}
-			// blocks are not aligned; the block to be shifted is the block
-			// further left, since shifting is only allowed and effective w/in
-			// positive x-direction
-			else if (req->s_i->bb.ll.x < req->s_j->bb.ll.x) {
-				shift_block = req->s_i;
-			}
-			else {
-				shift_block = req->s_j;
-			}
-		}
-		// TODO alignment offsets
-		else if (req->offset_x()) {
-
-			// TODO drop
-			return nullptr;
-		}
-		// alignment is not defined, i.e., not required
-		else {
-			return nullptr;
-		}
-	}
-
-	// determine which block to shift in horizontal direction
-	else {
-
-		// alignment range
-		if (req->range_y()) {
-
-			// blocks are aligned w/ their bottom edges
-			if (req->s_i->bb.ll.y == req->s_j->bb.ll.y) {
-				// the resulting overlap is the best we can
-				// achieve, thus ignore further shifting
-				return nullptr;
-			}
-			// blocks are not aligned; the block to be shifted is the block
-			// further below, since shifting is only allowed and effective
-			// w/in positive y-direction
-			else if (req->s_i->bb.ll.y < req->s_j->bb.ll.y) {
-				shift_block = req->s_i;
-			}
-			else {
-				shift_block = req->s_j;
-			}
-		}
-		// TODO alignment offsets
-		else if (req->offset_y()) {
-
-			// TODO drop
-			return nullptr;
-		}
-		// alignment is not defined, i.e., not required
-		else {
-			return nullptr;
-		}
-	}
-
-	// sanity check for placed blocks
-	if (shift_block->placed) {
-		shift_block = nullptr;
-	}
-
-	return shift_block;
-}
-
-bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block) {
+bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const* req, Block const* shift_block, bool const& dry_run) {
 	Block const* reference_block;
 	double overlap_x, overlap_y;
 	double shift_x, shift_y;
@@ -729,12 +650,20 @@ bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 				shift_x = range_x - overlap_x;
 
 				// apply shifting range
-				shift_block->bb.ll.x += shift_x;
-				shift_block->bb.ur.x += shift_x;
+				if (!dry_run) {
+					shift_block->bb.ll.x += shift_x;
+					shift_block->bb.ur.x += shift_x;
+				}
 
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in x-direction by " << shift_x << endl;
+					cout << " in x-direction by " << shift_x;
+
+					if (dry_run) {
+						cout << " is required, but not performed now (dry run)";
+					}
+
+					cout << endl;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
@@ -781,12 +710,20 @@ bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 				shift_y = range_y - overlap_y;
 
 				// apply shifting range
-				shift_block->bb.ll.y += shift_y;
-				shift_block->bb.ur.y += shift_y;
+				if (!dry_run) {
+					shift_block->bb.ll.y += shift_y;
+					shift_block->bb.ur.y += shift_y;
+				}
 
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 					cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-					cout << " in y-direction by " << shift_y << endl;
+					cout << " in y-direction by " << shift_y;
+
+					if (dry_run) {
+						cout << " is required, but not performed now (dry run)";
+					}
+
+					cout << endl;
 				}
 			}
 			// sanity check for impossible shifting, i.e., other block should
