@@ -349,6 +349,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	list<Block const*> b1_relev_blocks, b2_relev_blocks;
 	Direction dir_b1, dir_b2;
 	bool b1_shifted, b2_shifted;
+	bool b1_to_shift_horizontal, b1_to_shift_vertical, b2_to_shift_horizontal, b2_to_shift_vertical;
 
 	// TODO scenario I: both blocks are yet unplaced
 	if (!req->s_i->placed && !req->s_j->placed) {
@@ -461,8 +462,50 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 				die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks);
 			}
 
-			// TODO perform shifting if required
+			// second, determine which block is to be shifted in which direction
+			b1_to_shift_horizontal = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1, true);
+			b1_to_shift_vertical = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1, true);
+			b2_to_shift_horizontal = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2, true);
+			b2_to_shift_vertical = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2, true);
+
+			// third, catch the various cases for possibly required shifting
 			b1_shifted = b2_shifted = false;
+			//
+			// a) one block has to be shifted in both directions
+			if (b1_to_shift_horizontal && b1_to_shift_vertical) {
+
+				// perform shifting of b1; helper also considers to shift
+				// b2 if required
+				CorblivarCore::sequentialShiftingHelper(
+						b1, b2, die_b1, die_b2, req, b1_relev_blocks, b2_relev_blocks, dir_b1, b1_shifted, b2_shifted);
+			}
+
+			else if (b2_to_shift_horizontal && b2_to_shift_vertical) {
+
+				// perform shifting of b2; helper also considers to shift
+				// b1 if required
+				CorblivarCore::sequentialShiftingHelper(
+						b2, b1, die_b2, die_b1, req, b2_relev_blocks, b1_relev_blocks, dir_b2, b2_shifted, b1_shifted);
+			}
+
+			else {
+				//
+				// b) trivial cases where the block w/ horizontal insertion
+				// direction has to be shifted in x-direction / the block w/
+				// vertical insertion direction has to be shifted in y-direction
+				if (dir_b1 == Direction::HORIZONTAL && b1_to_shift_horizontal) {
+					b1_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
+				}
+				else if (dir_b1 == Direction::VERTICAL && b1_to_shift_vertical) {
+					b1_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
+				}
+				if (dir_b2 == Direction::HORIZONTAL && b2_to_shift_horizontal) {
+					b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2);
+				}
+				else if (dir_b2 == Direction::VERTICAL && b2_to_shift_vertical) {
+					b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2);
+				}
+			}
 		}
 
 		// if a block was shifted, we need to rebuild the related placement stacks
@@ -746,6 +789,95 @@ bool CorblivarCore::shiftBlock(Direction const& dir, CorblivarAlignmentReq const
 	}
 
 	return shifted;
+}
+
+
+void CorblivarCore::sequentialShiftingHelper(Block const* b1, Block const* b2, CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted) {
+
+	// annotate that b1 is shifted at least in one direction
+	b1_shifted = true;
+
+	// actual shifting depends on insertion direction
+	if (dir_b1 == Direction::HORIZONTAL) {
+
+		// perform shift in first direction, for
+		// horizontal insertion that's the y-coordinate
+		CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1);
+
+		// redetermine second coordinate, i.e.,
+		// x-coordinate
+		die_b1->determCurrentBlockCoords(Coordinate::X, b1_relev_blocks, true);
+
+		// try to shift b1 also in second direction; if
+		// that's not possible we need to try shifting b2
+		if (!CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1)) {
+
+			// b2's insertion direction is vertical
+			// (since b1's direction is horizontal and
+			// different from b2's direction); thus we
+			// shift b2 in its first direction
+			// (horizontal)
+			b2_shifted = CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b2);
+
+			// redetermine b2's second coordinate,
+			// i.e., y-coordinate
+			die_b2->determCurrentBlockCoords(Coordinate::Y, b2_relev_blocks, b2_shifted);
+
+			// (TODO) since b2's second coordinate
+			// might have changed, we would need to
+			// check whether b1's previous shifting is
+			// now undermined; this problem is a
+			// circular problem and has to be consider
+			// iteratively; thus, we ignore for
+			// simplified handling such (rare?) cases
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				if (CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1, true)) {
+					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
+				}
+			}
+		}
+	}
+
+	// b1's insertion direction is vertical
+	else {
+
+		// perform shift in first direction, for
+		// vertical insertion that's the x-coordinate
+		CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1);
+
+		// redetermine second coordinate, i.e.,
+		// y-coordinate
+		die_b1->determCurrentBlockCoords(Coordinate::Y, b1_relev_blocks, true);
+
+		// try to shift b1 also in second direction; if
+		// that's not possible we need to try shifting b2
+		if (!CorblivarCore::shiftBlock(Direction::VERTICAL, req, b1)) {
+
+			// b2's insertion direction is horizontal
+			// (since b1's direction is vertical and
+			// different from b2's direction); thus we
+			// shift b2 in its first direction
+			// (vertical)
+			b2_shifted = CorblivarCore::shiftBlock(Direction::VERTICAL, req, b2);
+
+			// redetermine b2's second coordinate,
+			// i.e., x-coordinate
+			die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks, b2_shifted);
+
+			// (TODO) if b2's second coordinate might
+			// have changed, we would need to check
+			// whether b1's previous shifting is now
+			// undermined; this problem is a circular
+			// problem and has to be consider
+			// iteratively; thus, we ignore for
+			// simplified handling such (rare?) cases
+			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				if (CorblivarCore::shiftBlock(Direction::HORIZONTAL, req, b1, true)) {
+					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
+				}
+			}
+		}
+	}
 }
 
 list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
