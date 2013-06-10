@@ -107,7 +107,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				valid_layout = corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
 
 				// dbg invalid valid
-				if (!valid_layout) {
+				if (CorblivarCore::DBG_VALID_LAYOUT && !valid_layout) {
 
 					// generate invalid floorplan for dbg
 					IO::writeFloorplanGP(*this, corb.getAlignments(), "invalid_layout");
