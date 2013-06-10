@@ -1388,8 +1388,25 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				cost += blocks_bb.w - req.offset_range_x;
 			}
 		}
-		// TODO alignment offset
+		// fixed alignment offset
 		else if (req.offset_x()) {
+
+			// consider the spatial mismatch as cost
+			if (!Math::doubleComp(req.s_j->bb.ll.x - req.s_i->bb.ll.x, req.offset_range_x)) {
+
+				// s_j should be right of s_i
+				if (req.offset_range_x >= 0.0) {
+
+					// abs required for cases where s_j is left of s_i
+					cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x);
+				}
+				// s_j should be left of s_i
+				else {
+
+					// abs required for cases where s_i is right of s_j
+					cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x);
+				}
+			}
 		}
 
 		// check partial request, vertical aligment
@@ -1426,8 +1443,25 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				cost += blocks_bb.h - req.offset_range_y;
 			}
 		}
-		// TODO alignment offset
+		// fixed alignment offset
 		else if (req.offset_y()) {
+
+			// consider the spatial mismatch as cost
+			if (!Math::doubleComp(req.s_j->bb.ll.y - req.s_i->bb.ll.y, req.offset_range_y)) {
+
+				// s_j should be above s_i
+				if (req.offset_range_y >= 0.0) {
+
+					// abs required for cases where s_j is below s_i
+					cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y);
+				}
+				// s_j should be below s_i
+				else {
+
+					// abs required for cases where s_i is below s_j
+					cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y);
+				}
+			}
 		}
 	}
 
