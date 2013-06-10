@@ -1887,7 +1887,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
 							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.conf_outline_x << "," << alignment_rect.ll.y + 0.01 * fp.conf_outline_y;
 							// box colors
-							if (req_x_fulfilled == 1) {
+							if (req_y_fulfilled == 1) {
 								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
 							}
 							else {
