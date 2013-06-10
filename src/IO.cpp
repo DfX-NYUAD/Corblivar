@@ -622,6 +622,9 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		else if (type == "OFFSET") {
 			type_x = CorblivarAlignmentReq::Type::OFFSET;
 		}
+		else if (type == "UNDEF") {
+			type_x = CorblivarAlignmentReq::Type::UNDEF;
+		}
 		else {
 			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
 			exit(1);
@@ -641,6 +644,9 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		}
 		else if (type == "OFFSET") {
 			type_y = CorblivarAlignmentReq::Type::OFFSET;
+		}
+		else if (type == "UNDEF") {
+			type_y = CorblivarAlignmentReq::Type::UNDEF;
 		}
 		else {
 			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
