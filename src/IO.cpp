@@ -1603,13 +1603,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					// init alignment flags; -1 equals undefined
 					req_x_fulfilled = req_y_fulfilled = -1;
 
-					// TODO
-					// an offset is defined for one/two dimensions,
-					// i.e., the blocks' lower-left corners should hae
-					// an fixed distance
-					// if (req.offset_x() || req.offset_y()) {
-					// }
-
 					// check partial request, horizontal aligment
 					//
 					// alignment range
@@ -1672,8 +1665,25 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							req_x_fulfilled = 0;
 						}
 					}
-					// TODO alignment offset
+					// alignment offset
 					else if (req.offset_x()) {
+
+						// for an alignment offset, the related
+						// blocks' lower-left corners are relevant
+						alignment_rect.ll.x = req.s_i->bb.ll.x;
+						alignment_rect.ur.x = req.s_j->bb.ll.x;
+						alignment_rect.w = alignment_rect.ur.x - alignment_rect.ll.x;
+
+						// offset and thus alignment fulfilled
+						if (Math::doubleComp(alignment_rect.w,  req.offset_range_x)) {
+
+							req_x_fulfilled = 1;
+						}
+						// offset and thus alignment failed
+						else {
+
+							req_x_fulfilled = 0;
+						}
 					}
 					// undefined request
 					else {
@@ -1745,8 +1755,25 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							req_y_fulfilled = 0;
 						}
 					}
-					// TODO alignment offset
+					// alignment offset
 					else if (req.offset_y()) {
+
+						// for an alignment offset, the related
+						// blocks' lower-left corners are relevant
+						alignment_rect.ll.y = req.s_i->bb.ll.y;
+						alignment_rect.ur.y = req.s_j->bb.ll.y;
+						alignment_rect.h = alignment_rect.ur.y - alignment_rect.ll.y;
+
+						// offset and thus alignment fulfilled
+						if (Math::doubleComp(alignment_rect.h,  req.offset_range_y)) {
+
+							req_y_fulfilled = 1;
+						}
+						// offset and thus alignment failed
+						else {
+
+							req_y_fulfilled = 0;
+						}
 					}
 					// undefined request
 					else {
@@ -1761,73 +1788,167 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					// to represent particular failed/fulfilled
 					// alignment requests
 
-					// lower horizontal line
-					gp_out << "set arrow";
-					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
-					gp_out << " nohead lc rgb";
-					if (req_x_fulfilled == 1) {
-						gp_out << " \"" << alignment_color_fulfilled << "\"";
-					}
-					else if (req_x_fulfilled == -1) {
-						gp_out << " \"" << alignment_color_undefined << "\"";
-					}
-					else {
-						gp_out << " \"" << alignment_color_failed << "\"";
-					}
-					gp_out << " lw 3";
-					gp_out << endl;
+					// fixed offset alignments
+					if (req.offset_x()) {
 
-					// upper horizontal line
-					gp_out << "set arrow";
-					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
-					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
-					gp_out << " nohead lc rgb";
-					if (req_x_fulfilled == 1) {
-						gp_out << " \"" << alignment_color_fulfilled << "\"";
-					}
-					else if (req_x_fulfilled == -1) {
-						gp_out << " \"" << alignment_color_undefined << "\"";
-					}
-					else {
-						gp_out << " \"" << alignment_color_failed << "\"";
-					}
-					gp_out << " lw 3";
-					gp_out << endl;
+						// zero offset, i.e., alignment in
+						// x-coordinate; mark w/ small rect
+						if (alignment_rect.w == 0.0) {
 
-					// left vertical line
-					gp_out << "set arrow";
-					gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-					gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
-					gp_out << " nohead lc rgb";
-					if (req_y_fulfilled == 1) {
-						gp_out << " \"" << alignment_color_fulfilled << "\"";
-					}
-					else if (req_y_fulfilled == -1) {
-						gp_out << " \"" << alignment_color_undefined << "\"";
-					}
-					else {
-						gp_out << " \"" << alignment_color_failed << "\"";
-					}
-					gp_out << " lw 3";
-					gp_out << endl;
+							// rect as marker
+							gp_out << "set obj rect ";
+							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.conf_outline_x << "," << alignment_rect.ll.y + 0.01 * fp.conf_outline_y;
+							// box colors
+							if (req_x_fulfilled == 1) {
+								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else {
+								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " fs solid";
+							gp_out << endl;
+						}
+						// non-zero offset, i.e., offset range;
+						// mark w/ arrows
+						else {
 
-					// right vertical line
-					gp_out << "set arrow";
-					gp_out << " from " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
-					gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
-					gp_out << " nohead lc rgb";
-					if (req_y_fulfilled == 1) {
-						gp_out << " \"" << alignment_color_fulfilled << "\"";
+							// horizontal arrow
+							gp_out << "set arrow";
+							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+							gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+							gp_out << " head";
+							// line colors
+							if (req_x_fulfilled == 1) {
+								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else {
+								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " lw 3";
+							gp_out << endl;
+						}
 					}
-					else if (req_y_fulfilled == -1) {
-						gp_out << " \"" << alignment_color_undefined << "\"";
-					}
+					// range alignments
 					else {
-						gp_out << " \"" << alignment_color_failed << "\"";
+
+						// lower horizontal line
+						gp_out << "set arrow";
+						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+						gp_out << " nohead";
+						// line colors
+						if (req_x_fulfilled == 1) {
+							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+						}
+						else if (req_x_fulfilled == -1) {
+							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+						}
+						else {
+							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+						}
+						gp_out << " lw 3";
+						gp_out << endl;
+
+						// upper horizontal line
+						gp_out << "set arrow";
+						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
+						gp_out << " nohead";
+						// line colors
+						if (req_x_fulfilled == 1) {
+							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+						}
+						else if (req_x_fulfilled == -1) {
+							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+						}
+						else {
+							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+						}
+						gp_out << " lw 3";
+						gp_out << endl;
 					}
-					gp_out << " lw 3";
-					gp_out << endl;
+
+					// fixed offset alignments
+					if (req.offset_y()) {
+
+						// zero offset, i.e., alignment in
+						// y-coordinate; mark w/ small rect
+						if (alignment_rect.h == 0.0) {
+
+							// rect as marker
+							gp_out << "set obj rect ";
+							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.conf_outline_x << "," << alignment_rect.ll.y + 0.01 * fp.conf_outline_y;
+							// box colors
+							if (req_x_fulfilled == 1) {
+								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else {
+								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " fs solid";
+							gp_out << endl;
+						}
+						// non-zero offset, i.e., offset range;
+						// mark w/ arrows
+						else {
+
+							// vertical arrow
+							gp_out << "set arrow";
+							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+							gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+							gp_out << " head";
+							// line colors
+							if (req_y_fulfilled == 1) {
+								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else {
+								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " lw 3";
+							gp_out << endl;
+						}
+					}
+					// range alignments
+					else {
+
+						// left vertical line
+						gp_out << "set arrow";
+						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+						gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+						gp_out << " nohead";
+						// line colors
+						if (req_y_fulfilled == 1) {
+							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+						}
+						else if (req_y_fulfilled == -1) {
+							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+						}
+						else {
+							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+						}
+						gp_out << " lw 3";
+						gp_out << endl;
+
+						// right vertical line
+						gp_out << "set arrow";
+						gp_out << " from " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
+						gp_out << " nohead";
+						// line colors
+						if (req_y_fulfilled == 1) {
+							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+						}
+						else if (req_y_fulfilled == -1) {
+							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+						}
+						else {
+							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+						}
+						gp_out << " lw 3";
+						gp_out << endl;
+					}
 				}
 			}
 		}
