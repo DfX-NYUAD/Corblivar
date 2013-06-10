@@ -43,10 +43,11 @@ class CorblivarAlignmentReq {
 			this->offset_range_x = offset_range_x;
 			this->offset_range_y = offset_range_y;
 
-			// fix negative range, if required
+			// fix negative range, if required; only for offsets, a negative
+			// value is applicable
 			if (
-				(this->range_x() && this->offset_range_x < 0) ||
-				(this->range_y() && this->offset_range_y < 0)
+				(this->offset_range_x < 0 && !this->offset_x()) ||
+				(this->offset_range_y < 0 && !this->offset_y())
 			   ) {
 
 				// negative range can be trivially resolved
