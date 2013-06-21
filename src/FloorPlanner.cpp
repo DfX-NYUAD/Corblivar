@@ -1189,12 +1189,12 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 			// blocks for cur_net on all layer
 			for (Block const* b : cur_net.blocks) {
-				blocks_to_consider.push_back(move(&b->bb));
+				blocks_to_consider.push_back(&b->bb);
 			}
 
 			// also consider routes to terminal pins on each layer
 			for (Block const* pin :  cur_net.terminals) {
-				blocks_to_consider.push_back(move(&pin->bb));
+				blocks_to_consider.push_back(&pin->bb);
 			}
 
 			// determine HPWL of related blocks using their bounding box;
@@ -1221,7 +1221,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 				// blocks for cur_net on this layer
 				for (Block const* b : cur_net.blocks) {
 					if (b->layer == i) {
-						blocks_to_consider.push_back(move(&b->bb));
+						blocks_to_consider.push_back(&b->bb);
 
 						if (FloorPlanner::DBG_LAYOUT) {
 							cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
@@ -1242,7 +1242,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 				while (ii <= cur_net.layer_top) {
 					for (Block const* b : cur_net.blocks) {
 						if (b->layer == ii) {
-							blocks_to_consider.push_back(move(&b->bb));
+							blocks_to_consider.push_back(&b->bb);
 							blocks_above_considered = true;
 
 							if (FloorPlanner::DBG_LAYOUT) {
@@ -1262,32 +1262,23 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 				// also consider routes to terminal pins on each layer
 				for (Block const* pin :  cur_net.terminals) {
-					blocks_to_consider.push_back(move(&pin->bb));
+					blocks_to_consider.push_back(&pin->bb);
 
 					if (FloorPlanner::DBG_LAYOUT) {
 						cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
 					}
 				}
 
-				// ignore cases where only one block needs to be considered; these
-				// cases (single blocks on uppermost layer) are already covered
-				// while considering layers below
-				if (blocks_to_consider.size() == 1) {
+				// ignore cases where only one block on the uppermost
+				// layer needs to be considered; these cases are already
+				// covered while considering layers below
+				if (blocks_to_consider.size() == 1 && i == cur_net.layer_top) {
 
 					if (FloorPlanner::DBG_LAYOUT) {
 						cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
 					}
 
 					continue;
-				}
-
-				// update TSVs counter if connecting to blocks on some upper layer
-				if (blocks_above_considered) {
-					ret.TSVs += (ii - i);
-
-					if (FloorPlanner::DBG_LAYOUT) {
-						cout << "DBG_LAYOUT> 	TSVs required: " << (ii - i) << endl;
-					}
 				}
 
 				// determine HPWL of related blocks using their bounding box
@@ -1297,6 +1288,16 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 
 				if (FloorPlanner::DBG_LAYOUT) {
 					cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+				}
+			}
+
+			// update TSVs counter for nets spanning multiple layers
+			if (cur_net.layer_top > cur_net.layer_bottom) {
+
+				ret.TSVs += cur_net.layer_top - cur_net.layer_bottom;
+
+				if (FloorPlanner::DBG_LAYOUT) {
+					cout << "DBG_LAYOUT> 	TSVs required: " << cur_net.layer_top - cur_net.layer_bottom << endl;
 				}
 			}
 		}
