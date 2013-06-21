@@ -1164,6 +1164,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	Rect bb;
 	bool blocks_above_considered;
 	CostInterconn ret;
+	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
@@ -1181,18 +1182,19 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	// determine HPWL and TSVs for each net
 	for (Net const& cur_net : this->nets) {
 
+		// resets data for each net
+		blocks_to_consider.clear();
+
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
 		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-
-			blocks_to_consider.clear();
 
 			// blocks for cur_net on all layer
 			for (Block const* b : cur_net.blocks) {
 				blocks_to_consider.push_back(&b->bb);
 			}
 
-			// also consider routes to terminal pins on each layer
+			// also consider routes to terminal pins
 			for (Block const* pin :  cur_net.terminals) {
 				blocks_to_consider.push_back(&pin->bb);
 			}
@@ -1202,29 +1204,39 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
 			ret.HPWL += bb.w;
 			ret.HPWL += bb.h;
-
-			// determine TSV count
-			ret.TSVs += cur_net.layer_top - cur_net.layer_bottom;
 		}
 		// more detailed estimate; consider HPWL on each layer separately using
 		// layer-related bounding boxes
 		else {
 			// determine HPWL on each related layer separately
-			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+			for (i = 0; i <= cur_net.layer_top; i++) {
 
 				if (FloorPlanner::DBG_LAYOUT) {
 					cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net.id << " on layer " << i << " and above" << endl;
 				}
 
-				blocks_to_consider.clear();
-
-				// blocks for cur_net on this layer
+				// blocks / pins for cur_net on this layer
 				for (Block const* b : cur_net.blocks) {
+
+					// blocks
 					if (b->layer == i) {
 						blocks_to_consider.push_back(&b->bb);
 
 						if (FloorPlanner::DBG_LAYOUT) {
 							cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
+						}
+					}
+
+					// also consider routes to terminal pins; only on
+					// lowest die of stack since connections b/w pins
+					// and block on upper dies are realized through TSVs
+					if (i == 0) {
+						for (Block const* pin :  cur_net.terminals) {
+							blocks_to_consider.push_back(&pin->bb);
+
+							if (FloorPlanner::DBG_LAYOUT) {
+								cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
+							}
 						}
 					}
 				}
@@ -1260,15 +1272,6 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 					}
 				}
 
-				// also consider routes to terminal pins on each layer
-				for (Block const* pin :  cur_net.terminals) {
-					blocks_to_consider.push_back(&pin->bb);
-
-					if (FloorPlanner::DBG_LAYOUT) {
-						cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
-					}
-				}
-
 				// ignore cases where only one block on the uppermost
 				// layer needs to be considered; these cases are already
 				// covered while considering layers below
@@ -1290,16 +1293,19 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 					cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
 				}
 			}
+		}
 
-			// update TSVs counter for nets spanning multiple layers
-			if (cur_net.layer_top > cur_net.layer_bottom) {
+		// determine TSV count
+		prev_TSVs = ret.TSVs;
+		ret.TSVs += cur_net.layer_top - cur_net.layer_bottom;
+		// also consider that terminal pins require TSV connections to the
+		// lowermost die
+		if (!cur_net.terminals.empty()) {
+			ret.TSVs += cur_net.layer_bottom;
+		}
 
-				ret.TSVs += cur_net.layer_top - cur_net.layer_bottom;
-
-				if (FloorPlanner::DBG_LAYOUT) {
-					cout << "DBG_LAYOUT> 	TSVs required: " << cur_net.layer_top - cur_net.layer_bottom << endl;
-				}
-			}
+		if (FloorPlanner::DBG_LAYOUT) {
+			cout << "DBG_LAYOUT> 	TSVs required: " << ret.TSVs - prev_TSVs << endl;
 		}
 	}
 
