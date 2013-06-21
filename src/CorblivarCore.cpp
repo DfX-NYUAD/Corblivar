@@ -195,7 +195,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 		// dbg logging for current block
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 
-			// sanity check for empty dies
 			cout << "DBG_ALIGNMENT> Processing " << this->p->getCBL().tupleString(this->p->pi) << " on die " << this->p->id + 1 << endl;
 		}
 
