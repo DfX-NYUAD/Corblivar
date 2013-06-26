@@ -7,8 +7,8 @@ AUX := 3DFP_Parser 3DSTAF_Parser
 #=============================================================================#
 # Define Compiler Executable:
 #=============================================================================#
-#COMPILER	= clang++
-COMPILER	= /opt/clang+llvm-3.2-x86-linux-ubuntu-12.04/bin/clang++
+COMPILER	= clang++
+#COMPILER	= /opt/clang+llvm-3.2-x86-linux-ubuntu-12.04/bin/clang++
 #COMPILER	= g++
 #COMPILER	= /opt/intel/bin/icpc
 
