@@ -1027,7 +1027,7 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 		}
 		else {
 			cost_interconnects.HPWL = 0.0;
-			cost_interconnects.TSVs = 0.0;
+			cost_interconnects.TSVs = 0;
 		}
 
 		// cost failed alignments, i.e., alignment mismatches
@@ -1170,7 +1170,8 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 		cout << "-> FloorPlanner::determCostInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
-	ret.HPWL = ret.TSVs = ret.TSVs_area_deadspace_ratio = 0.0;
+	ret.HPWL = ret.TSVs_area_deadspace_ratio = 0.0;
+	ret.TSVs = 0;
 	blocks_to_consider.reserve(this->blocks.size());
 
 	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
@@ -1327,7 +1328,11 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	// normalize to max value from initial sampling
 	if (normalize) {
 		ret.HPWL /= this->max_cost_WL;
-		ret.TSVs /= this->max_cost_TSVs;
+
+		// sanity check for zero TSVs; applies to 2D floorplanning
+		if (this->max_cost_TSVs != 0) {
+			ret.TSVs /= this->max_cost_TSVs;
+		}
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {

@@ -164,12 +164,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_layer;
 
-	// sanity check for >= 2 layers
-	if (fp.conf_layer < 2) {
-		cout << "IO> Corblivar only supports floorplanning on >= 2 layers!" << endl;
-		exit(1);
-	}
-
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
