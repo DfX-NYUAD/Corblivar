@@ -53,7 +53,8 @@ function C = config(confText, I,If,Mb,PDPZ,minHS)
  %%% write new Corblivar.conf file
   %% open a textfile for writing and simultaneously erase old file
 
-   conf = "Corblivar.conf";
+args = argv();
+   conf = args{2};
    fid = fopen(conf, "w");
   
   % initialize counter

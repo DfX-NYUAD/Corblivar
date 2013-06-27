@@ -36,7 +36,9 @@
   %% ask user for benchmark
 
    inputBench = sprintf('Please pick a benchmark! \n benchmark = ');
-   bench = input(inputBench,'s');
+%   bench = input(inputBench,'s');
+args = argv();
+   bench = args{1};
 
 %  %% ask user for number of iterations the optimization should perfom
 %
@@ -44,8 +46,9 @@
 %   iter = input(inputIter); 
 
   %% ask user for initial run
-  inputInit = sprintf('Perform an initial run of Corblivar and HotSpot to gain data for optimization? \n Run [y/n] = ');
-  init = input(inputInit, 's');
+%  inputInit = sprintf('Perform an initial run of Corblivar and HotSpot to gain data for optimization? \n Run [y/n] = ');
+%  init = input(inputInit, 's');
+  init = 'y';
 
 
   %% start timers for measuring the elapsed time for the Floorplanning and HotSpot analysis and for the whole process 
@@ -60,8 +63,9 @@
 
   %% open the "Corblivar.conf" file for reading
 
-   fid = 'Corblivar.conf';
-   confText = fopen(fid,'rt');	% Octave opens Text temporarily in own format
+%   conf = 'Corblivar.conf';
+   conf = args{2};
+   confText = fopen(conf,'rt');	% Octave opens Text temporarily in own format
 
   %% initiate line counter and get read first line of text
    % already read lines will be erased from temporary Text
@@ -116,9 +120,9 @@
 
   %% prepare paths for shell scrips
 
-   pathCbl = sprintf('../Corblivar %s Corblivar.conf bench/',bench);					% %s will be replaced by the parameter standing behind the string
-   pathCblsol = sprintf('../Corblivar %s Corblivar.conf bench/ %s.solution',bench,bench);
-   pathCblsolnt = sprintf('../Corblivar %s Corblivar.conf bench/ %s.solution >/dev/null',bench,bench);
+   pathCbl = sprintf('~/code/Corblivar/Corblivar %s %s benches/', bench, conf);					% %s will be replaced by the parameter standing behind the string
+   pathCblsol = sprintf('~/code/Corblivar/Corblivar %s %s benches/ %s.solution', bench, conf, bench);
+   pathCblsolnt = sprintf('~/code/Corblivar/Corblivar %s %s benches/ %s.solution >/dev/null', bench, conf, bench);
    pathHS = sprintf('./HotSpot.sh %s %d',bench, layers);
 
 

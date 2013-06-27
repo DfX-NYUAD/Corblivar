@@ -10,15 +10,15 @@ function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, s
   %% define after how many iterations the sigma of the normal distribution curve of the random generator will be refined
    % if the generator should not be refined set step > number of iterations
   
-   step = 5;
+   step = 10;
 
   %% total iterations, i.e., tries for parameter fitting
 
-   iterations = 50;
+   iterations = 100;
 
   %% refinement factor of sigma
  
-   sigma_update = 0.8;
+   sigma_update = 0.9;
 
   %% define the initial minimum of the HotSpot analysis (only needed for the first writing of the config-file
    % set to 293 K which corresponds to 20°C (room temperature)
