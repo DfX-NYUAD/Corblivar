@@ -1,13 +1,15 @@
 #!/bin/bash
 root=~/code/Corblivar
 base=$root/exp
+#fitting=thermal_analysis_fitting
 
-exp="basic"
-benches="ami33 hp xerox n100 n200 n300 ibm01 ibm03 ibm04 ibm07"
+exp="thermal_fitted"
+benches="ami33 hp xerox n100 n200 n300 n100_soft n200_soft n300_soft"
 runs=5
 
-for dies in 2dies 3dies
+for die_count in 2 3
 do
+	dies=$die_count"dies"
 
 	# switch to experiments folder; create if required
 
@@ -24,6 +26,30 @@ do
 	fi
 
 	cd $exp
+
+	# init experiments, if required
+	#
+#	cp -r $base/$fitting .
+#	cp $base/gp.sh .
+#	cp $base/HotSpot.sh .
+#	ln -s $base/benches .
+#
+#	for bench in $benches
+#	do
+#		cp $base/configs/$dies/$exp/$bench.conf .
+#	done
+#
+#	cd $fitting
+#
+#	for bench in $benches
+#	do
+#		octave optimization.m $bench $bench.conf
+#	done
+#
+#	cd $base/$dies/$exp
+
+	# init experiments done
+	#
 
 	for (( run = 1; run <= $runs; run++ ))
 	do
@@ -52,8 +78,9 @@ do
 
 			$root/Corblivar $bench $base/configs/$dies/$exp/$bench.conf $base/benches/ > $bench.log
 
-			# run individual aux scripts
+			# run individual aux scripts, if required
 			#
+#			./HotSpot.sh $bench $die_count
 		done
 
 		# run experiments-folder aux scripts
