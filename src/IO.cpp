@@ -1490,7 +1490,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best, Valid Solution\" with points linestyle 1, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
 		gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
 		//gp_out << "\"" << data_out_name.str() << "\" index 3";
