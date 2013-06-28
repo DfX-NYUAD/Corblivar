@@ -588,12 +588,14 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	// choose to perform the layout operation on particular failing requests
 	if (this->conf_SA_opt_alignment && SA_phase_two && Math::randB()) {
 
-		vector<CorblivarAlignmentReq> const& alignments = corb.getAlignments();
+		for (CorblivarAlignmentReq const& req : corb.getAlignments()) {
 
-		// w.l.o.g. select the first failed request
-		for (CorblivarAlignmentReq const& req : alignments) {
-
-			if (!req.fulfilled) {
+			// randomly decide whether this failed request is considered; the
+			// resulting low (conditional) probability for selecting failed
+			// requests near the end of the alignments list is irrelevant --
+			// the overall goal is to achieve all alignments, thus it's not
+			// very important which particular request to fulfill first
+			if (!req.fulfilled && Math::randB()) {
 
 				// w.l.o.g. select one of the related blocks and preassign
 				// layout-operation variables
