@@ -130,6 +130,16 @@ class CorblivarDie {
 		inline unsigned const& getJunctions(unsigned const& tuple) const {
 			return this->CBL.T[tuple];
 		};
+		inline int getTuple(Block const* block) const {
+			int index;
+
+			for (index = 0; index < static_cast<int>(this->CBL.S.size()); index++) {
+				if (block->id == this->CBL.S[index]->id) {
+					return index;
+				}
+			}
+			return -1;
+		};
 };
 
 #endif

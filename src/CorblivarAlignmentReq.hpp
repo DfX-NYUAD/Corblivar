@@ -35,13 +35,19 @@ class CorblivarAlignmentReq {
 		CorblivarAlignmentReq(int const& id, Block const* s_i, Block const* s_j,
 				Type const& type_x, double const& offset_range_x,
 				Type const& type_y, double const& offset_range_y) {
+
 			this->id = id;
+
 			this->s_i = s_i;
 			this->s_j = s_j;
+
 			this->type_x = type_x;
 			this->type_y = type_y;
+
 			this->offset_range_x = offset_range_x;
 			this->offset_range_y = offset_range_y;
+
+			fulfilled = false;
 
 			// fix negative range, if required; only for offsets, a negative
 			// value is applicable
@@ -62,6 +68,7 @@ class CorblivarAlignmentReq {
 		Block const* s_i;
 		Block const* s_j;
 		double offset_range_x, offset_range_y;
+		mutable bool fulfilled;
 
 		friend ostream& operator<< (ostream& out, Type const& type) {
 

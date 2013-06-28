@@ -15,6 +15,7 @@
 #include "Point.hpp"
 #include "Math.hpp"
 #include "CorblivarCore.hpp"
+#include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "IO.hpp"
 
@@ -583,6 +584,33 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 
 	die1 = die2 = tuple1 = tuple2 = juncts = -1;
 
+	// to enable somewhat ``guided block alignment'' during phase II, we randomly
+	// choose to perform the layout operation on particular failing requests
+	if (this->conf_SA_opt_alignment && SA_phase_two && Math::randB()) {
+
+		vector<CorblivarAlignmentReq> const& alignments = corb.getAlignments();
+
+		// w.l.o.g. select the first failed request
+		for (CorblivarAlignmentReq const& req : alignments) {
+
+			if (!req.fulfilled) {
+
+				// w.l.o.g. select one of the related blocks and preassign
+				// layout-operation variables
+				if (Math::randB()) {
+					die1 = req.s_i->layer;
+					tuple1 = corb.getDie(die1).getTuple(req.s_i);
+				}
+				else {
+					die1 = req.s_j->layer;
+					tuple1 = corb.getDie(die1).getTuple(req.s_j);
+				}
+
+				break;
+			}
+		}
+	}
+
 	// specific op handler
 	switch (op) {
 
@@ -637,13 +665,22 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	Block const* shape_block;
 
 	if (!revert) {
-		die1 = Math::randI(0, this->conf_layer);
+
+		// randomly select die, if not preassigned
+		if (die1 == -1) {
+			die1 = Math::randI(0, this->conf_layer);
+		}
+
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
 		}
 
-		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		// randomly select tuple, if not preassigned
+		if (tuple1 == -1) {
+			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		}
+
 		// determine related block to be shaped
 		shape_block = corb.getDie(die1).getBlock(tuple1);
 
@@ -867,14 +904,23 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 	int new_juncts;
 
 	if (!revert) {
-		die1 = Math::randI(0, this->conf_layer);
+
+		// randomly select die, if not preassigned
+		if (die1 == -1) {
+			die1 = Math::randI(0, this->conf_layer);
+		}
+
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
 		}
 
-		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-		// juncts is return-by-reference, new_juncts for updating junctions
+		// randomly select tuple, if not preassigned
+		if (tuple1 == -1) {
+			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		}
+
+		// juncts is for return-by-reference, new_juncts for updating junctions
 		new_juncts = juncts = corb.getDie(die1).getJunctions(tuple1);
 
 		// junctions must be geq 0
@@ -901,13 +947,21 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 
 bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {
 	if (!revert) {
-		die1 = Math::randI(0, this->conf_layer);
+
+		// randomly select die, if not preassigned
+		if (die1 == -1) {
+			die1 = Math::randI(0, this->conf_layer);
+		}
+
 		// sanity check for empty dies
 		if (corb.getDie(die1).getCBL().empty()) {
 			return false;
 		}
 
-		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		// randomly select tuple, if not preassigned
+		if (tuple1 == -1) {
+			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		}
 
 		corb.switchInsertionDirection(die1, tuple1);
 	}
@@ -922,8 +976,13 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 	if (!revert) {
 
-		die1 = Math::randI(0, this->conf_layer);
-		die2 = Math::randI(0, this->conf_layer);
+		// randomly select die, if not preassigned
+		if (die1 == -1) {
+			die1 = Math::randI(0, this->conf_layer);
+		}
+		if (die2 == -1) {
+			die2 = Math::randI(0, this->conf_layer);
+		}
 
 		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
 			// sanity check for empty (origin) die
@@ -938,8 +997,13 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 			}
 		}
 
-		tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
-		tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+		// randomly select tuple, if not preassigned
+		if (tuple1 == -1) {
+			tuple1 = Math::randI(0, corb.getDie(die1).getCBL().size());
+		}
+		if (tuple2 == -1) {
+			tuple2 = Math::randI(0, corb.getDie(die2).getCBL().size());
+		}
 
 		// in case of swapping/moving w/in same die, ensure that tuples are
 		// different
@@ -1009,6 +1073,7 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 
 	// phase one: consider only cost for packing into outline
 	if (!SA_phase_two) {
+
 		// determine area and outline cost
 		cost_area_outline = this->determWeightedCostAreaOutline(ratio_feasible_solutions_fixed_outline);
 		// invert weight since it's the only cost term
@@ -1030,7 +1095,9 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 			cost_interconnects.TSVs = 0;
 		}
 
-		// cost failed alignments, i.e., alignment mismatches
+		// cost failed alignments, i.e., alignment mismatches;
+		// also annotates failed request, this provides feedback for further
+		// alignment optimization
 		if (this->conf_SA_opt_alignment) {
 			cost_alignments = this->determCostAlignment(alignments, set_max_cost);
 		}
@@ -1355,6 +1422,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 	// determine cost considering all alignment requests
 	for (CorblivarAlignmentReq const& req : alignments) {
 
+		// initially, assume the request to be feasible
+		req.fulfilled = true;
+
 		// for request w/ alignment ranges, we verify the alignment via the
 		// blocks' intersection
 		if (req.range_x() || req.range_y()) {
@@ -1390,6 +1460,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 						cost += req.s_i->bb.ll.x - req.s_j->bb.ur.x;
 					}
 				}
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 		// max distance range
@@ -1397,7 +1470,11 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 			// consider the spatial mismatch as cost; distance too large
 			if (blocks_bb.w > req.offset_range_x) {
+
 				cost += blocks_bb.w - req.offset_range_x;
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 		// fixed alignment offset
@@ -1418,6 +1495,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 					// abs required for cases where s_i is right of s_j
 					cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x);
 				}
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 
@@ -1445,6 +1525,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 						cost += req.s_i->bb.ll.y - req.s_j->bb.ur.y;
 					}
 				}
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 		// max distance range
@@ -1452,7 +1535,11 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 			// consider the spatial mismatch as cost; distance too large
 			if (blocks_bb.h > req.offset_range_y) {
+
 				cost += blocks_bb.h - req.offset_range_y;
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 		// fixed alignment offset
@@ -1473,6 +1560,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 					// abs required for cases where s_i is below s_j
 					cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y);
 				}
+
+				// annotate failure
+				req.fulfilled = false;
 			}
 		}
 	}
