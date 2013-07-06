@@ -311,8 +311,11 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
+		// additional helper
+		//
 		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
-			// set outline
+
+			// reset outline
 			this->conf_outline_x = outline_x;
 			this->conf_outline_y = outline_y;
 
@@ -321,6 +324,31 @@ class FloorPlanner {
 			this->die_area = this->conf_outline_x * this->conf_outline_y;
 			this->stack_area = this->conf_layer * this->die_area;
 			this->stack_deadspace = this->stack_area - this->blocks_area;
+
+			// also rescale terminal pins' locations
+			this->scaleTerminalPins();
+		}
+
+		inline void scaleTerminalPins() {
+			double pins_scale_x, pins_scale_y;
+
+			// scale terminal pins; first determine original pins outline
+			pins_scale_x = pins_scale_y = 0.0;
+			for (Block const& pin : this->terminals) {
+				pins_scale_x = max(pins_scale_x, pin.bb.ll.x);
+				pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
+			}
+			// scale terminal pins; scale pin coordinates according to die outline
+			pins_scale_x = this->conf_outline_x / pins_scale_x;
+			pins_scale_y = this->conf_outline_y / pins_scale_y;
+			for (Block& pin : this->terminals) {
+				pin.bb.ll.x *= pins_scale_x;
+				pin.bb.ll.y *= pins_scale_y;
+				// also set upper right to same coordinates, thus pins are ``point''
+				// blocks w/ zero area
+				pin.bb.ur.x = pin.bb.ll.x;
+				pin.bb.ur.y = pin.bb.ll.y;
+			}
 		}
 
 		inline bool inputSolutionFileOpen() const {

@@ -680,7 +680,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	string id;
-	double pins_scale_x, pins_scale_y;
 	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
 	bool floorplacement;
 
@@ -901,23 +900,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.blocks_power_density_stats.avg /= fp.blocks.size();
 	fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.max - fp.blocks_power_density_stats.min;
 
-	// scale terminal pins; first determine original pins outline
-	pins_scale_x = pins_scale_y = 0.0;
-	for (Block const& pin : fp.terminals) {
-		pins_scale_x = max(pins_scale_x, pin.bb.ll.x);
-		pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
-	}
-	// scale terminal pins; scale pin coordinates according to die outline
-	pins_scale_x = fp.conf_outline_x / pins_scale_x;
-	pins_scale_y = fp.conf_outline_y / pins_scale_y;
-	for (Block& pin : fp.terminals) {
-		pin.bb.ll.x *= pins_scale_x;
-		pin.bb.ll.y *= pins_scale_y;
-		// also set upper right to same coordinates, thus pins are ``point''
-		// blocks w/ zero area
-		pin.bb.ur.x = pin.bb.ll.x;
-		pin.bb.ur.y = pin.bb.ll.y;
-	}
+	// scale terminal pins
+	fp.scaleTerminalPins();
 
 	// sanity check of fixed outline
 	blocks_outline_ratio = fp.blocks_area / fp.stack_area;
