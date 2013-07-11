@@ -322,13 +322,16 @@ class FloorPlanner {
 			this->conf_outline_x = outline_x;
 			this->conf_outline_y = outline_y;
 
-			// also reset related properties
+			// this also requires to reset the power maps setting
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
+
+			// reset related die properties
 			this->die_AR = this->conf_outline_x / this->conf_outline_y;
 			this->die_area = this->conf_outline_x * this->conf_outline_y;
 			this->stack_area = this->conf_layer * this->die_area;
 			this->stack_deadspace = this->stack_area - this->blocks_area;
 
-			// also rescale terminal pins' locations
+			// rescale terminal pins' locations
 			this->scaleTerminalPins();
 		}
 

@@ -458,9 +458,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		if (this->conf_outline_shrink) {
 
 			this->resetDieProperties(x, y);
-
-			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
 		}
 
 		// determine overall cost
