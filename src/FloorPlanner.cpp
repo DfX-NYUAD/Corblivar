@@ -89,7 +89,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
-		corb.generateLayout(this->conf_SA_opt_alignment && SA_phase_two, this->conf_SA_layout_packing_iterations);
+		this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
 		cur_cost = this->determCost(corb.getAlignments(), layout_fit_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
@@ -105,7 +105,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				// generate layout; also memorize whether layout is valid;
 				// note that this return value is only effective if
 				// CorblivarCore::DBG_VALID_LAYOUT is set
-				valid_layout = corb.generateLayout(this->conf_SA_opt_alignment && SA_phase_two, this->conf_SA_layout_packing_iterations);
+				valid_layout = this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
 
 				// dbg invalid valid
 				if (CorblivarCore::DBG_VALID_LAYOUT && !valid_layout) {
@@ -359,7 +359,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	}
 
 	// init cost; ignore alignment here
-	corb.generateLayout(false, this->conf_SA_layout_packing_iterations);
+	this->generateLayout(corb, false);
 	cur_cost = this->determCost(corb.getAlignments()).cost;
 
 	// perform some random operations, for SA temperature = 0.0
@@ -379,7 +379,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			prev_cost = cur_cost;
 
 			// generate layout
-			corb.generateLayout(false, this->conf_SA_layout_packing_iterations);
+			this->generateLayout(corb, false);
 
 			// evaluate layout, new cost
 			cost = this->determCost(corb.getAlignments());
@@ -440,7 +440,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
 		// generate final layout
-		corb.generateLayout(this->conf_SA_opt_alignment, this->conf_SA_layout_packing_iterations);
+		this->generateLayout(corb, this->conf_SA_opt_alignment);
 	}
 
 	// determine final cost, also for non-Corblivar calls
@@ -560,6 +560,44 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "<- FloorPlanner::finalize" << endl;
 	}
+}
+
+bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_alignment) {
+	bool ret;
+
+	// generate layout via Corblivar handler
+	ret = corb.generateLayout(perform_alignment);
+	//corb.generateLayout(perform_alignment, this->conf_SA_layout_packing_iterations);
+
+	// TODO call FloorPlanner::determCostAlignment
+
+	// perform packing if desired; perform on each die for each
+	// dimension separately and subsequently; multiple iterations may
+	// provide denser packing configurations
+	for (int d = 0; d < this->conf_layer; d++) {
+
+		CorblivarDie& die = corb.editDie(d);
+
+		// sanity check for empty dies
+		if (!die.getCBL().empty()) {
+
+			for (int i = 1; i <= this->conf_SA_layout_packing_iterations; i++) {
+				die.performPacking(Direction::HORIZONTAL);
+				die.performPacking(Direction::VERTICAL);
+			}
+		}
+
+		// dbg: sanity check for valid layout
+		if (CorblivarCore::DBG_VALID_LAYOUT) {
+
+			// if true, the layout is buggy, i.e., invalid
+			if (die.debugLayout()) {
+				return false;
+			}
+		}
+	}
+
+	return ret;
 }
 
 bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp) {

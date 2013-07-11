@@ -169,6 +169,9 @@ class FloorPlanner {
 		bool conf_SA_layout_power_aware_block_handling, conf_SA_layout_floorplacement;
 		int conf_SA_layout_packing_iterations;
 
+		// SA: layout-generation handler
+		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
+
 		// SA: layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;
 		static constexpr int OP_MOVE_TUPLE = 2;

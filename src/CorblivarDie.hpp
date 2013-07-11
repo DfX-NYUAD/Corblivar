@@ -90,12 +90,6 @@ class CorblivarDie {
 		void rebuildPlacementStacks(list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
 		void inline debugStacks();
-		// layout-generation helper: sanity check and debugging for valid layout,
-		// i.e., overlap-free block arrangement
-		bool debugLayout() const;
-
-		// layout generation: packing, to be performed as post-placement operation
-		void performPacking(Direction const& dir);
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -140,6 +134,13 @@ class CorblivarDie {
 			}
 			return -1;
 		};
+
+		// layout generation: packing, to be performed as post-placement operation
+		void performPacking(Direction const& dir);
+
+		// layout-generation helper: sanity check and debugging for valid layout,
+		// i.e., overlap-free block arrangement
+		bool debugLayout() const;
 };
 
 #endif

@@ -124,7 +124,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 	}
 }
 
-bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& packing_iterations) {
+bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	Block const* cur_block;
 	Block const* other_block;
 	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
@@ -162,28 +162,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment, int const& pac
 
 		// die done in previous loop; or just marked done since it's empty
 		if (this->p->done) {
-
-			// perform packing if desired; perform for each dimension
-			// separately and subsequently; multiple iterations may provide
-			// denser packing configurations
-			//
-			// sanity check for empty dies
-			if (!this->p->getCBL().empty()) {
-
-				for (int i = 1; i <= packing_iterations; i++) {
-					this->p->performPacking(Direction::HORIZONTAL);
-					this->p->performPacking(Direction::VERTICAL);
-				}
-			}
-
-			// dbg: sanity check for valid layout
-			if (CorblivarCore::DBG_VALID_LAYOUT) {
-
-				// if true, the layout is buggy, i.e., invalid
-				if (this->p->debugLayout()) {
-					return false;
-				}
-			}
 
 			// continue layout generation on next, yet unfinished die; or
 			// abort loop if all dies marked as done
