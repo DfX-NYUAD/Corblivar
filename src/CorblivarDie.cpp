@@ -882,12 +882,10 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 	return shifted;
 }
 
-// note that packing may undermine alignment requests; for fixed-offset requests, this is
-// more likely to happen than for range-based request
-// (TODO) perform packing such that fixed-offset request are enabled/maintained;
-// considering that the SA cost optimization covers any alignment mismatch, such
-// additional checks for each block / parallel processing of affected dies seems too
-// expansive
+// note that packing may undermine alignment requests; to avoid this, we call
+// FloorPlanner::determCostAlignment before packing but after layout generation
+// (FloorPlanner::determCostAlignment does annotate alignment success / failure to the
+// blocks themselves)
 void CorblivarDie::performPacking(Direction const& dir) {
 	list<Block const*> blocks;
 	list<Block const*>::iterator i1;
@@ -931,6 +929,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// skip blocks at left boundary, they are implicitly packed
 			if (block->bb.ll.x == 0.0) {
+				continue;
+			}
+
+			// also skip blocks which are successfully aligned; this way, they
+			// keep their position and alignment is not broken
+			if (block->aligned_successfully) {
 				continue;
 			}
 
@@ -1021,6 +1025,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// skip blocks at bottom boundary, they are implicitly packed
 			if (block->bb.ll.y == 0.0) {
+				continue;
+			}
+
+			// also skip blocks which are successfully aligned; this way, they
+			// keep their position and alignment is not broken
+			if (block->aligned_successfully) {
 				continue;
 			}
 

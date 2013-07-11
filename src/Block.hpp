@@ -35,6 +35,7 @@ class Block {
 			this->placed = false;
 			this->soft = false;
 			this->floorplacement = false;
+			this->aligned_successfully = false;
 		};
 
 	// public data, functions
@@ -44,6 +45,10 @@ class Block {
 
 		// flag to monitor placement; also required for alignment handling
 		mutable bool placed;
+
+		// flag to indicate that this block is (i) covered by some alignment
+		// requests and (ii) is successfully aligend
+		mutable bool aligned_successfully;
 
 		// density in [uW/(um^2)]
 		double power_density;

@@ -565,11 +565,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_alignment) {
 	bool ret;
 
-	// generate layout via Corblivar handler
+	// generate layout
 	ret = corb.generateLayout(perform_alignment);
-	//corb.generateLayout(perform_alignment, this->conf_SA_layout_packing_iterations);
 
-	// TODO call FloorPlanner::determCostAlignment
+	// annotate alignment success/failure in blocks; required for maintaining
+	// succeeded alignments during subsequent packing
+	if (this->conf_SA_opt_alignment && this->conf_SA_layout_packing_iterations > 0) {
+		this->determCostAlignment(corb.getAlignments());
+	}
 
 	// perform packing if desired; perform on each die for each
 	// dimension separately and subsequently; multiple iterations may
@@ -1464,6 +1467,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 		// initially, assume the request to be feasible
 		req.fulfilled = true;
+		// also memorize alignment status in the blocks themselves
+		req.s_i->aligned_successfully = true;
+		req.s_j->aligned_successfully = true;
 
 		// for request w/ alignment ranges, we verify the alignment via the
 		// blocks' intersection
@@ -1503,6 +1509,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 		// max distance range
@@ -1515,6 +1523,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 		// fixed alignment offset
@@ -1538,6 +1548,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 
@@ -1568,6 +1580,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 		// max distance range
@@ -1580,6 +1594,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 		// fixed alignment offset
@@ -1603,6 +1619,8 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				// annotate failure
 				req.fulfilled = false;
+				req.s_i->aligned_successfully = false;
+				req.s_j->aligned_successfully = false;
 			}
 		}
 	}
