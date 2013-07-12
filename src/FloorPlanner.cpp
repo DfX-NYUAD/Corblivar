@@ -269,7 +269,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 }
 
 inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const {
-	double loop_factor;
+	float loop_factor;
 	double prev_temp;
 	int phase;
 	vector<double> prev_avg_cost;
@@ -306,7 +306,7 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	// conf_SA_temp_factor_phase1_limit)
 	else if (iteration_first_valid_layout == Point::UNDEF) {
 		loop_factor = (this->conf_SA_temp_factor_phase1_limit - this->conf_SA_temp_factor_phase1)
-			* static_cast<double>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
+			* static_cast<float>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
 		cur_temp *= this->conf_SA_temp_factor_phase1 + loop_factor;
@@ -318,8 +318,8 @@ inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int
 	// enable convergence)
 	else {
 		// note that loop_factor must only consider the remaining iteration range
-		loop_factor = 1.0 - static_cast<double>(iteration - iteration_first_valid_layout) /
-			static_cast<double>(this->conf_SA_loopLimit - iteration_first_valid_layout);
+		loop_factor = 1.0 - static_cast<float>(iteration - iteration_first_valid_layout) /
+			static_cast<float>(this->conf_SA_loopLimit - iteration_first_valid_layout);
 		cur_temp *= this->conf_SA_temp_factor_phase2 * loop_factor;
 
 		phase = 2;
