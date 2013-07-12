@@ -934,7 +934,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// also skip blocks which are successfully aligned; this way, they
 			// keep their position and alignment is not broken
-			if (block->aligned_successfully) {
+			if (block->alignment == Block::AlignmentStatus::SUCCESS) {
 				continue;
 			}
 
@@ -1030,7 +1030,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// also skip blocks which are successfully aligned; this way, they
 			// keep their position and alignment is not broken
-			if (block->aligned_successfully) {
+			if (block->alignment == Block::AlignmentStatus::SUCCESS) {
 				continue;
 			}
 

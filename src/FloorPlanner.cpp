@@ -1464,9 +1464,9 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 		// initially, assume the request to be feasible
 		req.fulfilled = true;
-		// also memorize alignment status in the blocks themselves
-		req.s_i->aligned_successfully = true;
-		req.s_j->aligned_successfully = true;
+		// also assume alignment status of blocks themselves to be successful
+		req.s_i->alignment = Block::AlignmentStatus::SUCCESS;
+		req.s_j->alignment = Block::AlignmentStatus::SUCCESS;
 
 		// for request w/ alignment ranges, we verify the alignment via the
 		// blocks' intersection
@@ -1497,17 +1497,23 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 					if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
 
 						cost += req.s_j->bb.ll.x - req.s_i->bb.ur.x;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
 					}
 					else {
 
 						cost += req.s_i->bb.ll.x - req.s_j->bb.ur.x;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
 					}
 				}
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
 			}
 		}
 		// max distance range
@@ -1518,35 +1524,99 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				cost += blocks_bb.w - req.offset_range_x;
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
+
+				// annotate block-alignment failure
+				if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+					req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+					req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+				}
+				else {
+					req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+					req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+				}
 			}
 		}
 		// fixed alignment offset
 		else if (req.offset_x()) {
 
-			// consider the spatial mismatch as cost
+			// check the blocks' offset against the required offset
 			if (!Math::doubleComp(req.s_j->bb.ll.x - req.s_i->bb.ll.x, req.offset_range_x)) {
 
-				// s_j should be right of s_i
+				// s_j should be right of s_i;
+				// consider the spatial mismatch as cost
 				if (req.offset_range_x >= 0.0) {
 
-					// abs required for cases where s_j is left of s_i
-					cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x);
+					// s_j is right of s_i
+					if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+
+						// abs required for cases where s_j is too
+						// far left, i.e., not sufficiently away
+						// from s_i
+						cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x);
+
+						// annotate block-alignment failure;
+						// s_j is too far left, s_i too far right
+						if ((req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x) < 0) {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+						}
+						// s_j is too far right, s_i too far left
+						else {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+						}
+					}
+					// s_j is left of s_i
+					else {
+						// cost includes distance b/w (right) s_i,
+						// (left) s_j and the failed offset
+						cost += req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+					}
 				}
-				// s_j should be left of s_i
+				// s_j should be left of s_i;
+				// consider the spatial mismatch as cost
 				else {
 
-					// abs required for cases where s_i is right of s_j
-					cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x);
+					// s_j is left of s_i
+					if (Rect::rectA_leftOf_rectB(req.s_j->bb, req.s_i->bb, false)) {
+
+						// abs required for cases where s_j is too
+						// far right, i.e., not sufficiently away
+						// from s_i
+						cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x);
+
+						// annotate block-alignment failure;
+						// s_j is too far right, s_i too far left
+						if ((req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x) < 0) {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+						}
+						// s_j is too far left, s_i too far right
+						else {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+						}
+					}
+					// s_j is right of s_i
+					else {
+						// cost includes distance b/w (left) s_i,
+						// (right) s_j and the failed (negative) offset
+						cost += req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
+					}
 				}
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
 			}
 		}
 
@@ -1568,17 +1638,23 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 					if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
 
 						cost += req.s_j->bb.ll.y - req.s_i->bb.ur.y;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
 					}
 					else {
 
 						cost += req.s_i->bb.ll.y - req.s_j->bb.ur.y;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
 					}
 				}
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
 			}
 		}
 		// max distance range
@@ -1589,35 +1665,102 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 
 				cost += blocks_bb.h - req.offset_range_y;
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
+
+				// annotate block-alignment failure
+				if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+					req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+					req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+				}
+				else {
+					req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+					req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+				}
 			}
 		}
 		// fixed alignment offset
 		else if (req.offset_y()) {
 
-			// consider the spatial mismatch as cost
+			// check the blocks' offset against the required offset
 			if (!Math::doubleComp(req.s_j->bb.ll.y - req.s_i->bb.ll.y, req.offset_range_y)) {
 
-				// s_j should be above s_i
+				// s_j should be above s_i;
+				// consider the spatial mismatch as cost
 				if (req.offset_range_y >= 0.0) {
 
-					// abs required for cases where s_j is below s_i
-					cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y);
+					// s_j is above s_i
+					if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+
+						// abs required for cases where s_j is too
+						// far lowerwards, i.e., not sufficiently
+						// away from s_i
+						cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y);
+
+						// annotate block-alignment failure;
+						// s_j is too far lowerwards, s_i too far upwards
+						if ((req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y) < 0) {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+						}
+						// s_j is too far upwards, s_i too far
+						// lowerwards
+						else {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+						}
+					}
+					// s_j is below s_i
+					else {
+						// cost includes distance b/w (upper) s_i,
+						// (lower) s_j and the failed offset
+						cost += req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+					}
 				}
-				// s_j should be below s_i
+				// s_j should be below s_i;
+				// consider the spatial mismatch as cost
 				else {
 
-					// abs required for cases where s_i is below s_j
-					cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y);
+					// s_j is below s_i
+					if (Rect::rectA_below_rectB(req.s_j->bb, req.s_i->bb, false)) {
+
+						// abs required for cases where s_j is too
+						// far upwards, i.e., not sufficiently
+						// away from s_i
+						cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y);
+
+						// annotate block-alignment failure;
+						// s_j is too far upwards, s_i too far
+						// lowerwards
+						if ((req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y) < 0) {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+						}
+						// s_j is too far lowerwards, s_i too far
+						// upwards
+						else {
+							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+						}
+					}
+					// s_j is above s_i
+					else {
+						// cost includes distance b/w (lower) s_i,
+						// (upper) s_j and the failed (negative) offset
+						cost += req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y;
+
+						// annotate block-alignment failure
+						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
+						req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
+					}
 				}
 
-				// annotate failure
+				// annotate general alignment failure
 				req.fulfilled = false;
-				req.s_i->aligned_successfully = false;
-				req.s_j->aligned_successfully = false;
 			}
 		}
 	}

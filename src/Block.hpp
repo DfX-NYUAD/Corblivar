@@ -25,6 +25,14 @@ class Block {
 	// private data, functions
 	private:
 
+	// enum class for alignment status; has to be defined first
+	public:
+		// flags to indicate whether the block is associated with some alignment
+		// and also if this alignment is successful or the block is too far of in
+		// a particular direction; note that only one (failing) direction at one
+		// time is considered
+		enum class AlignmentStatus : unsigned {UNDEF, SUCCESS, FAIL_HOR_TOO_LEFT, FAIL_HOR_TOO_RIGHT, FAIL_VERT_TOO_LOW, FAIL_VERT_TOO_HIGH};
+
 	// constructors, destructors, if any non-implicit
 	public:
 		Block(string const& id) {
@@ -35,7 +43,7 @@ class Block {
 			this->placed = false;
 			this->soft = false;
 			this->floorplacement = false;
-			this->aligned_successfully = false;
+			this->alignment = AlignmentStatus::UNDEF;
 		};
 
 	// public data, functions
@@ -46,9 +54,8 @@ class Block {
 		// flag to monitor placement; also required for alignment handling
 		mutable bool placed;
 
-		// flag to indicate that this block is (i) covered by some alignment
-		// requests and (ii) is successfully aligend
-		mutable bool aligned_successfully;
+		// flag to monitor block alignment
+		mutable AlignmentStatus alignment;
 
 		// density in [uW/(um^2)]
 		double power_density;
