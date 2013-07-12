@@ -1528,7 +1528,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				req.fulfilled = false;
 
 				// annotate block-alignment failure
-				if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+				if (req.s_i->bb.ll.x < req.s_j->bb.ll.x) {
 					req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
 					req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
 				}
@@ -1544,12 +1544,12 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 			// check the blocks' offset against the required offset
 			if (!Math::doubleComp(req.s_j->bb.ll.x - req.s_i->bb.ll.x, req.offset_range_x)) {
 
-				// s_j should be right of s_i;
+				// s_j should be to the right of s_i;
 				// consider the spatial mismatch as cost
 				if (req.offset_range_x >= 0.0) {
 
-					// s_j is right of s_i
-					if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+					// s_j is to the right of s_i
+					if (req.s_j->bb.ll.x > req.s_i->bb.ll.x) {
 
 						// abs required for cases where s_j is too
 						// far left, i.e., not sufficiently away
@@ -1568,7 +1568,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
 						}
 					}
-					// s_j is left of s_i
+					// s_j is to the left of s_i
 					else {
 						// cost includes distance b/w (right) s_i,
 						// (left) s_j and the failed offset
@@ -1579,12 +1579,12 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 						req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
 					}
 				}
-				// s_j should be left of s_i;
+				// s_j should be to the left of s_i;
 				// consider the spatial mismatch as cost
 				else {
 
-					// s_j is left of s_i
-					if (Rect::rectA_leftOf_rectB(req.s_j->bb, req.s_i->bb, false)) {
+					// s_j is to the left of s_i
+					if (req.s_j->bb.ll.x < req.s_i->bb.ll.x) {
 
 						// abs required for cases where s_j is too
 						// far right, i.e., not sufficiently away
@@ -1669,7 +1669,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				req.fulfilled = false;
 
 				// annotate block-alignment failure
-				if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+				if (req.s_i->bb.ll.y < req.s_j->bb.ll.y) {
 					req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
 					req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
 				}
@@ -1690,7 +1690,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				if (req.offset_range_y >= 0.0) {
 
 					// s_j is above s_i
-					if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+					if (req.s_j->bb.ll.y > req.s_i->bb.ll.y) {
 
 						// abs required for cases where s_j is too
 						// far lowerwards, i.e., not sufficiently
@@ -1726,7 +1726,7 @@ double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& al
 				else {
 
 					// s_j is below s_i
-					if (Rect::rectA_below_rectB(req.s_j->bb, req.s_i->bb, false)) {
+					if (req.s_j->bb.ll.y < req.s_i->bb.ll.y) {
 
 						// abs required for cases where s_j is too
 						// far upwards, i.e., not sufficiently
