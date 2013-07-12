@@ -609,45 +609,28 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << endl;
 	}
 
+	// init layout operation variables
+	die1 = die2 = tuple1 = tuple2 = juncts = -1;
+
 	// revert last op
 	if (revertLastOp) {
 		op = this->last_op;
 	}
-	// perform new, random op
+	// perform new op
 	else {
+		// usually, we consider a random op
+		//
 		// see defined op-codes in class FloorPlanner to set random-number ranges;
 		// recall that randI(x,y) is [x,y)
 		this->last_op = op = Math::randI(1, 6);
-	}
 
-	die1 = die2 = tuple1 = tuple2 = juncts = -1;
+		// to enable somewhat ``guided block alignment'' during phase II, we
+		// randomly choose to perform block swapping on particular blocks of
+		// failing alignment requests
+		if (Math::randB() && SA_phase_two && this->conf_SA_opt_alignment) {
 
-	// to enable somewhat ``guided block alignment'' during phase II, we randomly
-	// choose to perform the layout operation on particular failing requests
-	if (this->conf_SA_opt_alignment && SA_phase_two && Math::randB()) {
-
-		for (CorblivarAlignmentReq const& req : corb.getAlignments()) {
-
-			// randomly decide whether this failed request is considered; the
-			// resulting low (conditional) probability for selecting failed
-			// requests near the end of the alignments list is irrelevant --
-			// the overall goal is to achieve all alignments, thus it's not
-			// very important which particular request to fulfill first
-			if (!req.fulfilled && Math::randB()) {
-
-				// w.l.o.g. select one of the related blocks and preassign
-				// layout-operation variables
-				if (Math::randB()) {
-					die1 = req.s_i->layer;
-					tuple1 = corb.getDie(die1).getTuple(req.s_i);
-				}
-				else {
-					die1 = req.s_j->layer;
-					tuple1 = corb.getDie(die1).getTuple(req.s_j);
-				}
-
-				break;
-			}
+			this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
+			this->last_op = op = FloorPlanner::OP_SWAP_BLOCKS;
 		}
 	}
 
@@ -699,6 +682,154 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	}
 
 	return ret;
+}
+
+void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
+	CorblivarAlignmentReq const* failed_req = nullptr;
+	Block const* b1;
+	Block const* b1_neighbour = nullptr;
+
+	// try to randomly find a failing request; max tries relates to
+	// total alignments count
+	for (unsigned r = 0; r < corb.getAlignments().size(); r++) {
+
+		failed_req = & corb.getAlignments()[Math::randI(0, corb.getAlignments().size())];
+
+		// we found a failing request; thus we stop the search
+		if (!failed_req->fulfilled) {
+			break;
+		}
+	}
+
+	// handle request; sanity check for found failed request
+	if (failed_req != nullptr && !failed_req->fulfilled) {
+
+		// randomly decide for one block
+		if (Math::randB()) {
+			die1 = die2 = failed_req->s_i->layer;
+			tuple1 = corb.getDie(die1).getTuple(failed_req->s_i);
+			b1 = failed_req->s_i;
+		}
+		else {
+			die1 = die2 = failed_req->s_j->layer;
+			tuple1 = corb.getDie(die1).getTuple(failed_req->s_j);
+			b1 = failed_req->s_j;
+		}
+
+		// zero-offset fixed alignment in both coordinates
+		if ((failed_req->offset_x() && failed_req->offset_range_x == 0) && (failed_req->offset_y() && failed_req->offset_range_y == 0)) {
+
+			// such alignment cannot be fulfilled in one die, i.e., differing
+			// dies required
+			if (failed_req->s_i->layer == failed_req->s_j->layer) {
+
+				// this is only possible for > 1 layers; sanity check
+				if (this->conf_layer == 1) {
+					return;
+				}
+
+				while (die1 == die2) {
+					die2 = Math::randI(0, this->conf_layer);
+				}
+			}
+
+			// select block to swap with such that blocks to be aligned are
+			// initially at least intersecting
+			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
+
+				if (Rect::rectsIntersect(b1->bb, b2->bb)) {
+
+					// however, this should not be the partner block
+					// of the alignment request
+					if (
+						(b1->id == failed_req->s_i->id && b2->id == failed_req->s_j->id) ||
+						(b1->id == failed_req->s_j->id && b2->id == failed_req->s_i->id)
+					   ) {
+						continue;
+					}
+
+					b1_neighbour = b2;
+
+					break;
+				}
+			}
+		}
+
+		// failed alignment ranges and (partially) non-zero-offset fixed alignment
+		//
+		// determine relevant neighbour block to perform swap operation, i.e.,
+		// nearest neighbour w.r.t. failure type
+		else {
+		
+			for (Block const* b2 : corb.getDie(die1).getBlocks()) {
+
+				switch (b1->alignment) {
+
+					// determine nearest right block
+					case Block::AlignmentStatus::FAIL_HOR_TOO_LEFT:
+
+						if (Rect::rectA_leftOf_rectB(b1->bb, b2->bb, true)) {
+
+							if (b1_neighbour == nullptr || b2->bb.ll.x < b1_neighbour->bb.ll.x) {
+								b1_neighbour = b2;
+							}
+						}
+
+						break;
+
+					// determine nearest left block
+					case Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT:
+
+						if (Rect::rectA_leftOf_rectB(b2->bb, b1->bb, true)) {
+
+							if (b1_neighbour == nullptr || b2->bb.ur.x > b1_neighbour->bb.ur.x) {
+								b1_neighbour = b2;
+							}
+						}
+
+						break;
+
+					// determine nearest block above
+					case Block::AlignmentStatus::FAIL_VERT_TOO_LOW:
+
+						if (Rect::rectA_below_rectB(b1->bb, b2->bb, true)) {
+
+							if (b1_neighbour == nullptr || b2->bb.ll.y < b1_neighbour->bb.ll.y) {
+								b1_neighbour = b2;
+							}
+						}
+
+						break;
+
+					// determine nearest block below
+					case Block::AlignmentStatus::FAIL_VERT_TOO_HIGH:
+
+						if (Rect::rectA_below_rectB(b2->bb, b1->bb, true)) {
+
+							if (b1_neighbour == nullptr || b2->bb.ur.y > b1_neighbour->bb.ur.y) {
+								b1_neighbour = b2;
+							}
+						}
+
+						break;
+
+					// dummy case, to catch other (here not occuring)
+					// alignment status
+					default:
+						break;
+				}
+			}
+		}
+
+		// determine related tuple of neigbhour block; == -1 in case the tuple
+		// cannot be find; sanity check for undefined neighbour
+		if (b1_neighbour != nullptr) {
+			tuple2 = corb.getDie(die2).getTuple(b1_neighbour);
+		}
+		else {
+			tuple2 = -1;
+		}
+	}
 }
 
 bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const {

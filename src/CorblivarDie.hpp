@@ -112,6 +112,9 @@ class CorblivarDie {
 		inline CornerBlockList const& getCBL() const {
 			return this->CBL;
 		};
+		inline vector<Block const*> const& getBlocks() const {
+			return this->CBL.S;
+		};
 		inline Block const* getBlock(unsigned const& tuple) const {
 			return this->CBL.S[tuple];
 		};
