@@ -164,6 +164,12 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.conf_layer;
 
+	// sanity check for positive, non-zero layer
+	if (fp.conf_layer <= 0) {
+		cout << "IO> Provide positive, non-zero layer count!" << endl;
+		exit(1);
+	}
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
