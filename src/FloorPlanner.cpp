@@ -862,7 +862,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		if (shape_block->soft) {
 			// enhanced shaping, according to [Chen06]
 			if (this->conf_SA_layout_enhanced_soft_block_shaping) {
-				return this->performOpEnhancedSoftBlockShaping(shape_block);
+				return this->performOpEnhancedSoftBlockShaping(corb, shape_block);
 			}
 			// simple random shaping
 			else {
@@ -876,7 +876,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		else {
 			// enhanced rotation
 			if (this->conf_SA_layout_enhanced_hard_block_rotation) {
-				return this->performOpEnhancedHardBlockRotation(shape_block);
+				return this->performOpEnhancedHardBlockRotation(corb, shape_block);
 			}
 			// simple rotation
 			else {
@@ -894,7 +894,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 	return true;
 }
 
-bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) const {
+bool FloorPlanner::performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const {
 	int op;
 	double boundary_x, boundary_y;
 	double width, height;
@@ -912,14 +912,11 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 			// dummy value, to be large than right front
 			boundary_x = 2.0 * shape_block->bb.ur.x;
 
-			for (Block const& b : this->blocks) {
-				if (b.layer != shape_block->layer) {
-					continue;
-				}
+			for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 				// determine nearest right front of other blocks
-				if (b.bb.ur.x > shape_block->bb.ur.x) {
-					boundary_x = min(boundary_x, b.bb.ur.x);
+				if (b->bb.ur.x > shape_block->bb.ur.x) {
+					boundary_x = min(boundary_x, b->bb.ur.x);
 				}
 			}
 
@@ -936,14 +933,11 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 
 			boundary_x = 0.0;
 
-			for (Block const& b : this->blocks) {
-				if (b.layer != shape_block->layer) {
-					continue;
-				}
+			for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 				// determine nearest left front of other blocks
-				if (b.bb.ll.x < shape_block->bb.ur.x) {
-					boundary_x = max(boundary_x, b.bb.ll.x);
+				if (b->bb.ll.x < shape_block->bb.ur.x) {
+					boundary_x = max(boundary_x, b->bb.ll.x);
 				}
 			}
 
@@ -961,14 +955,11 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 			// dummy value, to be large than top front
 			boundary_y = 2.0 * shape_block->bb.ur.y;
 
-			for (Block const& b : this->blocks) {
-				if (b.layer != shape_block->layer) {
-					continue;
-				}
+			for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 				// determine nearest top front of other blocks
-				if (b.bb.ur.y > shape_block->bb.ur.y) {
-					boundary_y = min(boundary_y, b.bb.ur.y);
+				if (b->bb.ur.y > shape_block->bb.ur.y) {
+					boundary_y = min(boundary_y, b->bb.ur.y);
 				}
 			}
 
@@ -985,14 +976,11 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 
 			boundary_y = 0.0;
 
-			for (Block const& b : this->blocks) {
-				if (b.layer != shape_block->layer) {
-					continue;
-				}
+			for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 				// determine nearest bottom front of other blocks
-				if (b.bb.ll.y < shape_block->bb.ur.y) {
-					boundary_y = max(boundary_y, b.bb.ll.y);
+				if (b->bb.ll.y < shape_block->bb.ur.y) {
+					boundary_y = max(boundary_y, b->bb.ll.y);
 				}
 			}
 
@@ -1016,22 +1004,23 @@ bool FloorPlanner::performOpEnhancedSoftBlockShaping(Block const* shape_block) c
 	}
 }
 
-bool FloorPlanner::performOpEnhancedHardBlockRotation(Block const* shape_block) const {
+bool FloorPlanner::performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const {
 	double col_max_width, row_max_height;
 	double gain, loss;
 
 	// horizontal block
 	if (shape_block->bb.w > shape_block->bb.h) {
+
 		// check blocks in (implicitly constructed) row
 		row_max_height = shape_block->bb.h;
-		for (Block const& b : this->blocks) {
-			if (b.layer != shape_block->layer) {
-				continue;
-			}
-			if (shape_block->bb.ll.y == b.bb.ll.y) {
-				row_max_height = max(row_max_height, b.bb.h);
+
+		for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
+
+			if (shape_block->bb.ll.y == b->bb.ll.y) {
+				row_max_height = max(row_max_height, b->bb.h);
 			}
 		}
+
 		// gain in horizontal direction by rotation
 		gain = shape_block->bb.w - shape_block->bb.h;
 		// loss in vertical direction; only if new block
@@ -1043,14 +1032,14 @@ bool FloorPlanner::performOpEnhancedHardBlockRotation(Block const* shape_block) 
 	else {
 		// check blocks in (implicitly constructed) column
 		col_max_width = shape_block->bb.w;
-		for (Block const& b : this->blocks) {
-			if (b.layer != shape_block->layer) {
-				continue;
-			}
-			if (shape_block->bb.ll.x == b.bb.ll.x) {
-				col_max_width = max(col_max_width, b.bb.w);
+
+		for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
+
+			if (shape_block->bb.ll.x == b->bb.ll.x) {
+				col_max_width = max(col_max_width, b->bb.w);
 			}
 		}
+
 		// gain in vertical direction by rotation
 		gain = shape_block->bb.h - shape_block->bb.w;
 		// loss in horizontal direction; only if new block

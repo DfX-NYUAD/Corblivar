@@ -198,8 +198,8 @@ class FloorPlanner {
 		bool inline performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 		bool inline performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
 		bool inline performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
-		bool inline performOpEnhancedHardBlockRotation(Block const* shape_block) const;
-		bool inline performOpEnhancedSoftBlockShaping(Block const* shape_block) const;
+		bool inline performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
+		bool inline performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 
 		// SA: helper for guided layout operations
 		//
