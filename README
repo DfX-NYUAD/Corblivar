@@ -1,0 +1,52 @@
+/*
+ * =====================================================================================
+ *
+ *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *
+ *    This file is part of Corblivar.
+ *    
+ *    Corblivar is free software: you can redistribute it and/or modify it under the terms
+ *    of the GNU General Public License as published by the Free Software Foundation,
+ *    either version 3 of the License, or (at your option) any later version.
+ *    
+ *    Corblivar is distributed in the hope that it will be useful, but WITHOUT ANY
+ *    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *    PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *    
+ *    You should have received a copy of the GNU General Public License along with
+ *    Corblivar.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * =====================================================================================
+
+ Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
+ emphasis on structural planning of massive interconnects by block alignment
+
+ To compile and run Corblivar, you require things from these (possibly not complete) list:
+ -----------------------------------------------------------------------------------------
+ - clang++
+ - gnuplot
+ - octave
+ - perl
+ - cairosvg-py3
+ - a modified copy of the BU's HotSpot version (applicable for 3D IC thermal analysis);
+ the code is (hopefully) provided along with Corblivar
+
+ The following comments are applicable to exp/, the experiments folder provided with
+ Corblivar
+ -----------------------------------------------------------------------------------
+
+ - Various experiments can be started using run*.sh; these scripts are not a complete set
+ for running all experiments but rather a guideline for different setups
+
+ - benches/ includes MCNC (some are not working, i.e., have issues with their content),
+ GSRC, and IBM-HB+ benchmarks, all in the GSRC format
+
+ - thermal_analysis_fitting/ includes Octave scripts for parameterization of
+ power-blurring-based thermal analysis; they can be also included e.g. in run*.sh scripts
+
+ - gp.sh delegates to gnuplot for generating various outputs after running Corbilvar
+
+ - HotSpot.sh calls a (slightly modified) version of BU's 3D HotSpot program; the related,
+ self-contained HotSpot code is (hopefully) provided along with Corblivar
+
+ - Corblivar.conf is a template for the config file required by Corblivar
