@@ -34,6 +34,8 @@
  The following comments are applicable to exp/, the experiments folder provided with
  Corblivar
  -----------------------------------------------------------------------------------
+ - Settings in some scripts may rely on the folder ~/code --- putting ~/code/Corblivar
+ along with ~/code/HotSpot is the default setup which should be working in any case
 
  - Various experiments can be started using run*.sh; these scripts are not a complete set
  for running all experiments but rather a guideline for different setups
