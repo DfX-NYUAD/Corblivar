@@ -1,0 +1,51 @@
+# alignment requests for Corblivar
+#
+# requests have to be defined as tuples w/ the following format: ( BLOCK_1_ID BLOCK_2_ID
+# TYPE_X ALIGNMENT_RANGE_OFFSET_X TYPE_Y ALIGNMENT_RANGE_OFFSET_Y )
+#
+# the following types can be defined: RANGE, RANGE_MAX, OFFSET, or UNDEF
+# 	RANGE is used to describe a minimal overlap b/w blocks,
+# 	RANGE_MAX is used to describe a maximal distance b/w blocks,
+# 	OFFSET is used to describe an offset b/w blocks' lower-left corners
+# 	UNDEF is used to describe an undefined offset, i.e., don't care for that dimension
+#
+# the range/distance/offset itself is to be given as floating in ALIGNMENT_RANGE_OFFSET
+#
+# data_start
+
+( sb1 sb2 RANGE 10.0 RANGE_MAX 2500.0 )
+( sb2 sb3 RANGE 10.0 RANGE_MAX 2500.0 )
+( sb3 sb4 RANGE 10.0 RANGE_MAX 2500.0 )
+( sb4 sb5 RANGE 10.0 RANGE_MAX 2500.0 )
+
+( sb6 sb7 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb7 sb8 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb8 sb9 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb9 sb10 RANGE_MAX 2500.0 RANGE 10.0 )
+
+( sb2 sb3 RANGE 10.0 RANGE_MAX 2500.0 )
+
+( sb1 sb4 RANGE 10.0 RANGE_MAX 2500.0 )
+( sb4 sb5 RANGE 10.0 RANGE_MAX 2500.0 )
+
+( sb3 sb4 RANGE 10.0 RANGE_MAX 2500.0 )
+
+( sb6 sb8 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb8 sb9 RANGE_MAX 2500.0 RANGE 10.0 )
+
+( sb8 sb10 RANGE_MAX 2500.0 RANGE 10.0 )
+
+( sb7 sb9 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb9 sb10 RANGE_MAX 2500.0 RANGE 10.0 )
+
+( sb3 sb5 RANGE 10.0 RANGE_MAX 2500.0 )
+( sb5 sb11 RANGE 10.0 RANGE_MAX 2500.0 )
+
+( sb6 sb9 RANGE_MAX 2500.0 RANGE 10.0 )
+( sb9 sb12 RANGE_MAX 2500.0 RANGE 10.0 )
+
+( sb13 sb14 OFFSET 0.0 OFFSET 0.0 )
+
+( sb15 sb16 OFFSET 0.0 OFFSET 0.0 )
+
+( sb17 sb18 OFFSET 0.0 OFFSET 0.0 )

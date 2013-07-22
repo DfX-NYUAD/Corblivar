@@ -3,9 +3,9 @@ root=~/code/Corblivar
 base=$root/exp
 #fitting=thermal_analysis_fitting
 
-exp="alignments_set_3"
-benches="n100 n200 n300 n100_soft n200_soft n300_soft"
-runs=20
+exp="alignments_set_5"
+benches="n100 n200 n300"
+runs=50
 
 for die_count in 2
 do
@@ -37,7 +37,7 @@ do
 	for bench in $benches
 	do
 		cp $base/benches/$bench.* .
-		cp $base/configs/$dies/$exp/$bench.alr .
+		cp $base/configs/$dies/$exp/$bench.* .
 	done
 #
 #	cd $fitting
@@ -77,7 +77,7 @@ do
 
 			echo "running Corblivar for $bench on $dies; run $run; working dir: $dir"
 
-			$root/Corblivar $bench $base/configs/$dies/$exp/$bench.conf $base/$dies/$exp/ > $bench.log
+			$root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/$dies/$exp/ > $bench.log
 
 			# run individual aux scripts, if required
 			#
