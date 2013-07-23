@@ -25,6 +25,7 @@
 #include "IO.hpp"
 // required Corblivar headers
 #include "FloorPlanner.hpp"
+#include "Chip.hpp"
 #include "ThermalAnalyzer.hpp"
 #include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
@@ -1973,7 +1974,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	int cur_layer;
 	int flag;
-	double TSV_density;
 	// factor to scale um downto m;
 	static constexpr double SCALE_UM_M = 0.000001;
 
@@ -2028,9 +2028,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file.close();
 	}
 
-	// determine reachable TSV density considering given pitch, dimension
-	TSV_density = fp.dummyTVSsDensity();
-
 	/// generate dummy floorplan for passive Si layer
 	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
 	//
@@ -2066,13 +2063,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 	}
 	else {
-		// determine average heat capacity, considering TSV density
-		file << "	" << TSV_density * ThermalAnalyzer::HEAT_CAPACITY_CU + (1.0 - TSV_density) * ThermalAnalyzer::HEAT_CAPACITY_SI;
-		// determine average thermal resistivity; note that the averaged thermal
-		// conductivity has to be considered and resistivity has to be derived
-		file << "	" << 1.0 / 
-			(TSV_density * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_CU)
-			 + (1.0 - TSV_density) * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_SI));
+		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_TSV_GROUP_IN_SI_PASSIVE;
+		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_TSV_GROUP_IN_SI;
 	}
 	file << endl;
 
@@ -2143,13 +2135,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
 		}
 		else {
-			// determine average heat capacity, considering the TSV density
-			file << "	" << TSV_density * ThermalAnalyzer::HEAT_CAPACITY_CU + (1.0 - TSV_density) * ThermalAnalyzer::HEAT_CAPACITY_BOND;
-			// determine average thermal resistivity; note that the averaged thermal
-			// conductivity has to be considered and resistivity has to be derived
-			file << "	" << 1.0 / 
-				(TSV_density * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_CU)
-				 + (1.0 - TSV_density) * (1.0 / ThermalAnalyzer::THERMAL_RESISTIVITY_BOND));
+			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_TSV_GROUP_IN_BOND;
+			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_TSV_GROUP_IN_BOND;
 		}
 		file << endl;
 
@@ -2247,7 +2234,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "N" << endl;
 			file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-			file << FloorPlanner::THICKNESS_BEOL << endl;
+			file << Chip::THICKNESS_BEOL << endl;
 			file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
 			file << endl;
 
@@ -2257,7 +2244,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "Y" << endl;
 			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-			file << FloorPlanner::THICKNESS_SI_ACTIVE << endl;
+			file << Chip::THICKNESS_SI_ACTIVE << endl;
 			file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
 			file << endl;
 
@@ -2267,7 +2254,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "N" << endl;
 			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-			file << FloorPlanner::THICKNESS_SI_PASSIVE << endl;
+			file << Chip::THICKNESS_SI_PASSIVE << endl;
 
 			if (flag == 0) {
 				file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
@@ -2284,7 +2271,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				file << "N" << endl;
 				file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
 				file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-				file << FloorPlanner::THICKNESS_BOND << endl;
+				file << Chip::THICKNESS_BOND << endl;
 
 				if (flag == 0) {
 					file << fp.benchmark << "_HotSpot_bond.flp" << endl;

@@ -30,6 +30,7 @@
 #include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "IO.hpp"
+#include "Chip.hpp"
 
 // memory allocation
 constexpr int FloorPlanner::OP_SWAP_BLOCKS;
@@ -1552,11 +1553,11 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-		ret.HPWL += ret.TSVs * (FloorPlanner::THICKNESS_SI + FloorPlanner::THICKNESS_BOND);
+		ret.HPWL += ret.TSVs * (Chip::THICKNESS_SI + Chip::THICKNESS_BOND);
 	}
 
 	// determine by TSVs occupied deadspace amount
-	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(FloorPlanner::TSV_DIMENSION, 2)) / this->stack_deadspace;
+	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_DIMENSION, 2)) / this->stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {

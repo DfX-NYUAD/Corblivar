@@ -47,23 +47,6 @@ class FloorPlanner {
 		vector<Block> terminals;
 		vector<Net> nets;
 
-		// 3D IC die layer parameters
-		// 100um thick dies; own value
-		static constexpr double THICKNESS_SI = 100.0e-6;
-		// 2um active Si layer; [Sridhar10]
-		static constexpr double THICKNESS_SI_ACTIVE = 2.0e-06;
-		// passive Si layer, results in 98um
-		static constexpr double THICKNESS_SI_PASSIVE = THICKNESS_SI - THICKNESS_SI_ACTIVE;
-		// 12um BEOL; [Sridhar10]
-		static constexpr double THICKNESS_BEOL = 12.0e-06;
-		// 20um BCB bond; [Sridhar10]
-		static constexpr double THICKNESS_BOND = 20.0e-06;
-		// TSV properties; own values
-		// 5um dimension
-		static constexpr double TSV_DIMENSION = 5.0e-06;
-		// 10um pitch
-		static constexpr double TSV_PITCH = 10.0e-06;
-
 		// 3D IC config parameters
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
@@ -244,22 +227,6 @@ class FloorPlanner {
 
 		// thermal analyzer parameters: power masks
 		double conf_power_blurring_power_density_scaling_padding_zone;
-
-		// IO helper: determines the achievable density of TSVs given their
-		// dimensions and pitch, assuming a close packing
-		double inline dummyTVSsDensity() const {
-			double TSVs;
-
-			// in the range TSV_DIMENSION + TSV_PITCH, we could fit two TSVs
-			TSVs = (2.0 * this->conf_outline_x / (FloorPlanner::TSV_DIMENSION + FloorPlanner::TSV_PITCH))
-				* (2.0 * this->conf_outline_y /(FloorPlanner::TSV_DIMENSION + FloorPlanner::TSV_PITCH));
-
-			return 
-				// area occupied by TSVs
-				TSVs * pow(FloorPlanner::TSV_DIMENSION, 2)
-				// normalize to overall die area; i.e. TSV density
-				/ (this->conf_outline_x * this->conf_outline_y);
-		};
 
 	// constructors, destructors, if any non-implicit
 	public:
