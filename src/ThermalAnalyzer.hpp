@@ -43,21 +43,21 @@ class ThermalAnalyzer {
 		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
 		/// HotSpot configuration values)
 		// [Park09]; derived from 700 J/(kg*K) to J/(m^3*K) considering Si density of 2330 kg/m^3
-		static constexpr double HEAT_CAPACITY_SI = 1631000.0;
+		static constexpr double HEAT_CAPACITY_SI = 1.631e06;
 		// [Park09]
-		static constexpr double THERMAL_RESISTIVITY_SI = 0.008510638;
+		static constexpr double THERMAL_RESISTIVITY_SI = 8.510638298e-03;
 		// [Sridhar10]; derived considering a factor of appr. 1.35 for Si/BEOL heat capacity
-		static constexpr double HEAT_CAPACITY_BEOL = 1208150.0;
+		static constexpr double HEAT_CAPACITY_BEOL = HEAT_CAPACITY_SI / 1.35;
 		// [Sridhar10]
 		static constexpr double THERMAL_RESISTIVITY_BEOL = 0.4444;
 		// [Park09]; BCB polymer
-		static constexpr double HEAT_CAPACITY_BOND = 2298537.0;
+		static constexpr double HEAT_CAPACITY_BOND = 2.298537e06;
 		// [Park09]; BCB polymer
 		static constexpr double THERMAL_RESISTIVITY_BOND = 5.0;
 		// [Park09]
 		static constexpr double HEAT_CAPACITY_CU = 3.546401e06;
 		// [Park09]
-		static constexpr double THERMAL_RESISTIVITY_CU = 0.002531646;
+		static constexpr double THERMAL_RESISTIVITY_CU = 2.53164557e-03;
 		// [Park09]
 		static constexpr double DENSITY_SI = 2330.0;
 		// [Park09]
