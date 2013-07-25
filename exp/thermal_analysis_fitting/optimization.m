@@ -43,7 +43,7 @@
 
    % print recommendation for editing the .conf-file
 
-   helpConf = sprintf('\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\n');
+   helpConf = sprintf('These scripts rely on being in a subfolder of the particular Corblivar experiment to be parameterized!!\n\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\nAlso, two command-line parameters are required: 1) the benchmarks name, 2) the related config-files name\n\n');
    printf(helpConf); 
 
   %% ask user for benchmark
