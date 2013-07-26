@@ -69,38 +69,34 @@ class ThermalAnalyzer {
 		// considering TSV dimensions
 		//
 		// heat capacity of TSV-group-Si compound:  C_group = m_Cu / m_group * C_Cu + (1 - m_Cu / m_group) * C_Si =
-		// l * [1 / (1 + (p_Si * A_Si) / (p_Cu * A_Cu)) * C_Cu + 1 / (1 + (p_Cu * A_Cu) / (p_Si * A_Si)) * C_si]
+		// 1 / (1 + (p_Si * A_Si) / (p_Cu * A_Cu)) * C_Cu + 1 / (1 + (p_Cu * A_Cu) / (p_Si * A_Si)) * C_si
 		// http://answers.yahoo.com/question/index?qid=20110804231514AApjFkc ,
 		// http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g
-		static constexpr double HEAT_CAPACITY_TSV_GROUP_IN_SI_PASSIVE = Chip::THICKNESS_SI_PASSIVE * (
-				HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) +
-				HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) )
-				);
+		static constexpr double HEAT_CAPACITY_TSV_GROUP_IN_SI_PASSIVE =
+			HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) +
+			HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) );
 		//
 		// similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well
-		static constexpr double HEAT_CAPACITY_TSV_GROUP_IN_BOND = Chip::THICKNESS_BOND * (
-				HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) +
-				HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) )
-				);
+		static constexpr double HEAT_CAPACITY_TSV_GROUP_IN_BOND =
+			HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) +
+			HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) );
 		//
 		// thermal resistivity of compounds, derived from thermal conductivity
 		// which can be calculated via Maxwell-Garnett's Equation
 		// (http://en.wikipedia.org/wiki/Effective_medium_approximations#Maxwell-Garnett_Equation)
-		static constexpr double THERMAL_RESISTIVITY_TSV_GROUP_IN_SI = 1.0 / (
+		static constexpr double THERMAL_RESISTIVITY_TSV_GROUP_IN_SI = THERMAL_RESISTIVITY_SI *
 			( (1.0 / THERMAL_RESISTIVITY_SI) * (2.0 + Chip::TSV_GROUP_CU_SI_AREA_RATIO) +
 			  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 - Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) /
-			( THERMAL_RESISTIVITY_SI * (
-						    (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO) -
-						    (1.0 / THERMAL_RESISTIVITY_SI) * (2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO - 2.0)
-						   ) )
+			( 
+			  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO) -
+			  (1.0 / THERMAL_RESISTIVITY_SI) * (2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO - 2.0)
 			);
-		static constexpr double THERMAL_RESISTIVITY_TSV_GROUP_IN_BOND = 1.0 / (
+		static constexpr double THERMAL_RESISTIVITY_TSV_GROUP_IN_BOND = THERMAL_RESISTIVITY_BOND *
 			( (1.0 / THERMAL_RESISTIVITY_BOND) * (2.0 + Chip::TSV_GROUP_CU_SI_AREA_RATIO) +
 			  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 - Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) /
-			( THERMAL_RESISTIVITY_BOND * (
-						    (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO) -
-						    (1.0 / THERMAL_RESISTIVITY_BOND) * (2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO - 2.0)
-						   ) )
+			(
+		    	  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO) -
+		    	  (1.0 / THERMAL_RESISTIVITY_BOND) * (2 * Chip::TSV_GROUP_CU_SI_AREA_RATIO - 2.0)
 			);
 
 		// thermal modeling: dimensions
