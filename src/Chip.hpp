@@ -43,13 +43,9 @@ class Chip {
 		static constexpr double TSV_DIMENSION = 5.0e-06;
 		// 10um pitch
 		static constexpr double TSV_PITCH = 10.0e-06;
-		// TSV density; for groups of 2^i (i >= 2) TSVs; derived for i = 2, i.e.,
-		// a square w/ 4 TSVs
-		static constexpr double TSV_DENSITY = (4.0 * TSV_DIMENSION * TSV_DIMENSION) / ((TSV_DIMENSION + TSV_PITCH) * (TSV_DIMENSION + TSV_PITCH));
-		// Cu-Si area ratio for TSV groups; A_Cu / A_Si = A_Cu / (A_group - A_Cu)
-		// = 1 / ( (A_group / A_Cu) - 1 )
-		static constexpr double TSV_GROUP_CU_SI_AREA_RATIO = 1.0 / (
-			((TSV_DIMENSION + TSV_PITCH) * (TSV_DIMENSION + TSV_PITCH)) / (4.0 * TSV_DIMENSION * TSV_DIMENSION) - 1.0);
+		// Cu-in-Si area ratio for TSV groups
+		static constexpr double TSV_GROUP_CU_IN_SI_AREA_RATIO = (TSV_DIMENSION * TSV_DIMENSION) /
+			((TSV_PITCH * TSV_PITCH) - (TSV_DIMENSION * TSV_DIMENSION));
 };
 
 #endif
