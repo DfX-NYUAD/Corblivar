@@ -11,6 +11,9 @@
 #
 # the range/distance/offset itself is to be given as floating in ALIGNMENT_RANGE_OFFSET
 #
+# for alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
+# preplacement of sb10 at 10,50 use ( RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
+#
 # data_start
 
 ( sb1 sb2 RANGE 10.0 RANGE_MAX 2500.0 )

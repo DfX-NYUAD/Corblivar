@@ -46,6 +46,8 @@ class FloorPlanner {
 		vector<Block> blocks;
 		vector<Block> terminals;
 		vector<Net> nets;
+		// dummy reference block, represents lower-left corner of dies
+		RBOD const RBOD;
 
 		// 3D IC config parameters
 		int conf_layer;

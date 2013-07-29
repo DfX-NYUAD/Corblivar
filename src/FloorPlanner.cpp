@@ -717,8 +717,15 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 	// handle request; sanity check for found failed request
 	if (failed_req != nullptr && !failed_req->fulfilled) {
 
-		// randomly decide for one block
-		if (Math::randB()) {
+		// randomly decide for one block; consider the dummy reference block if
+		// required
+		if (
+			// randomly select s_i if it's not the RBOD
+			(failed_req->s_i->id != "RBOD" && Math::randB()) ||
+			// if s_j is the RBOD, we need to use s_i; assuming that
+			// only s_i OR s_j are the RBOD
+			failed_req->s_j->id == "RBOD"
+		   ) {
 			die1 = die2 = failed_req->s_i->layer;
 			tuple1 = corb.getDie(die1).getTuple(failed_req->s_i);
 			b1 = failed_req->s_i;

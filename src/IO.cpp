@@ -608,9 +608,19 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 
 		// find related block
 		b1 = Block::findBlock(block_id, fp.blocks);
+		// no parsed block found
 		if (b1 == nullptr) {
-			cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
-			exit(1);
+
+			// check for dummy reference block
+			if (block_id == "RBOD") {
+				// link dummy block to alignment request
+				b1 = &fp.RBOD;
+			}
+			// otherwise, we triggered some parsing error
+			else {
+				cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+				exit(1);
+			}
 		}
 
 		// block 2 id
@@ -618,9 +628,19 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 
 		// find related block
 		b2 = Block::findBlock(block_id, fp.blocks);
+		// no parsed block found
 		if (b2 == nullptr) {
-			cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
-			exit(1);
+
+			// check for dummy reference block
+			if (block_id == "RBOD") {
+				// link dummy block to alignment request
+				b2 = &fp.RBOD;
+			}
+			// otherwise, we triggered some parsing error
+			else {
+				cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+				exit(1);
+			}
 		}
 
 		// alignment type for x-dimension

@@ -140,4 +140,26 @@ class Block {
 		};
 };
 
+// derived dummy block "RBOD" as Reference Block On Die for fixed offsets
+class RBOD : public Block {
+
+	// constructors, destructors, if any non-implicit
+	//
+	// inherits properties of block and defines coordinates as 0,0, i.e., the
+	// lower-left corner of the die
+	public:
+		RBOD () : Block("RBOD") {
+
+			this->bb.ll.x = 0.0;
+			this->bb.ll.y = 0.0;
+			this->bb.ur.x = 0.0;
+			this->bb.ur.y = 0.0;
+
+			// also consider this dummy block as placed, i.e., not to be
+			// shifted for alignment
+			this->placed = true;
+		};
+};
+
+
 #endif
