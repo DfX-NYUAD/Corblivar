@@ -149,7 +149,7 @@ list<Block const*> CorblivarDie::popRelevantBlocks() {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min(this->getJunctions(this->pi) + 1, this->Hi.size());
+		blocks_count = min<unsigned>(this->getJunctions(this->pi) + 1, this->Hi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {
@@ -162,7 +162,7 @@ list<Block const*> CorblivarDie::popRelevantBlocks() {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min(this->getJunctions(this->pi) + 1, this->Vi.size());
+		blocks_count = min<unsigned>(this->getJunctions(this->pi) + 1, this->Vi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {

@@ -66,10 +66,10 @@ class CornerBlockList {
 				unsigned prev_ret;
 
 				prev_ret = ret = this->S.size();
-				ret = min(ret, this->L.size());
+				ret = min<unsigned>(ret, this->L.size());
 				mismatch = (ret != prev_ret);
 				prev_ret = ret;
-				ret = min(ret, this->T.size());
+				ret = min<unsigned>(ret, this->T.size());
 				mismatch = mismatch || (ret != prev_ret);
 
 				if (mismatch) {
