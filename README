@@ -21,8 +21,8 @@
  Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
  emphasis on structural planning of massive interconnects by block alignment
 
- To compile and run Corblivar, you require things from these (possibly not complete) list:
- -----------------------------------------------------------------------------------------
+ To compile, run and evaluate Corblivar, you require items from this (possibly not complete) list:
+ -------------------------------------------------------------------------------------------------
  - clang++
  - gnuplot
  - octave
@@ -44,7 +44,9 @@
  GSRC, and IBM-HB+ benchmarks, all in the GSRC format
 
  - thermal_analysis_fitting/ includes Octave scripts for parameterization of
- power-blurring-based thermal analysis; they can be also included e.g. in run*.sh scripts
+ power-blurring-based thermal analysis; they can be also included e.g. in run*.sh scripts;
+ currently, these scripts will work on the parent folder, i.e., you might want to copy
+ thermal_analysis_fitting as a subfolder for your experiments, see e.g., run9.sh
 
  - gp.sh delegates to gnuplot for generating various outputs after running Corbilvar
 
