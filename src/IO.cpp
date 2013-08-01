@@ -357,6 +357,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
+	// thermal-analysis parameters, for setting w/o TSVs
+	//
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -410,6 +412,61 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
+	// thermal-analysis parameters, for setting w/ TSVs
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_TSVs_impulse_factor;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_TSVs_impulse_factor_scaling_exponent;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_TSVs_mask_boundary_value;
+
+	// sanity check for positive, non-zero parameters
+	if (fp.conf_power_blurring_TSVs_impulse_factor <= 0.0) {
+		cout << "IO> Provide a positive, non-zero TSV-related power blurring impulse factor!" << endl;
+		exit(1);
+	}
+	if (fp.conf_power_blurring_TSVs_mask_boundary_value <= 0.0) {
+		cout << "IO> Provide a positive, non-zero TSV-related power blurring mask boundary value!" << endl;
+		exit(1);
+	}
+
+	// sanity check for reasonable mask parameters
+	if (fp.conf_power_blurring_TSVs_impulse_factor < fp.conf_power_blurring_TSVs_mask_boundary_value) {
+		cout << "IO> Provide a TSV-related power blurring impulse factor larger than the TSV-related power blurring mask boundary value!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone;
+
+	// sanity check for positive parameter
+	if (fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone < 0.0) {
+		cout << "IO> Provide a positive TSV-related power-density scaling factor!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.conf_power_blurring_TSVs_temp_offset;
+
+	// sanity check for positive parameter
+	if (fp.conf_power_blurring_TSVs_temp_offset < 0.0) {
+		cout << "IO> Provide a positive TSV-related temperature offset!" << endl;
+		exit(1);
+	}
+
 	in.close();
 
 	if (fp.logMin()) {
@@ -455,12 +512,19 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
 		}
 
-		// power blurring parameters; for thermal analysis
+		// power blurring parameters; for thermal analysis w/o TSVs
 		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
 		cout << "IO>  Power blurring -- Impulse scaling-factor: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
 		cout << "IO>  Power blurring -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_power_density_scaling_padding_zone << endl;
 		cout << "IO>  Power blurring -- Temperature offset: " << fp.conf_power_blurring_temp_offset << endl;
+
+		// power blurring parameters; for thermal analysis w/ TSVs
+		cout << "IO>  Power blurring considering TSVs -- Impulse factor: " << fp.conf_power_blurring_TSVs_impulse_factor << endl;
+		cout << "IO>  Power blurring considering TSVs -- Impulse scaling-factor: " << fp.conf_power_blurring_TSVs_impulse_factor_scaling_exponent << endl;
+		cout << "IO>  Power blurring considering TSVs -- Mask-boundary value: " << fp.conf_power_blurring_TSVs_mask_boundary_value << endl;
+		cout << "IO>  Power blurring considering TSVs -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone << endl;
+		cout << "IO>  Power blurring considering TSVs -- Temperature offset: " << fp.conf_power_blurring_TSVs_temp_offset << endl;
 
 		cout << endl;
 	}
