@@ -2,7 +2,8 @@
 # Application Name:
 #=============================================================================#
 APP := Corblivar
-AUX := 3DFP_Parser 3DSTAF_Parser
+AUX := ThermalAnalyzerFitting 3DFP_Parser 3DSTAF_Parser
+ALL := Corblivar ThermalAnalyzerFitting
 
 #=============================================================================#
 # Define Compiler Executable:
@@ -49,7 +50,9 @@ OBJ := $(notdir $(OBJ))
 OBJ := $(addprefix $(BUILD_DIR)/,$(OBJ))
 DEP := $(OBJ:%.o=%.d)
 # assume all objects to be required for aux binaries, expect main object
-OBJ_AUX := $(filter-out $(BUILD_DIR)/$(APP).o, $(OBJ))
+#OBJ_AUX := $(filter-out $(BUILD_DIR)/$(APP).o, $(OBJ))
+OBJ_AUX := $(filter-out build/Corblivar.o, $(OBJ))
+OBJ_AUX := $(filter-out build/Corblivar.o, $(OBJ))
 # variable to monitor changes in aux src
 SRC_AUX_ALL := $(wildcard $(SRC_AUX)/*.cpp)
 
@@ -66,7 +69,7 @@ SRC_AUX_ALL := $(wildcard $(SRC_AUX)/*.cpp)
 #=============================================================================#
 # Link Main Executable
 #=============================================================================#
-all: libs $(APP)
+all: libs $(ALL)
 
 $(APP): $(BUILD_DIR) $(OBJ)
 	@echo
@@ -163,9 +166,15 @@ debug:
 	@echo -----------------------------------------------------------------------
 	@echo - COMPILER: $(COMPILER)
 	@echo -----------------------------------------------------------------------
+	@echo - APP  : $(APP)
+	@echo -----------------------------------------------------------------------
 	@echo - SRC  : $(SRC)
 	@echo -----------------------------------------------------------------------
 	@echo - OBJ    : $(OBJ)
 	@echo -----------------------------------------------------------------------
 	@echo - DEP    : $(DEP)
+	@echo -----------------------------------------------------------------------
+	@echo - SRC_AUX    : $(SRC_AUX_ALL)
+	@echo -----------------------------------------------------------------------
+	@echo - OBJ_AUX    : $(OBJ_AUX)
 	@echo -----------------------------------------------------------------------

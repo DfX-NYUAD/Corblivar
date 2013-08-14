@@ -34,7 +34,7 @@
 #include "Math.hpp"
 
 // parse program parameter, config file, and further files
-void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
+void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const& argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -45,15 +45,29 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	stringstream nets_file;
 	string tmpstr;
 
-	// program parameter
-	if (argc < 4) {
-		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
-		cout << "IO> " << endl;
-		cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
-		cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
-		cout << "IO> Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
+	// program parameters; two modes, one for regular Corblivar runs, one for for
+	// thermal-analysis parameterization runs
+	if (mode == IO::Mode::REGULAR) {
+		if (argc < 4) {
+			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
+			cout << "IO> " << endl;
+			cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
+			cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
+			cout << "IO> Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
 
-		exit(1);
+			exit(1);
+		}
+	}
+	else if (mode == IO::Mode::THERMAL_ANALYSIS) {
+		if (argc < 6) {
+			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir solution_file TSV_density" << endl;
+			cout << "IO> " << endl;
+			cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
+			cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
+			cout << "IO> Expected solution_file: any in Corblivar format" << endl;
+
+			exit(1);
+		}
 	}
 
 	fp.benchmark = argv[1];
@@ -133,7 +147,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.close();
 
 	// additional parameter for solution file given; consider file for readin
-	if (argc == 5) {
+	if (argc > 4) {
 
 		solution_file << argv[4];
 		// open file if possible
@@ -149,6 +163,12 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	else {
 		solution_file << fp.benchmark << ".solution";
 		fp.solution_out.open(solution_file.str().c_str());
+	}
+
+	// additional parameter for TSV density given; for thermal-analysis
+	// parameterization runs
+	if (argc > 5) {
+		fp.conf_thermal_analyzer_TSV_density = atof(argv[5]);
 	}
 
 	// open config file
@@ -357,7 +377,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// thermal-analysis parameters, for setting w/o TSVs
+	// thermal-analysis parameterization, initial values
 	//
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -412,61 +432,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// thermal-analysis parameters, for setting w/ TSVs
-	//
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_TSVs_impulse_factor;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_TSVs_impulse_factor_scaling_exponent;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_TSVs_mask_boundary_value;
-
-	// sanity check for positive, non-zero parameters
-	if (fp.conf_power_blurring_TSVs_impulse_factor <= 0.0) {
-		cout << "IO> Provide a positive, non-zero TSV-related power blurring impulse factor!" << endl;
-		exit(1);
-	}
-	if (fp.conf_power_blurring_TSVs_mask_boundary_value <= 0.0) {
-		cout << "IO> Provide a positive, non-zero TSV-related power blurring mask boundary value!" << endl;
-		exit(1);
-	}
-
-	// sanity check for reasonable mask parameters
-	if (fp.conf_power_blurring_TSVs_impulse_factor < fp.conf_power_blurring_TSVs_mask_boundary_value) {
-		cout << "IO> Provide a TSV-related power blurring impulse factor larger than the TSV-related power blurring mask boundary value!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone;
-
-	// sanity check for positive parameter
-	if (fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone < 0.0) {
-		cout << "IO> Provide a positive TSV-related power-density scaling factor!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_TSVs_temp_offset;
-
-	// sanity check for positive parameter
-	if (fp.conf_power_blurring_TSVs_temp_offset < 0.0) {
-		cout << "IO> Provide a positive TSV-related temperature offset!" << endl;
-		exit(1);
-	}
-
 	in.close();
 
 	if (fp.logMin()) {
@@ -512,19 +477,12 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
 		}
 
-		// power blurring parameters; for thermal analysis w/o TSVs
-		cout << "IO>  Power blurring -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
-		cout << "IO>  Power blurring -- Impulse scaling-factor: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
-		cout << "IO>  Power blurring -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
-		cout << "IO>  Power blurring -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power blurring -- Temperature offset: " << fp.conf_power_blurring_temp_offset << endl;
-
-		// power blurring parameters; for thermal analysis w/ TSVs
-		cout << "IO>  Power blurring considering TSVs -- Impulse factor: " << fp.conf_power_blurring_TSVs_impulse_factor << endl;
-		cout << "IO>  Power blurring considering TSVs -- Impulse scaling-factor: " << fp.conf_power_blurring_TSVs_impulse_factor_scaling_exponent << endl;
-		cout << "IO>  Power blurring considering TSVs -- Mask-boundary value: " << fp.conf_power_blurring_TSVs_mask_boundary_value << endl;
-		cout << "IO>  Power blurring considering TSVs -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_TSVs_power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power blurring considering TSVs -- Temperature offset: " << fp.conf_power_blurring_TSVs_temp_offset << endl;
+		// power blurring parameters; for thermal-analysis parameterization
+		cout << "IO>  Power-blurring parameterization -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
+		cout << "IO>  Power-blurring parameterization -- Impulse scaling-factor: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
+		cout << "IO>  Power-blurring parameterization -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
+		cout << "IO>  Power-blurring parameterization -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_power_density_scaling_padding_zone << endl;
+		cout << "IO>  Power-blurring parameterization -- Temperature offset: " << fp.conf_power_blurring_temp_offset << endl;
 
 		cout << endl;
 	}
@@ -2057,7 +2015,6 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	ofstream file;
 	int cur_layer;
-	int flag;
 	// factor to scale um downto m;
 	static constexpr double SCALE_UM_M = 0.000001;
 
@@ -2113,18 +2070,9 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	}
 
 	/// generate dummy floorplan for passive Si layer
-	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
-	//
-	for (flag = 0; flag <= 1; flag++) {
-
 	// build up file name
 	stringstream Si_fp_file;
-	if (flag == 0) {
-		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
-	}
-	else {
-		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive_TSVs.flp";
-	}
+	Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
 
 	// init file stream
 	file.open(Si_fp_file.str().c_str());
@@ -2141,20 +2089,13 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	" << fp.conf_outline_y * SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
-
-	if (flag == 0) {
-		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
-		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
-	}
-	else {
-		file << "	" << ThermalAnalyzer::heatCapSi(1.0);
-		file << "	" << ThermalAnalyzer::thermResSi(1.0);
-	}
+	// thermal properties, depending on TSV density which is 0.0 for regular runs
+	file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_thermal_analyzer_TSV_density);
+	file << "	" << ThermalAnalyzer::thermResSi(fp.conf_thermal_analyzer_TSV_density);
 	file << endl;
 
 	// close file stream
 	file.close();
-	}
 
 	/// generate dummy floorplan for BEOL layer
 	//
@@ -2185,48 +2126,32 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file.close();
 
 	/// generate dummy floorplan for bond layer
-	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
-	//
-	for (flag = 0; flag <= 1; flag++) {
+	// build up file name
+	stringstream bond_fp_file;
+	bond_fp_file << fp.benchmark << "_HotSpot_bond.flp";
 
-		// build up file name
-		stringstream bond_fp_file;
-		if (flag == 0) {
-			bond_fp_file << fp.benchmark << "_HotSpot_bond.flp";
-		}
-		else {
-			bond_fp_file << fp.benchmark << "_HotSpot_bond_TSVs.flp";
-		}
+	// init file stream
+	file.open(bond_fp_file.str().c_str());
 
-		// init file stream
-		file.open(bond_fp_file.str().c_str());
+	// file header
+	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+	file << "# all dimensions are in meters" << endl;
+	file << "# comment lines begin with a '#'" << endl;
+	file << "# comments and empty lines are ignored" << endl;
 
-		// file header
-		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-		file << "# all dimensions are in meters" << endl;
-		file << "# comment lines begin with a '#'" << endl;
-		file << "# comments and empty lines are ignored" << endl;
+	// bond ``block''
+	file << "bond";
+	file << "	" << fp.conf_outline_x * SCALE_UM_M;
+	file << "	" << fp.conf_outline_y * SCALE_UM_M;
+	file << "	0.0";
+	file << "	0.0";
+	// thermal properties, depending on TSV density which is 0.0 for regular runs
+	file << "	" << ThermalAnalyzer::heatCapBond(fp.conf_thermal_analyzer_TSV_density);
+	file << "	" << ThermalAnalyzer::thermResBond(fp.conf_thermal_analyzer_TSV_density);
+	file << endl;
 
-		// bond ``block''
-		file << "bond";
-		file << "	" << fp.conf_outline_x * SCALE_UM_M;
-		file << "	" << fp.conf_outline_y * SCALE_UM_M;
-		file << "	0.0";
-		file << "	0.0";
-
-		if (flag == 0) {
-			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BOND;
-			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
-		}
-		else {
-			file << "	" << ThermalAnalyzer::heatCapBond(1.0);
-			file << "	" << ThermalAnalyzer::thermResBond(1.0);
-		}
-		file << endl;
-
-		// close file stream
-		file.close();
-	}
+	// close file stream
+	file.close();
 
 	// close file stream
 	file.close();
@@ -2281,96 +2206,78 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file.close();
 
 	/// generate 3D-IC description file
-	// flag = 0: w/o TSVs, flag = 1: w/ TSVs;
-	for (flag = 0; flag <= 1; flag++) {
+	// build up file name
+	stringstream stack_file;
+	stack_file << fp.benchmark << "_HotSpot.lcf";
 
-		// build up file name
-		stringstream stack_file;
-		if (flag == 0) {
-			stack_file << fp.benchmark << "_HotSpot.lcf";
-		}
-		else {
-			stack_file << fp.benchmark << "_HotSpot_TSVs.lcf";
-		}
+	// init file stream
+	file.open(stack_file.str().c_str());
 
-		// init file stream
-		file.open(stack_file.str().c_str());
+	// file header
+	file << "#Lines starting with # are used for commenting" << endl;
+	file << "#Blank lines are also ignored" << endl;
+	file << endl;
+	file << "#File Format:" << endl;
+	file << "#<Layer Number>" << endl;
+	file << "#<Lateral heat flow Y/N?>" << endl;
+	file << "#<Power Dissipation Y/N?>" << endl;
+	file << "#<Specific heat capacity in J/(m^3K)>" << endl;
+	file << "#<Resistivity in (m-K)/W>" << endl;
+	file << "#<Thickness in m>" << endl;
+	file << "#<floorplan file>" << endl;
+	file << endl;
 
-		// file header
-		file << "#Lines starting with # are used for commenting" << endl;
-		file << "#Blank lines are also ignored" << endl;
+	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+
+		file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
+		file << 4 * cur_layer << endl;
+		file << "Y" << endl;
+		file << "N" << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
+		file << Chip::THICKNESS_BEOL << endl;
+		file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
 		file << endl;
-		file << "#File Format:" << endl;
-		file << "#<Layer Number>" << endl;
-		file << "#<Lateral heat flow Y/N?>" << endl;
-		file << "#<Power Dissipation Y/N?>" << endl;
-		file << "#<Specific heat capacity in J/(m^3K)>" << endl;
-		file << "#<Resistivity in (m-K)/W>" << endl;
-		file << "#<Thickness in m>" << endl;
-		file << "#<floorplan file>" << endl;
+
+		file << "# Active Si layer; design layer " << cur_layer + 1 << endl;
+		file << 4 * cur_layer + 1 << endl;
+		file << "Y" << endl;
+		file << "Y" << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
+		file << Chip::THICKNESS_SI_ACTIVE << endl;
+		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
-		for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+		file << "# Passive Si layer " << cur_layer + 1 << endl;
+		file << 4 * cur_layer + 2 << endl;
+		file << "Y" << endl;
+		file << "N" << endl;
+		// thermal properties, depending on TSV density which is 0.0 for regular runs
+		file << ThermalAnalyzer::heatCapSi(fp.conf_thermal_analyzer_TSV_density) << endl;
+		file << ThermalAnalyzer::thermResSi(fp.conf_thermal_analyzer_TSV_density) << endl;
+		file << Chip::THICKNESS_SI_PASSIVE << endl;
+		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
+		file << endl;
 
-			file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
-			file << 4 * cur_layer << endl;
+		if (cur_layer < (fp.conf_layer - 1)) {
+			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
+			file << 4 * cur_layer + 3 << endl;
 			file << "Y" << endl;
 			file << "N" << endl;
-			file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-			file << Chip::THICKNESS_BEOL << endl;
-			file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
+			// thermal properties, depending on TSV density which is 0.0 for regular runs
+			file << ThermalAnalyzer::heatCapBond(fp.conf_thermal_analyzer_TSV_density) << endl;
+			file << ThermalAnalyzer::thermResBond(fp.conf_thermal_analyzer_TSV_density) << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
+			file << Chip::THICKNESS_BOND << endl;
+			file << fp.benchmark << "_HotSpot_bond.flp" << endl;
 			file << endl;
-
-			file << "# Active Si layer; design layer " << cur_layer + 1 << endl;
-			file << 4 * cur_layer + 1 << endl;
-			file << "Y" << endl;
-			file << "Y" << endl;
-			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-			file << Chip::THICKNESS_SI_ACTIVE << endl;
-			file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
-			file << endl;
-
-			file << "# Passive Si layer " << cur_layer + 1 << endl;
-			file << 4 * cur_layer + 2 << endl;
-			file << "Y" << endl;
-			file << "N" << endl;
-			file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-			file << Chip::THICKNESS_SI_PASSIVE << endl;
-
-			if (flag == 0) {
-				file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
-			}
-			else {
-				file << fp.benchmark << "_HotSpot_Si_passive_TSVs.flp" << endl;
-			}
-			file << endl;
-
-			if (cur_layer < (fp.conf_layer - 1)) {
-				file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
-				file << 4 * cur_layer + 3 << endl;
-				file << "Y" << endl;
-				file << "N" << endl;
-				file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
-				file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-				file << Chip::THICKNESS_BOND << endl;
-
-				if (flag == 0) {
-					file << fp.benchmark << "_HotSpot_bond.flp" << endl;
-				}
-				else {
-					file << fp.benchmark << "_HotSpot_bond_TSVs.flp" << endl;
-				}
-				file << endl;
-			}
 		}
-
-		// close file stream
-		file.close();
-
 	}
+
+	// close file stream
+	file.close();
 
 	if (fp.logMed()) {
 		cout << "IO> Done" << endl << endl;

@@ -223,15 +223,15 @@ class FloorPlanner {
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
 
-		// thermal analyzer parameters: thermal mask fitting w/o TSVs
+		// thermal analyzer parameters: TSV density; only used for
+		// thermal-analysis parameterization runs
+		double conf_thermal_analyzer_TSV_density = 0.0;
+
+		// thermal analyzer parameters: initial thermal mask parameters; used for
+		// thermal-analysis parameterization runs
 		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
 		double conf_power_blurring_temp_offset;
 		double conf_power_blurring_power_density_scaling_padding_zone;
-
-		// thermal analyzer parameters: thermal mask fitting w/ TSVs
-		double conf_power_blurring_TSVs_impulse_factor, conf_power_blurring_TSVs_impulse_factor_scaling_exponent, conf_power_blurring_TSVs_mask_boundary_value;
-		double conf_power_blurring_TSVs_temp_offset;
-		double conf_power_blurring_TSVs_power_density_scaling_padding_zone;
 
 	// constructors, destructors, if any non-implicit
 	public:

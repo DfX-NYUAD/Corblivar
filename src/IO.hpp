@@ -38,7 +38,7 @@ class IO {
 
 	// private data, functions
 	private:
-		static constexpr int CONFIG_VERSION = 11;
+		static constexpr int CONFIG_VERSION = 12;
 
 	// constructors, destructors, if any non-implicit
 	// private in order to avoid instances of ``static'' class
@@ -48,7 +48,9 @@ class IO {
 
 	// public data, functions
 	public:
-		static void parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv);
+		enum class Mode : unsigned {REGULAR, THERMAL_ANALYSIS};
+
+		static void parseParametersFiles(FloorPlanner& fp, Mode const& mode, int const& argc, char** argv);
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments);
 		static void parseNets(FloorPlanner& fp);
