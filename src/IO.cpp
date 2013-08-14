@@ -2147,8 +2147,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 	}
 	else {
-		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_TSV_GROUP_IN_SI_PASSIVE;
-		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_TSV_GROUP_IN_SI;
+		file << "	" << ThermalAnalyzer::heatCapSi(1.0);
+		file << "	" << ThermalAnalyzer::thermResSi(1.0);
 	}
 	file << endl;
 
@@ -2219,8 +2219,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND;
 		}
 		else {
-			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_TSV_GROUP_IN_BOND;
-			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_TSV_GROUP_IN_BOND;
+			file << "	" << ThermalAnalyzer::heatCapBond(1.0);
+			file << "	" << ThermalAnalyzer::thermResBond(1.0);
 		}
 		file << endl;
 
