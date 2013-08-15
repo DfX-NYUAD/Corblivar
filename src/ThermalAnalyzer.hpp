@@ -68,8 +68,10 @@ class ThermalAnalyzer {
 		// TSV-groups-related parameters; derived from values above and
 		// considering TSV dimensions
 		//
-		// heat capacity of TSV-group-Si compound:  C_group = m_Cu / m_group * C_Cu + (1 - m_Cu / m_group) * C_Si =
-		// 1 / (1 + (p_Si * A_Si) / (p_Cu * A_Cu)) * C_Cu + 1 / (1 + (p_Cu * A_Cu) / (p_Si * A_Si)) * C_si
+		// heat capacity of TSV-group-Si compound: mass-weighted mean;  C_group =
+		// m_Cu / m_group * C_Cu + (1 - m_Cu / m_group) * C_Si = 1 / (1 + (p_Si *
+		// A_Si) / (p_Cu * A_Cu)) * C_Cu + 1 / (1 + (p_Cu * A_Cu) / (p_Si * A_Si))
+		// * C_si
 		// http://answers.yahoo.com/question/index?qid=20110804231514AApjFkc ,
 		// http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g
 		//
@@ -79,8 +81,8 @@ class ThermalAnalyzer {
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) ) +
-					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / (TSV_density * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) ) +
+					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * (TSV_density * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) );
 			}
 		};
 		// similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well
@@ -90,25 +92,22 @@ class ThermalAnalyzer {
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) ) +
-					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / (TSV_density * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) ) +
+					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * (TSV_density * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) );
 			}
 		}
 		//
-		// thermal resistivity of compounds, derived from thermal conductivity
-		// which can be calculated via Maxwell-Garnett's Equation
-		// (http://en.wikipedia.org/wiki/Effective_medium_approximations#Maxwell-Garnett_Equation)
+		// thermal resistivity of compounds, to be derived as parallel joint
+		// resistance of Si, Cu where TSV density impacts the area fractions
 		inline static double thermResSi(double const& TSV_density = 0.0) {
 			if (TSV_density == 0.0) {
 				return THERMAL_RESISTIVITY_SI;
 			}
 			else {
-				return THERMAL_RESISTIVITY_SI *
-					( (1.0 / THERMAL_RESISTIVITY_SI) * (2.0 + (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) +
-					  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 - (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) ) /
-					( 
-					  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) -
-					  (1.0 / THERMAL_RESISTIVITY_SI) * (2 * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO)  - 2.0)
+				return 1.0 /
+					(
+					 ((TSV_density * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_CU) +
+					 ((1.0 - TSV_density * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_SI)
 					);
 			}
 		}
@@ -117,12 +116,10 @@ class ThermalAnalyzer {
 				return THERMAL_RESISTIVITY_BOND;
 			}
 			else {
-				return THERMAL_RESISTIVITY_BOND *
-					( (1.0 / THERMAL_RESISTIVITY_BOND) * (2.0 + (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) +
-					  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 - (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) ) /
+				return 1.0 /
 					(
-					  (1.0 / THERMAL_RESISTIVITY_CU) * (1.0 + 2 * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO) ) -
-					  (1.0 / THERMAL_RESISTIVITY_BOND) * (2 * (TSV_density * Chip::TSV_GROUP_CU_IN_SI_AREA_RATIO)  - 2.0)
+					 ((TSV_density * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_CU) +
+					 ((1.0 - TSV_density * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_BOND)
 					);
 			}
 		}
