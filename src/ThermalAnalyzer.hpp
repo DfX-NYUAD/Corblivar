@@ -130,7 +130,7 @@ class ThermalAnalyzer {
 		// represents the thermal mask's dimension (i.e., the 2D gauss function
 		// representing the thermal impulse response);
 		// note that value should be uneven!
-		static constexpr int THERMAL_MASK_DIM = 25;
+		static constexpr int THERMAL_MASK_DIM = 17;
 		// represents the center index of the center originated mask
 		static constexpr int THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
 		// represents the amount of padded bins at power maps' boundaries
