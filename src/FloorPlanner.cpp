@@ -445,7 +445,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	CostInterconn interconn;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ")" << endl;
+		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << endl;
 	}
 
 	// consider as regular Corblivar run

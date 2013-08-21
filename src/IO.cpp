@@ -167,7 +167,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 	// additional parameter for TSV density given; for thermal-analysis
 	// parameterization runs
-	if (argc > 5) {
+	if (mode == IO::Mode::THERMAL_ANALYSIS && argc > 5) {
 		fp.conf_thermal_analyzer_TSV_density = atof(argv[5]);
 	}
 
