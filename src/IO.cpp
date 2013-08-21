@@ -2268,8 +2268,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			// thermal properties, depending on TSV density which is 0.0 for regular runs
 			file << ThermalAnalyzer::heatCapBond(fp.conf_thermal_analyzer_TSV_density) << endl;
 			file << ThermalAnalyzer::thermResBond(fp.conf_thermal_analyzer_TSV_density) << endl;
-			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
 			file << Chip::THICKNESS_BOND << endl;
 			file << fp.benchmark << "_HotSpot_bond.flp" << endl;
 			file << endl;
