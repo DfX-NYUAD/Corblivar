@@ -42,6 +42,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	stringstream alignments_file;
 	stringstream pins_file;
 	stringstream power_density_file;
+	stringstream thermal_masks_file;
 	stringstream nets_file;
 	string tmpstr;
 
@@ -91,15 +92,35 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	results_file << fp.benchmark << ".results";
 	fp.results.open(results_file.str().c_str());
 
+	// masks file; contains the power-blurring parameters obtained by Octave scripts;
+	// should be in the same folder like the config file
+	// TODO consider actual file suffix, file-name structure
+	//
+	// config file in same directory, i.e., w/o dash
+	if (config_file.rfind("/") == string::npos) {
+		thermal_masks_file << fp.benchmark << ".masks";
+	}
+	// config file in arbitrary directory, i.e., w/ dash
+	else {
+		string config_file_cp = config_file;
+
+		thermal_masks_file << config_file_cp.replace(config_file_cp.rfind("/"), string::npos, "/");
+		thermal_masks_file << fp.benchmark << ".masks";
+	}
+	fp.thermal_masks_file = thermal_masks_file.str();
+
 	// test files
+	//
+	// config file
 	in.open(config_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
-		cout << "No such config file: " << config_file<< endl;
+		cout << "No such config file: " << config_file << endl;
 		exit(1);
 	}
 	in.close();
 
+	// blocks file
 	in.open(fp.blocks_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
@@ -108,6 +129,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
+	// alignments file
 	in.open(fp.alignments_file.c_str());
 	// memorize file availability
 	fp.alignments_file_avail = in.good();
@@ -119,6 +141,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
+	// pins file
 	in.open(fp.pins_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
@@ -127,6 +150,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
+	// power file
 	in.open(fp.power_density_file.c_str());
 	// memorize file availability
 	fp.power_density_file_avail = in.good();
@@ -138,6 +162,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
+	// nets file
 	in.open(fp.nets_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
@@ -146,6 +171,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
+	// additional command-line parameters
+	//
 	// additional parameter for solution file given; consider file for readin
 	if (argc > 4) {
 
@@ -171,7 +198,26 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		fp.conf_thermal_analyzer_TSV_density = atof(argv[5]);
 	}
 
-	// open config file
+	// handle thermal-masks file; for regular runs
+	if (mode == IO::Mode::REGULAR) {
+
+		in.open(fp.thermal_masks_file.c_str());
+
+		if (!in.good()) {
+			cout << "IO> ";
+			cout << "Note: thermal masks file missing : " << fp.thermal_masks_file << endl;
+			cout << "IO> Thermal analysis falls back to default parameters, i.e., parameters in \"" << config_file << "\" ." << endl;
+			cout << endl;
+		}
+		else {
+			IO::parseThermalMasksFile(fp);
+		}
+
+		in.close();
+	}
+
+	// config file parsing
+	//
 	in.open(config_file.c_str());
 
 	// sanity check for file version
@@ -379,33 +425,35 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 	// thermal-analysis parameterization, initial values
 	//
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.conf_power_blurring_impulse_factor;
+	ThermalAnalyzer::MaskParameters init_parameters;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_power_blurring_impulse_factor_scaling_exponent;
+	in >> init_parameters.impulse_factor;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_power_blurring_mask_boundary_value;
+	in >> init_parameters.impulse_factor_scaling_exponent;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> init_parameters.mask_boundary_value;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.conf_power_blurring_impulse_factor <= 0.0) {
+	if (init_parameters.impulse_factor <= 0.0) {
 		cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << endl;
 		exit(1);
 	}
-	if (fp.conf_power_blurring_mask_boundary_value <= 0.0) {
+	if (init_parameters.mask_boundary_value <= 0.0) {
 		cout << "IO> Provide a positive, non-zero power blurring mask boundary value!" << endl;
 		exit(1);
 	}
 
 	// sanity check for reasonable mask parameters
-	if (fp.conf_power_blurring_impulse_factor < fp.conf_power_blurring_mask_boundary_value) {
+	if (init_parameters.impulse_factor < init_parameters.mask_boundary_value) {
 		cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << endl;
 		exit(1);
 	}
@@ -413,10 +461,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_power_blurring_power_density_scaling_padding_zone;
+	in >> init_parameters.power_density_scaling_padding_zone;
 
 	// sanity check for positive parameter
-	if (fp.conf_power_blurring_power_density_scaling_padding_zone < 0.0) {
+	if (init_parameters.power_density_scaling_padding_zone < 0.0) {
 		cout << "IO> Provide a positive power-density scaling factor!" << endl;
 		exit(1);
 	}
@@ -424,13 +472,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_power_blurring_temp_offset;
+	in >> init_parameters.temp_offset;
 
 	// sanity check for positive parameter
-	if (fp.conf_power_blurring_temp_offset < 0.0) {
+	if (init_parameters.temp_offset < 0.0) {
 		cout << "IO> Provide a positive temperature offset!" << endl;
 		exit(1);
 	}
+
+	// store initial power-blurring parameters, i.e., for case w/o considering TSVs
+	init_parameters.TSV_density = 0.0;
+	fp.conf_power_blurring_parameters.clear();
+	fp.conf_power_blurring_parameters.push_back(init_parameters);
 
 	in.close();
 
@@ -478,14 +531,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		}
 
 		// power blurring parameters; for thermal-analysis parameterization
-		cout << "IO>  Power-blurring parameterization -- Impulse factor: " << fp.conf_power_blurring_impulse_factor << endl;
-		cout << "IO>  Power-blurring parameterization -- Impulse scaling-factor: " << fp.conf_power_blurring_impulse_factor_scaling_exponent << endl;
-		cout << "IO>  Power-blurring parameterization -- Mask-boundary value: " << fp.conf_power_blurring_mask_boundary_value << endl;
-		cout << "IO>  Power-blurring parameterization -- Power-density scaling factor (padding zone): " << fp.conf_power_blurring_power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power-blurring parameterization -- Temperature offset: " << fp.conf_power_blurring_temp_offset << endl;
+		cout << "IO>  Power-blurring parameterization -- Impulse factor: " << init_parameters.impulse_factor << endl;
+		cout << "IO>  Power-blurring parameterization -- Impulse scaling-factor: " << init_parameters.impulse_factor_scaling_exponent << endl;
+		cout << "IO>  Power-blurring parameterization -- Mask-boundary value: " << init_parameters.mask_boundary_value << endl;
+		cout << "IO>  Power-blurring parameterization -- Power-density scaling factor (padding zone): " << init_parameters.power_density_scaling_padding_zone << endl;
+		cout << "IO>  Power-blurring parameterization -- Temperature offset: " << init_parameters.temp_offset << endl;
 
 		cout << endl;
 	}
+}
+
+// TODO implement
+void IO::parseThermalMasksFile(FloorPlanner& fp) {
 }
 
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
@@ -1158,7 +1215,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 }
 
-void IO::writePowerThermalMaps(FloorPlanner const& fp) {
+void IO::writePowerThermalMaps(FloorPlanner& fp) {
 	ofstream gp_out;
 	ofstream data_out;
 	int cur_layer;
@@ -1166,7 +1223,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 	unsigned x, y;
 	unsigned x_limit, y_limit;
 	int flag;
-	double max_power_density, max_temp;
+	double max_power_density, max_temp, min_temp;
 
 	// sanity check
 	if (fp.thermalAnalyzer.power_maps.empty() || fp.thermalAnalyzer.thermal_map.empty()) {
@@ -1239,7 +1296,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 				for (x = 0; x < x_limit; x++) {
 					for (y = 0; y < y_limit; y++) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y] << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[0.0][cur_layer][x][y] << endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
@@ -1258,16 +1315,18 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// output grid values for thermal maps
 			else {
 				max_temp = 0.0;
+				min_temp = 1.0e6;
 
 				for (x = 0; x < x_limit; x++) {
 					for (y = 0; y < y_limit; y++) {
 						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
-						// also track max temp
+						// also track max and min temp
 						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y]);
+						min_temp = min(min_temp, fp.thermalAnalyzer.thermal_map[x][y]);
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-					data_out << x << "	" << y_limit << "	" << fp.conf_power_blurring_temp_offset << endl;
+					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
 
 					// blank line marks new row for gnuplot
 					data_out << endl;
@@ -1275,7 +1334,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
 				for (y = 0; y <= y_limit; y++) {
-					data_out << x_limit << "	" << y << "	" << fp.conf_power_blurring_temp_offset << endl;
+					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
 				}
 			}
 
@@ -1316,7 +1375,7 @@ void IO::writePowerThermalMaps(FloorPlanner const& fp) {
 			// thermal maps: label for cbrange
 			else {
 				// fixed scale to avoid remapping to extended range
-				gp_out << "set cbrange [" << fp.conf_power_blurring_temp_offset << ":" << max_temp << "]" << endl;
+				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << endl;
 			}

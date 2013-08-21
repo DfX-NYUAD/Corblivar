@@ -30,6 +30,7 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <map>
 #include <list>
 #include <utility>
 #include <algorithm>

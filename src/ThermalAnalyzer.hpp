@@ -140,14 +140,18 @@ class ThermalAnalyzer {
 		// dim in order to handle boundary values for convolution)
 		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
-		// thermal modeling: vector masks and maps
+		// thermal modeling: thermal masks and maps
 		// mask[i][x/y], whereas mask[0] relates to the mask for layer 0 obtained
 		// by considering heat source in layer 0, mask[1] relates to the mask for
 		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		// Note that the masks are only 1D for the separated convolution
-		vector< array<double,THERMAL_MASK_DIM> > thermal_masks;
+		// Note that the masks are only 1D for the separated convolution.
+		// Also note that the outermost map is encapsulating sets of mask, for
+		// varying TSV densities
+		map< double, vector< array<double,THERMAL_MASK_DIM> > > thermal_masks;
 		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		vector< array<array<double,POWER_MAPS_DIM>,POWER_MAPS_DIM> > power_maps;
+		// Note that the outermost map is encapsulating sets of maps, for varying
+		// TSV densities
+		map< double, vector< array<array<double,POWER_MAPS_DIM>,POWER_MAPS_DIM> > > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> thermal_map;
 
@@ -168,19 +172,22 @@ class ThermalAnalyzer {
 
 		// POD
 		struct MaskParameters {
+			double TSV_density;
 			double mask_boundary_value;
 			double impulse_factor;
 			double impulse_factor_scaling_exponent;
+			double power_density_scaling_padding_zone;
+			double temp_offset;
 		};
 
 		// thermal modeling: handlers
-		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
-		void initPowerMaps(int const& layers, Point const& die_outline);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, double const& power_density_scaling_padding_zone = 1.0, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void initThermalMasks(int const& layers, bool const& log, vector<MaskParameters> const& parameters);
+		void initPowerMaps(int const& layers, vector<MaskParameters> const& parameters, Point const& die_outline);
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, double const& temp_offset, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false);
+		double performPowerBlurring(int const& layers, vector<MaskParameters> const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false);
 };
 
 #endif

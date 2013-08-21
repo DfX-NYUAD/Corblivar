@@ -91,7 +91,7 @@ class FloorPlanner {
 		};
 
 		// IO
-		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file;
+		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file, thermal_masks_file;
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;
@@ -131,9 +131,9 @@ class FloorPlanner {
 				bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(),
-					this->conf_power_blurring_power_density_scaling_padding_zone);
-			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->conf_power_blurring_temp_offset,
-					this->max_cost_thermal, set_max_cost, normalize, return_max_temp);
+					this->conf_power_blurring_parameters);
+			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->conf_power_blurring_parameters, this->max_cost_thermal,
+					set_max_cost, normalize, return_max_temp);
 		};
 		double determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost = false, bool const& normalize = true);
 		Cost determWeightedCostAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
@@ -227,11 +227,8 @@ class FloorPlanner {
 		// thermal-analysis parameterization runs
 		double conf_thermal_analyzer_TSV_density = 0.0;
 
-		// thermal analyzer parameters: initial thermal mask parameters; used for
-		// thermal-analysis parameterization runs
-		double conf_power_blurring_impulse_factor, conf_power_blurring_impulse_factor_scaling_exponent, conf_power_blurring_mask_boundary_value;
-		double conf_power_blurring_temp_offset;
-		double conf_power_blurring_power_density_scaling_padding_zone;
+		// thermal analyzer parameters: thermal mask parameters
+		vector<ThermalAnalyzer::MaskParameters> conf_power_blurring_parameters;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -260,17 +257,12 @@ class FloorPlanner {
 
 		// ThermalAnalyzer: handler
 		inline void initThermalAnalyzer() {
-			// init masks parameters
-			ThermalAnalyzer::MaskParameters parameters;
-			parameters.impulse_factor = this->conf_power_blurring_impulse_factor;
-			parameters.impulse_factor_scaling_exponent = this->conf_power_blurring_impulse_factor_scaling_exponent;
-			parameters.mask_boundary_value = this->conf_power_blurring_mask_boundary_value;
 
-			// init thermal masks
-			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), parameters);
+			// init sets of thermal masks
+			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), this->conf_power_blurring_parameters);
 
 			// init power maps, i.e. predetermine maps parameters
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_power_blurring_parameters, this->getOutline());
 		};
 
 		// getter / setter
@@ -308,7 +300,7 @@ class FloorPlanner {
 			this->conf_outline_y = outline_y;
 
 			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_power_blurring_parameters, this->getOutline());
 
 			// reset related die properties
 			this->die_AR = this->conf_outline_x / this->conf_outline_y;

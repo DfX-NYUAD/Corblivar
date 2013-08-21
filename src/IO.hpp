@@ -51,13 +51,15 @@ class IO {
 		enum class Mode : unsigned {REGULAR, THERMAL_ANALYSIS};
 
 		static void parseParametersFiles(FloorPlanner& fp, Mode const& mode, int const& argc, char** argv);
+		static void parseThermalMasksFile(FloorPlanner& fp);
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments);
 		static void parseNets(FloorPlanner& fp);
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
 		static void writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix = "");
 		static void writeHotSpotFiles(FloorPlanner const& fp);
-		static void writePowerThermalMaps(FloorPlanner const& fp);
+		// non-const reference due to map acces via []
+		static void writePowerThermalMaps(FloorPlanner& fp);
 		static void writeTempSchedule(FloorPlanner const& fp);
 };
 
