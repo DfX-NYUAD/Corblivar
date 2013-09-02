@@ -114,7 +114,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 					//
 					// TODO consider scenarios w/ differing TSV
 					// densities
-					thermal_map_tmp[x][y] += this->power_maps[0.0][layer][i][y] * this->thermal_masks[0.0][layer][mask_i];
+					thermal_map_tmp[x][y] += this->power_maps[parameters[0].TSV_density][layer][i][y] * this->thermal_masks[parameters[0].TSV_density][layer][mask_i];
 				}
 			}
 		}
@@ -155,7 +155,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 					//
 					// TODO consider scenarios w/ differing TSV
 					// densities
-					this->thermal_map[map_x][map_y] += thermal_map_tmp[x][i] * this->thermal_masks[0.0][layer][mask_i];
+					this->thermal_map[map_x][map_y] += thermal_map_tmp[x][i] * this->thermal_masks[parameters[0].TSV_density][layer][mask_i];
 				}
 			}
 		}

@@ -45,6 +45,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	stringstream thermal_masks_file;
 	stringstream nets_file;
 	string tmpstr;
+	ThermalAnalyzer::MaskParameters init_parameters;
 
 	// program parameters; two modes, one for regular Corblivar runs, one for for
 	// thermal-analysis parameterization runs
@@ -66,6 +67,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 			cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
 			cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
 			cout << "IO> Expected solution_file: any in Corblivar format" << endl;
+			cout << "IO> Expected TSV density: average TSV density for whole chip, to be given in \%" << endl;
 
 			exit(1);
 		}
@@ -92,23 +94,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	results_file << fp.benchmark << ".results";
 	fp.results.open(results_file.str().c_str());
 
-	// masks file; contains the power-blurring parameters obtained by Octave scripts;
-	// should be in the same folder like the config file
-	// TODO consider actual file suffix, file-name structure
-	//
-	// config file in same directory, i.e., w/o dash
-	if (config_file.rfind("/") == string::npos) {
-		thermal_masks_file << fp.benchmark << ".masks";
-	}
-	// config file in arbitrary directory, i.e., w/ dash
-	else {
-		string config_file_cp = config_file;
-
-		thermal_masks_file << config_file_cp.replace(config_file_cp.rfind("/"), string::npos, "/");
-		thermal_masks_file << fp.benchmark << ".masks";
-	}
-	fp.thermal_masks_file = thermal_masks_file.str();
-
 	// test files
 	//
 	// config file
@@ -129,17 +114,25 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 	in.close();
 
-	// alignments file
-	in.open(fp.alignments_file.c_str());
-	// memorize file availability
-	fp.alignments_file_avail = in.good();
-	if (!in.good()) {
-		cout << "IO> ";
-		cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
-		cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
-		cout << endl;
+	// alignments file; only reguired for regular runs
+	if (mode == IO::Mode::REGULAR) {
+
+		in.open(fp.alignments_file.c_str());
+		// memorize file availability
+		fp.alignments_file_avail = in.good();
+
+		if (!in.good()) {
+			cout << "IO> ";
+			cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
+			cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
+			cout << endl;
+		}
+
+		in.close();
 	}
-	in.close();
+	else {
+		fp.alignments_file_avail = false;
+	}
 
 	// pins file
 	in.open(fp.pins_file.c_str());
@@ -157,8 +150,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	if (!in.good()) {
 		cout << "IO> ";
 		cout << "Note: power density file missing : " << fp.power_density_file << endl;
-		cout << "IO> Thermal optimization cannot be performed; is deactivated." << endl;
-		cout << endl;
+
+		// for thermal analysis, the power file is required
+		if (mode == IO::Mode::THERMAL_ANALYSIS) {
+			exit(1);
+		}
+		else if (mode == IO::Mode::REGULAR) {
+			cout << "IO> Thermal optimization cannot be performed; is deactivated." << endl;
+			cout << endl;
+		}
 	}
 	in.close();
 
@@ -194,14 +194,36 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 	// additional parameter for TSV density given; for thermal-analysis
 	// parameterization runs
-	if (mode == IO::Mode::THERMAL_ANALYSIS && argc > 5) {
-		fp.conf_thermal_analyzer_TSV_density = atof(argv[5]);
+	if (mode == IO::Mode::THERMAL_ANALYSIS) {
+
+		init_parameters.TSV_density = atof(argv[5]);
+		// convert from percent to a ratio ranging from 0.0 to 1.0; for subsequent
+		// calls related w/ ThermalAnalyzer
+		init_parameters.TSV_density /= 100.0;
 	}
 
-	// handle thermal-masks file; for regular runs
+	// handle thermal-masks file; contains the power-blurring parameters obtained by
+	// Octave scripts; only considered for regular runs; should be in a dedicated
+	// subfolder of the config file's folder
 	if (mode == IO::Mode::REGULAR) {
 
+		// config file in same directory, i.e., w/o dash
+		if (config_file.rfind("/") == string::npos) {
+			thermal_masks_file << fp.benchmark << "_thermal_analysis_fitting/" << fp.benchmark << "_fitting_hist";
+		}
+		// config file in arbitrary directory, i.e., w/ dash
+		else {
+			string config_file_cp = config_file;
+
+			thermal_masks_file << config_file_cp.replace(config_file_cp.rfind("/"), string::npos, "/");
+			thermal_masks_file << fp.benchmark << "_thermal_analysis_fitting/" << fp.benchmark << "_fitting_hist";
+		}
+
+		fp.thermal_masks_file = thermal_masks_file.str();
+
 		in.open(fp.thermal_masks_file.c_str());
+		// memorize file availability
+		fp.thermal_masks_file_avail = in.good();
 
 		if (!in.good()) {
 			cout << "IO> ";
@@ -210,10 +232,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 			cout << endl;
 		}
 		else {
-			IO::parseThermalMasksFile(fp);
+			// TODO activate parsing after implementation
+			//IO::parseThermalMasksFile(fp);
+			// TODO drop for active parsing
+			fp.thermal_masks_file_avail = false;
 		}
 
 		in.close();
+	}
+	// for non-regular runs, ignore masks file
+	else {
+		fp.thermal_masks_file_avail = false;
 	}
 
 	// config file parsing
@@ -423,10 +452,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		exit(1);
 	}
 
-	// thermal-analysis parameterization, initial values
+	// thermal-analysis (fallback) parameters
 	//
-	ThermalAnalyzer::MaskParameters init_parameters;
-
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -480,10 +507,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		exit(1);
 	}
 
-	// store initial power-blurring parameters, i.e., for case w/o considering TSVs
-	init_parameters.TSV_density = 0.0;
-	fp.conf_power_blurring_parameters.clear();
-	fp.conf_power_blurring_parameters.push_back(init_parameters);
+	// store power-blurring parameters only in case no masks file is available
+	if (!fp.thermal_masks_file_avail) {
+
+		// for non-thermal-analysis runs, assume that fallback parameters refer to
+		// setup w/o TSVs
+		if (mode != IO::Mode::THERMAL_ANALYSIS) {
+			init_parameters.TSV_density = 0.0;
+		}
+
+		fp.conf_power_blurring_parameters.clear();
+		fp.conf_power_blurring_parameters.push_back(init_parameters);
+	}
 
 	in.close();
 
@@ -500,42 +535,53 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
 		cout << "IO>  Chip -- Final die outline shrink: " << fp.conf_outline_shrink << endl;
 
-		// layout generation options
-		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
-		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.conf_SA_layout_enhanced_soft_block_shaping << endl;
-		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
-		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.conf_SA_layout_power_aware_block_handling << endl;
-		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
+		// SA setup, for regular runs
+		if (mode == IO::Mode::REGULAR) {
 
-		// SA loop setup
-		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.conf_SA_loopFactor << endl;
-		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
+			// layout generation options
+			cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
+			cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.conf_SA_layout_enhanced_soft_block_shaping << endl;
+			cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
+			cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.conf_SA_layout_power_aware_block_handling << endl;
+			cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
 
-		// SA cooling schedule
-		cout << "IO>  SA -- Start temperature scaling factor: " << fp.conf_SA_temp_init_factor << endl;
-		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
-		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.conf_SA_temp_factor_phase2 << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.conf_SA_temp_factor_phase3 << endl;
+			// SA loop setup
+			cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.conf_SA_loopFactor << endl;
+			cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
 
-		// SA cost factors
-		cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
-		if (!fp.power_density_file_avail) {
-			cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << endl;
+			// SA cooling schedule
+			cout << "IO>  SA -- Start temperature scaling factor: " << fp.conf_SA_temp_init_factor << endl;
+			cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
+			cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
+			cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.conf_SA_temp_factor_phase2 << endl;
+			cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.conf_SA_temp_factor_phase3 << endl;
+
+			// SA cost factors
+			cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
+			if (!fp.power_density_file_avail) {
+				cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << endl;
+			}
+			cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
+			cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
+			cout << "IO>  SA -- Cost factor for block alignment: " << fp.conf_SA_cost_alignment << endl;
+			if (!fp.alignments_file_avail) {
+				cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
+			}
 		}
-		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
-		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
-		cout << "IO>  SA -- Cost factor for block alignment: " << fp.conf_SA_cost_alignment << endl;
-		if (!fp.alignments_file_avail) {
-			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
+
+		// TSV density for thermal-analysis runs
+		if (mode == IO::Mode::THERMAL_ANALYSIS) {
+			cout << "IO>  Thermal-analysis run -- TSV density (ratio, not percent): " << init_parameters.TSV_density << endl;
 		}
 
-		// power blurring parameters; for thermal-analysis parameterization
-		cout << "IO>  Power-blurring parameterization -- Impulse factor: " << init_parameters.impulse_factor << endl;
-		cout << "IO>  Power-blurring parameterization -- Impulse scaling-factor: " << init_parameters.impulse_factor_scaling_exponent << endl;
-		cout << "IO>  Power-blurring parameterization -- Mask-boundary value: " << init_parameters.mask_boundary_value << endl;
-		cout << "IO>  Power-blurring parameterization -- Power-density scaling factor (padding zone): " << init_parameters.power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power-blurring parameterization -- Temperature offset: " << init_parameters.temp_offset << endl;
+		// power blurring fallback parameters; for thermal-analysis parameterization in case no masks file is given
+		if (!fp.thermal_masks_file_avail) {
+			cout << "IO>  Power-blurring (fallback) parameterization -- Impulse factor: " << init_parameters.impulse_factor << endl;
+			cout << "IO>  Power-blurring (fallback) parameterization -- Impulse scaling-factor: " << init_parameters.impulse_factor_scaling_exponent << endl;
+			cout << "IO>  Power-blurring (fallback) parameterization -- Mask-boundary value: " << init_parameters.mask_boundary_value << endl;
+			cout << "IO>  Power-blurring (fallback) parameterization -- Power-density scaling factor (padding zone): " << init_parameters.power_density_scaling_padding_zone << endl;
+			cout << "IO>  Power-blurring (fallback) parameterization -- Temperature offset: " << init_parameters.temp_offset << endl;
+		}
 
 		cout << endl;
 	}
@@ -1296,7 +1342,16 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < x_limit; x++) {
 					for (y = 0; y < y_limit; y++) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[0.0][cur_layer][x][y] << endl;
+						// note that the outer-most index of the
+						// power_maps relates to TSV density; thus
+						// this (dummy) access via the first
+						// power-blurring parameter set allows an
+						// valid acces in any case, independent of
+						// actual TSV density; of course, this
+						// assumes that the default TSV density is
+						// encoded in the first power-blurring
+						// parameter set
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[fp.conf_power_blurring_parameters[0].TSV_density][cur_layer][x][y] << endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
@@ -2149,8 +2204,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	0.0";
 	file << "	0.0";
 	// thermal properties, depending on TSV density which is 0.0 for regular runs
-	file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_thermal_analyzer_TSV_density);
-	file << "	" << ThermalAnalyzer::thermResSi(fp.conf_thermal_analyzer_TSV_density);
+	file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters[0].TSV_density);
+	file << "	" << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters[0].TSV_density);
 	file << endl;
 
 	// close file stream
@@ -2205,8 +2260,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	0.0";
 	file << "	0.0";
 	// thermal properties, depending on TSV density which is 0.0 for regular runs
-	file << "	" << ThermalAnalyzer::heatCapBond(fp.conf_thermal_analyzer_TSV_density);
-	file << "	" << ThermalAnalyzer::thermResBond(fp.conf_thermal_analyzer_TSV_density);
+	file << "	" << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters[0].TSV_density);
+	file << "	" << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters[0].TSV_density);
 	file << endl;
 
 	// close file stream
@@ -2313,8 +2368,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "Y" << endl;
 		file << "N" << endl;
 		// thermal properties, depending on TSV density which is 0.0 for regular runs
-		file << ThermalAnalyzer::heatCapSi(fp.conf_thermal_analyzer_TSV_density) << endl;
-		file << ThermalAnalyzer::thermResSi(fp.conf_thermal_analyzer_TSV_density) << endl;
+		file << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
+		file << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
 		file << Chip::THICKNESS_SI_PASSIVE << endl;
 		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
 		file << endl;
@@ -2325,8 +2380,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "Y" << endl;
 			file << "N" << endl;
 			// thermal properties, depending on TSV density which is 0.0 for regular runs
-			file << ThermalAnalyzer::heatCapBond(fp.conf_thermal_analyzer_TSV_density) << endl;
-			file << ThermalAnalyzer::thermResBond(fp.conf_thermal_analyzer_TSV_density) << endl;
+			file << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
+			file << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
 			file << Chip::THICKNESS_BOND << endl;
 			file << fp.benchmark << "_HotSpot_bond.flp" << endl;
 			file << endl;

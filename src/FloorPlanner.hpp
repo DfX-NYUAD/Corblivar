@@ -98,8 +98,8 @@ class FloorPlanner {
 		// flag whether power density file is available / was handled / thermal
 		// analysis should be performed / thermal files should be generated
 		bool power_density_file_avail;
-		// similar flag for alignment requests
-		bool alignments_file_avail;
+		// similar flags for other files
+		bool alignments_file_avail, thermal_masks_file_avail;
 
 		// logging
 		int conf_log;
@@ -222,10 +222,6 @@ class FloorPlanner {
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
-
-		// thermal analyzer parameters: TSV density; only used for
-		// thermal-analysis parameterization runs
-		double conf_thermal_analyzer_TSV_density = 0.0;
 
 		// thermal analyzer parameters: thermal mask parameters
 		vector<ThermalAnalyzer::MaskParameters> conf_power_blurring_parameters;
