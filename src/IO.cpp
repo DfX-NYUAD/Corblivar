@@ -1350,13 +1350,14 @@ void IO::parseNets(FloorPlanner& fp) {
 
 }
 
-void IO::writePowerThermalMaps(FloorPlanner& fp) {
+void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	ofstream gp_out;
 	ofstream data_out;
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
 	unsigned x_limit, y_limit;
+	enum FLAGS : int {power = 0, thermal = 1, TSV_density = 2};
 	int flag;
 	double max_power_density, max_temp, min_temp;
 
@@ -1367,7 +1368,7 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 
 	if (fp.logMed()) {
 		cout << "IO> ";
-		cout << "Generating power maps and thermal profiles ..." << endl;
+		cout << "Generating power maps, TSV-density maps, and thermal maps ..." << endl;
 	}
 
 	// for power maps: fixed scale for all layers to ease comparision, i.e. requires
@@ -1379,14 +1380,15 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 
 	// flag=0: generate power maps
 	// flag=1: generate thermal map
-	for (flag = 0; flag <= 1; flag++) {
+	// flag=2: generate TSV-density map
+	for (flag = FLAGS::power; flag <= FLAGS::TSV_density; flag++) {
 
-		// power maps for all layers
-		if (flag == 0) {
+		// power and TSV-density maps for all layers
+		if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
 			layer_limit = fp.conf_layer;
 		}
 		// thermal map only for layer 0
-		else {
+		else if (flag == FLAGS::thermal) {
 			layer_limit = 1;
 		}
 
@@ -1394,13 +1396,17 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 			// build up file names
 			stringstream gp_out_name;
 			stringstream data_out_name;
-			if (flag == 0) {
+			if (flag == FLAGS::power) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.data";
 			}
-			else {
+			else if (flag == FLAGS::thermal) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.data";
+			}
+			else if (flag == FLAGS::TSV_density) {
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.gp";
+				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.data";
 			}
 
 			// init file stream for gnuplot script
@@ -1409,25 +1415,28 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 			data_out.open(data_out_name.str().c_str());
 
 			// file header for data file
-			if (flag == 0) {
+			if (flag == FLAGS::power) {
 				data_out << "# X Y power" << endl;
 			}
-			else {
+			else if (flag == FLAGS::thermal) {
 				data_out << "# X Y thermal" << endl;
+			}
+			else if (flag == FLAGS::TSV_density) {
+				data_out << "# X Y TSV_density" << endl;
 			}
 
 			// determine grid boundaries
-			if (flag == 0) {
+			if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
 				x_limit = ThermalAnalyzer::POWER_MAPS_DIM;
 				y_limit = ThermalAnalyzer::POWER_MAPS_DIM;
 			}
-			else {
+			else if (flag == FLAGS::thermal) {
 				x_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
 				y_limit = ThermalAnalyzer::THERMAL_MAP_DIM;
 			}
 
 			// output grid values for power maps
-			if (flag == 0) {
+			if (flag == FLAGS::power) {
 
 				for (x = 0; x < x_limit; x++) {
 					for (y = 0; y < y_limit; y++) {
@@ -1448,7 +1457,7 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 
 			}
 			// output grid values for thermal maps
-			else {
+			else if (flag == FLAGS::thermal) {
 				max_temp = 0.0;
 				min_temp = 1.0e6;
 
@@ -1472,47 +1481,79 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
 				}
 			}
+			// output grid values for TSV-density maps
+			else if (flag == FLAGS::TSV_density) {
+
+				for (x = 0; x < x_limit; x++) {
+					for (y = 0; y < y_limit; y++) {
+						// output densities in percent
+						data_out << x << "	" << y << "	" << 100.0 * fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density << endl;
+					}
+
+					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+					data_out << x << "	" << y_limit << "	" << "0.0" << endl;
+
+					// blank line marks new row for gnuplot
+					data_out << endl;
+				}
+
+				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+				for (y = 0; y <= y_limit; y++) {
+					data_out << x_limit << "	" << y << "	" << "0.0" << endl;
+				}
+
+			}
 
 			// close file stream for data file
 			data_out.close();
 
 			// file header for gnuplot script
-			if (flag == 0) {
+			if (flag == FLAGS::power) {
 				gp_out << "set title \"Padded Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
-			else {
+			else if (flag == FLAGS::thermal) {
 				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+			}
+			else if (flag == FLAGS::TSV_density) {
+				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
 
 			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
 			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
 			gp_out << "set size square" << endl;
 
-			// different 2D ranges for power map and thermal map; consider
-			// dummy data row and column, since gnuplot option corners2color
-			// cuts off last row and column
-			if (flag == 0) {
+			// different 2D ranges for power / TSV-density maps and thermal
+			// maps; consider dummy data row and column, since gnuplot option
+			// corners2color cuts off last row and column
+			if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
 			}
-			else {
+			else if (flag == FLAGS::thermal) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
 			}
 
 			// power maps: scale, label for cbrange
-			if (flag == 0) {
+			if (flag == FLAGS::power) {
 				// fixed scale for all layers to ease comparision
 				gp_out << "set cbrange [0:" << max_power_density << "]" << endl;
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << endl;
 			}
-			// thermal maps: label for cbrange
-			else {
+			// thermal maps: scale, label for cbrange
+			else if (flag == FLAGS::thermal) {
 				// fixed scale to avoid remapping to extended range
 				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << endl;
+			}
+			// TSV-density maps: scale, label for cbrange
+			else if (flag == FLAGS::TSV_density) {
+				// fixed scale
+				gp_out << "set cbrange [0:100]" << endl;
+				// label for power density
+				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
 			}
 
 			// tics
@@ -1539,8 +1580,8 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 			gp_out << "7 \"#ee0000\",\\" << endl;
 			gp_out << "8 \"#7f0000\")" << endl;
 
-			// for padded power maps: draw rectangle for unpadded core
-			if (flag == 0 && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
+			// for padded power / TSV-density maps: draw rectangle for unpadded core
+			if ((flag == FLAGS::power || flag == FLAGS::TSV_density) && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
 				gp_out << "set obj 1 rect from ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " to ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
