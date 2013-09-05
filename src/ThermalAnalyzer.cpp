@@ -113,8 +113,9 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 					// power-map bin
 					//
 					// TODO consider scenarios w/ differing TSV
-					// densities
-					thermal_map_tmp[x][y] += this->power_maps[parameters[0].TSV_density][layer][i][y] * this->thermal_masks[parameters[0].TSV_density][layer][mask_i];
+					// densities; retrieve TSV density from power_map
+					// structure
+					thermal_map_tmp[x][y] += this->power_maps[layer][i][y].power_density * this->thermal_masks[parameters[0].TSV_density][layer][mask_i];
 				}
 			}
 		}
@@ -154,7 +155,8 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 					// power-map bin
 					//
 					// TODO consider scenarios w/ differing TSV
-					// densities
+					// densities; retrieve TSV density from power_map
+					// structure
 					this->thermal_map[map_x][map_y] += thermal_map_tmp[x][i] * this->thermal_masks[parameters[0].TSV_density][layer][mask_i];
 				}
 			}
@@ -202,6 +204,8 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 	}
 }
 
+// TODO determine TSV densities for bins; initially for testing this could be a random
+// distribution
 void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
@@ -209,140 +213,148 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	int x_lower, x_upper, y_lower, y_upper;
 	bool padding_zone;
 	double TSV_density;
+	PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", (" << die_outline.x << ", " << die_outline.y << "), " << &parameters << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
 	}
 
-	// determine maps for each set of power-blurring parameters, i.e., varying
-	// padding-zone scaling factors
- 	for (unsigned m = 0; m < parameters.size(); m++) {
+	init_bin.power_density = init_bin.TSV_density = 0.0;
 
-		TSV_density = parameters[m].TSV_density;
+	// determine maps for each layer
+	for (i = 0; i < layers; i++) {
 
-		// determine maps for each layer
-		for (i = 0; i < layers; i++) {
+		// reset map to zero
+		// note: this also implicitly pads the map w/ zero power density
+		for (auto& m : this->power_maps[i]) {
+			m.fill(init_bin);
+		}
 
-			// reset map to zero
-			// note: this also implicitly pads the map w/ zero
-			for (auto& m : this->power_maps[TSV_density][i]) {
-				m.fill(0.0);
+		// consider each block on the related layer
+		for (Block const& block : blocks) {
+
+			// drop blocks assigned to other layers
+			if (block.layer != i) {
+				continue;
 			}
 
-			// consider each block on the related layer
-			for (Block const& block : blocks) {
+			// determine offset, i.e., shifted, block bb; relates to block's
+			// bb in padded power map
+			block_offset = block.bb;
 
-				// drop blocks assigned to other layers
-				if (block.layer != i) {
-					continue;
-				}
+			// don't offset blocks at the left/lower chip boundaries,
+			// implicitly extend them into power-map padding zone; this way,
+			// during convolution, the thermal estimate increases for these
+			// blocks; blocks not at the boundaries are shifted
+			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.x == 0.0) {
+			}
+			else {
+				block_offset.ll.x += this->blocks_offset_x;
+			}
+			if (extend_boundary_blocks_into_padding_zone && block.bb.ll.y == 0.0) {
+			}
+			else {
+				block_offset.ll.y += this->blocks_offset_y;
+			}
 
-				// determine offset, i.e., shifted, block bb; relates to block's
-				// bb in padded power map
-				block_offset = block.bb;
+			// also consider extending blocks into right/upper padding zone if
+			// they are close to the related chip boundaries
+			if (
+					extend_boundary_blocks_into_padding_zone &&
+					abs(die_outline.x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
+			   ) {
+				// consider offset twice in order to reach right/uppper
+				// boundary related to layout described by padded power map
+				block_offset.ur.x = die_outline.x + 2.0 * this->blocks_offset_x;
+			}
+			// simple shift otherwise; compensate for padding of left/bottom
+			// boundaries
+			else {
+				block_offset.ur.x += this->blocks_offset_x;
+			}
 
-				// don't offset blocks at the left/lower chip boundaries,
-				// implicitly extend them into power-map padding zone; this way,
-				// during convolution, the thermal estimate increases for these
-				// blocks; blocks not at the boundaries are shifted
-				if (extend_boundary_blocks_into_padding_zone && block.bb.ll.x == 0.0) {
-				}
-				else {
-					block_offset.ll.x += this->blocks_offset_x;
-				}
-				if (extend_boundary_blocks_into_padding_zone && block.bb.ll.y == 0.0) {
-				}
-				else {
-					block_offset.ll.y += this->blocks_offset_y;
-				}
+			if (
+					extend_boundary_blocks_into_padding_zone
+					&& abs(die_outline.y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
+			   ) {
+				block_offset.ur.y = die_outline.y + 2.0 * this->blocks_offset_y;
+			}
+			else {
+				block_offset.ur.y += this->blocks_offset_y;
+			}
 
-				// also consider extending blocks into right/upper padding zone if
-				// they are close to the related chip boundaries
-				if (
-						extend_boundary_blocks_into_padding_zone &&
-						abs(die_outline.x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
-				   ) {
-					// consider offset twice in order to reach right/uppper
-					// boundary related to layout described by padded power map
-					block_offset.ur.x = die_outline.x + 2.0 * this->blocks_offset_x;
-				}
-				// simple shift otherwise; compensate for padding of left/bottom
-				// boundaries
-				else {
-					block_offset.ur.x += this->blocks_offset_x;
-				}
+			// determine index boundaries for offset block; based on boundary
+			// of blocks and the covered bins; note that cast to int truncates
+			// toward zero, i.e., performs like floor for positive numbers
+			x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
+			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
+			// +1 in order to efficiently emulate the result of ceil(); limit
+			// upper bound to power-maps dimenions
+			x_upper = min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
-				if (
-						extend_boundary_blocks_into_padding_zone
-						&& abs(die_outline.y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
-				   ) {
-					block_offset.ur.y = die_outline.y + 2.0 * this->blocks_offset_y;
-				}
-				else {
-					block_offset.ur.y += this->blocks_offset_y;
-				}
+			// walk power-map bins covering block outline
+			for (x = x_lower; x < x_upper; x++) {
+				for (y = y_lower; y < y_upper; y++) {
 
-				// determine index boundaries for offset block; based on boundary
-				// of blocks and the covered bins; note that cast to int truncates
-				// toward zero, i.e., performs like floor for positive numbers
-				x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
-				y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
-				// +1 in order to efficiently emulate the result of ceil(); limit
-				// upper bound to power-maps dimenions
-				x_upper = min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-				y_upper = min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+					// determine if bin w/in padding zone
+					if (
+							x < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
+							|| x >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
+							|| y < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
+							|| y >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
+					   ) {
+						padding_zone = true;
+					}
+					else {
+						padding_zone = false;
+					}
 
-				// walk power-map bins covering block outline
-				for (x = x_lower; x < x_upper; x++) {
-					for (y = y_lower; y < y_upper; y++) {
-
-						// determine if bin w/in padding zone
-						if (
-								x < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
-								|| x >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
-								|| y < ThermalAnalyzer::POWER_MAPS_PADDED_BINS
-								|| y >= (ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS)
-						   ) {
-							padding_zone = true;
+					// consider full block power density for fully covered bins
+					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
+						if (padding_zone) {
+							// consider the parameter set w/
+							// index 0 which implicitly
+							// relates to the parameter set
+							// for TSV density 0: the padding
+							// should not consider impact of
+							// some TSV density
+							this->power_maps[i][x][y].power_density += block.power_density * parameters[0].power_density_scaling_padding_zone;
 						}
 						else {
-							padding_zone = false;
+							this->power_maps[i][x][y].power_density += block.power_density;
 						}
+					}
+					// else consider block power according to
+					// intersection of current bin and block
+					else {
+						// determine real coords of map bin
+						bin.ll.x = this->power_maps_bins_ll_x[x];
+						bin.ll.y = this->power_maps_bins_ll_y[y];
+						// note that +1 is guaranteed to be within bounds
+						// of power_maps_bins_ll_x/y (size =
+						// ThermalAnalyzer::POWER_MAPS_DIM + 1); the
+						// related last tuple describes the upper-right
+						// corner coordinates of the right/top boundary
+						bin.ur.x = this->power_maps_bins_ll_x[x + 1];
+						bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
-						// consider full block power density for fully covered bins
-						if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-							if (padding_zone) {
-								this->power_maps[TSV_density][i][x][y] += block.power_density * parameters[m].power_density_scaling_padding_zone;
-							}
-							else {
-								this->power_maps[TSV_density][i][x][y] += block.power_density;
-							}
+						// determine intersection
+						intersect = Rect::determineIntersection(bin, block_offset);
+						// normalize to full bin area
+						intersect.area /= this->power_maps_bin_area;
+
+						if (padding_zone) {
+							// consider the parameter set w/
+							// index 0 which implicitly
+							// relates to the parameter set
+							// for TSV density 0: the padding
+							// should not consider impact of
+							// some TSV density
+							this->power_maps[i][x][y].power_density += block.power_density * intersect.area * parameters[0].power_density_scaling_padding_zone;
 						}
-						// else consider block power according to
-						// intersection of current bin and block
 						else {
-							// determine real coords of map bin
-							bin.ll.x = this->power_maps_bins_ll_x[x];
-							bin.ll.y = this->power_maps_bins_ll_y[y];
-							// note that +1 is guaranteed to be within bounds
-							// of power_maps_bins_ll_x/y (size =
-							// ThermalAnalyzer::POWER_MAPS_DIM + 1); the
-							// related last tuple describes the upper-right
-							// corner coordinates of the right/top boundary
-							bin.ur.x = this->power_maps_bins_ll_x[x + 1];
-							bin.ur.y = this->power_maps_bins_ll_y[y + 1];
-
-							// determine intersection
-							intersect = Rect::determineIntersection(bin, block_offset);
-							// normalize to full bin area
-							intersect.area /= this->power_maps_bin_area;
-
-							if (padding_zone) {
-								this->power_maps[TSV_density][i][x][y] += block.power_density * intersect.area * parameters[m].power_density_scaling_padding_zone;
-							}
-							else {
-								this->power_maps[TSV_density][i][x][y] += block.power_density * intersect.area;
-							}
+							this->power_maps[i][x][y].power_density += block.power_density * intersect.area;
 						}
 					}
 				}
@@ -355,10 +367,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-void ThermalAnalyzer::initPowerMaps(int const& layers, vector<MaskParameters> const& parameters, Point const& die_outline) {
+void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline) {
 	unsigned b;
 	int i;
-	double TSV_density;
+	PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::initPowerMaps(" << layers << ", " << die_outline.x << ", " << die_outline.y << ")" << endl;
@@ -366,23 +378,17 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, vector<MaskParameters> co
 
 	this->power_maps.clear();
 
-	// init maps for each set of power-blurring parameters, i.e., varying padding-zone
-	// scaling factors
- 	for (unsigned m = 0; m < parameters.size(); m++) {
-
-		TSV_density = parameters[m].TSV_density;
-
-		// allocate power-maps arrays
-		for (i = 0; i < layers; i++) {
-			this->power_maps[TSV_density].emplace_back(
-				array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM>()
-			);
-		}
-		// init the maps w/ zero values
-		for (i = 0; i < layers; i++) {
-			for (auto& partial_map : this->power_maps[TSV_density][i]) {
-				partial_map.fill(0.0);
-			}
+	// allocate power-maps arrays
+	for (i = 0; i < layers; i++) {
+		this->power_maps.emplace_back(
+			array<array<PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
+		);
+	}
+	// init the maps w/ zero values
+	init_bin.power_density = init_bin.TSV_density = 0.0;
+	for (i = 0; i < layers; i++) {
+		for (auto& partial_map : this->power_maps[i]) {
+			partial_map.fill(init_bin);
 		}
 	}
 

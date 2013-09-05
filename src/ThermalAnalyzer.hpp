@@ -37,6 +37,21 @@ class ThermalAnalyzer {
 		static constexpr bool DBG_CALLS = false;
 		static constexpr bool DBG = false;
 
+	// PODs, to be declared early on
+	public:
+		struct MaskParameters {
+			double TSV_density;
+			double mask_boundary_value;
+			double impulse_factor;
+			double impulse_factor_scaling_exponent;
+			double power_density_scaling_padding_zone;
+			double temp_offset;
+		};
+		struct PowerMapBin {
+			double power_density;
+			double TSV_density;
+		};
+
 	// private data, functions
 	private:
 		/// material parameters for thermal 3D-IC simulation using HotSpot
@@ -141,17 +156,16 @@ class ThermalAnalyzer {
 		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
 		// thermal modeling: thermal masks and maps
-		// mask[i][x/y], whereas mask[0] relates to the mask for layer 0 obtained
-		// by considering heat source in layer 0, mask[1] relates to the mask for
-		// layer 0 obtained by considering heat source in layer 1 and so forth.
-		// Note that the masks are only 1D for the separated convolution.
-		// Also note that the outermost map is encapsulating sets of mask, for
-		// varying TSV densities
+		// thermal_masks[i][x/y], whereas thermal_masks[0] relates to the mask for
+		// layer 0 obtained by considering heat source in layer 0,
+		// thermal_masks[1] relates to the mask for layer 0 obtained by
+		// considering heat source in layer 1 and so forth.  Note that the masks
+		// are only 1D for the separated convolution.  Also note that the
+		// outermost map is encapsulating sets of mask, for varying TSV densities
 		map< double, vector< array<double,THERMAL_MASK_DIM> > > thermal_masks;
-		// map[i][x][y], whereas map[0] relates to the map for layer 0 and so forth.
-		// Note that the outermost map is encapsulating sets of maps, for varying
-		// TSV densities
-		map< double, vector< array<array<double,POWER_MAPS_DIM>,POWER_MAPS_DIM> > > power_maps;
+		// power_maps[i][x][y], whereas power_maps[0] relates to the map for layer
+		// 0 and so forth.
+		vector< array<array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> thermal_map;
 
@@ -170,19 +184,9 @@ class ThermalAnalyzer {
 	public:
 		friend class IO;
 
-		// POD
-		struct MaskParameters {
-			double TSV_density;
-			double mask_boundary_value;
-			double impulse_factor;
-			double impulse_factor_scaling_exponent;
-			double power_density_scaling_padding_zone;
-			double temp_offset;
-		};
-
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, vector<MaskParameters> const& parameters);
-		void initPowerMaps(int const& layers, vector<MaskParameters> const& parameters, Point const& die_outline);
+		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;

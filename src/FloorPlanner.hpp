@@ -258,7 +258,7 @@ class FloorPlanner {
 			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), this->conf_power_blurring_parameters);
 
 			// init power maps, i.e. predetermine maps parameters
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_power_blurring_parameters, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
 		};
 
 		// getter / setter
@@ -296,7 +296,7 @@ class FloorPlanner {
 			this->conf_outline_y = outline_y;
 
 			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->conf_power_blurring_parameters, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
 
 			// reset related die properties
 			this->die_AR = this->conf_outline_x / this->conf_outline_y;

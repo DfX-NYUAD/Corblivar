@@ -1431,16 +1431,7 @@ void IO::writePowerThermalMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < x_limit; x++) {
 					for (y = 0; y < y_limit; y++) {
-						// note that the outer-most index of the
-						// power_maps relates to TSV density; thus
-						// this (dummy) access via the first
-						// power-blurring parameter set allows an
-						// valid acces in any case, independent of
-						// actual TSV density; of course, this
-						// assumes that the default TSV density is
-						// encoded in the first power-blurring
-						// parameter set
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[fp.conf_power_blurring_parameters[0].TSV_density][cur_layer][x][y] << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y].power_density << endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
