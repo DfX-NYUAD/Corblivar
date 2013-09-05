@@ -2248,10 +2248,13 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 // generate files for HotSpot steady-state thermal simulation
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
-	ofstream file;
+	ofstream file, file_bond;
 	int cur_layer;
+	int x, y;
+	int map_x, map_y;
+
 	// factor to scale um downto m;
-	static constexpr double SCALE_UM_M = 0.000001;
+	static constexpr double SCALE_UM_M = 1.0e-06;
 
 	if (fp.logMed()) {
 		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;
@@ -2259,9 +2262,10 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	/// generate floorplan files
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+
 		// build up file name
 		stringstream fp_file;
-		fp_file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp";
+		fp_file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp";
 
 		// init file stream
 		file.open(fp_file.str().c_str());
@@ -2304,35 +2308,77 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file.close();
 	}
 
-	/// generate dummy floorplan for passive Si layer
-	// build up file name
-	stringstream Si_fp_file;
-	Si_fp_file << fp.benchmark << "_HotSpot_Si_passive.flp";
+	/// generate floorplans for passive Si and bonding layer; including TSVs (modelled via densities)
+	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 
-	// init file stream
-	file.open(Si_fp_file.str().c_str());
+		// build up file names
+		stringstream Si_fp_file;
+		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp";
+		stringstream bond_fp_file;
+		bond_fp_file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp";
 
-	// file header
-	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-	file << "# all dimensions are in meters" << endl;
-	file << "# comment lines begin with a '#'" << endl;
-	file << "# comments and empty lines are ignored" << endl;
+		// init file streams
+		file.open(Si_fp_file.str().c_str());
+		file_bond.open(bond_fp_file.str().c_str());
 
-	// passive Si ``block''
-	file << "Si_passive";
-	file << "	" << fp.conf_outline_x * SCALE_UM_M;
-	file << "	" << fp.conf_outline_y * SCALE_UM_M;
-	file << "	0.0";
-	file << "	0.0";
-	// thermal properties, depending on TSV density which is 0.0 for regular runs
-	file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters[0].TSV_density);
-	file << "	" << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters[0].TSV_density);
-	file << endl;
+		// file headers
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+		file << "# all dimensions are in meters" << endl;
+		file << "# comment lines begin with a '#'" << endl;
+		file << "# comments and empty lines are ignored" << endl;
+		file_bond << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
+		file_bond << "# all dimensions are in meters" << endl;
+		file_bond << "# comment lines begin with a '#'" << endl;
+		file_bond << "# comments and empty lines are ignored" << endl;
 
-	// close file stream
-	file.close();
+		// walk power-map grid for vertical convolution; convolute mask w/ data
+		// obtained by horizontal convolution (thermal_map_tmp)
+		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
-	/// generate dummy floorplan for BEOL layer
+			// adapt index for final thermal map according to padding
+			map_x = x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+
+			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+
+				// adapt index for final thermal map according to padding
+				map_y = y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+
+				// put grid block as floorplan blocks; passive Si layer
+				file << "Si_passive_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
+				/// bin dimensions
+				file << "	" << fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M;
+				file << "	" << fp.thermalAnalyzer.power_maps_dim_y * SCALE_UM_M;
+				/// bin lower-left corner; float precision required in
+				//order to avoid grid coordinate mismatches
+				file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				// thermal properties, depending on bin's TSV density
+				file << "	" << ThermalAnalyzer::heatCapSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+				file << "	" << ThermalAnalyzer::thermResSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+				file << endl;
+
+				// put grid block as floorplan blocks; bonding layer
+				file_bond << "bond_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
+				/// bin dimensions
+				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M;
+				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_y * SCALE_UM_M;
+				/// bin lower-left corner; float precision required in
+				//order to avoid grid coordinate mismatches
+				file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				// thermal properties, depending on bin's TSV density
+				file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+				file_bond << "	" << ThermalAnalyzer::thermResBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+				file_bond << endl;
+			}
+		}
+
+		// close file streams
+		file.close();
+		file_bond.close();
+	}
+
+	/// generate dummy floorplan for BEOL layer; TSVs are not to be considered
 	//
 	// build up file name
 	stringstream BEOL_fp_file;
@@ -2356,37 +2402,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
 	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
 	file << endl;
-
-	// close file stream
-	file.close();
-
-	/// generate dummy floorplan for bond layer
-	// build up file name
-	stringstream bond_fp_file;
-	bond_fp_file << fp.benchmark << "_HotSpot_bond.flp";
-
-	// init file stream
-	file.open(bond_fp_file.str().c_str());
-
-	// file header
-	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-	file << "# all dimensions are in meters" << endl;
-	file << "# comment lines begin with a '#'" << endl;
-	file << "# comments and empty lines are ignored" << endl;
-
-	// bond ``block''
-	file << "bond";
-	file << "	" << fp.conf_outline_x * SCALE_UM_M;
-	file << "	" << fp.conf_outline_y * SCALE_UM_M;
-	file << "	0.0";
-	file << "	0.0";
-	// thermal properties, depending on TSV density which is 0.0 for regular runs
-	file << "	" << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters[0].TSV_density);
-	file << "	" << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters[0].TSV_density);
-	file << endl;
-
-	// close file stream
-	file.close();
 
 	// close file stream
 	file.close();
@@ -2481,18 +2496,19 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
 		file << Chip::THICKNESS_SI_ACTIVE << endl;
-		file << fp.benchmark << "_HotSpot_" << cur_layer + 1 << ".flp" << endl;
+		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
 		file << "# Passive Si layer " << cur_layer + 1 << endl;
 		file << 4 * cur_layer + 2 << endl;
 		file << "Y" << endl;
 		file << "N" << endl;
-		// thermal properties, depending on TSV density which is 0.0 for regular runs
-		file << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
-		file << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
+		// dummy values, proper values (depending on TSV densities) are in the
+		// actual floorplan file
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
 		file << Chip::THICKNESS_SI_PASSIVE << endl;
-		file << fp.benchmark << "_HotSpot_Si_passive.flp" << endl;
+		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
 		if (cur_layer < (fp.conf_layer - 1)) {
@@ -2504,7 +2520,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
 			file << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters[0].TSV_density) << endl;
 			file << Chip::THICKNESS_BOND << endl;
-			file << fp.benchmark << "_HotSpot_bond.flp" << endl;
+			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << endl;
 			file << endl;
 		}
 	}
