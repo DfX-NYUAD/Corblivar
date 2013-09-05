@@ -646,13 +646,20 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 			// 6th parameter
 			//in >> parameters.temp_offset;
 			// TODO to be included in Octave log file; drop dummy value below
-			parameter.temp_offset = 300.0;
+			parameters.temp_offset = 300.0;
 
 			// store parameter set
 			fp.conf_power_blurring_parameters.push_back(parameters);
 		}
 	}
 
+	// sanity check for at least one parameter set
+	if (fp.conf_power_blurring_parameters.size() == 0) {
+		cout << "IO> No mask could be parsed; consider checking the thermal-masks file \"" << fp.thermal_masks_file << "\"!" << endl;
+		exit(1);
+	}
+
+	// logging of parsed parameter sets
 	if (fp.logMin()) {
 
 		cout << "IO> ";
@@ -667,7 +674,7 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 			cout << "IO>   Impulse-scaling factor = " << fp.conf_power_blurring_parameters[i].impulse_factor_scaling_exponent << endl;
 			cout << "IO>   Mask boundary value = " << fp.conf_power_blurring_parameters[i].mask_boundary_value << endl;
 			cout << "IO>   Power-density scaling factor padding zone = " << fp.conf_power_blurring_parameters[i].power_density_scaling_padding_zone << endl;
-			cout << " Temperature offset = " << fp.conf_power_blurring_parameters[i].temp_offset;
+			cout << "IO>   Temperature offset = " << fp.conf_power_blurring_parameters[i].temp_offset << endl;
 		}
 		cout << endl;
 	}
