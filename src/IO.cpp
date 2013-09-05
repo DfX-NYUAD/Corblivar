@@ -94,6 +94,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	results_file << fp.benchmark << ".results";
 	fp.results.open(results_file.str().c_str());
 
+	// assume minimal log level; actual level to be parsed later on
+	fp.conf_log = FloorPlanner::LOG_MINIMAL;
+
 	// test files
 	//
 	// config file
@@ -121,7 +124,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		// memorize file availability
 		fp.alignments_file_avail = in.good();
 
-		if (!in.good()) {
+		if (!in.good() && fp.logMin()) {
 			cout << "IO> ";
 			cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
 			cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
@@ -225,17 +228,14 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		// memorize file availability
 		fp.thermal_masks_file_avail = in.good();
 
-		if (!in.good()) {
+		if (in.good()) {
+			IO::parseThermalMasksFile(fp);
+		}
+		else if (fp.logMin()) {
 			cout << "IO> ";
 			cout << "Note: thermal masks file missing : " << fp.thermal_masks_file << endl;
 			cout << "IO> Thermal analysis falls back to default parameters, i.e., parameters in \"" << config_file << "\" ." << endl;
 			cout << endl;
-		}
-		else {
-			// TODO activate parsing after implementation
-			//IO::parseThermalMasksFile(fp);
-			// TODO drop for active parsing
-			fp.thermal_masks_file_avail = false;
 		}
 
 		in.close();
@@ -248,6 +248,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	// config file parsing
 	//
 	in.open(config_file.c_str());
+
+	if (fp.logMin()) {
+		cout << "IO> Parsing config file ..." << endl;
+	}
 
 	// sanity check for file version
 	while (tmpstr != "value" && !in.eof())
@@ -523,7 +527,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	in.close();
 
 	if (fp.logMin()) {
-		cout << "IO> Config values:" << endl;
+		cout << "IO> Done; config values:" << endl;
 
 		// log
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
@@ -587,8 +591,86 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	}
 }
 
-// TODO implement
 void IO::parseThermalMasksFile(FloorPlanner& fp) {
+	ifstream in;
+	string tmpstr;
+	ThermalAnalyzer::MaskParameters parameters;
+
+	// reset thermal masks
+	fp.conf_power_blurring_parameters.clear();
+
+	// open file
+	in.open(fp.thermal_masks_file.c_str());
+
+	if (fp.logMin()) {
+		cout << "IO> ";
+		cout << "Parsing thermal-masks file ..." << endl;
+	}
+
+	// drop header
+	while (tmpstr != "columns:" && !in.eof())
+		in >> tmpstr;
+	// drop actual columns
+	in >> tmpstr;
+
+	// parse in parameter sets
+	while (!fp.solution_in.eof()) {
+
+		in >> tmpstr;
+
+		// next variable in Octave log; all parameter sets are read in
+		if (tmpstr == "#") {
+			break;
+		}
+		// new set of parameters
+		else {
+
+			// 1st parameter
+			parameters.TSV_density = atof(tmpstr.c_str());
+			// convert from percent to a ratio ranging from 0.0 to 1.0; for
+			// subsequent calls related w/ ThermalAnalyzer
+			parameters.TSV_density /= 100.0;
+
+			// 2nd parameter
+			in >> parameters.impulse_factor;
+
+			// 3rd parameter
+			in >> parameters.impulse_factor_scaling_exponent;
+
+			// 4th parameter
+			in >> parameters.mask_boundary_value;
+
+			// 5th parameter
+			in >> parameters.power_density_scaling_padding_zone;
+
+			// 6th parameter
+			//in >> parameters.temp_offset;
+			// TODO to be included in Octave log file; drop dummy value below
+			parameter.temp_offset = 300.0;
+
+			// store parameter set
+			fp.conf_power_blurring_parameters.push_back(parameters);
+		}
+	}
+
+	if (fp.logMin()) {
+
+		cout << "IO> ";
+		cout << "Done; parsed " << fp.conf_power_blurring_parameters.size() << " masks:" << endl;
+
+		// log mask parameters
+		for (unsigned i = 0; i < fp.conf_power_blurring_parameters.size(); i++) {
+
+			cout << "IO>  Mask " << i << ":" << endl;
+			cout << "IO>   TSV density [0.0, 1.0] = " << fp.conf_power_blurring_parameters[i].TSV_density << endl;
+			cout << "IO>   Impulse factor density = " << fp.conf_power_blurring_parameters[i].impulse_factor << endl;
+			cout << "IO>   Impulse-scaling factor = " << fp.conf_power_blurring_parameters[i].impulse_factor_scaling_exponent << endl;
+			cout << "IO>   Mask boundary value = " << fp.conf_power_blurring_parameters[i].mask_boundary_value << endl;
+			cout << "IO>   Power-density scaling factor padding zone = " << fp.conf_power_blurring_parameters[i].power_density_scaling_padding_zone << endl;
+			cout << " Temperature offset = " << fp.conf_power_blurring_parameters[i].temp_offset;
+		}
+		cout << endl;
+	}
 }
 
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
