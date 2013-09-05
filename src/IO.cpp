@@ -669,12 +669,12 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 		for (unsigned i = 0; i < fp.conf_power_blurring_parameters.size(); i++) {
 
 			cout << "IO>  Mask " << i << ":" << endl;
-			cout << "IO>   TSV density [0.0, 1.0] = " << fp.conf_power_blurring_parameters[i].TSV_density << endl;
-			cout << "IO>   Impulse factor density = " << fp.conf_power_blurring_parameters[i].impulse_factor << endl;
+			cout << "IO>   TSV density = " << 100.0 * fp.conf_power_blurring_parameters[i].TSV_density << "%" << endl;
+			cout << "IO>   Impulse factor = " << fp.conf_power_blurring_parameters[i].impulse_factor << endl;
 			cout << "IO>   Impulse-scaling factor = " << fp.conf_power_blurring_parameters[i].impulse_factor_scaling_exponent << endl;
 			cout << "IO>   Mask boundary value = " << fp.conf_power_blurring_parameters[i].mask_boundary_value << endl;
 			cout << "IO>   Power-density scaling factor padding zone = " << fp.conf_power_blurring_parameters[i].power_density_scaling_padding_zone << endl;
-			cout << "IO>   Temperature offset = " << fp.conf_power_blurring_parameters[i].temp_offset << endl;
+			cout << "IO>   Temperature offset = " << fp.conf_power_blurring_parameters[i].temp_offset << "K" << endl;
 		}
 		cout << endl;
 	}
