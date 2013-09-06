@@ -213,7 +213,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	int x_lower, x_upper, y_lower, y_upper;
 	bool padding_zone;
 	double TSV_density;
-	PowerMapBin init_bin;
+	ThermalAnalyzer::PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", (" << die_outline.x << ", " << die_outline.y << "), " << &parameters << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
@@ -370,7 +370,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline) {
 	unsigned b;
 	int i;
-	PowerMapBin init_bin;
+	ThermalAnalyzer::PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::initPowerMaps(" << layers << ", " << die_outline.x << ", " << die_outline.y << ")" << endl;
@@ -381,7 +381,7 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	// allocate power-maps arrays
 	for (i = 0; i < layers; i++) {
 		this->power_maps.emplace_back(
-			array<array<PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
+			array<array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
 		);
 	}
 	// init the maps w/ zero values
