@@ -2253,9 +2253,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	int x, y;
 	int map_x, map_y;
 
-	// factor to scale um downto m;
-	static constexpr double SCALE_UM_M = 1.0e-06;
-
 	if (fp.logMed()) {
 		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;
 	}
@@ -2285,10 +2282,10 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			}
 
 			file << cur_block.id;
-			file << "	" << cur_block.bb.w * SCALE_UM_M;
-			file << "	" << cur_block.bb.h * SCALE_UM_M;
-			file << "	" << cur_block.bb.ll.x * SCALE_UM_M;
-			file << "	" << cur_block.bb.ll.y * SCALE_UM_M;
+			file << "	" << cur_block.bb.w * IO::SCALE_UM_M;
+			file << "	" << cur_block.bb.h * IO::SCALE_UM_M;
+			file << "	" << cur_block.bb.ll.x * IO::SCALE_UM_M;
+			file << "	" << cur_block.bb.ll.y * IO::SCALE_UM_M;
 			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
 			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
 			file << endl;
@@ -2296,8 +2293,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 		// dummy block to describe layer outline
 		file << "outline" << cur_layer + 1;
-		file << "	" << fp.conf_outline_x * SCALE_UM_M;
-		file << "	" << fp.conf_outline_y * SCALE_UM_M;
+		file << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
+		file << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
 		file << "	0.0";
 		file << "	0.0";
 		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
@@ -2346,12 +2343,12 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				// put grid block as floorplan blocks; passive Si layer
 				file << "Si_passive_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
 				/// bin dimensions
-				file << "	" << fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M;
-				file << "	" << fp.thermalAnalyzer.power_maps_dim_y * SCALE_UM_M;
+				file << "	" << fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M;
+				file << "	" << fp.thermalAnalyzer.power_maps_dim_y * IO::SCALE_UM_M;
 				/// bin lower-left corner; float precision required in
 				//order to avoid grid coordinate mismatches
-				file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
-				file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M);
+				file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M);
 				// thermal properties, depending on bin's TSV density
 				file << "	" << ThermalAnalyzer::heatCapSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 				file << "	" << ThermalAnalyzer::thermResSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
@@ -2360,12 +2357,12 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 				// put grid block as floorplan blocks; bonding layer
 				file_bond << "bond_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
 				/// bin dimensions
-				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M;
-				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_y * SCALE_UM_M;
+				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M;
+				file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_y * IO::SCALE_UM_M;
 				/// bin lower-left corner; float precision required in
 				//order to avoid grid coordinate mismatches
-				file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
-				file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * SCALE_UM_M);
+				file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M);
+				file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * IO::SCALE_UM_M);
 				// thermal properties, depending on bin's TSV density
 				file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 				file_bond << "	" << ThermalAnalyzer::thermResBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
@@ -2395,8 +2392,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	// BEOL ``block''
 	file << "BEOL";
-	file << "	" << fp.conf_outline_x * SCALE_UM_M;
-	file << "	" << fp.conf_outline_y * SCALE_UM_M;
+	file << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
+	file << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
 	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
