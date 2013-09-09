@@ -1818,6 +1818,11 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	string alignment_color_failed;
 	string alignment_color_undefined;
 
+	// sanity check, not for thermal-analysis runs
+	if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+		return;
+	}
+
 	if (fp.logMed()) {
 		cout << "IO> ";
 		if (file_suffix != "")
