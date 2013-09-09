@@ -616,8 +616,6 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 	// drop actual columns
 	in >> tmpstr;
 
-	int l = 0;
-
 	// parse in parameter sets
 	while (!fp.solution_in.eof()) {
 
@@ -649,11 +647,7 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 			in >> parameters.power_density_scaling_padding_zone;
 
 			// 6th parameter
-			//in >> parameters.temp_offset;
-			// TODO to be included in Octave log file; drop dummy value below
-			//parameters.temp_offset = Math::randI(270, 330);
-			parameters.temp_offset = 300.0 - l;
-			l += 10;
+			in >> parameters.temp_offset;
 
 			// store parameter set
 			fp.conf_power_blurring_parameters.push_back(parameters);
