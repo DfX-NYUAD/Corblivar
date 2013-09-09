@@ -35,8 +35,11 @@ int main (int argc, char** argv) {
 	// (TODO) set version to 1.0 after release
 	cout << "----- 3D Floorplanning tool v0.1 ---------------------------------" << endl << endl;
 
+	// set IO mode
+	IO::mode = IO::Mode::REGULAR;
+
 	// parse program parameter, config file, and further files
-	IO::parseParametersFiles(fp, IO::Mode::REGULAR, argc, argv);
+	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
 	// parse nets

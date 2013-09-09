@@ -33,8 +33,11 @@
 #include "Net.hpp"
 #include "Math.hpp"
 
+// memory allocation
+IO::Mode IO::mode;
+
 // parse program parameter, config file, and further files
-void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const& argc, char** argv) {
+void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	ifstream in;
 	string config_file;
 	stringstream results_file, solution_file;
@@ -49,7 +52,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 	// program parameters; two modes, one for regular Corblivar runs, one for for
 	// thermal-analysis parameterization runs
-	if (mode == IO::Mode::REGULAR) {
+	if (IO::mode == IO::Mode::REGULAR) {
 		if (argc < 4) {
 			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
 			cout << "IO> " << endl;
@@ -60,7 +63,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 			exit(1);
 		}
 	}
-	else if (mode == IO::Mode::THERMAL_ANALYSIS) {
+	else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 		if (argc < 6) {
 			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir solution_file TSV_density" << endl;
 			cout << "IO> " << endl;
@@ -118,7 +121,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	in.close();
 
 	// alignments file; only reguired for regular runs
-	if (mode == IO::Mode::REGULAR) {
+	if (IO::mode == IO::Mode::REGULAR) {
 
 		in.open(fp.alignments_file.c_str());
 		// memorize file availability
@@ -155,10 +158,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		cout << "Note: power density file missing : " << fp.power_density_file << endl;
 
 		// for thermal analysis, the power file is required
-		if (mode == IO::Mode::THERMAL_ANALYSIS) {
+		if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 			exit(1);
 		}
-		else if (mode == IO::Mode::REGULAR) {
+		else if (IO::mode == IO::Mode::REGULAR) {
 			cout << "IO> Thermal optimization cannot be performed; is deactivated." << endl;
 			cout << endl;
 		}
@@ -197,7 +200,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 	// additional parameter for TSV density given; for thermal-analysis
 	// parameterization runs
-	if (mode == IO::Mode::THERMAL_ANALYSIS) {
+	if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 
 		init_parameters.TSV_density = atof(argv[5]);
 		// convert from percent to a ratio ranging from 0.0 to 1.0; for subsequent
@@ -208,7 +211,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 	// handle thermal-masks file; contains the power-blurring parameters obtained by
 	// Octave scripts; only considered for regular runs; should be in a dedicated
 	// subfolder of the config file's folder
-	if (mode == IO::Mode::REGULAR) {
+	if (IO::mode == IO::Mode::REGULAR) {
 
 		// config file in same directory, i.e., w/o dash
 		if (config_file.rfind("/") == string::npos) {
@@ -516,7 +519,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 
 		// for non-thermal-analysis runs, assume that fallback parameters refer to
 		// setup w/o TSVs
-		if (mode != IO::Mode::THERMAL_ANALYSIS) {
+		if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
 			init_parameters.TSV_density = 0.0;
 		}
 
@@ -540,7 +543,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		cout << "IO>  Chip -- Final die outline shrink: " << fp.conf_outline_shrink << endl;
 
 		// SA setup, for regular runs
-		if (mode == IO::Mode::REGULAR) {
+		if (IO::mode == IO::Mode::REGULAR) {
 
 			// layout generation options
 			cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
@@ -574,7 +577,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, IO::Mode const& mode, int const&
 		}
 
 		// TSV density for thermal-analysis runs
-		if (mode == IO::Mode::THERMAL_ANALYSIS) {
+		if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 			cout << "IO>  Thermal-analysis run -- TSV density (ratio, not percent): " << init_parameters.TSV_density << endl;
 		}
 
@@ -613,6 +616,8 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 	// drop actual columns
 	in >> tmpstr;
 
+	int l = 0;
+
 	// parse in parameter sets
 	while (!fp.solution_in.eof()) {
 
@@ -646,7 +651,9 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 			// 6th parameter
 			//in >> parameters.temp_offset;
 			// TODO to be included in Octave log file; drop dummy value below
-			parameters.temp_offset = 300.0;
+			//parameters.temp_offset = Math::randI(270, 330);
+			parameters.temp_offset = 300.0 - l;
+			l += 10;
 
 			// store parameter set
 			fp.conf_power_blurring_parameters.push_back(parameters);
@@ -2295,6 +2302,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file.close();
 	}
 
+	// TODO other flow for ThermalAnalyzer
+	//
 	/// generate floorplans for passive Si and bonding layer; including TSVs (modelled via densities)
 	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
 

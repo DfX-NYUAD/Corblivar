@@ -34,8 +34,11 @@ int main (int argc, char** argv) {
 	// (TODO) set version to 1.0 after release
 	cout << "----- Thermal-analysis parameterization tool v0.1 ----------------" << endl << endl;
 
+	// set IO mode
+	IO::mode = IO::Mode::THERMAL_ANALYSIS;
+
 	// parse program parameter, config file, and further files
-	IO::parseParametersFiles(fp, IO::Mode::THERMAL_ANALYSIS, argc, argv);
+	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
 	// parse nets
