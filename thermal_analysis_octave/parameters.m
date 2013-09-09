@@ -1,4 +1,4 @@
-function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, sigma_Mb, PDPZ, sigma_PDPZ, max_PDPZ] = parameters() 
+function [sigma_I,sigma_If,sigma_Mb,sigma_PDPZ,I,If,Mb,PDPZ,minHS, step, iterations, sigma_update,max_PDPZ, TSV_dens, TSV_dens_step] = parameters() 
 
   %% Description:  Integrated Octave function providing parameters for the optimization of the thermal analysis of Corblivar
 
@@ -21,6 +21,19 @@ function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, s
 
  %%% define general parameters for optimization
 
+  %%  define TSV Density on chip
+   %  define starting value for optimization in [%]
+
+   TSV_dens = 100;
+
+   %  define step size for TSV density increase after every optimization loop in [%]
+   % for case without TSV use step size > 100
+   % for case with 0% and 100% TSV use step size = 100
+   % for further analysis of different densities use step size < 100
+
+   TSV_dens_step = 10;
+
+
   %% define after how many iterations the sigma of the normal distribution curve of the random generator will be refined
    % if the generator should not be refined set step > number of iterations
   
@@ -28,7 +41,7 @@ function [step, iterations, sigma_update, minHS, I, sigma_I, If, sigma_If, Mb, s
 
   %% total iterations, i.e., tries for parameter fitting
 
-   iterations = 100;
+   iterations = 100; 
 
   %% refinement factor of sigma
  

@@ -1,4 +1,4 @@
-function C = config(confText, I,If,Mb,PDPZ,minHS)
+function C = config(confText, I,If,Mb,PDPZ,minHS, conf)
 
   %% Description:  Integrated Octave function for updating the Corblivar.conf file
 
@@ -22,8 +22,6 @@ function C = config(confText, I,If,Mb,PDPZ,minHS)
  
 
   %% initialize strings for searching in string array confText to allocate positions of parameters
-
-   cd ..
 
    checkI = '# Impulse factor I';
    checkIf = '# Impulse-scaling factor If';
@@ -67,8 +65,6 @@ function C = config(confText, I,If,Mb,PDPZ,minHS)
  %%% write new Corblivar.conf file
   %% open a textfile for writing and simultaneously erase old file
 
-args = argv();
-   conf = args{2};
    fid = fopen(conf, "w");
   
   % initialize counter

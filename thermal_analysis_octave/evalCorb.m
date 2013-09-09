@@ -1,4 +1,4 @@
-function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
+function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench)
 
   %% Description:  Integrated Octave function for the evaluation of the thermal analysis of Corblivar
 
@@ -40,8 +40,6 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    % load Hotspot datavector
 
-   cd ..
-
    dataHS = load(pathHS);
 
    HS = dataHS(:,2);
@@ -66,6 +64,7 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    % necessary because of differences between reading directions of HotSpot and Corblivar
 
    % matrix dimension + 1
+
    n = 65;
 
    A = HS((n-1)*0+1:(n-1)*1);
@@ -99,31 +98,33 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    % redefine HotSpot data as a matrix
 
    % drop last column, first row (dummy data)
-   A(:,[n]) = [];
-   A([1],:) = [];
+
+      A(:,[n]) = [];
+      A([1],:) = [];
 
    HS = A;
 
-%   disp(HS);
-%   disp(length(HS));
+   %   disp(HS);
+   %   disp(length(HS));
 
    % redefine Corblivar data a a matrix
 
    % drop last column, first row (dummy data)
-   B(:,[n]) = [];
-   B([1],:) = [];
+
+      B(:,[n]) = [];
+      B([1],:) = [];
 
    Cbl = B;
 
-%   disp(Cbl);
-%   disp(length(Cbl));
+   %   disp(Cbl);
+   %   disp(length(Cbl));
 
   %% visual test of resulting matrices
 
-%    imagesc(HS) , colorbar ;
-%    print('HS.eps','-deps');
-%    imagesc(Cbl) , colorbar;
-%    print('Cbl.eps','-deps');
+   %    imagesc(HS) , colorbar ;
+   %    print('HS.eps','-deps');
+   %    imagesc(Cbl) , colorbar;
+   %    print('Cbl.eps','-deps');
 
 
   %% start interpretation
@@ -132,10 +133,10 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
 
    matError = HS - Cbl;
 
-%   disp(length(matError));
+   %   disp(length(matError));
 
-%    imagesc(matError) , colorbar;
-%    print('matError.eps','-deps');
+   %    imagesc(matError) , colorbar;
+   %    print('matError.eps','-deps');
 
 
  %%% evaluation of the error
@@ -147,8 +148,6 @@ function [maxHS, minHS, maxCbl,minCbl, Error, matError] = evalCorb(bench, dir)
    Error = 1/((n-1)^2) * sum(sum(matError.^2));
 
  %%% end of evaluation process
-
-   cd (dir)
 
 end
 
