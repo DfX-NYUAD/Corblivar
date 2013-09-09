@@ -1364,7 +1364,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	int layer_limit;
 	unsigned x, y;
 	enum FLAGS : int {power = 0, thermal = 1, TSV_density = 2};
-	int flag;
+	int flag, flag_start, flag_stop;
 	double max_power_density, max_temp, min_temp;
 
 	// sanity check
@@ -1374,7 +1374,13 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 	if (fp.logMed()) {
 		cout << "IO> ";
-		cout << "Generating power maps, TSV-density maps, and thermal maps ..." << endl;
+
+		if (IO::mode == IO::Mode::REGULAR) {
+			cout << "Generating power maps, TSV-density maps, and thermal map ..." << endl;
+		}
+		else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+			cout << "Generating thermal map ..." << endl;
+		}
 	}
 
 	// for power maps: fixed scale for all layers to ease comparision, i.e. requires
@@ -1384,10 +1390,25 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 		max_power_density = max(max_power_density, block.power_density);
 	}
 
+	// generate set of maps; integer encoding
+	//
 	// flag=0: generate power maps
 	// flag=1: generate thermal map
 	// flag=2: generate TSV-density map
-	for (flag = FLAGS::power; flag <= FLAGS::TSV_density; flag++) {
+	//
+	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
+	// the required thermal map
+	flag_start = flag_stop = -1;
+	if (IO::mode == IO::Mode::REGULAR) {
+		flag_start = FLAGS::power;
+		flag_stop = FLAGS::TSV_density;
+	}
+	else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+		flag_start = flag_stop = FLAGS::thermal;
+	}
+	//
+	// actual map generation	
+	for (flag = flag_start; flag <= flag_stop; flag++) {
 
 		// power and TSV-density maps for all layers
 		if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
