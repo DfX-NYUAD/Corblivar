@@ -27,6 +27,8 @@
 #include "Rect.hpp"
 #include "Block.hpp"
 #include "Math.hpp"
+// TODO drop later on; only required for dummy TSVs in ThermalAnalyzer::generatePowerMaps
+#include "IO.hpp"
 
 // memory allocation
 constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
@@ -223,6 +225,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 
 // TODO determine TSV densities for bins; consider available sets of thermal parameters,
 // i.e., round TSV densities where required
+// TODO drop dummy TSVs
 void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
@@ -342,12 +345,12 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 							this->power_maps[i][x][y].power_density += block.power_density;
 
 							// TODO drop after actual density
-							// is determined; TODO not for
-							// thermal-analyzer runs
+							// is determined
 							//
-							// dummy TSVs; not for uppermost
-							// layer
-							if (i < layers - 1) {
+							// dummy TSVs; not for
+							// thermal-analyzer runs, not for
+							// uppermost layer
+							if (IO::mode != IO::Mode::THERMAL_ANALYSIS && i < layers - 1) {
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
@@ -388,12 +391,12 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 							this->power_maps[i][x][y].power_density += block.power_density * intersect.area;
 
 							// TODO drop after actual density
-							// is determined; TODO not for
-							// thermal-analyzer runs
+							// is determined
 							//
-							// dummy TSVs; not for uppermost
-							// layer
-							if (i < layers - 1) {
+							// dummy TSVs; not for
+							// thermal-analyzer runs, not for
+							// uppermost layer
+							if (IO::mode != IO::Mode::THERMAL_ANALYSIS && i < layers - 1) {
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
