@@ -120,7 +120,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 	in.close();
 
-	// alignments file; only reguired for regular runs
+	// alignments file; only considered for regular runs
 	if (IO::mode == IO::Mode::REGULAR) {
 
 		in.open(fp.alignments_file.c_str());
@@ -198,20 +198,20 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.solution_out.open(solution_file.str().c_str());
 	}
 
-	// additional parameter for TSV density given; for thermal-analysis
-	// parameterization runs
+	// for thermal-analysis parameterization runs; additional parameter for TSV
+	// density should be given (parameter count checked above)
 	if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 
+		// TSV density, in percent
 		init_parameters.TSV_density = atof(argv[5]);
-		// convert from percent to a ratio ranging from 0.0 to 1.0; for subsequent
-		// calls related w/ ThermalAnalyzer
-		init_parameters.TSV_density /= 100.0;
-	}
 
-	// handle thermal-masks file; contains the power-blurring parameters obtained by
-	// Octave scripts; only considered for regular runs; should be in a dedicated
-	// subfolder of the config file's folder
-	if (IO::mode == IO::Mode::REGULAR) {
+		// mask file not available
+		fp.thermal_masks_file_avail = false;
+	}
+	// for regular runs, handle thermal-masks file; contains the power-blurring
+	// parameters obtained by Octave scripts; should be in a dedicated subfolder of
+	// the config file's folder
+	else if (IO::mode == IO::Mode::REGULAR) {
 
 		// config file in same directory, i.e., w/o dash
 		if (config_file.rfind("/") == string::npos) {
@@ -242,10 +242,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 
 		in.close();
-	}
-	// for non-regular runs, ignore masks file
-	else {
-		fp.thermal_masks_file_avail = false;
 	}
 
 	// config file parsing
@@ -578,7 +574,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 		// TSV density for thermal-analysis runs
 		if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
-			cout << "IO>  Thermal-analysis run -- TSV density (ratio, not percent): " << init_parameters.TSV_density << endl;
+			cout << "IO>  Thermal-analysis run -- TSV density: " << init_parameters.TSV_density << endl;
 		}
 
 		// power blurring fallback parameters; for thermal-analysis parameterization in case no masks file is given
@@ -630,9 +626,6 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 
 			// 1st parameter
 			parameters.TSV_density = atof(tmpstr.c_str());
-			// convert from percent to a ratio ranging from 0.0 to 1.0; for
-			// subsequent calls related w/ ThermalAnalyzer
-			parameters.TSV_density /= 100.0;
 
 			// 2nd parameter
 			in >> parameters.impulse_factor;
@@ -670,7 +663,7 @@ void IO::parseThermalMasksFile(FloorPlanner& fp) {
 		for (unsigned i = 0; i < fp.conf_power_blurring_parameters.size(); i++) {
 
 			cout << "IO>  Mask " << i << ":" << endl;
-			cout << "IO>   TSV density = " << 100.0 * fp.conf_power_blurring_parameters[i].TSV_density << "%" << endl;
+			cout << "IO>   TSV density = " << fp.conf_power_blurring_parameters[i].TSV_density << "%" << endl;
 			cout << "IO>   Impulse factor = " << fp.conf_power_blurring_parameters[i].impulse_factor << endl;
 			cout << "IO>   Impulse-scaling factor = " << fp.conf_power_blurring_parameters[i].impulse_factor_scaling_exponent << endl;
 			cout << "IO>   Mask boundary value = " << fp.conf_power_blurring_parameters[i].mask_boundary_value << endl;
@@ -1498,9 +1491,9 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-						// output densities in percent; access map
-						// bins w/ offset related to padding zone
-						data_out << x << "	" << y << "	" << 100.0 * fp.thermalAnalyzer.power_maps[cur_layer][x + ThermalAnalyzer::POWER_MAPS_PADDED_BINS][y + ThermalAnalyzer::POWER_MAPS_PADDED_BINS].TSV_density << endl;
+						// access map bins w/ offset related to
+						// padding zone
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x + ThermalAnalyzer::POWER_MAPS_PADDED_BINS][y + ThermalAnalyzer::POWER_MAPS_PADDED_BINS].TSV_density << endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset

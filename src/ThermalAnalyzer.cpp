@@ -229,7 +229,6 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	Rect bin, intersect, block_offset;
 	int x_lower, x_upper, y_lower, y_upper;
 	bool padding_zone;
-	double TSV_density;
 	ThermalAnalyzer::PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
@@ -352,7 +351,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
-									this->power_maps[i][x][y].TSV_density = Math::randI(0,2);
+									this->power_maps[i][x][y].TSV_density = Math::randI(0,2) * 100.0;
 								}
 							}
 						}
@@ -398,7 +397,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
-									this->power_maps[i][x][y].TSV_density = Math::randI(0,2);
+									this->power_maps[i][x][y].TSV_density = Math::randI(0,2) * 100.0;
 								}
 							}
 						}
