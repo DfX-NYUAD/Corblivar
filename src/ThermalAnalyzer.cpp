@@ -67,10 +67,6 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 		m.fill(parameters[0].temp_offset);
 	}
 
-	// TODO two subfunctions, one w/ separated convolution for separable masks, i.e.,
-	// w/o consideration of different TSV densities, and one w/ regular 2D convolution
-	// for different TSV densities
-	//
 	/// perform 2D convolution by performing two separated 1D convolution iterations;
 	/// note that no (kernel) flipping is required since the mask is symmetric
 	//
@@ -223,10 +219,8 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, vector<MaskParam
 	}
 }
 
-// TODO determine TSV densities for bins; consider available sets of thermal parameters,
-// i.e., round TSV densities where required
-// TODO drop dummy TSVs
-void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
+// TODO drop benchmark after dropping dummy TSVs
+void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, string const& benchmark, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
 	Rect bin, intersect, block_offset;
@@ -343,20 +337,6 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 						}
 						else {
 							this->power_maps[i][x][y].power_density += block.power_density;
-
-							// TODO drop after actual density
-							// is determined
-							//
-							// dummy TSVs; not for
-							// thermal-analyzer runs, not for
-							// uppermost layer
-							if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
-								// only consider TSVs in
-								// approx 6.25% of all bins
-								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
-									this->power_maps[i][x][y].TSV_density = Math::randI(0,2) * 100.0;
-								}
-							}
 						}
 					}
 					// else consider block power according to
@@ -389,24 +369,78 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 						}
 						else {
 							this->power_maps[i][x][y].power_density += block.power_density * intersect.area;
-
-							// TODO drop after actual density
-							// is determined
-							//
-							// dummy TSVs; not for
-							// thermal-analyzer runs, not for
-							// uppermost layer
-							if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
-								// only consider TSVs in
-								// approx 6.25% of all bins
-								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
-									this->power_maps[i][x][y].TSV_density = Math::randI(0,2) * 100.0;
-								}
-							}
 						}
 					}
 				}
 			}
+		}
+
+
+		// TODO drop
+		// init parsing TSVs from file
+		stringstream TSVs_file;
+		string tmpstr;
+		TSVs_file << benchmark << "_" << i + 1 << "_TSV_density.data";
+		ifstream in;
+		in.open(TSVs_file.str().c_str());
+		bool parse = in.good();
+		// parse file
+		if (parse) {
+
+			// drop header line
+			// # X Y TSV_density
+			in >> tmpstr;
+			in >> tmpstr;
+			in >> tmpstr;
+			in >> tmpstr;
+
+			// parse TSVs
+			while (!in.eof()) {
+
+				// parse grid coords
+				in >> x;
+				in >> y;
+
+				// due to some empty lines at the end, we may have reached eof just now
+				if (in.eof()) {
+					break;
+				}
+
+				// adapt grid coords according to padding
+				x += ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+				y += ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+				// parse TSV density
+				in >> this->power_maps[i][x][y].TSV_density;
+			}
+		}
+
+		// adapt power maps; initially parse TSVs, then apply power-density
+		// scaling for regions w/ TSVs, also consider TSV density
+		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
+			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+
+				// init TSV densities
+				// TODO parse TSVs from layout; consider block alignment
+				//
+				// TODO drop dummy TSVs
+				// dummy TSVs; not for thermal-analyzer runs
+				if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
+
+					// new set of dummy TSVs; only consider TSVs in
+					// approx 6.25% of all bins
+					if (!parse && Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
+						cout << "OOPS" << endl;
+						this->power_maps[i][x][y].TSV_density = Math::randI(0,2) * 100.0;
+					}
+				}
+
+				if (this->power_maps[i][x][y].TSV_density > 0.0) {
+
+					this->power_maps[i][x][y].power_density *=
+						parameters[0].power_density_scaling_TSV_region * (this->power_maps[i][x][y].TSV_density / 100.0);
+				}
+			}
+
 		}
 	}
 
@@ -432,6 +466,7 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 			array<array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
 		);
 	}
+
 	// init the maps w/ zero values
 	init_bin.power_density = init_bin.TSV_density = 0.0;
 	for (i = 0; i < layers; i++) {

@@ -45,6 +45,7 @@ class ThermalAnalyzer {
 			double impulse_factor;
 			double impulse_factor_scaling_exponent;
 			double power_density_scaling_padding_zone;
+			double power_density_scaling_TSV_region;
 			double temp_offset;
 		};
 		struct PowerMapBin {
@@ -155,7 +156,7 @@ class ThermalAnalyzer {
 		// represents the thermal mask's dimension (i.e., the 2D gauss function
 		// representing the thermal impulse response);
 		// note that value should be uneven!
-		static constexpr int THERMAL_MASK_DIM = 17;
+		static constexpr int THERMAL_MASK_DIM = 11;
 		// represents the center index of the center originated mask
 		static constexpr int THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
 		// represents the amount of padded bins at power maps' boundaries
@@ -197,7 +198,7 @@ class ThermalAnalyzer {
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, vector<MaskParameters> const& parameters);
 		void initPowerMaps(int const& layers, Point const& die_outline);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, string const& benchmark, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference

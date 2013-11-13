@@ -231,7 +231,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		// memorize file availability
 		fp.thermal_masks_file_avail = in.good();
 
-		if (in.good()) {
+		if (fp.thermal_masks_file_avail) {
 			IO::parseThermalMasksFile(fp);
 		}
 		else if (fp.logMin()) {
@@ -502,6 +502,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> init_parameters.power_density_scaling_TSV_region;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> init_parameters.temp_offset;
 
 	// sanity check for positive parameter
@@ -586,6 +591,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			cout << "IO>  Power-blurring (fallback) parameterization -- Impulse scaling-factor: " << init_parameters.impulse_factor_scaling_exponent << endl;
 			cout << "IO>  Power-blurring (fallback) parameterization -- Mask-boundary value: " << init_parameters.mask_boundary_value << endl;
 			cout << "IO>  Power-blurring (fallback) parameterization -- Power-density scaling factor (padding zone): " << init_parameters.power_density_scaling_padding_zone << endl;
+			cout << "IO>  Power-blurring (fallback) parameterization -- Power-density scaling factor (TSV regions): " << init_parameters.power_density_scaling_TSV_region << endl;
 			cout << "IO>  Power-blurring (fallback) parameterization -- Temperature offset: " << init_parameters.temp_offset << endl;
 		}
 
@@ -1355,7 +1361,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	unsigned x, y;
 	enum FLAGS : int {power = 0, thermal = 1, TSV_density = 2};
 	int flag, flag_start, flag_stop;
-	double max_power_density, max_temp, min_temp;
+	double max_temp, min_temp;
 
 	// sanity check
 	if (fp.thermalAnalyzer.power_maps.empty() || fp.thermalAnalyzer.thermal_map.empty()) {
@@ -1371,13 +1377,6 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 		else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
 			cout << "Generating thermal map ..." << endl;
 		}
-	}
-
-	// for power maps: fixed scale for all layers to ease comparision, i.e. requires
-	// to determine max blocks' power
-	max_power_density = 0.0;
-	for (Block const& block : fp.blocks) {
-		max_power_density = max(max_power_density, block.power_density);
 	}
 
 	// generate set of maps; integer encoding
@@ -1544,8 +1543,6 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 			// power maps: scale, label for cbrange
 			if (flag == FLAGS::power) {
-				// fixed scale for all layers to ease comparision
-				gp_out << "set cbrange [0:" << max_power_density << "]" << endl;
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << endl;
 			}
