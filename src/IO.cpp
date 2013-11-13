@@ -521,6 +521,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 		fp.conf_power_blurring_parameters.clear();
 		fp.conf_power_blurring_parameters.push_back(init_parameters);
+		// TODO drop another dummy parameter set for 100% TSV density
+		init_parameters.TSV_density = 100.0;
+		fp.conf_power_blurring_parameters.push_back(init_parameters);
 	}
 
 	in.close();

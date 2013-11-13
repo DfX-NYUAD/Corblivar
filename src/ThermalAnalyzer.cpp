@@ -241,14 +241,6 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	init_bin.power_density = 0.0;
 	init_bin.TSV_density = parameters[0].TSV_density;
 
-	// TODO drop later on, only required for dummy TSVs sanity check
-	bool TSV_density_parameters_avail = false;
-	for (auto& p : parameters) {
-		if (p.TSV_density == 100.0) {
-			TSV_density_parameters_avail = true;
-			break;
-		}
-	}
 	// determine maps for each layer
 	for (i = 0; i < layers; i++) {
 
@@ -358,7 +350,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 							// dummy TSVs; not for
 							// thermal-analyzer runs, not for
 							// uppermost layer
-							if (TSV_density_parameters_avail && IO::mode != IO::Mode::THERMAL_ANALYSIS && i < layers - 1) {
+							if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
@@ -404,7 +396,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 							// dummy TSVs; not for
 							// thermal-analyzer runs, not for
 							// uppermost layer
-							if (TSV_density_parameters_avail && IO::mode != IO::Mode::THERMAL_ANALYSIS && i < layers - 1) {
+							if (IO::mode != IO::Mode::THERMAL_ANALYSIS) {
 								// only consider TSVs in
 								// approx 6.25% of all bins
 								if (Math::randB() && Math::randB() && Math::randB() && Math::randB()) {
