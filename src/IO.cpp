@@ -483,7 +483,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 
 	// sanity check for reasonable mask parameters
-	if (init_parameters.impulse_factor < init_parameters.mask_boundary_value) {
+	if (init_parameters.impulse_factor <= init_parameters.mask_boundary_value) {
 		cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << endl;
 		exit(1);
 	}
@@ -494,8 +494,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> init_parameters.power_density_scaling_padding_zone;
 
 	// sanity check for positive parameter
-	if (init_parameters.power_density_scaling_padding_zone < 0.0) {
-		cout << "IO> Provide a positive power-density scaling factor!" << endl;
+	if (init_parameters.power_density_scaling_padding_zone < 1.0) {
+		cout << "IO> Provide a positive (greater or equal 1.0) power-density scaling factor!" << endl;
 		exit(1);
 	}
 
@@ -503,6 +503,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> init_parameters.power_density_scaling_TSV_region;
+
+	// TODO update; rename parameter
+//	// sanity check for parameter range
+//	if (init_parameters.power_density_scaling_TSV_region > 1.0 || init_parameters.power_density_scaling_TSV_region < 0.0) {
+//		cout << "IO> Provide a TSV-dependent power-density scaling factor between 0.0 and 1.0!" << endl;
+//		exit(1);
+//	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
