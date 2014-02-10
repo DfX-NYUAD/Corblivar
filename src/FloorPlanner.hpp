@@ -131,7 +131,7 @@ class FloorPlanner {
 				bool const& SA_phase_two = false, bool const& set_max_cost = false);
 		inline double determCostThermalDistr(bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false) {
 			this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks, this->getOutline(),
-					this->conf_power_blurring_parameters);
+					this->conf_power_blurring_parameters, this->benchmark);
 			return this->thermalAnalyzer.performPowerBlurring(this->conf_layer, this->conf_power_blurring_parameters, this->max_cost_thermal,
 					set_max_cost, normalize, return_max_temp);
 		};

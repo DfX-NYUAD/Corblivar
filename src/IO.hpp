@@ -38,7 +38,7 @@ class IO {
 
 	// private data, functions
 	private:
-		static constexpr int CONFIG_VERSION = 12;
+		static constexpr int CONFIG_VERSION = 13;
 
 		// factor to scale um downto m;
 		static constexpr double SCALE_UM_M = 1.0e-06;
