@@ -384,6 +384,11 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 		ifstream in;
 		in.open(TSVs_file.str().c_str());
 		bool parse = in.good();
+		int j,k;
+		int bot_boundary, top_boundary, left_boundary, right_boundary;
+		int dist_x, dist_y;
+		double inf_distance;
+
 		// parse file
 		if (parse) {
 
@@ -434,10 +439,33 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 					}
 				}
 
+				// TODO adapt, cleanup for power-density scaling related
+				// to TSV buses
 				if (this->power_maps[i][x][y].TSV_density > 0.0) {
 
-					this->power_maps[i][x][y].power_density *=
-						parameters[0].power_density_scaling_TSV_region * (this->power_maps[i][x][y].TSV_density / 100.0);
+//					this->power_maps[i][x][y].power_density *=
+//						parameters[0].power_density_scaling_TSV_region * (this->power_maps[i][x][y].TSV_density / 100.0);
+
+					bot_boundary = x - ThermalAnalyzer::THERMAL_MASK_DIM /2;
+					
+					top_boundary = x + ThermalAnalyzer::THERMAL_MASK_DIM /2;
+
+					left_boundary = y - ThermalAnalyzer::THERMAL_MASK_DIM /2;
+
+					right_boundary = y + ThermalAnalyzer::THERMAL_MASK_DIM /2;
+
+
+					for (j = bot_boundary; j < top_boundary; j++){
+						for (k = left_boundary; k < right_boundary; k++){
+
+							dist_x = j - x;
+							dist_y = k - y;
+							inf_distance = sqrt( pow(dist_x, 2.0) + pow(dist_y, 2.0));
+							
+						this->power_maps[i][j][k].power_density *= 1 - exp(-(parameters[0].power_density_scaling_TSV_region * inf_distance));	 
+							
+						}					
+					}
 				}
 			}
 
