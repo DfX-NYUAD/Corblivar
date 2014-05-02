@@ -17,9 +17,11 @@ COMPILER	= clang++
 # Compiler Options:
 #=============================================================================#
 # warnings
-OPT := $(OPT) -Wall -Wextra
+OPT := $(OPT) -Wall -Wextra #-Wconversion
 # C++11
-OPT := $(OPT) -std=c++11 -I/usr/include/i386-linux-gnu/c++/4.8
+OPT := $(OPT) -std=c++11
+# explicit library location
+#OPT := $(OPT) -I/usr/include/i386-linux-gnu/c++/4.8
 # threading support, requires clang > 3.0
 #OPT := $(OPT) -pthread
 # OpenMP, requires gcc

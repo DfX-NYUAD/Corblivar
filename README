@@ -19,11 +19,16 @@
  * =====================================================================================
 
  Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
- emphasis on structural planning of massive interconnects by block alignment
+ emphasis on structural planning of massive interconnects by block alignment.
+
+ If you find this tool useful, and apply it for your research and publications, please
+ cite our paper:
+ Knechtel, J.; Young, E. F. Y. & Lienig, J. "Structural Planning of 3D-IC Interconnects by
+ Block Alignment" Proc. Asia South Pacific Des. Autom. Conf., 2014, 53-60
 
  To compile, run and evaluate Corblivar, you require items from this (possibly not complete) list:
  -------------------------------------------------------------------------------------------------
- - clang++
+ - clang++ (at least version 3.1 required; compiling w/ version 3.2 was tested)
  - gnuplot
  - octave
  - perl
