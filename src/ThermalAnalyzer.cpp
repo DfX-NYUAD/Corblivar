@@ -571,8 +571,8 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, vecto
 		}
 
 		// determine scale factor such that mask_boundary_value is reached at the
-		// boundary of the lowermost (2D) mask; based on general equation to
-		// determine x=y for gauss2D such that gauss2D(x=y) = mask_boundary_value;
+		// boundary of the lowermost (2D) mask; based on general 2D gauss equation,
+		// determines gauss(x = y) = mask_boundary_value;
 		// constant spread (e.g., 1.0) is sufficient since this function fitting
 		// only requires two parameters, i.e., varying spread has no impact
 		static constexpr double SPREAD = 1.0;

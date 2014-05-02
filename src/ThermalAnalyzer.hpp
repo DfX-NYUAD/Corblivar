@@ -157,7 +157,8 @@ class ThermalAnalyzer {
 		// representing the thermal impulse response);
 		// note that value should be uneven!
 		static constexpr int THERMAL_MASK_DIM = 11;
-		// represents the center index of the center originated mask
+		// represents the center index of the center originated mask; int division
+		// discards remainder, i.e., is equal to floor() for positive int
 		static constexpr int THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
 		// represents the amount of padded bins at power maps' boundaries
 		static constexpr int POWER_MAPS_PADDED_BINS = THERMAL_MASK_CENTER;
