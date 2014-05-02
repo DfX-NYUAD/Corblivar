@@ -172,9 +172,8 @@ class ThermalAnalyzer {
 		// layer 0 obtained by considering heat source in layer 0,
 		// thermal_masks[1] relates to the mask for layer 0 obtained by
 		// considering heat source in layer 1 and so forth.  Note that the masks
-		// are only 1D for the separated convolution.  Also note that the
-		// outermost map is encapsulating sets of mask, for varying TSV densities
-		map< double, vector< array<double,THERMAL_MASK_DIM> > > thermal_masks;
+		// are only 1D for the separated convolution. 
+		vector< array<double,THERMAL_MASK_DIM> > thermal_masks;
 		// power_maps[i][x][y], whereas power_maps[0] relates to the map for layer
 		// 0 and so forth.
 		vector< array<array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
@@ -197,13 +196,13 @@ class ThermalAnalyzer {
 		friend class IO;
 
 		// thermal modeling: handlers
-		void initThermalMasks(int const& layers, bool const& log, vector<MaskParameters> const& parameters);
+		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, Point const& die_outline);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, vector<MaskParameters> const& parameters, string const& benchmark, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, string const& benchmark, bool const& extend_boundary_blocks_into_padding_zone = true);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, vector<MaskParameters> const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false);
+		double performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false);
 };
 
 #endif

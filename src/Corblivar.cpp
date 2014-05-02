@@ -46,6 +46,7 @@ int main (int argc, char** argv) {
 
 	// init Corblivar core
 	CorblivarCore corb = CorblivarCore(fp.getLayers(), fp.getBlocks().size());
+
 	// parse alignment request
 	IO::parseAlignmentRequests(fp, corb.editAlignments());
 

@@ -91,7 +91,7 @@ class FloorPlanner {
 		};
 
 		// IO
-		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file, thermal_masks_file;
+		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file;
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;
@@ -99,7 +99,7 @@ class FloorPlanner {
 		// analysis should be performed / thermal files should be generated
 		bool power_density_file_avail;
 		// similar flags for other files
-		bool alignments_file_avail, thermal_masks_file_avail;
+		bool alignments_file_avail;
 
 		// logging
 		int conf_log;
@@ -223,8 +223,8 @@ class FloorPlanner {
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
 
-		// thermal analyzer parameters: thermal mask parameters
-		vector<ThermalAnalyzer::MaskParameters> conf_power_blurring_parameters;
+		// thermal analyzer parameters; thermal mask parameters
+		ThermalAnalyzer::MaskParameters conf_power_blurring_parameters;
 
 	// constructors, destructors, if any non-implicit
 	public:

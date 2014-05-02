@@ -721,7 +721,7 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 			// i.e., x-coordinate
 			die_b2->determCurrentBlockCoords(Coordinate::X, b2_relev_blocks, true);
 
-			// (TODO) if b2's second coordinate might
+			// (TODO) since b2's second coordinate might
 			// have changed, we would need to check
 			// whether b1's previous shifting is now
 			// undermined; this problem is a circular
