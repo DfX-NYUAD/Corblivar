@@ -1,585 +1,470 @@
 
- %% Description:  Octave program for optimizing the Error between the thermal analysis of HotSpot and Corblivar via parameter variation 
+%% Description:  Octave program for optimizing the Error between the thermal analysis of HotSpot and Corblivar via parameter variation 
 
- %% Copyright (C) 2013 Timm Amstein, Johann Knechtel, johann.knechtel@ifte.de, www.ifte.
+%% Copyright (C) 2013 Timm Amstein, timm.amstein@gmail.com, Johann Knechtel, johann.knechtel@ifte.de, www.ifte.
 
- %% This file is part of Corblivar.
+%% This file is part of Corblivar.
 
- %%    Corblivar is free software: you can redistribute it and/or modify
- %%    it under the terms of the GNU General Public License as published by the Free
- %%    Software Foundation, either version 3 of the License, or (at your option) any later
- %%    version.
- %%    
- %%    Corblivar is distributed in the hope that it will be useful,
- %%    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- %%    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- %%    details.
- %%    
- %%    You should have received a copy of the GNU General
- %%    Public License along with Corblivar.  If not, see <http://www.gnu.org/licenses/>.
+%%    Corblivar is free software: you can redistribute it and/or modify
+%%    it under the terms of the GNU General Public License as published by the Free
+%%    Software Foundation, either version 3 of the License, or (at your option) any later
+%%    version.
+%%    
+%%    Corblivar is distributed in the hope that it will be useful,
+%%    but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%%    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+%%    details.
+%%    
+%%    You should have received a copy of the GNU General
+%%    Public License along with Corblivar.  If not, see <http://www.gnu.org/licenses/>.
 
 
- %%% To execute this program you need the package "octave" which includes the gnu octave language for numerical computing
+%%% To execute this program you need the package "octave" which includes the gnu octave language for numerical computing
   
-  %% For execution use terminal or Octave GUI like "qtoctave" and type:		octave optimization.m  
-   % After that Octave should initialize and start the program instantaneously
+%% For execution use terminal or Octave GUI like "qtoctave" and type:		octave optimization.m  
+% After that Octave should initialize and start the program instantaneously
 
- %%% Start optimization
-  %% clear octave core and storage
-  %% clean experiments folder
+
+%%% Start optimization
+%% clear octave core and storage
+%% clean experiments folder
 	
-	clear; clc;
+clear; clc;
    
-   % read command line parameters 
+% read command line parameters 
 
-	args = argv();
+args = argv();
 
-  %% memorize working directory
+% print recommendation for editing the .conf-file
 
-   	dir = pwd()
+helpConf = sprintf('\nThese scripts rely on being in a subfolder of the particular Corblivar experiment to be parameterized!!\n\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\nAlso, two command-line parameters are required and 1 is optional: 1) the benchmarks name, 2) the related config-files name, 3) define a specific binary directory for a more flexible approach for experiments\n\n');
 	
-  %% memorize experiments folder
+printf(helpConf); 
 
-	% check if bin folder defined
+% define directories
+
+[dir,conf] = directories(args);
+
+
+%% clean working dir
+
+clean = sprintf('%s/clean.sh',dir.exp);		% uses shell script clean.sh in exp-folder
+
+system (clean);
+
+
+%% get input from user
+% the needed benchmark (arguments) and the number of iterations (parameter file) must be chosen by the user
+
+%% use parameters function to import all general initialization parameters 
+
+[p] = parameters();
+
+% define benchmark from command line
+
+bench = args{1}
+
+
+%% open the "Corblivar.conf" file for reading
+% create Folder for saving optimization history
 	
-	check = 0;
-	
-	if size(args,1) == 3
-		
-		check = isdir(args{3});
-		
-		if check == 1		
-		
-			bin = args{3}		
-		end
-	end
+savefold = sprintf('%s/%s_thermal_analysis_fitting',conf.dir,bench)
+savefold_rm = sprintf('rm -rf %s',savefold);
 
-	if size(args,1) == 4
-		
-		check = isdir(args{4});
-		
-		if check == 1		
-		
-			bin = args{4}		
-		end
-	end
+system(savefold_rm);
+mkdir(savefold);
 
-	if size(args,1) == 5
-		
-		check = isdir(args{5});
-		
-		if check == 1		
-		
-			bin = args{5}		
-		end
-	end
 
-	if check == 0
+%% start timers for measuring the elapsed time for the whole process 
 
-		ind_bin = rindex(dir, "/");
+tic
 
-		bin = dir(1,1:(ind_bin-1))
 
-	end
+%% read and copy "Corblivar.conf" file into octave text format
 
-	exp = sprintf('%s/exp',bin)
+[conf, p] = confText(conf, p);
 
-  %% clean working dir
+% use config function to write new "Corblivar.conf" file with initial values
 
-	clean = sprintf('%s/clean.sh',exp);
+config(p,conf);
 
-	system (clean);
 
-  %% use parameters function to import all general initialization parameters 
 
-	[sigma_I,sigma_If,sigma_Mb,sigma_PDPZ,I,If,Mb,PDPZ,minHS,step, iter, sigma_update,max_PDPZ, TSV_dens, TSV_dens_step] = parameters();
+%%% execute initial Corblivar floorplanning
 
-  %% get imput from user
-   % the needed benchmark and the number of iterations must be chosen by the user
+% path for executing Corblivar without a solution file
 
-   % print recommendation for editing the .conf-file
+pathCbl = sprintf('%s/Corblivar %s %s %s/benches/',dir.bin, bench, conf.path ,dir.exp);		% %s will be replaced by the parameter standing behind the string
+   
+system (pathCbl);										% system function uses terminal and bash notation
 
-	helpConf = sprintf('\nThese scripts rely on being in a subfolder of the particular Corblivar experiment to be parameterized!!\n\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\nAlso, two command-line parameters are required and 3 are optional: 1) the benchmarks name, 2) the related config-files name, 3) Choose the case for TSV density analysis \n\n for using the defined values of the parameters function use no command or type 0\n use 1 for the optimization without TSV insertion \n use 2 for the optimization with 0 percent and 100 percent TSVs \n use 3 to define specific step size in percent as a 4th command line parameter\n\n for defining a specific binary directory use directory as additonal parameter\n\n');
-	
-	printf(helpConf); 
 
-   % if ordered, redefine TSV density step size 
-
-	if size(args,1) < 3
-		
-		X = 0;
-	else
-		
-		X = args{3};
-	end
-
-	if X == '0'
-	
-	elseif X == '1'
-			TSV_dens = 0
- 	elseif X == '2'
-			TSV_dens_step = 100
-	elseif X == '3'
-			TSV_dens_step = args{4};
-			TSV_dens_step = str2num(TSV_dens_step)
-	endif
-
-   % define benchmark from command line
-
-	bench = args{1}
-
-  %% open the "Corblivar.conf" file for reading
-
-	%   conf = 'Corblivar.conf';
-
-  % read path for config file from command line
-
-	conf = args{2}
-
-  % save Config directory
-
-	ind_conf = rindex(conf, "/");
-	
-	if ind_conf == 0
-
-		dir_conf = exp		
-		conf = sprintf('%s/%s', exp, conf)
-	
-	else	
-
-		dir_conf = conf(1,1:ind_conf)
-	
-	end
-
-  %% create Folder for saving optimization history
-	
-	savefold = sprintf('%s/%s_thermal_analysis_fitting',dir_conf,bench)
-	savefold_rm = sprintf('rm -rf %s',savefold);
-
-	system(savefold_rm);
-	mkdir(savefold);
-
-   % initial parameter
-
-	init = 'y';
-
-  %% start timers for measuring the elapsed time for the whole process 
-
-   	tic
-
- %%% independently read the "Corblivar.conf" file and create and string array confText for further internal use
-
-   	confText = fopen(conf,'rt');	% Octave opens Text temporarily in own format
-
-  %% initiate line counter and get read first line of Configtext
-   % already read lines will be erased from temporary Text
-
-   	line = 1;
-   	text = fgetl(confText);
  
-  %% initialize variables for distinction of cases and check-string to import the layers parameter  
-
-   	h = 10000;
-   	k = 0;
-   	checkLayers = '# Layers';
-
-  %% start reading process
-
-   while k < 1
-
-	line++;						% line counter
-	temp = fgetl (confText);			% get next unread line of text 
-		
-		if 	strncmp(checkLayers, temp,8)	% search for checkLayers string
-
-			h = line;				% safe line (there is the definition)
-
-		endif	
-
-		if line == (h+2)			% get line two lines below the safed one (there is the numerical parameter)
-
-			layers = temp;				% extract layers parameter
-			layers = str2num(layers);		% convert extracted string into number
-
-		endif
-
-		if temp == -1				% no more lines to read --> stop while-loop
-
-			k = 1;
+%% execute Corblivar with given floorplan and initial parameters
+% path for execution of Corblivar with given solution file 
 	
-		break
-		endif
-
-	text = [text ; temp];				% update the string array of for confText and safe line beneath the last safed one
-
-   endwhile
-
-  %% save temporary string array as confText
-
-   	confText = text;
-
-    %% use config function to write new "Corblivar.conf" file with initial values
-
-   	config(confText,I,If,Mb,PDPZ,minHS, conf);
-
-
-%%% start loop for different TSV densities [%]
-   
-
-minHS_100 = -1;
-
-while TSV_dens >= 0
-
-	TSV_dens	% show TSV-density
-
- 	%%% execute initial Corblivar floorplanning
-
- 	if init == 'y'
-
-		% path for executing Corblivar without a solution file
-
-		pathCbl = sprintf('%s/Corblivar %s %s %s/benches/',bin, bench, conf,exp);					% %s will be replaced by the parameter standing behind the string
-   
-		system (pathCbl);	% system function uses terminal and bash notation
-
-
- 	endif
+pathCblsol = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d',dir.bin, bench, conf.path, dir.exp, bench, 0);  % TODO change back to single binary version 
 	
-	% set all sigmas back to initial values
-%	[sigma_I,sigma_If,sigma_Mb,sigma_PDPZ] = parameters();
+% path for executing 3D-HotSpot
 
-	% reset sigmas and initial parameter values
-	[sigma_I,sigma_If,sigma_Mb,sigma_PDPZ,I,If,Mb,PDPZ] = parameters();
+pathHS = sprintf('%s/HotSpot.sh %s %d',dir.exp, bench, p.opt.layers.value);
 
-	% rewrite the config.file
+%% execute 3D-HotSpot analysis
 
-	config(confText,I,If,Mb,PDPZ,minHS,conf);
- 
-	%%% execute HotSpot thermal analysis
+system (pathHS);
 
-  	%% execute Corblivar with given floorplan and initial parameters
-  
-	% path for execution of Corblivar with given solution file 
-	
-	pathCblsol = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d',bin, bench, conf, exp, bench, TSV_dens); 
-	
-	system (pathCblsol);
-
-	% path for executing 3D-HotSpot
-	pathHS = sprintf('%s/HotSpot.sh %s %d',exp, bench, layers);
-
-   	system (pathHS);
-
-
-	%% plot thermal and power maps with given shell script
+%% plot thermal and power maps with given shell script
    	
-	pathGP = sprintf('%s/gp.sh',exp);
-	system (pathGP);
+pathGP = sprintf('%s/gp.sh',dir.exp);
+system (pathGP);
 
 
-  	%%% start the eval function to assess error between HotSpot and Corblivar solution vectors
+%% analyse HS data
+
+[HS] = HotSpotData(bench, p);
+
+%define offset for config file
+
+p.conf.minHS.value = HS(1).minHS;
+
+
+%% start the eval function to assess error between HotSpot and Corblivar solution vectors
    
-	[maxHS, minHS, maxCbl,minCbl, Error] = evalCorb(bench);
-
-	if TSV_dens == 100
-
-		minHS_100 = minHS;
-	end
-
-   	%% initialization of history for sample parameters and errors
-
-    	hist = [I If Mb PDPZ Error]; 
-
-   	%% set first parameters as the optimal parameters and start history for optimal parameters and errors
-
-    	optI = I;
-    	optIf = If;
-    	optMb = Mb;
-    	optPDPZ = PDPZ;
-    	optError = Error;
-
-    	optHist = [optI optIf optMb optPDPZ optError];
+[eval,Cbl] = evalCorb(p,bench,HS);
 
 
- 	%%% start for-loop for randomized sampling 
-  	%% generators use normal curve of distribution with optimal parameters as mu and sigma
+%% initialize history for sample parameters and errors
 
-  	j = 0;
+hist = [p.conf.I.value p.conf.If.value p.conf.Mb.value p.conf.PDPZ.value p.conf.PDTR.value eval.Error eval.Error_sq eval.value p.opt.accuracy]; 
 
-   	for iter = 1:iter
+
+%% define first parameters as the optimal parameters and start history for optimal parameters and errors
+
+opt.I = p.conf.I.value;
+opt.If = p.conf.If.value;
+opt.Mb = p.conf.Mb.value;
+opt.PDPZ = p.conf.PDPZ.value;
+opt.PDTR = p.conf.PDTR.value;
+opt.Error = eval.Error;
+opt.Error_sq = eval.Error_sq;
+opt.Eval = eval.value;
+
+
+%% safe optimal values 
+
+opthist = [opt.I opt.If opt.Mb opt.PDPZ opt.PDTR opt.Error opt.Error_sq opt.Eval p.opt.accuracy];
+
+
+ 
+%%% start for-loop for randomized sampling 
+%% generators use normal curve of distribution with optimal parameters as mu and sigma
+
+iter = 0;	% iteration counter (whole loop)
+j = 0;		% counter for sigma adjustment (phase 2) 
+x = 0;		% iteration counter (phase 2)
+ad = 0;		% accuracy determined
+dc = 0;		% determination counter
+
+while x < p.opt.iterations
+
+
+	% impulse factor I
+
+	do 
+		p.conf.I.value = opt.I + randn * p.conf.I.sigma; % randomly generated I with mean value optI and variance sigma_I
 		
-		% impulse factor I
-		I = 0;
+	until	p.conf.I.value > 0				% parameter must be positive
 		
-		while I <= 0				% parameter must be positive
 
-			I = optI + randn * sigma_I;	% randomly generated I with mean value optI and variance sigma_I
-		end
-		
-		% impulse scaling factor If
-		If = 0;
-	
-		while If <= 0
-	
-			If = optIf + randn * sigma_If;
-		end
+	% impulse scaling factor If
 
-		% mask boundary Mb
+	do 
+		p.conf.If.value = opt.If + randn * p.conf.If.sigma;
+
+	until p.conf.If.value > 0
+
+
+	% mask boundary Mb
 	
-		i = 0;
-		a = 0;
-		b = 0;
-		count = 0;
+	count = 0;
+
+	do
+		p.conf.Mb.value = opt.Mb + randn * p.conf.Mb.sigma;
+
+		count++;
+
+		if count > 100						% if means are too widely apart and sigma was refined it's possible by chance that I becomes so small that Mb can't get smaller
+
+			p.conf.I.value = p.conf.I.value * 1.05;		% forces I to increase
+
+			count = 0;
+		endif				
+
+	until (p.conf.Mb.value > 0) && (p.conf.Mb.value < I)		% Mb hast two preconditions: it has to be positive and smaller than I
+
+
+	% power density scaling factor in padding zone PDPZ
+
+	do
+		p.conf.PDPZ.value = opt.PDPZ + randn * p.conf.PDPZ.sigma;
+
+	until	(p.conf.PDPZ.value > 1.0) && (p.conf.PDPZ.value < p.conf.PDPZ.max_val)	% power density < 1 is not reasonable; also consider max value
+
+
+	% power density scaling factor for TSV Regions PDTR
 	
-		while i < 2				% Mb hast two preconditions: it has to be positive and smaller than I
+	do 
+		p.conf.PDTR.value = opt.PDTR + randn * p.conf.PDTR.sigma;
+
+	until	p.conf.PDTR.value > 0.0 && p.conf.PDTR.value <= 1 %% set max as 1
+
+
+	%% end of random generation of parameters
+	
+
+	%% rewrite new parameters into "Corblivar.conf" file
 		
-			Mb = optMb + randn * sigma_Mb;
+ 	config(p,conf);	
+	
+	
+
+	%%% execute Corblivar with given floorplan and without returning something to the terminal
+	
+	pathCblsolnt = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d >/dev/null',dir.bin, bench, conf.path,dir.exp, bench, 0); % TODO change back to single binary version
+	
+	system (pathCblsolnt);
+	
+
+ 	%% reevaluate the error between HotSpot and Corblivar
+	
+	[eval,Cbl] = evalCorb(p,bench,HS);
+
+
+ 	%% update history 
+	
+  	hist = [hist ; p.conf.I.value p.conf.If.value p.conf.Mb.value p.conf.PDPZ.value p.conf.PDTR.value eval.Error eval.Error_sq eval.value p.opt.accuracy]; 
+
+	iter = iter + 1;  % output number of iter of for loop
+
+	
+
+	%%% Decision
+	%% decide if Error is smaller than optimal value
+	% if yes, update all optimal parameters	
+
+	if ad							% if minimal accuracy is determined (Phase 2)			
+					
+		if (eval.value < opt.Eval) && eval.valid 	% if new evaluation is better than old optimal value and valid then replace it
+				
+			printf("new optimal solution\n")
+
+			% ! its necessary to reduce accuracy again to evaluate on first validity range that couldn't be met through random sampling
+
+			do
+
+				p.opt.accuracy = p.opt.accuracy * p.opt.sigma_update;
+				p.opt.accuracy
+				
+				[eval,Cbl] = evalCorb(p,bench,HS);
+
+			until eval.valid == 0
+
 			
-			a = Mb > 0;
-			b = Mb < I;
-		
-			i = a + b;
-		
-			count++;			
-		
-			if count > 100			% if means are too widely apart and sigma was refined it's possible by chance that I becomes so small that Mb can't get smaller
+			% update optimal parameters
 
-				I = I * 1.05;		% forces I to increase
-				count = 0;
-
-			endif				
-
-		end
-
-		% power density scaling factor in padding zone
-
-		PDPZ = 0.99;
-	
-		while PDPZ < 1.0 || PDPZ > max_PDPZ	% power density < 1 is not reasonable; also consider max value
-	
-			PDPZ = optPDPZ + randn * sigma_PDPZ;
-		end
-
-	
-		%% end of random generation of parameters
-	
-		%% rewrite new parameters into "Corblivar.conf" file
-
-		if minHS_100 != -1
-			
-			minHS = minHS_100;
-
-		end
-		
-	 	config(confText, I,If,Mb,PDPZ,minHS,conf);	
-	
-	
-		%%% execute Corblivar with given floorplan and without returning something to the terminal
-	
-		pathCblsolnt = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d >/dev/null',bin, bench, conf,exp, bench,TSV_dens);
-	
-  		system (pathCblsolnt);
-	
-	 	%% reevaluate the error between HotSpot and Corblivar
-	
-	  	[maxHS, minHS, maxCbl, minCbl, Error] = evalCorb(bench);
-
-	 	%% update history 
-	
-	  	hist = [hist ; I If Mb PDPZ Error];
-
-
-		%%% Decision
-		 %% decide if Error is smaller than optimal value
-		  % if yes, update all optimal parameters	
-
-		if Error < optError
-	
-			optError = Error 
-			optI = I
-			optIf = If
-			optMb = Mb
-			optPDPZ = PDPZ
+			opt.Error = eval.Error;
+			opt.Error_sq = eval.Error_sq;
+			opt.I = p.conf.I.value;
+			opt.If = p.conf.If.value;
+			opt.Mb = p.conf.Mb.value;
+			opt.PDPZ = p.conf.PDPZ.value;
+			opt.PDTR = p.conf.PDTR.value;
+			opt.Eval = eval.value
 
 			%% update optimal history
 
-			optHist = [optHist; optI optIf optMb optPDPZ optError];
+			opthist = [opthist; opt.I opt.If opt.Mb opt.PDPZ opt.PDTR opt.Error opt.Error_sq opt.Eval p.opt.accuracy];
 		
-		endif
-
-   		iter  % output number of iterations of for loop 
-
-
-   		%% use counter to adjust the sigma of the randomizer after predefined stepsize 
-
-   		j++;
-
-		if j==step;				% stepsize can be edited in the parameters function
+		endif 
 	
-			sigma_I = sigma_I * sigma_update;
-			sigma_If = sigma_If * sigma_update;
-			sigma_Mb = sigma_Mb * sigma_update;
-			sigma_PDPZ = sigma_PDPZ * sigma_update;
+		%% use counter to adjust the sigma of the randomizer after predefined stepsize	
+		x++;
+		Phase_2 = x 						% counter phase 2 (when ad)
+	   	j++;							% counter for adjusting sigma
+	
+		
+		%% update sigmas
+
+		if j == p.opt.step;					% stepsize can be edited in the parameters function
+
+			p.conf.I.sigma = p.conf.I.sigma * p.opt.sigma_update;
+			p.conf.If.sigma = p.conf.If.sigma * p.opt.sigma_update;
+			p.conf.Mb.sigma = p.conf.Mb.sigma * p.opt.sigma_update;
+			p.conf.PDPZ.sigma = p.conf.PDPZ.sigma * p.opt.sigma_update;
+			p.conf.PDTR.sigma = p.conf.PDTR.sigma * p.opt.sigma_update;
 
 			% output sigmas
-			sigma_I
-			sigma_If
-			sigma_Mb
-			sigma_PDPZ
-
-			j = 0;					% set back counter
 	
+			p.conf.I.sigma
+			p.conf.If.sigma
+			p.conf.Mb.sigma
+			p.conf.PDPZ.sigma
+			p.conf.PDTR.sigma
+
+			j = 0;						% set back counter
 		end
 
-	end
-
- 	%%% end of optimization loop
-
- 	%%% plotting the results
-
-  	%% load optmial parameters
-
-   	I = optI;
-   	If = optIf;
-   	Mb = optMb;
-   	PDPZ = optPDPZ;
-
-	% create fitting history for all TSV_densities
-
-	if minHS_100 != -1
-			
-		minHS = minHS_100;
-
-	end
-
-	if init == 'y'
-
-		fitting_hist = [TSV_dens optI optIf optMb optPDPZ minHS];
-
-	else
-	
-		fitting_hist = [fitting_hist ; TSV_dens optI optIf optMb optPDPZ minHS];
-
-	endif
-
-
-  	%% rewrite "Corblivar.conf" file 
-
-   	config(confText, I,If,Mb,PDPZ,minHS,conf);
-
-
-  	%% execute Corblivar with given floorplan and optimal parameters
-
-   	system (pathCblsol);
-
-
-  	%% generate the thermal map and power maps
-
-   	system (pathGP);
-
-  	%% evaluate the optimal solution
-
-   	[maxHS, minHS, maxCbl, minCbl, Error, matError] = evalCorb(bench);
-
-  	%% save maximum values and Error in "eval.txt" file
-
-	savefold_TSV_dens = sprintf('%s/TSV_density_%d/',savefold,TSV_dens);
-	
-	mkdir(savefold_TSV_dens);
-	
-   	save (sprintf('%s/%s_thermal_analysis_fitting_ranges.txt', savefold_TSV_dens,bench), "maxHS", "minHS", "maxCbl", "minCbl", "Error");
-
-  	%% save history of sampling in a reloadable "hist.data" file
-
-   	helpHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
-
-   	save (sprintf('%s/%s_thermal_analysis_fitting_hist.data',savefold_TSV_dens,bench), "helpHist", "hist");
-
-  	%% save history of optimal Parameters in a reloadable file
-
-   	helpOptHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
- 
-   	save (sprintf('%s/%s_thermal_analysis_fitting_opt_hist.data',savefold_TSV_dens,bench), "helpOptHist", "optHist");
-
-	% copy sampling files of Corblivar and HotSpot
-
-	file_list = ls;
-
-	list_size = size(file_list,1);
-
-	solution_file = sprintf('%s.solution',bench);	
-
-	for sample = 1:list_size
-
-		if strncmp('optimization.m',file_list(sample,:),14) || strncmp('config.m',file_list(sample,:),8) || strncmp('evalCorb.m',file_list(sample,:),10) || strncmp('parameters.m',file_list(sample,:),12)
-			
-		elseif strncmp(solution_file,file_list(sample,:),size(solution_file,2))
-
-			copyfile(file_list(sample,:), savefold,'f');
-
-		else
-
-			copyfile(file_list(sample,:), savefold_TSV_dens,'f');
+		else							% the level of accuracy isn't defined jet (Phase 1)	
 		
-		endif
-	end
+		if eval.valid						% valid solution inside range was found
 
-	% set initial parameter to false
-	
-	init = 'n';
+			new_valid_sol = 1;
+			printf("new valid solution\n")
+				
+			% reduce the validity range as much as possible
 
-	% use counter to increase TSV density by TSV density step size
+			do
+
+				p.opt.accuracy = p.opt.accuracy * p.opt.sigma_update;
+				p.opt.accuracy
+				
+				[eval,Cbl] = evalCorb(p,bench,HS);
+
+			until eval.valid == 0
+
+			dc = 1;						% reset the determination counter
+				
+			% update optimal parameters
  
-	TSV_dens = TSV_dens - TSV_dens_step;
+			opt.Error = eval.Error;
+			opt.Error_sq = eval.Error_sq;
+			opt.I = p.conf.I.value;
+			opt.If = p.conf.If.value;
+			opt.Mb = p.conf.Mb.value;
+			opt.PDPZ = p.conf.PDPZ.value;
+			opt.PDTR = p.conf.PDTR.value;
+			opt.Eval = eval.value
 
+			%% update optimal history
+
+			opthist = [opthist; opt.I opt.If opt.Mb opt.PDPZ opt.PDTR opt.Error opt.Error_sq opt.Eval p.opt.accuracy];
+
+			
+		
+		else							% no valid solution was found
+			dc++;
+			Phase_1 = dc				
+				
+			if dc > p.opt.iterations /2
+					
+				ad = 1;				% set accuracy defined		
+				p.opt.accuracy			% print accuracy
+			end
+		end			
+	end
 end
 
-  % size of fitting hist matrix
-  fit_hist_size = size(fitting_hist);
-  
-  fitting_hist = flipud(fitting_hist);
-  % create X and Y values for plotting optimal values
+%%% end of optimization loop
 
-  plot_TSV_dens = fitting_hist(:,1);
-  plot_para = fitting_hist(:,2:fit_hist_size(2));
+%%% plotting the results
 
-  % create relative values for plotting of relative change
+%% load optmial parameters
 
-  ref_para = plot_para(1,:);
-  rel_para = ones(1,(fit_hist_size(2)-1)) ;
+p.conf.I.value = opt.I;
+p.conf.If.value = opt.If;
+p.conf.Mb.value = opt.Mb;
+p.conf.PDPZ.value = opt.PDPZ;
+p.conf.PDTR.value = opt.PDTR;
 
-for s = 2:fit_hist_size(1)
 
-	rel_para = [rel_para; plot_para(s,:) ./ ref_para];
+%% rewrite "Corblivar.conf" file 
 
+config(p,conf);  	
+
+
+%% execute Corblivar with given floorplan and optimal parameters
+
+system (pathCblsol);
+
+
+%% generate the thermal map and power maps
+
+system (pathGP);
+
+
+%% evaluate the optimal solution
+
+[eval,Cbl] = evalCorb(p,bench,HS);
+
+
+%% print results as colourmaps 
+ 
+surf(Cbl.thermal) , colorbar;
+print('Cbl.pdf','-dpdf');
+
+imagesc(eval.matError) , colorbar;
+print('matError.pdf','-dpdf');
+
+imagesc(eval.matrix), colorbar;
+print('evalMat.pdf','-dpdf');
+
+imagesc(Cbl.maxPoints) , colorbar;
+print('Cbl_maxPoints.pdf','-dpdf');
+
+
+%% save maximum values and Error in "eval.txt" file
+
+results.txt = sprintf('%s/%s_thermal_analysis_fitting_ranges.txt', savefold,bench);
+
+save results.txt HS Cbl eval;
+
+
+%% save history of sampling in a reloadable "hist.data" file
+
+helpHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
+
+save (sprintf('%s/%s_thermal_analysis_fitting_hist.data',savefold,bench), "helpHist", "hist");
+
+
+%% save history of optimal Parameters in a reloadable file
+
+helpOptHist = sprintf('This reloadable(in Octave) matrix is a history of the parameters impulse faktor,impulse-scaling factor, mask boundary and the power-density scaling factor together with the evaluated error');
+ 
+save (sprintf('%s/%s_thermal_analysis_fitting_opt_hist.data',savefold,bench), "helpOptHist", "opthist");
+
+
+% copy sampling files of Corblivar and HotSpot
+
+file_list = ls;
+
+list_size = size(file_list,1);
+
+solution_file = sprintf('%s.solution',bench);	
+
+for sample = 1:list_size
+
+	if 	strncmp('optimization.m',file_list(sample,:),14) || ...
+		strncmp('config.m',file_list(sample,:),8) ||...
+		strncmp('confText.m',file_list(sample,:),10) ||...
+		strncmp('directories.m',file_list(sample,:),13) ||...
+		strncmp('evalCorb.m',file_list(sample,:),10) ||...
+		strncmp('HotSpotData.m',file_list(sample,:),13) ||...
+		strncmp('extrema.m',file_list(sample,:),9) ||...
+		strncmp('parameters.m',file_list(sample,:),12)				% leave all optimization files where they are
+			
+	elseif 	strncmp(solution_file,file_list(sample,:),size(solution_file,2))
+
+		copyfile(file_list(sample,:), savefold,'f');
+	else
+
+		copyfile(file_list(sample,:), savefold,'f');		
+	endif
 end
 
-  % save fitting history and relative parameters
+toc
 
-  save (sprintf('%s/%s_fitting_hist', savefold,bench), "fitting_hist","rel_para");
+%% clean working dir
 
-  % plot fitting history
+system (clean);
 
-  figure;
-  semilogy(plot_TSV_dens,plot_para);
-  xlabel('TSV density');
-  legend('I','If','Mb','PDPZ','minHS');
-  print(sprintf('%s/fitting_hist.pdf',savefold),'-dpdf');
-
-  % plot relative change
-
-  figure;
-  plot(plot_TSV_dens, rel_para);
-  xlabel('TSV density');
-  legend('I','If','Mb','PDPZ','minHS');
-  print(sprintf('%s/rel_fitting_hist.pdf',savefold),'-dpdf');
-
-  %% output elapsed time fo optimization process
-
-  toc
-
-  %% clean working dir
-
-  system (clean);
-
- %%% end of program
+%%% end of program
