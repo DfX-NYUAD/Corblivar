@@ -31,8 +31,7 @@ int main (int argc, char** argv) {
 
 	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
-	// (TODO) set version to 1.0 after release
-	cout << "----- Thermal-analysis parameterization tool v0.1 ----------------" << endl << endl;
+	cout << "----- Thermal-analysis parameterization tool v1.0 ----------------" << endl << endl;
 
 	// set IO mode
 	IO::mode = IO::Mode::THERMAL_ANALYSIS;
