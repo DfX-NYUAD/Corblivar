@@ -485,11 +485,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
 
-		// determine non-normalized max temperature
-		thermal = this->determCostThermalDistr(false, false, true);
-
 		// determine non-normalized alignment mismatches
 		alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
+
+		// determine non-normalized max temperature;
+		// note that vertical buses impact heat conduction via TSVs, thus the
+		// block alignment / bus planning is analysed before thermal distribution
+		thermal = this->determCostThermalDistr(corb.getAlignments(), false, false, true);
 
 		// logging results
 		if (this->logMin()) {
@@ -1285,10 +1287,11 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 			cost_alignments = 0.0;
 		}
 
-		// normalized temperature-distribution cost; only if thermal opt is on
-		//
+		// normalized temperature-distribution cost; only if thermal opt is on;
+		// note that vertical buses impact heat conduction via TSVs, thus the
+		// block alignment / bus planning is analysed before thermal distribution
 		if (this->conf_SA_opt_thermal) {
-			cost_thermal = this->determCostThermalDistr(set_max_cost);
+			cost_thermal = this->determCostThermalDistr(alignments, set_max_cost);
 		}
 		else {
 			cost_thermal = 0.0;
@@ -1322,6 +1325,21 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 
 	return ret;
 }
+
+double inline FloorPlanner::determCostThermalDistr(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+
+	// generate power maps based on layout and blocks' power densities
+	this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks,
+			this->getOutline(), this->conf_power_blurring_parameters);
+
+	// adapt power maps to account for TSVs' impact
+	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, alignments, this->conf_power_blurring_parameters);
+
+	// perform actual thermal analysis
+	return this->thermalAnalyzer.performPowerBlurring(this->conf_layer,
+			this->conf_power_blurring_parameters, this->max_cost_thermal,
+			set_max_cost, normalize, return_max_temp);
+};
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 // of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
@@ -1589,7 +1607,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	return ret;
 }
 
-// costs are derived from spatial mismatch b/w blocks' alignment and indented alignment
+// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment
 double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize) {
 	double cost = 0.0;
 	Rect blocks_intersect;

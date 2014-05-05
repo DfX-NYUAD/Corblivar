@@ -30,12 +30,14 @@
 // forward declarations, if any
 class Block;
 class Point;
+class CorblivarAlignmentReq;
 
 class ThermalAnalyzer {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG_CALLS = false;
 		static constexpr bool DBG = false;
+		static constexpr bool DBG_INSANE = false;
 
 	// PODs, to be declared early on
 	public:
@@ -198,7 +200,8 @@ class ThermalAnalyzer {
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, Point const& die_outline);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, string const& benchmark, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference
