@@ -124,9 +124,12 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	// constant spread (e.g., 1.0) is sufficient since this function fitting
 	// only requires two parameters, i.e., varying spread has no impact
 	static constexpr double SPREAD = 1.0;
+	// scaling is required for function fitting; the maximum of the gauss / exp
+	// function is defined by the impulse factor, the minimum by the
+	// mask_boundary_value
 	scale = sqrt(SPREAD * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / sqrt(2.0);
-
-	// normalize factor according to half of mask dimension
+	// normalize factor according to half of mask dimension; i.e., fit spreading of
+	// exp function
 	scale /=  ThermalAnalyzer::THERMAL_MASK_CENTER;
 
 	// determine all masks, starting from lowest layer, i.e., hottest layer
@@ -395,8 +398,6 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 		for (x = x_lower; x < x_upper; x++) {
 			for (y = y_lower; y < y_upper; y++) {
 
-				// TODO TSV density according to bus definition
-				//
 				// consider full TSV density for fully covered bins
 				if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
 
@@ -433,11 +434,14 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 					}
 				}
 
-				// scale down power; affects actual bin as well as
-				// surrounding bins; the affected region is assumed to
-				// correlate w/ mask size; this way, TSVs _can_ have
+				// scale down power; affects actual bin [x][y] as well as
+				// surrounding bins [j][k]; the affected region is assumed
+				// to correlate w/ mask size; this way, TSVs can have
 				// largest possible impact (depending on scaling factor)
 				// for convolution
+				//
+				// consider all surrounding bins [j][k] within mask
+				// circumference
 				for (j = x - ThermalAnalyzer::THERMAL_MASK_DIM / 2; j < x + ThermalAnalyzer::THERMAL_MASK_DIM / 2; j++) {
 					for (k = y - ThermalAnalyzer::THERMAL_MASK_DIM / 2; k < y + ThermalAnalyzer::THERMAL_MASK_DIM / 2; k++) {
 
@@ -453,13 +457,12 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 
 							// scaling for current bin,
 							// depends on distance to TSV bin
-							// and the latter's TSV density
+							// and the latter's TSV density;
+							// the larger the TSV density of
+							// that ``aggressor'' bin, the
+							// larger the power down-scaling
+							// of the affected bin
 							this->power_maps[i][j][k].power_density *= 1.0 -
-								// the larger the TSV
-								// density of the
-								// ``aggressor'' bin, the
-								// larger the power
-								// down-scaling
 								(this->power_maps[i][x][y].TSV_density / 100.0) *
 								exp(-dist * parameters.power_density_scaling_TSV_region);
 						}
