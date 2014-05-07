@@ -485,13 +485,19 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
 
-		// determine non-normalized alignment mismatches
-		alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
+		// determine non-normalized alignment mismatches; only in case any
+		// alignments are given
+		if (!corb.getAlignments().empty()) {
+			alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
+		}
 
-		// determine non-normalized max temperature;
-		// note that vertical buses impact heat conduction via TSVs, thus the
-		// block alignment / bus planning is analysed before thermal distribution
-		thermal = this->determCostThermalDistr(corb.getAlignments(), false, false, true);
+		// determine non-normalized max temperature; only in case a power-density
+		// file is given; note that vertical buses impact heat conduction via
+		// TSVs, thus the block alignment / bus planning is analysed before
+		// thermal distribution
+		if (this->power_density_file_avail) {
+			thermal = this->determCostThermalDistr(corb.getAlignments(), false, false, true);
+		}
 
 		// logging results
 		if (this->logMin()) {
