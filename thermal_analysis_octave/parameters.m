@@ -102,6 +102,6 @@ p.conf.Mb.check = '# Mask-boundary';
 
    p.conf.PDTR.sigma = 0.5;
 
-   p.conf.PDTR.check = '# Power-density scaling factor for TSV regions';
+   p.conf.PDTR.check = '# Power-density down-scaling factor for TSV regions';
 
 end

@@ -32,7 +32,7 @@ int main (int argc, char** argv) {
 
 	cout << endl;
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
-	cout << "----- 3D floorplanning tool v1.0 ---------------------------------" << endl << endl;
+	cout << "----- 3D floorplanning tool v 1.1.1 ------------------------------" << endl << endl;
 
 	// set IO mode
 	IO::mode = IO::Mode::REGULAR;

@@ -470,7 +470,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for parameter range
 	if (mask_parameters.power_density_scaling_TSV_region > 1.0 || mask_parameters.power_density_scaling_TSV_region < 0.0) {
-		cout << "IO> Provide a power-density scaling factor for TSV regions between 0.0 and 1.0!" << endl;
+		cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << endl;
 		exit(1);
 	}
 
@@ -539,7 +539,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Power-blurring mask parameterization -- Impulse scaling-factor: " << mask_parameters.impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Mask-boundary value: " << mask_parameters.mask_boundary_value << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (padding zone): " << mask_parameters.power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << endl;
+		cout << "IO>  Power-blurring mask parameterization -- Power-density down-scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Temperature offset: " << mask_parameters.temp_offset << endl;
 
 		cout << endl;
@@ -962,6 +962,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		if (fp.power_density_file_avail) {
 			if (!power_in.eof()) {
 				power_in >> new_block.power_density;
+				// TODO drop fixed down-scaling; instead modify files
 				// GSRC benchmarks provide power density in 10^5 W/m^2
 				// (which equals 10^-1 uW/um^2); reduce by factor 10 in
 				// order to limit power consumption reasonably
@@ -1379,7 +1380,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == FLAGS::power) {
-				gp_out << "set title \"Padded Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
 			else if (flag == FLAGS::thermal) {
 				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
@@ -1418,10 +1419,13 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			}
 			// TSV-density maps: scale, label for cbrange
 			else if (flag == FLAGS::TSV_density) {
-				// fixed scale
-				gp_out << "set cbrange [0:100]" << endl;
+				// fixed log scale to emphasize both low densities (single
+				// TSVs) as well as large densities (TSV groups, vertical
+				// buses)
+				gp_out << "set log cb" << endl;
+				gp_out << "set cbrange [0.1:100]" << endl;
 				// label for power density
-				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
+				gp_out << "set cblabel \"Probabilistic TSV-Density [%]\"" << endl;
 			}
 
 			// tics

@@ -485,11 +485,19 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized WL and TSVs cost
 		interconn = this->determCostInterconnects(false, false);
 
-		// determine non-normalized max temperature
-		thermal = this->determCostThermalDistr(false, false, true);
+		// determine non-normalized alignment mismatches; only in case any
+		// alignments are given
+		if (!corb.getAlignments().empty()) {
+			alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
+		}
 
-		// determine non-normalized alignment mismatches
-		alignment_mismatch = this->determCostAlignment(corb.getAlignments(), false, false);
+		// determine non-normalized max temperature; only in case a power-density
+		// file is given; note that vertical buses impact heat conduction via
+		// TSVs, thus the block alignment / bus planning is analysed before
+		// thermal distribution
+		if (this->power_density_file_avail) {
+			thermal = this->determCostThermalDistr(corb.getAlignments(), false, false, true);
+		}
 
 		// logging results
 		if (this->logMin()) {
@@ -525,8 +533,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar> TSVs: " << interconn.TSVs << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
 
-			cout << "Corblivar>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
-			this->results << " Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
+			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
+			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
 
 			if (this->power_density_file_avail) {
 				cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
@@ -1285,10 +1293,11 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 			cost_alignments = 0.0;
 		}
 
-		// normalized temperature-distribution cost; only if thermal opt is on
-		//
+		// normalized temperature-distribution cost; only if thermal opt is on;
+		// note that vertical buses impact heat conduction via TSVs, thus the
+		// block alignment / bus planning is analysed before thermal distribution
 		if (this->conf_SA_opt_thermal) {
-			cost_thermal = this->determCostThermalDistr(set_max_cost);
+			cost_thermal = this->determCostThermalDistr(alignments, set_max_cost);
 		}
 		else {
 			cost_thermal = 0.0;
@@ -1322,6 +1331,21 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 
 	return ret;
 }
+
+double inline FloorPlanner::determCostThermalDistr(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+
+	// generate power maps based on layout and blocks' power densities
+	this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks,
+			this->getOutline(), this->conf_power_blurring_parameters);
+
+	// adapt power maps to account for TSVs' impact
+	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, alignments, this->nets, this->conf_power_blurring_parameters);
+
+	// perform actual thermal analysis
+	return this->thermalAnalyzer.performPowerBlurring(this->conf_layer,
+			this->conf_power_blurring_parameters, this->max_cost_thermal,
+			set_max_cost, normalize, return_max_temp);
+};
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 // of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
@@ -1406,10 +1430,9 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 }
 
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) {
-	int i, ii;
+	int i;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;
-	bool blocks_above_considered;
 	CostInterconn ret;
 	double prev_TSVs;
 
@@ -1421,21 +1444,19 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	ret.TSVs = 0;
 	blocks_to_consider.reserve(this->blocks.size());
 
-	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
-	// of net's blocks
-	for (Net& cur_net : this->nets) {
-		cur_net.setLayerBoundaries();
-	}
-
 	// determine HPWL and TSVs for each net
-	for (Net const& cur_net : this->nets) {
+	for (Net& cur_net : this->nets) {
 
-		// resets data for each net
-		blocks_to_consider.clear();
+		// set layer boundaries, i.e., determine lowest and uppermost layer of
+		// net's blocks
+		cur_net.setLayerBoundaries();
 
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
 		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+
+			// resets blocks to be considered for each cur_net
+			blocks_to_consider.clear();
 
 			// blocks for cur_net on all layer
 			for (Block const* b : cur_net.blocks) {
@@ -1459,81 +1480,9 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			// determine HPWL on each related layer separately
 			for (i = 0; i <= cur_net.layer_top; i++) {
 
-				if (FloorPlanner::DBG_LAYOUT) {
-					cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net.id << " on layer " << i << " and above" << endl;
-				}
-
-				// blocks / pins for cur_net on this layer
-				for (Block const* b : cur_net.blocks) {
-
-					// blocks
-					if (b->layer == i) {
-						blocks_to_consider.push_back(&b->bb);
-
-						if (FloorPlanner::DBG_LAYOUT) {
-							cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
-						}
-					}
-
-					// also consider routes to terminal pins; only on
-					// lowest die of stack since connections b/w pins
-					// and block on upper dies are realized through TSVs
-					if (i == 0) {
-						for (Block const* pin :  cur_net.terminals) {
-							blocks_to_consider.push_back(&pin->bb);
-
-							if (FloorPlanner::DBG_LAYOUT) {
-								cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
-							}
-						}
-					}
-				}
-				// ignore cases with no blocks on current layer
-				if (blocks_to_consider.empty()) {
-					continue;
-				}
-
-				// blocks on the layer above; required to assume a reasonable
-				// bounding box on current layer w/o placed TSVs
-				// the layer above to consider is not necessarily the adjacent
-				// one, thus stepwise consider layers until some blocks are found
-				blocks_above_considered = false;
-				ii = i + 1;
-				while (ii <= cur_net.layer_top) {
-					for (Block const* b : cur_net.blocks) {
-						if (b->layer == ii) {
-							blocks_to_consider.push_back(&b->bb);
-							blocks_above_considered = true;
-
-							if (FloorPlanner::DBG_LAYOUT) {
-								cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
-							}
-						}
-					}
-
-					// loop handler
-					if (blocks_above_considered) {
-						break;
-					}
-					else {
-						ii++;
-					}
-				}
-
-				// ignore cases where only one block on the uppermost
-				// layer needs to be considered; these cases are already
-				// covered while considering layers below
-				if (blocks_to_consider.size() == 1 && i == cur_net.layer_top) {
-
-					if (FloorPlanner::DBG_LAYOUT) {
-						cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
-					}
-
-					continue;
-				}
-
-				// determine HPWL of related blocks using their bounding box
-				bb = Rect::determBoundingBox(blocks_to_consider);
+				// determine HPWL using the net's bounding box on the
+				// current layer
+				bb = cur_net.determBoundingBox(i);
 				ret.HPWL += bb.w;
 				ret.HPWL += bb.h;
 
@@ -1564,7 +1513,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	}
 
 	// determine by TSVs occupied deadspace amount
-	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_DIMENSION, 2)) / this->stack_deadspace;
+	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
@@ -1589,7 +1538,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	return ret;
 }
 
-// costs are derived from spatial mismatch b/w blocks' alignment and indented alignment
+// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment
 double FloorPlanner::determCostAlignment(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize) {
 	double cost = 0.0;
 	Rect blocks_intersect;
