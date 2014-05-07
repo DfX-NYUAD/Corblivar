@@ -339,9 +339,9 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 		cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &alignments << ", " << &parameters << ")" << endl;
 	}
 
-	// consider TSVs' impact; parse TSVs from layout where vertical buses are located,
-	// i.e., where alignment ranges are fulfilled and related blocks overlap in both
-	// dimensions
+	// consider impact of vertical buses; parse TSVs from layout where vertical buses
+	// are located, i.e., where alignment ranges are fulfilled and related blocks
+	// overlap in both dimensions
 	//
 	for (CorblivarAlignmentReq const& req : alignments) {
 
@@ -404,7 +404,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 					// adapt maps for all affected layers
 					for (i = layer_lower; i < layer_upper; i++) {
 
-						this->power_maps[i][x][y].TSV_density = 100.0;
+						this->power_maps[i][x][y].TSV_density += 100.0;
 					}
 				}
 				// else consider TSV density according to partial
@@ -430,44 +430,37 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 					// adapt maps for all affected layers
 					for (i = layer_lower; i < layer_upper; i++) {
 
-						this->power_maps[i][x][y].TSV_density = 100.0 * bin_intersect.area;
+						this->power_maps[i][x][y].TSV_density += 100.0 * bin_intersect.area;
 					}
 				}
+			}
+		}
+	}
 
-				// scale down power; affects actual bin [x][y] as well as
-				// surrounding bins [j][k]; the affected region is assumed
-				// to correlate w/ mask size; this way, TSVs can have
-				// largest possible impact (depending on scaling factor)
-				// for convolution
-				//
-				// consider all surrounding bins [j][k] within mask
-				// circumference
-				for (j = x - ThermalAnalyzer::THERMAL_MASK_DIM / 2; j < x + ThermalAnalyzer::THERMAL_MASK_DIM / 2; j++) {
-					for (k = y - ThermalAnalyzer::THERMAL_MASK_DIM / 2; k < y + ThermalAnalyzer::THERMAL_MASK_DIM / 2; k++) {
 
-						// euclidean distance (in bins) of TSV bin
-						// and affected / current bin; factor for
-						// exponential down-scaling, where a
-						// larger factor relates to smaller
-						// down-scaling
-						dist = sqrt( pow(j - x, 2.0) + pow(k - y, 2.0));
+	// walk power-map bins; adapt power according to TSV densities
+	for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
+		for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
 
-						// adapt maps for all affected layers
-						for (i = layer_lower; i < layer_upper; i++) {
+			// sanity check; TSV density should be <= 100%; might be larger
+			// due to superposition in calculations above
+			for (i = 0; i < layers; i++) {
+				this->power_maps[i][x][y].TSV_density = min(100.0, this->power_maps[i][x][y].TSV_density);
 
-							// scaling for current bin,
-							// depends on distance to TSV bin
-							// and the latter's TSV density;
-							// the larger the TSV density of
-							// that ``aggressor'' bin, the
-							// larger the power down-scaling
-							// of the affected bin
-							this->power_maps[i][j][k].power_density *= 1.0 -
-								(this->power_maps[i][x][y].TSV_density / 100.0) *
-								exp(-dist * parameters.power_density_scaling_TSV_region);
-						}
-					}
-				}
+				//// TODO drop, test data
+				//if (this->power_maps[i][x][y].TSV_density == 0.0) {
+				//	this->power_maps[i][x][y].TSV_density = Math::randF(0.0, 10.0);
+				//}
+			}
+
+			// adapt maps for all but the uppermost layer; the uppermost layer
+			// next the heatsink shouldn't contain TSVs
+			for (i = 0; i < layers; i++) {
+
+				// scaling depends on TSV density; the larger the TSV
+				// density, the larger the power down-scaling
+				this->power_maps[i][x][y].power_density *= 1.0 -
+					((this->power_maps[i][x][y].TSV_density / 100.0) * parameters.power_density_scaling_TSV_region);
 			}
 		}
 	}
