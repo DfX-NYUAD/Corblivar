@@ -962,6 +962,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		if (fp.power_density_file_avail) {
 			if (!power_in.eof()) {
 				power_in >> new_block.power_density;
+				// TODO drop fixed down-scaling; instead modify files
 				// GSRC benchmarks provide power density in 10^5 W/m^2
 				// (which equals 10^-1 uW/um^2); reduce by factor 10 in
 				// order to limit power consumption reasonably
@@ -1418,8 +1419,11 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			}
 			// TSV-density maps: scale, label for cbrange
 			else if (flag == FLAGS::TSV_density) {
-				// fixed scale
-				gp_out << "set cbrange [0:100]" << endl;
+				// fixed log scale to emphasize both low densities (single
+				// TSVs) as well as large densities (TSV groups, vertical
+				// buses)
+				gp_out << "set log cb" << endl;
+				gp_out << "set cbrange [0.1:100]" << endl;
 				// label for power density
 				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
 			}
