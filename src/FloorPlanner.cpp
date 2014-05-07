@@ -1430,10 +1430,9 @@ FloorPlanner::Cost FloorPlanner::determWeightedCostAreaOutline(double const& rat
 }
 
 FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& set_max_cost, bool const& normalize) {
-	int i, ii;
+	int i;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;
-	bool blocks_above_considered;
 	CostInterconn ret;
 	double prev_TSVs;
 
@@ -1445,21 +1444,19 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	ret.TSVs = 0;
 	blocks_to_consider.reserve(this->blocks.size());
 
-	// set layer boundaries for each net, i.e., determine lowest and uppermost layer
-	// of net's blocks
-	for (Net& cur_net : this->nets) {
-		cur_net.setLayerBoundaries();
-	}
-
 	// determine HPWL and TSVs for each net
-	for (Net const& cur_net : this->nets) {
+	for (Net& cur_net : this->nets) {
 
-		// resets data for each net
-		blocks_to_consider.clear();
+		// set layer boundaries, i.e., determine lowest and uppermost layer of
+		// net's blocks
+		cur_net.setLayerBoundaries();
 
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
 		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+
+			// resets blocks to be considered for each cur_net
+			blocks_to_consider.clear();
 
 			// blocks for cur_net on all layer
 			for (Block const* b : cur_net.blocks) {
@@ -1483,81 +1480,9 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			// determine HPWL on each related layer separately
 			for (i = 0; i <= cur_net.layer_top; i++) {
 
-				if (FloorPlanner::DBG_LAYOUT) {
-					cout << "DBG_LAYOUT> Determine interconnects for net " << cur_net.id << " on layer " << i << " and above" << endl;
-				}
-
-				// blocks / pins for cur_net on this layer
-				for (Block const* b : cur_net.blocks) {
-
-					// blocks
-					if (b->layer == i) {
-						blocks_to_consider.push_back(&b->bb);
-
-						if (FloorPlanner::DBG_LAYOUT) {
-							cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << i << endl;
-						}
-					}
-
-					// also consider routes to terminal pins; only on
-					// lowest die of stack since connections b/w pins
-					// and block on upper dies are realized through TSVs
-					if (i == 0) {
-						for (Block const* pin :  cur_net.terminals) {
-							blocks_to_consider.push_back(&pin->bb);
-
-							if (FloorPlanner::DBG_LAYOUT) {
-								cout << "DBG_LAYOUT> 	Consider terminal pin " << pin->id << endl;
-							}
-						}
-					}
-				}
-				// ignore cases with no blocks on current layer
-				if (blocks_to_consider.empty()) {
-					continue;
-				}
-
-				// blocks on the layer above; required to assume a reasonable
-				// bounding box on current layer w/o placed TSVs
-				// the layer above to consider is not necessarily the adjacent
-				// one, thus stepwise consider layers until some blocks are found
-				blocks_above_considered = false;
-				ii = i + 1;
-				while (ii <= cur_net.layer_top) {
-					for (Block const* b : cur_net.blocks) {
-						if (b->layer == ii) {
-							blocks_to_consider.push_back(&b->bb);
-							blocks_above_considered = true;
-
-							if (FloorPlanner::DBG_LAYOUT) {
-								cout << "DBG_LAYOUT> 	Consider block " << b->id << " on layer " << ii << endl;
-							}
-						}
-					}
-
-					// loop handler
-					if (blocks_above_considered) {
-						break;
-					}
-					else {
-						ii++;
-					}
-				}
-
-				// ignore cases where only one block on the uppermost
-				// layer needs to be considered; these cases are already
-				// covered while considering layers below
-				if (blocks_to_consider.size() == 1 && i == cur_net.layer_top) {
-
-					if (FloorPlanner::DBG_LAYOUT) {
-						cout << "DBG_LAYOUT> 	Ignore single block on uppermost layer" << endl;
-					}
-
-					continue;
-				}
-
-				// determine HPWL of related blocks using their bounding box
-				bb = Rect::determBoundingBox(blocks_to_consider);
+				// determine HPWL using the net's bounding box on the
+				// current layer
+				bb = cur_net.determBoundingBox(i);
 				ret.HPWL += bb.w;
 				ret.HPWL += bb.h;
 

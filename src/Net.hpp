@@ -27,11 +27,13 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Block.hpp"
+#include "Rect.hpp"
 // forward declarations, if any
 
 class Net {
 	// debugging code switch (private)
 	private:
+		static constexpr bool DBG = false;
 
 	// private data, functions
 	private:
@@ -67,6 +69,90 @@ class Net {
 				}
 			}
 		};
+
+
+		inline Rect const determBoundingBox(int const& layer) {
+			int i;
+			vector<Rect const*> blocks_to_consider;
+			bool blocks_above_considered;
+			// dummy return value
+			Rect bb;
+
+			if (Net::DBG) {
+				cout << "DBG_NET> Determine interconnects for net " << this->id << " on layer " << layer << " and above" << endl;
+			}
+
+			// blocks / pins for cur_net on this layer
+			for (Block const* b : this->blocks) {
+
+				// blocks
+				if (b->layer == layer) {
+					blocks_to_consider.push_back(&b->bb);
+
+					if (Net::DBG) {
+						cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << endl;
+					}
+				}
+
+				// also consider routes to terminal pins; only on
+				// lowest die of stack since connections b/w pins
+				// and block on upper dies are realized through TSVs
+				if (layer == 0) {
+					for (Block const* pin :  this->terminals) {
+						blocks_to_consider.push_back(&pin->bb);
+
+						if (Net::DBG) {
+							cout << "DBG_NET> 	Consider terminal pin " << pin->id << endl;
+						}
+					}
+				}
+			}
+			// ignore cases with no blocks on current layer
+			if (blocks_to_consider.empty()) {
+				return bb;
+			}
+
+			// blocks on the layer above; required to assume a reasonable
+			// bounding box on current layer w/o placed TSVs
+			// the layer above to consider is not necessarily the adjacent
+			// one, thus stepwise consider layers until some blocks are found
+			blocks_above_considered = false;
+			i = layer + 1;
+			while (i <= this->layer_top) {
+				for (Block const* b : this->blocks) {
+					if (b->layer == i) {
+						blocks_to_consider.push_back(&b->bb);
+						blocks_above_considered = true;
+
+						if (Net::DBG) {
+							cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << endl;
+						}
+					}
+				}
+
+				// loop handler
+				if (blocks_above_considered) {
+					break;
+				}
+				else {
+					i++;
+				}
+			}
+
+			// ignore cases where only one block on the uppermost
+			// layer needs to be considered; these cases are already
+			// covered while considering layers below
+			if (blocks_to_consider.size() == 1 && layer == this->layer_top) {
+
+				if (Net::DBG) {
+					cout << "DBG_NET> 	Ignore single block on uppermost layer" << endl;
+				}
+
+				return bb;
+			}
+
+			return Rect::determBoundingBox(blocks_to_consider);
+		}
 };
 
 #endif
