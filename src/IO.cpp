@@ -470,7 +470,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for parameter range
 	if (mask_parameters.power_density_scaling_TSV_region > 1.0 || mask_parameters.power_density_scaling_TSV_region < 0.0) {
-		cout << "IO> Provide a power-density scaling factor for TSV regions between 0.0 and 1.0!" << endl;
+		cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << endl;
 		exit(1);
 	}
 
@@ -539,7 +539,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Power-blurring mask parameterization -- Impulse scaling-factor: " << mask_parameters.impulse_factor_scaling_exponent << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Mask-boundary value: " << mask_parameters.mask_boundary_value << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (padding zone): " << mask_parameters.power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << endl;
+		cout << "IO>  Power-blurring mask parameterization -- Power-density down-scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << endl;
 		cout << "IO>  Power-blurring mask parameterization -- Temperature offset: " << mask_parameters.temp_offset << endl;
 
 		cout << endl;
