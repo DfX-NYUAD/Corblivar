@@ -533,8 +533,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar> TSVs: " << interconn.TSVs << endl;
 			this->results << "TSVs: " << interconn.TSVs << endl;
 
-			cout << "Corblivar>  Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
-			this->results << " Deadspace utilization by TSVs: " << interconn.TSVs_area_deadspace_ratio << endl;
+			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
+			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
 
 			if (this->power_density_file_avail) {
 				cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
@@ -1513,7 +1513,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 	}
 
 	// determine by TSVs occupied deadspace amount
-	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_DIMENSION, 2)) / this->stack_deadspace;
+	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
