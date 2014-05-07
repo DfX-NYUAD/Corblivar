@@ -1380,7 +1380,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == FLAGS::power) {
-				gp_out << "set title \"Padded Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
 			}
 			else if (flag == FLAGS::thermal) {
 				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
@@ -1425,7 +1425,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				gp_out << "set log cb" << endl;
 				gp_out << "set cbrange [0.1:100]" << endl;
 				// label for power density
-				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
+				gp_out << "set cblabel \"Probabilistic TSV-Density [%]\"" << endl;
 			}
 
 			// tics
