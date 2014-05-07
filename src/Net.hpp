@@ -53,9 +53,9 @@ class Net {
 		bool hasExternalPin;
 		vector<Block const*> blocks;
 		vector<Block const*> terminals;
-		int layer_bottom, layer_top;
+		mutable int layer_bottom, layer_top;
 
-		inline void setLayerBoundaries() {
+		inline void setLayerBoundaries() const {
 
 			if (this->blocks.empty()) {
 				return;
@@ -71,7 +71,7 @@ class Net {
 		};
 
 
-		inline Rect const determBoundingBox(int const& layer) {
+		inline Rect determBoundingBox(int const& layer) const {
 			int i;
 			vector<Rect const*> blocks_to_consider;
 			bool blocks_above_considered;
@@ -94,9 +94,10 @@ class Net {
 					}
 				}
 
-				// also consider routes to terminal pins; only on
-				// lowest die of stack since connections b/w pins
-				// and block on upper dies are realized through TSVs
+				// also consider routes to terminal pins; only on lowest
+				// die of stack since connections b/w terminal pins and
+				// blocks on upper dies are routed through the TSV in that
+				// lowermost die
 				if (layer == 0) {
 					for (Block const* pin :  this->terminals) {
 						blocks_to_consider.push_back(&pin->bb);
@@ -113,9 +114,9 @@ class Net {
 			}
 
 			// blocks on the layer above; required to assume a reasonable
-			// bounding box on current layer w/o placed TSVs
-			// the layer above to consider is not necessarily the adjacent
-			// one, thus stepwise consider layers until some blocks are found
+			// bounding box on current layer w/o actual placement of TSVs; the
+			// layer to consider is not necessarily the adjacent one, thus
+			// stepwise consider layers until some blocks are found
 			blocks_above_considered = false;
 			i = layer + 1;
 			while (i <= this->layer_top) {

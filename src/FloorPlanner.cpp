@@ -1339,7 +1339,7 @@ double inline FloorPlanner::determCostThermalDistr(vector<CorblivarAlignmentReq>
 			this->getOutline(), this->conf_power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, alignments, this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, alignments, this->nets, this->conf_power_blurring_parameters);
 
 	// perform actual thermal analysis
 	return this->thermalAnalyzer.performPowerBlurring(this->conf_layer,

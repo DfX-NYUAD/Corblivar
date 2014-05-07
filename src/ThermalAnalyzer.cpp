@@ -25,6 +25,7 @@
 #include "ThermalAnalyzer.hpp"
 // required Corblivar headers
 #include "Rect.hpp"
+#include "Net.hpp"
 #include "Block.hpp"
 #include "Math.hpp"
 #include "CorblivarAlignmentReq.hpp"
@@ -326,14 +327,14 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, vector<Net> const& nets, MaskParameters const& parameters) {
 	int layer_lower, layer_upper;
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
 	int x_lower, x_upper, y_lower, y_upper;
-	int i, j, k;
-	double dist;
+	int i;
+	Rect bb, prev_bb;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &alignments << ", " << &parameters << ")" << endl;
@@ -437,6 +438,94 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 		}
 	}
 
+	// consider impact of separate signal TSVs; derive possible TSV locations from net
+	// bounding boxes, then spread density of TSVs across these bounding boxes, and
+	// apply superposition for all TSVs
+	//
+
+	// determine TSV impact for each net
+	for (Net const& cur_net : nets) {
+
+		if (ThermalAnalyzer::DBG) {
+			cout << "DBG> Determining impact of net " << cur_net.id << endl;
+		}
+
+		// set layer boundaries, i.e., determine lowest and uppermost layer of
+		// net's blocks
+		cur_net.setLayerBoundaries();
+
+		// determine TSV's bounding box on each related layer separately; ignore
+		// net's uppermost layer since no TSV connects further up from this last
+		// layer
+		for (i = 0; i < cur_net.layer_top; i++) {
+
+			prev_bb = bb;
+			bb = cur_net.determBoundingBox(i);
+
+			// in case the bb on the current layer is zero, reuse the bb from
+			// the layer below (this arises from Net::determBoundingBox being
+			// coded for HPWL calculation, where a layer in between with no
+			// blocks should not increase HPWL, but is required to account for
+			// TSV placement)
+			if (bb.area == 0.0) {
+				bb = prev_bb;
+			}
+			// if the bb is still zero, then the first block of the net is
+			// placed in some upper layer
+			if (bb.area == 0.0) {
+				continue;
+			}
+
+			if (ThermalAnalyzer::DBG) {
+				cout << "DBG>  TSV assumed in layer " << i << endl;
+				cout << "DBG>   bb: " << bb.ll.x << "," << bb.ll.y << " to " << bb.ur.x << "," << bb.ur.y << endl;
+				cout << "DBG>   bb area: " << bb.area << endl;
+			}
+
+			// offset bb, i.e., account for padded power maps and related
+			// offset in coordinates
+			bb.ll.x += this->blocks_offset_x;
+			bb.ll.y += this->blocks_offset_y;
+			bb.ur.x += this->blocks_offset_x;
+			bb.ur.y += this->blocks_offset_y;
+
+			// determine index boundaries for offset bb; based on boundary of
+			// intersection and the covered bins; note that cast to int
+			// truncates toward zero, i.e., performs like floor for positive
+			// numbers
+			x_lower = static_cast<int>(bb.ll.x / this->power_maps_dim_x);
+			y_lower = static_cast<int>(bb.ll.y / this->power_maps_dim_y);
+			// +1 in order to efficiently emulate the result of ceil(); limit
+			// upper bound to power-maps dimensions
+			x_upper = min(static_cast<int>(bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = min(static_cast<int>(bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+
+			// walk power-map bins covering bb outline; adapt TSV densities;
+			// don't care about particular amount of coverage b/w bb and map
+			// bins, since the density of a single TSV is quite small
+			// only consider fully covered bins
+			for (x = x_lower; x < x_upper; x++) {
+				for (y = y_lower; y < y_upper; y++) {
+
+					// spread out the impact of this TSV across its
+					// bb; consider TSV pitch since 100% TSV density
+					// equals to closely packed TSVs, i.e., only w/
+					// pitch distance between each other; scale TSV
+					// pitch up (from um) since bb area is implicitly
+					// coded in um
+					this->power_maps[i][x][y].TSV_density += 100.0 * (pow(Chip::TSV_PITCH * 1.0e6, 2) / bb.area);
+				}
+			}
+
+			if (ThermalAnalyzer::DBG) {
+				cout << "DBG>   additional TSV density for each bin: " <<
+					100.0 * (pow(Chip::TSV_PITCH * 1.0e6, 2) / bb.area) << endl;
+				cout << "DBG>   affected power-map bins: " << x_lower << "," << y_lower
+					<< " to " <<
+					x_upper << "," << y_upper << endl;
+			}
+		}
+	}
 
 	// walk power-map bins; adapt power according to TSV densities
 	for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
@@ -446,11 +535,6 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 			// due to superposition in calculations above
 			for (i = 0; i < layers; i++) {
 				this->power_maps[i][x][y].TSV_density = min(100.0, this->power_maps[i][x][y].TSV_density);
-
-				//// TODO drop, test data
-				//if (this->power_maps[i][x][y].TSV_density == 0.0) {
-				//	this->power_maps[i][x][y].TSV_density = Math::randF(0.0, 10.0);
-				//}
 			}
 
 			// adapt maps for all but the uppermost layer; the uppermost layer
