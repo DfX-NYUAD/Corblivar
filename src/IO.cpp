@@ -962,11 +962,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		if (fp.power_density_file_avail) {
 			if (!power_in.eof()) {
 				power_in >> new_block.power_density;
-				// TODO drop fixed down-scaling; instead modify files
 				// GSRC benchmarks provide power density in 10^5 W/m^2
-				// (which equals 10^-1 uW/um^2); reduce by factor 10 in
-				// order to limit power consumption reasonably
-				new_block.power_density *= 1.0e-1;
+				// which equals 10^-1 uW/um^2; scale by factor 10 in order
+				// to obtain uW/um^2
+				new_block.power_density *= 10.0;
 			}
 			else {
 				if (fp.logMin()) {
@@ -1066,8 +1065,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// blocks power
 		cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
-			cout << "; min power: " << fp.blocks_power_density_stats.min << ", max power: " << fp.blocks_power_density_stats.max;
-			cout << ", avg power: " << fp.blocks_power_density_stats.avg << endl;
+			cout << "; min power density [uW/um^2]: " << fp.blocks_power_density_stats.min;
+			cout << ", max power density [uW/um^2]: " << fp.blocks_power_density_stats.max;
+			cout << ", avg power density [uW/um^2]: " << fp.blocks_power_density_stats.avg << endl;
 		}
 		else {
 			cout << endl;
