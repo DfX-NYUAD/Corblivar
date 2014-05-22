@@ -1,1 +1,1912 @@
-/home/johann/code/IBMHB+/ibm11.blocks
+UCLA blocks 1.0
+# Created
+# Platform
+
+NumSoftRectangularBlocks : 1124
+NumHardRectilinearBlocks : 373
+NumTerminals : 406
+
+BLOCK_1 softrectangular 90 0.33 3.0
+BLOCK_2 softrectangular 90 0.33 3.0
+BLOCK_3 softrectangular 90 0.33 3.0
+BLOCK_4 softrectangular 515 0.33 3.0
+BLOCK_5 softrectangular 90 0.33 3.0
+BLOCK_6 softrectangular 90 0.33 3.0
+BLOCK_7 softrectangular 90 0.33 3.0
+BLOCK_8 softrectangular 90 0.33 3.0
+BLOCK_9 softrectangular 67 0.33 3.0
+BLOCK_10 softrectangular 90 0.33 3.0
+BLOCK_11 softrectangular 5757 0.33 3.0
+BLOCK_12 softrectangular 2464 0.33 3.0
+BLOCK_13 softrectangular 3203 0.33 3.0
+BLOCK_14 softrectangular 6451 0.33 3.0
+BLOCK_15 softrectangular 5040 0.33 3.0
+BLOCK_16 softrectangular 4435 0.33 3.0
+BLOCK_17 softrectangular 3696 0.33 3.0
+BLOCK_18 softrectangular 1747 0.33 3.0
+BLOCK_19 softrectangular 1658 0.33 3.0
+BLOCK_20 softrectangular 2710 0.33 3.0
+BLOCK_21 softrectangular 2150 0.33 3.0
+BLOCK_22 softrectangular 3024 0.33 3.0
+BLOCK_23 softrectangular 5130 0.33 3.0
+BLOCK_24 softrectangular 13955 0.33 3.0
+BLOCK_25 softrectangular 9408 0.33 3.0
+BLOCK_26 softrectangular 6877 0.33 3.0
+BLOCK_27 softrectangular 4211 0.33 3.0
+BLOCK_28 softrectangular 3136 0.33 3.0
+BLOCK_29 softrectangular 2755 0.33 3.0
+BLOCK_30 softrectangular 5376 0.33 3.0
+BLOCK_31 softrectangular 3741 0.33 3.0
+BLOCK_32 softrectangular 2374 0.33 3.0
+BLOCK_33 softrectangular 6272 0.33 3.0
+BLOCK_34 softrectangular 2778 0.33 3.0
+BLOCK_35 softrectangular 8355 0.33 3.0
+BLOCK_36 softrectangular 1501 0.33 3.0
+BLOCK_37 softrectangular 7974 0.33 3.0
+BLOCK_38 softrectangular 3942 0.33 3.0
+BLOCK_39 softrectangular 4906 0.33 3.0
+BLOCK_40 softrectangular 3875 0.33 3.0
+BLOCK_41 softrectangular 4480 0.33 3.0
+BLOCK_42 softrectangular 10192 0.33 3.0
+BLOCK_43 softrectangular 2621 0.33 3.0
+BLOCK_44 softrectangular 6429 0.33 3.0
+BLOCK_45 softrectangular 5958 0.33 3.0
+BLOCK_46 softrectangular 6384 0.33 3.0
+BLOCK_47 softrectangular 9699 0.33 3.0
+BLOCK_48 softrectangular 3270 0.33 3.0
+BLOCK_49 softrectangular 12880 0.33 3.0
+BLOCK_50 softrectangular 1971 0.33 3.0
+BLOCK_51 softrectangular 6586 0.33 3.0
+BLOCK_52 softrectangular 3920 0.33 3.0
+BLOCK_53 softrectangular 7616 0.33 3.0
+BLOCK_54 softrectangular 10237 0.33 3.0
+BLOCK_55 softrectangular 4682 0.33 3.0
+BLOCK_56 softrectangular 4346 0.33 3.0
+BLOCK_57 softrectangular 10595 0.33 3.0
+BLOCK_58 softrectangular 2442 0.33 3.0
+BLOCK_59 softrectangular 10282 0.33 3.0
+BLOCK_60 softrectangular 6787 0.33 3.0
+BLOCK_61 softrectangular 3718 0.33 3.0
+BLOCK_62 softrectangular 12342 0.33 3.0
+BLOCK_63 softrectangular 3606 0.33 3.0
+BLOCK_64 softrectangular 5667 0.33 3.0
+BLOCK_65 softrectangular 2666 0.33 3.0
+BLOCK_66 softrectangular 2845 0.33 3.0
+BLOCK_67 softrectangular 3046 0.33 3.0
+BLOCK_68 softrectangular 13843 0.33 3.0
+BLOCK_69 softrectangular 6115 0.33 3.0
+BLOCK_70 softrectangular 3875 0.33 3.0
+BLOCK_71 softrectangular 5510 0.33 3.0
+BLOCK_72 softrectangular 10304 0.33 3.0
+BLOCK_73 softrectangular 1546 0.33 3.0
+BLOCK_74 softrectangular 3024 0.33 3.0
+BLOCK_75 softrectangular 3763 0.33 3.0
+BLOCK_76 softrectangular 5152 0.33 3.0
+BLOCK_77 softrectangular 5914 0.33 3.0
+BLOCK_78 softrectangular 2285 0.33 3.0
+BLOCK_79 softrectangular 6765 0.33 3.0
+BLOCK_80 softrectangular 3360 0.33 3.0
+BLOCK_81 softrectangular 6272 0.33 3.0
+BLOCK_82 softrectangular 8602 0.33 3.0
+BLOCK_83 softrectangular 1882 0.33 3.0
+BLOCK_84 softrectangular 5802 0.33 3.0
+BLOCK_85 softrectangular 2038 0.33 3.0
+BLOCK_86 softrectangular 2218 0.33 3.0
+BLOCK_87 softrectangular 9632 0.33 3.0
+BLOCK_88 softrectangular 6115 0.33 3.0
+BLOCK_89 softrectangular 5354 0.33 3.0
+BLOCK_90 softrectangular 13418 0.33 3.0
+BLOCK_91 softrectangular 8355 0.33 3.0
+BLOCK_92 softrectangular 4032 0.33 3.0
+BLOCK_93 softrectangular 3651 0.33 3.0
+BLOCK_94 softrectangular 1322 0.33 3.0
+BLOCK_95 softrectangular 5085 0.33 3.0
+BLOCK_96 softrectangular 6227 0.33 3.0
+BLOCK_97 softrectangular 7952 0.33 3.0
+BLOCK_98 softrectangular 4928 0.33 3.0
+BLOCK_99 softrectangular 3606 0.33 3.0
+BLOCK_100 softrectangular 5488 0.33 3.0
+BLOCK_101 softrectangular 9901 0.33 3.0
+BLOCK_102 softrectangular 4794 0.33 3.0
+BLOCK_103 softrectangular 9565 0.33 3.0
+BLOCK_104 softrectangular 2218 0.33 3.0
+BLOCK_105 softrectangular 5600 0.33 3.0
+BLOCK_106 softrectangular 3405 0.33 3.0
+BLOCK_107 softrectangular 1926 0.33 3.0
+BLOCK_108 softrectangular 4794 0.33 3.0
+BLOCK_109 softrectangular 1277 0.33 3.0
+BLOCK_110 softrectangular 6294 0.33 3.0
+BLOCK_111 softrectangular 10237 0.33 3.0
+BLOCK_112 softrectangular 1232 0.33 3.0
+BLOCK_113 softrectangular 2822 0.33 3.0
+BLOCK_114 softrectangular 9050 0.33 3.0
+BLOCK_115 softrectangular 7078 0.33 3.0
+BLOCK_116 softrectangular 5174 0.33 3.0
+BLOCK_117 softrectangular 2890 0.33 3.0
+BLOCK_118 softrectangular 8310 0.33 3.0
+BLOCK_119 softrectangular 6339 0.33 3.0
+BLOCK_120 softrectangular 7437 0.33 3.0
+BLOCK_121 softrectangular 7101 0.33 3.0
+BLOCK_122 softrectangular 10819 0.33 3.0
+BLOCK_123 softrectangular 12298 0.33 3.0
+BLOCK_124 softrectangular 5824 0.33 3.0
+BLOCK_125 softrectangular 2643 0.33 3.0
+BLOCK_126 softrectangular 2666 0.33 3.0
+BLOCK_127 softrectangular 3494 0.33 3.0
+BLOCK_128 softrectangular 1098 0.33 3.0
+BLOCK_129 softrectangular 10685 0.33 3.0
+BLOCK_130 softrectangular 11155 0.33 3.0
+BLOCK_131 softrectangular 3472 0.33 3.0
+BLOCK_132 softrectangular 5309 0.33 3.0
+BLOCK_133 softrectangular 6675 0.33 3.0
+BLOCK_134 softrectangular 8893 0.33 3.0
+BLOCK_135 softrectangular 4726 0.33 3.0
+BLOCK_136 softrectangular 5578 0.33 3.0
+BLOCK_137 softrectangular 5376 0.33 3.0
+BLOCK_138 softrectangular 5354 0.33 3.0
+BLOCK_139 softrectangular 2643 0.33 3.0
+BLOCK_140 softrectangular 5062 0.33 3.0
+BLOCK_141 softrectangular 2867 0.33 3.0
+BLOCK_142 softrectangular 6496 0.33 3.0
+BLOCK_143 softrectangular 6182 0.33 3.0
+BLOCK_144 softrectangular 8154 0.33 3.0
+BLOCK_145 softrectangular 1904 0.33 3.0
+BLOCK_146 softrectangular 3024 0.33 3.0
+BLOCK_147 softrectangular 7661 0.33 3.0
+BLOCK_148 softrectangular 7034 0.33 3.0
+BLOCK_149 softrectangular 9856 0.33 3.0
+BLOCK_150 softrectangular 6675 0.33 3.0
+BLOCK_151 softrectangular 7773 0.33 3.0
+BLOCK_152 softrectangular 6810 0.33 3.0
+BLOCK_153 softrectangular 8445 0.33 3.0
+BLOCK_154 softrectangular 9318 0.33 3.0
+BLOCK_155 softrectangular 4234 0.33 3.0
+BLOCK_156 softrectangular 1904 0.33 3.0
+BLOCK_157 softrectangular 4614 0.33 3.0
+BLOCK_158 softrectangular 11626 0.33 3.0
+BLOCK_159 softrectangular 6854 0.33 3.0
+BLOCK_160 softrectangular 6698 0.33 3.0
+BLOCK_161 softrectangular 4682 0.33 3.0
+BLOCK_162 softrectangular 4256 0.33 3.0
+BLOCK_163 softrectangular 7571 0.33 3.0
+BLOCK_164 softrectangular 1949 0.33 3.0
+BLOCK_165 softrectangular 2419 0.33 3.0
+BLOCK_166 softrectangular 10304 0.33 3.0
+BLOCK_167 softrectangular 3494 0.33 3.0
+BLOCK_168 softrectangular 5981 0.33 3.0
+BLOCK_169 softrectangular 3987 0.33 3.0
+BLOCK_170 softrectangular 2643 0.33 3.0
+BLOCK_171 softrectangular 6720 0.33 3.0
+BLOCK_172 softrectangular 5734 0.33 3.0
+BLOCK_173 softrectangular 5958 0.33 3.0
+BLOCK_174 softrectangular 1232 0.33 3.0
+BLOCK_175 softrectangular 18010 0.33 3.0
+BLOCK_176 softrectangular 3046 0.33 3.0
+BLOCK_177 softrectangular 6272 0.33 3.0
+BLOCK_178 softrectangular 4256 0.33 3.0
+BLOCK_179 softrectangular 6630 0.33 3.0
+BLOCK_180 softrectangular 4390 0.33 3.0
+BLOCK_181 softrectangular 6339 0.33 3.0
+BLOCK_182 softrectangular 14784 0.33 3.0
+BLOCK_183 softrectangular 986 0.33 3.0
+BLOCK_184 softrectangular 3226 0.33 3.0
+BLOCK_185 softrectangular 3315 0.33 3.0
+BLOCK_186 softrectangular 4122 0.33 3.0
+BLOCK_187 softrectangular 4928 0.33 3.0
+BLOCK_188 softrectangular 10998 0.33 3.0
+BLOCK_189 softrectangular 3920 0.33 3.0
+BLOCK_190 softrectangular 6653 0.33 3.0
+BLOCK_191 softrectangular 9027 0.33 3.0
+BLOCK_192 softrectangular 2912 0.33 3.0
+BLOCK_193 softrectangular 6272 0.33 3.0
+BLOCK_194 softrectangular 8198 0.33 3.0
+BLOCK_195 softrectangular 11514 0.33 3.0
+BLOCK_196 softrectangular 3539 0.33 3.0
+BLOCK_197 softrectangular 10461 0.33 3.0
+BLOCK_198 softrectangular 7034 0.33 3.0
+BLOCK_199 softrectangular 4525 0.33 3.0
+BLOCK_200 softrectangular 5622 0.33 3.0
+BLOCK_201 softrectangular 5578 0.33 3.0
+BLOCK_202 softrectangular 3539 0.33 3.0
+BLOCK_203 softrectangular 3405 0.33 3.0
+BLOCK_204 softrectangular 3786 0.33 3.0
+BLOCK_205 softrectangular 3024 0.33 3.0
+BLOCK_206 softrectangular 7347 0.33 3.0
+BLOCK_207 softrectangular 6944 0.33 3.0
+BLOCK_208 softrectangular 7818 0.33 3.0
+BLOCK_209 softrectangular 1344 0.33 3.0
+BLOCK_210 softrectangular 2016 0.33 3.0
+BLOCK_211 softrectangular 4166 0.33 3.0
+BLOCK_212 softrectangular 1523 0.33 3.0
+BLOCK_213 softrectangular 3360 0.33 3.0
+BLOCK_214 softrectangular 5958 0.33 3.0
+BLOCK_215 softrectangular 2106 0.33 3.0
+BLOCK_216 softrectangular 2330 0.33 3.0
+BLOCK_217 softrectangular 7034 0.33 3.0
+BLOCK_218 softrectangular 3808 0.33 3.0
+BLOCK_219 softrectangular 2397 0.33 3.0
+BLOCK_220 softrectangular 5600 0.33 3.0
+BLOCK_221 softrectangular 4547 0.33 3.0
+BLOCK_222 softrectangular 2733 0.33 3.0
+BLOCK_223 softrectangular 6182 0.33 3.0
+BLOCK_224 softrectangular 8310 0.33 3.0
+BLOCK_225 softrectangular 3763 0.33 3.0
+BLOCK_226 softrectangular 2688 0.33 3.0
+BLOCK_227 softrectangular 2173 0.33 3.0
+BLOCK_228 softrectangular 4816 0.33 3.0
+BLOCK_229 softrectangular 8019 0.33 3.0
+BLOCK_230 softrectangular 2150 0.33 3.0
+BLOCK_231 softrectangular 12163 0.33 3.0
+BLOCK_232 softrectangular 3293 0.33 3.0
+BLOCK_233 softrectangular 3853 0.33 3.0
+BLOCK_234 softrectangular 8333 0.33 3.0
+BLOCK_235 softrectangular 1344 0.33 3.0
+BLOCK_236 softrectangular 4659 0.33 3.0
+BLOCK_237 softrectangular 2419 0.33 3.0
+BLOCK_238 softrectangular 10349 0.33 3.0
+BLOCK_239 softrectangular 5286 0.33 3.0
+BLOCK_240 softrectangular 2285 0.33 3.0
+BLOCK_241 softrectangular 5734 0.33 3.0
+BLOCK_242 softrectangular 3942 0.33 3.0
+BLOCK_243 softrectangular 6115 0.33 3.0
+BLOCK_244 softrectangular 2890 0.33 3.0
+BLOCK_245 softrectangular 7661 0.33 3.0
+BLOCK_246 softrectangular 7280 0.33 3.0
+BLOCK_247 softrectangular 9274 0.33 3.0
+BLOCK_248 softrectangular 5174 0.33 3.0
+BLOCK_249 softrectangular 3674 0.33 3.0
+BLOCK_250 softrectangular 2061 0.33 3.0
+BLOCK_251 softrectangular 4816 0.33 3.0
+BLOCK_252 softrectangular 2330 0.33 3.0
+BLOCK_253 softrectangular 6182 0.33 3.0
+BLOCK_254 softrectangular 4928 0.33 3.0
+BLOCK_255 softrectangular 1792 0.33 3.0
+BLOCK_256 softrectangular 3853 0.33 3.0
+BLOCK_257 softrectangular 1546 0.33 3.0
+BLOCK_258 softrectangular 10080 0.33 3.0
+BLOCK_259 softrectangular 2307 0.33 3.0
+BLOCK_260 softrectangular 5107 0.33 3.0
+BLOCK_261 softrectangular 2800 0.33 3.0
+BLOCK_262 softrectangular 1702 0.33 3.0
+BLOCK_263 softrectangular 4166 0.33 3.0
+BLOCK_264 softrectangular 5936 0.33 3.0
+BLOCK_265 softrectangular 15702 0.33 3.0
+BLOCK_266 softrectangular 6832 0.33 3.0
+BLOCK_267 softrectangular 2218 0.33 3.0
+BLOCK_268 softrectangular 3651 0.33 3.0
+BLOCK_269 softrectangular 4771 0.33 3.0
+BLOCK_270 softrectangular 3562 0.33 3.0
+BLOCK_271 softrectangular 5488 0.33 3.0
+BLOCK_272 softrectangular 1770 0.33 3.0
+BLOCK_273 softrectangular 6765 0.33 3.0
+BLOCK_274 softrectangular 3539 0.33 3.0
+BLOCK_275 softrectangular 7930 0.33 3.0
+BLOCK_276 softrectangular 2800 0.33 3.0
+BLOCK_277 softrectangular 1546 0.33 3.0
+BLOCK_278 softrectangular 2307 0.33 3.0
+BLOCK_279 softrectangular 3181 0.33 3.0
+BLOCK_280 softrectangular 5062 0.33 3.0
+BLOCK_281 softrectangular 2374 0.33 3.0
+BLOCK_282 softrectangular 3674 0.33 3.0
+BLOCK_283 softrectangular 6026 0.33 3.0
+BLOCK_284 softrectangular 5040 0.33 3.0
+BLOCK_285 softrectangular 2800 0.33 3.0
+BLOCK_286 softrectangular 5018 0.33 3.0
+BLOCK_287 softrectangular 11558 0.33 3.0
+BLOCK_288 softrectangular 19600 0.33 3.0
+BLOCK_289 softrectangular 6922 0.33 3.0
+BLOCK_290 softrectangular 3830 0.33 3.0
+BLOCK_291 softrectangular 7750 0.33 3.0
+BLOCK_292 softrectangular 10282 0.33 3.0
+BLOCK_293 softrectangular 3987 0.33 3.0
+BLOCK_294 softrectangular 8064 0.33 3.0
+BLOCK_295 softrectangular 1882 0.33 3.0
+BLOCK_296 softrectangular 3293 0.33 3.0
+BLOCK_297 softrectangular 4592 0.33 3.0
+BLOCK_298 softrectangular 5219 0.33 3.0
+BLOCK_299 softrectangular 4301 0.33 3.0
+BLOCK_300 softrectangular 5555 0.33 3.0
+BLOCK_301 softrectangular 4122 0.33 3.0
+BLOCK_302 softrectangular 3584 0.33 3.0
+BLOCK_303 softrectangular 2061 0.33 3.0
+BLOCK_304 softrectangular 4973 0.33 3.0
+BLOCK_305 softrectangular 3965 0.33 3.0
+BLOCK_306 softrectangular 3114 0.33 3.0
+BLOCK_307 softrectangular 3158 0.33 3.0
+BLOCK_308 softrectangular 2285 0.33 3.0
+BLOCK_309 softrectangular 1613 0.33 3.0
+BLOCK_310 softrectangular 6205 0.33 3.0
+BLOCK_311 softrectangular 6250 0.33 3.0
+BLOCK_312 softrectangular 1523 0.33 3.0
+BLOCK_313 softrectangular 4682 0.33 3.0
+BLOCK_314 softrectangular 1747 0.33 3.0
+BLOCK_315 softrectangular 3181 0.33 3.0
+BLOCK_316 softrectangular 6832 0.33 3.0
+BLOCK_317 softrectangular 4032 0.33 3.0
+BLOCK_318 softrectangular 3987 0.33 3.0
+BLOCK_319 softrectangular 6317 0.33 3.0
+BLOCK_320 softrectangular 4323 0.33 3.0
+BLOCK_321 softrectangular 7482 0.33 3.0
+BLOCK_322 softrectangular 2419 0.33 3.0
+BLOCK_323 softrectangular 3942 0.33 3.0
+BLOCK_324 softrectangular 4749 0.33 3.0
+BLOCK_325 softrectangular 2845 0.33 3.0
+BLOCK_326 softrectangular 5734 0.33 3.0
+BLOCK_327 softrectangular 3405 0.33 3.0
+BLOCK_328 softrectangular 3248 0.33 3.0
+BLOCK_329 softrectangular 16979 0.33 3.0
+BLOCK_330 softrectangular 7997 0.33 3.0
+BLOCK_331 softrectangular 3494 0.33 3.0
+BLOCK_332 softrectangular 2285 0.33 3.0
+BLOCK_333 softrectangular 12454 0.33 3.0
+BLOCK_334 softrectangular 3606 0.33 3.0
+BLOCK_335 softrectangular 7504 0.33 3.0
+BLOCK_336 softrectangular 3046 0.33 3.0
+BLOCK_337 softrectangular 5466 0.33 3.0
+BLOCK_338 softrectangular 15568 0.33 3.0
+BLOCK_339 softrectangular 3069 0.33 3.0
+BLOCK_340 softrectangular 2778 0.33 3.0
+BLOCK_341 softrectangular 5958 0.33 3.0
+BLOCK_342 softrectangular 4054 0.33 3.0
+BLOCK_343 softrectangular 6451 0.33 3.0
+BLOCK_344 softrectangular 1322 0.33 3.0
+BLOCK_345 softrectangular 4682 0.33 3.0
+BLOCK_346 softrectangular 7168 0.33 3.0
+BLOCK_347 softrectangular 7616 0.33 3.0
+BLOCK_348 softrectangular 4838 0.33 3.0
+BLOCK_349 softrectangular 5018 0.33 3.0
+BLOCK_350 softrectangular 2173 0.33 3.0
+BLOCK_351 softrectangular 2128 0.33 3.0
+BLOCK_352 softrectangular 4502 0.33 3.0
+BLOCK_353 softrectangular 4906 0.33 3.0
+BLOCK_354 softrectangular 2419 0.33 3.0
+BLOCK_355 softrectangular 9117 0.33 3.0
+BLOCK_356 softrectangular 4032 0.33 3.0
+BLOCK_357 softrectangular 1949 0.33 3.0
+BLOCK_358 softrectangular 5846 0.33 3.0
+BLOCK_359 softrectangular 3091 0.33 3.0
+BLOCK_360 softrectangular 2442 0.33 3.0
+BLOCK_361 softrectangular 2598 0.33 3.0
+BLOCK_362 softrectangular 12947 0.33 3.0
+BLOCK_363 softrectangular 2442 0.33 3.0
+BLOCK_364 softrectangular 10349 0.33 3.0
+BLOCK_365 softrectangular 7034 0.33 3.0
+BLOCK_366 softrectangular 6922 0.33 3.0
+BLOCK_367 softrectangular 6115 0.33 3.0
+BLOCK_368 softrectangular 2822 0.33 3.0
+BLOCK_369 softrectangular 4480 0.33 3.0
+BLOCK_370 softrectangular 4077 0.33 3.0
+BLOCK_371 softrectangular 7190 0.33 3.0
+BLOCK_372 softrectangular 5555 0.33 3.0
+BLOCK_373 softrectangular 7459 0.33 3.0
+BLOCK_374 softrectangular 6272 0.33 3.0
+BLOCK_375 softrectangular 2733 0.33 3.0
+BLOCK_376 softrectangular 1725 0.33 3.0
+BLOCK_377 softrectangular 2934 0.33 3.0
+BLOCK_378 softrectangular 4838 0.33 3.0
+BLOCK_379 softrectangular 3226 0.33 3.0
+BLOCK_380 softrectangular 8042 0.33 3.0
+BLOCK_381 softrectangular 4234 0.33 3.0
+BLOCK_382 softrectangular 4256 0.33 3.0
+BLOCK_383 softrectangular 2128 0.33 3.0
+BLOCK_384 softrectangular 4570 0.33 3.0
+BLOCK_385 softrectangular 8243 0.33 3.0
+BLOCK_386 softrectangular 6160 0.33 3.0
+BLOCK_387 softrectangular 3024 0.33 3.0
+BLOCK_388 softrectangular 4704 0.33 3.0
+BLOCK_389 softrectangular 5578 0.33 3.0
+BLOCK_390 softrectangular 8512 0.33 3.0
+BLOCK_391 softrectangular 2016 0.33 3.0
+BLOCK_392 softrectangular 1837 0.33 3.0
+BLOCK_393 softrectangular 2822 0.33 3.0
+BLOCK_394 softrectangular 9946 0.33 3.0
+BLOCK_395 softrectangular 3942 0.33 3.0
+BLOCK_396 softrectangular 6742 0.33 3.0
+BLOCK_397 softrectangular 4346 0.33 3.0
+BLOCK_398 softrectangular 3226 0.33 3.0
+BLOCK_399 softrectangular 7101 0.33 3.0
+BLOCK_400 softrectangular 2307 0.33 3.0
+BLOCK_401 softrectangular 6429 0.33 3.0
+BLOCK_402 softrectangular 6989 0.33 3.0
+BLOCK_403 softrectangular 17181 0.33 3.0
+BLOCK_404 softrectangular 1882 0.33 3.0
+BLOCK_405 softrectangular 3002 0.33 3.0
+BLOCK_406 softrectangular 2442 0.33 3.0
+BLOCK_407 softrectangular 3517 0.33 3.0
+BLOCK_408 softrectangular 2531 0.33 3.0
+BLOCK_409 softrectangular 6877 0.33 3.0
+BLOCK_410 softrectangular 9139 0.33 3.0
+BLOCK_411 softrectangular 5622 0.33 3.0
+BLOCK_412 softrectangular 7549 0.33 3.0
+BLOCK_413 softrectangular 5802 0.33 3.0
+BLOCK_414 softrectangular 7706 0.33 3.0
+BLOCK_415 softrectangular 3091 0.33 3.0
+BLOCK_416 softrectangular 2845 0.33 3.0
+BLOCK_417 softrectangular 2352 0.33 3.0
+BLOCK_418 softrectangular 1702 0.33 3.0
+BLOCK_419 softrectangular 3472 0.33 3.0
+BLOCK_420 softrectangular 4234 0.33 3.0
+BLOCK_421 softrectangular 2307 0.33 3.0
+BLOCK_422 softrectangular 2173 0.33 3.0
+BLOCK_423 softrectangular 2666 0.33 3.0
+BLOCK_424 softrectangular 5846 0.33 3.0
+BLOCK_425 softrectangular 4794 0.33 3.0
+BLOCK_426 softrectangular 2240 0.33 3.0
+BLOCK_427 softrectangular 3136 0.33 3.0
+BLOCK_428 softrectangular 2083 0.33 3.0
+BLOCK_429 softrectangular 4726 0.33 3.0
+BLOCK_430 softrectangular 1613 0.33 3.0
+BLOCK_431 softrectangular 4144 0.33 3.0
+BLOCK_432 softrectangular 3808 0.33 3.0
+BLOCK_433 softrectangular 2800 0.33 3.0
+BLOCK_434 softrectangular 3898 0.33 3.0
+BLOCK_435 softrectangular 2128 0.33 3.0
+BLOCK_436 softrectangular 2016 0.33 3.0
+BLOCK_437 softrectangular 3024 0.33 3.0
+BLOCK_438 softrectangular 6630 0.33 3.0
+BLOCK_439 softrectangular 6630 0.33 3.0
+BLOCK_440 softrectangular 3293 0.33 3.0
+BLOCK_441 softrectangular 2218 0.33 3.0
+BLOCK_442 softrectangular 5174 0.33 3.0
+BLOCK_443 softrectangular 7706 0.33 3.0
+BLOCK_444 softrectangular 7661 0.33 3.0
+BLOCK_445 softrectangular 11133 0.33 3.0
+BLOCK_446 softrectangular 3427 0.33 3.0
+BLOCK_447 softrectangular 3338 0.33 3.0
+BLOCK_448 softrectangular 5040 0.33 3.0
+BLOCK_449 softrectangular 9453 0.33 3.0
+BLOCK_450 softrectangular 8221 0.33 3.0
+BLOCK_451 softrectangular 4659 0.33 3.0
+BLOCK_452 softrectangular 8445 0.33 3.0
+BLOCK_453 softrectangular 8333 0.33 3.0
+BLOCK_454 softrectangular 5936 0.33 3.0
+BLOCK_455 softrectangular 13664 0.33 3.0
+BLOCK_456 softrectangular 3338 0.33 3.0
+BLOCK_457 softrectangular 4726 0.33 3.0
+BLOCK_458 softrectangular 4211 0.33 3.0
+BLOCK_459 softrectangular 5197 0.33 3.0
+BLOCK_460 softrectangular 8624 0.33 3.0
+BLOCK_461 softrectangular 7638 0.33 3.0
+BLOCK_462 softrectangular 7168 0.33 3.0
+BLOCK_463 softrectangular 1478 0.33 3.0
+BLOCK_464 softrectangular 3718 0.33 3.0
+BLOCK_465 softrectangular 9990 0.33 3.0
+BLOCK_466 softrectangular 2173 0.33 3.0
+BLOCK_467 softrectangular 3606 0.33 3.0
+BLOCK_468 softrectangular 5936 0.33 3.0
+BLOCK_469 softrectangular 6227 0.33 3.0
+BLOCK_470 softrectangular 8400 0.33 3.0
+BLOCK_471 softrectangular 2397 0.33 3.0
+BLOCK_472 softrectangular 8691 0.33 3.0
+BLOCK_473 softrectangular 11984 0.33 3.0
+BLOCK_474 softrectangular 3472 0.33 3.0
+BLOCK_475 softrectangular 8848 0.33 3.0
+BLOCK_476 softrectangular 4749 0.33 3.0
+BLOCK_477 softrectangular 3427 0.33 3.0
+BLOCK_478 softrectangular 7706 0.33 3.0
+BLOCK_479 softrectangular 3875 0.33 3.0
+BLOCK_480 softrectangular 6586 0.33 3.0
+BLOCK_481 softrectangular 9005 0.33 3.0
+BLOCK_482 softrectangular 2845 0.33 3.0
+BLOCK_483 softrectangular 1322 0.33 3.0
+BLOCK_484 softrectangular 4682 0.33 3.0
+BLOCK_485 softrectangular 1949 0.33 3.0
+BLOCK_486 softrectangular 2397 0.33 3.0
+BLOCK_487 softrectangular 6070 0.33 3.0
+BLOCK_488 softrectangular 3002 0.33 3.0
+BLOCK_489 softrectangular 5309 0.33 3.0
+BLOCK_490 softrectangular 5085 0.33 3.0
+BLOCK_491 softrectangular 7773 0.33 3.0
+BLOCK_492 softrectangular 22086 0.33 3.0
+BLOCK_493 softrectangular 7370 0.33 3.0
+BLOCK_494 softrectangular 19690 0.33 3.0
+BLOCK_495 softrectangular 7661 0.33 3.0
+BLOCK_496 softrectangular 3517 0.33 3.0
+BLOCK_497 softrectangular 1926 0.33 3.0
+BLOCK_498 softrectangular 4368 0.33 3.0
+BLOCK_499 softrectangular 1904 0.33 3.0
+BLOCK_500 softrectangular 5376 0.33 3.0
+BLOCK_501 softrectangular 6429 0.33 3.0
+BLOCK_502 softrectangular 8333 0.33 3.0
+BLOCK_503 softrectangular 6541 0.33 3.0
+BLOCK_504 softrectangular 8378 0.33 3.0
+BLOCK_505 softrectangular 6272 0.33 3.0
+BLOCK_506 softrectangular 3808 0.33 3.0
+BLOCK_507 softrectangular 7235 0.33 3.0
+BLOCK_508 softrectangular 2397 0.33 3.0
+BLOCK_509 softrectangular 4211 0.33 3.0
+BLOCK_510 softrectangular 6765 0.33 3.0
+BLOCK_511 softrectangular 9654 0.33 3.0
+BLOCK_512 softrectangular 23453 0.33 3.0
+BLOCK_513 softrectangular 4480 0.33 3.0
+BLOCK_514 softrectangular 2576 0.33 3.0
+BLOCK_515 softrectangular 6026 0.33 3.0
+BLOCK_516 softrectangular 16576 0.33 3.0
+BLOCK_517 softrectangular 8781 0.33 3.0
+BLOCK_518 softrectangular 5667 0.33 3.0
+BLOCK_519 softrectangular 3606 0.33 3.0
+BLOCK_520 softrectangular 2979 0.33 3.0
+BLOCK_521 softrectangular 4502 0.33 3.0
+BLOCK_522 softrectangular 9274 0.33 3.0
+BLOCK_523 softrectangular 4346 0.33 3.0
+BLOCK_524 softrectangular 5824 0.33 3.0
+BLOCK_525 softrectangular 1434 0.33 3.0
+BLOCK_526 softrectangular 5085 0.33 3.0
+BLOCK_527 softrectangular 2666 0.33 3.0
+BLOCK_528 softrectangular 7190 0.33 3.0
+BLOCK_529 softrectangular 14717 0.33 3.0
+BLOCK_530 softrectangular 3606 0.33 3.0
+BLOCK_531 softrectangular 4077 0.33 3.0
+BLOCK_532 softrectangular 9654 0.33 3.0
+BLOCK_533 softrectangular 3853 0.33 3.0
+BLOCK_534 softrectangular 8490 0.33 3.0
+BLOCK_535 softrectangular 2576 0.33 3.0
+BLOCK_536 softrectangular 4726 0.33 3.0
+BLOCK_537 softrectangular 6630 0.33 3.0
+BLOCK_538 softrectangular 3853 0.33 3.0
+BLOCK_539 softrectangular 9139 0.33 3.0
+BLOCK_540 softrectangular 9229 0.33 3.0
+BLOCK_541 softrectangular 4570 0.33 3.0
+BLOCK_542 softrectangular 7370 0.33 3.0
+BLOCK_543 softrectangular 6429 0.33 3.0
+BLOCK_544 softrectangular 5914 0.33 3.0
+BLOCK_545 softrectangular 8624 0.33 3.0
+BLOCK_546 softrectangular 8176 0.33 3.0
+BLOCK_547 softrectangular 6541 0.33 3.0
+BLOCK_548 softrectangular 8378 0.33 3.0
+BLOCK_549 softrectangular 12410 0.33 3.0
+BLOCK_550 softrectangular 2957 0.33 3.0
+BLOCK_551 softrectangular 5286 0.33 3.0
+BLOCK_552 softrectangular 7078 0.33 3.0
+BLOCK_553 softrectangular 4301 0.33 3.0
+BLOCK_554 softrectangular 3382 0.33 3.0
+BLOCK_555 softrectangular 6653 0.33 3.0
+BLOCK_556 softrectangular 4771 0.33 3.0
+BLOCK_557 softrectangular 4592 0.33 3.0
+BLOCK_558 softrectangular 5466 0.33 3.0
+BLOCK_559 softrectangular 7885 0.33 3.0
+BLOCK_560 softrectangular 12925 0.33 3.0
+BLOCK_561 softrectangular 10483 0.33 3.0
+BLOCK_562 softrectangular 6966 0.33 3.0
+BLOCK_563 softrectangular 2554 0.33 3.0
+BLOCK_564 softrectangular 9162 0.33 3.0
+BLOCK_565 softrectangular 2934 0.33 3.0
+BLOCK_566 softrectangular 2352 0.33 3.0
+BLOCK_567 softrectangular 14806 0.33 3.0
+BLOCK_568 softrectangular 3674 0.33 3.0
+BLOCK_569 softrectangular 11805 0.33 3.0
+BLOCK_570 softrectangular 6205 0.33 3.0
+BLOCK_571 softrectangular 3024 0.33 3.0
+BLOCK_572 softrectangular 4861 0.33 3.0
+BLOCK_573 softrectangular 5152 0.33 3.0
+BLOCK_574 softrectangular 4323 0.33 3.0
+BLOCK_575 softrectangular 2106 0.33 3.0
+BLOCK_576 softrectangular 10058 0.33 3.0
+BLOCK_577 softrectangular 5690 0.33 3.0
+BLOCK_578 softrectangular 4346 0.33 3.0
+BLOCK_579 softrectangular 5667 0.33 3.0
+BLOCK_580 softrectangular 5466 0.33 3.0
+BLOCK_581 softrectangular 2643 0.33 3.0
+BLOCK_582 softrectangular 3965 0.33 3.0
+BLOCK_583 softrectangular 5174 0.33 3.0
+BLOCK_584 softrectangular 5309 0.33 3.0
+BLOCK_585 softrectangular 6227 0.33 3.0
+BLOCK_586 softrectangular 5914 0.33 3.0
+BLOCK_587 softrectangular 8826 0.33 3.0
+BLOCK_588 softrectangular 7213 0.33 3.0
+BLOCK_589 softrectangular 10752 0.33 3.0
+BLOCK_590 softrectangular 2262 0.33 3.0
+BLOCK_591 softrectangular 3920 0.33 3.0
+BLOCK_592 softrectangular 5981 0.33 3.0
+BLOCK_593 softrectangular 7885 0.33 3.0
+BLOCK_594 softrectangular 4458 0.33 3.0
+BLOCK_595 softrectangular 1814 0.33 3.0
+BLOCK_596 softrectangular 2598 0.33 3.0
+BLOCK_597 softrectangular 8176 0.33 3.0
+BLOCK_598 softrectangular 9789 0.33 3.0
+BLOCK_599 softrectangular 6541 0.33 3.0
+BLOCK_600 softrectangular 2643 0.33 3.0
+BLOCK_601 softrectangular 5018 0.33 3.0
+BLOCK_602 softrectangular 5040 0.33 3.0
+BLOCK_603 softrectangular 2576 0.33 3.0
+BLOCK_604 softrectangular 4122 0.33 3.0
+BLOCK_605 softrectangular 5286 0.33 3.0
+BLOCK_606 softrectangular 3450 0.33 3.0
+BLOCK_607 softrectangular 6742 0.33 3.0
+BLOCK_608 softrectangular 7952 0.33 3.0
+BLOCK_609 softrectangular 3674 0.33 3.0
+BLOCK_610 softrectangular 2867 0.33 3.0
+BLOCK_611 softrectangular 4726 0.33 3.0
+BLOCK_612 softrectangular 4547 0.33 3.0
+BLOCK_613 softrectangular 5197 0.33 3.0
+BLOCK_614 softrectangular 4346 0.33 3.0
+BLOCK_615 softrectangular 2330 0.33 3.0
+BLOCK_616 softrectangular 7056 0.33 3.0
+BLOCK_617 softrectangular 7728 0.33 3.0
+BLOCK_618 softrectangular 35728 0.33 3.0
+BLOCK_619 softrectangular 9229 0.33 3.0
+BLOCK_620 softrectangular 9834 0.33 3.0
+BLOCK_621 softrectangular 2016 0.33 3.0
+BLOCK_622 softrectangular 22176 0.33 3.0
+BLOCK_623 softrectangular 2464 0.33 3.0
+BLOCK_624 softrectangular 14426 0.33 3.0
+BLOCK_625 softrectangular 5712 0.33 3.0
+BLOCK_626 softrectangular 6877 0.33 3.0
+BLOCK_627 softrectangular 3024 0.33 3.0
+BLOCK_628 softrectangular 5376 0.33 3.0
+BLOCK_629 softrectangular 4502 0.33 3.0
+BLOCK_630 softrectangular 2464 0.33 3.0
+BLOCK_631 softrectangular 9520 0.33 3.0
+BLOCK_632 softrectangular 14650 0.33 3.0
+BLOCK_633 softrectangular 5219 0.33 3.0
+BLOCK_634 softrectangular 6339 0.33 3.0
+BLOCK_635 softrectangular 6048 0.33 3.0
+BLOCK_636 softrectangular 4502 0.33 3.0
+BLOCK_637 softrectangular 3830 0.33 3.0
+BLOCK_638 softrectangular 5062 0.33 3.0
+BLOCK_639 softrectangular 7146 0.33 3.0
+BLOCK_640 softrectangular 4906 0.33 3.0
+BLOCK_641 softrectangular 2666 0.33 3.0
+BLOCK_642 softrectangular 11290 0.33 3.0
+BLOCK_643 softrectangular 3830 0.33 3.0
+BLOCK_644 softrectangular 10326 0.33 3.0
+BLOCK_645 softrectangular 5958 0.33 3.0
+BLOCK_646 softrectangular 2778 0.33 3.0
+BLOCK_647 softrectangular 3741 0.33 3.0
+BLOCK_648 softrectangular 3069 0.33 3.0
+BLOCK_649 softrectangular 6630 0.33 3.0
+BLOCK_650 softrectangular 3450 0.33 3.0
+BLOCK_651 softrectangular 9005 0.33 3.0
+BLOCK_652 softrectangular 2867 0.33 3.0
+BLOCK_653 softrectangular 3651 0.33 3.0
+BLOCK_654 softrectangular 6675 0.33 3.0
+BLOCK_655 softrectangular 25939 0.33 3.0
+BLOCK_656 softrectangular 2710 0.33 3.0
+BLOCK_657 softrectangular 7213 0.33 3.0
+BLOCK_658 softrectangular 10304 0.33 3.0
+BLOCK_659 softrectangular 3808 0.33 3.0
+BLOCK_660 softrectangular 5600 0.33 3.0
+BLOCK_661 softrectangular 2106 0.33 3.0
+BLOCK_662 softrectangular 9072 0.33 3.0
+BLOCK_663 softrectangular 3158 0.33 3.0
+BLOCK_664 softrectangular 6250 0.33 3.0
+BLOCK_665 softrectangular 7974 0.33 3.0
+BLOCK_666 softrectangular 7101 0.33 3.0
+BLOCK_667 softrectangular 3405 0.33 3.0
+BLOCK_668 softrectangular 2464 0.33 3.0
+BLOCK_669 softrectangular 2464 0.33 3.0
+BLOCK_670 softrectangular 5286 0.33 3.0
+BLOCK_671 softrectangular 4659 0.33 3.0
+BLOCK_672 softrectangular 7683 0.33 3.0
+BLOCK_673 softrectangular 12634 0.33 3.0
+BLOCK_674 softrectangular 9990 0.33 3.0
+BLOCK_675 softrectangular 5555 0.33 3.0
+BLOCK_676 softrectangular 4458 0.33 3.0
+BLOCK_677 softrectangular 6406 0.33 3.0
+BLOCK_678 softrectangular 6339 0.33 3.0
+BLOCK_679 softrectangular 3158 0.33 3.0
+BLOCK_680 softrectangular 3024 0.33 3.0
+BLOCK_681 softrectangular 6317 0.33 3.0
+BLOCK_682 softrectangular 3226 0.33 3.0
+BLOCK_683 softrectangular 7078 0.33 3.0
+BLOCK_684 softrectangular 4502 0.33 3.0
+BLOCK_685 softrectangular 5533 0.33 3.0
+BLOCK_686 softrectangular 3226 0.33 3.0
+BLOCK_687 softrectangular 4726 0.33 3.0
+BLOCK_688 softrectangular 4950 0.33 3.0
+BLOCK_689 softrectangular 6630 0.33 3.0
+BLOCK_690 softrectangular 3315 0.33 3.0
+BLOCK_691 softrectangular 5062 0.33 3.0
+BLOCK_692 softrectangular 4323 0.33 3.0
+BLOCK_693 softrectangular 3181 0.33 3.0
+BLOCK_694 softrectangular 3405 0.33 3.0
+BLOCK_695 softrectangular 7907 0.33 3.0
+BLOCK_696 softrectangular 11066 0.33 3.0
+BLOCK_697 softrectangular 3226 0.33 3.0
+BLOCK_698 softrectangular 4166 0.33 3.0
+BLOCK_699 softrectangular 2150 0.33 3.0
+BLOCK_700 softrectangular 3741 0.33 3.0
+BLOCK_701 softrectangular 3786 0.33 3.0
+BLOCK_702 softrectangular 3315 0.33 3.0
+BLOCK_703 softrectangular 3629 0.33 3.0
+BLOCK_704 softrectangular 4480 0.33 3.0
+BLOCK_705 softrectangular 31741 0.33 3.0
+BLOCK_706 softrectangular 2934 0.33 3.0
+BLOCK_707 softrectangular 9722 0.33 3.0
+BLOCK_708 softrectangular 6406 0.33 3.0
+BLOCK_709 softrectangular 3718 0.33 3.0
+BLOCK_710 softrectangular 8019 0.33 3.0
+BLOCK_711 softrectangular 4323 0.33 3.0
+BLOCK_712 softrectangular 9094 0.33 3.0
+BLOCK_713 softrectangular 5466 0.33 3.0
+BLOCK_714 softrectangular 6787 0.33 3.0
+BLOCK_715 softrectangular 6653 0.33 3.0
+BLOCK_716 softrectangular 2755 0.33 3.0
+BLOCK_717 softrectangular 3002 0.33 3.0
+BLOCK_718 softrectangular 13126 0.33 3.0
+BLOCK_719 softrectangular 2509 0.33 3.0
+BLOCK_720 softrectangular 13731 0.33 3.0
+BLOCK_721 softrectangular 4256 0.33 3.0
+BLOCK_722 softrectangular 4234 0.33 3.0
+BLOCK_723 softrectangular 7773 0.33 3.0
+BLOCK_724 softrectangular 10707 0.33 3.0
+BLOCK_725 softrectangular 2397 0.33 3.0
+BLOCK_726 softrectangular 9632 0.33 3.0
+BLOCK_727 softrectangular 4704 0.33 3.0
+BLOCK_728 softrectangular 9139 0.33 3.0
+BLOCK_729 softrectangular 2330 0.33 3.0
+BLOCK_730 softrectangular 2666 0.33 3.0
+BLOCK_731 softrectangular 5690 0.33 3.0
+BLOCK_732 softrectangular 4323 0.33 3.0
+BLOCK_733 softrectangular 13843 0.33 3.0
+BLOCK_734 softrectangular 2598 0.33 3.0
+BLOCK_735 softrectangular 3450 0.33 3.0
+BLOCK_736 softrectangular 7638 0.33 3.0
+BLOCK_737 softrectangular 3450 0.33 3.0
+BLOCK_738 softrectangular 8803 0.33 3.0
+BLOCK_739 softrectangular 4390 0.33 3.0
+BLOCK_740 softrectangular 4659 0.33 3.0
+BLOCK_741 softrectangular 4301 0.33 3.0
+BLOCK_742 softrectangular 10304 0.33 3.0
+BLOCK_743 softrectangular 2531 0.33 3.0
+BLOCK_744 softrectangular 5421 0.33 3.0
+BLOCK_745 softrectangular 8893 0.33 3.0
+BLOCK_746 softrectangular 4010 0.33 3.0
+BLOCK_747 softrectangular 19040 0.33 3.0
+BLOCK_748 softrectangular 8579 0.33 3.0
+BLOCK_749 softrectangular 3786 0.33 3.0
+BLOCK_750 softrectangular 4301 0.33 3.0
+BLOCK_751 softrectangular 7370 0.33 3.0
+BLOCK_752 softrectangular 10506 0.33 3.0
+BLOCK_753 softrectangular 5645 0.33 3.0
+BLOCK_754 softrectangular 18458 0.33 3.0
+BLOCK_755 softrectangular 4390 0.33 3.0
+BLOCK_756 softrectangular 9990 0.33 3.0
+BLOCK_757 softrectangular 15075 0.33 3.0
+BLOCK_758 softrectangular 2800 0.33 3.0
+BLOCK_759 softrectangular 3427 0.33 3.0
+BLOCK_760 softrectangular 9229 0.33 3.0
+BLOCK_761 softrectangular 2621 0.33 3.0
+BLOCK_762 softrectangular 5443 0.33 3.0
+BLOCK_763 softrectangular 9251 0.33 3.0
+BLOCK_764 softrectangular 6227 0.33 3.0
+BLOCK_765 softrectangular 8355 0.33 3.0
+BLOCK_766 softrectangular 4525 0.33 3.0
+BLOCK_767 softrectangular 6922 0.33 3.0
+BLOCK_768 softrectangular 14963 0.33 3.0
+BLOCK_769 softrectangular 6294 0.33 3.0
+BLOCK_770 softrectangular 4368 0.33 3.0
+BLOCK_771 softrectangular 5376 0.33 3.0
+BLOCK_772 softrectangular 3002 0.33 3.0
+BLOCK_773 softrectangular 3875 0.33 3.0
+BLOCK_774 softrectangular 5533 0.33 3.0
+BLOCK_775 softrectangular 10214 0.33 3.0
+BLOCK_776 softrectangular 5914 0.33 3.0
+BLOCK_777 softrectangular 3606 0.33 3.0
+BLOCK_778 softrectangular 5331 0.33 3.0
+BLOCK_779 softrectangular 4301 0.33 3.0
+BLOCK_780 softrectangular 4592 0.33 3.0
+BLOCK_781 softrectangular 5802 0.33 3.0
+BLOCK_782 softrectangular 17024 0.33 3.0
+BLOCK_783 softrectangular 7728 0.33 3.0
+BLOCK_784 softrectangular 8042 0.33 3.0
+BLOCK_785 softrectangular 5936 0.33 3.0
+BLOCK_786 softrectangular 7280 0.33 3.0
+BLOCK_787 softrectangular 10685 0.33 3.0
+BLOCK_788 softrectangular 2957 0.33 3.0
+BLOCK_789 softrectangular 7885 0.33 3.0
+BLOCK_790 softrectangular 9878 0.33 3.0
+BLOCK_791 softrectangular 4144 0.33 3.0
+BLOCK_792 softrectangular 6384 0.33 3.0
+BLOCK_793 softrectangular 13171 0.33 3.0
+BLOCK_794 softrectangular 5376 0.33 3.0
+BLOCK_795 softrectangular 10707 0.33 3.0
+BLOCK_796 softrectangular 5443 0.33 3.0
+BLOCK_797 softrectangular 2688 0.33 3.0
+BLOCK_798 softrectangular 4054 0.33 3.0
+BLOCK_799 softrectangular 4234 0.33 3.0
+BLOCK_800 softrectangular 5891 0.33 3.0
+BLOCK_801 softrectangular 4861 0.33 3.0
+BLOCK_802 softrectangular 6362 0.33 3.0
+BLOCK_803 softrectangular 7347 0.33 3.0
+BLOCK_804 softrectangular 3494 0.33 3.0
+BLOCK_805 softrectangular 2778 0.33 3.0
+BLOCK_806 softrectangular 5107 0.33 3.0
+BLOCK_807 softrectangular 3898 0.33 3.0
+BLOCK_808 softrectangular 8669 0.33 3.0
+BLOCK_809 softrectangular 5309 0.33 3.0
+BLOCK_810 softrectangular 5891 0.33 3.0
+BLOCK_811 softrectangular 8378 0.33 3.0
+BLOCK_812 softrectangular 6093 0.33 3.0
+BLOCK_813 softrectangular 3405 0.33 3.0
+BLOCK_814 softrectangular 5130 0.33 3.0
+BLOCK_815 softrectangular 12902 0.33 3.0
+BLOCK_816 softrectangular 5488 0.33 3.0
+BLOCK_817 softrectangular 4435 0.33 3.0
+BLOCK_818 softrectangular 5869 0.33 3.0
+BLOCK_819 softrectangular 5578 0.33 3.0
+BLOCK_820 softrectangular 2173 0.33 3.0
+BLOCK_821 softrectangular 4592 0.33 3.0
+BLOCK_822 softrectangular 3136 0.33 3.0
+BLOCK_823 softrectangular 50982 0.33 3.0
+BLOCK_824 softrectangular 7078 0.33 3.0
+BLOCK_825 softrectangular 9923 0.33 3.0
+BLOCK_826 softrectangular 10819 0.33 3.0
+BLOCK_827 softrectangular 7594 0.33 3.0
+BLOCK_828 softrectangular 5734 0.33 3.0
+BLOCK_829 softrectangular 6115 0.33 3.0
+BLOCK_830 softrectangular 7437 0.33 3.0
+BLOCK_831 softrectangular 6362 0.33 3.0
+BLOCK_832 softrectangular 9587 0.33 3.0
+BLOCK_833 softrectangular 6630 0.33 3.0
+BLOCK_834 softrectangular 3405 0.33 3.0
+BLOCK_835 softrectangular 5690 0.33 3.0
+BLOCK_836 softrectangular 5152 0.33 3.0
+BLOCK_837 softrectangular 3741 0.33 3.0
+BLOCK_838 softrectangular 6093 0.33 3.0
+BLOCK_839 softrectangular 10752 0.33 3.0
+BLOCK_840 softrectangular 4256 0.33 3.0
+BLOCK_841 softrectangular 9386 0.33 3.0
+BLOCK_842 softrectangular 4771 0.33 3.0
+BLOCK_843 softrectangular 8445 0.33 3.0
+BLOCK_844 softrectangular 4234 0.33 3.0
+BLOCK_845 softrectangular 2778 0.33 3.0
+BLOCK_846 softrectangular 8400 0.33 3.0
+BLOCK_847 softrectangular 9296 0.33 3.0
+BLOCK_848 softrectangular 12118 0.33 3.0
+BLOCK_849 softrectangular 6451 0.33 3.0
+BLOCK_850 softrectangular 9139 0.33 3.0
+BLOCK_851 softrectangular 4659 0.33 3.0
+BLOCK_852 softrectangular 2666 0.33 3.0
+BLOCK_853 softrectangular 8960 0.33 3.0
+BLOCK_854 softrectangular 2710 0.33 3.0
+BLOCK_855 softrectangular 8355 0.33 3.0
+BLOCK_856 softrectangular 13686 0.33 3.0
+BLOCK_857 softrectangular 4032 0.33 3.0
+BLOCK_858 softrectangular 9274 0.33 3.0
+BLOCK_859 softrectangular 9878 0.33 3.0
+BLOCK_860 softrectangular 4995 0.33 3.0
+BLOCK_861 softrectangular 9766 0.33 3.0
+BLOCK_862 softrectangular 8445 0.33 3.0
+BLOCK_863 softrectangular 7258 0.33 3.0
+BLOCK_864 softrectangular 3136 0.33 3.0
+BLOCK_865 softrectangular 11178 0.33 3.0
+BLOCK_866 softrectangular 9722 0.33 3.0
+BLOCK_867 softrectangular 5891 0.33 3.0
+BLOCK_868 softrectangular 9498 0.33 3.0
+BLOCK_869 softrectangular 6586 0.33 3.0
+BLOCK_870 softrectangular 12096 0.33 3.0
+BLOCK_871 softrectangular 12253 0.33 3.0
+BLOCK_872 softrectangular 2666 0.33 3.0
+BLOCK_873 softrectangular 5869 0.33 3.0
+BLOCK_874 softrectangular 5197 0.33 3.0
+BLOCK_875 softrectangular 6115 0.33 3.0
+BLOCK_876 softrectangular 6160 0.33 3.0
+BLOCK_877 softrectangular 5264 0.33 3.0
+BLOCK_878 softrectangular 4861 0.33 3.0
+BLOCK_879 softrectangular 4682 0.33 3.0
+BLOCK_880 softrectangular 4368 0.33 3.0
+BLOCK_881 softrectangular 5062 0.33 3.0
+BLOCK_882 softrectangular 18637 0.33 3.0
+BLOCK_883 softrectangular 13619 0.33 3.0
+BLOCK_884 softrectangular 11110 0.33 3.0
+BLOCK_885 softrectangular 6586 0.33 3.0
+BLOCK_886 softrectangular 4592 0.33 3.0
+BLOCK_887 softrectangular 15904 0.33 3.0
+BLOCK_888 softrectangular 5376 0.33 3.0
+BLOCK_889 softrectangular 3696 0.33 3.0
+BLOCK_890 softrectangular 11110 0.33 3.0
+BLOCK_891 softrectangular 3696 0.33 3.0
+BLOCK_892 softrectangular 7190 0.33 3.0
+BLOCK_893 softrectangular 8221 0.33 3.0
+BLOCK_894 softrectangular 4189 0.33 3.0
+BLOCK_895 softrectangular 6496 0.33 3.0
+BLOCK_896 softrectangular 6362 0.33 3.0
+BLOCK_897 softrectangular 10954 0.33 3.0
+BLOCK_898 softrectangular 7414 0.33 3.0
+BLOCK_899 softrectangular 7885 0.33 3.0
+BLOCK_900 softrectangular 3718 0.33 3.0
+BLOCK_901 softrectangular 3786 0.33 3.0
+BLOCK_902 softrectangular 9094 0.33 3.0
+BLOCK_903 softrectangular 4077 0.33 3.0
+BLOCK_904 softrectangular 4525 0.33 3.0
+BLOCK_905 softrectangular 8288 0.33 3.0
+BLOCK_906 softrectangular 5174 0.33 3.0
+BLOCK_907 softrectangular 15098 0.33 3.0
+BLOCK_908 softrectangular 5331 0.33 3.0
+BLOCK_909 softrectangular 6362 0.33 3.0
+BLOCK_910 softrectangular 2979 0.33 3.0
+BLOCK_911 softrectangular 10394 0.33 3.0
+BLOCK_912 softrectangular 9296 0.33 3.0
+BLOCK_913 softrectangular 7459 0.33 3.0
+BLOCK_914 softrectangular 13104 0.33 3.0
+BLOCK_915 softrectangular 15859 0.33 3.0
+BLOCK_916 softrectangular 13328 0.33 3.0
+BLOCK_917 softrectangular 10304 0.33 3.0
+BLOCK_918 softrectangular 6877 0.33 3.0
+BLOCK_919 softrectangular 4301 0.33 3.0
+BLOCK_920 softrectangular 10595 0.33 3.0
+BLOCK_921 softrectangular 5466 0.33 3.0
+BLOCK_922 softrectangular 8960 0.33 3.0
+BLOCK_923 softrectangular 2979 0.33 3.0
+BLOCK_924 softrectangular 8915 0.33 3.0
+BLOCK_925 softrectangular 7347 0.33 3.0
+BLOCK_926 softrectangular 5869 0.33 3.0
+BLOCK_927 softrectangular 7818 0.33 3.0
+BLOCK_928 softrectangular 15971 0.33 3.0
+BLOCK_929 softrectangular 8019 0.33 3.0
+BLOCK_930 softrectangular 3898 0.33 3.0
+BLOCK_931 softrectangular 4816 0.33 3.0
+BLOCK_932 softrectangular 11939 0.33 3.0
+BLOCK_933 softrectangular 9744 0.33 3.0
+BLOCK_934 softrectangular 4413 0.33 3.0
+BLOCK_935 softrectangular 5981 0.33 3.0
+BLOCK_936 softrectangular 8534 0.33 3.0
+BLOCK_937 softrectangular 5981 0.33 3.0
+BLOCK_938 softrectangular 10797 0.33 3.0
+BLOCK_939 softrectangular 12365 0.33 3.0
+BLOCK_940 softrectangular 7235 0.33 3.0
+BLOCK_941 softrectangular 6272 0.33 3.0
+BLOCK_942 softrectangular 7190 0.33 3.0
+BLOCK_943 softrectangular 8019 0.33 3.0
+BLOCK_944 softrectangular 10797 0.33 3.0
+BLOCK_945 softrectangular 8938 0.33 3.0
+BLOCK_946 softrectangular 4256 0.33 3.0
+BLOCK_947 softrectangular 3920 0.33 3.0
+BLOCK_948 softrectangular 6227 0.33 3.0
+BLOCK_949 softrectangular 3942 0.33 3.0
+BLOCK_950 softrectangular 5398 0.33 3.0
+BLOCK_951 softrectangular 5174 0.33 3.0
+BLOCK_952 softrectangular 4614 0.33 3.0
+BLOCK_953 softrectangular 5286 0.33 3.0
+BLOCK_954 softrectangular 14202 0.33 3.0
+BLOCK_955 softrectangular 6362 0.33 3.0
+BLOCK_956 softrectangular 5600 0.33 3.0
+BLOCK_957 softrectangular 6474 0.33 3.0
+BLOCK_958 softrectangular 7280 0.33 3.0
+BLOCK_959 softrectangular 5421 0.33 3.0
+BLOCK_960 softrectangular 6070 0.33 3.0
+BLOCK_961 softrectangular 4547 0.33 3.0
+BLOCK_962 softrectangular 17629 0.33 3.0
+BLOCK_963 softrectangular 6406 0.33 3.0
+BLOCK_964 softrectangular 5443 0.33 3.0
+BLOCK_965 softrectangular 7773 0.33 3.0
+BLOCK_966 softrectangular 22691 0.33 3.0
+BLOCK_967 softrectangular 5555 0.33 3.0
+BLOCK_968 softrectangular 5062 0.33 3.0
+BLOCK_969 softrectangular 11200 0.33 3.0
+BLOCK_970 softrectangular 6966 0.33 3.0
+BLOCK_971 softrectangular 20227 0.33 3.0
+BLOCK_972 softrectangular 15142 0.33 3.0
+BLOCK_973 softrectangular 5174 0.33 3.0
+BLOCK_974 softrectangular 3114 0.33 3.0
+BLOCK_975 softrectangular 11782 0.33 3.0
+BLOCK_976 softrectangular 6205 0.33 3.0
+BLOCK_977 softrectangular 4234 0.33 3.0
+BLOCK_978 softrectangular 5600 0.33 3.0
+BLOCK_979 softrectangular 19152 0.33 3.0
+BLOCK_980 softrectangular 18682 0.33 3.0
+BLOCK_981 softrectangular 4077 0.33 3.0
+BLOCK_982 softrectangular 3718 0.33 3.0
+BLOCK_983 softrectangular 10304 0.33 3.0
+BLOCK_984 softrectangular 8333 0.33 3.0
+BLOCK_985 softrectangular 3472 0.33 3.0
+BLOCK_986 softrectangular 10282 0.33 3.0
+BLOCK_987 softrectangular 6854 0.33 3.0
+BLOCK_988 softrectangular 5600 0.33 3.0
+BLOCK_989 softrectangular 14470 0.33 3.0
+BLOCK_990 softrectangular 7213 0.33 3.0
+BLOCK_991 softrectangular 14762 0.33 3.0
+BLOCK_992 softrectangular 6496 0.33 3.0
+BLOCK_993 softrectangular 9274 0.33 3.0
+BLOCK_994 softrectangular 15165 0.33 3.0
+BLOCK_995 softrectangular 11133 0.33 3.0
+BLOCK_996 softrectangular 6339 0.33 3.0
+BLOCK_997 softrectangular 10214 0.33 3.0
+BLOCK_998 softrectangular 11178 0.33 3.0
+BLOCK_999 softrectangular 37901 0.33 3.0
+BLOCK_1000 softrectangular 10304 0.33 3.0
+BLOCK_1001 softrectangular 23856 0.33 3.0
+BLOCK_1002 softrectangular 4570 0.33 3.0
+BLOCK_1003 softrectangular 20048 0.33 3.0
+BLOCK_1004 softrectangular 6294 0.33 3.0
+BLOCK_1005 softrectangular 25357 0.33 3.0
+BLOCK_1006 softrectangular 24864 0.33 3.0
+BLOCK_1007 softrectangular 6115 0.33 3.0
+BLOCK_1008 softrectangular 5510 0.33 3.0
+BLOCK_1009 softrectangular 10416 0.33 3.0
+BLOCK_1010 softrectangular 33757 0.33 3.0
+BLOCK_1011 softrectangular 9610 0.33 3.0
+BLOCK_1012 softrectangular 6451 0.33 3.0
+BLOCK_1013 softrectangular 7414 0.33 3.0
+BLOCK_1014 softrectangular 10573 0.33 3.0
+BLOCK_1015 softrectangular 8534 0.33 3.0
+BLOCK_1016 softrectangular 5981 0.33 3.0
+BLOCK_1017 softrectangular 8221 0.33 3.0
+BLOCK_1018 softrectangular 8736 0.33 3.0
+BLOCK_1019 softrectangular 11312 0.33 3.0
+BLOCK_1020 softrectangular 9453 0.33 3.0
+BLOCK_1021 softrectangular 12970 0.33 3.0
+BLOCK_1022 softrectangular 7347 0.33 3.0
+BLOCK_1023 softrectangular 8602 0.33 3.0
+BLOCK_1024 softrectangular 35190 0.33 3.0
+BLOCK_1025 softrectangular 11491 0.33 3.0
+BLOCK_1026 softrectangular 11357 0.33 3.0
+BLOCK_1027 softrectangular 5174 0.33 3.0
+BLOCK_1028 softrectangular 9072 0.33 3.0
+BLOCK_1029 softrectangular 17091 0.33 3.0
+BLOCK_1030 softrectangular 9834 0.33 3.0
+BLOCK_1031 softrectangular 8915 0.33 3.0
+BLOCK_1032 softrectangular 4614 0.33 3.0
+BLOCK_1033 softrectangular 6765 0.33 3.0
+BLOCK_1034 softrectangular 6003 0.33 3.0
+BLOCK_1035 softrectangular 7056 0.33 3.0
+BLOCK_1036 softrectangular 5488 0.33 3.0
+BLOCK_1037 softrectangular 4682 0.33 3.0
+BLOCK_1038 softrectangular 14090 0.33 3.0
+BLOCK_1039 softrectangular 5690 0.33 3.0
+BLOCK_1040 softrectangular 14851 0.33 3.0
+BLOCK_1041 softrectangular 7638 0.33 3.0
+BLOCK_1042 softrectangular 9498 0.33 3.0
+BLOCK_1043 softrectangular 13126 0.33 3.0
+BLOCK_1044 softrectangular 7213 0.33 3.0
+BLOCK_1045 softrectangular 57952 0.33 3.0
+BLOCK_1046 softrectangular 13920 0.33 3.0
+BLOCK_1047 softrectangular 7296 0.33 3.0
+BLOCK_1048 softrectangular 11712 0.33 3.0
+BLOCK_1049 softrectangular 26528 0.33 3.0
+BLOCK_1050 softrectangular 19584 0.33 3.0
+BLOCK_1051 softrectangular 21216 0.33 3.0
+BLOCK_1052 softrectangular 6400 0.33 3.0
+BLOCK_1053 softrectangular 18976 0.33 3.0
+BLOCK_1054 softrectangular 12736 0.33 3.0
+BLOCK_1055 softrectangular 30944 0.33 3.0
+BLOCK_1056 softrectangular 14784 0.33 3.0
+BLOCK_1057 softrectangular 9568 0.33 3.0
+BLOCK_1058 softrectangular 9728 0.33 3.0
+BLOCK_1059 softrectangular 9728 0.33 3.0
+BLOCK_1060 softrectangular 26912 0.33 3.0
+BLOCK_1061 softrectangular 13984 0.33 3.0
+BLOCK_1062 softrectangular 13248 0.33 3.0
+BLOCK_1063 softrectangular 16032 0.33 3.0
+BLOCK_1064 softrectangular 10016 0.33 3.0
+BLOCK_1065 softrectangular 32832 0.33 3.0
+BLOCK_1066 softrectangular 14816 0.33 3.0
+BLOCK_1067 softrectangular 11008 0.33 3.0
+BLOCK_1068 softrectangular 18912 0.33 3.0
+BLOCK_1069 softrectangular 8416 0.33 3.0
+BLOCK_1070 softrectangular 11296 0.33 3.0
+BLOCK_1071 softrectangular 45024 0.33 3.0
+BLOCK_1072 softrectangular 10720 0.33 3.0
+BLOCK_1073 softrectangular 14368 0.33 3.0
+BLOCK_1074 softrectangular 25888 0.33 3.0
+BLOCK_1075 softrectangular 13312 0.33 3.0
+BLOCK_1076 softrectangular 12256 0.33 3.0
+BLOCK_1077 softrectangular 10272 0.33 3.0
+BLOCK_1078 softrectangular 14400 0.33 3.0
+BLOCK_1079 softrectangular 35264 0.33 3.0
+BLOCK_1080 softrectangular 13024 0.33 3.0
+BLOCK_1081 softrectangular 10560 0.33 3.0
+BLOCK_1082 softrectangular 8576 0.33 3.0
+BLOCK_1083 softrectangular 10496 0.33 3.0
+BLOCK_1084 softrectangular 12928 0.33 3.0
+BLOCK_1085 softrectangular 33184 0.33 3.0
+BLOCK_1086 softrectangular 9280 0.33 3.0
+BLOCK_1087 softrectangular 27616 0.33 3.0
+BLOCK_1088 softrectangular 17536 0.33 3.0
+BLOCK_1089 softrectangular 8256 0.33 3.0
+BLOCK_1090 softrectangular 15648 0.33 3.0
+BLOCK_1091 softrectangular 37248 0.33 3.0
+BLOCK_1092 softrectangular 26976 0.33 3.0
+BLOCK_1093 softrectangular 17856 0.33 3.0
+BLOCK_1094 softrectangular 31360 0.33 3.0
+BLOCK_1095 softrectangular 13952 0.33 3.0
+BLOCK_1096 softrectangular 8640 0.33 3.0
+BLOCK_1097 softrectangular 13984 0.33 3.0
+BLOCK_1098 softrectangular 19872 0.33 3.0
+BLOCK_1099 softrectangular 13376 0.33 3.0
+BLOCK_1100 softrectangular 21536 0.33 3.0
+BLOCK_1101 softrectangular 13952 0.33 3.0
+BLOCK_1102 softrectangular 44640 0.33 3.0
+BLOCK_1103 softrectangular 26944 0.33 3.0
+BLOCK_1104 softrectangular 21600 0.33 3.0
+BLOCK_1105 softrectangular 21184 0.33 3.0
+BLOCK_1106 softrectangular 11040 0.33 3.0
+BLOCK_1107 softrectangular 13568 0.33 3.0
+BLOCK_1108 softrectangular 32448 0.33 3.0
+BLOCK_1109 softrectangular 14656 0.33 3.0
+BLOCK_1110 softrectangular 26528 0.33 3.0
+BLOCK_1111 softrectangular 36128 0.33 3.0
+BLOCK_1112 softrectangular 20736 0.33 3.0
+BLOCK_1113 softrectangular 21152 0.33 3.0
+BLOCK_1114 softrectangular 70688 0.33 3.0
+BLOCK_1115 softrectangular 89696 0.33 3.0
+BLOCK_1116 softrectangular 20256 0.33 3.0
+BLOCK_1117 softrectangular 81984 0.33 3.0
+BLOCK_1118 softrectangular 21312 0.33 3.0
+BLOCK_1119 softrectangular 17888 0.33 3.0
+BLOCK_1120 softrectangular 30592 0.33 3.0
+BLOCK_1121 softrectangular 43520 0.33 3.0
+BLOCK_1122 softrectangular 22880 0.33 3.0
+BLOCK_1123 softrectangular 34016 0.33 3.0
+BLOCK_1124 softrectangular 18368 0.33 3.0
+BLOCK_1125 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1126 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1127 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1128 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1129 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1130 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1131 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1132 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1133 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1134 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1135 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1136 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1137 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1138 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1139 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1140 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1141 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1142 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1143 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1144 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1145 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1146 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1147 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1148 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1149 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1150 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1151 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1152 hardrectilinear 4 (0, 0) (0, 944) (954, 944) (954, 0)
+BLOCK_1153 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1154 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1155 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1156 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1157 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1158 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1159 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1160 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1161 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1162 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1163 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1164 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1165 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1166 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1167 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1168 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1169 hardrectilinear 4 (0, 0) (0, 256) (254, 256) (254, 0)
+BLOCK_1170 hardrectilinear 4 (0, 0) (0, 976) (974, 976) (974, 0)
+BLOCK_1171 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1172 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1173 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1174 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1175 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1176 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1177 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1178 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1179 hardrectilinear 4 (0, 0) (0, 352) (362, 352) (362, 0)
+BLOCK_1180 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1181 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1182 hardrectilinear 4 (0, 0) (0, 912) (909, 912) (909, 0)
+BLOCK_1183 hardrectilinear 4 (0, 0) (0, 944) (954, 944) (954, 0)
+BLOCK_1184 hardrectilinear 4 (0, 0) (0, 480) (473, 480) (473, 0)
+BLOCK_1185 hardrectilinear 4 (0, 0) (0, 608) (592, 608) (592, 0)
+BLOCK_1186 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1187 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1188 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1189 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1190 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1191 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1192 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1193 hardrectilinear 4 (0, 0) (0, 352) (362, 352) (362, 0)
+BLOCK_1194 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1195 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1196 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1197 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1198 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1199 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1200 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1201 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1202 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1203 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1204 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1205 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1206 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1207 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1208 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1209 hardrectilinear 4 (0, 0) (0, 480) (473, 480) (473, 0)
+BLOCK_1210 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1211 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1212 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1213 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1214 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1215 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1216 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1217 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1218 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1219 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1220 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1221 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1222 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1223 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1224 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1225 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1226 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1227 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1228 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1229 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1230 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1231 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1232 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1233 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1234 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1235 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1236 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1237 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1238 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1239 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1240 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1241 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1242 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1243 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1244 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1245 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1246 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1247 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1248 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1249 hardrectilinear 4 (0, 0) (0, 256) (254, 256) (254, 0)
+BLOCK_1250 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1251 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1252 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1253 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1254 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1255 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1256 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1257 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1258 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1259 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1260 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1261 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1262 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1263 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1264 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1265 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1266 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1267 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1268 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1269 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1270 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1271 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1272 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1273 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1274 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1275 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1276 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1277 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1278 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1279 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1280 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1281 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1282 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1283 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1284 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1285 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1286 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1287 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1288 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1289 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1290 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1291 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1292 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1293 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1294 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1295 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1296 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1297 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1298 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1299 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1300 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1301 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1302 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1303 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1304 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1305 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1306 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1307 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1308 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1309 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1310 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1311 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1312 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1313 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1314 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1315 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1316 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1317 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1318 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1319 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1320 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1321 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1322 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1323 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1324 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1325 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1326 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1327 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1328 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1329 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1330 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1331 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1332 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1333 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1334 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1335 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1336 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1337 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1338 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1339 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1340 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1341 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1342 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1343 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1344 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1345 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1346 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1347 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1348 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1349 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1350 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1351 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1352 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1353 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1354 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1355 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1356 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1357 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1358 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1359 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1360 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1361 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1362 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1363 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1364 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1365 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1366 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1367 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1368 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1369 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1370 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1371 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1372 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1373 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1374 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1375 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1376 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1377 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1378 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1379 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1380 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1381 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1382 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1383 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1384 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1385 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1386 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1387 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1388 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1389 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1390 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1391 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1392 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1393 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1394 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1395 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1396 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1397 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1398 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1399 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1400 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1401 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1402 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1403 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1404 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1405 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1406 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1407 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1408 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1409 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1410 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1411 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1412 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1413 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1414 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1415 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1416 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1417 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1418 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1419 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1420 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1421 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1422 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1423 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1424 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1425 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1426 hardrectilinear 4 (0, 0) (0, 1948) (1948, 1948) (1948, 0)
+BLOCK_1427 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1428 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1429 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1430 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1431 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1432 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1433 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1434 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1435 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1436 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1437 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1438 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1439 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1440 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1441 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1442 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1443 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1444 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1445 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1446 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1447 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1448 hardrectilinear 4 (0, 0) (0, 608) (592, 608) (592, 0)
+BLOCK_1449 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1450 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1451 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1452 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1453 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1454 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1455 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1456 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1457 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1458 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1459 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1460 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1461 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1462 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1463 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1464 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1465 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1466 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1467 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1468 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1469 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1470 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1471 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1472 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1473 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1474 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1475 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1476 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1477 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1478 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1479 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1480 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1481 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1482 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1483 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1484 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1485 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1486 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1487 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1488 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1489 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1490 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1491 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1492 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1493 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1494 hardrectilinear 4 (0, 0) (0, 912) (909, 912) (909, 0)
+BLOCK_1495 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+BLOCK_1496 hardrectilinear 4 (0, 0) (0, 128) (120, 128) (120, 0)
+BLOCK_1497 hardrectilinear 4 (0, 0) (0, 96) (80, 96) (80, 0)
+
+PAD_44 terminal
+PAD_45 terminal
+PAD_46 terminal
+PAD_47 terminal
+PAD_48 terminal
+PAD_49 terminal
+PAD_0 terminal
+PAD_1 terminal
+PAD_50 terminal
+PAD_51 terminal
+PAD_2 terminal
+PAD_3 terminal
+PAD_4 terminal
+PAD_52 terminal
+PAD_53 terminal
+PAD_5 terminal
+PAD_54 terminal
+PAD_6 terminal
+PAD_66 terminal
+PAD_7 terminal
+PAD_55 terminal
+PAD_56 terminal
+PAD_57 terminal
+PAD_58 terminal
+PAD_8 terminal
+PAD_9 terminal
+PAD_10 terminal
+PAD_11 terminal
+PAD_59 terminal
+PAD_60 terminal
+PAD_61 terminal
+PAD_12 terminal
+PAD_62 terminal
+PAD_63 terminal
+PAD_64 terminal
+PAD_13 terminal
+PAD_65 terminal
+PAD_97 terminal
+PAD_67 terminal
+PAD_14 terminal
+PAD_15 terminal
+PAD_68 terminal
+PAD_16 terminal
+PAD_69 terminal
+PAD_17 terminal
+PAD_70 terminal
+PAD_71 terminal
+PAD_18 terminal
+PAD_19 terminal
+PAD_72 terminal
+PAD_20 terminal
+PAD_21 terminal
+PAD_73 terminal
+PAD_74 terminal
+PAD_75 terminal
+PAD_76 terminal
+PAD_77 terminal
+PAD_78 terminal
+PAD_79 terminal
+PAD_22 terminal
+PAD_80 terminal
+PAD_81 terminal
+PAD_82 terminal
+PAD_83 terminal
+PAD_84 terminal
+PAD_85 terminal
+PAD_23 terminal
+PAD_24 terminal
+PAD_86 terminal
+PAD_87 terminal
+PAD_88 terminal
+PAD_89 terminal
+PAD_25 terminal
+PAD_26 terminal
+PAD_90 terminal
+PAD_27 terminal
+PAD_28 terminal
+PAD_91 terminal
+PAD_92 terminal
+PAD_93 terminal
+PAD_94 terminal
+PAD_95 terminal
+PAD_96 terminal
+PAD_179 terminal
+PAD_180 terminal
+PAD_29 terminal
+PAD_30 terminal
+PAD_98 terminal
+PAD_31 terminal
+PAD_99 terminal
+PAD_100 terminal
+PAD_101 terminal
+PAD_32 terminal
+PAD_102 terminal
+PAD_33 terminal
+PAD_103 terminal
+PAD_34 terminal
+PAD_104 terminal
+PAD_105 terminal
+PAD_106 terminal
+PAD_107 terminal
+PAD_108 terminal
+PAD_109 terminal
+PAD_110 terminal
+PAD_111 terminal
+PAD_112 terminal
+PAD_113 terminal
+PAD_114 terminal
+PAD_115 terminal
+PAD_116 terminal
+PAD_117 terminal
+PAD_118 terminal
+PAD_119 terminal
+PAD_120 terminal
+PAD_121 terminal
+PAD_122 terminal
+PAD_123 terminal
+PAD_124 terminal
+PAD_125 terminal
+PAD_126 terminal
+PAD_127 terminal
+PAD_128 terminal
+PAD_129 terminal
+PAD_130 terminal
+PAD_131 terminal
+PAD_132 terminal
+PAD_133 terminal
+PAD_134 terminal
+PAD_135 terminal
+PAD_136 terminal
+PAD_137 terminal
+PAD_138 terminal
+PAD_139 terminal
+PAD_140 terminal
+PAD_141 terminal
+PAD_142 terminal
+PAD_143 terminal
+PAD_144 terminal
+PAD_145 terminal
+PAD_146 terminal
+PAD_147 terminal
+PAD_148 terminal
+PAD_149 terminal
+PAD_150 terminal
+PAD_151 terminal
+PAD_152 terminal
+PAD_153 terminal
+PAD_154 terminal
+PAD_155 terminal
+PAD_156 terminal
+PAD_157 terminal
+PAD_158 terminal
+PAD_159 terminal
+PAD_160 terminal
+PAD_161 terminal
+PAD_162 terminal
+PAD_163 terminal
+PAD_164 terminal
+PAD_165 terminal
+PAD_166 terminal
+PAD_167 terminal
+PAD_168 terminal
+PAD_169 terminal
+PAD_170 terminal
+PAD_171 terminal
+PAD_172 terminal
+PAD_301 terminal
+PAD_173 terminal
+PAD_174 terminal
+PAD_175 terminal
+PAD_176 terminal
+PAD_177 terminal
+PAD_178 terminal
+PAD_181 terminal
+PAD_182 terminal
+PAD_183 terminal
+PAD_184 terminal
+PAD_185 terminal
+PAD_186 terminal
+PAD_187 terminal
+PAD_188 terminal
+PAD_189 terminal
+PAD_190 terminal
+PAD_191 terminal
+PAD_192 terminal
+PAD_193 terminal
+PAD_194 terminal
+PAD_195 terminal
+PAD_196 terminal
+PAD_197 terminal
+PAD_198 terminal
+PAD_199 terminal
+PAD_200 terminal
+PAD_201 terminal
+PAD_202 terminal
+PAD_203 terminal
+PAD_204 terminal
+PAD_205 terminal
+PAD_206 terminal
+PAD_207 terminal
+PAD_208 terminal
+PAD_209 terminal
+PAD_210 terminal
+PAD_211 terminal
+PAD_212 terminal
+PAD_213 terminal
+PAD_214 terminal
+PAD_215 terminal
+PAD_216 terminal
+PAD_217 terminal
+PAD_218 terminal
+PAD_219 terminal
+PAD_220 terminal
+PAD_221 terminal
+PAD_222 terminal
+PAD_223 terminal
+PAD_224 terminal
+PAD_225 terminal
+PAD_226 terminal
+PAD_227 terminal
+PAD_228 terminal
+PAD_229 terminal
+PAD_230 terminal
+PAD_231 terminal
+PAD_232 terminal
+PAD_233 terminal
+PAD_234 terminal
+PAD_235 terminal
+PAD_236 terminal
+PAD_237 terminal
+PAD_238 terminal
+PAD_239 terminal
+PAD_240 terminal
+PAD_241 terminal
+PAD_242 terminal
+PAD_243 terminal
+PAD_244 terminal
+PAD_245 terminal
+PAD_246 terminal
+PAD_247 terminal
+PAD_248 terminal
+PAD_249 terminal
+PAD_250 terminal
+PAD_251 terminal
+PAD_252 terminal
+PAD_35 terminal
+PAD_36 terminal
+PAD_37 terminal
+PAD_38 terminal
+PAD_39 terminal
+PAD_40 terminal
+PAD_41 terminal
+PAD_42 terminal
+PAD_43 terminal
+PAD_253 terminal
+PAD_254 terminal
+PAD_255 terminal
+PAD_256 terminal
+PAD_257 terminal
+PAD_258 terminal
+PAD_259 terminal
+PAD_260 terminal
+PAD_261 terminal
+PAD_262 terminal
+PAD_263 terminal
+PAD_264 terminal
+PAD_265 terminal
+PAD_266 terminal
+PAD_267 terminal
+PAD_268 terminal
+PAD_269 terminal
+PAD_270 terminal
+PAD_271 terminal
+PAD_272 terminal
+PAD_273 terminal
+PAD_274 terminal
+PAD_275 terminal
+PAD_276 terminal
+PAD_277 terminal
+PAD_278 terminal
+PAD_279 terminal
+PAD_280 terminal
+PAD_281 terminal
+PAD_282 terminal
+PAD_283 terminal
+PAD_284 terminal
+PAD_285 terminal
+PAD_286 terminal
+PAD_287 terminal
+PAD_288 terminal
+PAD_289 terminal
+PAD_290 terminal
+PAD_291 terminal
+PAD_292 terminal
+PAD_293 terminal
+PAD_294 terminal
+PAD_295 terminal
+PAD_296 terminal
+PAD_297 terminal
+PAD_298 terminal
+PAD_299 terminal
+PAD_300 terminal
+PAD_302 terminal
+PAD_303 terminal
+PAD_304 terminal
+PAD_305 terminal
+PAD_306 terminal
+PAD_307 terminal
+PAD_308 terminal
+PAD_309 terminal
+PAD_310 terminal
+PAD_311 terminal
+PAD_312 terminal
+PAD_313 terminal
+PAD_314 terminal
+PAD_315 terminal
+PAD_316 terminal
+PAD_317 terminal
+PAD_318 terminal
+PAD_319 terminal
+PAD_320 terminal
+PAD_321 terminal
+PAD_322 terminal
+PAD_323 terminal
+PAD_324 terminal
+PAD_325 terminal
+PAD_326 terminal
+PAD_327 terminal
+PAD_328 terminal
+PAD_329 terminal
+PAD_330 terminal
+PAD_331 terminal
+PAD_332 terminal
+PAD_333 terminal
+PAD_334 terminal
+PAD_335 terminal
+PAD_336 terminal
+PAD_337 terminal
+PAD_338 terminal
+PAD_339 terminal
+PAD_340 terminal
+PAD_341 terminal
+PAD_342 terminal
+PAD_343 terminal
+PAD_344 terminal
+PAD_345 terminal
+PAD_346 terminal
+PAD_347 terminal
+PAD_348 terminal
+PAD_349 terminal
+PAD_350 terminal
+PAD_351 terminal
+PAD_352 terminal
+PAD_353 terminal
+PAD_354 terminal
+PAD_355 terminal
+PAD_356 terminal
+PAD_357 terminal
+PAD_358 terminal
+PAD_359 terminal
+PAD_360 terminal
+PAD_361 terminal
+PAD_362 terminal
+PAD_363 terminal
+PAD_364 terminal
+PAD_365 terminal
+PAD_366 terminal
+PAD_367 terminal
+PAD_368 terminal
+PAD_369 terminal
+PAD_370 terminal
+PAD_371 terminal
+PAD_372 terminal
+PAD_373 terminal
+PAD_374 terminal
+PAD_375 terminal
+PAD_376 terminal
+PAD_377 terminal
+PAD_378 terminal
+PAD_379 terminal
+PAD_380 terminal
+PAD_381 terminal
+PAD_382 terminal
+PAD_383 terminal
+PAD_384 terminal
+PAD_385 terminal
+PAD_386 terminal
+PAD_387 terminal
+PAD_388 terminal
+PAD_389 terminal
+PAD_390 terminal
+PAD_391 terminal
+PAD_392 terminal
+PAD_393 terminal
+PAD_394 terminal
+PAD_395 terminal
+PAD_396 terminal
+PAD_397 terminal
+PAD_398 terminal
+PAD_399 terminal
+PAD_400 terminal
+PAD_401 terminal
+PAD_402 terminal
+PAD_403 terminal
+PAD_404 terminal
+PAD_405 terminal

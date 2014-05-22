@@ -1,1 +1,398 @@
-/home/johann/code/mcnc_gsrc_fplan/hp.nets
+UCLA nets 1.0
+
+NumNets : 83
+NumPins : 309
+NetDegree : 2
+bu7 B
+cntu B
+NetDegree : 2
+rs2 B
+cntu B
+NetDegree : 2
+mcu B
+cntu B
+NetDegree : 2
+bu0 B
+cntu B
+NetDegree : 2
+bu1 B
+cntu B
+NetDegree : 2
+bu2 B
+cntu B
+NetDegree : 2
+bu3 B
+cntu B
+NetDegree : 2
+bu4 B
+cntu B
+NetDegree : 2
+bu5 B
+cntu B
+NetDegree : 2
+bu6 B
+cntu B
+NetDegree : 6
+busa8 B
+cntu B
+nps B
+npd B
+ppd B
+clkc B
+NetDegree : 6
+busa7 B
+cntu B
+nps B
+npd B
+ppd B
+clkc B
+NetDegree : 6
+busa6 B
+cntu B
+nps B
+npd B
+ppd B
+clkc B
+NetDegree : 6
+busa5 B
+cntu B
+nps B
+npd B
+ppd B
+clkc B
+NetDegree : 7
+busa4 B
+cntu B
+nps B
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 7
+busa3 B
+cntu B
+nps B
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 7
+busa2 B
+cntu B
+nps B
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 7
+busa1 B
+cntu B
+nps B
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 2
+cntu B
+nps B
+NetDegree : 2
+cntu B
+nps B
+NetDegree : 2
+cntu B
+nps B
+NetDegree : 2
+cntu B
+nps B
+NetDegree : 2
+cntu B
+nps B
+NetDegree : 14
+vdd B
+cntu B
+cntu B
+nps B
+nps B
+npd B
+ppd B
+ppd B
+pps B
+pps B
+cntd B
+cntd B
+clkc B
+clkc B
+NetDegree : 8
+mk1 B
+cntu B
+nps B
+nps B
+nps B
+nps B
+npd B
+npd B
+NetDegree : 15
+vss B
+cntu B
+cntu B
+nps B
+nps B
+npd B
+npd B
+ppd B
+ppd B
+pps B
+pps B
+cntd B
+cntd B
+clkc B
+clkc B
+NetDegree : 15
+nps B
+nps B
+nps B
+nps B
+nps B
+clkd B
+npd B
+npd B
+ppd B
+ppd B
+pps B
+pps B
+pps B
+pps B
+pps B
+NetDegree : 15
+nps B
+nps B
+nps B
+nps B
+nps B
+clkd B
+npd B
+npd B
+ppd B
+ppd B
+pps B
+pps B
+pps B
+pps B
+pps B
+NetDegree : 2
+nps B
+nps B
+NetDegree : 2
+nps B
+nps B
+NetDegree : 3
+nps B
+nps B
+nps B
+NetDegree : 3
+nps B
+nps B
+nps B
+NetDegree : 3
+nps B
+nps B
+nps B
+NetDegree : 3
+nps B
+nps B
+nps B
+NetDegree : 3
+nps B
+npd B
+ppd B
+NetDegree : 2
+gnd1 B
+nps B
+NetDegree : 2
+vin1 B
+nps B
+NetDegree : 2
+nps B
+cmp1 B
+NetDegree : 2
+nps B
+cmp1 B
+NetDegree : 4
+busb4 B
+clkd B
+pps B
+cntd B
+NetDegree : 4
+busb3 B
+clkd B
+pps B
+cntd B
+NetDegree : 4
+busb2 B
+clkd B
+pps B
+cntd B
+NetDegree : 4
+busb1 B
+clkd B
+pps B
+cntd B
+NetDegree : 2
+mc2 B
+clkd B
+NetDegree : 3
+npd B
+ppd B
+pps B
+NetDegree : 3
+npd B
+ppd B
+cmp2 B
+NetDegree : 5
+npd B
+npd B
+ppd B
+ppd B
+cmp2 B
+NetDegree : 8
+mk2 B
+ppd B
+ppd B
+pps B
+pps B
+pps B
+pps B
+cntd B
+NetDegree : 2
+pps B
+pps B
+NetDegree : 2
+pps B
+pps B
+NetDegree : 3
+pps B
+pps B
+pps B
+NetDegree : 3
+pps B
+pps B
+pps B
+NetDegree : 3
+pps B
+pps B
+pps B
+NetDegree : 3
+pps B
+pps B
+pps B
+NetDegree : 2
+gnd2 B
+pps B
+NetDegree : 2
+vin2 B
+pps B
+NetDegree : 2
+pps B
+cmp3 B
+NetDegree : 2
+pps B
+cntd B
+NetDegree : 2
+pps B
+cntd B
+NetDegree : 2
+pps B
+cntd B
+NetDegree : 2
+pps B
+cntd B
+NetDegree : 2
+pps B
+cntd B
+NetDegree : 2
+pps B
+cmp3 B
+NetDegree : 2
+rs1 B
+cntd B
+NetDegree : 2
+mcd B
+cntd B
+NetDegree : 2
+b0 B
+cntd B
+NetDegree : 2
+b1 B
+cntd B
+NetDegree : 2
+b2 B
+cntd B
+NetDegree : 2
+b3 B
+cntd B
+NetDegree : 2
+b4 B
+cntd B
+NetDegree : 2
+b5 B
+cntd B
+NetDegree : 2
+b6 B
+cntd B
+NetDegree : 2
+b7 B
+cntd B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 4
+clkc B
+cmp1 B
+cmp2 B
+cmp3 B
+NetDegree : 2
+mc1 B
+clkc B
+NetDegree : 7
+vdda B
+cmp1 B
+cmp1 B
+cmp2 B
+cmp2 B
+cmp3 B
+cmp3 B
+NetDegree : 7
+vssa B
+cmp1 B
+cmp1 B
+cmp2 B
+cmp2 B
+cmp3 B
+cmp3 B
+NetDegree : 2
+vin B
+cmp2 B
+
+

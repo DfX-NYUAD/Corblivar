@@ -1,1 +1,17 @@
-/home/johann/code/mcnc_gsrc_fplan/xerox.pl
+UCLA pl 1.0
+
+BLKB	0	0
+BLKD	0	0
+BLKLL	0	0
+BLKLR	0	0
+BLKP	0	0
+BLKRC	0	0
+BLKRS	0	0
+BLKT	0	0
+BLKUL	0	0
+BLKUR	0	0
+
+VSS	4717	0
+VDD	4717	4717
+
+

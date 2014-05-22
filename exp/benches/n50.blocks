@@ -1,1 +1,268 @@
-/home/johann/code/mcnc_gsrc_fplan/n50.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 50
+NumTerminals : 209
+
+sb0 hardrectilinear 4 (0, 0) (0, 94) (96, 94) (96, 0)
+sb1 hardrectilinear 4 (0, 0) (0, 78) (26, 78) (26, 0)
+sb2 hardrectilinear 4 (0, 0) (0, 76) (26, 76) (26, 0)
+sb3 hardrectilinear 4 (0, 0) (0, 25) (96, 25) (96, 0)
+sb4 hardrectilinear 4 (0, 0) (0, 92) (75, 92) (75, 0)
+sb5 hardrectilinear 4 (0, 0) (0, 58) (64, 58) (64, 0)
+sb6 hardrectilinear 4 (0, 0) (0, 31) (36, 31) (36, 0)
+sb7 hardrectilinear 4 (0, 0) (0, 91) (45, 91) (45, 0)
+sb8 hardrectilinear 4 (0, 0) (0, 80) (38, 80) (38, 0)
+sb9 hardrectilinear 4 (0, 0) (0, 64) (43, 64) (43, 0)
+sb10 hardrectilinear 4 (0, 0) (0, 51) (26, 51) (26, 0)
+sb11 hardrectilinear 4 (0, 0) (0, 80) (43, 80) (43, 0)
+sb12 hardrectilinear 4 (0, 0) (0, 58) (39, 58) (39, 0)
+sb13 hardrectilinear 4 (0, 0) (0, 50) (92, 50) (92, 0)
+sb14 hardrectilinear 4 (0, 0) (0, 28) (27, 28) (27, 0)
+sb15 hardrectilinear 4 (0, 0) (0, 72) (96, 72) (96, 0)
+sb16 hardrectilinear 4 (0, 0) (0, 43) (42, 43) (42, 0)
+sb17 hardrectilinear 4 (0, 0) (0, 94) (61, 94) (61, 0)
+sb18 hardrectilinear 4 (0, 0) (0, 72) (70, 72) (70, 0)
+sb19 hardrectilinear 4 (0, 0) (0, 86) (30, 86) (30, 0)
+sb20 hardrectilinear 4 (0, 0) (0, 49) (87, 49) (87, 0)
+sb21 hardrectilinear 4 (0, 0) (0, 76) (94, 76) (94, 0)
+sb22 hardrectilinear 4 (0, 0) (0, 80) (74, 80) (74, 0)
+sb23 hardrectilinear 4 (0, 0) (0, 80) (64, 80) (64, 0)
+sb24 hardrectilinear 4 (0, 0) (0, 27) (66, 27) (66, 0)
+sb25 hardrectilinear 4 (0, 0) (0, 86) (82, 86) (82, 0)
+sb26 hardrectilinear 4 (0, 0) (0, 49) (36, 49) (36, 0)
+sb27 hardrectilinear 4 (0, 0) (0, 75) (93, 75) (93, 0)
+sb28 hardrectilinear 4 (0, 0) (0, 44) (87, 44) (87, 0)
+sb29 hardrectilinear 4 (0, 0) (0, 88) (42, 88) (42, 0)
+sb30 hardrectilinear 4 (0, 0) (0, 56) (93, 56) (93, 0)
+sb31 hardrectilinear 4 (0, 0) (0, 81) (42, 81) (42, 0)
+sb32 hardrectilinear 4 (0, 0) (0, 38) (44, 38) (44, 0)
+sb33 hardrectilinear 4 (0, 0) (0, 76) (63, 76) (63, 0)
+sb34 hardrectilinear 4 (0, 0) (0, 32) (67, 32) (67, 0)
+sb35 hardrectilinear 4 (0, 0) (0, 88) (94, 88) (94, 0)
+sb36 hardrectilinear 4 (0, 0) (0, 82) (63, 82) (63, 0)
+sb37 hardrectilinear 4 (0, 0) (0, 43) (73, 43) (73, 0)
+sb38 hardrectilinear 4 (0, 0) (0, 87) (74, 87) (74, 0)
+sb39 hardrectilinear 4 (0, 0) (0, 62) (92, 62) (92, 0)
+sb40 hardrectilinear 4 (0, 0) (0, 36) (26, 36) (26, 0)
+sb41 hardrectilinear 4 (0, 0) (0, 68) (26, 68) (26, 0)
+sb42 hardrectilinear 4 (0, 0) (0, 85) (66, 85) (66, 0)
+sb43 hardrectilinear 4 (0, 0) (0, 42) (85, 42) (85, 0)
+sb44 hardrectilinear 4 (0, 0) (0, 74) (85, 74) (85, 0)
+sb45 hardrectilinear 4 (0, 0) (0, 28) (30, 28) (30, 0)
+sb46 hardrectilinear 4 (0, 0) (0, 30) (56, 30) (56, 0)
+sb47 hardrectilinear 4 (0, 0) (0, 51) (81, 51) (81, 0)
+sb48 hardrectilinear 4 (0, 0) (0, 63) (82, 63) (82, 0)
+sb49 hardrectilinear 4 (0, 0) (0, 86) (42, 86) (42, 0)
+
+p1 terminal
+p2 terminal
+p3 terminal
+p4 terminal
+p5 terminal
+p6 terminal
+p7 terminal
+p8 terminal
+p9 terminal
+p10 terminal
+p11 terminal
+p12 terminal
+p13 terminal
+p14 terminal
+p15 terminal
+p16 terminal
+p17 terminal
+p18 terminal
+p19 terminal
+p20 terminal
+p21 terminal
+p22 terminal
+p23 terminal
+p24 terminal
+p25 terminal
+p26 terminal
+p27 terminal
+p28 terminal
+p29 terminal
+p30 terminal
+p31 terminal
+p32 terminal
+p33 terminal
+p34 terminal
+p35 terminal
+p36 terminal
+p37 terminal
+p38 terminal
+p39 terminal
+p40 terminal
+p41 terminal
+p42 terminal
+p43 terminal
+p44 terminal
+p45 terminal
+p46 terminal
+p47 terminal
+p48 terminal
+p49 terminal
+p50 terminal
+p51 terminal
+p52 terminal
+p53 terminal
+p54 terminal
+p55 terminal
+p56 terminal
+p57 terminal
+p58 terminal
+p59 terminal
+p60 terminal
+p61 terminal
+p62 terminal
+p63 terminal
+p64 terminal
+p65 terminal
+p66 terminal
+p67 terminal
+p68 terminal
+p69 terminal
+p70 terminal
+p71 terminal
+p72 terminal
+p73 terminal
+p74 terminal
+p75 terminal
+p76 terminal
+p77 terminal
+p78 terminal
+p79 terminal
+p80 terminal
+p81 terminal
+p82 terminal
+p83 terminal
+p84 terminal
+p85 terminal
+p86 terminal
+p87 terminal
+p88 terminal
+p89 terminal
+p90 terminal
+p91 terminal
+p92 terminal
+p93 terminal
+p94 terminal
+p95 terminal
+p96 terminal
+p97 terminal
+p98 terminal
+p99 terminal
+p100 terminal
+p101 terminal
+p102 terminal
+p103 terminal
+p104 terminal
+p105 terminal
+p106 terminal
+p107 terminal
+p108 terminal
+p109 terminal
+p110 terminal
+p111 terminal
+p112 terminal
+p113 terminal
+p114 terminal
+p115 terminal
+p116 terminal
+p117 terminal
+p118 terminal
+p119 terminal
+p120 terminal
+p121 terminal
+p122 terminal
+p123 terminal
+p124 terminal
+p125 terminal
+p126 terminal
+p127 terminal
+p128 terminal
+p129 terminal
+p130 terminal
+p131 terminal
+p132 terminal
+p133 terminal
+p134 terminal
+p135 terminal
+p136 terminal
+p137 terminal
+p138 terminal
+p139 terminal
+p140 terminal
+p141 terminal
+p142 terminal
+p143 terminal
+p144 terminal
+p145 terminal
+p146 terminal
+p147 terminal
+p148 terminal
+p149 terminal
+p150 terminal
+p151 terminal
+p152 terminal
+p153 terminal
+p154 terminal
+p155 terminal
+p156 terminal
+p157 terminal
+p158 terminal
+p159 terminal
+p160 terminal
+p161 terminal
+p162 terminal
+p163 terminal
+p164 terminal
+p165 terminal
+p166 terminal
+p167 terminal
+p168 terminal
+p169 terminal
+p170 terminal
+p171 terminal
+p172 terminal
+p173 terminal
+p174 terminal
+p175 terminal
+p176 terminal
+p177 terminal
+p178 terminal
+p179 terminal
+p180 terminal
+p181 terminal
+p182 terminal
+p183 terminal
+p184 terminal
+p185 terminal
+p186 terminal
+p187 terminal
+p188 terminal
+p189 terminal
+p190 terminal
+p191 terminal
+p192 terminal
+p193 terminal
+p194 terminal
+p195 terminal
+p196 terminal
+p197 terminal
+p198 terminal
+p199 terminal
+p200 terminal
+p201 terminal
+p202 terminal
+p203 terminal
+p204 terminal
+p205 terminal
+p206 terminal
+p207 terminal
+p208 terminal
+p209 terminal
+
+

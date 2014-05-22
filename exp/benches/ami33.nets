@@ -1,1 +1,649 @@
-/home/johann/code/mcnc_gsrc_fplan/ami33.nets
+UCLA nets 1.0
+
+NumNets : 123
+NumPins : 520
+NetDegree : 34
+GND@1 B
+bk9d B
+bk9c B
+bk9b B
+bk9a B
+bk8b B
+bk8a B
+bk7 B
+bk6 B
+bk5c B
+bk5b B
+bk5a B
+bk4 B
+bk3 B
+bk21 B
+bk20 B
+bk2 B
+bk19 B
+bk18 B
+bk17b B
+bk17a B
+bk16 B
+bk15b B
+bk15a B
+bk14c B
+bk14b B
+bk14a B
+bk13 B
+bk12 B
+bk11 B
+bk10c B
+bk10b B
+bk10a B
+bk1 B
+NetDegree : 56
+bk9d B
+bk9c B
+bk9c B
+bk9b B
+bk9b B
+bk9a B
+bk9a B
+bk7 B
+bk7 B
+bk6 B
+bk6 B
+bk5c B
+bk5c B
+bk5b B
+bk5b B
+bk5a B
+bk4 B
+bk4 B
+bk3 B
+bk3 B
+bk21 B
+bk21 B
+bk20 B
+bk20 B
+bk2 B
+bk2 B
+bk18 B
+bk18 B
+bk17b B
+bk17a B
+bk17a B
+bk16 B
+bk16 B
+bk15b B
+bk15b B
+bk15a B
+bk15a B
+bk14c B
+bk14c B
+bk14b B
+bk14b B
+bk14a B
+bk14a B
+bk13 B
+bk12 B
+bk12 B
+bk11 B
+bk11 B
+bk10c B
+bk10c B
+bk10b B
+bk10b B
+bk10a B
+bk10a B
+bk1 B
+bk1 B
+NetDegree : 47
+bk9d B
+bk9c B
+bk9c B
+bk9b B
+bk9b B
+bk9a B
+bk9a B
+bk7 B
+bk7 B
+bk6 B
+bk6 B
+bk5c B
+bk5b B
+bk5b B
+bk5a B
+bk5a B
+bk4 B
+bk4 B
+bk3 B
+bk3 B
+bk21 B
+bk21 B
+bk20 B
+bk20 B
+bk2 B
+bk2 B
+bk18 B
+bk18 B
+bk17b B
+bk17b B
+bk17a B
+bk17a B
+bk14b B
+bk14b B
+bk13 B
+bk13 B
+bk12 B
+bk11 B
+bk11 B
+bk10c B
+bk10c B
+bk10b B
+bk10b B
+bk10a B
+bk10a B
+bk1 B
+bk1 B
+NetDegree : 50
+bk9d B
+bk9c B
+bk9c B
+bk9b B
+bk9b B
+bk9a B
+bk9a B
+bk7 B
+bk6 B
+bk6 B
+bk5c B
+bk5b B
+bk5b B
+bk5a B
+bk5a B
+bk4 B
+bk4 B
+bk3 B
+bk3 B
+bk21 B
+bk21 B
+bk20 B
+bk2 B
+bk2 B
+bk18 B
+bk18 B
+bk17b B
+bk17a B
+bk17a B
+bk15b B
+bk15b B
+bk15a B
+bk14c B
+bk14c B
+bk14b B
+bk14b B
+bk14a B
+bk14a B
+bk13 B
+bk12 B
+bk12 B
+bk11 B
+bk11 B
+bk10c B
+bk10b B
+bk10b B
+bk10a B
+bk10a B
+bk1 B
+bk1 B
+NetDegree : 44
+bk9d B
+bk9c B
+bk9c B
+bk9b B
+bk9b B
+bk9a B
+bk9a B
+bk7 B
+bk6 B
+bk5c B
+bk5b B
+bk5b B
+bk5a B
+bk4 B
+bk4 B
+bk3 B
+bk3 B
+bk21 B
+bk21 B
+bk20 B
+bk20 B
+bk2 B
+bk2 B
+bk18 B
+bk18 B
+bk17b B
+bk17b B
+bk17a B
+bk17a B
+bk14b B
+bk14b B
+bk13 B
+bk13 B
+bk12 B
+bk11 B
+bk11 B
+bk10c B
+bk10c B
+bk10b B
+bk10b B
+bk10a B
+bk10a B
+bk1 B
+bk1 B
+NetDegree : 2
+bk9d B
+bk9c B
+NetDegree : 34
+POW@1 B
+bk9d B
+bk9c B
+bk9b B
+bk9a B
+bk8b B
+bk8a B
+bk7 B
+bk6 B
+bk5c B
+bk5b B
+bk5a B
+bk4 B
+bk3 B
+bk21 B
+bk20 B
+bk2 B
+bk19 B
+bk18 B
+bk17b B
+bk17a B
+bk16 B
+bk15b B
+bk15a B
+bk14c B
+bk14b B
+bk14a B
+bk13 B
+bk12 B
+bk11 B
+bk10c B
+bk10b B
+bk10a B
+bk1 B
+NetDegree : 2
+bk9d B
+bk10a B
+NetDegree : 2
+bk9d B
+bk9b B
+NetDegree : 2
+P30 B
+bk9c B
+NetDegree : 2
+P27 B
+bk9c B
+NetDegree : 9
+bk9c B
+bk9c B
+bk9b B
+bk20 B
+bk14b B
+bk12 B
+bk11 B
+bk10b B
+bk10b B
+NetDegree : 2
+bk9c B
+bk9a B
+NetDegree : 2
+bk9c B
+bk9b B
+NetDegree : 2
+bk9b B
+bk10a B
+NetDegree : 4
+bk9b B
+bk10b B
+bk10b B
+bk10a B
+NetDegree : 2
+bk9a B
+bk10c B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 3
+bk8b B
+bk19 B
+bk16 B
+NetDegree : 3
+bk8b B
+bk19 B
+bk16 B
+NetDegree : 2
+bk8b B
+bk19 B
+NetDegree : 2
+bk8b B
+bk19 B
+NetDegree : 2
+bk8b B
+bk19 B
+NetDegree : 2
+bk8b B
+bk19 B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 2
+bk8b B
+bk8a B
+NetDegree : 3
+bk8a B
+bk20 B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 2
+bk8a B
+bk16 B
+NetDegree : 3
+bk8a B
+bk16 B
+bk15b B
+NetDegree : 2
+VSS B
+bk7 B
+NetDegree : 2
+VDD B
+bk7 B
+NetDegree : 2
+P23 B
+bk7 B
+NetDegree : 2
+P22 B
+bk7 B
+NetDegree : 2
+bk7 B
+bk17b B
+NetDegree : 2
+P21 B
+bk6 B
+NetDegree : 2
+P20 B
+bk6 B
+NetDegree : 2
+P19 B
+bk6 B
+NetDegree : 2
+P18 B
+bk6 B
+NetDegree : 2
+P17 B
+bk6 B
+NetDegree : 2
+bk6 B
+bk5c B
+NetDegree : 2
+bk6 B
+bk5c B
+NetDegree : 3
+bk6 B
+bk5c B
+bk5b B
+NetDegree : 3
+bk6 B
+bk5c B
+bk5b B
+NetDegree : 3
+bk6 B
+bk4 B
+bk3 B
+NetDegree : 2
+bk6 B
+bk4 B
+NetDegree : 2
+bk5c B
+bk3 B
+NetDegree : 2
+bk5b B
+bk5a B
+NetDegree : 2
+bk5b B
+bk5b B
+NetDegree : 3
+bk5b B
+bk5a B
+bk2 B
+NetDegree : 2
+bk5b B
+bk1 B
+NetDegree : 2
+bk5b B
+bk5a B
+NetDegree : 2
+bk5b B
+bk1 B
+NetDegree : 2
+bk5b B
+bk1 B
+NetDegree : 2
+bk5a B
+bk2 B
+NetDegree : 2
+bk5a B
+bk4 B
+NetDegree : 2
+P14 B
+bk4 B
+NetDegree : 2
+P13 B
+bk4 B
+NetDegree : 2
+P12 B
+bk4 B
+NetDegree : 2
+bk4 B
+bk17b B
+NetDegree : 2
+bk4 B
+bk3 B
+NetDegree : 2
+P16 B
+bk3 B
+NetDegree : 2
+P15 B
+bk3 B
+NetDegree : 2
+bk3 B
+bk15a B
+NetDegree : 2
+P3 B
+bk21 B
+NetDegree : 2
+P24 B
+bk20 B
+NetDegree : 3
+bk20 B
+bk18 B
+bk17b B
+NetDegree : 2
+bk20 B
+bk17a B
+NetDegree : 2
+bk20 B
+bk17a B
+NetDegree : 2
+bk20 B
+bk17a B
+NetDegree : 3
+bk20 B
+bk18 B
+bk17a B
+NetDegree : 2
+bk20 B
+bk17a B
+NetDegree : 4
+bk20 B
+bk18 B
+bk17b B
+bk17a B
+NetDegree : 2
+P28 B
+bk2 B
+NetDegree : 2
+P35 B
+bk19 B
+NetDegree : 2
+P34 B
+bk19 B
+NetDegree : 2
+P33 B
+bk19 B
+NetDegree : 2
+P32 B
+bk19 B
+NetDegree : 2
+P37 B
+bk18 B
+NetDegree : 2
+P36 B
+bk18 B
+NetDegree : 2
+bk18 B
+bk17a B
+NetDegree : 2
+bk18 B
+bk17a B
+NetDegree : 2
+bk17b B
+bk16 B
+NetDegree : 2
+bk16 B
+bk14c B
+NetDegree : 2
+bk16 B
+bk14b B
+NetDegree : 2
+bk16 B
+bk14b B
+NetDegree : 2
+P9 B
+bk15b B
+NetDegree : 2
+P8 B
+bk15b B
+NetDegree : 2
+P25 B
+bk15b B
+NetDegree : 2
+P11 B
+bk15b B
+NetDegree : 2
+P10 B
+bk15b B
+NetDegree : 2
+bk15b B
+bk15a B
+NetDegree : 2
+bk15b B
+bk14c B
+NetDegree : 2
+P7 B
+bk15a B
+NetDegree : 2
+P6 B
+bk15a B
+NetDegree : 2
+P5 B
+bk15a B
+NetDegree : 2
+bk15a B
+bk14a B
+NetDegree : 2
+bk14c B
+bk14b B
+NetDegree : 2
+bk14c B
+bk14b B
+NetDegree : 2
+bk14b B
+bk14a B
+NetDegree : 2
+P4 B
+bk13 B
+NetDegree : 2
+P26 B
+bk13 B
+NetDegree : 2
+P2 B
+bk13 B
+NetDegree : 2
+P31 B
+bk11 B
+NetDegree : 2
+bk10c B
+bk10b B
+NetDegree : 2
+bk10c B
+bk10a B
+NetDegree : 2
+bk10b B
+bk10a B
+NetDegree : 2
+P29 B
+bk10a B
+
+

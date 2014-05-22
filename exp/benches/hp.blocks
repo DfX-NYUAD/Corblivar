@@ -1,1 +1,65 @@
-/home/johann/code/mcnc_gsrc_fplan/hp.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 11
+NumTerminals : 45
+
+clkc hardrectilinear 4 (0, 0) (0, 462) (1036, 462) (1036, 0)
+clkd hardrectilinear 4 (0, 0) (0, 700) (378, 700) (378, 0)
+cmp1 hardrectilinear 4 (0, 0) (0, 210) (980, 210) (980, 0)
+cmp2 hardrectilinear 4 (0, 0) (0, 210) (980, 210) (980, 0)
+cmp3 hardrectilinear 4 (0, 0) (0, 210) (980, 210) (980, 0)
+cntd hardrectilinear 4 (0, 0) (0, 546) (3304, 546) (3304, 0)
+cntu hardrectilinear 4 (0, 0) (0, 546) (3304, 546) (3304, 0)
+npd hardrectilinear 4 (0, 0) (0, 252) (2016, 252) (2016, 0)
+nps hardrectilinear 4 (0, 0) (0, 462) (3080, 462) (3080, 0)
+ppd hardrectilinear 4 (0, 0) (0, 252) (2016, 252) (2016, 0)
+pps hardrectilinear 4 (0, 0) (0, 462) (3080, 462) (3080, 0)
+
+bu7 terminal
+rs2 terminal
+mcu terminal
+bu0 terminal
+bu1 terminal
+bu2 terminal
+bu3 terminal
+bu4 terminal
+bu5 terminal
+bu6 terminal
+gnd1 terminal
+vin1 terminal
+mc1 terminal
+vin terminal
+vssa terminal
+vdda terminal
+busa8 terminal
+busa7 terminal
+busa6 terminal
+busa5 terminal
+busa4 terminal
+busa3 terminal
+busa2 terminal
+busa1 terminal
+mk1 terminal
+vdd terminal
+vss terminal
+mc2 terminal
+mk2 terminal
+mcd terminal
+rs1 terminal
+busb4 terminal
+busb3 terminal
+busb2 terminal
+busb1 terminal
+b0 terminal
+b1 terminal
+b2 terminal
+b3 terminal
+b4 terminal
+b5 terminal
+b6 terminal
+b7 terminal
+gnd2 terminal
+vin2 terminal
+
+

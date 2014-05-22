@@ -1,1 +1,1078 @@
-/home/johann/code/mcnc_gsrc_fplan/n30.nets
+UCLA nets 1.0
+
+NumNets : 349
+NumPins : 723
+NetDegree : 2
+p1 B
+sb20 B
+NetDegree : 2
+p2 B
+sb7 B
+NetDegree : 2
+p3 B
+sb28 B
+NetDegree : 2
+p4 B
+sb29 B
+NetDegree : 2
+p5 B
+sb21 B
+NetDegree : 2
+p6 B
+sb7 B
+NetDegree : 2
+p7 B
+sb20 B
+NetDegree : 2
+p8 B
+sb2 B
+NetDegree : 2
+p9 B
+sb23 B
+NetDegree : 2
+p10 B
+sb22 B
+NetDegree : 2
+p11 B
+sb20 B
+NetDegree : 2
+p12 B
+sb19 B
+NetDegree : 2
+p13 B
+sb14 B
+NetDegree : 2
+p14 B
+sb15 B
+NetDegree : 2
+p15 B
+sb23 B
+NetDegree : 2
+p16 B
+sb5 B
+NetDegree : 2
+p17 B
+sb28 B
+NetDegree : 2
+p18 B
+sb0 B
+NetDegree : 2
+p19 B
+sb19 B
+NetDegree : 2
+p20 B
+sb8 B
+NetDegree : 2
+p21 B
+sb8 B
+NetDegree : 2
+p22 B
+sb15 B
+NetDegree : 2
+p23 B
+sb4 B
+NetDegree : 2
+p24 B
+sb26 B
+NetDegree : 2
+p25 B
+sb12 B
+NetDegree : 2
+p26 B
+sb4 B
+NetDegree : 2
+p27 B
+sb19 B
+NetDegree : 2
+p28 B
+sb17 B
+NetDegree : 2
+p29 B
+sb17 B
+NetDegree : 2
+p30 B
+sb9 B
+NetDegree : 2
+p31 B
+sb8 B
+NetDegree : 2
+p32 B
+sb7 B
+NetDegree : 2
+p33 B
+sb7 B
+NetDegree : 2
+p34 B
+sb0 B
+NetDegree : 2
+p35 B
+sb13 B
+NetDegree : 2
+p36 B
+sb12 B
+NetDegree : 2
+p37 B
+sb17 B
+NetDegree : 2
+p38 B
+sb28 B
+NetDegree : 2
+p39 B
+sb15 B
+NetDegree : 2
+p40 B
+sb20 B
+NetDegree : 2
+p41 B
+sb19 B
+NetDegree : 2
+p42 B
+sb10 B
+NetDegree : 2
+p43 B
+sb23 B
+NetDegree : 2
+p44 B
+sb13 B
+NetDegree : 2
+p45 B
+sb20 B
+NetDegree : 2
+p46 B
+sb20 B
+NetDegree : 2
+p47 B
+sb19 B
+NetDegree : 2
+p48 B
+sb25 B
+NetDegree : 2
+p49 B
+sb22 B
+NetDegree : 2
+p50 B
+sb19 B
+NetDegree : 2
+p51 B
+sb8 B
+NetDegree : 2
+p52 B
+sb8 B
+NetDegree : 2
+p53 B
+sb0 B
+NetDegree : 2
+p54 B
+sb26 B
+NetDegree : 2
+p55 B
+sb17 B
+NetDegree : 2
+p56 B
+sb28 B
+NetDegree : 2
+p57 B
+sb28 B
+NetDegree : 2
+p58 B
+sb7 B
+NetDegree : 2
+p59 B
+sb20 B
+NetDegree : 2
+p60 B
+sb26 B
+NetDegree : 2
+p61 B
+sb17 B
+NetDegree : 2
+p62 B
+sb19 B
+NetDegree : 2
+p63 B
+sb0 B
+NetDegree : 2
+p64 B
+sb20 B
+NetDegree : 2
+p65 B
+sb26 B
+NetDegree : 2
+p66 B
+sb12 B
+NetDegree : 2
+p67 B
+sb19 B
+NetDegree : 2
+p68 B
+sb11 B
+NetDegree : 2
+p69 B
+sb15 B
+NetDegree : 2
+p70 B
+sb28 B
+NetDegree : 2
+p71 B
+sb5 B
+NetDegree : 2
+p72 B
+sb13 B
+NetDegree : 2
+p73 B
+sb28 B
+NetDegree : 2
+p74 B
+sb7 B
+NetDegree : 2
+p75 B
+sb20 B
+NetDegree : 2
+p76 B
+sb4 B
+NetDegree : 2
+p77 B
+sb0 B
+NetDegree : 2
+p78 B
+sb20 B
+NetDegree : 2
+p79 B
+sb15 B
+NetDegree : 2
+p80 B
+sb20 B
+NetDegree : 2
+p81 B
+sb12 B
+NetDegree : 2
+p82 B
+sb19 B
+NetDegree : 2
+p83 B
+sb19 B
+NetDegree : 2
+p84 B
+sb9 B
+NetDegree : 2
+p85 B
+sb28 B
+NetDegree : 2
+p86 B
+sb2 B
+NetDegree : 2
+p87 B
+sb19 B
+NetDegree : 2
+p88 B
+sb11 B
+NetDegree : 2
+p89 B
+sb12 B
+NetDegree : 2
+p90 B
+sb11 B
+NetDegree : 2
+p91 B
+sb28 B
+NetDegree : 2
+p92 B
+sb9 B
+NetDegree : 2
+p93 B
+sb4 B
+NetDegree : 2
+p94 B
+sb19 B
+NetDegree : 2
+p95 B
+sb14 B
+NetDegree : 2
+p96 B
+sb7 B
+NetDegree : 2
+p97 B
+sb19 B
+NetDegree : 2
+p98 B
+sb27 B
+NetDegree : 2
+p99 B
+sb21 B
+NetDegree : 2
+p100 B
+sb5 B
+NetDegree : 2
+p101 B
+sb19 B
+NetDegree : 2
+p102 B
+sb23 B
+NetDegree : 2
+p103 B
+sb13 B
+NetDegree : 2
+p104 B
+sb9 B
+NetDegree : 2
+p105 B
+sb15 B
+NetDegree : 2
+p106 B
+sb0 B
+NetDegree : 2
+p107 B
+sb17 B
+NetDegree : 2
+p108 B
+sb12 B
+NetDegree : 2
+p109 B
+sb26 B
+NetDegree : 2
+p110 B
+sb8 B
+NetDegree : 2
+p111 B
+sb9 B
+NetDegree : 2
+p112 B
+sb10 B
+NetDegree : 2
+p113 B
+sb20 B
+NetDegree : 2
+p114 B
+sb7 B
+NetDegree : 2
+p115 B
+sb7 B
+NetDegree : 2
+p116 B
+sb14 B
+NetDegree : 2
+p117 B
+sb20 B
+NetDegree : 2
+p118 B
+sb2 B
+NetDegree : 2
+p119 B
+sb23 B
+NetDegree : 2
+p120 B
+sb13 B
+NetDegree : 2
+p121 B
+sb20 B
+NetDegree : 2
+p122 B
+sb7 B
+NetDegree : 2
+p123 B
+sb14 B
+NetDegree : 2
+p124 B
+sb20 B
+NetDegree : 2
+p125 B
+sb20 B
+NetDegree : 2
+p126 B
+sb23 B
+NetDegree : 2
+p127 B
+sb22 B
+NetDegree : 2
+p128 B
+sb7 B
+NetDegree : 2
+p129 B
+sb20 B
+NetDegree : 2
+p130 B
+sb4 B
+NetDegree : 2
+p131 B
+sb15 B
+NetDegree : 2
+p132 B
+sb11 B
+NetDegree : 2
+p133 B
+sb20 B
+NetDegree : 2
+p134 B
+sb29 B
+NetDegree : 2
+p135 B
+sb0 B
+NetDegree : 2
+p136 B
+sb23 B
+NetDegree : 2
+p137 B
+sb5 B
+NetDegree : 2
+p138 B
+sb12 B
+NetDegree : 2
+p139 B
+sb0 B
+NetDegree : 2
+sb28 B
+p140 B
+NetDegree : 3
+sb9 B
+p141 B
+sb21 B
+NetDegree : 2
+sb3 B
+p142 B
+NetDegree : 2
+sb28 B
+p143 B
+NetDegree : 2
+sb18 B
+p144 B
+NetDegree : 2
+sb21 B
+p145 B
+NetDegree : 2
+sb18 B
+p146 B
+NetDegree : 2
+sb3 B
+p147 B
+NetDegree : 2
+sb3 B
+p148 B
+NetDegree : 2
+sb21 B
+p149 B
+NetDegree : 2
+sb4 B
+p150 B
+NetDegree : 3
+sb17 B
+p151 B
+sb27 B
+NetDegree : 2
+sb2 B
+p152 B
+NetDegree : 2
+sb28 B
+p153 B
+NetDegree : 2
+sb18 B
+p154 B
+NetDegree : 2
+sb1 B
+p155 B
+NetDegree : 2
+sb17 B
+p156 B
+NetDegree : 2
+sb14 B
+p157 B
+NetDegree : 2
+sb17 B
+p158 B
+NetDegree : 2
+sb14 B
+p159 B
+NetDegree : 2
+sb0 B
+p160 B
+NetDegree : 2
+sb9 B
+p161 B
+NetDegree : 2
+sb14 B
+p162 B
+NetDegree : 3
+sb28 B
+p163 B
+sb25 B
+NetDegree : 2
+sb0 B
+p164 B
+NetDegree : 2
+sb14 B
+p165 B
+NetDegree : 2
+sb29 B
+p166 B
+NetDegree : 2
+sb23 B
+p167 B
+NetDegree : 2
+sb3 B
+p168 B
+NetDegree : 2
+sb3 B
+p169 B
+NetDegree : 2
+sb3 B
+p170 B
+NetDegree : 2
+sb23 B
+p171 B
+NetDegree : 3
+sb9 B
+p172 B
+sb23 B
+NetDegree : 2
+sb25 B
+p173 B
+NetDegree : 2
+sb11 B
+p174 B
+NetDegree : 2
+sb2 B
+p175 B
+NetDegree : 2
+sb17 B
+p176 B
+NetDegree : 2
+sb23 B
+p177 B
+NetDegree : 2
+sb10 B
+p178 B
+NetDegree : 3
+sb27 B
+p179 B
+sb22 B
+NetDegree : 2
+sb10 B
+p180 B
+NetDegree : 2
+sb4 B
+p181 B
+NetDegree : 2
+sb4 B
+p182 B
+NetDegree : 2
+sb26 B
+p183 B
+NetDegree : 2
+sb22 B
+p184 B
+NetDegree : 2
+sb22 B
+p185 B
+NetDegree : 2
+sb3 B
+p186 B
+NetDegree : 2
+sb19 B
+p187 B
+NetDegree : 2
+sb22 B
+p188 B
+NetDegree : 3
+sb14 B
+p189 B
+sb1 B
+NetDegree : 2
+sb1 B
+p190 B
+NetDegree : 2
+sb28 B
+p191 B
+NetDegree : 3
+sb3 B
+p192 B
+sb18 B
+NetDegree : 2
+sb17 B
+p193 B
+NetDegree : 3
+sb5 B
+p194 B
+sb2 B
+NetDegree : 2
+sb29 B
+p195 B
+NetDegree : 2
+sb14 B
+p196 B
+NetDegree : 2
+sb9 B
+p197 B
+NetDegree : 3
+sb0 B
+p198 B
+sb4 B
+NetDegree : 2
+sb8 B
+p199 B
+NetDegree : 2
+sb0 B
+p200 B
+NetDegree : 2
+sb22 B
+p201 B
+NetDegree : 2
+sb8 B
+p202 B
+NetDegree : 2
+sb14 B
+p203 B
+NetDegree : 2
+sb2 B
+p204 B
+NetDegree : 2
+sb27 B
+p205 B
+NetDegree : 2
+sb9 B
+p206 B
+NetDegree : 2
+sb3 B
+p207 B
+NetDegree : 2
+sb14 B
+p208 B
+NetDegree : 2
+sb17 B
+p209 B
+NetDegree : 2
+sb0 B
+p210 B
+NetDegree : 2
+sb4 B
+p211 B
+NetDegree : 3
+sb0 B
+p212 B
+sb21 B
+NetDegree : 2
+sb22 B
+sb3 B
+NetDegree : 2
+sb8 B
+sb18 B
+NetDegree : 2
+sb16 B
+sb10 B
+NetDegree : 3
+sb12 B
+sb29 B
+sb16 B
+NetDegree : 2
+sb8 B
+sb3 B
+NetDegree : 2
+sb16 B
+sb0 B
+NetDegree : 2
+sb11 B
+sb6 B
+NetDegree : 2
+sb6 B
+sb5 B
+NetDegree : 2
+sb15 B
+sb16 B
+NetDegree : 2
+sb6 B
+sb25 B
+NetDegree : 2
+sb9 B
+sb3 B
+NetDegree : 2
+sb16 B
+sb28 B
+NetDegree : 2
+sb24 B
+sb26 B
+NetDegree : 2
+sb23 B
+sb3 B
+NetDegree : 2
+sb25 B
+sb18 B
+NetDegree : 2
+sb17 B
+sb6 B
+NetDegree : 2
+sb14 B
+sb3 B
+NetDegree : 2
+sb0 B
+sb6 B
+NetDegree : 2
+sb18 B
+sb1 B
+NetDegree : 3
+sb16 B
+sb18 B
+sb26 B
+NetDegree : 2
+sb15 B
+sb24 B
+NetDegree : 2
+sb16 B
+sb26 B
+NetDegree : 2
+sb21 B
+sb3 B
+NetDegree : 2
+sb16 B
+sb4 B
+NetDegree : 2
+sb6 B
+sb9 B
+NetDegree : 2
+sb20 B
+sb16 B
+NetDegree : 3
+sb6 B
+sb18 B
+sb5 B
+NetDegree : 2
+sb16 B
+sb13 B
+NetDegree : 2
+sb12 B
+sb16 B
+NetDegree : 2
+sb20 B
+sb24 B
+NetDegree : 2
+sb17 B
+sb3 B
+NetDegree : 2
+sb22 B
+sb3 B
+NetDegree : 2
+sb15 B
+sb24 B
+NetDegree : 2
+sb17 B
+sb6 B
+NetDegree : 2
+sb7 B
+sb16 B
+NetDegree : 2
+sb25 B
+sb3 B
+NetDegree : 2
+sb23 B
+sb3 B
+NetDegree : 2
+sb7 B
+sb24 B
+NetDegree : 2
+sb16 B
+sb13 B
+NetDegree : 2
+sb25 B
+sb18 B
+NetDegree : 2
+sb17 B
+sb6 B
+NetDegree : 2
+sb2 B
+sb18 B
+NetDegree : 2
+sb23 B
+sb3 B
+NetDegree : 3
+sb16 B
+sb24 B
+sb26 B
+NetDegree : 2
+sb20 B
+sb24 B
+NetDegree : 2
+sb6 B
+sb5 B
+NetDegree : 3
+sb26 B
+sb10 B
+sb6 B
+NetDegree : 2
+sb24 B
+sb4 B
+NetDegree : 3
+sb26 B
+sb14 B
+sb6 B
+NetDegree : 2
+sb13 B
+sb24 B
+NetDegree : 2
+sb12 B
+sb16 B
+NetDegree : 2
+sb24 B
+sb28 B
+NetDegree : 3
+sb19 B
+sb7 B
+sb16 B
+NetDegree : 2
+sb23 B
+sb3 B
+NetDegree : 2
+sb20 B
+sb16 B
+NetDegree : 2
+sb8 B
+sb18 B
+NetDegree : 2
+sb21 B
+sb3 B
+NetDegree : 2
+sb18 B
+sb1 B
+NetDegree : 2
+sb7 B
+sb24 B
+NetDegree : 2
+sb0 B
+sb6 B
+NetDegree : 2
+sb12 B
+sb16 B
+NetDegree : 2
+sb22 B
+sb3 B
+NetDegree : 2
+sb25 B
+sb3 B
+NetDegree : 2
+sb24 B
+sb8 B
+NetDegree : 2
+sb12 B
+sb16 B
+NetDegree : 2
+sb19 B
+sb16 B
+NetDegree : 2
+sb16 B
+sb11 B
+NetDegree : 2
+sb28 B
+sb6 B
+NetDegree : 2
+sb24 B
+sb17 B
+NetDegree : 2
+sb24 B
+sb22 B
+NetDegree : 2
+sb19 B
+sb15 B
+NetDegree : 2
+sb9 B
+sb22 B
+NetDegree : 2
+sb7 B
+sb17 B
+NetDegree : 3
+sb11 B
+sb9 B
+sb17 B
+NetDegree : 3
+sb15 B
+sb17 B
+sb7 B
+NetDegree : 2
+sb8 B
+sb22 B
+NetDegree : 2
+sb17 B
+sb8 B
+NetDegree : 2
+sb12 B
+sb17 B
+NetDegree : 2
+sb21 B
+sb27 B
+NetDegree : 2
+sb10 B
+sb27 B
+NetDegree : 2
+sb15 B
+sb4 B
+NetDegree : 2
+sb22 B
+sb23 B
+NetDegree : 2
+sb9 B
+sb22 B
+NetDegree : 2
+sb8 B
+sb22 B
+NetDegree : 2
+sb9 B
+sb22 B
+NetDegree : 2
+sb19 B
+sb12 B
+NetDegree : 2
+sb5 B
+sb10 B
+NetDegree : 2
+sb19 B
+sb0 B
+NetDegree : 2
+sb7 B
+sb9 B
+NetDegree : 2
+sb20 B
+sb4 B
+NetDegree : 2
+sb20 B
+sb25 B
+NetDegree : 2
+sb20 B
+sb12 B
+NetDegree : 2
+sb20 B
+sb12 B
+NetDegree : 3
+sb13 B
+sb2 B
+sb26 B
+NetDegree : 2
+sb13 B
+sb21 B
+NetDegree : 2
+sb20 B
+sb25 B
+NetDegree : 2
+sb2 B
+sb14 B
+NetDegree : 2
+sb7 B
+sb8 B
+NetDegree : 3
+sb19 B
+sb20 B
+sb11 B
+NetDegree : 2
+sb2 B
+sb14 B
+NetDegree : 2
+sb5 B
+sb14 B
+NetDegree : 2
+sb19 B
+sb0 B
+NetDegree : 2
+sb5 B
+sb21 B
+NetDegree : 2
+sb0 B
+sb2 B
+NetDegree : 2
+sb13 B
+sb26 B
+NetDegree : 2
+sb10 B
+sb2 B
+NetDegree : 2
+sb20 B
+sb26 B
+NetDegree : 2
+sb20 B
+sb23 B
+NetDegree : 2
+sb19 B
+sb14 B
+NetDegree : 2
+sb2 B
+sb8 B
+NetDegree : 3
+sb20 B
+sb13 B
+sb14 B
+NetDegree : 2
+sb20 B
+sb0 B
+NetDegree : 2
+sb20 B
+sb8 B
+NetDegree : 2
+sb20 B
+sb12 B
+NetDegree : 2
+sb4 B
+sb5 B
+NetDegree : 2
+sb19 B
+sb12 B
+NetDegree : 2
+sb7 B
+sb12 B
+NetDegree : 2
+sb7 B
+sb11 B
+NetDegree : 2
+sb19 B
+sb9 B
+NetDegree : 2
+sb26 B
+sb2 B
+NetDegree : 2
+sb10 B
+sb9 B
+NetDegree : 2
+sb28 B
+sb0 B
+NetDegree : 2
+sb14 B
+sb21 B
+NetDegree : 3
+sb8 B
+sb25 B
+sb9 B
+NetDegree : 2
+sb9 B
+sb29 B
+NetDegree : 2
+sb0 B
+sb1 B
+NetDegree : 2
+sb25 B
+sb9 B
+NetDegree : 2
+sb14 B
+sb9 B
+NetDegree : 2
+sb29 B
+sb21 B
+NetDegree : 2
+sb11 B
+sb28 B
+NetDegree : 2
+sb26 B
+sb0 B
+NetDegree : 3
+sb12 B
+sb26 B
+sb9 B
+NetDegree : 2
+sb0 B
+sb14 B
+NetDegree : 2
+sb28 B
+sb9 B
+NetDegree : 2
+sb26 B
+sb4 B
+NetDegree : 2
+sb26 B
+sb4 B
+NetDegree : 3
+sb26 B
+sb28 B
+sb11 B
+
+

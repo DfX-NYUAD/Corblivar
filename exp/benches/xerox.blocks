@@ -1,1 +1,21 @@
-/home/johann/code/mcnc_gsrc_fplan/xerox.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 10
+NumTerminals : 2
+
+BLKB hardrectilinear 4 (0, 0) (0, 616) (1295, 616) (1295, 0)
+BLKD hardrectilinear 4 (0, 0) (0, 490) (1295, 490) (1295, 0)
+BLKLL hardrectilinear 4 (0, 0) (0, 2534) (1295, 2534) (1295, 0)
+BLKLR hardrectilinear 4 (0, 0) (0, 2569) (1295, 2569) (1295, 0)
+BLKP hardrectilinear 4 (0, 0) (0, 840) (756, 840) (756, 0)
+BLKRC hardrectilinear 4 (0, 0) (0, 1939) (1162, 1939) (1162, 0)
+BLKRS hardrectilinear 4 (0, 0) (0, 1652) (1218, 1652) (1218, 0)
+BLKT hardrectilinear 4 (0, 0) (0, 1316) (882, 1316) (882, 0)
+BLKUL hardrectilinear 4 (0, 0) (0, 2114) (1295, 2114) (1295, 0)
+BLKUR hardrectilinear 4 (0, 0) (0, 1939) (1295, 1939) (1295, 0)
+
+VSS terminal
+VDD terminal
+
+

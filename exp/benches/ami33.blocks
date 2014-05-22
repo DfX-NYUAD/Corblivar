@@ -1,1 +1,84 @@
-/home/johann/code/mcnc_gsrc_fplan/ami33.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 33
+NumTerminals : 42
+
+bk1 hardrectilinear 4 (0, 0) (0, 133) (336, 133) (336, 0)
+bk10a hardrectilinear 4 (0, 0) (0, 119) (378, 119) (378, 0)
+bk10b hardrectilinear 4 (0, 0) (0, 140) (161, 140) (161, 0)
+bk10c hardrectilinear 4 (0, 0) (0, 49) (119, 49) (119, 0)
+bk11 hardrectilinear 4 (0, 0) (0, 119) (175, 119) (175, 0)
+bk12 hardrectilinear 4 (0, 0) (0, 406) (140, 406) (140, 0)
+bk13 hardrectilinear 4 (0, 0) (0, 497) (140, 497) (140, 0)
+bk14a hardrectilinear 4 (0, 0) (0, 119) (196, 119) (196, 0)
+bk14b hardrectilinear 4 (0, 0) (0, 119) (294, 119) (294, 0)
+bk14c hardrectilinear 4 (0, 0) (0, 119) (161, 119) (161, 0)
+bk15a hardrectilinear 4 (0, 0) (0, 266) (119, 266) (119, 0)
+bk15b hardrectilinear 4 (0, 0) (0, 336) (119, 336) (119, 0)
+bk16 hardrectilinear 4 (0, 0) (0, 126) (119, 126) (119, 0)
+bk17a hardrectilinear 4 (0, 0) (0, 182) (371, 182) (371, 0)
+bk17b hardrectilinear 4 (0, 0) (0, 203) (182, 203) (182, 0)
+bk18 hardrectilinear 4 (0, 0) (0, 203) (182, 203) (182, 0)
+bk19 hardrectilinear 4 (0, 0) (0, 119) (84, 119) (84, 0)
+bk2 hardrectilinear 4 (0, 0) (0, 294) (133, 294) (133, 0)
+bk20 hardrectilinear 4 (0, 0) (0, 350) (182, 350) (182, 0)
+bk21 hardrectilinear 4 (0, 0) (0, 140) (315, 140) (315, 0)
+bk3 hardrectilinear 4 (0, 0) (0, 315) (133, 315) (133, 0)
+bk4 hardrectilinear 4 (0, 0) (0, 133) (560, 133) (560, 0)
+bk5a hardrectilinear 4 (0, 0) (0, 140) (133, 140) (133, 0)
+bk5b hardrectilinear 4 (0, 0) (0, 133) (175, 133) (175, 0)
+bk5c hardrectilinear 4 (0, 0) (0, 231) (133, 231) (133, 0)
+bk6 hardrectilinear 4 (0, 0) (0, 315) (133, 315) (133, 0)
+bk7 hardrectilinear 4 (0, 0) (0, 98) (182, 98) (182, 0)
+bk8a hardrectilinear 4 (0, 0) (0, 210) (210, 210) (210, 0)
+bk8b hardrectilinear 4 (0, 0) (0, 378) (126, 378) (126, 0)
+bk9a hardrectilinear 4 (0, 0) (0, 119) (182, 119) (182, 0)
+bk9b hardrectilinear 4 (0, 0) (0, 119) (119, 119) (119, 0)
+bk9c hardrectilinear 4 (0, 0) (0, 119) (357, 119) (357, 0)
+bk9d hardrectilinear 4 (0, 0) (0, 84) (119, 84) (119, 0)
+
+VSS terminal
+VDD terminal
+P9 terminal
+P8 terminal
+P7 terminal
+P6 terminal
+P5 terminal
+P4 terminal
+P37 terminal
+P36 terminal
+POW@0 terminal
+POW@1 terminal
+P35 terminal
+P34 terminal
+P33 terminal
+P32 terminal
+P31 terminal
+P30 terminal
+P3 terminal
+P29 terminal
+P28 terminal
+P27 terminal
+P26 terminal
+P25 terminal
+P24 terminal
+P23 terminal
+P22 terminal
+P21 terminal
+P20 terminal
+P2 terminal
+P19 terminal
+P18 terminal
+P17 terminal
+GND@0 terminal
+GND@1 terminal
+P16 terminal
+P15 terminal
+P14 terminal
+P13 terminal
+P12 terminal
+P11 terminal
+P10 terminal
+
+

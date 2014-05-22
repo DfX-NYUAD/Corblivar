@@ -1,1 +1,88 @@
-/home/johann/code/mcnc_gsrc_fplan/n10.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 10
+NumTerminals : 69
+
+sb0 hardrectilinear 4 (0, 0) (0, 82) (199, 82) (199, 0)
+sb1 hardrectilinear 4 (0, 0) (0, 105) (229, 105) (229, 0)
+sb2 hardrectilinear 4 (0, 0) (0, 117) (61, 117) (61, 0)
+sb3 hardrectilinear 4 (0, 0) (0, 167) (114, 167) (114, 0)
+sb4 hardrectilinear 4 (0, 0) (0, 208) (91, 208) (91, 0)
+sb5 hardrectilinear 4 (0, 0) (0, 129) (208, 129) (208, 0)
+sb6 hardrectilinear 4 (0, 0) (0, 108) (123, 108) (123, 0)
+sb7 hardrectilinear 4 (0, 0) (0, 179) (235, 179) (235, 0)
+sb8 hardrectilinear 4 (0, 0) (0, 193) (152, 193) (152, 0)
+sb9 hardrectilinear 4 (0, 0) (0, 196) (126, 196) (126, 0)
+
+p1 terminal
+p2 terminal
+p3 terminal
+p4 terminal
+p5 terminal
+p6 terminal
+p7 terminal
+p8 terminal
+p9 terminal
+p10 terminal
+p11 terminal
+p12 terminal
+p13 terminal
+p14 terminal
+p15 terminal
+p16 terminal
+p17 terminal
+p18 terminal
+p19 terminal
+p20 terminal
+p21 terminal
+p22 terminal
+p23 terminal
+p24 terminal
+p25 terminal
+p26 terminal
+p27 terminal
+p28 terminal
+p29 terminal
+p30 terminal
+p31 terminal
+p32 terminal
+p33 terminal
+p34 terminal
+p35 terminal
+p36 terminal
+p37 terminal
+p38 terminal
+p39 terminal
+p40 terminal
+p41 terminal
+p42 terminal
+p43 terminal
+p44 terminal
+p45 terminal
+p46 terminal
+p47 terminal
+p48 terminal
+p49 terminal
+p50 terminal
+p51 terminal
+p52 terminal
+p53 terminal
+p54 terminal
+p55 terminal
+p56 terminal
+p57 terminal
+p58 terminal
+p59 terminal
+p60 terminal
+p61 terminal
+p62 terminal
+p63 terminal
+p64 terminal
+p65 terminal
+p66 terminal
+p67 terminal
+p68 terminal
+p69 terminal
+
+

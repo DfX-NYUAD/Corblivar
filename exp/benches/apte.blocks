@@ -1,1 +1,91 @@
-/home/johann/code/mcnc_gsrc_fplan/apte.blocks
+UCSC blocks 1.0
+
+NumSoftRectangularBlocks : 0
+NumHardRectilinearBlocks : 9
+NumTerminals : 73
+
+cc_11 hardrectilinear 4 (0, 0) (0, 1826) (3146, 1826) (3146, 0)
+cc_12 hardrectilinear 4 (0, 0) (0, 1826) (3146, 1826) (3146, 0)
+cc_13 hardrectilinear 4 (0, 0) (0, 1826) (3146, 1826) (3146, 0)
+cc_14 hardrectilinear 4 (0, 0) (0, 1826) (3146, 1826) (3146, 0)
+cc_21 hardrectilinear 4 (0, 0) (0, 1832) (3186, 1832) (3186, 0)
+cc_22 hardrectilinear 4 (0, 0) (0, 1832) (3186, 1832) (3186, 0)
+cc_23 hardrectilinear 4 (0, 0) (0, 1832) (3186, 1832) (3186, 0)
+cc_24 hardrectilinear 4 (0, 0) (0, 1832) (3186, 1832) (3186, 0)
+clk hardrectilinear 4 (0, 0) (0, 286) (826, 286) (826, 0)
+
+new0 terminal
+new1 terminal
+new2 terminal
+new3 terminal
+new4 terminal
+new5 terminal
+new6 terminal
+new7 terminal
+new8 terminal
+new10 terminal
+new11 terminal
+new12 terminal
+new14 terminal
+new15 terminal
+new16 terminal
+new17 terminal
+new18 terminal
+VSS terminal
+new19 terminal
+new20 terminal
+new21 terminal
+new22 terminal
+new28 terminal
+new29 terminal
+new30 terminal
+new31 terminal
+new32 terminal
+new33 terminal
+new39 terminal
+new40 terminal
+new41 terminal
+new42 terminal
+new43 terminal
+new44 terminal
+new46 terminal
+new50 terminal
+VDD terminal
+new51 terminal
+new52 terminal
+new54 terminal
+new55 terminal
+new56 terminal
+new57 terminal
+new58 terminal
+new59 terminal
+new60 terminal
+new62 terminal
+new63 terminal
+new64 terminal
+new65 terminal
+new66 terminal
+new67 terminal
+new69 terminal
+new70 terminal
+GND terminal
+new71 terminal
+new72 terminal
+new73 terminal
+new74 terminal
+new75 terminal
+new76 terminal
+new77 terminal
+new78 terminal
+new79 terminal
+new80 terminal
+new81 terminal
+new82 terminal
+new83 terminal
+new84 terminal
+new85 terminal
+new86 terminal
+Phi terminal
+TestHS1 terminal
+
+
