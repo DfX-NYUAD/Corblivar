@@ -1,0 +1,19 @@
+# alignment requests for Corblivar
+#
+# requests have to be defined as tuples w/ the following format: ( BLOCK_1_ID BLOCK_2_ID
+# TYPE_X ALIGNMENT_RANGE_OFFSET_X TYPE_Y ALIGNMENT_RANGE_OFFSET_Y )
+#
+# the following types can be defined: RANGE, RANGE_MAX, OFFSET, or UNDEF
+# 	RANGE is used to describe a minimal overlap b/w blocks,
+# 	RANGE_MAX is used to describe a maximal distance b/w blocks,
+# 	OFFSET is used to describe an offset b/w blocks' lower-left corners
+# 	UNDEF is used to describe an undefined offset, i.e., don't care for that dimension
+#
+# the range/distance/offset itself is to be given as floating in ALIGNMENT_RANGE_OFFSET
+#
+# for alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
+# preplacement of sb10 at 10,50 use ( RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
+#
+# data_start
+
+( sb1 sb2 RANGE 50.0 RANGE 50.0 )
