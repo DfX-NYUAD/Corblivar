@@ -78,9 +78,8 @@ The section "Power blurring (thermal analysis) -- Default thermal-mask parameter
 left as is; the related parametrization is done via separate scripts, as described in the
 next step.
 
-3) Parametrization of power blurring: see thermal_analysis_fitting/ and
-documentation_Octave.pdf
--------------------------------------------------------------------------
+3) Parametrization of power blurring: see thermal_analysis_fitting/ and documentation_Octave.pdf
+------------------------------------------------------------------------------------------------
 
 As indicated in 2), the thermal-mask parameters are obtained separately. The related
 Octave scripts should be run whenever the 3D-IC setup changes notably, i.e., when the
@@ -149,36 +148,31 @@ with ~/code/HotSpot is the default setup which should be working in any case.
 Changelog
 =========
 
-1.1.1 (May 7, 2014, commit 58e43811eed5466b505fa0a16d4778793f9e1e8e): updates,
-consideration of heterogeneous TSV densities
---------------------------------------------
+1.1.1 (May 7, 2014, commit 58e43811eed5466b505fa0a16d4778793f9e1e8e): updates, consideration of heterogeneous TSV densities
+---------------------------------------------------------------------------------------------------------------------------
 - dropped deprecated handling of different masks
 - dropped dummy TSV handling
 - added handler for TSV densities considering both signal TSVs and vertical buses
 - Octave script now considers parameter for scaling down power in TSV regions
 - various minor updates and fixes
-1.1.0 (Nov 13, 2013, commit 743598a2835826d941f3a4f16ce64df3938996a5): new feature,
-consideration of heterogeneous TSV densities
---------------------------------------------
+1.1.0 (Nov 13, 2013, commit 743598a2835826d941f3a4f16ce64df3938996a5): new feature, consideration of heterogeneous TSV densities
+--------------------------------------------------------------------------------------------------------------------------------
 - adapted power blurring for using different masks
 - added plotting of TSV-density maps
 - adapted HotSpot file handler
 - added dummy TSV handler
 - Octave script now considers determination of different masks
 - various minor updates and fixes
-1.0.4 (Aug 21, 2013, commit e2c4890f03333a9849308f0649eb09b290982e06): fixes and
-updates, thermal analysis
---------------------------------------------
-1.0.3 (Aug 1, 2013, commit 76ed57a49082f678edc65102f0a25c1b3ffc6991): fix, compiling
-error for 64-bit libaries
---------------------------------------------
-1.0.2 (Jul 29, 2013, commit bcbb91f21029207f430bc68e52b8c1cb3083df7a): update, enable
-fixed-position block alignment
---------------------------------------------
+1.0.4 (Aug 21, 2013, commit e2c4890f03333a9849308f0649eb09b290982e06): fixes and updates, thermal analysis
+----------------------------------------------------------------------------------------------------------
+1.0.3 (Aug 1, 2013, commit 76ed57a49082f678edc65102f0a25c1b3ffc6991): fix, compiling error for 64-bit libaries
+--------------------------------------------------------------------------------------------------------------
+1.0.2 (Jul 29, 2013, commit bcbb91f21029207f430bc68e52b8c1cb3083df7a): update, enable fixed-position block alignment
+--------------------------------------------------------------------------------------------------------------------
 1.0.1 (Jul 29, 2013, commit 06a6844e48e4a0a066b8483e443d49c949f5fc26): bugfixes and updates
---------------------------------------------
+-------------------------------------------------------------------------------------------
 - update HotSpot BU to v 1.2
 - fixes calculation of thermal-related material properties
 - new class Chip contains all chip-related settings
 1.0.0 (Jul 22, 2013, commit 8eb78f7d17dc6ce25458a629072e900bfa31a22a): initial public release
---------------------------------------------
+---------------------------------------------------------------------------------------------
