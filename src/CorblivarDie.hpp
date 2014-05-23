@@ -92,16 +92,16 @@ class CorblivarDie {
 		bool shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq const* req, bool const& dry_run = false);
 
 		// layout-generation helper: determine coordinates of block in process
-		void inline determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
+		void determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
-		list<Block const*> inline popRelevantBlocks();
+		list<Block const*> popRelevantBlocks();
 		// layout-generation helper: update placement stack (after placement)
-		void inline updatePlacementStacks(list<Block const*>& relev_blocks_stack);
+		void updatePlacementStacks(list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: rebuild placement stack (after block shifting)
 		void rebuildPlacementStacks(list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
-		void inline debugStacks();
+		void debugStacks();
 
 	// constructors, destructors, if any non-implicit
 	public:

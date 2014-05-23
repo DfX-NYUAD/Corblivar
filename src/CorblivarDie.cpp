@@ -76,7 +76,7 @@ void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 	}
 }
 
-void inline CorblivarDie::debugStacks() {
+void CorblivarDie::debugStacks() {
 	Block const* cur_block = this->getCurrentBlock();
 	list<Block const*>::iterator iter;
 
@@ -140,7 +140,7 @@ bool CorblivarDie::debugLayout() const {
 	return invalid;
 }
 
-list<Block const*> inline CorblivarDie::popRelevantBlocks() {
+list<Block const*> CorblivarDie::popRelevantBlocks() {
 	list<Block const*> ret;
 	unsigned blocks_count;
 
@@ -476,7 +476,7 @@ void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack
 	}
 }
 
-void inline CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
+void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
 	double x, y;
 
 	// current block
