@@ -1,7 +1,7 @@
 Licence
 =======
 
-Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+Copyright (C) 2014 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
 
 This file is part of Corblivar.
 
@@ -23,12 +23,11 @@ Citation
 ========
 If you find this tool useful, and apply it for your research and publications, please
 cite our paper:
-Knechtel, J.; Young, E. F. Y. & Lienig, J. "Structural Planning of 3D-IC Interconnects by
-Block Alignment" Proc. Asia South Pacific Des. Autom. Conf., 2014, 53-60
+	Knechtel, J.; Young, E. F. Y. & Lienig, J. "Structural Planning of 3D-IC Interconnects by Block Alignment" Proc. Asia South Pacific Des. Autom. Conf., pp. 53-60, 2014
 
 Compile & Run
 =============
-** To compile and run Corblivar, you need the following tools **
+**To compile and run Corblivar, you need the following tool**
 - clang++ (at least v 3.1 is required; compiling w/ version 3.2 was tested)
 - gnuplot
 - octave
@@ -39,18 +38,18 @@ along with Corblivar. Note that this code has to be compiled separately.
 
 Usage
 =====
-** To use Corblivar, the following procedure should be followed **
+**To use Corblivar, the following procedure should be followed**
 
 1) Configuration of HotSpot
 ---------------------------
-** see ../HotSpot/hotspot.config **
+**see ../HotSpot/hotspot.config**
 
 Relevant are the specs for the heat sink and heat spreader; they should be adapted to
 reflect largest chip dimensions under consideration.
 
 2) Configuration of Corblivar
 -----------------------------
-** see exp/Corblivar.conf or other examples in exp/configs **
+**see exp/Corblivar.conf or other examples in exp/configs**
 
 Most relevant is the section "3D-IC parameters", i.e., the number of layers in the IC
 stack and the fixed, common outline of these layers.
@@ -82,9 +81,9 @@ The section "Power blurring (thermal analysis) -- Default thermal-mask parameter
 left as is; the related parametrization is done via separate scripts, as described in the
 next step.
 
-3) Parametrization of power blurring
-------------------------------------
-** see thermal_analysis_fitting/ and documentation_Octave.pdf **
+3) Parametrization of Power-Blurring Thermal Analysis
+-----------------------------------------------------
+**see thermal_analysis_fitting/ and doc/therma_analysis_octave.pdf**
 
 As indicated in 2), the thermal-mask parameters are obtained separately. The related
 Octave scripts should be run whenever the 3D-IC setup changes notably, i.e., when the
@@ -111,12 +110,14 @@ spread across the whole 3D-IC. Also, vertical buses are assumed to have tightest
 packing of multiple TSVs (100% TSV density) for the whole bus region, even if fewer TSVs
 would suffice for signal transmission.
 
-4) Actual run of Corblivar
---------------------------
-** see exp/run*.sh or directly start ./Corblivar **
+4) Running Corblivar
+--------------------
+**see exp/run*.sh or directly start ./Corblivar**
 
 To run Corblivar, one can start the binary directly, for example from the exp/ folder as
-../Corblivar BENCH CORBLIVAR.CONF benches/
+
+	../Corblivar BENCH CORBLIVAR.CONF benches/
+
 The other option is to call Corblivar in a batch mode, as outlined in the scripts
 exp/run*.sh
 
@@ -125,7 +126,7 @@ in the related working directory.
 
 Comments
 ========
-** The further comments below are for understanding of the Corblivar tool and its structure **
+**The further comments below are for understanding of the Corblivar tool and its structure**
 
 Various experiments can be started using exp/run*.sh; these scripts are not a complete
 set for running all experiments but rather a guideline for different setups.
@@ -157,7 +158,8 @@ Changelog
 
 1.1.1
 -----
-** May 7, 2014, commit 58e43811eed5466b505fa0a16d4778793f9e1e8e: updates, consideration of heterogeneous TSV densities **
+*May 7, 2014, commit bacb85a62a4b779cb94286ee3a1e946c19e234a1*
+**updates, consideration of heterogeneous TSV densities**
 - dropped deprecated handling of different masks
 - dropped dummy TSV handling
 - added handler for TSV densities considering both signal TSVs and vertical buses
@@ -166,7 +168,8 @@ Changelog
 
 1.1.0
 -----
-** Nov 13, 2013, commit 743598a2835826d941f3a4f16ce64df3938996a5: new feature, consideration of heterogeneous TSV densities **
+*Nov 13, 2013, commit 1de2426d361595bbec4542e425c8eb74fecaf544*
+**new feature, consideration of heterogeneous TSV densities**
 - adapted power blurring for using different masks
 - added plotting of TSV-density maps
 - adapted HotSpot file handler
@@ -176,23 +179,28 @@ Changelog
 
 1.0.4
 -----
-** Aug 21, 2013, commit e2c4890f03333a9849308f0649eb09b290982e06: fixes and updates, thermal analysis **
+*Aug 21, 2013, commit 44f573ed8f31654e6c07d6cc391cf528233f30bf*
+**fixes and updates, thermal analysis**
 
 1.0.3
 -----
-** Aug 1, 2013, commit 76ed57a49082f678edc65102f0a25c1b3ffc6991: fix, compiling error for 64-bit libaries **
+*Aug 1, 2013, commit 157d3c989ac20799d0e4efce8acf6b244a68a480*
+**fix, compiling error for 64-bit libaries**
 
 1.0.2
 -----
-** Jul 29, 2013, commit bcbb91f21029207f430bc68e52b8c1cb3083df7a: update, enable fixed-position block alignment **
+*Jul 29, 2013, commit 80029340de6e0d9fc97c705828671cbc4a26057c*
+**update, enable fixed-position block alignment**
 
 1.0.1
 -----
-** Jul 29, 2013, commit 06a6844e48e4a0a066b8483e443d49c949f5fc26: bugfixes and updates **
+*Jul 29, 2013, commit f583c3b77b4c67a7b11aacc117f0d436b5408d84*
+**bugfixes and updates**
 - update HotSpot BU to v 1.2
 - fixes calculation of thermal-related material properties
 - new class Chip contains all chip-related settings
 
 1.0.0
 -----
-** Jul 22, 2013, commit 8eb78f7d17dc6ce25458a629072e900bfa31a22a: initial public release **
+*Jul 22, 2013, commit 286b7917b05be13d3cbcdb4b837422baa00888ad*
+**initial public release**
