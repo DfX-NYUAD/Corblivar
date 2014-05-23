@@ -128,7 +128,7 @@ class Block {
 		}
 
 		// search blocks
-		static inline Block const* findBlock(string const& id, vector<Block> const& container) {
+		inline static Block const* findBlock(string const& id, vector<Block> const& container) {
 
 			for (Block const& b : container) {
 				if (b.id == id) {

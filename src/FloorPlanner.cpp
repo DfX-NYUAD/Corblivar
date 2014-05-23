@@ -281,7 +281,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	return valid_layout_found;
 }
 
-inline void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const {
+void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const {
 	float loop_factor;
 	double prev_temp;
 	int phase;
@@ -1332,7 +1332,7 @@ FloorPlanner::Cost FloorPlanner::determCost(vector<CorblivarAlignmentReq> const&
 	return ret;
 }
 
-double inline FloorPlanner::determCostThermalDistr(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+double FloorPlanner::determCostThermalDistr(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
 
 	// generate power maps based on layout and blocks' power densities
 	this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks,
