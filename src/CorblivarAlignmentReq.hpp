@@ -33,9 +33,10 @@ class CorblivarAlignmentReq {
 	// debugging code switch (private)
 	private:
 
-	// enum class for alignment types; has to be defined first
+	// enum classes; have to be defined first
 	public:
-		enum class Type : int {OFFSET = 0, RANGE = 1, RANGE_MAX = 2, UNDEF = -1};
+		enum class Type : int {OFFSET = 0, MIN = 1, MAX = 2, UNDEF = -1};
+		enum class Global_Type : int {STRICT = 0, FLEXIBLE = 1};
 
 	// private data, functions
 	private:
@@ -44,11 +45,18 @@ class CorblivarAlignmentReq {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		CorblivarAlignmentReq(int const& id, Block const* s_i, Block const* s_j,
-				Type const& type_x, double const& offset_range_x,
-				Type const& type_y, double const& offset_range_y) {
+		CorblivarAlignmentReq(int const& id,
+				Global_Type const& type,
+				int const& signals,
+				Block const* s_i, Block const* s_j,
+				Type const& type_x, double const& alignment_x,
+				Type const& type_y, double const& alignment_y) {
 
 			this->id = id;
+
+			this->type = type;
+
+			this->signals = signals;
 
 			this->s_i = s_i;
 			this->s_j = s_j;
@@ -56,21 +64,21 @@ class CorblivarAlignmentReq {
 			this->type_x = type_x;
 			this->type_y = type_y;
 
-			this->offset_range_x = offset_range_x;
-			this->offset_range_y = offset_range_y;
+			this->alignment_x = alignment_x;
+			this->alignment_y = alignment_y;
 
 			fulfilled = false;
 
 			// fix negative range, if required; only for offsets, a negative
 			// value is applicable
 			if (
-				(this->offset_range_x < 0 && !this->offset_x()) ||
-				(this->offset_range_y < 0 && !this->offset_y())
+				(this->alignment_x < 0 && !this->offset_x()) ||
+				(this->alignment_y < 0 && !this->offset_y())
 			   ) {
 
 				// negative range can be trivially resolved
-				this->offset_range_x = abs(this->offset_range_x);
-				this->offset_range_y = abs(this->offset_range_y);
+				this->alignment_x = abs(this->alignment_x);
+				this->alignment_y = abs(this->alignment_y);
 			}
 		};
 
@@ -79,18 +87,20 @@ class CorblivarAlignmentReq {
 		int id;
 		Block const* s_i;
 		Block const* s_j;
-		double offset_range_x, offset_range_y;
+		double alignment_x, alignment_y;
+		Global_Type type;
+		int signals;
 		mutable bool fulfilled;
 
 		friend ostream& operator<< (ostream& out, Type const& type) {
 
 			switch (type) {
 
-				case Type::RANGE:
-					out << "RANGE";
+				case Type::MIN:
+					out << "MIN";
 					break;
-				case Type::RANGE_MAX:
-					out << "RANGE_MAX";
+				case Type::MAX:
+					out << "MAX";
 					break;
 				case Type::OFFSET:
 					out << "OFFSET";
@@ -103,17 +113,35 @@ class CorblivarAlignmentReq {
 			return out;
 		}
 
+		friend ostream& operator<< (ostream& out, Global_Type const& type) {
+
+			switch (type) {
+
+				case Global_Type::STRICT:
+					out << "STRICT";
+					break;
+				case Global_Type::FLEXIBLE:
+					out << "FLEXIBLE";
+					break;
+				default:
+					out << "UNDEF";
+					break;
+			}
+
+			return out;
+		}
+
 		inline bool range_x() const {
-			return (this->type_x == Type::RANGE && this->offset_range_x != 0.0);
+			return (this->type_x == Type::MIN && this->alignment_x != 0.0);
 		}
 		inline bool range_y() const {
-			return (this->type_y == Type::RANGE && this->offset_range_y != 0.0);
+			return (this->type_y == Type::MIN && this->alignment_y != 0.0);
 		}
 		inline bool range_max_x() const {
-			return (this->type_x == Type::RANGE_MAX && this->offset_range_x != 0.0);
+			return (this->type_x == Type::MAX && this->alignment_x != 0.0);
 		}
 		inline bool range_max_y() const {
-			return (this->type_y == Type::RANGE_MAX && this->offset_range_y != 0.0);
+			return (this->type_y == Type::MAX && this->alignment_y != 0.0);
 		}
 		inline bool offset_x() const {
 			return (this->type_x == Type::OFFSET);
@@ -125,9 +153,10 @@ class CorblivarAlignmentReq {
 		inline string tupleString() const {
 			stringstream ret;
 
+			ret << "(" << this->type << ", " << this->signals << ", ";
 			ret << "(" << this->s_i->id << ", " << this->s_j->id << ", ";
-			ret << "(" << this->type_x << ", " << this->offset_range_x << "), ";
-			ret << "(" << this->type_y << ", " << this->offset_range_y << ") )";
+			ret << "(" << this->type_x << ", " << this->alignment_x << "), ";
+			ret << "(" << this->type_y << ", " << this->alignment_y << ") )";
 
 			return ret.str();
 		};

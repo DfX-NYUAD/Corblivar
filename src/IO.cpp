@@ -638,15 +638,17 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments) {
 	ifstream al_in;
 	string tmpstr;
-	int tuple;
+	int id;
 	string block_id;
 	Block const* b1;
 	Block const* b2;
-	string type;
+	string type_str;
+	int signals;
 	CorblivarAlignmentReq::Type type_x;
 	CorblivarAlignmentReq::Type type_y;
-	double offset_range_x;
-	double offset_range_y;
+	CorblivarAlignmentReq::Global_Type type;
+	double alignment_x;
+	double alignment_y;
 
 	// sanity check for unavailable file
 	if (!fp.alignments_file_avail) {
@@ -671,8 +673,8 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 
 	// parse alignment tuples
 	// e.g.
-	// ( sb1 sb5 RANGE 10.0 RANGE_MAX 1000.0 )
-	tuple = 0;
+	// ( STRICT 64 sb1 sb2 MIN 50.0 MIN 100.0 )
+	id = 0;
 	while (!al_in.eof()) {
 
 		// drop "("
@@ -682,6 +684,23 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		if (al_in.eof()) {
 			break;
 		}
+
+		// global alignment type
+		al_in >> type_str;
+
+		if (type_str == "STRICT") {
+			type = CorblivarAlignmentReq::Global_Type::STRICT;
+		}
+		else if (type_str == "FLEXIBLE") {
+			type = CorblivarAlignmentReq::Global_Type::FLEXIBLE;
+		}
+		else {
+			cout << "IO> Unknown global alignment type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
+			exit(1);
+		}
+
+		// signals
+		al_in >> signals;
 
 		// block 1 id
 		al_in >> block_id;
@@ -724,58 +743,58 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 		}
 
 		// alignment type for x-dimension
-		al_in >> type;
+		al_in >> type_str;
 
-		if (type == "RANGE") {
-			type_x = CorblivarAlignmentReq::Type::RANGE;
+		if (type_str == "MIN") {
+			type_x = CorblivarAlignmentReq::Type::MIN;
 		}
-		else if (type == "RANGE_MAX") {
-			type_x = CorblivarAlignmentReq::Type::RANGE_MAX;
+		else if (type_str == "MAX") {
+			type_x = CorblivarAlignmentReq::Type::MAX;
 		}
-		else if (type == "OFFSET") {
+		else if (type_str == "OFFSET") {
 			type_x = CorblivarAlignmentReq::Type::OFFSET;
 		}
-		else if (type == "UNDEF") {
+		else if (type_str == "UNDEF") {
 			type_x = CorblivarAlignmentReq::Type::UNDEF;
 		}
 		else {
-			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
+			cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
 			exit(1);
 		}
 
-		// alignment range/offset for x-dimension
-		al_in >> offset_range_x;
+		// alignment value for x-dimension
+		al_in >> alignment_x;
 
 		// alignment type for y-dimension
-		al_in >> type;
+		al_in >> type_str;
 
-		if (type == "RANGE") {
-			type_y = CorblivarAlignmentReq::Type::RANGE;
+		if (type_str == "MIN") {
+			type_y = CorblivarAlignmentReq::Type::MIN;
 		}
-		else if (type == "RANGE_MAX") {
-			type_y = CorblivarAlignmentReq::Type::RANGE_MAX;
+		else if (type_str == "MAX") {
+			type_y = CorblivarAlignmentReq::Type::MAX;
 		}
-		else if (type == "OFFSET") {
+		else if (type_str == "OFFSET") {
 			type_y = CorblivarAlignmentReq::Type::OFFSET;
 		}
-		else if (type == "UNDEF") {
+		else if (type_str == "UNDEF") {
 			type_y = CorblivarAlignmentReq::Type::UNDEF;
 		}
 		else {
-			cout << "IO> Unknown alignment-request type: " << type << "; ensure alignment-requests file has correct format!" << endl;
+			cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
 			exit(1);
 		}
 
-		// alignment range/offset for y-dimension
-		al_in >> offset_range_y;
+		// alignment value for y-dimension
+		al_in >> alignment_y;
 
 		// drop ");"
 		al_in >> tmpstr;
 
 		// generate and store successfully parsed request
-		alignments.push_back(CorblivarAlignmentReq(tuple, b1, b2, type_x, offset_range_x, type_y, offset_range_y));
+		alignments.push_back(CorblivarAlignmentReq(id, type, signals, b1, b2, type_x, alignment_x, type_y, alignment_y));
 
-		tuple++;
+		id++;
 	}
 
 	if (IO::DBG) {
@@ -786,7 +805,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 
 	if (fp.logMed()) {
 		cout << "IO> ";
-		cout << "Done; parsed " << tuple << " alignment requests" << endl << endl;
+		cout << "Done; parsed " << id << " alignment requests" << endl << endl;
 	}
 }
 
@@ -1744,7 +1763,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << " font \"Gill Sans,4\"" << endl;
 		}
 
-		// check alignment fullfillment
+		// TODO refactor; should be put into CorblivarAlignmentReq class and
+		// determined during floorplanning
+		//
+		// check alignment fulfillment
 		for (Block const& cur_block : fp.blocks) {
 
 			if (cur_block.layer != cur_layer) {
@@ -1775,7 +1797,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.w = alignment_rect_tmp.w;
 
 						// overlap and thus alignment fulfilled
-						if (alignment_rect.w >= req.offset_range_x) {
+						if (alignment_rect.w >= req.alignment_x) {
 
 							req_x_fulfilled = 1;
 						}
@@ -1812,7 +1834,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.w = alignment_rect_tmp.w;
 
 						// distance and thus alignment fulfilled
-						if (alignment_rect.w <= req.offset_range_x) {
+						if (alignment_rect.w <= req.alignment_x) {
 
 							req_x_fulfilled = 1;
 						}
@@ -1832,7 +1854,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.w = alignment_rect.ur.x - alignment_rect.ll.x;
 
 						// offset and thus alignment fulfilled
-						if (Math::doubleComp(alignment_rect.w,  req.offset_range_x)) {
+						if (Math::doubleComp(alignment_rect.w,  req.alignment_x)) {
 
 							req_x_fulfilled = 1;
 						}
@@ -1865,7 +1887,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.h = alignment_rect_tmp.h;
 
 						// overlap and thus alignment fulfilled
-						if (alignment_rect.h >= req.offset_range_y) {
+						if (alignment_rect.h >= req.alignment_y) {
 
 							req_y_fulfilled = 1;
 						}
@@ -1902,7 +1924,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.h = alignment_rect_tmp.h;
 
 						// distance and thus alignment fulfilled
-						if (alignment_rect.h <= req.offset_range_y) {
+						if (alignment_rect.h <= req.alignment_y) {
 
 							req_y_fulfilled = 1;
 						}
@@ -1922,7 +1944,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 						alignment_rect.h = alignment_rect.ur.y - alignment_rect.ll.y;
 
 						// offset and thus alignment fulfilled
-						if (Math::doubleComp(alignment_rect.h,  req.offset_range_y)) {
+						if (Math::doubleComp(alignment_rect.h,  req.alignment_y)) {
 
 							req_y_fulfilled = 1;
 						}

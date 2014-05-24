@@ -685,7 +685,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 
 			// limit desired range, i.e., consider current block dimensions
 			range_x = min(shift_block->bb.w, reference_block->bb.w);
-			range_x = min(range_x, req->offset_range_x);
+			range_x = min(range_x, req->alignment_x);
 
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
@@ -697,7 +697,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		else if (req->offset_x()) {
 
 			// desired shifting range, i.e., fixed offset
-			range_x = req->offset_range_x;
+			range_x = req->alignment_x;
 
 			// determine inherent offset
 			overlap_offset_x = shift_block->bb.ll.x - reference_block->bb.ll.x;
@@ -793,7 +793,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 
 			// limit desired range, i.e., consider current block dimensions
 			range_y = min(shift_block->bb.h, reference_block->bb.h);
-			range_y = min(range_y, req->offset_range_y);
+			range_y = min(range_y, req->alignment_y);
 
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
@@ -805,7 +805,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		else if (req->offset_y()) {
 
 			// desired shifting range, i.e., fixed offset
-			range_y = req->offset_range_y;
+			range_y = req->alignment_y;
 
 			// determine inherent offset
 			overlap_offset_y = shift_block->bb.ll.y - reference_block->bb.ll.y;
