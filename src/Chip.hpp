@@ -23,6 +23,8 @@
 #ifndef _CORBLIVAR_CHIP
 #define _CORBLIVAR_CHIP
 
+// TODO put into technology.conf (or similar, new CL parameter); along w/ values for die
+// dimensions, scaling factor etc
 class Chip {
 	public:
 
