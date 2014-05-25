@@ -127,19 +127,19 @@ class FloorPlanner {
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost determCost(vector<CorblivarAlignmentReq> const& alignments, double
+		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double
 				const& ratio_feasible_solutions_fixed_outline = 0.0, bool
 				const& SA_phase_two = false, bool const& set_max_cost =
 				false);
-		inline double determCostThermalDistr(vector<CorblivarAlignmentReq> const&
+		inline double evaluateThermalDistr(vector<CorblivarAlignmentReq> const&
 				alignments, bool const& set_max_cost = false, bool const&
 				normalize = true, bool const& return_max_temp = false);
-		double determCostAlignment(vector<CorblivarAlignmentReq> const&
+		double evaluateAlignments(vector<CorblivarAlignmentReq> const&
 				alignments, bool const& set_max_cost = false, bool const&
 				normalize = true);
-		Cost determWeightedCostAreaOutline(double const&
+		Cost evaluateAreaOutline(double const&
 				ratio_feasible_solutions_fixed_outline = 0.0) const;
-		CostInterconn determCostInterconnects(bool const& set_max_cost = false,
+		CostInterconn evaluateInterconnects(bool const& set_max_cost = false,
 				bool const& normalize = true);
 
 		// SA: parameters for cost functions

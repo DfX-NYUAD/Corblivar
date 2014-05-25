@@ -327,6 +327,8 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
+// TODO refactor; replace input data alignments w/ vector of TSVs
+// TODO refactor; replace input data nets w/ vector of TSVs
 void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, vector<Net> const& nets, MaskParameters const& parameters) {
 	int layer_lower, layer_upper;
 	int x, y;
