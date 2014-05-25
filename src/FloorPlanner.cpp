@@ -1464,7 +1464,7 @@ FloorPlanner::CostInterconn FloorPlanner::determCostInterconnects(bool const& se
 			}
 
 			// also consider routes to terminal pins
-			for (Block const* pin :  cur_net.terminals) {
+			for (Pin const* pin :  cur_net.terminals) {
 				blocks_to_consider.push_back(&pin->bb);
 			}
 

@@ -862,13 +862,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// parse block identifier
 		blocks_in >> id;
 
-		// init block
+		// init block / pin
 		Block new_block = Block(id);
+		Pin new_pin = Pin(id);
 
 		// parse block type
 		blocks_in >> tmpstr;
 
-		// terminal pins: store separately (as dummy blocks)
+		// terminal pins: store separately
 		if (tmpstr == "terminal") {
 
 			// parse pins file for related coordinates
@@ -883,12 +884,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// initially, parse coordinates of found pin; they will be scaled
 			// after parsing whole blocks file
 			else {
-				pins_in >> new_block.bb.ll.x;
-				pins_in >> new_block.bb.ll.y;
+				pins_in >> new_pin.bb.ll.x;
+				pins_in >> new_pin.bb.ll.y;
 			}
 
-			// store pin (block)
-			fp.terminals.push_back(new_block);
+			// store pin
+			fp.terminals.push_back(new_pin);
 
 			// reset pins file stream for next search
 			pins_in.clear() ;
@@ -1086,9 +1087,10 @@ void IO::parseNets(FloorPlanner& fp) {
 	string tmpstr;
 	int i, net_degree;
 	string net_block;
-	Block const* b;
+	Block const* block;
+	Pin const* pin;
 	int id;
-	bool pin_not_found_block, pin_not_found_terminal;
+	bool block_not_found, pin_not_found;
 	unsigned to_parse_nets;
 
 	if (fp.logMed()) {
@@ -1136,32 +1138,36 @@ void IO::parseNets(FloorPlanner& fp) {
 		new_net.terminals.clear();
 		for (i = 0; i < net_degree; i++) {
 
-			// parse block id
+			// parse block / pin id
 			in >> net_block;
 
-			// try to parse pin as terminal pin
-			pin_not_found_terminal = false;
-			b = Block::findBlock(net_block, fp.terminals);
-			if (b != nullptr) {
+			// try to interpret as terminal pin
+			pin = Pin::findPin(net_block, fp.terminals);
+			if (pin != nullptr) {
 				// mark net as net w/ external pin
 				new_net.hasExternalPin = true;
 				// store terminal
-				new_net.terminals.push_back(move(b));
+				new_net.terminals.push_back(move(pin));
+				// pin found
+				pin_not_found = false;
 			}
 			else {
-				pin_not_found_terminal = true;
+				// pin not found
+				pin_not_found = true;
 			}
 
-			// try to parse pin as regular block pin
-			pin_not_found_block = false;
-			if (b == nullptr) {
-				b = Block::findBlock(net_block, fp.blocks);
-				if (b != nullptr) {
+			// try to interpret as regular block 
+			if (pin_not_found) {
+				block = Block::findBlock(net_block, fp.blocks);
+				if (block != nullptr) {
 					// store block
-					new_net.blocks.push_back(move(b));
+					new_net.blocks.push_back(move(block));
+					// block found
+					block_not_found = false;
 				}
 				else {
-					pin_not_found_block = true;
+					// block not found
+					block_not_found = true;
 				}
 			}
 
@@ -1170,11 +1176,11 @@ void IO::parseNets(FloorPlanner& fp) {
 
 			// log pin parsing failure
 			if (fp.logMin()) {
-				if (pin_not_found_block && !pin_not_found_terminal) {
-					cout << "IO>  Net " << id << "'s block pin \"" << net_block << "\"";
+				if (block_not_found && !pin_not_found) {
+					cout << "IO>  Net " << id << "'s block \"" << net_block << "\"";
 					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
 				}
-				else if (pin_not_found_block && pin_not_found_terminal) {
+				else if (block_not_found && pin_not_found) {
 					cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
 					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
 				}
@@ -1196,9 +1202,14 @@ void IO::parseNets(FloorPlanner& fp) {
 			cout << "DBG_IO> ";
 			cout << "net " << n.id << endl;
 
-			for (Block const* b : n.blocks) {
+			for (Block const* block : n.blocks) {
 				cout << "DBG_IO> ";
-				cout << " block " << b->id << endl;
+				cout << " block " << block->id << endl;
+			}
+
+			for (Pin const* pin : n.terminals) {
+				cout << "DBG_IO> ";
+				cout << " pin " << pin->id << endl;
 			}
 		}
 	}

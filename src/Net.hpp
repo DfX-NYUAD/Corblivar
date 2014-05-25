@@ -52,7 +52,7 @@ class Net {
 		int id;
 		bool hasExternalPin;
 		vector<Block const*> blocks;
-		vector<Block const*> terminals;
+		vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
 
 		inline void setLayerBoundaries() const {
@@ -99,7 +99,7 @@ class Net {
 				// blocks on upper dies are routed through the TSV in that
 				// lowermost die
 				if (layer == 0) {
-					for (Block const* pin :  this->terminals) {
+					for (Pin const* pin :  this->terminals) {
 						blocks_to_consider.push_back(&pin->bb);
 
 						if (Net::DBG) {

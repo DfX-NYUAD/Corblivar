@@ -44,7 +44,7 @@ class FloorPlanner {
 	private:
 		// chip data
 		vector<Block> blocks;
-		vector<Block> terminals;
+		vector<Pin> terminals;
 		vector<Net> nets;
 		// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
@@ -316,14 +316,14 @@ class FloorPlanner {
 
 			// scale terminal pins; first determine original pins outline
 			pins_scale_x = pins_scale_y = 0.0;
-			for (Block const& pin : this->terminals) {
+			for (Pin const& pin : this->terminals) {
 				pins_scale_x = max(pins_scale_x, pin.bb.ll.x);
 				pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
 			}
 			// scale terminal pins; scale pin coordinates according to die outline
 			pins_scale_x = this->conf_outline_x / pins_scale_x;
 			pins_scale_y = this->conf_outline_y / pins_scale_y;
-			for (Block& pin : this->terminals) {
+			for (Pin& pin : this->terminals) {
 				pin.bb.ll.x *= pins_scale_x;
 				pin.bb.ll.y *= pins_scale_y;
 				// also set upper right to same coordinates, thus pins are ``point''

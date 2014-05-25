@@ -140,7 +140,29 @@ class Block {
 		};
 };
 
-// derived dummy block "RBOD" as Reference Block On Die for fixed offsets
+// derived pin class
+class Pin : public Block {
+
+	// constructors, destructors, if any non-implicit
+	//
+	public:
+		Pin (string const& id) : Block(id) {
+		};
+
+		// search pins
+		inline static Pin const* findPin(string const& id, vector<Pin> const& container) {
+
+			for (Pin const& b : container) {
+				if (b.id == id) {
+					return &b;
+				}
+			}
+
+			return nullptr;
+		};
+};
+
+// derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets
 class RBOD : public Block {
 
 	// constructors, destructors, if any non-implicit
@@ -160,6 +182,4 @@ class RBOD : public Block {
 			this->placed = true;
 		};
 };
-
-
 #endif
