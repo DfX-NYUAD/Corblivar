@@ -1339,7 +1339,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_thermal = cost.thermal;
+		this->max_cost_thermal = temp.cost_temp;
 	}
 
 	// store normalized temp cost

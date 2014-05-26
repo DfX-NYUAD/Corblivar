@@ -676,7 +676,7 @@ void ThermalAnalyzer::performPowerBlurring(Temp& ret, int const& layers, MaskPar
 	avg_temp /= pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 
 	// determine cost: max temp estimation, weighted w/ avg temp
-	ret.cost_temp = avg_temp * ret.max_temp;
+	ret.cost_temp = avg_temp * max_temp;
 	// store max temp
 	ret.max_temp = max_temp;
 
