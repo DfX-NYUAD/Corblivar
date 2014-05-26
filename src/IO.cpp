@@ -1774,10 +1774,9 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << " font \"Gill Sans,4\"" << endl;
 		}
 
-		// TODO refactor; should be put into CorblivarAlignmentReq class and
-		// determined during floorplanning
+		// check alignment fulfillment; draw accordingly colored rectangles around
+		// affected blocks
 		//
-		// check alignment fulfillment
 		for (Block const& cur_block : fp.blocks) {
 
 			if (cur_block.layer != cur_layer) {
