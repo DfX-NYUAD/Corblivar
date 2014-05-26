@@ -72,8 +72,8 @@ class FloorPlanner {
 			double total_cost;
 			double HPWL;
 			double HPWL_actual_value;
-			//TODO double; to orderly represent normalized values
-			int TSVs;
+			// requires double since it contains normalized values
+			double TSVs;
 			int TSVs_actual_value;
 			double TSVs_area_deadspace_ratio;
 			double alignments;

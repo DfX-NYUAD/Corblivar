@@ -355,7 +355,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 	// reset max cost
 	this->max_cost_WL = 0.0;
-	this->max_cost_TSVs = 0.0;
+	this->max_cost_TSVs = 0;
 	this->max_cost_thermal = 0.0;
 	this->max_cost_alignments = 0.0;
 
