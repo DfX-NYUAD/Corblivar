@@ -1,19 +1,29 @@
-# alignment requests for Corblivar
+# Alignment-Requests File for Corblivar
 #
-# requests have to be defined as tuples w/ the following format: ( BLOCK_1_ID BLOCK_2_ID
-# TYPE_X ALIGNMENT_RANGE_OFFSET_X TYPE_Y ALIGNMENT_RANGE_OFFSET_Y )
+# Requests have to be defined as tuples w/ the following format: ( STRICT_FLEXIBLE SIGNALS
+# BLOCK_1 BLOCK_2 TYPE_X ALIGNMENT_X TYPE_Y ALIGNMENT_Y )
 #
-# the following types can be defined: RANGE, RANGE_MAX, OFFSET, or UNDEF
-# 	RANGE is used to describe a minimal overlap b/w blocks,
-# 	RANGE_MAX is used to describe a maximal distance b/w blocks,
-# 	OFFSET is used to describe an offset b/w blocks' lower-left corners
+# The global alignment type can be controlled via the STRICT_FLEXIBLE flag; it can be
+# either strict, i.e., given alignments have to be fulfilled for the related dimensions,
+# or flexible, i.e., given alignments have to be fulfilled for any of the two dimensions.
+# For example, flexible buses would be encoded with a MIN and a MAX alignment; however, it
+# typically does not matter which alignment is defined for which dimension.
+#
+# The variable SIGNALS encode the number of parallel signals to be embedded via block
+# alignment. This is particularly required for TSV-site planning for vertical buses.
+#
+# The following alignment types can be defined: MIN, MAX, OFFSET, or UNDEF;
+# 	MIN is used to describe a minimal overlap b/w blocks,
+# 	MAX is used to describe a maximal distance b/w blocks,
+# 	OFFSET is used to describe an fixed offset b/w blocks' lower-left corners
 # 	UNDEF is used to describe an undefined offset, i.e., don't care for that dimension
 #
-# the range/distance/offset itself is to be given as floating in ALIGNMENT_RANGE_OFFSET
+# The minimal overlap / maximal distance / fixed offset themselves are to be given as
+# floating number in the respective ALIGNMENT variable
 #
-# for alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
+# For alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
 # preplacement of sb10 at 10,50 use ( RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
 #
 # data_start
 
-( sb1 sb2 RANGE 50.0 RANGE 50.0 )
+( STRICT 64 sb1 sb2 MIN 50.0 MIN 100.0 )

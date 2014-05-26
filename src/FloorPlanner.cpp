@@ -752,7 +752,7 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 		}
 
 		// zero-offset fixed alignment in both coordinates
-		if ((failed_req->offset_x() && failed_req->offset_range_x == 0) && (failed_req->offset_y() && failed_req->offset_range_y == 0)) {
+		if ((failed_req->offset_x() && failed_req->alignment_x == 0) && (failed_req->offset_y() && failed_req->alignment_y == 0)) {
 
 			// such alignment cannot be fulfilled in one die, i.e., differing
 			// dies required
@@ -1587,10 +1587,10 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		if (req.range_x()) {
 
 			// consider the spatial mismatch as cost; overlap too small
-			if (blocks_intersect.w < req.offset_range_x) {
+			if (blocks_intersect.w < req.alignment_x) {
 
 				// missing overlap
-				cost += req.offset_range_x - blocks_intersect.w;
+				cost += req.alignment_x - blocks_intersect.w;
 
 				// in case blocks don't overlap at all, also consider the
 				// blocks' distance as further cost
@@ -1622,9 +1622,9 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		else if (req.range_max_x()) {
 
 			// consider the spatial mismatch as cost; distance too large
-			if (blocks_bb.w > req.offset_range_x) {
+			if (blocks_bb.w > req.alignment_x) {
 
-				cost += blocks_bb.w - req.offset_range_x;
+				cost += blocks_bb.w - req.alignment_x;
 
 				// annotate general alignment failure
 				req.fulfilled = false;
@@ -1644,11 +1644,11 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		else if (req.offset_x()) {
 
 			// check the blocks' offset against the required offset
-			if (!Math::doubleComp(req.s_j->bb.ll.x - req.s_i->bb.ll.x, req.offset_range_x)) {
+			if (!Math::doubleComp(req.s_j->bb.ll.x - req.s_i->bb.ll.x, req.alignment_x)) {
 
 				// s_j should be to the right of s_i;
 				// consider the spatial mismatch as cost
-				if (req.offset_range_x >= 0.0) {
+				if (req.alignment_x >= 0.0) {
 
 					// s_j is to the right of s_i
 					if (req.s_j->bb.ll.x > req.s_i->bb.ll.x) {
@@ -1656,11 +1656,11 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far left, i.e., not sufficiently away
 						// from s_i
-						cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x);
+						cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x);
 
 						// annotate block-alignment failure;
 						// s_j is too far left, s_i too far right
-						if ((req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x) < 0) {
+						if ((req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x) < 0) {
 							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
 							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
 						}
@@ -1674,7 +1674,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (right) s_i,
 						// (left) s_j and the failed offset
-						cost += req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x;
+						cost += req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
@@ -1691,11 +1691,11 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far right, i.e., not sufficiently away
 						// from s_i
-						cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x);
+						cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x);
 
 						// annotate block-alignment failure;
 						// s_j is too far right, s_i too far left
-						if ((req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.offset_range_x) < 0) {
+						if ((req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x) < 0) {
 							req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
 							req.s_j->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
 						}
@@ -1709,7 +1709,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (left) s_i,
 						// (right) s_j and the failed (negative) offset
-						cost += req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.offset_range_x;
+						cost += req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
@@ -1728,10 +1728,10 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		if (req.range_y()) {
 
 			// consider the spatial mismatch as cost; overlap too small
-			if (blocks_intersect.h < req.offset_range_y) {
+			if (blocks_intersect.h < req.alignment_y) {
 
 				// missing overlap
-				cost += req.offset_range_y - blocks_intersect.h;
+				cost += req.alignment_y - blocks_intersect.h;
 
 				// in case blocks don't overlap at all, also consider the
 				// blocks' distance as further cost
@@ -1763,9 +1763,9 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		else if (req.range_max_y()) {
 
 			// consider the spatial mismatch as cost; distance too large
-			if (blocks_bb.h > req.offset_range_y) {
+			if (blocks_bb.h > req.alignment_y) {
 
-				cost += blocks_bb.h - req.offset_range_y;
+				cost += blocks_bb.h - req.alignment_y;
 
 				// annotate general alignment failure
 				req.fulfilled = false;
@@ -1785,11 +1785,11 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 		else if (req.offset_y()) {
 
 			// check the blocks' offset against the required offset
-			if (!Math::doubleComp(req.s_j->bb.ll.y - req.s_i->bb.ll.y, req.offset_range_y)) {
+			if (!Math::doubleComp(req.s_j->bb.ll.y - req.s_i->bb.ll.y, req.alignment_y)) {
 
 				// s_j should be above s_i;
 				// consider the spatial mismatch as cost
-				if (req.offset_range_y >= 0.0) {
+				if (req.alignment_y >= 0.0) {
 
 					// s_j is above s_i
 					if (req.s_j->bb.ll.y > req.s_i->bb.ll.y) {
@@ -1797,11 +1797,11 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far lowerwards, i.e., not sufficiently
 						// away from s_i
-						cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y);
+						cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y);
 
 						// annotate block-alignment failure;
 						// s_j is too far lowerwards, s_i too far upwards
-						if ((req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y) < 0) {
+						if ((req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y) < 0) {
 							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
 							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
 						}
@@ -1816,7 +1816,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (upper) s_i,
 						// (lower) s_j and the failed offset
-						cost += req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y;
+						cost += req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
@@ -1833,12 +1833,12 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far upwards, i.e., not sufficiently
 						// away from s_i
-						cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y);
+						cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y);
 
 						// annotate block-alignment failure;
 						// s_j is too far upwards, s_i too far
 						// lowerwards
-						if ((req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.offset_range_y) < 0) {
+						if ((req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y) < 0) {
 							req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
 							req.s_j->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
 						}
@@ -1853,7 +1853,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (lower) s_i,
 						// (upper) s_j and the failed (negative) offset
-						cost += req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.offset_range_y;
+						cost += req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
