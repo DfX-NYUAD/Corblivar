@@ -71,11 +71,18 @@ class FloorPlanner {
 		struct Cost {
 			double total_cost;
 			double HPWL;
+			double HPWL_actual_value;
+			//TODO double; to orderly represent normalized values
 			int TSVs;
+			int TSVs_actual_value;
 			double TSVs_area_deadspace_ratio;
 			double alignments;
+			double alignments_actual_value;
 			double thermal;
+			double thermal_actual_value;
 			double area_outline;
+			double area_actual_value;
+			double outline_actual_value;
 			bool fits_fixed_outline;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
@@ -132,18 +139,18 @@ class FloorPlanner {
 		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments,
 				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
-				bool const& set_max_cost = false);
-		double evaluateThermalDistr(bool const& set_max_cost = false,
-				bool const& return_actual_temp = false);
-		double evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments,
-				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
-				bool const& normalize = true);
+				bool const& finalize = false);
+		void evaluateThermalDistr(Cost& cost,
+				bool const& set_max_cost = false);
+		void evaluateAlignments(Cost& cost,
+				vector<CorblivarAlignmentReq> const& alignments,
+				bool const& derive_TSVs = true,
+				bool const& set_max_cost = false);
 		void evaluateAreaOutline(Cost& cost,
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,
-				bool const& set_max_cost = false,
-				bool const& normalize = true);
+				bool const& set_max_cost = false);
 
 		// SA: parameters for cost functions
 		//

@@ -55,6 +55,10 @@ class ThermalAnalyzer {
 			double power_density;
 			double TSV_density;
 		};
+		struct Temp {
+			double cost_temp;
+			double max_temp;
+		};
 
 	// private data, functions
 	private:
@@ -204,9 +208,8 @@ class ThermalAnalyzer {
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
-		// i.e., convolution of thermals masks and power maps;
-		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& return_max_temp = false);
+		// i.e., convolution of thermals masks and power maps
+		void performPowerBlurring(Temp& ret, int const& layers, MaskParameters const& parameters);
 };
 
 #endif

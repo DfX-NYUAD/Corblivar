@@ -436,12 +436,11 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	corb.restoreCBLs();
 }
 
-//TODO review handle_corblivar and valid_solution flags
+//TODO review handle_corblivar, determ_overall_cost, valid_solution flags
 void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost, bool const& handle_corblivar) {
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
-	double thermal, alignment_mismatch;
 	double x, y;
 	Cost cost;
 
@@ -475,44 +474,20 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 
 		// determine cost terms and overall cost
-		cost = this->evaluateLayout(corb.getAlignments(), 1.0, true);
+		cost = this->evaluateLayout(corb.getAlignments(), 1.0, true, false, true);
 
-		// area cost; invert weight in order to retrieve area ratio
-		// (max blocks-outline / die-outline ratio)
-		cost.area_outline *= (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE);
-
-		// determine non-normalized WL and TSVs cost
-		// TODO adapt to refactored versions
-		this->evaluateInterconnects(cost, false, false);
-
-		// determine non-normalized alignment mismatches; only in case any
-		// alignments are given
-		// TODO adapt to refactored versions
-		if (!corb.getAlignments().empty()) {
-			alignment_mismatch = this->evaluateAlignments(corb.getAlignments(), true, false, false);
-		}
-
-		// determine max temperature; only in case a power-density file is given;
-		// note that vertical buses impact heat conduction via TSVs, thus the
-		// block alignment / bus planning is analysed before thermal distribution
-		// TODO adapt to refactored versions
-		if (this->power_density_file_avail) {
-			thermal = this->evaluateThermalDistr(false, true);
-		}
-
-		// logging results
+		// logging results; consider non-normalized, actual values
 		if (this->logMin()) {
 
 			cout << "Corblivar> Characteristica of final solution:" << endl;
 
 			if (determ_overall_cost) {
-			// TODO adapt to refactored versions; really required?
 				cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << endl;
 				this->results << "Final (adapted) cost: " << cost.total_cost << endl;
 			}
 
-			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_outline << endl;
-			this->results << "Max blocks-outline / die-outline ratio: " << cost.area_outline << endl;
+			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
+			this->results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
 
 			cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
 			this->results << "Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
@@ -524,24 +499,21 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->results << " x = " << x << endl;
 			this->results << " y = " << y << endl;
 
-			if (!corb.getAlignments().empty()) {
-				cout << "Corblivar> Alignment mismatches [um]: " << alignment_mismatch << endl;
-				this->results << "Alignment mismatches [um]: " << alignment_mismatch << endl;
-			}
+			cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
+			this->results << "Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
 
-			cout << "Corblivar> HPWL: " << cost.HPWL << endl;
-			this->results << "HPWL: " << cost.HPWL << endl;
+			cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << endl;
+			this->results << "HPWL: " << cost.HPWL_actual_value << endl;
 
-			cout << "Corblivar> TSVs: " << cost.TSVs << endl;
-			this->results << "TSVs: " << cost.TSVs << endl;
+			cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << endl;
+			this->results << "TSVs: " << cost.TSVs_actual_value << endl;
 
 			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 
-			if (this->power_density_file_avail) {
-				cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
-				this->results << "Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
-			}
+			cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
+			this->results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
+
 			cout << endl;
 		}
 	}
@@ -591,7 +563,10 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	// annotate alignment success/failure in blocks; required for maintaining
 	// succeeded alignments during subsequent packing
 	if (this->conf_SA_opt_alignment && this->conf_SA_layout_packing_iterations > 0) {
-		this->evaluateAlignments(corb.getAlignments(), false);
+		// ignore related cost; use dummy variable
+		Cost dummy;
+		// also don't derive TSVs; not required here
+		this->evaluateAlignments(dummy, corb.getAlignments(), false);
 	}
 
 	// perform packing if desired; perform on each die for each
@@ -1251,11 +1226,11 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 // adaptive cost model w/ two phases: first phase considers only cost for packing into
 // outline, second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost, bool const& finalize) {
 	Cost cost;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
+		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ", " << finalize << ")" << endl;
 	}
 
 	// phase one: consider only cost for packing into outline
@@ -1276,35 +1251,36 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// normalized interconnects cost; only if interconnect opt is on
-		//
-		if (this->conf_SA_opt_interconnects) {
+		// normalized interconnects cost; only if interconnect opt is on or for
+		// finalize calls
+		if (this->conf_SA_opt_interconnects || finalize) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
 		else {
-			cost.HPWL = 0.0;
-			cost.TSVs = 0;
+			cost.HPWL = cost.HPWL_actual_value = 0.0;
+			cost.TSVs = cost.TSVs_actual_value = 0;
 			cost.TSVs_area_deadspace_ratio = 0.0;
 		}
 
 		// cost failed alignments, i.e., alignment mismatches;
 		// also annotates failed request, this provides feedback for further
 		// alignment optimization
-		if (this->conf_SA_opt_alignment) {
-			cost.alignments = this->evaluateAlignments(alignments, true, set_max_cost);
+		if (this->conf_SA_opt_alignment || finalize) {
+			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
 		else {
-			cost.alignments = 0.0;
+			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
-		// normalized temperature-distribution cost; only if thermal opt is on;
-		// note that vertical buses impact heat conduction via TSVs, thus the
-		// block alignment / bus planning is analysed before thermal distribution
-		if (this->conf_SA_opt_thermal) {
-			cost.thermal = this->evaluateThermalDistr(set_max_cost);
+		// normalized temperature-distribution cost; only if thermal opt is on for
+		// for finalize run; note that vertical buses impact heat conduction via
+		// TSVs, thus the block alignment / bus planning is analysed before
+		// thermal distribution
+		if (this->conf_SA_opt_thermal || finalize) {
+			this->evaluateThermalDistr(cost, set_max_cost);
 		}
 		else {
-			cost.thermal = 0.0;
+			cost.thermal = cost.thermal_actual_value = 0.0;
 		}
 
 		// determine total cost; weight and sum up cost terms
@@ -1332,7 +1308,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	return cost;
 }
 
-double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& return_actual_temp) {
+void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
+	ThermalAnalyzer::Temp temp;
 
 	// generate power maps based on layout and blocks' power densities
 	this->thermalAnalyzer.generatePowerMaps(this->conf_layers, this->blocks,
@@ -1342,9 +1319,18 @@ double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& 
 	this->thermalAnalyzer.adaptPowerMaps(this->conf_layers, this->TSVs, this->nets, this->conf_power_blurring_parameters);
 
 	// perform actual thermal analysis
-	return this->thermalAnalyzer.performPowerBlurring(this->conf_layers,
-			this->conf_power_blurring_parameters, this->max_cost_thermal,
-			set_max_cost, return_actual_temp);
+	this->thermalAnalyzer.performPowerBlurring(temp, this->conf_layers,
+			this->conf_power_blurring_parameters);
+
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_thermal = cost.thermal;
+	}
+
+	// store normalized temp cost
+	cost.thermal = temp.cost_temp / this->max_cost_thermal;
+	// store actual temp value
+	cost.thermal_actual_value = temp.max_temp;
 };
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
@@ -1406,6 +1392,8 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	for (i = 0; i < this->conf_layers; i++) {
 		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
 	}
+	// store actual value
+	cost.outline_actual_value = cost_outline;
 	// determine cost function value
 	cost_outline *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 - fitting_layouts_ratio);
 
@@ -1415,6 +1403,8 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	for (i = 0; i < this->conf_layers; i++) {
 		cost_area = max(cost_area, dies_area[i]);
 	}
+	// store actual value
+	cost.area_actual_value = cost_area;
 	// determine cost function value
 	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + fitting_layouts_ratio);
 
@@ -1427,18 +1417,18 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 }
 
 // TODO apply TSV clustering here; put TSVs into FloorPlanner's list
-void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost, bool const& normalize) {
+void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;
 	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
+		cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << endl;
 	}
 
-	cost.HPWL = 0.0;
-	cost.TSVs = 0;
+	cost.HPWL = cost.HPWL_actual_value = 0.0;
+	cost.TSVs = cost.TSVs_actual_value = 0;
 	cost.TSVs_area_deadspace_ratio = 0.0;
 
 	blocks_to_consider.reserve(this->blocks.size());
@@ -1523,14 +1513,15 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		this->max_cost_TSVs = cost.TSVs;
 	}
 
-	// normalize to max value from initial sampling
-	if (normalize) {
-		cost.HPWL /= this->max_cost_WL;
-
-		// sanity check for zero TSVs; applies to 2D floorplanning
-		if (this->max_cost_TSVs != 0) {
-			cost.TSVs /= this->max_cost_TSVs;
-		}
+	// store actual values
+	cost.HPWL_actual_value = cost.HPWL;
+	cost.TSVs_actual_value = cost.TSVs;
+	// normalized values; refer to max value from initial sampling
+	//
+	cost.HPWL /= this->max_cost_WL;
+	// sanity check for zero TSVs; applies to 2D floorplanning
+	if (this->max_cost_TSVs != 0) {
+		cost.TSVs /= this->max_cost_TSVs;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1540,15 +1531,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
-double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& normalize) {
-	double cost = 0.0;
+void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost) {
 	Rect blocks_intersect;
 	Rect blocks_bb;
 	double TSVs_row_col;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateAlignments(" << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << normalize << ")" << endl;
+		cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << endl;
 	}
+
+	cost.alignments = cost.alignments_actual_value = 0.0;
 
 	// evaluate all alignment requests
 	for (CorblivarAlignmentReq const& req : alignments) {
@@ -1579,7 +1571,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			if (blocks_intersect.w < req.alignment_x) {
 
 				// missing overlap
-				cost += req.alignment_x - blocks_intersect.w;
+				cost.alignments += req.alignment_x - blocks_intersect.w;
 
 				// in case blocks don't overlap at all, also consider the
 				// blocks' distance as further cost
@@ -1587,7 +1579,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 
 					if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
 
-						cost += req.s_j->bb.ll.x - req.s_i->bb.ur.x;
+						cost.alignments += req.s_j->bb.ll.x - req.s_i->bb.ur.x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
@@ -1595,7 +1587,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					}
 					else {
 
-						cost += req.s_i->bb.ll.x - req.s_j->bb.ur.x;
+						cost.alignments += req.s_i->bb.ll.x - req.s_j->bb.ur.x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
@@ -1613,7 +1605,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			// consider the spatial mismatch as cost; distance too large
 			if (blocks_bb.w > req.alignment_x) {
 
-				cost += blocks_bb.w - req.alignment_x;
+				cost.alignments += blocks_bb.w - req.alignment_x;
 
 				// annotate general alignment failure
 				req.fulfilled = false;
@@ -1645,7 +1637,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far left, i.e., not sufficiently away
 						// from s_i
-						cost += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x);
+						cost.alignments += abs(req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x);
 
 						// annotate block-alignment failure;
 						// s_j is too far left, s_i too far right
@@ -1663,7 +1655,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (right) s_i,
 						// (left) s_j and the failed offset
-						cost += req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x;
+						cost.alignments += req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
@@ -1680,7 +1672,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far right, i.e., not sufficiently away
 						// from s_i
-						cost += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x);
+						cost.alignments += abs(req.s_i->bb.ll.x - req.s_j->bb.ll.x + req.alignment_x);
 
 						// annotate block-alignment failure;
 						// s_j is too far right, s_i too far left
@@ -1698,7 +1690,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (left) s_i,
 						// (right) s_j and the failed (negative) offset
-						cost += req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x;
+						cost.alignments += req.s_j->bb.ll.x - req.s_i->bb.ll.x - req.alignment_x;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
@@ -1720,7 +1712,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			if (blocks_intersect.h < req.alignment_y) {
 
 				// missing overlap
-				cost += req.alignment_y - blocks_intersect.h;
+				cost.alignments += req.alignment_y - blocks_intersect.h;
 
 				// in case blocks don't overlap at all, also consider the
 				// blocks' distance as further cost
@@ -1728,7 +1720,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 
 					if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
 
-						cost += req.s_j->bb.ll.y - req.s_i->bb.ur.y;
+						cost.alignments += req.s_j->bb.ll.y - req.s_i->bb.ur.y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
@@ -1736,7 +1728,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					}
 					else {
 
-						cost += req.s_i->bb.ll.y - req.s_j->bb.ur.y;
+						cost.alignments += req.s_i->bb.ll.y - req.s_j->bb.ur.y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
@@ -1754,7 +1746,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			// consider the spatial mismatch as cost; distance too large
 			if (blocks_bb.h > req.alignment_y) {
 
-				cost += blocks_bb.h - req.alignment_y;
+				cost.alignments += blocks_bb.h - req.alignment_y;
 
 				// annotate general alignment failure
 				req.fulfilled = false;
@@ -1786,7 +1778,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far lowerwards, i.e., not sufficiently
 						// away from s_i
-						cost += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y);
+						cost.alignments += abs(req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y);
 
 						// annotate block-alignment failure;
 						// s_j is too far lowerwards, s_i too far upwards
@@ -1805,7 +1797,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (upper) s_i,
 						// (lower) s_j and the failed offset
-						cost += req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y;
+						cost.alignments += req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
@@ -1822,7 +1814,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 						// abs required for cases where s_j is too
 						// far upwards, i.e., not sufficiently
 						// away from s_i
-						cost += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y);
+						cost.alignments += abs(req.s_i->bb.ll.y - req.s_j->bb.ll.y + req.alignment_y);
 
 						// annotate block-alignment failure;
 						// s_j is too far upwards, s_i too far
@@ -1842,7 +1834,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 					else {
 						// cost includes distance b/w (lower) s_i,
 						// (upper) s_j and the failed (negative) offset
-						cost += req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y;
+						cost.alignments += req.s_j->bb.ll.y - req.s_i->bb.ll.y - req.alignment_y;
 
 						// annotate block-alignment failure
 						req.s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
@@ -1961,17 +1953,15 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_alignments = cost;
+		this->max_cost_alignments = cost.alignments;
 	}
 
-	// normalize to max value from initial sampling
-	if (normalize) {
-		cost /= this->max_cost_alignments;
-	}
+	// store actual value
+	cost.alignments_actual_value = cost.alignments;
+	// normalize value; refers to max value from initial sampling
+	cost.alignments /= this->max_cost_alignments;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateAlignments : " << cost << endl;
+		cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << endl;
 	}
-
-	return cost;
 }

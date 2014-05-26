@@ -525,20 +525,19 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns cost (max * avg temp estimate) of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost, bool const& return_max_temp) {
+void ThermalAnalyzer::performPowerBlurring(Temp& ret, int const& layers, MaskParameters const& parameters) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
 	int mask_i;
-	double max_temp, avg_temp, cost_temp;
+	double max_temp, avg_temp;
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
 	// convolution of padded power maps
 	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << ", " << &parameters << ", " << max_cost_temp << ", ";
-		cout << set_max_cost << ", " << return_max_temp << ")" << endl;
+		cout << "-> ThermalAnalyzer::performPowerBlurring(" << &ret << ", " << ", " << layers << ", " << &parameters << ")" << endl;
 	}
 
 	// init temp map w/ zero
@@ -677,30 +676,11 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters c
 	avg_temp /= pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 
 	// determine cost: max temp estimation, weighted w/ avg temp
-	cost_temp = avg_temp * max_temp;
+	ret.cost_temp = avg_temp * ret.max_temp;
+	// store max temp
+	ret.max_temp = max_temp;
 
-	// memorize max cost; initial sampling
-	if (set_max_cost) {
-		max_cost_temp = cost_temp;
-	}
-
-	// normalize to max value from initial sampling
-	cost_temp /= max_cost_temp;
-
-	// return max temperature estimate
-	if (return_max_temp) {
-		if (ThermalAnalyzer::DBG_CALLS) {
-			cout << "<- ThermalAnalyzer::performPowerBlurring : " << max_temp << endl;
-		}
-
-		return max_temp;
-	}
-	// return thermal cost
-	else {
-		if (ThermalAnalyzer::DBG_CALLS) {
-			cout << "<- ThermalAnalyzer::performPowerBlurring : " << cost_temp << endl;
-		}
-
-		return cost_temp;
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "<- ThermalAnalyzer::performPowerBlurring" << endl;
 	}
 }
