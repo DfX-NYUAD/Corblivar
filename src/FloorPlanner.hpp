@@ -134,8 +134,7 @@ class FloorPlanner {
 
 		// SA: cost functions, i.e., layout-evalutions
 		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments,
-				// TODO rename
-				double const& ratio_feasible_solutions_fixed_outline = 0.0,
+				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
 				bool const& set_max_cost = false);
 		inline double evaluateThermalDistr(bool const& set_max_cost = false,
@@ -145,7 +144,7 @@ class FloorPlanner {
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
 				bool const& normalize = true);
-		Cost evaluateAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
+		Cost evaluateAreaOutline(double const& fitting_layouts_ratio = 0.0) const;
 		CostInterconn evaluateInterconnects(bool const& set_max_cost = false,
 				bool const& normalize = true);
 

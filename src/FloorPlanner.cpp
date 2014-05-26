@@ -49,7 +49,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	double cur_temp, init_temp;
 	double r;
 	int layout_fit_counter;
-	double layout_fit_ratio;
+	double fitting_layouts_ratio;
 	bool valid_layout_found;
 	int i_valid_layout_found;
 	bool best_sol_found;
@@ -82,7 +82,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	SA_phase_two = SA_phase_two_init = false;
 	valid_layout_found = false;
 	i_valid_layout_found = Point::UNDEF;
-	layout_fit_ratio = 0.0;
+	fitting_layouts_ratio = 0.0;
 	// dummy large value to accept first fitting solution
 	best_cost = 100.0 * Math::stdDev(cost_samples);
 
@@ -103,7 +103,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		// init cost for current layout and fitting ratio
 		this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
-		cur_cost = this->evaluateLayout(corb.getAlignments(), layout_fit_ratio, SA_phase_two).cost;
+		cur_cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two).cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -135,7 +135,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				}
 
 				// evaluate layout, new cost
-				cost = this->evaluateLayout(corb.getAlignments(), layout_fit_ratio, SA_phase_two);
+				cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two);
 				cur_cost = cost.cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
@@ -234,10 +234,10 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		// note that during the next temp step this ratio is fixed in order to
 		// avoid sudden changes of related cost terms during few iterations
 		if (accepted_ops > 0) {
-			layout_fit_ratio = static_cast<double>(layout_fit_counter) / accepted_ops;
+			fitting_layouts_ratio = static_cast<double>(layout_fit_counter) / accepted_ops;
 		}
 		else {
-			layout_fit_ratio = 0.0;
+			fitting_layouts_ratio = 0.0;
 		}
 
 		// determine avg cost for temp step
@@ -252,7 +252,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			cout << "SA> Step done:" << endl;
 			cout << "SA>  new best solution found: " << best_sol_found << endl;
 			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
-			cout << "SA>  valid-layouts ratio: " << layout_fit_ratio << endl;
+			cout << "SA>  valid-layouts ratio: " << fitting_layouts_ratio << endl;
 			cout << "SA>  avg cost: " << avg_cost << endl;
 			cout << "SA>  temp: " << cur_temp << endl;
 		}
@@ -1261,20 +1261,20 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 // TODO refactor such that different parts of cost are returned; enables to recalculate
 // different cost functions w/o rerunning the whole evaluation process; e.g. required in
 // optimization loop where best cost are compared w/ fitting_ratio 1.0
-FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& ratio_feasible_solutions_fixed_outline, bool const& SA_phase_two, bool const& set_max_cost) {
+FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost) {
 	double cost_total, cost_thermal, cost_alignments;
 	CostInterconn cost_interconnects;
 	Cost cost_area_outline, ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << ratio_feasible_solutions_fixed_outline << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
+		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
 	}
 
 	// phase one: consider only cost for packing into outline
 	if (!SA_phase_two) {
 
 		// determine area and outline cost
-		cost_area_outline = this->evaluateAreaOutline(ratio_feasible_solutions_fixed_outline);
+		cost_area_outline = this->evaluateAreaOutline(fitting_layouts_ratio);
 		// invert weight since it's the only cost term
 		cost_total = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost_area_outline.cost;
 	}
@@ -1284,7 +1284,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		this->TSVs.clear();
 
 		// area and outline cost, already weighted w/ global weight factor
-		cost_area_outline = this->evaluateAreaOutline(ratio_feasible_solutions_fixed_outline);
+		cost_area_outline = this->evaluateAreaOutline(fitting_layouts_ratio);
 
 		// normalized interconnects cost; only if interconnect opt is on
 		//
@@ -1363,7 +1363,7 @@ double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 // of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
 // ``Modern floorplanning based on B*-Tree and fast simulated annealing''
-FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasible_solutions_fixed_outline) const {
+FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& fitting_layouts_ratio) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -1375,7 +1375,7 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 	Cost ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
+		cout << "-> FloorPlanner::evaluateAreaOutline(" << fitting_layouts_ratio << ")" << endl;
 	}
 
 	dies_AR.reserve(this->conf_layers);
@@ -1421,7 +1421,7 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
 	}
 	// determine cost function value
-	cost_outline *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 - ratio_feasible_solutions_fixed_outline);
+	cost_outline *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 - fitting_layouts_ratio);
 
 	// cost for area, considering max value of (blocks-outline area) / (die-outline
 	// area) guides towards balanced die occupation and area minimization
@@ -1430,7 +1430,7 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 		cost_area = max(cost_area, dies_area[i]);
 	}
 	// determine cost function value
-	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + ratio_feasible_solutions_fixed_outline);
+	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + fitting_layouts_ratio);
 
 	ret.cost = cost_outline + cost_area;
 	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
