@@ -177,7 +177,18 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// switch to SA phase two when
 						// first fitting solution is found
 						if (!SA_phase_two) {
+
+							// switch phase
 							SA_phase_two = SA_phase_two_init = true;
+
+							// re-calculate cost for new
+							// phase; assume fitting ratio 1.0
+							// for initialization and for
+							// effective comparison of further
+							// fitting solutions; also
+							// initialize all max cost terms
+							fitting_cost = this->evaluateLayout(corb.getAlignments(), 1.0, true, true).total_cost;
+
 							// also memorize in which
 							// iteration we found the first
 							// valid layout
@@ -194,19 +205,13 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 								cout << "SA> " << endl;
 							}
 						}
-
-						// in order to compare different fitting
-						// solutions equally, redetermine cost w/
-						// fitting ratio 1.0
-						//
-						// during switch to phase two, initialize
-						// current cost as max cost for further
-						// normalization (SA_phase_two_init)
-						//
-						// TODO calculate also already in previous
-						// call so that repeating the different
-						// evaluation steps are not required
-						fitting_cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two, SA_phase_two_init).total_cost;
+						// not first but any fitting solution; in
+						// order to compare different fitting
+						// solutions equally, consider cost terms
+						// w/ fitting ratio 1.0
+						else {
+							fitting_cost = cost.total_cost_fitting;
+						}
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -1293,7 +1298,17 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 				)
 			// area, outline cost is already weighted
 			+ cost.area_outline;
-		;
+
+		// determine total cost assuming a fitting ratio of 1.0
+		cost.total_cost_fitting =
+			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
+					this->conf_SA_cost_WL * cost.HPWL
+					+ this->conf_SA_cost_TSVs * cost.TSVs
+					+ this->conf_SA_cost_alignment * cost.alignments
+					+ this->conf_SA_cost_thermal * cost.thermal
+				)
+			// consider only area term, see evaluateAreaOutline
+			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
 	}
 
 	if (FloorPlanner::DBG_LAYOUT) {

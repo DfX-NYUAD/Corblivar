@@ -70,6 +70,7 @@ class FloorPlanner {
 		// POD declarations
 		struct Cost {
 			double total_cost;
+			double total_cost_fitting;
 			double HPWL;
 			double HPWL_actual_value;
 			// requires double since it contains normalized values
