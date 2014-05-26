@@ -492,13 +492,12 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			alignment_mismatch = this->evaluateAlignments(corb.getAlignments(), true, false, false);
 		}
 
-		// determine non-normalized max temperature; only in case a power-density
-		// file is given; note that vertical buses impact heat conduction via
-		// TSVs, thus the block alignment / bus planning is analysed before
-		// thermal distribution
+		// determine max temperature; only in case a power-density file is given;
+		// note that vertical buses impact heat conduction via TSVs, thus the
+		// block alignment / bus planning is analysed before thermal distribution
 		// TODO adapt to refactored versions
 		if (this->power_density_file_avail) {
-			thermal = this->evaluateThermalDistr(false, false, true);
+			thermal = this->evaluateThermalDistr(false, true);
 		}
 
 		// logging results
@@ -1333,7 +1332,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	return cost;
 }
 
-double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& return_actual_temp) {
 
 	// generate power maps based on layout and blocks' power densities
 	this->thermalAnalyzer.generatePowerMaps(this->conf_layers, this->blocks,
@@ -1345,7 +1344,7 @@ double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& 
 	// perform actual thermal analysis
 	return this->thermalAnalyzer.performPowerBlurring(this->conf_layers,
 			this->conf_power_blurring_parameters, this->max_cost_thermal,
-			set_max_cost, normalize, return_max_temp);
+			set_max_cost, return_actual_temp);
 };
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio

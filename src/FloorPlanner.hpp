@@ -134,8 +134,7 @@ class FloorPlanner {
 				bool const& SA_phase_two = false,
 				bool const& set_max_cost = false);
 		double evaluateThermalDistr(bool const& set_max_cost = false,
-				bool const& normalize = true,
-				bool const& return_max_temp = false);
+				bool const& return_actual_temp = false);
 		double evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments,
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,

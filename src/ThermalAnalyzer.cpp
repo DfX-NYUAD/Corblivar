@@ -525,7 +525,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 // Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
 // Returns cost (max * avg temp estimate) of thermal map of lowest layer, i.e., hottest layer
 // Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost, bool const& return_max_temp) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -538,7 +538,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters c
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::performPowerBlurring(" << layers << ", " << ", " << &parameters << ", " << max_cost_temp << ", ";
-		cout << set_max_cost << ", " << normalize << ", " << return_max_temp << ")" << endl;
+		cout << set_max_cost << ", " << return_max_temp << ")" << endl;
 	}
 
 	// init temp map w/ zero
@@ -685,9 +685,7 @@ double ThermalAnalyzer::performPowerBlurring(int const& layers, MaskParameters c
 	}
 
 	// normalize to max value from initial sampling
-	if (normalize) {
-		cost_temp /= max_cost_temp;
-	}
+	cost_temp /= max_cost_temp;
 
 	// return max temperature estimate
 	if (return_max_temp) {

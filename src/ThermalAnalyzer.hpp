@@ -206,7 +206,7 @@ class ThermalAnalyzer {
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference
-		double performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& normalize = true, bool const& return_max_temp = false);
+		double performPowerBlurring(int const& layers, MaskParameters const& parameters, double& max_cost_temp, bool const& set_max_cost = false, bool const& return_max_temp = false);
 };
 
 #endif
