@@ -39,6 +39,8 @@ class FloorPlanner {
 		static constexpr bool DBG_SA = false;
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
+		static constexpr bool DBG_ALIGNMENT = false;
+		static constexpr bool DBG_TSVS = false;
 
 	// private data, functions
 	private:
@@ -46,10 +48,15 @@ class FloorPlanner {
 		vector<Block> blocks;
 		vector<Pin> terminals;
 		vector<Net> nets;
+
+		// groups of TSVs, will be defined from nets and vertical buses
+		vector<TSV_Group> TSVs;
+
 		// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
 
 		// 3D IC config parameters
+		// TODO rename conf_layers
 		int conf_layer;
 		double conf_outline_x, conf_outline_y;
 		double conf_blocks_scale;
@@ -127,18 +134,19 @@ class FloorPlanner {
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA: cost functions, i.e., layout-evalutions
-		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double
-				const& ratio_feasible_solutions_fixed_outline = 0.0, bool
-				const& SA_phase_two = false, bool const& set_max_cost =
-				false);
-		inline double evaluateThermalDistr(vector<CorblivarAlignmentReq> const&
-				alignments, bool const& set_max_cost = false, bool const&
-				normalize = true, bool const& return_max_temp = false);
-		double evaluateAlignments(vector<CorblivarAlignmentReq> const&
-				alignments, bool const& set_max_cost = false, bool const&
-				normalize = true);
-		Cost evaluateAreaOutline(double const&
-				ratio_feasible_solutions_fixed_outline = 0.0) const;
+		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments,
+				// TODO rename
+				double const& ratio_feasible_solutions_fixed_outline = 0.0,
+				bool const& SA_phase_two = false,
+				bool const& set_max_cost = false);
+		inline double evaluateThermalDistr(bool const& set_max_cost = false,
+				bool const& normalize = true,
+				bool const& return_max_temp = false);
+		double evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments,
+				bool const& derive_TSVs = true,
+				bool const& set_max_cost = false,
+				bool const& normalize = true);
+		Cost evaluateAreaOutline(double const& ratio_feasible_solutions_fixed_outline = 0.0) const;
 		CostInterconn evaluateInterconnects(bool const& set_max_cost = false,
 				bool const& normalize = true);
 

@@ -27,8 +27,8 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Chip.hpp"
+#include "Block.hpp"
 // forward declarations, if any
-class Block;
 class Point;
 class Net;
 class CorblivarAlignmentReq;
@@ -202,7 +202,7 @@ class ThermalAnalyzer {
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
-		void adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, vector<Net> const& nets, MaskParameters const& parameters);
+		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps;
 		// also sets max cost with return-by-reference

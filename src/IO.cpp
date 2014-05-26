@@ -1719,7 +1719,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	ratio_inv = 1.0 / fp.die_AR;
 	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
 
-	// color for alignment rects; for fullfiled alignment, green-ish color
+	// color for alignment rects; for fulfilled alignment, green-ish color
 	alignment_color_fulfilled = "#00A000";
 	// color for alignment rects; for failed alignment, red-ish color
 	alignment_color_failed = "#A00000";

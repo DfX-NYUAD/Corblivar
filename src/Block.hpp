@@ -138,6 +138,33 @@ class Block {
 
 			return nullptr;
 		};
+
+		friend ostream& operator<< (ostream& out, AlignmentStatus const& status) {
+
+			switch (status) {
+
+				case AlignmentStatus::SUCCESS:
+					out << "SUCCESS";
+					break;
+				case AlignmentStatus::FAIL_HOR_TOO_LEFT:
+					out << "FAIL_HOR_TOO_LEFT";
+					break;
+				case AlignmentStatus::FAIL_HOR_TOO_RIGHT:
+					out << "FAIL_HOR_TOO_RIGHT";
+					break;
+				case AlignmentStatus::FAIL_VERT_TOO_LOW:
+					out << "FAIL_VERT_TOO_LOW";
+					break;
+				case AlignmentStatus::FAIL_VERT_TOO_HIGH:
+					out << "FAIL_VERT_TOO_HIGH";
+					break;
+				default:
+					out << "UNDEF";
+					break;
+			}
+
+			return out;
+		}
 };
 
 // derived pin class
@@ -160,6 +187,23 @@ class Pin : public Block {
 
 			return nullptr;
 		};
+};
+
+// derived TSVs class; encapsulates TSV island / bundle of TSVs
+class TSV_Group : public Block {
+
+	// constructors, destructors, if any non-implicit
+	//
+	public:
+		TSV_Group (string const& id, int const& TSVs_count, int const& layer) : Block(id) {
+
+			this->TSVs_count = TSVs_count;
+			this->layer = layer;
+		};
+
+	// public data, functions
+	public:
+		int TSVs_count;
 };
 
 // derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets

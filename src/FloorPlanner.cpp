@@ -438,6 +438,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	corb.restoreCBLs();
 }
 
+//TODO review handle_corblivar and valid_solution flags
 void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost, bool const& handle_corblivar) {
 	struct timeb end;
 	stringstream runtime;
@@ -495,7 +496,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine non-normalized alignment mismatches; only in case any
 		// alignments are given
 		if (!corb.getAlignments().empty()) {
-			alignment_mismatch = this->evaluateAlignments(corb.getAlignments(), false, false);
+			alignment_mismatch = this->evaluateAlignments(corb.getAlignments(), true, false, false);
 		}
 
 		// determine non-normalized max temperature; only in case a power-density
@@ -503,7 +504,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// TSVs, thus the block alignment / bus planning is analysed before
 		// thermal distribution
 		if (this->power_density_file_avail) {
-			thermal = this->evaluateThermalDistr(corb.getAlignments(), false, false, true);
+			thermal = this->evaluateThermalDistr(false, false, true);
 		}
 
 		// logging results
@@ -596,7 +597,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	// annotate alignment success/failure in blocks; required for maintaining
 	// succeeded alignments during subsequent packing
 	if (this->conf_SA_opt_alignment && this->conf_SA_layout_packing_iterations > 0) {
-		this->evaluateAlignments(corb.getAlignments());
+		this->evaluateAlignments(corb.getAlignments(), false);
 	}
 
 	// perform packing if desired; perform on each die for each
@@ -1279,6 +1280,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	}
 	// phase two: consider further cost factors
 	else {
+		// reset TSVs
+		this->TSVs.clear();
 
 		// area and outline cost, already weighted w/ global weight factor
 		cost_area_outline = this->evaluateAreaOutline(ratio_feasible_solutions_fixed_outline);
@@ -1297,7 +1300,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// also annotates failed request, this provides feedback for further
 		// alignment optimization
 		if (this->conf_SA_opt_alignment) {
-			cost_alignments = this->evaluateAlignments(alignments, set_max_cost);
+			cost_alignments = this->evaluateAlignments(alignments, true, set_max_cost);
 		}
 		else {
 			cost_alignments = 0.0;
@@ -1307,7 +1310,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// note that vertical buses impact heat conduction via TSVs, thus the
 		// block alignment / bus planning is analysed before thermal distribution
 		if (this->conf_SA_opt_thermal) {
-			cost_thermal = this->evaluateThermalDistr(alignments, set_max_cost);
+			cost_thermal = this->evaluateThermalDistr(set_max_cost);
 		}
 		else {
 			cost_thermal = 0.0;
@@ -1342,15 +1345,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	return ret;
 }
 
-// TODO refactor; replace input data alignments w/ vector of TSVs
-double FloorPlanner::evaluateThermalDistr(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
+double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
 
 	// generate power maps based on layout and blocks' power densities
 	this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks,
 			this->getOutline(), this->conf_power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, alignments, this->nets, this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, this->TSVs, this->nets, this->conf_power_blurring_parameters);
 
 	// perform actual thermal analysis
 	return this->thermalAnalyzer.performPowerBlurring(this->conf_layer,
@@ -1552,16 +1554,17 @@ FloorPlanner::CostInterconn FloorPlanner::evaluateInterconnects(bool const& set_
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
-double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& normalize) {
+double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& normalize) {
 	double cost = 0.0;
 	Rect blocks_intersect;
 	Rect blocks_bb;
+	double TSVs_row_col;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateAlignments(" << &alignments << ", " << set_max_cost << ", " << normalize << ")" << endl;
+		cout << "-> FloorPlanner::evaluateAlignments(" << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
-	// determine cost considering all alignment requests
+	// evaluate all alignment requests
 	for (CorblivarAlignmentReq const& req : alignments) {
 
 		// initially, assume the request to be feasible
@@ -1581,7 +1584,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			blocks_bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 		}
 
-		// check partial request, horizontal aligment
+		// check partial request, horizontal alignment
 		//
 		// alignment range
 		if (req.range_x()) {
@@ -1722,7 +1725,7 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 			}
 		}
 
-		// check partial request, vertical aligment
+		// check partial request, vertical alignment
 		//
 		// alignment range
 		if (req.range_y()) {
@@ -1863,6 +1866,109 @@ double FloorPlanner::evaluateAlignments(vector<CorblivarAlignmentReq> const& ali
 
 				// annotate general alignment failure
 				req.fulfilled = false;
+			}
+		}
+
+		// dbg logging for alignment
+		if (FloorPlanner::DBG_ALIGNMENT) {
+
+			cout << "DBG_ALIGNMENT> " << req.tupleString() << endl;
+
+			if (req.fulfilled) {
+				cout << "DBG_ALIGNMENT>  Success" << endl;
+			}
+			else {
+				cout << "DBG_ALIGNMENT>  Failure" << endl;
+				cout << "DBG_ALIGNMENT>   block " << req.s_i->id << ": " << req.s_i->alignment << endl;
+				cout << "DBG_ALIGNMENT>   block " << req.s_j->id << ": " << req.s_j->alignment << endl;
+			}
+		}
+
+		// derive TSVs for vertical buses if desired; only consider fulfilled
+		// alignments
+		if (derive_TSVs && req.fulfilled) {
+
+			// consider valid block intersections independent of defined
+			// alignment; this way, all vertical buses arising from different
+			// alignment requests will be considered 
+			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+			if (blocks_intersect.area != 0.0) {
+
+				// consider TSVs in all affected layers
+				for (int layer = min(req.s_i->layer, req.s_j->layer); layer < max(req.s_i->layer, req.s_j->layer); layer++) {
+
+					// init new bus
+					TSV_Group vert_bus = TSV_Group("bus_" + req.s_i->id + "_" + req.s_j->id, req.signals, layer);
+
+					// define bus outline; consider required area for
+					// given amount of TSVs
+					//
+					// note that the following code does _not_consider
+					// a sanity check where the required area for TSVs
+					// is larger than the intersection; since TSVs are
+					// assumed to be embedded into blocks later on
+					// anyway, such over-usage of block area is not
+					// critical
+
+					// init TSV group with actual intersection; this
+					// way, the lower-left corners of the TSV group
+					// and the actual intersection match
+					vert_bus.bb = blocks_intersect;
+
+					// minimal side of TSV-group rectangle is
+					// intersection's width
+					if (blocks_intersect.w < blocks_intersect.h) {
+
+						// determine maximal amount of TSVs to be
+						// put in smaller side of TSV-group
+						// rectangle
+						TSVs_row_col = floor(blocks_intersect.w / (Chip::TSV_PITCH * 1.0e6));
+
+						// define smaller side of actual TSV-group
+						// rectangle
+						vert_bus.bb.w = TSVs_row_col * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
+
+						// define larger side of actual TSV-group
+						// rectangle; ceil accounts for additional
+						// row of TSVs if they are not completely
+						// fitting, i.e., not filling a rectangle
+						vert_bus.bb.h = ceil(vert_bus.TSVs_count / TSVs_row_col) * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
+					}
+					// minimal side of TSV-group rectangle is
+					// intersection's height
+					else {
+						// determine maximal amount of TSVs to be
+						// put in smaller side of TSV-group
+						// rectangle
+						TSVs_row_col = floor(blocks_intersect.h / (Chip::TSV_PITCH * 1.0e6));
+
+						// define smaller side of actual TSV-group
+						// rectangle
+						vert_bus.bb.h = TSVs_row_col * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
+
+						// define larger side of actual TSV-group
+						// rectangle; ceil accounts for additional
+						// column of TSVs if they are not completely
+						// fitting, i.e., not filling a rectangle
+						vert_bus.bb.w = ceil(vert_bus.TSVs_count / TSVs_row_col) * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
+					}
+
+					// dbg logging for TSV generation
+					if (FloorPlanner::DBG_TSVS) {
+
+						cout << "DBG_TSVs> TSV group" << endl;
+						cout << "DBG_TSVs>  " << vert_bus.id << endl;
+						cout << "DBG_TSVs>  (" << vert_bus.bb.ll.x << "," << vert_bus.bb.ll.y << ")";
+						cout << "(" << vert_bus.bb.ur.x << "," << vert_bus.bb.ur.y << ")" << endl;
+					}
+
+					// store bus
+					this->TSVs.push_back(move(vert_bus));
+				}
 			}
 		}
 	}

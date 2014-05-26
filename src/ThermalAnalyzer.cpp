@@ -327,10 +327,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-// TODO refactor; replace input data alignments w/ vector of TSVs
-// TODO refactor; replace input data nets w/ vector of TSVs
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmentReq> const& alignments, vector<Net> const& nets, MaskParameters const& parameters) {
-	int layer_lower, layer_upper;
+void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
@@ -339,59 +336,31 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 	Rect bb, prev_bb;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &alignments << ", " << &parameters << ")" << endl;
+		cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << endl;
 	}
 
-	// consider impact of vertical buses; parse TSVs from layout where vertical buses
-	// are located, i.e., where alignment ranges are fulfilled and related blocks
-	// overlap in both dimensions
-	//
-	for (CorblivarAlignmentReq const& req : alignments) {
-
-		// consider only fulfilled alignment
-		if (!req.fulfilled)
-			continue;
-
-		// consider only alignment where blocks have intersection
-		aligned_blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
-		if (aligned_blocks_intersect.area == 0.0)
-			continue;
-
-		// determine affected layers; TSVs are assumed in all but uppermost
-		// respective layers
-		layer_lower = min(req.s_i->layer, req.s_j->layer);
-		layer_upper = max(req.s_i->layer, req.s_j->layer);
-
-		// parse TSVs from layout; determine intersection of vertical bus w/
-		// power-map grid
-		//
-		if (ThermalAnalyzer::DBG) {
-			cout << "DBG> Alignment w/ non-zero intersection for blocks " <<
-				req.s_i->id << " and " << req.s_j->id << "; vertical bus running b/w layers " <<
-				layer_lower << " and " << layer_upper << endl;
-			cout << "DBG>  Bus coordinates: " << aligned_blocks_intersect.ll.x << "," << aligned_blocks_intersect.ll.y
-				<< " to " <<
-				aligned_blocks_intersect.ur.x << "," << aligned_blocks_intersect.ur.y << endl;
-		}
+	// consider impact of vertical buses; map TSVs to power maps
+	for (TSV_Group const& TSV_group : TSVs) {
 
 		// offset intersection, i.e., account for padded power maps and related
 		// offset in coordinates
-		aligned_blocks_intersect.ll.x += this->blocks_offset_x;
-		aligned_blocks_intersect.ll.y += this->blocks_offset_y;
-		aligned_blocks_intersect.ur.x += this->blocks_offset_x;
-		aligned_blocks_intersect.ur.y += this->blocks_offset_y;
+		TSV_group.bb.ll.x += this->blocks_offset_x;
+		TSV_group.bb.ll.y += this->blocks_offset_y;
+		TSV_group.bb.ur.x += this->blocks_offset_x;
+		TSV_group.bb.ur.y += this->blocks_offset_y;
 
 		// determine index boundaries for offset intersection; based on boundary
 		// of intersection and the covered bins; note that cast to int truncates
 		// toward zero, i.e., performs like floor for positive numbers
-		x_lower = static_cast<int>(aligned_blocks_intersect.ll.x / this->power_maps_dim_x);
-		y_lower = static_cast<int>(aligned_blocks_intersect.ll.y / this->power_maps_dim_y);
+		x_lower = static_cast<int>(TSV_group.bb.ll.x / this->power_maps_dim_x);
+		y_lower = static_cast<int>(TSV_group.bb.ll.y / this->power_maps_dim_y);
 		// +1 in order to efficiently emulate the result of ceil(); limit upper
 		// bound to power-maps dimensions
-		x_upper = min(static_cast<int>(aligned_blocks_intersect.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-		y_upper = min(static_cast<int>(aligned_blocks_intersect.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+		x_upper = min(static_cast<int>(TSV_group.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+		y_upper = min(static_cast<int>(TSV_group.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 		if (ThermalAnalyzer::DBG) {
+			cout << "DBG> TSV group " << TSV_group.id << endl;
 			cout << "DBG>  Affected power-map bins: " << x_lower << "," << y_lower
 				<< " to " <<
 				x_upper << "," << y_upper << endl;
@@ -404,11 +373,8 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 				// consider full TSV density for fully covered bins
 				if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
 
-					// adapt maps for all affected layers
-					for (i = layer_lower; i < layer_upper; i++) {
-
-						this->power_maps[i][x][y].TSV_density += 100.0;
-					}
+					// adapt map on affected layer
+					this->power_maps[TSV_group.layer][x][y].TSV_density += 100.0;
 				}
 				// else consider TSV density according to partial
 				// intersection with current bin
@@ -426,24 +392,22 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<CorblivarAlignmen
 					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
 					// determine intersection
-					bin_intersect = Rect::determineIntersection(bin, aligned_blocks_intersect);
+					bin_intersect = Rect::determineIntersection(bin, TSV_group.bb);
 					// normalize to full bin area
 					bin_intersect.area /= this->power_maps_bin_area;
 
-					// adapt maps for all affected layers
-					for (i = layer_lower; i < layer_upper; i++) {
-
-						this->power_maps[i][x][y].TSV_density += 100.0 * bin_intersect.area;
-					}
+					// adapt map on affected layer
+					this->power_maps[TSV_group.layer][x][y].TSV_density += 100.0 * bin_intersect.area;
 				}
 			}
 		}
 	}
 
+	// TODO drop later on; considered in TSV_Group after net clustering is added
+	//
 	// consider impact of separate signal TSVs; derive possible TSV locations from net
 	// bounding boxes, then spread density of TSVs across these bounding boxes, and
 	// apply superposition for all TSVs
-	//
 
 	// determine TSV impact for each net
 	for (Net const& cur_net : nets) {
