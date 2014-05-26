@@ -603,7 +603,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	// perform packing if desired; perform on each die for each
 	// dimension separately and subsequently; multiple iterations may
 	// provide denser packing configurations
-	for (int d = 0; d < this->conf_layer; d++) {
+	for (int d = 0; d < this->conf_layers; d++) {
 
 		CorblivarDie& die = corb.editDie(d);
 
@@ -760,12 +760,12 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 			if (failed_req->s_i->layer == failed_req->s_j->layer) {
 
 				// this is only possible for > 1 layers; sanity check
-				if (this->conf_layer == 1) {
+				if (this->conf_layers == 1) {
 					return;
 				}
 
 				while (die1 == die2) {
-					die2 = Math::randI(0, this->conf_layer);
+					die2 = Math::randI(0, this->conf_layers);
 				}
 			}
 
@@ -875,7 +875,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layer);
+			die1 = Math::randI(0, this->conf_layers);
 		}
 
 		// sanity check for empty dies
@@ -1103,7 +1103,7 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layer);
+			die1 = Math::randI(0, this->conf_layers);
 		}
 
 		// sanity check for empty dies
@@ -1146,7 +1146,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layer);
+			die1 = Math::randI(0, this->conf_layers);
 		}
 
 		// sanity check for empty dies
@@ -1174,10 +1174,10 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layer);
+			die1 = Math::randI(0, this->conf_layers);
 		}
 		if (die2 == -1) {
-			die2 = Math::randI(0, this->conf_layer);
+			die2 = Math::randI(0, this->conf_layers);
 		}
 
 		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
@@ -1348,14 +1348,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
 
 	// generate power maps based on layout and blocks' power densities
-	this->thermalAnalyzer.generatePowerMaps(this->conf_layer, this->blocks,
+	this->thermalAnalyzer.generatePowerMaps(this->conf_layers, this->blocks,
 			this->getOutline(), this->conf_power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->conf_layer, this->TSVs, this->nets, this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->conf_layers, this->TSVs, this->nets, this->conf_power_blurring_parameters);
 
 	// perform actual thermal analysis
-	return this->thermalAnalyzer.performPowerBlurring(this->conf_layer,
+	return this->thermalAnalyzer.performPowerBlurring(this->conf_layers,
 			this->conf_power_blurring_parameters, this->max_cost_thermal,
 			set_max_cost, normalize, return_max_temp);
 };
@@ -1378,12 +1378,12 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 		cout << "-> FloorPlanner::evaluateAreaOutline(" << ratio_feasible_solutions_fixed_outline << ")" << endl;
 	}
 
-	dies_AR.reserve(this->conf_layer);
-	dies_area.reserve(this->conf_layer);
+	dies_AR.reserve(this->conf_layers);
+	dies_area.reserve(this->conf_layers);
 
 	layout_fits_in_fixed_outline = true;
 	// determine outline and area
-	for (i = 0; i < this->conf_layer; i++) {
+	for (i = 0; i < this->conf_layers; i++) {
 
 		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
@@ -1417,7 +1417,7 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
-	for (i = 0; i < this->conf_layer; i++) {
+	for (i = 0; i < this->conf_layers; i++) {
 		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
 	}
 	// determine cost function value
@@ -1426,7 +1426,7 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& ratio_feasibl
 	// cost for area, considering max value of (blocks-outline area) / (die-outline
 	// area) guides towards balanced die occupation and area minimization
 	cost_area = 0.0;
-	for (i = 0; i < this->conf_layer; i++) {
+	for (i = 0; i < this->conf_layers; i++) {
 		cost_area = max(cost_area, dies_area[i]);
 	}
 	// determine cost function value

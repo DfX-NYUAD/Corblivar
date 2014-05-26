@@ -56,8 +56,7 @@ class FloorPlanner {
 		RBOD const RBOD;
 
 		// 3D IC config parameters
-		// TODO rename conf_layers
-		int conf_layer;
+		int conf_layers;
 		double conf_outline_x, conf_outline_y;
 		double conf_blocks_scale;
 		bool conf_outline_shrink;
@@ -266,15 +265,15 @@ class FloorPlanner {
 		inline void initThermalAnalyzer() {
 
 			// init sets of thermal masks
-			this->thermalAnalyzer.initThermalMasks(this->conf_layer, this->logMed(), this->conf_power_blurring_parameters);
+			this->thermalAnalyzer.initThermalMasks(this->conf_layers, this->logMed(), this->conf_power_blurring_parameters);
 
 			// init power maps, i.e. predetermine maps parameters
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layers, this->getOutline());
 		};
 
 		// getter / setter
 		inline int const& getLayers() const {
-			return this->conf_layer;
+			return this->conf_layers;
 		};
 
 		inline Point getOutline() const {
@@ -307,12 +306,12 @@ class FloorPlanner {
 			this->conf_outline_y = outline_y;
 
 			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->conf_layer, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->conf_layers, this->getOutline());
 
 			// reset related die properties
 			this->die_AR = this->conf_outline_x / this->conf_outline_y;
 			this->die_area = this->conf_outline_x * this->conf_outline_y;
-			this->stack_area = this->conf_layer * this->die_area;
+			this->stack_area = this->conf_layers * this->die_area;
 			this->stack_deadspace = this->stack_area - this->blocks_area;
 
 			// rescale terminal pins' locations

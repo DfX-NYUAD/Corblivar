@@ -237,10 +237,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_layer;
+	in >> fp.conf_layers;
 
 	// sanity check for positive, non-zero layer
-	if (fp.conf_layer <= 0) {
+	if (fp.conf_layers <= 0) {
 		cout << "IO> Provide positive, non-zero layer count!" << endl;
 		exit(1);
 	}
@@ -264,7 +264,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// determine aspect ratio and area
 	fp.die_AR = fp.conf_outline_x / fp.conf_outline_y;
 	fp.die_area = fp.conf_outline_x * fp.conf_outline_y;
-	fp.stack_area = fp.die_area * fp.conf_layer;
+	fp.stack_area = fp.die_area * fp.conf_layers;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -497,7 +497,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
 
 		// 3D IC setup
-		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layer << endl;
+		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layers << endl;
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
 		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
@@ -1295,7 +1295,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 		// power and TSV-density maps for all layers
 		if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
-			layer_limit = fp.conf_layer;
+			layer_limit = fp.conf_layers;
 		}
 		// thermal map only for layer 0
 		else if (flag == FLAGS::thermal) {
@@ -1726,7 +1726,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	// color for alignment rects; for undefined alignment, blue-ish color
 	alignment_color_undefined = "#0000A0";
 
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 		// build up file name
 		stringstream out_name;
 		out_name << fp.benchmark << "_" << cur_layer + 1;
@@ -2167,7 +2167,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	}
 
 	/// generate floorplan files
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 
 		// build up file name
 		stringstream fp_file;
@@ -2215,7 +2215,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	}
 
 	/// generate floorplans for passive Si and bonding layer; considering TSVs (modelled via densities)
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 
 		// build up file names
 		stringstream Si_fp_file;
@@ -2351,7 +2351,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// according to layer structure
 	//
 	// output block labels in first line
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 
 		for (Block const& cur_block : fp.blocks) {
 
@@ -2368,7 +2368,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << endl;
 
 	// output block power in second line
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 
 		for (Block const& cur_block : fp.blocks) {
 
@@ -2409,7 +2409,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "#<floorplan file>" << endl;
 	file << endl;
 
-	for (cur_layer = 0; cur_layer < fp.conf_layer; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
 
 		file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
 		file << 4 * cur_layer << endl;
@@ -2443,7 +2443,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
-		if (cur_layer < (fp.conf_layer - 1)) {
+		if (cur_layer < (fp.conf_layers - 1)) {
 			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
 			file << 4 * cur_layer + 3 << endl;
 			file << "Y" << endl;
