@@ -103,7 +103,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		// init cost for current layout and fitting ratio
 		this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
-		cur_cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two).cost;
+		cur_cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two).total_cost;
 
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
@@ -136,7 +136,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 				// evaluate layout, new cost
 				cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two);
-				cur_cost = cost.cost;
+				cur_cost = cost.total_cost;
 				// cost difference
 				cost_diff = cur_cost - prev_cost;
 
@@ -206,7 +206,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// TODO calculate also already in previous
 						// call so that repeating the different
 						// evaluation steps are not required
-						fitting_cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two, SA_phase_two_init).cost;
+						fitting_cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two, SA_phase_two_init).total_cost;
 
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
@@ -352,7 +352,6 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	int accepted_ops;
 	bool op_success;
 	double cur_cost, prev_cost, cost_diff;
-	Cost cost;
 
 	// reset max cost
 	this->max_cost_WL = 0.0;
@@ -377,7 +376,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 	// init cost; ignore alignment here
 	this->generateLayout(corb, false);
-	cur_cost = this->evaluateLayout(corb.getAlignments()).cost;
+	cur_cost = this->evaluateLayout(corb.getAlignments()).total_cost;
 
 	// perform some random operations, for SA temperature = 0.0
 	// i.e., consider only solutions w/ improved cost
@@ -398,8 +397,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 			// generate layout
 			this->generateLayout(corb, false);
 			// evaluate layout, new cost
-			cost = this->evaluateLayout(corb.getAlignments());
-			cur_cost = cost.cost;
+			cur_cost = this->evaluateLayout(corb.getAlignments()).total_cost;
 			// cost difference
 			cost_diff = cur_cost - prev_cost;
 
@@ -443,10 +441,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	struct timeb end;
 	stringstream runtime;
 	bool valid_solution;
-	double cost;
-	double area, thermal, alignment_mismatch;
+	double thermal, alignment_mismatch;
 	double x, y;
-	CostInterconn interconn;
+	Cost cost;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << endl;
@@ -477,24 +474,20 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->resetDieProperties(x, y);
 		}
 
-		// determine overall cost
-		//
-		// TODO refactor; always determine overall cost, and derive partial costs
-		// from refactored evaluateLayout where partial cost are returned along
-		// overall cost
-		if (determ_overall_cost) {
-			cost = this->evaluateLayout(corb.getAlignments(), 1.0, true).cost;
-		}
+		// determine cost terms and overall cost
+		cost = this->evaluateLayout(corb.getAlignments(), 1.0, true);
 
-		// determine area cost; invert weight in order to retrieve area ratio
+		// area cost; invert weight in order to retrieve area ratio
 		// (max blocks-outline / die-outline ratio)
-		area = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * this->evaluateAreaOutline(1.0).cost;
+		cost.area_outline *= (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE);
 
 		// determine non-normalized WL and TSVs cost
-		interconn = this->evaluateInterconnects(false, false);
+		// TODO adapt to refactored versions
+		this->evaluateInterconnects(cost, false, false);
 
 		// determine non-normalized alignment mismatches; only in case any
 		// alignments are given
+		// TODO adapt to refactored versions
 		if (!corb.getAlignments().empty()) {
 			alignment_mismatch = this->evaluateAlignments(corb.getAlignments(), true, false, false);
 		}
@@ -503,6 +496,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// file is given; note that vertical buses impact heat conduction via
 		// TSVs, thus the block alignment / bus planning is analysed before
 		// thermal distribution
+		// TODO adapt to refactored versions
 		if (this->power_density_file_avail) {
 			thermal = this->evaluateThermalDistr(false, false, true);
 		}
@@ -513,12 +507,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar> Characteristica of final solution:" << endl;
 
 			if (determ_overall_cost) {
-				cout << "Corblivar> Final (adapted) cost: " << cost << endl;
-				this->results << "Final (adapted) cost: " << cost << endl;
+			// TODO adapt to refactored versions; really required?
+				cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << endl;
+				this->results << "Final (adapted) cost: " << cost.total_cost << endl;
 			}
 
-			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << area << endl;
-			this->results << "Max die occupation [\%]: " << area << endl;
+			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_outline << endl;
+			this->results << "Max blocks-outline / die-outline ratio: " << cost.area_outline << endl;
 
 			cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
 			this->results << "Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
@@ -535,14 +530,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->results << "Alignment mismatches [um]: " << alignment_mismatch << endl;
 			}
 
-			cout << "Corblivar> HPWL: " << interconn.HPWL << endl;
-			this->results << "HPWL: " << interconn.HPWL << endl;
+			cout << "Corblivar> HPWL: " << cost.HPWL << endl;
+			this->results << "HPWL: " << cost.HPWL << endl;
 
-			cout << "Corblivar> TSVs: " << interconn.TSVs << endl;
-			this->results << "TSVs: " << interconn.TSVs << endl;
+			cout << "Corblivar> TSVs: " << cost.TSVs << endl;
+			this->results << "TSVs: " << cost.TSVs << endl;
 
-			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
-			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * interconn.TSVs_area_deadspace_ratio << endl;
+			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
+			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 
 			if (this->power_density_file_avail) {
 				cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << thermal << endl;
@@ -1257,14 +1252,8 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 // adaptive cost model w/ two phases: first phase considers only cost for packing into
 // outline, second phase considers further factors like WL, thermal distr, etc.
-//
-// TODO refactor such that different parts of cost are returned; enables to recalculate
-// different cost functions w/o rerunning the whole evaluation process; e.g. required in
-// optimization loop where best cost are compared w/ fitting_ratio 1.0
 FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost) {
-	double cost_total, cost_thermal, cost_alignments;
-	CostInterconn cost_interconnects;
-	Cost cost_area_outline, ret;
+	Cost cost;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ")" << endl;
@@ -1273,10 +1262,12 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	// phase one: consider only cost for packing into outline
 	if (!SA_phase_two) {
 
-		// determine area and outline cost
-		cost_area_outline = this->evaluateAreaOutline(fitting_layouts_ratio);
-		// invert weight since it's the only cost term
-		cost_total = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost_area_outline.cost;
+		// area and outline cost, already weighted w/ global weight factor
+		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
+
+		// determine total cost; invert weight of area and outline cost since it's
+		// the only cost term
+		cost.total_cost = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost.area_outline;
 	}
 	// phase two: consider further cost factors
 	else {
@@ -1284,65 +1275,62 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		this->TSVs.clear();
 
 		// area and outline cost, already weighted w/ global weight factor
-		cost_area_outline = this->evaluateAreaOutline(fitting_layouts_ratio);
+		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
 		// normalized interconnects cost; only if interconnect opt is on
 		//
 		if (this->conf_SA_opt_interconnects) {
-			cost_interconnects = this->evaluateInterconnects(set_max_cost);
+			this->evaluateInterconnects(cost, set_max_cost);
 		}
 		else {
-			cost_interconnects.HPWL = 0.0;
-			cost_interconnects.TSVs = 0;
+			cost.HPWL = 0.0;
+			cost.TSVs = 0;
+			cost.TSVs_area_deadspace_ratio = 0.0;
 		}
 
 		// cost failed alignments, i.e., alignment mismatches;
 		// also annotates failed request, this provides feedback for further
 		// alignment optimization
 		if (this->conf_SA_opt_alignment) {
-			cost_alignments = this->evaluateAlignments(alignments, true, set_max_cost);
+			cost.alignments = this->evaluateAlignments(alignments, true, set_max_cost);
 		}
 		else {
-			cost_alignments = 0.0;
+			cost.alignments = 0.0;
 		}
 
 		// normalized temperature-distribution cost; only if thermal opt is on;
 		// note that vertical buses impact heat conduction via TSVs, thus the
 		// block alignment / bus planning is analysed before thermal distribution
 		if (this->conf_SA_opt_thermal) {
-			cost_thermal = this->evaluateThermalDistr(set_max_cost);
+			cost.thermal = this->evaluateThermalDistr(set_max_cost);
 		}
 		else {
-			cost_thermal = 0.0;
+			cost.thermal = 0.0;
 		}
 
-		// cost function; weight and sum up cost terms
-		cost_total =
+		// determine total cost; weight and sum up cost terms
+		cost.total_cost =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->conf_SA_cost_WL * cost_interconnects.HPWL
-					+ this->conf_SA_cost_TSVs * cost_interconnects.TSVs
-					+ this->conf_SA_cost_alignment * cost_alignments
-					+ this->conf_SA_cost_thermal * cost_thermal
+					this->conf_SA_cost_WL * cost.HPWL
+					+ this->conf_SA_cost_TSVs * cost.TSVs
+					+ this->conf_SA_cost_alignment * cost.alignments
+					+ this->conf_SA_cost_thermal * cost.thermal
 				)
 			// area, outline cost is already weighted
-			+ cost_area_outline.cost;
+			+ cost.area_outline;
 		;
 	}
 
 	if (FloorPlanner::DBG_LAYOUT) {
 		cout << "DBG_LAYOUT> ";
-		cout << "Layout cost: " << cost_total << endl;
+		cout << "Layout cost: " << cost.total_cost << endl;
 	}
-
-	// return total cost and whether layout fits into outline
-	ret.cost = cost_total;
-	ret.fits_fixed_outline = cost_area_outline.fits_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateLayout : " << ret << endl;
+		cout << "<- FloorPlanner::evaluateLayout : " << cost << endl;
 	}
 
-	return ret;
+	return cost;
 }
 
 double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& normalize, bool const& return_max_temp) {
@@ -1363,7 +1351,7 @@ double FloorPlanner::evaluateThermalDistr(bool const& set_max_cost, bool const& 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 // of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
 // ``Modern floorplanning based on B*-Tree and fast simulated annealing''
-FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& fitting_layouts_ratio) const {
+void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -1372,7 +1360,6 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& fitting_layou
 	vector<double> dies_AR;
 	vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
-	Cost ret;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::evaluateAreaOutline(" << fitting_layouts_ratio << ")" << endl;
@@ -1432,30 +1419,29 @@ FloorPlanner::Cost FloorPlanner::evaluateAreaOutline(double const& fitting_layou
 	// determine cost function value
 	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + fitting_layouts_ratio);
 
-	ret.cost = cost_outline + cost_area;
-	ret.fits_fixed_outline = layout_fits_in_fixed_outline;
+	cost.area_outline = cost_outline + cost_area;
+	cost.fits_fixed_outline = layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateAreaOutline : " << ret << endl;
+		cout << "<- FloorPlanner::evaluateAreaOutline" << endl;
 	}
-
-	return ret;
 }
 
 // TODO apply TSV clustering here; put TSVs into FloorPlanner's list
-FloorPlanner::CostInterconn FloorPlanner::evaluateInterconnects(bool const& set_max_cost, bool const& normalize) {
+void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost, bool const& normalize) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
 	Rect bb;
-	CostInterconn ret;
 	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ", " << normalize << ")" << endl;
 	}
 
-	ret.HPWL = ret.TSVs_area_deadspace_ratio = 0.0;
-	ret.TSVs = 0;
+	cost.HPWL = 0.0;
+	cost.TSVs = 0;
+	cost.TSVs_area_deadspace_ratio = 0.0;
+
 	blocks_to_consider.reserve(this->blocks.size());
 
 	// determine HPWL and TSVs for each net
@@ -1485,8 +1471,8 @@ FloorPlanner::CostInterconn FloorPlanner::evaluateInterconnects(bool const& set_
 			// determine HPWL of related blocks using their bounding box;
 			// consider center points of blocks instead their whole outline
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
-			ret.HPWL += bb.w;
-			ret.HPWL += bb.h;
+			cost.HPWL += bb.w;
+			cost.HPWL += bb.h;
 		}
 		// more detailed estimate; consider HPWL on each layer separately using
 		// layer-related bounding boxes
@@ -1497,8 +1483,8 @@ FloorPlanner::CostInterconn FloorPlanner::evaluateInterconnects(bool const& set_
 				// determine HPWL using the net's bounding box on the
 				// current layer
 				bb = cur_net.determBoundingBox(i);
-				ret.HPWL += bb.w;
-				ret.HPWL += bb.h;
+				cost.HPWL += bb.w;
+				cost.HPWL += bb.h;
 
 				if (FloorPlanner::DBG_LAYOUT) {
 					cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
@@ -1506,50 +1492,51 @@ FloorPlanner::CostInterconn FloorPlanner::evaluateInterconnects(bool const& set_
 			}
 		}
 
+		if (FloorPlanner::DBG_LAYOUT) {
+			prev_TSVs = cost.TSVs;
+		}
+
 		// determine TSV count
-		prev_TSVs = ret.TSVs;
-		ret.TSVs += cur_net.layer_top - cur_net.layer_bottom;
+		cost.TSVs += cur_net.layer_top - cur_net.layer_bottom;
 		// also consider that terminal pins require TSV connections to the
 		// lowermost die
 		if (!cur_net.terminals.empty()) {
-			ret.TSVs += cur_net.layer_bottom;
+			cost.TSVs += cur_net.layer_bottom;
 		}
 
 		if (FloorPlanner::DBG_LAYOUT) {
-			cout << "DBG_LAYOUT> 	TSVs required: " << ret.TSVs - prev_TSVs << endl;
+			cout << "DBG_LAYOUT> 	TSVs required: " << cost.TSVs - prev_TSVs << endl;
 		}
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-		ret.HPWL += ret.TSVs * (Chip::THICKNESS_SI + Chip::THICKNESS_BOND);
+		cost.HPWL += cost.TSVs * (Chip::THICKNESS_SI + Chip::THICKNESS_BOND);
 	}
 
 	// determine by TSVs occupied deadspace amount
-	ret.TSVs_area_deadspace_ratio = (ret.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_WL = ret.HPWL;
-		this->max_cost_TSVs = ret.TSVs;
+		this->max_cost_WL = cost.HPWL;
+		this->max_cost_TSVs = cost.TSVs;
 	}
 
 	// normalize to max value from initial sampling
 	if (normalize) {
-		ret.HPWL /= this->max_cost_WL;
+		cost.HPWL /= this->max_cost_WL;
 
 		// sanity check for zero TSVs; applies to 2D floorplanning
 		if (this->max_cost_TSVs != 0) {
-			ret.TSVs /= this->max_cost_TSVs;
+			cost.TSVs /= this->max_cost_TSVs;
 		}
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateInterconnects : " << ret << endl;
+		cout << "<- FloorPlanner::evaluateInterconnects" << endl;
 	}
-
-	return ret;
 }
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;

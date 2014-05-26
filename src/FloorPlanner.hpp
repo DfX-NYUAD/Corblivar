@@ -69,22 +69,18 @@ class FloorPlanner {
 
 		// POD declarations
 		struct Cost {
-			double cost;
+			double total_cost;
+			double HPWL;
+			int TSVs;
+			double TSVs_area_deadspace_ratio;
+			double alignments;
+			double thermal;
+			double area_outline;
 			bool fits_fixed_outline;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
 			friend ostream& operator<< (ostream& out, Cost const& cost) {
-				out << "cost=" << cost.cost << ", fits_fixed_outline=" << cost.fits_fixed_outline;
-				return out;
-			}
-		};
-		struct CostInterconn {
-			double HPWL;
-			int TSVs;
-			double TSVs_area_deadspace_ratio;
-
-			friend ostream& operator<< (ostream& out, CostInterconn const& cost) {
-				out << "HPWL=" << cost.HPWL << ", TSVs=" << cost.TSVs;
+				out << "cost=" << cost.total_cost << ", fits_fixed_outline=" << cost.fits_fixed_outline;
 				return out;
 			}
 		};
@@ -137,15 +133,17 @@ class FloorPlanner {
 				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
 				bool const& set_max_cost = false);
-		inline double evaluateThermalDistr(bool const& set_max_cost = false,
+		double evaluateThermalDistr(bool const& set_max_cost = false,
 				bool const& normalize = true,
 				bool const& return_max_temp = false);
 		double evaluateAlignments(vector<CorblivarAlignmentReq> const& alignments,
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
 				bool const& normalize = true);
-		Cost evaluateAreaOutline(double const& fitting_layouts_ratio = 0.0) const;
-		CostInterconn evaluateInterconnects(bool const& set_max_cost = false,
+		void evaluateAreaOutline(Cost& cost,
+				double const& fitting_layouts_ratio = 0.0) const;
+		void evaluateInterconnects(Cost& cost,
+				bool const& set_max_cost = false,
 				bool const& normalize = true);
 
 		// SA: parameters for cost functions
