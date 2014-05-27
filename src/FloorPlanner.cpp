@@ -441,7 +441,6 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	corb.restoreCBLs();
 }
 
-//TODO review handle_corblivar, determ_overall_cost, valid_solution flags
 void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost, bool const& handle_corblivar) {
 	struct timeb end;
 	stringstream runtime;
@@ -486,6 +485,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			cout << "Corblivar> Characteristica of final solution:" << endl;
 
+			// overall cost only encode a useful number in case the whole
+			// optimization run is done, i.e., not for reading in given
+			// solution files
 			if (determ_overall_cost) {
 				cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << endl;
 				this->results << "Final (adapted) cost: " << cost.total_cost << endl;
@@ -1256,8 +1258,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// normalized interconnects cost; only if interconnect opt is on or for
-		// finalize calls
+		// determine interconnects cost; if interconnect opt is on or for finalize
+		// calls
 		if (this->conf_SA_opt_interconnects || finalize) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
@@ -1267,9 +1269,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.TSVs_area_deadspace_ratio = 0.0;
 		}
 
-		// cost failed alignments, i.e., alignment mismatches;
-		// also annotates failed request, this provides feedback for further
-		// alignment optimization
+		// cost for failed alignments, i.e., alignment mismatches; also annotates
+		// failed request, this provides feedback for further alignment
+		// optimization
 		if (this->conf_SA_opt_alignment || finalize) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
@@ -1277,10 +1279,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
-		// normalized temperature-distribution cost; only if thermal opt is on for
-		// for finalize run; note that vertical buses impact heat conduction via
-		// TSVs, thus the block alignment / bus planning is analysed before
-		// thermal distribution
+		// temperature-distribution cost; if thermal opt is on or for finalize
+		// run; note that vertical buses impact heat conduction via TSVs, thus the
+		// block alignment / bus planning is analysed before thermal distribution
 		if (this->conf_SA_opt_thermal || finalize) {
 			this->evaluateThermalDistr(cost, set_max_cost);
 		}
@@ -1307,7 +1308,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 					+ this->conf_SA_cost_alignment * cost.alignments
 					+ this->conf_SA_cost_thermal * cost.thermal
 				)
-			// consider only area term, see evaluateAreaOutline
+			// consider only area term for ratio 1.0, see evaluateAreaOutline
 			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
 	}
 
