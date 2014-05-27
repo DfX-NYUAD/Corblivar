@@ -1452,6 +1452,8 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				// fixed log scale to emphasize both low densities (single
 				// TSVs) as well as large densities (TSV groups, vertical
 				// buses)
+				// TODO revert to normal scale after TSV clustering is
+				// applied for regular nets
 				gp_out << "set log cb" << endl;
 				gp_out << "set cbrange [0.1:100]" << endl;
 				// label for power density
