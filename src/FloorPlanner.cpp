@@ -608,7 +608,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp) {
 	int op;
 	int die1, die2, tuple1, tuple2, juncts;
-	bool ret;
+	bool ret, swapping_failed_blocks;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << endl;
@@ -623,19 +623,27 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	}
 	// perform new op
 	else {
-		// usually, we consider a random op
-		//
-		// see defined op-codes in class FloorPlanner to set random-number ranges;
-		// recall that randI(x,y) is [x,y)
-		this->last_op = op = Math::randI(1, 6);
 
-		// to enable somewhat ``guided block alignment'' during phase II, we
-		// randomly choose to perform block swapping on particular blocks of
-		// failing alignment requests
-		if (Math::randB() && SA_phase_two && this->conf_SA_opt_alignment) {
+		// to enable guided block alignment during phase II, we prefer to perform
+		// block swapping on particular blocks of failing alignment requests
+		swapping_failed_blocks = false;
+		if (SA_phase_two && this->conf_SA_opt_alignment) {
 
-			this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
+			// try to setup swapping failed blocks
+			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
 			this->last_op = op = FloorPlanner::OP_SWAP_BLOCKS;
+		}
+
+		// for other regular cases or in case swapping failed blocks was not successful, we proceed with a random
+		// operation
+		if (!swapping_failed_blocks) {
+
+			// reset layout operation variables
+			die1 = die2 = tuple1 = tuple2 = juncts = -1;
+
+			// see defined op-codes in class FloorPlanner to set random-number
+			// ranges; recall that randI(x,y) is [x,y)
+			this->last_op = op = Math::randI(1, 6);
 		}
 	}
 
@@ -689,25 +697,22 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 	return ret;
 }
 
-void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
+bool FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
 	CorblivarAlignmentReq const* failed_req = nullptr;
 	Block const* b1;
 	Block const* b1_neighbour = nullptr;
 
-	// try to randomly find a failing request; max tries relates to
-	// total alignments count
+	// determine first failed alignment
 	for (unsigned r = 0; r < corb.getAlignments().size(); r++) {
 
-		failed_req = & corb.getAlignments()[Math::randI(0, corb.getAlignments().size())];
-
-		// we found a failing request; thus we stop the search
-		if (!failed_req->fulfilled) {
+		if (!corb.getAlignments()[r].fulfilled) {
+			failed_req = &corb.getAlignments()[r];
 			break;
 		}
 	}
 
 	// handle request; sanity check for found failed request
-	if (failed_req != nullptr && !failed_req->fulfilled) {
+	if (failed_req != nullptr) {
 
 		// randomly decide for one block; consider the dummy reference block if
 		// required
@@ -728,8 +733,12 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 			b1 = failed_req->s_j;
 		}
 
-		// zero-offset fixed alignment in both coordinates
-		if ((failed_req->offset_x() && failed_req->alignment_x == 0) && (failed_req->offset_y() && failed_req->alignment_y == 0)) {
+		if (
+			// zero-offset fixed alignment in both coordinates
+			(failed_req->offset_x() && failed_req->alignment_x == 0 && failed_req->offset_y() && failed_req->alignment_y == 0) ||
+			// min overlap in both dimensions
+			(failed_req->range_x() && failed_req->range_y())
+		   ) {
 
 			// such alignment cannot be fulfilled in one die, i.e., differing
 			// dies required
@@ -737,7 +746,7 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 
 				// this is only possible for > 1 layers; sanity check
 				if (this->conf_layers == 1) {
-					return;
+					return false;
 				}
 
 				while (die1 == die2) {
@@ -746,7 +755,7 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 			}
 
 			// select block to swap with such that blocks to be aligned are
-			// initially at least intersecting
+			// initially at least intersecting blocks
 			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 				if (Rect::rectsIntersect(b1->bb, b2->bb)) {
@@ -772,8 +781,24 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 		// determine relevant neighbour block to perform swap operation, i.e.,
 		// nearest neighbour w.r.t. failure type
 		else {
+
+			// also consider randomly to change die2 as well; this is required
+			// for alignments which cannot be fulfilled within one die and
+			// does not harm for alignments which could be fulfilled within
+			// one die (they can then also be fulfilled across dies); note
+			// that an explicit check for all the different options of
+			// alignments not possible within one die are not performed here
+			// but rather a die change is considered randomly
+			//
+			// note that changing dies is only possible for > 1 layers
+			if (Math::randB() && this->conf_layers > 1) {
+
+				while (die1 == die2) {
+					die2 = Math::randI(0, this->conf_layers);
+				}
+			}
 		
-			for (Block const* b2 : corb.getDie(die1).getBlocks()) {
+			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 				switch (b1->alignment) {
 
@@ -836,11 +861,25 @@ void FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 		// determine related tuple of neigbhour block; == -1 in case the tuple
 		// cannot be find; sanity check for undefined neighbour
 		if (b1_neighbour != nullptr) {
+
 			tuple2 = corb.getDie(die2).getTuple(b1_neighbour);
+
+			if (FloorPlanner::DBG_ALIGNMENT) {
+				cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << endl;
+				cout << "DBG_ALIGNMENT> considering swapping block " << b1->id << " on layer " << b1->layer;
+				cout << " with block " << b1_neighbour->id << " on layer " << b1_neighbour->layer << endl;
+			}
+
+			return true;
 		}
 		else {
 			tuple2 = -1;
+
+			return false;
 		}
+	}
+	else {
+		return false;
 	}
 }
 
