@@ -1456,6 +1456,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		// net's blocks
 		cur_net.setLayerBoundaries();
 
+		if (Net::DBG) {
+			cout << "DBG_NET> Determine interconnects for net " << cur_net.id << endl;
+		}
+
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
 		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
@@ -1478,6 +1482,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
 			cost.HPWL += bb.w;
 			cost.HPWL += bb.h;
+
+			if (Net::DBG) {
+				cout << "DBG_NET> 		HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+			}
 		}
 		// more detailed estimate; consider HPWL on each layer separately using
 		// layer-related bounding boxes
@@ -1491,13 +1499,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
 
-				if (FloorPlanner::DBG_LAYOUT) {
-					cout << "DBG_LAYOUT> 	HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+				if (Net::DBG) {
+					cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << endl;
 				}
 			}
 		}
 
-		if (FloorPlanner::DBG_LAYOUT) {
+		if (Net::DBG) {
 			prev_TSVs = cost.TSVs;
 		}
 
@@ -1509,8 +1517,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 			cost.TSVs += cur_net.layer_bottom;
 		}
 
-		if (FloorPlanner::DBG_LAYOUT) {
-			cout << "DBG_LAYOUT> 	TSVs required: " << cost.TSVs - prev_TSVs << endl;
+		if (Net::DBG) {
+			cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << endl;
 		}
 	}
 

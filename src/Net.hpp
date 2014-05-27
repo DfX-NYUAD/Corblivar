@@ -31,8 +31,8 @@
 // forward declarations, if any
 
 class Net {
-	// debugging code switch (private)
-	private:
+	// debugging code switch (public; access e.g. from class FloorPlanner)
+	public:
 		static constexpr bool DBG = false;
 
 	// private data, functions
@@ -79,7 +79,7 @@ class Net {
 			Rect bb;
 
 			if (Net::DBG) {
-				cout << "DBG_NET> Determine interconnects for net " << this->id << " on layer " << layer << " and above" << endl;
+				cout << "DBG_NET>   Determine bb for net " << this->id << " on layer " << layer << endl;
 			}
 
 			// blocks / pins for cur_net on this layer
