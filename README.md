@@ -3,6 +3,8 @@ Licence
 
 Copyright (C) 2014 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
 
+https://github.com/jknechtel/Corblivar
+
 This file is part of Corblivar.
 
 Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
@@ -34,7 +36,8 @@ Compile & Run
 - perl
 - cairosvg-py3
 - a modified copy of the BU's HotSpot 3D-IC thermal analyzer; the code should be provided
-along with Corblivar. Note that this code has to be compiled separately.
+along with Corblivar or can be retrieved from https://github.com/jknechtel/HotSpot. Note
+that this code has to be compiled separately.
 
 Usage
 =====
