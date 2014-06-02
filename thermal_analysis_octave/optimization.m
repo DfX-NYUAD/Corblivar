@@ -37,20 +37,33 @@ args = argv();
 
 % print recommendation for editing the .conf-file
 
-helpConf = sprintf('\nThese scripts rely on being in a subfolder of the particular Corblivar experiment to be parameterized!!\n\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\nAlso, two command-line parameters are required and 1 is optional: 1) the benchmarks name, 2) the related config-files name, 3) define a specific binary directory for a more flexible approach for experiments\n\n');
+helpConf = sprintf('\nThese scripts rely on being in a subfolder of the particular Corblivar experiment to be parameterized!!\n\nPlease make sure that you edited the "Corblivar.conf" file for your chip before you perform the optimization!!\n\nAlso, two command-line parameters are required and two further are optional: 1) the benchmarks name, 2) the related config-files name, 3) a specific directory containing the Corblivar binary, 4) the (homogeneous) TSV density to be assumed\n\n');
 	
 printf(helpConf); 
 
+% define benchmark from command line
+
+bench = args{1}
+
+% read path for config file from command line
+
+conf.path = args{2};
+ 
+% read TSV density from command line
+
+if size(args,1) == 4
+
+	conf.TSV_density = args{4};
+
+else
+
+	conf.TSV_density = '0';
+
+end
+
 % define directories
 
-[dir,conf] = directories(args);
-
-
-%% clean working dir
-
-clean = sprintf('%s/clean.sh',dir.exp);		% uses shell script clean.sh in exp-folder
-
-system (clean);
+[dir,conf] = directories(args,conf);
 
 
 %% get input from user
@@ -59,11 +72,6 @@ system (clean);
 %% use parameters function to import all general initialization parameters 
 
 [p] = parameters();
-
-% define benchmark from command line
-
-bench = args{1}
-
 
 %% open the "Corblivar.conf" file for reading
 % create Folder for saving optimization history
@@ -95,22 +103,30 @@ config(p,conf);
 % path for executing Corblivar without a solution file
 
 pathCbl = sprintf('%s/Corblivar %s %s %s/benches/',dir.bin, bench, conf.path ,dir.exp);		% %s will be replaced by the parameter standing behind the string
-   
-system (pathCbl);										% system function uses terminal and bash notation
 
+% execute only when no solution file is 
+solution_file = sprintf('%s.solution', bench);
 
+if exist(solution_file, 'file') == 0
+
+	system (pathCbl);										% system function uses terminal and bash notation
+
+end
  
 %% execute Corblivar with given floorplan and initial parameters
 % path for execution of Corblivar with given solution file 
 	
-pathCblsol = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d',dir.bin, bench, conf.path, dir.exp, bench, 0);  % TODO change back to single binary version 
+pathCblsol = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %s',
+		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);  % TODO change back to single binary version 
 	
 % path for executing 3D-HotSpot
 
 pathHS = sprintf('%s/HotSpot.sh %s %d',dir.exp, bench, p.opt.layers.value);
 
 %% execute 3D-HotSpot analysis
-
+  
+printf(pathCblsol);
+system (pathCblsol);										% system function uses terminal and bash notation
 system (pathHS);
 
 %% plot thermal and power maps with given shell script
@@ -230,7 +246,8 @@ while x < p.opt.iterations
 
 	%%% execute Corblivar with given floorplan and without returning something to the terminal
 	
-	pathCblsolnt = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %d >/dev/null',dir.bin, bench, conf.path,dir.exp, bench, 0); % TODO change back to single binary version
+	pathCblsolnt = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %s >/dev/null',
+			dir.bin, bench, conf.path,dir.exp, bench, conf.TSV_density); % TODO change back to single binary version
 	
 	system (pathCblsolnt);
 	
@@ -464,6 +481,8 @@ end
 toc
 
 %% clean working dir
+
+clean = sprintf('%s/clean.sh',dir.exp);		% uses shell script clean.sh in exp-folder
 
 system (clean);
 

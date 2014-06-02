@@ -1,4 +1,4 @@
-function [dir,conf] = directories(args)
+function [dir,conf] = directories(args,conf)
 
 %% Description:  Integrated Octave function for defining all directories to work with
 
@@ -33,9 +33,9 @@ dir.work = pwd();
  
 check = 0;					
 
-% if the last argument given with the bash initialization of optimzation.m is a directory dir.bin was defined exclusively 
+% a directory dir.bin was defined exclusively 
 
-if size(args,1) == 3
+if size(args,1) >= 3
 		
 	check = isdir(args{3});
 		
@@ -58,11 +58,8 @@ end
 
 dir.exp = sprintf('%s/exp',dir.bin);
 
-
 %% save Config directory
-% read path for config file from command line
-
-conf.path = args{2};
+% check path for config file
 
 ind_conf = rindex(conf.path, "/");
 
