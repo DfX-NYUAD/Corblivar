@@ -40,7 +40,7 @@ IO::Mode IO::mode;
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	ifstream in;
 	string config_file;
-	stringstream results_file, solution_file;
+	stringstream results_file;
 	stringstream blocks_file;
 	stringstream alignments_file;
 	stringstream pins_file;
@@ -181,20 +181,20 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// additional parameter for solution file given; consider file for readin
 	if (argc > 4) {
 
-		solution_file << argv[4];
+		fp.solution_file = argv[4];
 		// open file if possible
-		fp.solution_in.open(solution_file.str().c_str());
+		fp.solution_in.open(fp.solution_file.c_str());
 		if (!fp.solution_in.good())
 		{
 			cout << "IO> ";
-			cout << "No such solution file: " << solution_file.str() << endl;
+			cout << "No such solution file: " << fp.solution_file << endl;
 			exit(1);
 		}
 	}
 	// open new solution file
 	else {
-		solution_file << fp.benchmark << ".solution";
-		fp.solution_out.open(solution_file.str().c_str());
+		fp.solution_file = fp.benchmark + ".solution";
+		fp.solution_out.open(fp.solution_file.c_str());
 	}
 
 	// for thermal-analysis parameterization runs; additional parameter for TSV

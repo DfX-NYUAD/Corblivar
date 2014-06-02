@@ -101,7 +101,7 @@ class FloorPlanner {
 		};
 
 		// IO
-		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file;
+		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;

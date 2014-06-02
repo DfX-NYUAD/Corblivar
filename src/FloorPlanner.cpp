@@ -535,6 +535,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	if (handle_corblivar && this->solution_out.is_open()) {
 		this->solution_out << corb.CBLsString() << endl;
 		this->solution_out.close();
+
+		// delete file in case no valid solution was generated
+		if (!valid_solution) {
+			remove(this->solution_file.c_str());
+		}
 	}
 
 	// thermal-analysis files
