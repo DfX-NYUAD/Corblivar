@@ -70,13 +70,11 @@ cd $WORK_DIR_1
 # the notation ${CONFIG_FILE##*/} delivers the filename w/o full path
 echo "working dir 1 (w/o TSVs): `pwd`";
 octave optimization.m $BENCH $WORK_DIR_1"/"${CONFIG_FILE##*/} $ROOT_DIR 0 &
-
 PID1=$!
 
 cd $WORK_DIR_2
 echo "working dir 2 (w/ TSVs): `pwd`";
 octave optimization.m $BENCH $WORK_DIR_2"/"${CONFIG_FILE##*/} $ROOT_DIR 100 &
-
 PID2=$!
 
 while :
@@ -94,5 +92,6 @@ done
 
 echo "Octave scripts done; copy resulting config files"
 
+cd $CUR_DIR
 cp -v $WORK_DIR_1"/"${CONFIG_FILE##*/} $CONFIG_FILE
 cp -v $WORK_DIR_2"/"${CONFIG_FILE##*/} $CONFIG_FILE"_TSVs"
