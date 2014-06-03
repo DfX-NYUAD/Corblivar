@@ -24,7 +24,7 @@ function [p] = parameters()
 	
 p.opt.layers.check = '# Layers';	% check string for comparing with the Corblivar.conf file
   
-p.opt.accuracy = 20;			% starting point for valid solution space		
+p.opt.accuracy = 50;			% starting point for valid solution space		
 
 
 %% define after how many iterations the sigma of the normal distribution curve of the random generator will be refined
@@ -39,7 +39,7 @@ p.opt.step = p.opt.iterations / 10;
 
 %% refinement factor of sigma
  
-p.opt.sigma_update = 0.9;
+p.opt.sigma_update = 0.8;
 
 
 %% define the initial minimum of the HotSpot analysis (only needed for the first writing of the config-file
@@ -64,7 +64,7 @@ p.conf.I.check = '# Impulse factor I';
 %% define initial impulse-scaling factor If, I(layer) = I / (layer^If)
 %% define initial sigma for the random generator of If
  
-p.conf.If.value = 5;
+p.conf.If.value = 10;
  
 p.conf.If.sigma = 5;
 
@@ -86,22 +86,22 @@ p.conf.Mb.check = '# Mask-boundary';
 %% define initial Power-density scaling factor in padding zone
 %% define initial sigma for the random generator of power-density scaling factor in padding zone
 
-   p.conf.PDPZ.value = 1.1;
- 
-   p.conf.PDPZ.sigma = 0.5;
+p.conf.PDPZ.value = 1.1;
 
-   p.conf.PDPZ.max_val = 2.0;
+p.conf.PDPZ.sigma = 0.5;
 
-   p.conf.PDPZ.check = '# Power-density scaling factor in padding zone';
+p.conf.PDPZ.max_val = 2.0;
+
+p.conf.PDPZ.check = '# Power-density scaling factor in padding zone';
 
 
 %% %% define initial Power-density scaling factor in TSV regions
 %% define initial sigma for the random generator of power-density scaling factor in TSV regions
 
-   p.conf.PDTR.value = 1;
+p.conf.PDTR.value = 1;
 
-   p.conf.PDTR.sigma = 0.5;
+p.conf.PDTR.sigma = 0.5;
 
-   p.conf.PDTR.check = '# Power-density down-scaling factor for TSV regions';
+p.conf.PDTR.check = '# Power-density down-scaling factor for TSV regions';
 
 end

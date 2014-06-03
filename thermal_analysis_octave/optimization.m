@@ -241,8 +241,12 @@ while x < p.opt.iterations
 	% if yes, update all optimal parameters	
 
 	if ad							% if minimal accuracy is determined (Phase 2)			
-					
-		if (eval.value < opt.Eval) && eval.valid 	% if new evaluation is better than old optimal value and valid then replace it
+		%if (eval.value < opt.Eval) && eval.valid 	% if new evaluation is better than old optimal value and valid then replace it
+		%
+		% NOTE validity ignored so that any solution better than the initial
+		% parameters can be found in case w/ thermal profiles with large gradients
+		%
+		if (eval.value < opt.Eval)
 				
 			printf("new optimal solution\n")
 
@@ -300,7 +304,7 @@ while x < p.opt.iterations
 			j = 0;						% set back counter
 		end
 
-		else							% the level of accuracy isn't defined jet (Phase 1)	
+	else							% the level of accuracy isn't defined jet (Phase 1)	
 		
 		if eval.valid						% valid solution inside range was found
 
@@ -340,7 +344,7 @@ while x < p.opt.iterations
 			dc++;
 			Phase_1 = dc				
 				
-			if dc > p.opt.iterations /2
+			if dc > p.opt.iterations / 5		% this should suffice for defining an appropriate accuracy
 					
 				ad = 1;				% set accuracy defined		
 				p.opt.accuracy			% print accuracy
