@@ -74,7 +74,7 @@ if ind_conf == 0
 	
 else	
 
-	conf.dir = conf(1,1:ind_conf);
+	conf.dir = conf.path(1,1:ind_conf);
 	
 end
 
