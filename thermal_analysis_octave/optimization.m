@@ -208,14 +208,19 @@ while x < p.opt.iterations
 
 	until	(p.conf.PDPZ.value > 1.0) && (p.conf.PDPZ.value < p.conf.PDPZ.max_val)	% power density < 1 is not reasonable; also consider max value
 
+	% NOTE: on branch GMT_2D_Convolution, this factor must be kept constant; TSVs'
+	% impact should only be captured via two different masks, not via this scaling
+	% factor
+	%
 	% power density scaling factor for TSV Regions PDTR
-	
-	do 
-		p.conf.PDTR.value = opt.PDTR + randn * p.conf.PDTR.sigma;
+	p.conf.PDTR.value = 1.0;
+%	
+%	do 
+%		p.conf.PDTR.value = opt.PDTR + randn * p.conf.PDTR.sigma;
+%
+%	until	p.conf.PDTR.value > 0.0 && p.conf.PDTR.value <= 1 %% set max as 1
 
-	until	p.conf.PDTR.value > 0.0 && p.conf.PDTR.value <= 1 %% set max as 1
-
-	%% end of random generation of parameters
+	% end of random generation of parameters
 	
 	%% rewrite new parameters into "Corblivar.conf" file
 		
