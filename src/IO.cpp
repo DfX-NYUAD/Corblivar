@@ -1756,7 +1756,32 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << "set label \"" << cur_block.id << "\"";
 			gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.conf_outline_x;
 			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.conf_outline_y;
-			gp_out << " font \"Gill Sans,4\"" << endl;
+			gp_out << " font \"Gill Sans,4\"";
+			// prevents generating subscripts for underscore in labels
+			gp_out << " noenhanced" << endl;
+		}
+
+		// output TSVs (blocks)
+		for (TSV_Group const& TSV_group : fp.TSVs) {
+
+			if (TSV_group.layer != cur_layer) {
+				continue;
+			}
+
+			// block rectangles
+			gp_out << "set obj rect";
+			gp_out << " from " << TSV_group.bb.ll.x << "," << TSV_group.bb.ll.y;
+			gp_out << " to " << TSV_group.bb.ur.x << "," << TSV_group.bb.ur.y;
+			gp_out << " fillcolor rgb \"#704a30\" fillstyle solid";
+			gp_out << endl;
+
+			// label
+			gp_out << "set label \"" << TSV_group.id << "\"";
+			gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.conf_outline_x;
+			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.conf_outline_y;
+			gp_out << " font \"Gill Sans,4\"";
+			// prevents generating subscripts for underscore in labels
+			gp_out << " noenhanced" << endl;
 		}
 
 		// check alignment fulfillment; draw accordingly colored rectangles around
