@@ -106,11 +106,11 @@ end
 %% execute Corblivar with given floorplan and initial parameters
 % path for execution of Corblivar with given solution file 
 	
-pathCblsol = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %s',
-		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);  % TODO change back to single binary version 
+pathCblsol = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution %s',
+		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);
 
-pathCblsolnt = sprintf('%s/ThermalAnalyzerFitting %s %s %s/benches/ %s.solution %s >/dev/null',
-		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density); % TODO change back to single binary version
+pathCblsolnt = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution %s >/dev/null',
+		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);
 	
 % path for executing 3D-HotSpot
 

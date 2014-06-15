@@ -33,9 +33,6 @@
 #include "Net.hpp"
 #include "Math.hpp"
 
-// memory allocation
-IO::Mode IO::mode;
-
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	ifstream in;
@@ -49,30 +46,26 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	string tmpstr;
 	ThermalAnalyzer::MaskParameters mask_parameters;
 
-	// program parameters; two modes, one for regular Corblivar runs, one for for
-	// thermal-analysis parameterization runs
-	if (IO::mode == IO::Mode::REGULAR) {
-		if (argc < 4) {
-			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file]" << endl;
-			cout << "IO> " << endl;
-			cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
-			cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
-			cout << "IO> Note: solution_file can be used to start tool w/ given Corblivar data" << endl;
+	// print command-line parameters
+	if (argc < 4) {
+		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [[solution_file] TSV_density]" << endl;
+		cout << "IO> " << endl;
+		cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << endl;
+		cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << endl;
+		cout << "IO> Mandatory parameter ``benchmarks_dir'': folder containing actual benchmark files in GSRC Bookshelf format" << endl;
+		cout << "IO> Optional parameter ``solution_file'': re-evaluate w/ given Corblivar solution" << endl;
+		cout << "IO> Optional parameter ``TSV density'': average TSV density to be considered across all dies, to be given in \%" << endl;
 
-			exit(1);
-		}
+		exit(1);
 	}
-	else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
-		if (argc < 6) {
-			cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir solution_file TSV_density" << endl;
-			cout << "IO> " << endl;
-			cout << "IO> Expected config_file format: see provided Corblivar.conf" << endl;
-			cout << "IO> Expected benchmarks: any in GSRC Bookshelf format" << endl;
-			cout << "IO> Expected solution_file: any in Corblivar format" << endl;
-			cout << "IO> Expected TSV density: average TSV density for whole chip, to be given in \%" << endl;
 
-			exit(1);
-		}
+	// TSV density given; note special run mode where only thermal-analysis result is
+	// output, not all other (time-consuming) date
+	if (argc == 6) {
+		fp.thermal_analyser_run = true;
+	}
+	else {
+		fp.thermal_analyser_run = false;
 	}
 
 	fp.benchmark = argv[1];
@@ -119,25 +112,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 	in.close();
 
-	// alignments file; only considered for regular runs
-	if (IO::mode == IO::Mode::REGULAR) {
+	// alignments file
+	in.open(fp.alignments_file.c_str());
+	// memorize file availability
+	fp.alignments_file_avail = in.good();
 
-		in.open(fp.alignments_file.c_str());
-		// memorize file availability
-		fp.alignments_file_avail = in.good();
-
-		if (!in.good() && fp.logMin()) {
-			cout << "IO> ";
-			cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
-			cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
-			cout << endl;
-		}
-
-		in.close();
+	if (!in.good() && fp.logMin()) {
+		cout << "IO> ";
+		cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
+		cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
+		cout << endl;
 	}
-	else {
-		fp.alignments_file_avail = false;
-	}
+	in.close();
 
 	// pins file
 	in.open(fp.pins_file.c_str());
@@ -152,17 +138,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.open(fp.power_density_file.c_str());
 	// memorize file availability
 	fp.power_density_file_avail = in.good();
+
 	if (!in.good()) {
 		cout << "IO> ";
 		cout << "Note: power density file missing : " << fp.power_density_file << endl;
+		cout << "IO> Thermal analysis and optimization cannot be performed; is deactivated." << endl;
+		cout << endl;
 
-		// for thermal analysis, the power file is required
-		if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+		// for thermal-analyser runs, the power density files are mandatory
+		if (fp.thermal_analyser_run) {
 			exit(1);
-		}
-		else if (IO::mode == IO::Mode::REGULAR) {
-			cout << "IO> Thermal optimization cannot be performed; is deactivated." << endl;
-			cout << endl;
 		}
 	}
 	in.close();
@@ -197,13 +182,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.solution_out.open(fp.solution_file.c_str());
 	}
 
-	// for thermal-analysis parameterization runs; additional parameter for TSV
-	// density, in percent, should be given (parameter count checked above)
-	if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
-
+	// additional parameter for TSV density given, in percent
+	if (argc == 6) {
 		mask_parameters.TSV_density = atof(argv[5]);
 	}
-	// for non-thermal-analysis runs, assume that parameters refer to setup w/o TSVs
+	// otherwise assume a setup w/o regularly spread TSVs, i.e., TSV density is zero
 	else {
 		mask_parameters.TSV_density = 0.0;
 	}
@@ -1265,11 +1248,11 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	if (fp.logMed()) {
 		cout << "IO> ";
 
-		if (IO::mode == IO::Mode::REGULAR) {
-			cout << "Generating power maps, TSV-density maps, and thermal map ..." << endl;
-		}
-		else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+		if (fp.thermal_analyser_run) {
 			cout << "Generating thermal map ..." << endl;
+		}
+		else {
+			cout << "Generating power maps, TSV-density maps, and thermal map ..." << endl;
 		}
 	}
 
@@ -1282,12 +1265,12 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
 	flag_start = flag_stop = -1;
-	if (IO::mode == IO::Mode::REGULAR) {
+	if (fp.thermal_analyser_run) {
+		flag_start = flag_stop = FLAGS::thermal;
+	}
+	else {
 		flag_start = FLAGS::power;
 		flag_stop = FLAGS::TSV_density;
-	}
-	else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
-		flag_start = flag_stop = FLAGS::thermal;
 	}
 	//
 	// actual map generation	
@@ -1705,7 +1688,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	string alignment_color_undefined;
 
 	// sanity check, not for thermal-analysis runs
-	if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
+	if (fp.thermal_analyser_run) {
 		return;
 	}
 
@@ -2239,9 +2222,31 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file_bond << "# comment lines begin with a '#'" << endl;
 		file_bond << "# comments and empty lines are ignored" << endl;
 
+		// for thermal-analysis fitting runs, we consider one common TSV density
+		// for the whole chip outline
+		if (fp.thermal_analyser_run) {
+
+			file << "Si_passive_" << cur_layer + 1;
+			file << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
+			file << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
+			file << "	0.0";
+			file << "	0.0";
+			file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters.TSV_density);
+			file << endl;
+
+			file_bond << "bond_" << cur_layer + 1;
+			file_bond << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
+			file_bond << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
+			file_bond << "	0.0";
+			file_bond << "	0.0";
+			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters.TSV_density);
+			file_bond << endl;
+		}
 		// for regular runs, i.e., Corblivar runs, we have to consider different
 		// TSV densities for each grid bin, given in the power_maps
-		if (IO::mode == IO::Mode::REGULAR) {
+		else {
 
 			// walk power-map grid to obtain specific TSV densities of bins
 			for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
@@ -2283,28 +2288,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					file_bond << endl;
 				}
 			}
-		}
-		// for thermal-analysis fitting runs, we consider one common TSV density
-		// for the whole chip outline
-		else if (IO::mode == IO::Mode::THERMAL_ANALYSIS) {
-
-			file << "Si_passive_" << cur_layer + 1;
-			file << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
-			file << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
-			file << "	0.0";
-			file << "	0.0";
-			file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters.TSV_density);
-			file << "	" << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters.TSV_density);
-			file << endl;
-
-			file_bond << "bond_" << cur_layer + 1;
-			file_bond << "	" << fp.conf_outline_x * IO::SCALE_UM_M;
-			file_bond << "	" << fp.conf_outline_y * IO::SCALE_UM_M;
-			file_bond << "	0.0";
-			file_bond << "	0.0";
-			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters.TSV_density);
-			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters.TSV_density);
-			file_bond << endl;
 		}
 
 		// close file streams

@@ -2,8 +2,8 @@
 # Application Name:
 #=============================================================================#
 APP := Corblivar
-AUX := ThermalAnalyzerFitting 3DFP_Parser 3DSTAF_Parser
-ALL := Corblivar ThermalAnalyzerFitting
+AUX := 3DFP_Parser 3DSTAF_Parser
+ALL := $(APP)
 
 #=============================================================================#
 # Define Compiler Executable:

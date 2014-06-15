@@ -105,6 +105,9 @@ class FloorPlanner {
 		ofstream results, solution_out;
 		ifstream solution_in;
 		struct timeb start;
+		// run mode; represents thermal analyser runs where TSV density is given
+		// as command-line parameter
+		bool thermal_analyser_run;
 		// flag whether power density file is available / was handled / thermal
 		// analysis should be performed / thermal files should be generated
 		bool power_density_file_avail;
