@@ -72,25 +72,25 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	config_file = argv[2];
 
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
-	fp.blocks_file = blocks_file.str();
+	fp.IO_conf.blocks_file = blocks_file.str();
 
 	alignments_file << argv[3] << fp.benchmark << ".alr";
-	fp.alignments_file = alignments_file.str();
+	fp.IO_conf.alignments_file = alignments_file.str();
 
 	pins_file << argv[3] << fp.benchmark << ".pl";
-	fp.pins_file = pins_file.str();
+	fp.IO_conf.pins_file = pins_file.str();
 
 	power_density_file << argv[3] << fp.benchmark << ".power";
-	fp.power_density_file = power_density_file.str();
+	fp.IO_conf.power_density_file = power_density_file.str();
 
 	nets_file << argv[3] << fp.benchmark << ".nets";
-	fp.nets_file = nets_file.str();
+	fp.IO_conf.nets_file = nets_file.str();
 
 	results_file << fp.benchmark << ".results";
-	fp.results.open(results_file.str().c_str());
+	fp.IO_conf.results.open(results_file.str().c_str());
 
 	// assume minimal log level; actual level to be parsed later on
-	fp.conf_log = FloorPlanner::LOG_MINIMAL;
+	fp.log = FloorPlanner::LOG_MINIMAL;
 
 	// test files
 	//
@@ -104,44 +104,44 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.close();
 
 	// blocks file
-	in.open(fp.blocks_file.c_str());
+	in.open(fp.IO_conf.blocks_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
-		cout << "Blocks file missing: " << fp.blocks_file << endl;
+		cout << "Blocks file missing: " << fp.IO_conf.blocks_file << endl;
 		exit(1);
 	}
 	in.close();
 
 	// alignments file
-	in.open(fp.alignments_file.c_str());
+	in.open(fp.IO_conf.alignments_file.c_str());
 	// memorize file availability
-	fp.alignments_file_avail = in.good();
+	fp.IO_conf.alignments_file_avail = in.good();
 
 	if (!in.good() && fp.logMin()) {
 		cout << "IO> ";
-		cout << "Note: alignment-requests file missing : " << fp.alignments_file<< endl;
+		cout << "Note: alignment-requests file missing : " << fp.IO_conf.alignments_file<< endl;
 		cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
 		cout << endl;
 	}
 	in.close();
 
 	// pins file
-	in.open(fp.pins_file.c_str());
+	in.open(fp.IO_conf.pins_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
-		cout << "Pins file missing: " << fp.pins_file << endl;
+		cout << "Pins file missing: " << fp.IO_conf.pins_file << endl;
 		exit(1);
 	}
 	in.close();
 
 	// power file
-	in.open(fp.power_density_file.c_str());
+	in.open(fp.IO_conf.power_density_file.c_str());
 	// memorize file availability
-	fp.power_density_file_avail = in.good();
+	fp.IO_conf.power_density_file_avail = in.good();
 
 	if (!in.good()) {
 		cout << "IO> ";
-		cout << "Note: power density file missing : " << fp.power_density_file << endl;
+		cout << "Note: power density file missing : " << fp.IO_conf.power_density_file << endl;
 		cout << "IO> Thermal analysis and optimization cannot be performed; is deactivated." << endl;
 		cout << endl;
 
@@ -153,10 +153,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.close();
 
 	// nets file
-	in.open(fp.nets_file.c_str());
+	in.open(fp.IO_conf.nets_file.c_str());
 	if (!in.good()) {
 		cout << "IO> ";
-		cout << "Nets file missing: " << fp.nets_file << endl;
+		cout << "Nets file missing: " << fp.IO_conf.nets_file << endl;
 		exit(1);
 	}
 	in.close();
@@ -166,20 +166,20 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// additional parameter for solution file given; consider file for readin
 	if (argc > 4) {
 
-		fp.solution_file = argv[4];
+		fp.IO_conf.solution_file = argv[4];
 		// open file if possible
-		fp.solution_in.open(fp.solution_file.c_str());
-		if (!fp.solution_in.good())
+		fp.IO_conf.solution_in.open(fp.IO_conf.solution_file.c_str());
+		if (!fp.IO_conf.solution_in.good())
 		{
 			cout << "IO> ";
-			cout << "No such solution file: " << fp.solution_file << endl;
+			cout << "No such solution file: " << fp.IO_conf.solution_file << endl;
 			exit(1);
 		}
 	}
 	// open new solution file
 	else {
-		fp.solution_file = fp.benchmark + ".solution";
-		fp.solution_out.open(fp.solution_file.c_str());
+		fp.IO_conf.solution_file = fp.benchmark + ".solution";
+		fp.IO_conf.solution_out.open(fp.IO_conf.solution_file.c_str());
 	}
 
 	// additional parameter for TSV density given, in percent
@@ -215,15 +215,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_log;
+	in >> fp.log;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_layers;
+	in >> fp.IC.layers;
 
 	// sanity check for positive, non-zero layer
-	if (fp.conf_layers <= 0) {
+	if (fp.IC.layers <= 0) {
 		cout << "IO> Provide positive, non-zero layer count!" << endl;
 		exit(1);
 	}
@@ -231,31 +231,31 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_outline_x;
+	in >> fp.IC.outline_x;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_outline_y;
+	in >> fp.IC.outline_y;
 
 	// sanity check for positive, non-zero dimensions
-	if (fp.conf_outline_x <= 0.0 || fp.conf_outline_y <= 0.0) {
+	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
 		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
 		exit(1);
 	}
 
 	// determine aspect ratio and area
-	fp.die_AR = fp.conf_outline_x / fp.conf_outline_y;
-	fp.die_area = fp.conf_outline_x * fp.conf_outline_y;
-	fp.stack_area = fp.die_area * fp.conf_layers;
+	fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
+	fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
+	fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_blocks_scale;
+	in >> fp.IC.blocks_scale;
 
 	// sanity check for block scaling factor
-	if (fp.conf_blocks_scale <= 0.0) {
+	if (fp.IC.blocks_scale <= 0.0) {
 		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
 		exit(1);
 	}
@@ -263,31 +263,31 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_outline_shrink;
+	in >> fp.IC.outline_shrink;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_enhanced_hard_block_rotation;
+	in >> fp.SA_parameters.layout_enhanced_hard_block_rotation;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_enhanced_soft_block_shaping;
+	in >> fp.SA_parameters.layout_enhanced_soft_block_shaping;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_packing_iterations;
+	in >> fp.SA_parameters.layout_packing_iterations;
 
 	// sanity check for packing iterations
-	if (fp.conf_SA_layout_packing_iterations < 0) {
+	if (fp.SA_parameters.layout_packing_iterations < 0) {
 		cout << "IO> Provide a positive packing iterations count or set 0 to disable!" << endl;
 		exit(1);
 	}
 
 	// sanity check for packing and block rotation
-	if (fp.conf_SA_layout_enhanced_hard_block_rotation && (fp.conf_SA_layout_packing_iterations > 0)) {
+	if (fp.SA_parameters.layout_enhanced_hard_block_rotation && (fp.SA_parameters.layout_packing_iterations > 0)) {
 		cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
 		exit(1);
 	}
@@ -295,25 +295,25 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_power_aware_block_handling;
+	in >> fp.SA_parameters.layout_power_aware_block_handling;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_layout_floorplacement;
+	in >> fp.SA_parameters.layout_floorplacement;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_loopFactor;
+	in >> fp.SA_parameters.loopFactor;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_loopLimit;
+	in >> fp.SA_parameters.loopLimit;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.conf_SA_loopFactor <= 0.0 || fp.conf_SA_loopLimit <= 0.0) {
+	if (fp.SA_parameters.loopFactor <= 0.0 || fp.SA_parameters.loopLimit <= 0.0) {
 		cout << "IO> Provide positive, non-zero SA loop parameters!" << endl;
 		exit(1);
 	}
@@ -321,10 +321,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_init_factor;
+	in >> fp.SA_parameters.temp_init_factor;
 
 	// sanity check for positive, non-zero factor
-	if (fp.conf_SA_temp_init_factor <= 0.0) {
+	if (fp.SA_parameters.temp_init_factor <= 0.0) {
 		cout << "IO> Provide positive, non-zero SA start temperature scaling factor!" << endl;
 		exit(1);
 	}
@@ -332,15 +332,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_factor_phase1;
+	in >> fp.SA_parameters.temp_factor_phase1;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_factor_phase1_limit;
+	in >> fp.SA_parameters.temp_factor_phase1_limit;
 
 	// sanity check for dependent temperature-scaling factors
-	if (fp.conf_SA_temp_factor_phase1 >= fp.conf_SA_temp_factor_phase1_limit) {
+	if (fp.SA_parameters.temp_factor_phase1 >= fp.SA_parameters.temp_factor_phase1_limit) {
 		cout << "IO> Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << endl;
 		exit(1);
 	}
@@ -348,10 +348,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_factor_phase2;
+	in >> fp.SA_parameters.temp_factor_phase2;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.conf_SA_temp_factor_phase1 <= 0.0 || fp.conf_SA_temp_factor_phase2 <= 0.0) {
+	if (fp.SA_parameters.temp_factor_phase1 <= 0.0 || fp.SA_parameters.temp_factor_phase2 <= 0.0) {
 		cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << endl;
 		exit(1);
 	}
@@ -359,45 +359,45 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_temp_factor_phase3;
+	in >> fp.SA_parameters.temp_factor_phase3;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_cost_thermal;
+	in >> fp.SA_parameters.cost_thermal;
 
 	// memorize if thermal optimization should be performed
-	fp.conf_SA_opt_thermal = (fp.conf_SA_cost_thermal > 0.0 && fp.power_density_file_avail);
+	fp.SA_parameters.opt_thermal = (fp.SA_parameters.cost_thermal > 0.0 && fp.IO_conf.power_density_file_avail);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_cost_WL;
+	in >> fp.SA_parameters.cost_WL;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_cost_TSVs;
+	in >> fp.SA_parameters.cost_TSVs;
 
 	// memorize if interconnects optimization should be performed
-	fp.conf_SA_opt_interconnects = (fp.conf_SA_cost_WL > 0.0 || fp.conf_SA_cost_TSVs > 0.0);
+	fp.SA_parameters.opt_interconnects = (fp.SA_parameters.cost_WL > 0.0 || fp.SA_parameters.cost_TSVs > 0.0);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.conf_SA_cost_alignment;
+	in >> fp.SA_parameters.cost_alignment;
 
 	// memorize if alignment optimization should be performed
-	fp.conf_SA_opt_alignment = (fp.conf_SA_cost_alignment > 0.0 && fp.alignments_file_avail);
+	fp.SA_parameters.opt_alignment = (fp.SA_parameters.cost_alignment > 0.0 && fp.IO_conf.alignments_file_avail);
 
 	// sanity check for positive cost factors
-	if (fp.conf_SA_cost_thermal < 0.0 || fp.conf_SA_cost_WL < 0.0 || fp.conf_SA_cost_TSVs < 0.0 || fp.conf_SA_cost_alignment < 0.0) {
+	if (fp.SA_parameters.cost_thermal < 0.0 || fp.SA_parameters.cost_WL < 0.0 || fp.SA_parameters.cost_TSVs < 0.0 || fp.SA_parameters.cost_alignment < 0.0) {
 		cout << "IO> Provide positive cost factors!" << endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
-	if (abs(fp.conf_SA_cost_thermal + fp.conf_SA_cost_WL + fp.conf_SA_cost_TSVs + fp.conf_SA_cost_alignment - 1.0) > 0.1) {
+	if (abs(fp.SA_parameters.cost_thermal + fp.SA_parameters.cost_WL + fp.SA_parameters.cost_TSVs + fp.SA_parameters.cost_alignment - 1.0) > 0.1) {
 		cout << "IO> Cost factors should sum up to approx. 1!" << endl;
 		exit(1);
 	}
@@ -469,7 +469,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 
 	// store power-blurring parameters
-	fp.conf_power_blurring_parameters = mask_parameters;
+	fp.power_blurring_parameters = mask_parameters;
 
 	in.close();
 
@@ -477,42 +477,42 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO> Done; config values:" << endl;
 
 		// log
-		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.conf_log << endl;
+		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.log << endl;
 
 		// 3D IC setup
-		cout << "IO>  Chip -- Layers for 3D IC: " << fp.conf_layers << endl;
-		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.conf_outline_x << endl;
-		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.conf_outline_y << endl;
-		cout << "IO>  Chip -- Block scaling factor: " << fp.conf_blocks_scale << endl;
-		cout << "IO>  Chip -- Final die outline shrink: " << fp.conf_outline_shrink << endl;
+		cout << "IO>  Chip -- Layers for 3D IC: " << fp.IC.layers << endl;
+		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.IC.outline_x << endl;
+		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.IC.outline_y << endl;
+		cout << "IO>  Chip -- Block scaling factor: " << fp.IC.blocks_scale << endl;
+		cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << endl;
 
 		// layout generation options
-		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.conf_SA_layout_enhanced_hard_block_rotation << endl;
-		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.conf_SA_layout_enhanced_soft_block_shaping << endl;
-		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.conf_SA_layout_packing_iterations << endl;
-		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.conf_SA_layout_power_aware_block_handling << endl;
-		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.conf_SA_layout_floorplacement << endl;
+		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.SA_parameters.layout_enhanced_hard_block_rotation << endl;
+		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.SA_parameters.layout_enhanced_soft_block_shaping << endl;
+		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.SA_parameters.layout_packing_iterations << endl;
+		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.SA_parameters.layout_power_aware_block_handling << endl;
+		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.SA_parameters.layout_floorplacement << endl;
 
 		// SA loop setup
-		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.conf_SA_loopFactor << endl;
-		cout << "IO>  SA -- Outer-loop upper limit: " << fp.conf_SA_loopLimit << endl;
+		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << endl;
+		cout << "IO>  SA -- Outer-loop upper limit: " << fp.SA_parameters.loopLimit << endl;
 
 		// SA cooling schedule
-		cout << "IO>  SA -- Start temperature scaling factor: " << fp.conf_SA_temp_init_factor << endl;
-		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1 << endl;
-		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.conf_SA_temp_factor_phase1_limit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.conf_SA_temp_factor_phase2 << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.conf_SA_temp_factor_phase3 << endl;
+		cout << "IO>  SA -- Start temperature scaling factor: " << fp.SA_parameters.temp_init_factor << endl;
+		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1 << endl;
+		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1_limit << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.SA_parameters.temp_factor_phase2 << endl;
+		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.SA_parameters.temp_factor_phase3 << endl;
 
 		// SA cost factors
-		cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.conf_SA_cost_thermal << endl;
-		if (!fp.power_density_file_avail) {
+		cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.SA_parameters.cost_thermal << endl;
+		if (!fp.IO_conf.power_density_file_avail) {
 			cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << endl;
 		}
-		cout << "IO>  SA -- Cost factor for wirelength: " << fp.conf_SA_cost_WL << endl;
-		cout << "IO>  SA -- Cost factor for TSVs: " << fp.conf_SA_cost_TSVs << endl;
-		cout << "IO>  SA -- Cost factor for block alignment: " << fp.conf_SA_cost_alignment << endl;
-		if (!fp.alignments_file_avail) {
+		cout << "IO>  SA -- Cost factor for wirelength: " << fp.SA_parameters.cost_WL << endl;
+		cout << "IO>  SA -- Cost factor for TSVs: " << fp.SA_parameters.cost_TSVs << endl;
+		cout << "IO>  SA -- Cost factor for block alignment: " << fp.SA_parameters.cost_alignment << endl;
+		if (!fp.IO_conf.alignments_file_avail) {
 			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
 		}
 
@@ -543,36 +543,36 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	}
 
 	// drop solution file header
-	while (tmpstr != "data_start" && !fp.solution_in.eof()) {
-		fp.solution_in >> tmpstr;
+	while (tmpstr != "data_start" && !fp.IO_conf.solution_in.eof()) {
+		fp.IO_conf.solution_in >> tmpstr;
 	}
 
 	tuples = 0;
-	while (!fp.solution_in.eof()) {
-		fp.solution_in >> tmpstr;
+	while (!fp.IO_conf.solution_in.eof()) {
+		fp.IO_conf.solution_in >> tmpstr;
 
 		// new die; new CBL
 		if (tmpstr == "CBL") {
 			// drop "["
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 
 			// layer id
-			fp.solution_in >> cur_layer;
+			fp.IO_conf.solution_in >> cur_layer;
 
 			// drop "]"
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 		}
 		// new CBL tuple; new block
 		else if (tmpstr == "tuple") {
 			// drop tuple id
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 			// drop ":"
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 			// drop "("
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 
 			// block id
-			fp.solution_in >> block_id;
+			fp.IO_conf.solution_in >> block_id;
 			// find related block
 			tuple.S = Block::findBlock(block_id, fp.blocks);
 			if (tuple.S == nullptr) {
@@ -584,7 +584,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			tuple.S->layer = cur_layer;
 
 			// direction L
-			fp.solution_in >> dir;
+			fp.IO_conf.solution_in >> dir;
 			// parse direction; unsigned 
 			if (dir == static_cast<unsigned>(Direction::VERTICAL)) {
 				tuple.L = Direction::VERTICAL;
@@ -594,16 +594,16 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			}
 
 			// T-junctions
-			fp.solution_in >> tuple.T;
+			fp.IO_conf.solution_in >> tuple.T;
 
 			// block width
-			fp.solution_in >> tuple.S->bb.w;
+			fp.IO_conf.solution_in >> tuple.S->bb.w;
 
 			// block height
-			fp.solution_in >> tuple.S->bb.h;
+			fp.IO_conf.solution_in >> tuple.S->bb.h;
 
 			// drop ");"
-			fp.solution_in >> tmpstr;
+			fp.IO_conf.solution_in >> tmpstr;
 
 			// store successfully parsed tuple into CBL
 			corb.editDie(cur_layer).editCBL().insert(move(tuple));
@@ -634,7 +634,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 	double alignment_y;
 
 	// sanity check for unavailable file
-	if (!fp.alignments_file_avail) {
+	if (!fp.IO_conf.alignments_file_avail) {
 		return;
 	}
 
@@ -644,7 +644,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 	}
 
 	// open file
-	al_in.open(fp.alignments_file.c_str());
+	al_in.open(fp.IO_conf.alignments_file.c_str());
 
 	// reset alignments
 	alignments.clear();
@@ -810,12 +810,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 
 	// open files
-	blocks_in.open(fp.blocks_file.c_str());
-	pins_in.open(fp.pins_file.c_str());
-	power_in.open(fp.power_density_file.c_str());
+	blocks_in.open(fp.IO_conf.blocks_file.c_str());
+	pins_in.open(fp.IO_conf.pins_file.c_str());
+	power_in.open(fp.IO_conf.power_density_file.c_str());
 
 	// drop power density file header line
-	if (fp.power_density_file_avail) {
+	if (fp.IO_conf.power_density_file_avail) {
 		while (tmpstr != "end" && !power_in.eof())
 			power_in >> tmpstr;
 		// if we reached eof, there was no header line; reset the input stream
@@ -826,14 +826,14 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 
 	// reset blocks
-	fp.blocks_area = 0.0;
+	fp.IC.blocks_area = 0.0;
 	fp.blocks.clear();
 	// reset terminals
 	fp.terminals.clear();
 
 	// reset blocks power statistics
-	fp.blocks_power_density_stats.max = fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.avg = 0.0;
-	fp.blocks_power_density_stats.min = -1;
+	fp.power_stats.max = fp.power_stats.range = fp.power_stats.avg = 0.0;
+	fp.power_stats.min = -1;
 
 	// drop block files header
 	while (tmpstr != "NumSoftRectangularBlocks" && !blocks_in.eof())
@@ -925,8 +925,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> tmpstr;
 
 			// scale up dimensions
-			new_block.bb.w *= fp.conf_blocks_scale;
-			new_block.bb.h *= fp.conf_blocks_scale;
+			new_block.bb.w *= fp.IC.blocks_scale;
+			new_block.bb.h *= fp.IC.blocks_scale;
 
 			// calculate block area
 			new_block.bb.area = new_block.bb.w * new_block.bb.h;
@@ -940,7 +940,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> new_block.AR.max;
 
 			// scale up blocks area
-			new_block.bb.area *= pow(fp.conf_blocks_scale, 2);
+			new_block.bb.area *= pow(fp.IC.blocks_scale, 2);
 
 			// init block dimensions randomly
 			new_block.shapeRandomlyByAR();
@@ -962,7 +962,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 
 		// determine power density
-		if (fp.power_density_file_avail) {
+		if (fp.IO_conf.power_density_file_avail) {
 			if (!power_in.eof()) {
 				power_in >> new_block.power_density;
 				// GSRC benchmarks provide power density in 10^5 W/m^2
@@ -979,15 +979,15 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// track block power statistics
 		power += new_block.power();
-		fp.blocks_power_density_stats.max = max(fp.blocks_power_density_stats.max, new_block.power_density);
-		if (fp.blocks_power_density_stats.min == -1) {
-			fp.blocks_power_density_stats.min = new_block.power_density;
+		fp.power_stats.max = max(fp.power_stats.max, new_block.power_density);
+		if (fp.power_stats.min == -1) {
+			fp.power_stats.min = new_block.power_density;
 		}
-		fp.blocks_power_density_stats.min = min(fp.blocks_power_density_stats.min, new_block.power_density);
-		fp.blocks_power_density_stats.avg += new_block.power_density;
+		fp.power_stats.min = min(fp.power_stats.min, new_block.power_density);
+		fp.power_stats.avg += new_block.power_density;
 
 		// memorize summed blocks area and largest block, needs to fit into die
-		fp.blocks_area += new_block.bb.area;
+		fp.IC.blocks_area += new_block.bb.area;
 		blocks_max_area = max(blocks_max_area, new_block.bb.area);
 
 		// store block
@@ -1001,10 +1001,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 	// determine deadspace amount for whole stack, now that the occupied blocks area
 	// is known
-	fp.stack_deadspace = fp.stack_area - fp.blocks_area;
+	fp.IC.stack_deadspace = fp.IC.stack_area - fp.IC.blocks_area;
 
 	// determine if floorplacement case, i.e., some very large blocks exist
-	blocks_avg_area = fp.blocks_area / fp.blocks.size();
+	blocks_avg_area = fp.IC.blocks_area / fp.blocks.size();
 	floorplacement = false;
 	for (Block& block : fp.blocks) {
 
@@ -1016,26 +1016,26 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 	}
 	// update config parameter, i.e., deactivated floorplacement if not required
-	fp.conf_SA_layout_floorplacement &= floorplacement;
+	fp.SA_parameters.layout_floorplacement &= floorplacement;
 
 	// determine block power statistics
-	fp.blocks_power_density_stats.avg /= fp.blocks.size();
-	fp.blocks_power_density_stats.range = fp.blocks_power_density_stats.max - fp.blocks_power_density_stats.min;
+	fp.power_stats.avg /= fp.blocks.size();
+	fp.power_stats.range = fp.power_stats.max - fp.power_stats.min;
 
 	// scale terminal pins
 	fp.scaleTerminalPins();
 
 	// sanity check of fixed outline
-	blocks_outline_ratio = fp.blocks_area / fp.stack_area;
+	blocks_outline_ratio = fp.IC.blocks_area / fp.IC.stack_area;
 	if (blocks_outline_ratio > 1.0) {
 		cout << "IO>  Chip too small; consider increasing the die outline or layers count" << endl;
 		cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << endl;
 		exit(1);
 	}
 	// sanity check for largest block
-	if (blocks_max_area > fp.die_area) {
+	if (blocks_max_area > fp.IC.die_area) {
 		cout << "IO>  Die outline too small; consider increasing it" << endl;
-		cout << "IO>  Largest-block/die area ratio: " << blocks_max_area / fp.die_area << endl;
+		cout << "IO>  Largest-block/die area ratio: " << blocks_max_area / fp.IC.die_area << endl;
 		exit(1);
 	}
 
@@ -1061,23 +1061,23 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// floorplacement
 		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", to be handled as floorplacement: " << floorplacement << endl;
-		if (!fp.conf_SA_layout_floorplacement && floorplacement) {
+		if (!fp.SA_parameters.layout_floorplacement && floorplacement) {
 			cout << "IO>   Note: floorplacement is ignored since it's deactivated" << endl;
 		}
 
 		// blocks power
 		cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
-			cout << "; min power density [uW/um^2]: " << fp.blocks_power_density_stats.min;
-			cout << ", max power density [uW/um^2]: " << fp.blocks_power_density_stats.max;
-			cout << ", avg power density [uW/um^2]: " << fp.blocks_power_density_stats.avg << endl;
+			cout << "; min power density [uW/um^2]: " << fp.power_stats.min;
+			cout << ", max power density [uW/um^2]: " << fp.power_stats.max;
+			cout << ", avg power density [uW/um^2]: " << fp.power_stats.avg << endl;
 		}
 		else {
 			cout << endl;
 		}
 
 		// blocks area
-		cout << "IO>  Summed blocks area [cm^2]: " << fp.blocks_area * 1.0e-8;
+		cout << "IO>  Summed blocks area [cm^2]: " << fp.IC.blocks_area * 1.0e-8;
 		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
 		cout << endl;
 	}
@@ -1104,7 +1104,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	fp.nets.clear();
 
 	// open nets file
-	in.open(fp.nets_file.c_str());
+	in.open(fp.IO_conf.nets_file.c_str());
 
 	// drop nets file header
 	while (tmpstr != "NumNets" && !in.eof())
@@ -1278,7 +1278,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 		// power and TSV-density maps for all layers
 		if (flag == FLAGS::power || flag == FLAGS::TSV_density) {
-			layer_limit = fp.conf_layers;
+			layer_limit = fp.IC.layers;
 		}
 		// thermal map only for layer 0
 		else if (flag == FLAGS::thermal) {
@@ -1701,8 +1701,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	}
 
 	// GP parameters
-	ratio_inv = 1.0 / fp.die_AR;
-	tics = max(fp.conf_outline_x, fp.conf_outline_y) / 5;
+	ratio_inv = 1.0 / fp.IC.die_AR;
+	tics = max(fp.IC.outline_x, fp.IC.outline_y) / 5;
 
 	// color for alignment rects; for fulfilled alignment, green-ish color
 	alignment_color_fulfilled = "#00A000";
@@ -1711,7 +1711,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	// color for alignment rects; for undefined alignment, blue-ish color
 	alignment_color_undefined = "#0000A0";
 
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 		// build up file name
 		stringstream out_name;
 		out_name << fp.benchmark << "_" << cur_layer + 1;
@@ -1727,8 +1727,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 		gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
 		gp_out << "set output \"" << out_name.str() << ".pdf\"" << endl;
 		gp_out << "set size ratio " << ratio_inv << endl;
-		gp_out << "set xrange [0:" << fp.conf_outline_x << "]" << endl;
-		gp_out << "set yrange [0:" << fp.conf_outline_y << "]" << endl;
+		gp_out << "set xrange [0:" << fp.IC.outline_x << "]" << endl;
+		gp_out << "set yrange [0:" << fp.IC.outline_y << "]" << endl;
 		gp_out << "set xlabel \"Width [{/Symbol m}m]\"" << endl;
 		gp_out << "set ylabel \"Height [{/Symbol m}m]\"" << endl;
 		gp_out << "set xtics " << tics << endl;
@@ -1754,8 +1754,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 			// label
 			gp_out << "set label \"" << cur_block.id << "\"";
-			gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.conf_outline_x;
-			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.conf_outline_y;
+			gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.IC.outline_x;
+			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.IC.outline_y;
 			gp_out << " font \"Gill Sans,4\"";
 			// prevents generating subscripts for underscore in labels
 			gp_out << " noenhanced" << endl;
@@ -1777,8 +1777,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 			// label
 			gp_out << "set label \"" << TSV_group.id << "\"";
-			gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.conf_outline_x;
-			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.conf_outline_y;
+			gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.IC.outline_x;
+			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.IC.outline_y;
 			gp_out << " font \"Gill Sans,4\"";
 			// prevents generating subscripts for underscore in labels
 			gp_out << " noenhanced" << endl;
@@ -1997,7 +1997,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							// rect as marker
 							gp_out << "set obj rect ";
 							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.conf_outline_x << "," << alignment_rect.ll.y + 0.01 * fp.conf_outline_y;
+							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
 							// box colors
 							if (req_x_fulfilled == 1) {
 								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
@@ -2078,7 +2078,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							// rect as marker
 							gp_out << "set obj rect ";
 							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.conf_outline_x << "," << alignment_rect.ll.y + 0.01 * fp.conf_outline_y;
+							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
 							// box colors
 							if (req_y_fulfilled == 1) {
 								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
@@ -2177,7 +2177,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	}
 
 	/// generate floorplan files
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		// build up file name
 		stringstream fp_file;
@@ -2212,8 +2212,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 		// dummy block to describe layer outline
 		file << "outline" << cur_layer + 1;
-		file << "	" << fp.conf_outline_x * Math::SCALE_UM_M;
-		file << "	" << fp.conf_outline_y * Math::SCALE_UM_M;
+		file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
+		file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 		file << "	0.0";
 		file << "	0.0";
 		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
@@ -2225,7 +2225,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	}
 
 	/// generate floorplans for passive Si and bonding layer; considering TSVs (modelled via densities)
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		// build up file names
 		stringstream Si_fp_file;
@@ -2252,21 +2252,21 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		if (fp.thermal_analyser_run) {
 
 			file << "Si_passive_" << cur_layer + 1;
-			file << "	" << fp.conf_outline_x * Math::SCALE_UM_M;
-			file << "	" << fp.conf_outline_y * Math::SCALE_UM_M;
+			file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
+			file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file << "	0.0";
 			file << "	0.0";
-			file << "	" << ThermalAnalyzer::heatCapSi(fp.conf_power_blurring_parameters.TSV_density);
-			file << "	" << ThermalAnalyzer::thermResSi(fp.conf_power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::heatCapSi(fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::thermResSi(fp.power_blurring_parameters.TSV_density);
 			file << endl;
 
 			file_bond << "bond_" << cur_layer + 1;
-			file_bond << "	" << fp.conf_outline_x * Math::SCALE_UM_M;
-			file_bond << "	" << fp.conf_outline_y * Math::SCALE_UM_M;
+			file_bond << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
+			file_bond << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file_bond << "	0.0";
 			file_bond << "	0.0";
-			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.conf_power_blurring_parameters.TSV_density);
-			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.conf_power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.power_blurring_parameters.TSV_density);
 			file_bond << endl;
 		}
 		// for regular runs, i.e., Corblivar runs, we have to consider different
@@ -2337,8 +2337,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	// BEOL ``block''
 	file << "BEOL";
-	file << "	" << fp.conf_outline_x * Math::SCALE_UM_M;
-	file << "	" << fp.conf_outline_y * Math::SCALE_UM_M;
+	file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
+	file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 	file << "	0.0";
 	file << "	0.0";
 	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
@@ -2361,7 +2361,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// according to layer structure
 	//
 	// output block labels in first line
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		for (Block const& cur_block : fp.blocks) {
 
@@ -2378,7 +2378,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << endl;
 
 	// output block power in second line
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		for (Block const& cur_block : fp.blocks) {
 
@@ -2419,7 +2419,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "#<floorplan file>" << endl;
 	file << endl;
 
-	for (cur_layer = 0; cur_layer < fp.conf_layers; cur_layer++) {
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
 		file << 4 * cur_layer << endl;
@@ -2453,7 +2453,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
-		if (cur_layer < (fp.conf_layers - 1)) {
+		if (cur_layer < (fp.IC.layers - 1)) {
 			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
 			file << 4 * cur_layer + 3 << endl;
 			file << "Y" << endl;

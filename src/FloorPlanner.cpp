@@ -67,7 +67,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	//
 	// also, for random layout operations in SA phase one, these blocks are not
 	// allowed to be swapped or moved, see performOpMoveOrSwapBlocks
-	if (this->conf_SA_layout_floorplacement) {
+	if (this->SA_parameters.layout_floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
 
@@ -87,10 +87,10 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	best_cost = 100.0 * Math::stdDev(cost_samples);
 
 	/// outer loop: annealing -- temperature steps
-	while (i <= this->conf_SA_loopLimit) {
+	while (i <= this->SA_parameters.loopLimit) {
 
 		if (this->logMax()) {
-			cout << "SA> Optimization step: " << i << "/" << this->conf_SA_loopLimit << endl;
+			cout << "SA> Optimization step: " << i << "/" << this->SA_parameters.loopLimit << endl;
 		}
 
 		// init loop parameters
@@ -102,7 +102,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
-		this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
+		this->generateLayout(corb, this->SA_parameters.opt_alignment && SA_phase_two);
 		cur_cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two).total_cost;
 
 		// inner loop: layout operations
@@ -118,7 +118,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				// generate layout; also memorize whether layout is valid;
 				// note that this return value is only effective if
 				// CorblivarCore::DBG_VALID_LAYOUT is set
-				valid_layout = this->generateLayout(corb, this->conf_SA_opt_alignment && SA_phase_two);
+				valid_layout = this->generateLayout(corb, this->SA_parameters.opt_alignment && SA_phase_two);
 
 				// dbg invalid layouts
 				if (CorblivarCore::DBG_VALID_LAYOUT && !valid_layout) {
@@ -126,9 +126,9 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					// generate invalid floorplan for dbg
 					IO::writeFloorplanGP(*this, corb.getAlignments(), "invalid_layout");
 					// generate related Corblivar solution
-					if (this->solution_out.is_open()) {
-						this->solution_out << corb.CBLsString() << endl;
-						this->solution_out.close();
+					if (this->IO_conf.solution_out.is_open()) {
+						this->IO_conf.solution_out << corb.CBLsString() << endl;
+						this->IO_conf.solution_out.close();
 					}
 					// abort further run
 					exit(1);
@@ -319,19 +319,19 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	}
 
 	// phase 3; brief reheating due to cost convergence
-	if (this->conf_SA_temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
-		cur_temp *= this->conf_SA_temp_factor_phase3;
+	if (this->SA_parameters.temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
+		cur_temp *= this->SA_parameters.temp_factor_phase3;
 
 		phase = 3;
 	}
-	// phase 1; adaptive cooling (slows down from conf_SA_temp_factor_phase1 to
-	// conf_SA_temp_factor_phase1_limit)
+	// phase 1; adaptive cooling (slows down from SA_parameters.temp_factor_phase1 to
+	// SA_parameters.temp_factor_phase1_limit)
 	else if (iteration_first_valid_layout == Point::UNDEF) {
-		loop_factor = (this->conf_SA_temp_factor_phase1_limit - this->conf_SA_temp_factor_phase1)
-			* static_cast<float>(iteration - 1) / (this->conf_SA_loopLimit - 1.0);
+		loop_factor = (this->SA_parameters.temp_factor_phase1_limit - this->SA_parameters.temp_factor_phase1)
+			* static_cast<float>(iteration - 1) / (this->SA_parameters.loopLimit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
-		cur_temp *= this->conf_SA_temp_factor_phase1 + loop_factor;
+		cur_temp *= this->SA_parameters.temp_factor_phase1 + loop_factor;
 
 		phase = 1;
 	}
@@ -341,8 +341,8 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	else {
 		// note that loop_factor must only consider the remaining iteration range
 		loop_factor = 1.0 - static_cast<float>(iteration - iteration_first_valid_layout) /
-			static_cast<float>(this->conf_SA_loopLimit - iteration_first_valid_layout);
-		cur_temp *= this->conf_SA_temp_factor_phase2 * loop_factor;
+			static_cast<float>(this->SA_parameters.loopLimit - iteration_first_valid_layout);
+		cur_temp *= this->SA_parameters.temp_factor_phase2 * loop_factor;
 
 		phase = 2;
 	}
@@ -371,7 +371,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	corb.backupCBLs();
 
 	// init SA parameter: inner loop ops
-	innerLoopMax = pow(static_cast<double>(this->blocks.size()), this->conf_SA_loopFactor);
+	innerLoopMax = pow(static_cast<double>(this->blocks.size()), this->SA_parameters.loopFactor);
 
 	/// initial sampling
 	//
@@ -427,7 +427,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
 	// Shahookar91]
-	init_temp = Math::stdDev(cost_samples) * this->conf_SA_temp_init_factor;
+	init_temp = Math::stdDev(cost_samples) * this->SA_parameters.temp_init_factor;
 
 	if (this->logMed()) {
 		cout << "SA> Done; std dev of cost: " << Math::stdDev(cost_samples) << ", initial temperature: " << init_temp << endl;
@@ -457,7 +457,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
 		// generate final layout
-		this->generateLayout(corb, this->conf_SA_opt_alignment);
+		this->generateLayout(corb, this->SA_parameters.opt_alignment);
 	}
 
 	// determine final cost, also for non-Corblivar calls
@@ -472,7 +472,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 
 		// shrink fixed outline considering the final layout
-		if (this->conf_outline_shrink) {
+		if (this->IC.outline_shrink) {
 
 			this->resetDieProperties(x, y);
 		}
@@ -480,7 +480,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// determine cost terms and overall cost
 		cost = this->evaluateLayout(corb.getAlignments(), 1.0, true, false, true);
 
-		// logging results; consider non-normalized, actual values
+		// logging IO_conf.results; consider non-normalized, actual values
 		if (this->logMin()) {
 
 			cout << "Corblivar> Characteristica of final solution:" << endl;
@@ -490,36 +490,36 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			// solution files
 			if (determ_overall_cost) {
 				cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << endl;
-				this->results << "Final (adapted) cost: " << cost.total_cost << endl;
+				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << endl;
 			}
 
 			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
-			this->results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
+			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
 
-			cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
-			this->results << "Overall deadspace [%]: " << 100.0 * (this->stack_deadspace / this->stack_area) << endl;
+			cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << endl;
+			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << endl;
 
 			cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << endl;
 			cout << "Corblivar>  x = " << x << endl;
 			cout << "Corblivar>  y = " << y << endl;
-			this->results << "Overall blocks outline (reasonable stack outline):" << endl;
-			this->results << " x = " << x << endl;
-			this->results << " y = " << y << endl;
+			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << endl;
+			this->IO_conf.results << " x = " << x << endl;
+			this->IO_conf.results << " y = " << y << endl;
 
 			cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
-			this->results << "Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
+			this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
 
 			cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << endl;
-			this->results << "HPWL: " << cost.HPWL_actual_value << endl;
+			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << endl;
 
 			cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << endl;
-			this->results << "TSVs: " << cost.TSVs_actual_value << endl;
+			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << endl;
 
 			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
-			this->results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
+			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 
 			cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
-			this->results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
+			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
 
 			cout << endl;
 		}
@@ -532,18 +532,18 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	IO::writeFloorplanGP(*this, corb.getAlignments());
 
 	// generate Corblivar data if solution file is used as output
-	if (handle_corblivar && this->solution_out.is_open()) {
-		this->solution_out << corb.CBLsString() << endl;
-		this->solution_out.close();
+	if (handle_corblivar && this->IO_conf.solution_out.is_open()) {
+		this->IO_conf.solution_out << corb.CBLsString() << endl;
+		this->IO_conf.solution_out.close();
 
 		// delete file in case no valid solution was generated
 		if (!valid_solution) {
-			remove(this->solution_file.c_str());
+			remove(this->IO_conf.solution_file.c_str());
 		}
 	}
 
 	// thermal-analysis files
-	if ((!handle_corblivar || valid_solution) && this->power_density_file_avail) {
+	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {
 		// generate power, thermal and TSV-density maps
 		IO::writePowerThermalTSVMaps(*this);
 		// generate HotSpot files
@@ -553,13 +553,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	// determine overall runtime
 	ftime(&end);
 	if (this->logMin()) {
-		runtime << "Runtime: " << (1000.0 * (end.time - this->start.time) + (end.millitm - this->start.millitm)) / 1000.0 << " s";
+		runtime << "Runtime: " << (1000.0 * (end.time - this->time_start.time) + (end.millitm - this->time_start.millitm)) / 1000.0 << " s";
 		cout << "Corblivar> " << runtime.str() << endl;
-		this->results << runtime.str() << endl;
+		this->IO_conf.results << runtime.str() << endl;
 	}
 
-	// close results file
-	this->results.close();
+	// close IO_conf.results file
+	this->IO_conf.results.close();
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "<- FloorPlanner::finalize" << endl;
@@ -574,7 +574,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 
 	// annotate alignment success/failure in blocks; required for maintaining
 	// succeeded alignments during subsequent packing
-	if (this->conf_SA_opt_alignment && this->conf_SA_layout_packing_iterations > 0) {
+	if (this->SA_parameters.opt_alignment && this->SA_parameters.layout_packing_iterations > 0) {
 		// ignore related cost; use dummy variable
 		Cost dummy;
 		// also don't derive TSVs; not required here
@@ -584,14 +584,14 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	// perform packing if desired; perform on each die for each
 	// dimension separately and subsequently; multiple iterations may
 	// provide denser packing configurations
-	for (int d = 0; d < this->conf_layers; d++) {
+	for (int d = 0; d < this->IC.layers; d++) {
 
 		CorblivarDie& die = corb.editDie(d);
 
 		// sanity check for empty dies
 		if (!die.getCBL().empty()) {
 
-			for (int i = 1; i <= this->conf_SA_layout_packing_iterations; i++) {
+			for (int i = 1; i <= this->SA_parameters.layout_packing_iterations; i++) {
 				die.performPacking(Direction::HORIZONTAL);
 				die.performPacking(Direction::VERTICAL);
 			}
@@ -632,7 +632,7 @@ bool FloorPlanner::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_pha
 		// to enable guided block alignment during phase II, we prefer to perform
 		// block swapping on particular blocks of failing alignment requests
 		swapping_failed_blocks = false;
-		if (SA_phase_two && this->conf_SA_opt_alignment) {
+		if (SA_phase_two && this->SA_parameters.opt_alignment) {
 
 			// try to setup swapping failed blocks
 			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
@@ -750,12 +750,12 @@ bool FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 			if (failed_req->s_i->layer == failed_req->s_j->layer) {
 
 				// this is only possible for > 1 layers; sanity check
-				if (this->conf_layers == 1) {
+				if (this->IC.layers == 1) {
 					return false;
 				}
 
 				while (die1 == die2) {
-					die2 = Math::randI(0, this->conf_layers);
+					die2 = Math::randI(0, this->IC.layers);
 				}
 			}
 
@@ -796,10 +796,10 @@ bool FloorPlanner::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb
 			// but rather a die change is considered randomly
 			//
 			// note that changing dies is only possible for > 1 layers
-			if (Math::randB() && this->conf_layers > 1) {
+			if (Math::randB() && this->IC.layers > 1) {
 
 				while (die1 == die2) {
-					die2 = Math::randI(0, this->conf_layers);
+					die2 = Math::randI(0, this->IC.layers);
 				}
 			}
 		
@@ -895,7 +895,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layers);
+			die1 = Math::randI(0, this->IC.layers);
 		}
 
 		// sanity check for empty dies
@@ -917,7 +917,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		// soft blocks: enhanced block shaping
 		if (shape_block->soft) {
 			// enhanced shaping, according to [Chen06]
-			if (this->conf_SA_layout_enhanced_soft_block_shaping) {
+			if (this->SA_parameters.layout_enhanced_soft_block_shaping) {
 				return this->performOpEnhancedSoftBlockShaping(corb, shape_block);
 			}
 			// simple random shaping
@@ -931,7 +931,7 @@ bool FloorPlanner::performOpShapeBlock(bool const& revert, CorblivarCore& corb, 
 		// which is checked during config file parsing
 		else {
 			// enhanced rotation
-			if (this->conf_SA_layout_enhanced_hard_block_rotation) {
+			if (this->SA_parameters.layout_enhanced_hard_block_rotation) {
 				return this->performOpEnhancedHardBlockRotation(corb, shape_block);
 			}
 			// simple rotation
@@ -1123,7 +1123,7 @@ bool FloorPlanner::performOpSwitchTupleJunctions(bool const& revert, CorblivarCo
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layers);
+			die1 = Math::randI(0, this->IC.layers);
 		}
 
 		// sanity check for empty dies
@@ -1166,7 +1166,7 @@ bool FloorPlanner::performOpSwitchInsertionDirection(bool const& revert, Corbliv
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layers);
+			die1 = Math::randI(0, this->IC.layers);
 		}
 
 		// sanity check for empty dies
@@ -1194,10 +1194,10 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 		// randomly select die, if not preassigned
 		if (die1 == -1) {
-			die1 = Math::randI(0, this->conf_layers);
+			die1 = Math::randI(0, this->IC.layers);
 		}
 		if (die2 == -1) {
-			die2 = Math::randI(0, this->conf_layers);
+			die2 = Math::randI(0, this->IC.layers);
 		}
 
 		if (mode == FloorPlanner::OP_MOVE_TUPLE) {
@@ -1237,7 +1237,7 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 		// for power-aware block handling, ensure that blocks w/ lower power
 		// density remain in lower layer
-		if (this->conf_SA_layout_power_aware_block_handling) {
+		if (this->SA_parameters.layout_power_aware_block_handling) {
 			if (die1 < die2
 					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
 				return false;
@@ -1250,7 +1250,7 @@ bool FloorPlanner::performOpMoveOrSwapBlocks(int const& mode, bool const& revert
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be moved/swapped
-		if (this->conf_SA_layout_floorplacement && SA_phase_one
+		if (this->SA_parameters.layout_floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
@@ -1304,7 +1304,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 
 		// determine interconnects cost; if interconnect opt is on or for finalize
 		// calls
-		if (this->conf_SA_opt_interconnects || finalize) {
+		if (this->SA_parameters.opt_interconnects || finalize) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
 		else {
@@ -1316,7 +1316,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// cost for failed alignments, i.e., alignment mismatches; also annotates
 		// failed request, this provides feedback for further alignment
 		// optimization
-		if (this->conf_SA_opt_alignment || finalize) {
+		if (this->SA_parameters.opt_alignment || finalize) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
 		else {
@@ -1326,7 +1326,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// temperature-distribution cost; if thermal opt is on or for finalize
 		// run; note that vertical buses impact heat conduction via TSVs, thus the
 		// block alignment / bus planning is analysed before thermal distribution
-		if (this->conf_SA_opt_thermal || finalize) {
+		if (this->SA_parameters.opt_thermal || finalize) {
 			this->evaluateThermalDistr(cost, set_max_cost);
 		}
 		else {
@@ -1336,10 +1336,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// determine total cost; weight and sum up cost terms
 		cost.total_cost =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->conf_SA_cost_WL * cost.HPWL
-					+ this->conf_SA_cost_TSVs * cost.TSVs
-					+ this->conf_SA_cost_alignment * cost.alignments
-					+ this->conf_SA_cost_thermal * cost.thermal
+					this->SA_parameters.cost_WL * cost.HPWL
+					+ this->SA_parameters.cost_TSVs * cost.TSVs
+					+ this->SA_parameters.cost_alignment * cost.alignments
+					+ this->SA_parameters.cost_thermal * cost.thermal
 				)
 			// area, outline cost is already weighted
 			+ cost.area_outline;
@@ -1347,10 +1347,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// determine total cost assuming a fitting ratio of 1.0
 		cost.total_cost_fitting =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->conf_SA_cost_WL * cost.HPWL
-					+ this->conf_SA_cost_TSVs * cost.TSVs
-					+ this->conf_SA_cost_alignment * cost.alignments
-					+ this->conf_SA_cost_thermal * cost.thermal
+					this->SA_parameters.cost_WL * cost.HPWL
+					+ this->SA_parameters.cost_TSVs * cost.TSVs
+					+ this->SA_parameters.cost_alignment * cost.alignments
+					+ this->SA_parameters.cost_thermal * cost.thermal
 				)
 			// consider only area term for ratio 1.0, see evaluateAreaOutline
 			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
@@ -1372,15 +1372,15 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	ThermalAnalyzer::Temp temp;
 
 	// generate power maps based on layout and blocks' power densities
-	this->thermalAnalyzer.generatePowerMaps(this->conf_layers, this->blocks,
-			this->getOutline(), this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
+			this->getOutline(), this->power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->conf_layers, this->TSVs, this->nets, this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
-	this->thermalAnalyzer.performPowerBlurring(temp, this->conf_layers,
-			this->conf_power_blurring_parameters);
+	this->thermalAnalyzer.performPowerBlurring(temp, this->IC.layers,
+			this->power_blurring_parameters);
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
@@ -1410,12 +1410,12 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 		cout << "-> FloorPlanner::evaluateAreaOutline(" << fitting_layouts_ratio << ")" << endl;
 	}
 
-	dies_AR.reserve(this->conf_layers);
-	dies_area.reserve(this->conf_layers);
+	dies_AR.reserve(this->IC.layers);
+	dies_area.reserve(this->IC.layers);
 
 	layout_fits_in_fixed_outline = true;
 	// determine outline and area
-	for (i = 0; i < this->conf_layers; i++) {
+	for (i = 0; i < this->IC.layers; i++) {
 
 		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
@@ -1429,7 +1429,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 		}
 
 		// area, represented by blocks' outline; normalized to die area
-		dies_area.push_back((max_outline_x * max_outline_y) / (this->die_area));
+		dies_area.push_back((max_outline_x * max_outline_y) / (this->IC.die_area));
 
 		// aspect ratio; used to guide optimization towards fixed outline
 		if (max_outline_y > 0.0) {
@@ -1438,19 +1438,19 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
 		// not impact cost function
 		else {
-			dies_AR.push_back(this->die_AR);
+			dies_AR.push_back(this->IC.die_AR);
 		}
 
 		// memorize whether layout fits into outline
-		max_outline_x /= this->conf_outline_x;
-		max_outline_y /= this->conf_outline_y;
+		max_outline_x /= this->IC.outline_x;
+		max_outline_y /= this->IC.outline_y;
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
-	for (i = 0; i < this->conf_layers; i++) {
-		cost_outline = max(cost_outline, pow(dies_AR[i] - this->die_AR, 2.0));
+	for (i = 0; i < this->IC.layers; i++) {
+		cost_outline = max(cost_outline, pow(dies_AR[i] - this->IC.die_AR, 2.0));
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
@@ -1460,7 +1460,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// cost for area, considering max value of (blocks-outline area) / (die-outline
 	// area) guides towards balanced die occupation and area minimization
 	cost_area = 0.0;
-	for (i = 0; i < this->conf_layers; i++) {
+	for (i = 0; i < this->IC.layers; i++) {
 		cost_area = max(cost_area, dies_area[i]);
 	}
 	// store actual value
@@ -1573,7 +1573,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	// determine by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->IC.stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
