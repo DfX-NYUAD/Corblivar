@@ -38,7 +38,7 @@ int main (int argc, char** argv) {
 	cout << endl;
 
 	// parse program parameter, config file, and further files
-	IO::parseParametersFiles(fp, IO::Mode::REGULAR, argc, argv);
+	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks
 	IO::parseBlocks(fp);
 	// parse nets

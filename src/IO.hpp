@@ -51,9 +51,6 @@ class IO {
 
 	// public data, functions
 	public:
-		enum class Mode : unsigned {REGULAR, THERMAL_ANALYSIS};
-		static Mode mode;
-
 		static void parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv);
 		static void parseBlocks(FloorPlanner& fp);
 		static void parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments);

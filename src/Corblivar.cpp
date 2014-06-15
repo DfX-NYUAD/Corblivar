@@ -34,9 +34,6 @@ int main (int argc, char** argv) {
 	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
 	cout << "----- 3D floorplanning tool v 1.1.1 ------------------------------" << endl << endl;
 
-	// set IO mode
-	IO::mode = IO::Mode::REGULAR;
-
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);
 	// parse blocks

@@ -2,8 +2,8 @@
 # Application Name:
 #=============================================================================#
 APP := Corblivar
-AUX := ThermalAnalyzerFitting 3DFP_Parser 3DSTAF_Parser
-ALL := Corblivar ThermalAnalyzerFitting
+AUX := 3DFP_Parser 3DSTAF_Parser
+ALL := $(APP)
 
 #=============================================================================#
 # Define Compiler Executable:
@@ -137,7 +137,7 @@ cleanlibs:
 ##=============================================================================#
 ## Remove documentation files
 ##=============================================================================#
-#docclean:
+docclean:
 #	@echo "Deleting Documentation: rm -rf doc"
 #	@rm -rf doc
 
@@ -151,15 +151,15 @@ clean:
 #=============================================================================#
 # Purge build
 #=============================================================================#
-purge: clean cleanlibs
+purge: clean cleanlibs docclean
 
 #=============================================================================#
 # Pack source
 #=============================================================================#
-release: all
-	@echo "packing source archive"
-	@echo "save as $(APP).tar.gz"
-	tar -czf $(APP).tar.gz . --exclude=libs/lib --exclude=libs/share --exclude=libs/packages --exclude=libs/bin --exclude=build/* --exclude=$(APP)* --exclude=*.out --exclude=*.swp
+#release: all
+#	@echo "packing source archive"
+#	@echo "save as $(APP).tar.gz"
+#	tar -czf $(APP).tar.gz . --exclude=libs/lib --exclude=libs/share --exclude=libs/packages --exclude=libs/bin --exclude=build/* --exclude=$(APP)* --exclude=*.out --exclude=*.swp
 
 #=============================================================================#
 # Some debugging output
