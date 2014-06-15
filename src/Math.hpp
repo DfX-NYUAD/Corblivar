@@ -93,6 +93,9 @@ class Math {
 		inline static bool doubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
 			return abs(d1 - d2) < precision;
 		};
+
+		// factor to scale um downto m;
+		static constexpr double SCALE_UM_M = 1.0e-06;
 };
 
 #endif

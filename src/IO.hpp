@@ -40,9 +40,6 @@ class IO {
 	private:
 		static constexpr int CONFIG_VERSION = 13;
 
-		// factor to scale um downto m;
-		static constexpr double SCALE_UM_M = 1.0e-06;
-
 	// constructors, destructors, if any non-implicit
 	// private in order to avoid instances of ``static'' class
 	private:
