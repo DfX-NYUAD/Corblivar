@@ -48,7 +48,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// print command-line parameters
 	if (argc < 4) {
-		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [[solution_file] TSV_density]" << endl;
+		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << endl;
 		cout << "IO> " << endl;
 		cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << endl;
 		cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << endl;
