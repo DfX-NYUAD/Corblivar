@@ -55,19 +55,82 @@ class FloorPlanner {
 		// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
 
-		// 3D IC config parameters
-		int conf_layers;
-		double conf_outline_x, conf_outline_y;
-		double conf_blocks_scale;
-		bool conf_outline_shrink;
+		// 3D IC parameters
+		struct IC {
+			int layers;
+			double outline_x, outline_y;
+			double blocks_scale;
+			bool outline_shrink;
+			double die_AR, die_area;
+			// these parameters cover all dies
+			double blocks_area;
+			double stack_area, stack_deadspace;
+		} IC;
 
-		// 3D IC characteristica, resulting from config
-		double die_AR, die_area;
-		// these parameters cover all dies
-		double blocks_area;
-		double stack_area, stack_deadspace;
+		// IO files and parameters
+		struct IO_conf {
+			string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
+			ofstream results, solution_out;
+			ifstream solution_in;
+			// flag whether power density file is available / was handled /
+			// thermal analysis should be performed / thermal files should be
+			// generated
+			bool power_density_file_avail;
+			// similar flags for other files
+			bool alignments_file_avail;
+		} IO_conf;
 
-		// POD declarations
+		// benchmark name
+		string benchmark;
+
+		// run mode; represents thermal analyser runs where TSV density is given
+		// as command-line parameter
+		bool thermal_analyser_run;
+
+		// time logging
+		struct timeb time_start;
+
+		// logging
+		int log;
+		static constexpr int LOG_MINIMAL = 1;
+		static constexpr int LOG_MEDIUM = 2;
+		static constexpr int LOG_MAXIMUM = 3;
+
+		// SA parameters
+		struct SA_parameters {
+
+			// SA parameters: loop control
+			double loopFactor, loopLimit;
+
+			// SA parameters: optimization flags
+			bool opt_thermal, opt_interconnects, opt_alignment;
+
+			// SA parameters: cost factors
+			double cost_thermal, cost_WL, cost_TSVs, cost_alignment;
+
+			// SA parameter: scaling factor for initial temp
+			double temp_init_factor;
+
+			// SA parameters: temperature-scaling factors
+			double temp_factor_phase1, temp_factor_phase1_limit, temp_factor_phase2, temp_factor_phase3;
+
+			// SA parameters: layout generation options
+			bool layout_enhanced_hard_block_rotation, layout_enhanced_soft_block_shaping;
+			bool layout_power_aware_block_handling, layout_floorplacement;
+			int layout_packing_iterations;
+		} SA_parameters;
+
+		// SA cost variables: max cost values
+		double max_cost_thermal, max_cost_WL, max_cost_alignments;
+		int max_cost_TSVs;
+
+		// SA cost parameters: global weights, enforce that area and outline
+		// violation is constantly considered; related weight should be >= 0.5 in
+		// order to enforce guiding into outline during whole optimization run
+		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.5;
+		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
+
+		// SA cost; POD declaration
 		struct Cost {
 			double total_cost;
 			double total_cost_fitting;
@@ -92,54 +155,8 @@ class FloorPlanner {
 				return out;
 			}
 		};
-		struct TempStep {
-			int step;
-			double temp;
-			double avg_cost;
-			bool new_best_sol_found;
-			double cost_best_sol;
-		};
 
-		// IO
-		string benchmark, blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
-		ofstream results, solution_out;
-		ifstream solution_in;
-		struct timeb start;
-		// run mode; represents thermal analyser runs where TSV density is given
-		// as command-line parameter
-		bool thermal_analyser_run;
-		// flag whether power density file is available / was handled / thermal
-		// analysis should be performed / thermal files should be generated
-		bool power_density_file_avail;
-		// similar flags for other files
-		bool alignments_file_avail;
-
-		// logging
-		int conf_log;
-		static constexpr int LOG_MINIMAL = 1;
-		static constexpr int LOG_MEDIUM = 2;
-		static constexpr int LOG_MAXIMUM = 3;
-
-		// SA parameters: loop control
-		double conf_SA_loopFactor, conf_SA_loopLimit;
-
-		// SA parameters: optimization flags
-		bool conf_SA_opt_thermal, conf_SA_opt_interconnects, conf_SA_opt_alignment;
-
-		// SA parameters: cost factors
-		double conf_SA_cost_thermal, conf_SA_cost_WL, conf_SA_cost_TSVs, conf_SA_cost_alignment;
-
-		// SA cost variables: max cost values
-		double max_cost_thermal, max_cost_WL, max_cost_alignments;
-		int max_cost_TSVs;
-
-		// SA cost paramters: global weights, enforce that area and outline
-		// violation is constantly considered; related weight should be >= 0.5 in
-		// order to enforce guiding into outline during whole optimization run
-		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.5;
-		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
-
-		// SA: cost functions, i.e., layout-evalutions
+		// SA: cost functions, i.e., layout-evaluations
 		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments,
 				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
@@ -165,11 +182,14 @@ class FloorPlanner {
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;
 
-		// SA parameter: scaling factor for initial temp
-		double conf_SA_temp_init_factor;
-
-		// SA parameters: temperature-scaling factors
-		double conf_SA_temp_factor_phase1, conf_SA_temp_factor_phase1_limit, conf_SA_temp_factor_phase2, conf_SA_temp_factor_phase3;
+		// SA-related temperature step; POD declaration
+		struct TempStep {
+			int step;
+			double temp;
+			double avg_cost;
+			bool new_best_sol_found;
+			double cost_best_sol;
+		};
 
 		// SA: temperature-schedule log data
 		vector<TempStep> tempSchedule;
@@ -178,15 +198,10 @@ class FloorPlanner {
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
-		// SA parameters: layout generation options
-		bool conf_SA_layout_enhanced_hard_block_rotation, conf_SA_layout_enhanced_soft_block_shaping;
-		bool conf_SA_layout_power_aware_block_handling, conf_SA_layout_floorplacement;
-		int conf_SA_layout_packing_iterations;
-
-		// SA: layout-generation handler
+		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
 
-		// SA: layout operations op-codes
+		// layout operations op-codes
 		static constexpr int OP_SWAP_BLOCKS = 1;
 		static constexpr int OP_MOVE_TUPLE = 2;
 		static constexpr int OP_SWITCH_INSERTION_DIR = 3;
@@ -199,10 +214,10 @@ class FloorPlanner {
 		static constexpr int OP_SHAPE_BLOCK__SHRINK_VERTICAL = 13;
 		static constexpr int OP_SHAPE_BLOCK__RANDOM_AR = 14;
 
-		// SA: layout-operation handler variables
+		// layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 
-		// SA: layout-operation handler
+		// layout-operation handler
 		bool performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two = false, bool const& revertLastOp = false);
 		// note that die and tuple parameters are return-by-reference; non-const
 		// reference for CorblivarCore in order to enable operations on CBL-encode data
@@ -215,17 +230,15 @@ class FloorPlanner {
 		inline bool performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 
-		// SA: helper for guided layout operations
-		//
-		// auxilary chip data, tracks major block power density parameters
+		// auxiliary chip data, tracks major block power density parameters
 		struct power_stats {
 			double max;
 			double min;
 			double range;
 			double avg;
-		} blocks_power_density_stats;
+		} power_stats;
 
-		// SA: ``floorplacement'' parameters, i.e., there should be different
+		// ``floorplacement'' parameters, i.e., there should be different
 		// processes for floorplanning and placement; here, we use this limit to
 		// detect if floorplanning of very large blocks w/ small (/medium) blocks
 		// is required
@@ -241,13 +254,13 @@ class FloorPlanner {
 		ThermalAnalyzer thermalAnalyzer;
 
 		// thermal analyzer parameters; thermal mask parameters
-		ThermalAnalyzer::MaskParameters conf_power_blurring_parameters;
+		ThermalAnalyzer::MaskParameters power_blurring_parameters;
 
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {
 			// memorize start time
-			ftime(&(this->start));
+			ftime(&(this->time_start));
 
 			// init random number generator
 			srand(time(0));
@@ -259,41 +272,41 @@ class FloorPlanner {
 
 		// logging
 		inline bool logMin() const {
-			return (this->conf_log >= LOG_MINIMAL);
+			return (this->log >= LOG_MINIMAL);
 		};
 		inline bool logMed() const {
-			return (this->conf_log >= LOG_MEDIUM);
+			return (this->log >= LOG_MEDIUM);
 		};
 		inline bool logMax() const {
-			return (this->conf_log >= LOG_MAXIMUM);
+			return (this->log >= LOG_MAXIMUM);
 		};
 
 		// ThermalAnalyzer: handler
 		inline void initThermalAnalyzer() {
 
 			// init sets of thermal masks
-			this->thermalAnalyzer.initThermalMasks(this->conf_layers, this->logMed(), this->conf_power_blurring_parameters);
+			this->thermalAnalyzer.initThermalMasks(this->IC.layers, this->logMed(), this->power_blurring_parameters);
 
 			// init power maps, i.e. predetermine maps parameters
-			this->thermalAnalyzer.initPowerMaps(this->conf_layers, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 		};
 
 		// getter / setter
 		inline int const& getLayers() const {
-			return this->conf_layers;
+			return this->IC.layers;
 		};
 
 		inline Point getOutline() const {
 			Point ret;
 
-			ret.x = this->conf_outline_x;
-			ret.y = this->conf_outline_y;
+			ret.x = this->IC.outline_x;
+			ret.y = this->IC.outline_y;
 
 			return ret;
 		};
 
 		inline bool const& powerAwareBlockHandling() {
-			return this->conf_SA_layout_power_aware_block_handling;
+			return this->SA_parameters.layout_power_aware_block_handling;
 		};
 
 		inline string const& getBenchmark() const {
@@ -309,17 +322,17 @@ class FloorPlanner {
 		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
 
 			// reset outline
-			this->conf_outline_x = outline_x;
-			this->conf_outline_y = outline_y;
+			this->IC.outline_x = outline_x;
+			this->IC.outline_y = outline_y;
 
 			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->conf_layers, this->getOutline());
+			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
 			// reset related die properties
-			this->die_AR = this->conf_outline_x / this->conf_outline_y;
-			this->die_area = this->conf_outline_x * this->conf_outline_y;
-			this->stack_area = this->conf_layers * this->die_area;
-			this->stack_deadspace = this->stack_area - this->blocks_area;
+			this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
+			this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
+			this->IC.stack_area = this->IC.layers * this->IC.die_area;
+			this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
 
 			// rescale terminal pins' locations
 			this->scaleTerminalPins();
@@ -335,8 +348,8 @@ class FloorPlanner {
 				pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
 			}
 			// scale terminal pins; scale pin coordinates according to die outline
-			pins_scale_x = this->conf_outline_x / pins_scale_x;
-			pins_scale_y = this->conf_outline_y / pins_scale_y;
+			pins_scale_x = this->IC.outline_x / pins_scale_x;
+			pins_scale_y = this->IC.outline_y / pins_scale_y;
 			for (Pin& pin : this->terminals) {
 				pin.bb.ll.x *= pins_scale_x;
 				pin.bb.ll.y *= pins_scale_y;
@@ -348,7 +361,7 @@ class FloorPlanner {
 		}
 
 		inline bool inputSolutionFileOpen() const {
-			return this->solution_in.is_open();
+			return this->IO_conf.solution_in.is_open();
 		};
 
 		// SA: handler

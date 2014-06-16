@@ -340,7 +340,10 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 	}
 
 	// consider impact of vertical buses; map TSVs to power maps
-	for (TSV_Group const& TSV_group : TSVs) {
+	//
+	// note that local copies of TSVs groups are used in order to not mess with the
+	// actual coordinates of the groups
+	for (TSV_Group TSV_group : TSVs) {
 
 		// offset intersection, i.e., account for padded power maps and related
 		// offset in coordinates

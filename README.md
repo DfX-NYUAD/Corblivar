@@ -50,6 +50,9 @@ Usage
 Relevant are the specs for the heat sink and heat spreader; they should be adapted to
 reflect largest chip dimensions under consideration.
 
+Also note that the helper script exp/HotSpot.sh relies on HotSpot being in ~/code/HotSpot;
+if your local setup differs, adapt the script accordingly.
+
 2) Configuration of Corblivar
 -----------------------------
 **see exp/Corblivar.conf or other examples in exp/configs**
