@@ -26,7 +26,6 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-#include "Chip.hpp"
 #include "Block.hpp"
 // forward declarations, if any
 class Point;
@@ -137,27 +136,27 @@ class ThermalAnalyzer {
 		// http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g
 		//
 		// note that TSV_density is to be passed as percent
-		inline static double heatCapSi(double const& TSV_density = 0.0) {
+		inline static double heatCapSi(double const& TSV_group_Cu_Si_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_SI;
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / ((TSV_density * 0.01) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) ) +
-					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * ((TSV_density * 0.01) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) ) +
+					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) );
 			}
 		};
 		// similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well
 		//
 		// note that TSV_density is to be passed as percent
-		inline static double heatCapBond(double const& TSV_density = 0.0) {
+		inline static double heatCapBond(double const& TSV_group_Cu_Si_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_BOND;
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / ((TSV_density * 0.01) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) ) +
-					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * ((TSV_density * 0.01) * Chip::TSV_GROUP_CU_SI_AREA_RATIO) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) ) +
+					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) );
 			}
 		}
 		//
@@ -165,15 +164,15 @@ class ThermalAnalyzer {
 		// resistance of Si, Cu where TSV density impacts the area fractions
 		//
 		// note that TSV_density is to be passed as percent
-		inline static double thermResSi(double const& TSV_density = 0.0) {
+		inline static double thermResSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return THERMAL_RESISTIVITY_SI;
 			}
 			else {
 				return 1.0 /
 					(
-					 (((TSV_density * 0.01) * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_CU) +
-					 ((1.0 - (TSV_density * 0.01) * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_SI)
+					 (((TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_CU) +
+					 ((1.0 - (TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_SI)
 					);
 			}
 		}
@@ -182,15 +181,15 @@ class ThermalAnalyzer {
 		// resistance of Bond, Cu where TSV density impacts the area fractions
 		//
 		// note that TSV_density is to be passed as percent
-		inline static double thermResBond(double const& TSV_density = 0.0) {
+		inline static double thermResBond(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return THERMAL_RESISTIVITY_BOND;
 			}
 			else {
 				return 1.0 /
 					(
-					 (((TSV_density * 0.01) * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_CU) +
-					 ((1.0 - (TSV_density * 0.01) * Chip::TSV_GROUP_CU_AREA_FRACTION) / THERMAL_RESISTIVITY_BOND)
+					 (((TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_CU) +
+					 ((1.0 - (TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_BOND)
 					);
 			}
 		}
@@ -206,7 +205,7 @@ class ThermalAnalyzer {
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
-		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
+		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, double const& TSV_pitch, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		void performPowerBlurring(Temp& ret, int const& layers, MaskParameters const& parameters);

@@ -327,7 +327,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, double const& TSV_pitch, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
@@ -479,16 +479,14 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 					// spread out the impact of this TSV across its
 					// bb; consider TSV pitch since 100% TSV density
 					// equals to closely packed TSVs, i.e., only w/
-					// pitch distance between each other; scale TSV
-					// pitch up (from um) since bb area is implicitly
-					// coded in um
-					this->power_maps[i][x][y].TSV_density += 100.0 * (pow(Chip::TSV_PITCH * 1.0e6, 2) / bb.area);
+					// pitch distance between each other
+					this->power_maps[i][x][y].TSV_density += 100.0 * (pow(TSV_pitch, 2) / bb.area);
 				}
 			}
 
 			if (ThermalAnalyzer::DBG) {
 				cout << "DBG>   additional TSV density for each bin: " <<
-					100.0 * (pow(Chip::TSV_PITCH * 1.0e6, 2) / bb.area) << endl;
+					100.0 * (pow(TSV_pitch, 2) / bb.area) << endl;
 				cout << "DBG>   affected power-map bins: " << x_lower << "," << y_lower
 					<< " to " <<
 					x_upper << "," << y_upper << endl;
