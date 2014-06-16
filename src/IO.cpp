@@ -35,8 +35,9 @@
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
+	int file_version;
 	ifstream in;
-	string config_file;
+	string config_file, technology_file;
 	stringstream results_file;
 	stringstream blocks_file;
 	stringstream alignments_file;
@@ -69,6 +70,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 
 	fp.benchmark = argv[1];
+
 	config_file = argv[2];
 
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
@@ -202,8 +204,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// sanity check for file version
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-
-	int file_version;
 	in >> file_version;
 
 	if (file_version != IO::CONFIG_VERSION) {
@@ -211,59 +211,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// parse in parameters
+	// parse in config parameters
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> technology_file;
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.log;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.layers;
-
-	// sanity check for positive, non-zero layer
-	if (fp.IC.layers <= 0) {
-		cout << "IO> Provide positive, non-zero layer count!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_x;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_y;
-
-	// sanity check for positive, non-zero dimensions
-	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
-		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
-		exit(1);
-	}
-
-	// determine aspect ratio and area
-	fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
-	fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
-	fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.blocks_scale;
-
-	// sanity check for block scaling factor
-	if (fp.IC.blocks_scale <= 0.0) {
-		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_shrink;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -473,8 +431,88 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	in.close();
 
+	// technology file parsing
+	//
+	// initially test file
+	in.open(technology_file.c_str());
+	if (!in.good()) {
+		cout << "IO> ";
+		cout << "No such technology file: " << technology_file << endl;
+		exit(1);
+	}
+
 	if (fp.logMin()) {
-		cout << "IO> Done; config values:" << endl;
+		cout << "IO> Parsing technology file ..." << endl;
+	}
+
+	// reset tmpstr
+	tmpstr = "";
+
+	// sanity check for file version
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> file_version;
+
+	if (file_version != IO::TECHNOLOGY_VERSION) {
+		cout << file_version << endl;
+		cout << "IO> Wrong version of technology file; required version is \"" << IO::TECHNOLOGY_VERSION << "\"; consider using matching technology file!" << endl;
+		exit(1);
+	}
+
+	// parse in technology parameters
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.layers;
+
+	// sanity check for positive, non-zero layer
+	if (fp.IC.layers <= 0) {
+		cout << "IO> Provide positive, non-zero layer count!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_x;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_y;
+
+	// sanity check for positive, non-zero dimensions
+	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
+		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
+		exit(1);
+	}
+
+	// determine aspect ratio and area
+	fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
+	fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
+	fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.blocks_scale;
+
+	// sanity check for block scaling factor
+	if (fp.IC.blocks_scale <= 0.0) {
+		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_shrink;
+
+	in.close();
+
+	if (fp.logMin()) {
+		cout << "IO> Done; technology and config values:" << endl;
 
 		// log
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.log << endl;
