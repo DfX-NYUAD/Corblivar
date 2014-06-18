@@ -25,7 +25,6 @@
 #include "IO.hpp"
 // required Corblivar headers
 #include "FloorPlanner.hpp"
-#include "Chip.hpp"
 #include "ThermalAnalyzer.hpp"
 #include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
@@ -35,8 +34,10 @@
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
+	int file_version;
+	size_t last_slash;
 	ifstream in;
-	string config_file;
+	string config_file, technology_file;
 	stringstream results_file;
 	stringstream blocks_file;
 	stringstream alignments_file;
@@ -48,7 +49,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// print command-line parameters
 	if (argc < 4) {
-		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [[solution_file] TSV_density]" << endl;
+		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << endl;
 		cout << "IO> " << endl;
 		cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << endl;
 		cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << endl;
@@ -68,7 +69,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.thermal_analyser_run = false;
 	}
 
+	// read in mandatory parameters
 	fp.benchmark = argv[1];
+
 	config_file = argv[2];
 
 	blocks_file << argv[3] << fp.benchmark << ".blocks";
@@ -88,6 +91,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	results_file << fp.benchmark << ".results";
 	fp.IO_conf.results.open(results_file.str().c_str());
+
+	// determine path of technology file; same as config file per definition
+	last_slash = config_file.find_last_of('/');
+	if (last_slash == string::npos) {
+		technology_file = "";
+	}
+	else {
+		technology_file = config_file.substr(0, last_slash) + "/";
+	}
 
 	// assume minimal log level; actual level to be parsed later on
 	fp.log = FloorPlanner::LOG_MINIMAL;
@@ -202,8 +214,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// sanity check for file version
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-
-	int file_version;
 	in >> file_version;
 
 	if (file_version != IO::CONFIG_VERSION) {
@@ -211,59 +221,19 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// parse in parameters
+	// parse in config parameters
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> tmpstr;
+	// append file name to already defined path of technology file
+	technology_file += tmpstr;
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.log;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.layers;
-
-	// sanity check for positive, non-zero layer
-	if (fp.IC.layers <= 0) {
-		cout << "IO> Provide positive, non-zero layer count!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_x;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_y;
-
-	// sanity check for positive, non-zero dimensions
-	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
-		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
-		exit(1);
-	}
-
-	// determine aspect ratio and area
-	fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
-	fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
-	fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.blocks_scale;
-
-	// sanity check for block scaling factor
-	if (fp.IC.blocks_scale <= 0.0) {
-		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> fp.IC.outline_shrink;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -473,18 +443,149 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	in.close();
 
+	// technology file parsing
+	//
+	// initially test file
+	in.open(technology_file.c_str());
+	if (!in.good()) {
+		cout << "IO> ";
+		cout << "No such technology file: " << technology_file << endl;
+		exit(1);
+	}
+
 	if (fp.logMin()) {
-		cout << "IO> Done; config values:" << endl;
+		cout << "IO> Parsing technology file ..." << endl;
+	}
+
+	// reset tmpstr
+	tmpstr = "";
+
+	// sanity check for file version
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> file_version;
+
+	if (file_version != IO::TECHNOLOGY_VERSION) {
+		cout << file_version << endl;
+		cout << "IO> Wrong version of technology file; required version is \"" << IO::TECHNOLOGY_VERSION << "\"; consider using matching technology file!" << endl;
+		exit(1);
+	}
+
+	// parse in technology parameters
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.layers;
+
+	// sanity check for positive, non-zero layer
+	if (fp.IC.layers <= 0) {
+		cout << "IO> Provide positive, non-zero layer count!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_x;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_y;
+
+	// sanity check for positive, non-zero dimensions
+	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
+		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
+		exit(1);
+	}
+
+	// determine aspect ratio and area
+	fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
+	fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
+	fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.blocks_scale;
+
+	// sanity check for block scaling factor
+	if (fp.IC.blocks_scale <= 0.0) {
+		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.outline_shrink;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.die_thickness;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.Si_active_thickness;
+
+	// determine thickness of passive Si layer
+	fp.IC.Si_passive_thickness = fp.IC.die_thickness - fp.IC.Si_active_thickness;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.BEOL_thickness;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.bond_thickness;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.TSV_dimension;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.TSV_pitch;
+
+	// determine Cu-Si area ratio for TSV groups
+	fp.IC.TSV_group_Cu_Si_ratio = (fp.IC.TSV_dimension * fp.IC.TSV_dimension) /
+		((fp.IC.TSV_pitch * fp.IC.TSV_pitch) - (fp.IC.TSV_dimension * fp.IC.TSV_dimension));
+	// determine Cu area fraction for TSV groups
+	fp.IC.TSV_group_Cu_area_ratio = (fp.IC.TSV_dimension * fp.IC.TSV_dimension) /
+		(fp.IC.TSV_pitch * fp.IC.TSV_pitch);
+
+	in.close();
+
+	if (fp.logMin()) {
+		cout << "IO> Done; technology and config values:" << endl;
 
 		// log
 		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.log << endl;
 
-		// 3D IC setup
+		// general 3D IC setup
 		cout << "IO>  Chip -- Layers for 3D IC: " << fp.IC.layers << endl;
 		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.IC.outline_x << endl;
 		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.IC.outline_y << endl;
 		cout << "IO>  Chip -- Block scaling factor: " << fp.IC.blocks_scale << endl;
 		cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << endl;
+
+		// technology parameters
+		cout << "IO>  Technology -- Die thickness [um]: " << fp.IC.die_thickness << endl;
+		cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.IC.Si_active_thickness << endl;
+		cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.IC.Si_passive_thickness << endl;
+		cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.IC.BEOL_thickness << endl;
+		cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << endl;
+		cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << endl;
+		cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << endl;
+		cout << "IO>  Technology -- TSV groups; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << endl;
+		cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << endl;
 
 		// layout generation options
 		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.SA_parameters.layout_enhanced_hard_block_rotation << endl;
@@ -2256,8 +2357,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file << "	0.0";
 			file << "	0.0";
-			file << "	" << ThermalAnalyzer::heatCapSi(fp.power_blurring_parameters.TSV_density);
-			file << "	" << ThermalAnalyzer::thermResSi(fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
 			file << endl;
 
 			file_bond << "bond_" << cur_layer + 1;
@@ -2265,8 +2366,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file_bond << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file_bond << "	0.0";
 			file_bond << "	0.0";
-			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.power_blurring_parameters.TSV_density);
-			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
 			file_bond << endl;
 		}
 		// for regular runs, i.e., Corblivar runs, we have to consider different
@@ -2294,8 +2395,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 					file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 					// thermal properties, depending on bin's TSV density
-					file << "	" << ThermalAnalyzer::heatCapSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file << "	" << ThermalAnalyzer::thermResSi(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << endl;
 
 					// put grid block as floorplan blocks; bonding layer
@@ -2308,8 +2409,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 					file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 					// thermal properties, depending on bin's TSV density
-					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file_bond << endl;
 				}
 			}
@@ -2427,7 +2528,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "N" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-		file << Chip::THICKNESS_BEOL << endl;
+		file << fp.IC.BEOL_thickness << endl;
 		file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
 		file << endl;
 
@@ -2437,7 +2538,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "Y" << endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << Chip::THICKNESS_SI_ACTIVE << endl;
+		file << fp.IC.Si_active_thickness << endl;
 		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
@@ -2449,7 +2550,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		// actual floorplan file
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << Chip::THICKNESS_SI_PASSIVE << endl;
+		file << fp.IC.Si_passive_thickness << endl;
 		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << endl;
 		file << endl;
 
@@ -2462,7 +2563,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			// the actual floorplan file
 			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-			file << Chip::THICKNESS_BOND << endl;
+			file << fp.IC.bond_thickness << endl;
 			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << endl;
 			file << endl;
 		}

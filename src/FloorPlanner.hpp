@@ -57,14 +57,30 @@ class FloorPlanner {
 
 		// 3D IC parameters
 		struct IC {
+
 			int layers;
+
+			// general geometrical parameters
 			double outline_x, outline_y;
 			double blocks_scale;
 			bool outline_shrink;
 			double die_AR, die_area;
-			// these parameters cover all dies
+			// note that the two parameters below cover all dies
 			double blocks_area;
 			double stack_area, stack_deadspace;
+
+			// technology parameters
+			double die_thickness;;
+			double Si_active_thickness;
+			double Si_passive_thickness;
+			double BEOL_thickness;
+			double bond_thickness;
+			double TSV_dimension;
+			double TSV_pitch;
+			// Cu-Si area ratio for TSV groups
+			double TSV_group_Cu_Si_ratio;
+			// Cu area fraction for TSV groups
+			double TSV_group_Cu_area_ratio;
 		} IC;
 
 		// IO files and parameters

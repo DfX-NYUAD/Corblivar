@@ -22,7 +22,8 @@ function [p] = parameters()
 
 %%% define general parameters for optimization
 	
-p.opt.layers.check = '# Layers';	% check string for comparing with the Corblivar.conf file
+p.opt.layers.check = '# Layers';		% check string for comparing with the Corblivar.conf file
+p.opt.technology.check = '# Technology';	% check string for comparing with the technology file
   
 p.opt.accuracy = 50;			% starting point for valid solution space		
 

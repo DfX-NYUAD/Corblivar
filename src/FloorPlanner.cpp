@@ -30,7 +30,6 @@
 #include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "IO.hpp"
-#include "Chip.hpp"
 
 // memory allocation
 constexpr int FloorPlanner::OP_SWAP_BLOCKS;
@@ -1376,7 +1375,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 			this->getOutline(), this->power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->IC.TSV_pitch, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(temp, this->IC.layers,
@@ -1569,11 +1568,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
 	// the bonding layer
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-		cost.HPWL += cost.TSVs * (Chip::THICKNESS_SI + Chip::THICKNESS_BOND);
+		cost.HPWL += cost.TSVs * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
 
 	// determine by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(Chip::TSV_PITCH * 1.0e6, 2)) / this->IC.stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
@@ -1968,18 +1967,18 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 						// determine maximal amount of TSVs to be
 						// put in smaller side of TSV-group
 						// rectangle
-						TSVs_row_col = floor(blocks_intersect.w / (Chip::TSV_PITCH * 1.0e6));
+						TSVs_row_col = floor(blocks_intersect.w / this->IC.TSV_pitch);
 
 						// define smaller side of actual TSV-group
 						// rectangle
-						vert_bus.bb.w = TSVs_row_col * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.w = TSVs_row_col * this->IC.TSV_pitch;
 						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
 
 						// define larger side of actual TSV-group
 						// rectangle; ceil accounts for additional
 						// row of TSVs if they are not completely
 						// fitting, i.e., not filling a rectangle
-						vert_bus.bb.h = ceil(vert_bus.TSVs_count / TSVs_row_col) * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.h = ceil(vert_bus.TSVs_count / TSVs_row_col) * this->IC.TSV_pitch;
 						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
 					}
 					// minimal side of TSV-group rectangle is
@@ -1988,18 +1987,18 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 						// determine maximal amount of TSVs to be
 						// put in smaller side of TSV-group
 						// rectangle
-						TSVs_row_col = floor(blocks_intersect.h / (Chip::TSV_PITCH * 1.0e6));
+						TSVs_row_col = floor(blocks_intersect.h / this->IC.TSV_pitch);
 
 						// define smaller side of actual TSV-group
 						// rectangle
-						vert_bus.bb.h = TSVs_row_col * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.h = TSVs_row_col * this->IC.TSV_pitch;
 						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
 
 						// define larger side of actual TSV-group
 						// rectangle; ceil accounts for additional
 						// column of TSVs if they are not completely
 						// fitting, i.e., not filling a rectangle
-						vert_bus.bb.w = ceil(vert_bus.TSVs_count / TSVs_row_col) * (Chip::TSV_PITCH * 1.0e6);
+						vert_bus.bb.w = ceil(vert_bus.TSVs_count / TSVs_row_col) * this->IC.TSV_pitch;
 						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
 					}
 
