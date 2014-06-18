@@ -16,8 +16,14 @@ if [ "$2" == "" ]; then
 	exit
 fi
 
+if [ "$3" == "" ]; then
+	echo "Provide technology file as 3rd parameter!"
+	exit
+fi
+
 BENCH=$1
 CONFIG_FILE=$2
+TECH_FILE=$3
 
 WORK_DIR_1=$CUR_DIR"/"$BENCH"_TSV_0"
 WORK_DIR_2=$CUR_DIR"/"$BENCH"_TSV_100"
@@ -60,6 +66,9 @@ echo "copy Corblivar config and solution files; required for separate working di
 
 cp -v $CONFIG_FILE $WORK_DIR_1
 cp -v $CONFIG_FILE $WORK_DIR_2
+
+cp -v $TECH_FILE $WORK_DIR_1
+cp -v $TECH_FILE $WORK_DIR_2
 
 cp -v $SOLUTION_FILE $WORK_DIR_1
 cp -v $SOLUTION_FILE $WORK_DIR_2
