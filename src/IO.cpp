@@ -1069,7 +1069,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 				// GSRC benchmarks provide power density in 10^5 W/m^2
 				// which equals 10^-1 uW/um^2; scale by factor 10 in order
 				// to obtain uW/um^2
-				new_block.power_density *= 10.0;
+				//
+				// (TODO) scaling up ignored in order to limit
+				// power-density to reasonable values
+				//new_block.power_density *= 10.0;
 			}
 			else {
 				if (fp.logMin()) {
