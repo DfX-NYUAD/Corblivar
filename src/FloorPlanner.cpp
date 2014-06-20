@@ -1303,8 +1303,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 
 		// determine interconnects cost; if interconnect opt is on or for finalize
 		// calls
-		if (this->SA_parameters.opt_interconnects || finalize) {
+		if (this->SA_parameters.opt_interconnects) {
 			this->evaluateInterconnects(cost, set_max_cost);
+		}
+		// for finalize calls and when no cost was previously determined, we need
+		// to initialize the max_cost
+		else if (finalize) {
+			this->evaluateInterconnects(cost, true);
 		}
 		else {
 			cost.HPWL = cost.HPWL_actual_value = 0.0;
@@ -1315,8 +1320,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// cost for failed alignments, i.e., alignment mismatches; also annotates
 		// failed request, this provides feedback for further alignment
 		// optimization
-		if (this->SA_parameters.opt_alignment || finalize) {
+		if (this->SA_parameters.opt_alignment) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
+		}
+		// for finalize calls and when no cost was previously determined, we need
+		// to initialize the max_cost
+		else if (finalize) {
+			this->evaluateAlignments(cost, alignments, true, true);
 		}
 		else {
 			cost.alignments = cost.alignments_actual_value = 0.0;
@@ -1325,8 +1335,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// temperature-distribution cost; if thermal opt is on or for finalize
 		// run; note that vertical buses impact heat conduction via TSVs, thus the
 		// block alignment / bus planning is analysed before thermal distribution
-		if (this->SA_parameters.opt_thermal || finalize) {
+		if (this->SA_parameters.opt_thermal) {
 			this->evaluateThermalDistr(cost, set_max_cost);
+		}
+		// for finalize calls and when no cost was previously determined, we need
+		// to initialize the max_cost
+		else if (finalize) {
+			this->evaluateThermalDistr(cost, true);
 		}
 		else {
 			cost.thermal = cost.thermal_actual_value = 0.0;
@@ -1356,8 +1371,11 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	}
 
 	if (FloorPlanner::DBG_LAYOUT) {
-		cout << "DBG_LAYOUT> ";
-		cout << "Layout cost: " << cost.total_cost << endl;
+		cout << "DBG_LAYOUT> Total cost: " << cost.total_cost << endl;
+		cout << "DBG_LAYOUT>  HPWL cost: " << cost.HPWL << endl;
+		cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << endl;
+		cout << "DBG_LAYOUT>  Alignments cost: " << cost.alignments << endl;
+		cout << "DBG_LAYOUT>  Thermal cost: " << cost.thermal << endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
