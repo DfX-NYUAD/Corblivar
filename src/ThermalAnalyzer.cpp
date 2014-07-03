@@ -504,15 +504,17 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 				this->power_maps[i][x][y].TSV_density = min(100.0, this->power_maps[i][x][y].TSV_density);
 			}
 
-			// adapt maps for all but the uppermost layer; the uppermost layer
-			// next the heatsink shouldn't contain TSVs
-			for (i = 0; i < layers; i++) {
+			// scaling not to be applied for GMT branch!
+			//
+			//// adapt maps for all but the uppermost layer; the uppermost layer
+			//// next the heatsink shouldn't contain TSVs
+			//for (i = 0; i < layers; i++) {
 
-				// scaling depends on TSV density; the larger the TSV
-				// density, the larger the power down-scaling
-				this->power_maps[i][x][y].power_density *= parameters.power_density_scaling_TSV_region *
-					((this->power_maps[i][x][y].TSV_density - 100.0) / 100.0);
-			}
+			//	// scaling depends on TSV density; the larger the TSV
+			//	// density, the larger the power down-scaling
+			//	this->power_maps[i][x][y].power_density *= parameters.power_density_scaling_TSV_region *
+			//		((this->power_maps[i][x][y].TSV_density - 100.0) / 100.0);
+			//}
 		}
 	}
 
