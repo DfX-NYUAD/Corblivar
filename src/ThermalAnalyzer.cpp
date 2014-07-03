@@ -510,8 +510,8 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 
 				// scaling depends on TSV density; the larger the TSV
 				// density, the larger the power down-scaling
-				this->power_maps[i][x][y].power_density *= 1.0 -
-					((this->power_maps[i][x][y].TSV_density / 100.0) * parameters.power_density_scaling_TSV_region);
+				this->power_maps[i][x][y].power_density *= parameters.power_density_scaling_TSV_region *
+					((this->power_maps[i][x][y].TSV_density - 100.0) / 100.0);
 			}
 		}
 	}
