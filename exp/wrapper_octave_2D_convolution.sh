@@ -73,6 +73,10 @@ cp -v $TECH_FILE $WORK_DIR_2
 cp -v $SOLUTION_FILE $WORK_DIR_1
 cp -v $SOLUTION_FILE $WORK_DIR_2
 
+# dummy conf_TSVs files; required for Corblivar parsing the two separate config files
+cp -v $CONFIG_FILE $WORK_DIR_1/$CONFIG_FILE"_TSVs"
+cp -v $CONFIG_FILE $WORK_DIR_2/$CONFIG_FILE"_TSVs"
+
 echo "start Octave scripts in parallel, running in separate working directories"
 
 cd $WORK_DIR_1

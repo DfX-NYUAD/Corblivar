@@ -48,9 +48,11 @@ bench = args{1}
 
 conf.path = args{2};
 
-% define directories
-
+% define directories; also adapt config path where required
 [dir,conf] = directories(args,conf);
+
+% path for conf file w/ TSVs considered
+conf.path_TSVs = sprintf('%s_TSVs', conf.path)
 
 % read TSV density from command line
 

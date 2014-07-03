@@ -115,6 +115,11 @@ for j = 1:conf.sct(1)
 
   fclose(fid);			% Corblivar.conf file will only be edited after this command, everything before happens inside Octave
 
+  % also copy new config file to separte config file w/ TSVs; same parameters in both
+  % files required in order to neglect impact of TSVs (i.e., different masks) while actual
+  % determination of masks
+  copyfile(conf.path, conf.path_TSVs);
+
  %% check parameter for output
   % Octave functions don't work without output 
 
