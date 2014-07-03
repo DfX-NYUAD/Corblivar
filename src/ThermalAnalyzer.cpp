@@ -519,7 +519,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 				// 100.0
 				this->power_maps[i][x][y].power_density *=
 					1.0 +
-					((parameters.power_density_scaling_TSV_region - 1.0) / 100.0) * this->power_maps[i][x][y].TSV_density
+					((parameters.power_density_scaling_TSV_region - 1.0) / 100.0) * this->power_maps[i][x][y].TSV_density;
 			}
 		}
 	}
