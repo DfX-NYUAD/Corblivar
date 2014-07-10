@@ -11,6 +11,7 @@ ALL := $(APP)
 COMPILER	= clang++
 #COMPILER	= /opt/clang+llvm-3.2-x86-linux-ubuntu-12.04/bin/clang++
 #COMPILER	= g++
+# Intel compiler; required for proper analysis w/ Intel VTune Amplifier XE
 #COMPILER	= /opt/intel/bin/icpc
 
 #=============================================================================#
