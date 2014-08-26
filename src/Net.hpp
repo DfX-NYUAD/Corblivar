@@ -67,6 +67,13 @@ class Net {
 					this->layer_bottom = min(this->layer_bottom, b->layer);
 					this->layer_top = max(this->layer_top, b->layer);
 				}
+
+				// terminals have to be routed through die 0, that means
+				// when terminals exist for this net, the lowermost die is
+				// die 0
+				if (!this->terminals.empty()) {
+					this->layer_bottom = 0;
+				}
 			}
 		};
 
