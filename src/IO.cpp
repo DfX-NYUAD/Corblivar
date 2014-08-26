@@ -275,6 +275,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.SA_parameters.layout_signal_TSV_clustering;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.SA_parameters.loopFactor;
 
 	in >> tmpstr;
@@ -593,6 +598,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.SA_parameters.layout_packing_iterations << endl;
 		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.SA_parameters.layout_power_aware_block_handling << endl;
 		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.SA_parameters.layout_floorplacement << endl;
+		cout << "IO>  SA -- Layout generation; signal-TSV clustering: " << fp.SA_parameters.layout_signal_TSV_clustering << endl;
 
 		// SA loop setup
 		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << endl;

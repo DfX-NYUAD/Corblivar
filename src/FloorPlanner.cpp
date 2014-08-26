@@ -1393,7 +1393,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 			this->getOutline(), this->power_blurring_parameters);
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->IC.TSV_pitch, this->power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(temp, this->IC.layers,
@@ -1493,7 +1493,6 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
-// TODO apply TSV clustering here; put TSVs into FloorPlanner's list
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
@@ -1556,6 +1555,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 				// determine HPWL using the net's bounding box on the
 				// current layer
+				//
+				// TODO memorize bb in datastructure; to be used later on
+				// for clustering
 				bb = cur_net.determBoundingBox(i);
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
@@ -1581,6 +1583,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		if (Net::DBG) {
 			cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << endl;
 		}
+	}
+
+	// perform clustering of signal TSVs into TSV islands
+	//
+	// TODO apply TSV clustering here; delegate to own function;
+	// put TSVs into FloorPlanner's list
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->SA_parameters.layout_signal_TSV_clustering) {
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and

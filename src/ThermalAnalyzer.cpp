@@ -327,7 +327,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 }
 
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, double const& TSV_pitch, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
