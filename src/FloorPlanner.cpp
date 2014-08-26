@@ -1493,21 +1493,55 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
+// TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
+void FloorPlanner::clusterSignalTSVs(vector<FloorPlanner::mm_nets_bb>& nets_bb) const {
+	unsigned i;
+	FloorPlanner::mm_nets_bb::iterator it;
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "-> FloorPlanner::clusterSignalTSVs(" << &nets_bb << ")" << endl;
+	}
+
+	// TODO declare as debug output
+	for (i = 0; i < nets_bb.size(); i++) {
+
+		cout << "layer: " << i << endl;
+
+		for (it = nets_bb[i].begin(); it != nets_bb[i].end(); ++it) {
+			cout << " net: " << it->second.id << endl;
+			cout << "  area: " << it->first << endl;
+		}
+	}
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		cout << "<- FloorPlanner::clusterSignalTSVs" << endl;
+	}
+}
+
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
-	Rect bb;
+	vector<FloorPlanner::mm_nets_bb> nets_bb;
+	Rect bb, prev_bb;
 	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << endl;
 	}
 
+	// init cost terms
 	cost.HPWL = cost.HPWL_actual_value = 0.0;
 	cost.TSVs = cost.TSVs_actual_value = 0;
 	cost.TSVs_area_deadspace_ratio = 0.0;
 
+	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
+
+	// allocate vector for nets' bounding boxes
+	nets_bb.reserve(this->IC.layers);
+	for (i = 0; i < this->IC.layers; i++) {
+		nets_bb.emplace_back(FloorPlanner::mm_nets_bb());
+	}
 
 	// determine HPWL and TSVs for each net
 	for (Net& cur_net : this->nets) {
@@ -1550,17 +1584,42 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		// more detailed estimate; consider HPWL on each layer separately using
 		// layer-related bounding boxes
 		else {
+			// reset previous bb
+			prev_bb.area = 0.0;
+
 			// determine HPWL on each related layer separately
-			for (i = 0; i <= cur_net.layer_top; i++) {
+			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine HPWL using the net's bounding box on the
 				// current layer
-				//
-				// TODO memorize bb in datastructure; to be used later on
-				// for clustering
 				bb = cur_net.determBoundingBox(i);
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
+
+				// memorize bounding boxes for nets connecting further up
+				// (i.e., requiring a TSV); to be used later on for
+				// clustering
+				if (i != cur_net.layer_top) {
+
+					// determBoundingBox may also return empty
+					// bounding boxes; here, for not considering the
+					// uppermost layer_top, only for nets w/o blocks
+					// on the currently considered layer. Then, we
+					// need to consider the non-empty box from one of
+					// the layers below in order to provide a net's bb
+					// for clustering
+					if (bb.area == 0.0) {
+						bb = prev_bb;
+					}
+
+					nets_bb[i].insert( FloorPlanner::mm_nets_bb::value_type(bb.area, cur_net) );
+				}
+
+				// memorize current non-empty bb as previous bb for next
+				// iteration
+				if (bb.area != 0.0) {
+					prev_bb = bb;
+				}
 
 				if (Net::DBG) {
 					cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << endl;
@@ -1586,10 +1645,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	// perform clustering of signal TSVs into TSV islands
-	//
-	// TODO apply TSV clustering here; delegate to own function;
-	// put TSVs into FloorPlanner's list
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->SA_parameters.layout_signal_TSV_clustering) {
+		this->clusterSignalTSVs(nets_bb);
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and

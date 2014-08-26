@@ -188,6 +188,9 @@ class FloorPlanner {
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,
 				bool const& set_max_cost = false);
+		// SA: helper for cost functions
+		typedef multimap< double, Net const&, greater<double> > mm_nets_bb;
+		void clusterSignalTSVs(vector<FloorPlanner::mm_nets_bb>& nets_bb) const;
 
 		// SA: parameters for cost functions
 		//
