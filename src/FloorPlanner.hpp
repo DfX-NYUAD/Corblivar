@@ -285,6 +285,9 @@ class FloorPlanner {
 		// thermal analyzer parameters; thermal mask parameters
 		ThermalAnalyzer::MaskParameters power_blurring_parameters;
 
+		// helper to memorize thermal-analysis result
+		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
+
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {

@@ -443,10 +443,10 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Group> const&
 
 // Thermal-analyzer routine based on power blurring,
 // i.e., convolution of thermals masks and power maps into thermal maps.
-// Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct.
-// Returns cost (max * avg temp estimate) of thermal map of lowest layer, i.e., hottest layer
-// Based on http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-void ThermalAnalyzer::performPowerBlurring(Temp& ret, int const& layers, MaskParameters const& parameters) {
+// Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss
+// fct., see http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
+// Returns thermal map of lowest layer, i.e., hottest layer
+void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters) {
 	int layer;
 	int x, y, i;
 	int map_x, map_y;
@@ -600,6 +600,8 @@ void ThermalAnalyzer::performPowerBlurring(Temp& ret, int const& layers, MaskPar
 	ret.cost_temp = avg_temp * max_temp;
 	// store max temp
 	ret.max_temp = max_temp;
+	// also link whole thermal map to result
+	ret.thermal_map = &this->thermal_map;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "<- ThermalAnalyzer::performPowerBlurring" << endl;

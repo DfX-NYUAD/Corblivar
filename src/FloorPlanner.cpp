@@ -1386,7 +1386,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
-	ThermalAnalyzer::Temp temp;
 
 	// generate power maps based on layout and blocks' power densities
 	this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
@@ -1396,18 +1395,18 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
-	this->thermalAnalyzer.performPowerBlurring(temp, this->IC.layers,
+	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
 			this->power_blurring_parameters);
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_thermal = temp.cost_temp;
+		this->max_cost_thermal = this->thermal_analysis.cost_temp;
 	}
 
 	// store normalized temp cost
-	cost.thermal = temp.cost_temp / this->max_cost_thermal;
+	cost.thermal = this->thermal_analysis.cost_temp / this->max_cost_thermal;
 	// store actual temp value
-	cost.thermal_actual_value = temp.max_temp;
+	cost.thermal_actual_value = this->thermal_analysis.max_temp;
 };
 
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio

@@ -39,27 +39,7 @@ class ThermalAnalyzer {
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_INSANE = false;
 
-	// PODs, to be declared early on
-	public:
-		struct MaskParameters {
-			double TSV_density;
-			double mask_boundary_value;
-			double impulse_factor;
-			double impulse_factor_scaling_exponent;
-			double power_density_scaling_padding_zone;
-			double power_density_scaling_TSV_region;
-			double temp_offset;
-		};
-		struct PowerMapBin {
-			double power_density;
-			double TSV_density;
-		};
-		struct Temp {
-			double cost_temp;
-			double max_temp;
-		};
-
-	// private data, functions
+	// private data
 	private:
 
 		// thermal modeling: dimensions
@@ -78,6 +58,30 @@ class ThermalAnalyzer {
 		// (note that maps are padded at the boundaries according to mask
 		// dim in order to handle boundary values for convolution)
 		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
+
+	// PODs, to be declared early on
+	public:
+		struct MaskParameters {
+			double TSV_density;
+			double mask_boundary_value;
+			double impulse_factor;
+			double impulse_factor_scaling_exponent;
+			double power_density_scaling_padding_zone;
+			double power_density_scaling_TSV_region;
+			double temp_offset;
+		};
+		struct PowerMapBin {
+			double power_density;
+			double TSV_density;
+		};
+		struct ThermalAnalysisResult {
+			double cost_temp;
+			double max_temp;
+			array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> const* thermal_map = nullptr;
+		};
+
+	// private data, functions
+	private:
 
 		// thermal modeling: thermal masks and maps
 		// thermal_masks[i][x/y], whereas thermal_masks[0] relates to the mask for
@@ -208,7 +212,7 @@ class ThermalAnalyzer {
 		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
-		void performPowerBlurring(Temp& ret, int const& layers, MaskParameters const& parameters);
+		void performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters);
 };
 
 #endif
