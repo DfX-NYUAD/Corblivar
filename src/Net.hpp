@@ -45,6 +45,7 @@ class Net {
 			this->hasExternalPin = false;
 			this->layer_bottom = -1;
 			this->layer_top = -1;
+			this->clustered = false;
 		};
 
 	// public data, functions
@@ -54,6 +55,7 @@ class Net {
 		vector<Block const*> blocks;
 		vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
+		bool clustered;
 
 		inline void setLayerBoundaries() const {
 

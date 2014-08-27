@@ -41,6 +41,7 @@ class FloorPlanner {
 		static constexpr bool DBG_LAYOUT = false;
 		static constexpr bool DBG_ALIGNMENT = false;
 		static constexpr bool DBG_TSVS = false;
+		static constexpr bool DBG_CLUSTERING = true;
 
 	// private data, functions
 	private:

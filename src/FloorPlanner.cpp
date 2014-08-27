@@ -1495,22 +1495,30 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
 void FloorPlanner::clusterSignalTSVs(vector<FloorPlanner::mm_nets_bb>& nets_bb) const {
-	unsigned i;
-	FloorPlanner::mm_nets_bb::iterator it;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::clusterSignalTSVs(" << &nets_bb << ")" << endl;
 	}
 
-	// TODO declare as debug output
-	for (i = 0; i < nets_bb.size(); i++) {
+	// initial dbg, display all nets to consider for clustering
+	if (FloorPlanner::DBG_CLUSTERING) {
+		FloorPlanner::mm_nets_bb::iterator it;
+		unsigned i;
 
-		cout << "layer: " << i << endl;
+		for (i = 0; i < nets_bb.size(); i++) {
 
-		for (it = nets_bb[i].begin(); it != nets_bb[i].end(); ++it) {
-			cout << " net: " << it->second.id << endl;
-			cout << "  area: " << it->first << endl;
+			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
+
+			for (it = nets_bb[i].begin(); it != nets_bb[i].end(); ++it) {
+				cout << "DBG_CLUSTERING>  net id: " << it->second.id << endl;
+				cout << "DBG_CLUSTERING>   bb area: " << it->first << endl;
+			}
 		}
+	}
+
+	// reset cluster flag
+	for (Net& cur_net : this->nets) {
+		cur_net.clustered = false;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
