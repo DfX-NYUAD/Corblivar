@@ -189,9 +189,6 @@ class FloorPlanner {
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,
 				bool const& set_max_cost = false);
-		// SA: helper for cost functions
-		typedef multimap< double, Net const&, greater<double> > mm_nets_bb;
-		void clusterSignalTSVs(vector<FloorPlanner::mm_nets_bb>& nets_bb) const;
 
 		// SA: parameters for cost functions
 		//
@@ -217,6 +214,18 @@ class FloorPlanner {
 		// SA: reheating parameters, for SA phase 3
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
+
+		// signal-TSV clustering
+		//
+		// POD wrapping nets' segments per layer
+		struct SegmentedNet {
+			Net const& net;
+			Rect bb;
+		};
+		// container for sorting nets' segments by their bb's area
+		typedef multimap< double, SegmentedNet, greater<double> > nets_segments;
+		// clustering handler, works on layer-wise vector of net's segments
+		void clusterSignalTSVs(vector<FloorPlanner::nets_segments>& nets_seg);
 
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
