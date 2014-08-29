@@ -224,6 +224,7 @@ class FloorPlanner {
 		};
 		// container for sorting nets' segments by their bb's area
 		typedef multimap< double, SegmentedNet, greater<double> > nets_segments;
+
 		// clustering handler, works on layer-wise vector of net's segments
 		void clusterSignalTSVs(vector<FloorPlanner::nets_segments>& nets_seg);
 
@@ -285,7 +286,7 @@ class FloorPlanner {
 		// thermal analyzer parameters; thermal mask parameters
 		ThermalAnalyzer::MaskParameters power_blurring_parameters;
 
-		// helper to memorize thermal-analysis result
+		// thermal analyzer; current results of thermal analysis
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
 
 	// constructors, destructors, if any non-implicit
@@ -319,8 +320,12 @@ class FloorPlanner {
 			// init sets of thermal masks
 			this->thermalAnalyzer.initThermalMasks(this->IC.layers, this->logMed(), this->power_blurring_parameters);
 
-			// init power maps, i.e. predetermine maps parameters
+			// init power maps, i.e. allocate data structure and determine
+			// maps' geometrical parameters
 			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
+
+			// init thermal map, i.e., allocate data structure
+			this->thermalAnalyzer.initThermalMap();
 		};
 
 		// getter / setter

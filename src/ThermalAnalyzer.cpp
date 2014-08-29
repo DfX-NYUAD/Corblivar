@@ -33,6 +33,113 @@
 // memory allocation
 constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 
+void ThermalAnalyzer::initThermalMap() {
+	int x, y;
+
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "-> ThermalAnalyzer::initThermalMap()" << endl;
+	}
+
+	// init map data structure
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+			this->thermal_map[x][y] = {
+					// init w/ zero temp value
+					0.0,
+					// grid-map coordinates
+					x,
+					y,
+					// hotspot/blob region id; -1 encodes background
+					-1,
+					// allocation for neighbor's list; to be
+					// initialized during clustering
+					list<ThermalMapBin*>()
+			};
+		}
+	}
+
+	// build-up neighbor relations for thermal-map grid;
+	// inner core
+	for (x = 1; x < ThermalAnalyzer::THERMAL_MAP_DIM - 1; x++) {
+		for (y = 1; y < ThermalAnalyzer::THERMAL_MAP_DIM - 1; y++) {
+
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y-1]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y+1]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y+1]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y+1]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y-1]);
+			this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y-1]);
+      	}
+      }
+
+	// build-up neighbor relations for thermal-map grid;
+	// outer rows and columns 
+	x = 0;
+	for (y = 1; y < ThermalAnalyzer::THERMAL_MAP_DIM - 1; y++) {
+
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y-1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y-1]);
+	}
+
+	x = ThermalAnalyzer::THERMAL_MAP_DIM - 1;
+	for (y = 1; y < ThermalAnalyzer::THERMAL_MAP_DIM - 1; y++) {
+
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y-1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y-1]);
+	}
+
+	y = 0;
+	for (x = 1; x < ThermalAnalyzer::THERMAL_MAP_DIM - 1; x++) {
+
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y+1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y]);
+	}
+
+	y = ThermalAnalyzer::THERMAL_MAP_DIM - 1;
+	for (x = 1; x < ThermalAnalyzer::THERMAL_MAP_DIM - 1; x++) {
+
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y-1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x-1][y]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x+1][y-1]);
+		this->thermal_map[x][y].neighbors.push_back(&this->thermal_map[x][y-1]);
+	}
+
+	// build-up neighbor relations for thermal-map grid;
+	// corner points
+	this->thermal_map[0][0].neighbors.push_back(&this->thermal_map[0][1]);
+	this->thermal_map[0][0].neighbors.push_back(&this->thermal_map[1][1]);
+	this->thermal_map[0][0].neighbors.push_back(&this->thermal_map[1][0]);
+	this->thermal_map[0][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(&this->thermal_map[0][ThermalAnalyzer::THERMAL_MAP_DIM - 2]);
+	this->thermal_map[0][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(&this->thermal_map[1][ThermalAnalyzer::THERMAL_MAP_DIM - 2]);
+	this->thermal_map[0][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(&this->thermal_map[1][ThermalAnalyzer::THERMAL_MAP_DIM - 1]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(
+			&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 2][ThermalAnalyzer::THERMAL_MAP_DIM - 1]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(
+			&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 2][ThermalAnalyzer::THERMAL_MAP_DIM - 2]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][ThermalAnalyzer::THERMAL_MAP_DIM - 1].neighbors.push_back(
+			&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][ThermalAnalyzer::THERMAL_MAP_DIM - 2]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][0].neighbors.push_back(&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 2][0]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][0].neighbors.push_back(&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 2][1]);
+	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][0].neighbors.push_back(&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][1]);
+
+	if (ThermalAnalyzer::DBG_CALLS) {
+		cout << "<- ThermalAnalyzer::initThermalMap" << endl;
+	}
+}
+
 void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline) {
 	unsigned b;
 	int i;
@@ -466,26 +573,16 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 		m.fill(0.0);
 	}
 
-	// Init final map. Consider temperature offset which is expected to be equal for
-	// all cases, i.e., independent of TSV density / assuming zero TSVs; this is
-	// required for reasonable values w/o gaps at boundary bins w/ different thermal
-	// masks. Note that temperature offset is a additive factor, and thus not
-	// considered during convolution.
+	// reset temp and hotspot regions id
+	//
+	// consider temperature offset; temperature offset is a additive factor, and thus
+	// not considered during convolution
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
-			this->thermal_map[x][y] = {
-					// init w/ zero temp value
-					0.0,
-					// grid-map coordinates
-					x,
-					y,
-					// hotspot/blob region id; -1 encodes background
-					-1,
-					// allocation for neighbor's list; to be
-					// initialized during clustering
-					list<ThermalMapBin*>()
-			};
+			this->thermal_map[x][y].temp = parameters.temp_offset;
+			// -1 encodes background
+			this->thermal_map[x][y].hotspot_region_id = -1;
 		}
 	}
 

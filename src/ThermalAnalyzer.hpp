@@ -85,7 +85,7 @@ class ThermalAnalyzer {
 		struct ThermalAnalysisResult {
 			double cost_temp;
 			double max_temp;
-			array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> const* thermal_map = nullptr;
+			array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> *thermal_map = nullptr;
 		};
 
 	// private data, functions
@@ -215,6 +215,7 @@ class ThermalAnalyzer {
 
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
+		void initThermalMap();
 		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
