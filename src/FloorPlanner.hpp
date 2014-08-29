@@ -222,11 +222,8 @@ class FloorPlanner {
 			Net const& net;
 			Rect bb;
 		};
-		// container for sorting nets' segments by their bb's area
-		typedef multimap< double, SegmentedNet, greater<double> > nets_segments;
-
 		// clustering handler, works on layer-wise vector of net's segments
-		void clusterSignalTSVs(vector<FloorPlanner::nets_segments>& nets_seg);
+		void clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, double temp_offset);
 
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
@@ -288,6 +285,19 @@ class FloorPlanner {
 
 		// thermal analyzer; current results of thermal analysis
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
+
+		// hotspot regions, required for thermal-aware clustering
+		//
+		// POD
+		struct HotspotRegion {
+			double peak_temp;
+			double base_level_temp;
+			list<ThermalAnalyzer::ThermalMapBin*> bins;
+			bool still_growing;
+			int region_id;
+		};
+		// container
+		map<int, HotspotRegion> hotspot_regions;
 
 	// constructors, destructors, if any non-implicit
 	public:

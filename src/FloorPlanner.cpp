@@ -1492,32 +1492,269 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
+
+// Obtain hotspots (i.e., locally connected regions surrounding local maximum
+// temperatures) from the (previous!) thermal analysis run. The determination of
+// hotspots/blobs is based on Lindeberg's grey-level blob detection algorithm.
+//
+// Here, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal analysis,
+// but for clustering TSVs we require the result of the thermal analysis. Thus, the
+// determination of hotspots, which are the source for clustering TSVs into islands, are
+// based on the previous thermal analysis run; with the assumption that one layout
+// operation does not alter the thermal profile _significantly_ this appears a valid
+// compromise. (The most precise however time-consuming approach would be to 1) perform
+// the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
+// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
+//
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
-void FloorPlanner::clusterSignalTSVs(vector<FloorPlanner::nets_segments>& nets_seg) {
+void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, double temp_offset) {
+	int x, y;
+	unsigned i;
+	list<SegmentedNet>::iterator it_net_seg;
+	list<ThermalAnalyzer::ThermalMapBin*> thermal_map_list;
+	list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;
+	list<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
+	list<ThermalAnalyzer::ThermalMapBin*>::iterator it2;
+	list<int> neighbor_regions;
+	list<int>::iterator it3;
+	ThermalAnalyzer::ThermalMapBin *cur_bin;
+	int hotspot_region_id;
+	map<int, HotspotRegion>::iterator it4;
+	HotspotRegion *cur_region;
+	bool bin_handled;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::clusterSignalTSVs(" << &nets_seg << ")" << endl;
 	}
 
-	// initial dbg, display all nets to consider for clustering
-	if (FloorPlanner::DBG_CLUSTERING) {
-		FloorPlanner::nets_segments::iterator it;
-		unsigned i;
-
-		for (i = 0; i < nets_seg.size(); i++) {
-
-			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
-
-			for (it = nets_seg[i].begin(); it != nets_seg[i].end(); ++it) {
-				cout << "DBG_CLUSTERING>  net id: " << it->second.net.id << endl;
-				cout << "DBG_CLUSTERING>   bb area: " << it->first << endl;
-			}
-		}
+	// sanity check for available thermal-analysis result (which is not the case in
+	// the very first run of SA Phase II where interconnects and thermal profile are
+	// (to be by definition) evaluated in that particular order
+	if (this->thermal_analysis.thermal_map == nullptr) {
+		return;
 	}
 
 	// reset cluster flag
 	for (Net& cur_net : this->nets) {
 		cur_net.clustered = false;
+	}
+
+	// sort the nets' bounding boxes by their area
+	for (i = 0; i < nets_seg.size(); i++) {
+
+		nets_seg[i].sort(
+			// lambda expression
+			[&](SegmentedNet sn1, SegmentedNet sn2) {
+				return sn1.bb.area > sn2.bb.area;
+			}
+		);
+	}
+
+	// dbg, display all nets to consider for clustering
+	if (FloorPlanner::DBG_CLUSTERING) {
+
+		for (i = 0; i < nets_seg.size(); i++) {
+
+			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
+
+			for (it_net_seg = nets_seg[i].begin(); it_net_seg != nets_seg[i].end(); ++it_net_seg) {
+				cout << "DBG_CLUSTERING>  net id: " << it_net_seg->net.id << endl;
+				cout << "DBG_CLUSTERING>   bb area: " << it_net_seg->bb.area << endl;
+			}
+		}
+	}
+	
+	// TODO use multimap w/ dedicated lambda sort function
+	//
+	// parse the extended 2D grid into an list (to be sorted below); data structure
+	// for blob detection
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+			// ignore bins w/ temperature values near the offset
+			if (!Math::doubleComp(temp_offset, (*this->thermal_analysis.thermal_map)[x][y].temp)) {
+				thermal_map_list.push_back(&(*this->thermal_analysis.thermal_map)[x][y]);
+			}
+		}
+	}
+
+	// sort list by temperature values
+	thermal_map_list.sort(
+		// lambda expression
+		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
+			return (b1->temp > b2->temp)
+				// in cases with equal temperature, randomly shuffle bins
+				// such that chances for neighboring bins w/ same
+				// temperatures are mitigated
+				|| ((b1->temp == b2->temp) && Math::randB());
+		}
+	);
+
+	if (FloorPlanner::DBG_CLUSTERING) {
+		cout << "DBG_CLUSTERING> bin w/ global max temperature [x][y]: " << thermal_map_list.front()->x << ", " << thermal_map_list.front()->y << endl;
+		cout << "DBG_CLUSTERING>  temp: " << thermal_map_list.front()->temp << endl;
+		for (it1 = thermal_map_list.front()->neighbors.begin(); it1 != thermal_map_list.front()->neighbors.end(); ++it1) {
+			cout << "DBG_CLUSTERING>  neighbor bin [x][y]: " << (*it1)->x << ", " << (*it1)->y << endl;
+		}
+	}
+
+	// group the thermal-map list into hotspot regions; perform actual blob detection
+	hotspot_region_id = 0;
+	for (it1 = thermal_map_list.begin(); it1 != thermal_map_list.end(); ++it1) {
+
+		cur_bin = (*it1);
+
+		// determine all neighboring bins w/ higher temperature
+		relev_neighbors.clear();
+		for (it2 = cur_bin->neighbors.begin(); it2 != cur_bin->neighbors.end(); ++it2) {
+
+			if ((*it2)->temp > cur_bin->temp) {
+				relev_neighbors.push_back(*it2);
+			}
+		}
+
+		// if no such neighbor exits, then the current bin is a local maximum and
+		// will be the seed for a new hotspot/blob
+		if (relev_neighbors.empty()) {
+
+			// initialize new hotspot
+			this->hotspot_regions.insert( pair<int, HotspotRegion>(
+					// region id is the key for the regions map
+					hotspot_region_id,
+					// actual hotspot initialization
+					{
+						// peak temp
+						cur_bin->temp,
+						// base-level temp; currently unknown
+						-1.0,
+						// allocate list of associated bins
+						list<ThermalAnalyzer::ThermalMapBin*>(),
+						// memorize hotspot as still growing
+						true,
+						// region id
+						hotspot_region_id
+						})
+				);
+
+			// memorize bin as first bin of new hotspot
+			this->hotspot_regions.find(hotspot_region_id)->second.bins.push_back(cur_bin);
+
+			// mark bin as associated to this new hotspot
+			cur_bin->hotspot_region_id = hotspot_region_id;
+
+			// increment hotspot region counter/id
+			hotspot_region_id++;
+		}
+
+		// some neighbor bins w/ higher temperatures exit
+		else {
+			bin_handled = false;
+
+			// if any of these neighbors is a background bin, then this bin is
+			// also a background bin
+			for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
+
+				if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+
+					bin_handled = true;
+					break;
+				}
+			}
+
+			// none of the neighbors are background bins; proceed with check
+			// if the neighbors belong to one or to different hotspots
+			if (!bin_handled) {
+
+				neighbor_regions.clear();
+
+				for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
+
+					// ignore so far undefined bins
+					if ((*it2)->hotspot_region_id != ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+						neighbor_regions.push_back((*it2)->hotspot_region_id);
+					}
+				}
+
+				// memorize only unique regions
+				neighbor_regions.sort();
+				neighbor_regions.unique();
+
+				// all neighbors belong to one specific hotspot
+				if (neighbor_regions.size() == 1) {
+
+					cur_region = &this->hotspot_regions.find(neighbor_regions.front())->second;
+
+					// if the hotspot region is still allowed to grow,
+					// associated this bin with it, and mark bin as
+					// associated
+					if (cur_region->still_growing) {
+
+						cur_region->bins.push_back(cur_bin);
+						cur_bin->hotspot_region_id = cur_region->region_id;
+					}
+					// if the region is not allowed to grow anymore,
+					// mark the bin as background bin
+					else {
+						cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+					}
+				}
+				// neighbors belong to different hotspots; the bin must
+				// then be set as background bin
+				else {
+					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+
+					// furthermore, the different hotspots have
+					// reached their base level w/ this bin; mark them
+					// as not growing any more, and set their base
+					// level
+					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
+
+						this->hotspot_regions.find(*it3)->second.still_growing = false;
+						this->hotspot_regions.find(*it3)->second.base_level_temp = cur_bin->temp;
+					}
+				}
+			}
+		}
+	}
+
+	if (FloorPlanner::DBG_CLUSTERING) {
+		int bins_hotspot = 0;
+		int bins_background = 0;
+		int bins_undefined = 0;
+
+		cout << "DBG_CLUSTERING> hotspot regions:" << endl;
+
+		for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
+			cout << "DBG_CLUSTERING>  region id: " << (*it4).second.region_id << endl;
+			cout << "DBG_CLUSTERING>   peak temp: " << (*it4).second.peak_temp << endl;
+			cout << "DBG_CLUSTERING>   base temp: " << (*it4).second.base_level_temp << endl;
+			cout << "DBG_CLUSTERING>   bins count: " << (*it4).second.bins.size() << endl;
+			cout << "DBG_CLUSTERING>   still growing: " << (*it4).second.still_growing << endl;
+		}
+
+		cout << "DBG_CLUSTERING> adapted thermal-map:" << endl;
+
+		for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+				cur_bin = &(*this->thermal_analysis.thermal_map)[x][y];
+
+				if (cur_bin->hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+					bins_background++;
+				}
+				else if (cur_bin->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+					bins_undefined++;
+				}
+				else {
+					bins_hotspot++;
+				}
+			}
+		}
+
+		cout << "DBG_CLUSTERING>  bins w/ hotspot assigned: " << bins_hotspot << endl;
+		cout << "DBG_CLUSTERING>  background bins: " << bins_background << endl;
+		cout << "DBG_CLUSTERING>  undefined bins: " << bins_undefined << endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1528,7 +1765,7 @@ void FloorPlanner::clusterSignalTSVs(vector<FloorPlanner::nets_segments>& nets_s
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
-	vector<FloorPlanner::nets_segments> nets_seg;
+	vector< list<SegmentedNet> > nets_seg;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 
@@ -1543,11 +1780,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
-
 	// allocate vector for nets' segments
-	nets_seg.reserve(this->IC.layers);
 	for (i = 0; i < this->IC.layers; i++) {
-		nets_seg.emplace_back(FloorPlanner::nets_segments());
+		nets_seg.emplace_back(list<SegmentedNet>());
 	}
 
 	// determine HPWL and TSVs for each net
@@ -1618,8 +1853,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 					if (bb.area == 0.0) {
 						bb = prev_bb;
 					}
-
-					nets_seg[i].insert( FloorPlanner::nets_segments::value_type(bb.area, {cur_net, bb}) );
+					nets_seg[i].push_back({cur_net, bb});
 				}
 
 				// memorize current non-empty bb as previous bb for next
@@ -1653,7 +1887,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 	// perform clustering of signal TSVs into TSV islands
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->SA_parameters.layout_signal_TSV_clustering) {
-		this->clusterSignalTSVs(nets_seg);
+		this->clusterSignalTSVs(nets_seg, this->power_blurring_parameters.temp_offset);
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and

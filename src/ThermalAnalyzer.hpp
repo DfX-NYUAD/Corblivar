@@ -59,6 +59,10 @@ class ThermalAnalyzer {
 		// dim in order to handle boundary values for convolution)
 		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
+		// flags for hotspot detection
+		static constexpr int HOTSPOT_BACKGROUND = -1;
+		static constexpr int HOTSPOT_UNDEFINED = -2;
+
 	// PODs, to be declared early on
 	public:
 		struct MaskParameters {
@@ -78,7 +82,6 @@ class ThermalAnalyzer {
 			double temp;
 			int x;
 			int y;
-			// -1 encodes background
 			int hotspot_region_id;
 			list<ThermalMapBin*> neighbors;
 		};

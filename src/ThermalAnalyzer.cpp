@@ -50,8 +50,8 @@ void ThermalAnalyzer::initThermalMap() {
 					// grid-map coordinates
 					x,
 					y,
-					// hotspot/blob region id; -1 encodes background
-					-1,
+					// hotspot/blob region id; initialize as undefined
+					ThermalAnalyzer::HOTSPOT_UNDEFINED,
 					// allocation for neighbor's list; to be
 					// initialized during clustering
 					list<ThermalMapBin*>()
@@ -581,8 +581,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			this->thermal_map[x][y].temp = parameters.temp_offset;
-			// -1 encodes background
-			this->thermal_map[x][y].hotspot_region_id = -1;
+			this->thermal_map[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
 		}
 	}
 
