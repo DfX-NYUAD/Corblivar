@@ -455,7 +455,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
 	// convolution of padded power maps
-	array<array<double,ThermalAnalyzer::POWER_MAPS_DIM>,ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
+	array< array<double, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::performPowerBlurring(" << &ret << ", " << ", " << layers << ", " << &parameters << ")" << endl;
@@ -466,13 +466,27 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 		m.fill(0.0);
 	}
 
-	// Init final map w/ temperature offset; temperature offset is expected to be
-	// equal for all cases, i.e., independent of TSV density / assuming zero TSVs;
-	// this is required for resonable values w/o gaps at boundary bins w/ different
-	// thermal masks. Note that temperature offset is a additive factor, and thus not
+	// Init final map. Consider temperature offset which is expected to be equal for
+	// all cases, i.e., independent of TSV density / assuming zero TSVs; this is
+	// required for reasonable values w/o gaps at boundary bins w/ different thermal
+	// masks. Note that temperature offset is a additive factor, and thus not
 	// considered during convolution.
-	for (auto& m : this->thermal_map) {
-		m.fill(parameters.temp_offset);
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+			this->thermal_map[x][y] = {
+					// init w/ zero temp value
+					0.0,
+					// grid-map coordinates
+					x,
+					y,
+					// hotspot/blob region id; -1 encodes background
+					-1,
+					// allocation for neighbor's list; to be
+					// initialized during clustering
+					list<ThermalMapBin*>()
+			};
+		}
 	}
 
 	/// perform 2D convolution by performing two separated 1D convolution iterations;
@@ -578,7 +592,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 
 					// convolution; multiplication of mask element and
 					// power-map bin
-					this->thermal_map[map_x][map_y] +=
+					this->thermal_map[map_x][map_y].temp +=
 						thermal_map_tmp[x][i] *
 						this->thermal_masks[layer][mask_i];
 				}
@@ -590,8 +604,8 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	max_temp = avg_temp = 0.0;
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-			max_temp = max(max_temp, this->thermal_map[x][y]);
-			avg_temp += this->thermal_map[x][y];
+			max_temp = max(max_temp, this->thermal_map[x][y].temp);
+			avg_temp += this->thermal_map[x][y].temp;
 		}
 	}
 	avg_temp /= pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);

@@ -1456,10 +1456,10 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y] << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y].temp << endl;
 						// also track max and min temp
-						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y]);
-						min_temp = min(min_temp, fp.thermalAnalyzer.thermal_map[x][y]);
+						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
+						min_temp = min(min_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset

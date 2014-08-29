@@ -39,8 +39,8 @@ class ThermalAnalyzer {
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_INSANE = false;
 
-	// private data
-	private:
+	// public data
+	public:
 
 		// thermal modeling: dimensions
 		// represents the thermal map's dimension
@@ -74,10 +74,18 @@ class ThermalAnalyzer {
 			double power_density;
 			double TSV_density;
 		};
+		struct ThermalMapBin {
+			double temp;
+			int x;
+			int y;
+			// -1 encodes background
+			int hotspot_region_id;
+			list<ThermalMapBin*> neighbors;
+		};
 		struct ThermalAnalysisResult {
 			double cost_temp;
 			double max_temp;
-			array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> const* thermal_map = nullptr;
+			array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> const* thermal_map = nullptr;
 		};
 
 	// private data, functions
@@ -89,12 +97,12 @@ class ThermalAnalyzer {
 		// thermal_masks[1] relates to the mask for layer 0 obtained by
 		// considering heat source in layer 1 and so forth.  Note that the masks
 		// are only 1D for the separated convolution.
-		vector< array<double,THERMAL_MASK_DIM> > thermal_masks;
+		vector< array<double, THERMAL_MASK_DIM> > thermal_masks;
 		// power_maps[i][x][y], whereas power_maps[0] relates to the map for layer
 		// 0 and so forth.
-		vector< array<array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
+		vector< array< array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
-		array<array<double,THERMAL_MAP_DIM>,THERMAL_MAP_DIM> thermal_map;
+		array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
 
 		// thermal modeling: parameters for generating power maps
 		double power_maps_dim_x, power_maps_dim_y;
