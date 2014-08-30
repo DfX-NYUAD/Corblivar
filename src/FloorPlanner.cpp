@@ -1548,6 +1548,13 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 	// reset hotspot regions
 	this->hotspot_regions.clear();
 
+	// reset bin-hotspot associations
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+			(*this->thermal_analysis.thermal_map)[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
+		}
+	}
+
 	// TODO use for monitoring clustering process
 	//
 	// reset cluster flag
@@ -1580,17 +1587,17 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 		}
 	}
 	
-	// TODO use multimap w/ dedicated lambda sort function
-	//
 	// parse the extended 2D grid into an list (to be sorted below); data structure
 	// for blob detection
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			// ignore bins w/ temperature values near the offset
-			if (!Math::doubleComp(temp_offset, (*this->thermal_analysis.thermal_map)[x][y].temp)) {
-				thermal_map_list.push_back(&(*this->thermal_analysis.thermal_map)[x][y]);
+			if (Math::doubleComp(temp_offset, (*this->thermal_analysis.thermal_map)[x][y].temp)) {
+				continue;
 			}
+
+			thermal_map_list.push_back(&(*this->thermal_analysis.thermal_map)[x][y]);
 		}
 	}
 
@@ -1692,10 +1699,20 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 
 				for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
 
-					// ignore so far undefined bins
-					if ((*it2)->hotspot_region_id != ThermalAnalyzer::HOTSPOT_UNDEFINED) {
-						neighbor_regions.push_back((*it2)->hotspot_region_id);
-					}
+// not required, since not happened during
+// debugging
+//					// ignore so far undefined bins
+//					//
+//					if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+//
+//						if (FloorPlanner::DBG_CLUSTERING) {
+//							cout << "DBG_CLUSTERING> blob-detection error; undefined bin triggered" << endl;
+//						}
+//
+//						continue;
+//					}
+
+					neighbor_regions.push_back((*it2)->hotspot_region_id);
 				}
 
 				if (FloorPlanner::DBG_CLUSTERING) {

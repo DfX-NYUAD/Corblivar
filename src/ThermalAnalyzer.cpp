@@ -573,15 +573,11 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 		m.fill(0.0);
 	}
 
-	// reset temp and hotspot regions id
-	//
-	// consider temperature offset; temperature offset is a additive factor, and thus
-	// not considered during convolution
+	// init final map w/ temperature offset; offset is a additive factor, and thus not
+	// considered during convolution
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-
 			this->thermal_map[x][y].temp = parameters.temp_offset;
-			this->thermal_map[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
 		}
 	}
 
