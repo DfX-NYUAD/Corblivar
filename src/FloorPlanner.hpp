@@ -291,7 +291,8 @@ class FloorPlanner {
 		// POD
 		struct HotspotRegion {
 			double peak_temp;
-			double base_level_temp;
+			double base_temp;
+			double temp_gradient;
 			list<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
 			int region_id;

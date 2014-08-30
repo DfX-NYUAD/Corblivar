@@ -511,6 +511,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << endl;
 			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << endl;
 
+			// TODO statistics of hotspot clusters
+			//
+			// TODO statistics of TSV islands
 			cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << endl;
 			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << endl;
 
@@ -1640,6 +1643,8 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 						cur_bin->temp,
 						// base-level temp; currently unknown
 						-1.0,
+						// temperature gradient; currently unknown
+						-1.0,
 						// allocate list of associated bins
 						list<ThermalAnalyzer::ThermalMapBin*>(),
 						// memorize hotspot as still growing
@@ -1720,11 +1725,13 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 					// furthermore, the different hotspots have
 					// reached their base level w/ this bin; mark them
 					// as not growing any more, and set their base
-					// level
+					// level as well as temp gradient
 					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
 
 						this->hotspot_regions.find(*it3)->second.still_growing = false;
-						this->hotspot_regions.find(*it3)->second.base_level_temp = cur_bin->temp;
+						this->hotspot_regions.find(*it3)->second.base_temp = cur_bin->temp;
+						this->hotspot_regions.find(*it3)->second.temp_gradient =
+							this->hotspot_regions.find(*it3)->second.peak_temp - cur_bin->temp;
 					}
 				}
 			}
@@ -1741,7 +1748,8 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 		for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
 			cout << "DBG_CLUSTERING>  region id: " << (*it4).second.region_id << endl;
 			cout << "DBG_CLUSTERING>   peak temp: " << (*it4).second.peak_temp << endl;
-			cout << "DBG_CLUSTERING>   base temp: " << (*it4).second.base_level_temp << endl;
+			cout << "DBG_CLUSTERING>   base temp: " << (*it4).second.base_temp << endl;
+			cout << "DBG_CLUSTERING>   temp gradient: " << (*it4).second.temp_gradient << endl;
 			cout << "DBG_CLUSTERING>   bins count: " << (*it4).second.bins.size() << endl;
 			cout << "DBG_CLUSTERING>   still growing: " << (*it4).second.still_growing << endl;
 		}
