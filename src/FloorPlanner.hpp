@@ -296,6 +296,7 @@ class FloorPlanner {
 			list<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
 			int region_id;
+			double region_score;
 		};
 		// container
 		map<int, HotspotRegion> hotspot_regions;

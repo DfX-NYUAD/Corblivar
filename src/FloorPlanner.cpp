@@ -1641,16 +1641,19 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 					{
 						// peak temp
 						cur_bin->temp,
-						// base-level temp; currently unknown
+						// base-level temp; currently undefined
 						-1.0,
-						// temperature gradient; currently unknown
+						// temperature gradient; currently
+						// undefined
 						-1.0,
 						// allocate list of associated bins
 						list<ThermalAnalyzer::ThermalMapBin*>(),
 						// memorize hotspot as still growing
 						true,
 						// region id
-						hotspot_region_id
+						hotspot_region_id,
+						// region score; currently undefined
+						-1.0
 						})
 				);
 
@@ -1724,14 +1727,22 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 
 					// furthermore, the different hotspots have
 					// reached their base level w/ this bin; mark them
-					// as not growing any more, and set their base
-					// level as well as temp gradient
+					// as not growing any more, set their base level
+					// as well as temp gradient, and score them
 					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
 
 						this->hotspot_regions.find(*it3)->second.still_growing = false;
 						this->hotspot_regions.find(*it3)->second.base_temp = cur_bin->temp;
 						this->hotspot_regions.find(*it3)->second.temp_gradient =
 							this->hotspot_regions.find(*it3)->second.peak_temp - cur_bin->temp;
+
+						// the hotspot score is defined by its
+						// temp gradient over the bin count, i.e.,
+						// a measure of how ``compact'' the local
+						// maxima is spread
+						this->hotspot_regions.find(*it3)->second.region_score =
+							this->hotspot_regions.find(*it3)->second.temp_gradient /
+							this->hotspot_regions.find(*it3)->second.bins.size();
 					}
 				}
 			}
@@ -1750,6 +1761,7 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 			cout << "DBG_CLUSTERING>   peak temp: " << (*it4).second.peak_temp << endl;
 			cout << "DBG_CLUSTERING>   base temp: " << (*it4).second.base_temp << endl;
 			cout << "DBG_CLUSTERING>   temp gradient: " << (*it4).second.temp_gradient << endl;
+			cout << "DBG_CLUSTERING>   region score: " << (*it4).second.region_score << endl;
 			cout << "DBG_CLUSTERING>   bins count: " << (*it4).second.bins.size() << endl;
 			cout << "DBG_CLUSTERING>   still growing: " << (*it4).second.still_growing << endl;
 		}
