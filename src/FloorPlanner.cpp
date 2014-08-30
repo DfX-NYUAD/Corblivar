@@ -1534,6 +1534,11 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 		return;
 	}
 
+	// reset hotspot regions
+	this->hotspot_regions.clear();
+
+	// TODO use for monitoring clustering process
+	//
 	// reset cluster flag
 	for (Net& cur_net : this->nets) {
 		cur_net.clustered = false;
