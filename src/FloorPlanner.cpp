@@ -1347,6 +1347,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.thermal = cost.thermal_actual_value = 0.0;
 		}
 
+		// for finalize calls, re-determine interconnects, for proper hotspot
+		// cluster and TSV islands; the best solution's thermal distribution is
+		// probably significantly different from the previous temporary solution,
+		// thus a re-determination is required for proper results
+		if (finalize) {
+			this->evaluateInterconnects(cost, false);
+		}
+
 		// determine total cost; weight and sum up cost terms
 		cost.total_cost =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
