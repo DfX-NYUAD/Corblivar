@@ -1676,9 +1676,10 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 			for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
 
 				if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
-					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 
+					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 					bin_handled = true;
+
 					break;
 				}
 			}
@@ -1694,6 +1695,13 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 					// ignore so far undefined bins
 					if ((*it2)->hotspot_region_id != ThermalAnalyzer::HOTSPOT_UNDEFINED) {
 						neighbor_regions.push_back((*it2)->hotspot_region_id);
+					}
+				}
+
+				if (FloorPlanner::DBG_CLUSTERING) {
+
+					if (neighbor_regions.empty()) {
+						cout << "DBG_CLUSTERING> blob-detection error; no valid neighbor bin found" << endl;
 					}
 				}
 
@@ -1720,15 +1728,16 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 						cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 					}
 				}
-				// neighbors belong to different hotspots; the bin must
-				// then be set as background bin
+				// neighbors belong to different hotspots
 				else {
+					// the bin has to be background since it defines
+					// the base level for different hotspots
 					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 
-					// furthermore, the different hotspots have
-					// reached their base level w/ this bin; mark them
-					// as not growing any more, set their base level
-					// as well as temp gradient, and score them
+					// the different hotspots have reached their base
+					// level w/ this bin; mark them as not growing any
+					// more, set their base level as well as temp
+					// gradient, and score them
 					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
 
 						this->hotspot_regions.find(*it3)->second.still_growing = false;
