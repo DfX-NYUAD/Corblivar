@@ -51,7 +51,6 @@ int main (int argc, char** argv) {
 	fp.initThermalAnalyzer();
 
 	// non-regular run; read in solution file
-	// (TODO) adapt if further optimization of read in data is desired
 	if (fp.inputSolutionFileOpen()) {
 
 		if (fp.logMin()) {
