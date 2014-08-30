@@ -1349,6 +1349,9 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	enum FLAGS : int {power = 0, thermal = 1, TSV_density = 2};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
+	map<int, FloorPlanner::HotspotRegion>::iterator iter_hs;
+	list<ThermalAnalyzer::ThermalMapBin*>::iterator iter_hs_bins;
+	int id;
 
 	// sanity check
 	if (fp.thermalAnalyzer.power_maps.empty() || fp.thermalAnalyzer.thermal_map.empty()) {
@@ -1584,6 +1587,24 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " ";
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
+			}
+
+			// for thermal maps: draw rectangles for hotspot regions
+			if (flag == FLAGS::thermal) {
+
+				// draw each bin of each hotspot region separately
+				id = 1;
+				for (iter_hs = fp.hotspot_regions.begin(); iter_hs != fp.hotspot_regions.end(); ++iter_hs) {
+					for (iter_hs_bins = (*iter_hs).second.bins.begin(); iter_hs_bins != (*iter_hs).second.bins.end(); ++iter_hs_bins) {
+
+						gp_out << "set obj " << id << " rect from ";
+						gp_out << (*iter_hs_bins)->x << ", " << (*iter_hs_bins)->y << " to ";
+						gp_out << (*iter_hs_bins)->x + 1 << ", " << (*iter_hs_bins)->y + 1 << " ";
+						gp_out << "front fillstyle empty border rgb \"white\" linewidth 1" << endl;
+
+						id++;
+					}
+				}
 			}
 
 			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
