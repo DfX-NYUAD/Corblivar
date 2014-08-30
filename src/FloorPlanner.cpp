@@ -1752,27 +1752,52 @@ void FloorPlanner::clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, dou
 					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 
 					// the different hotspots have reached their base
-					// level w/ this bin; mark them as not growing any
-					// more, set their base level as well as temp
-					// gradient, and score them
+					// level w/ this bin; mark them as not growing
+					// anymore and memorize the base-level temp
 					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
 
 						this->hotspot_regions.find(*it3)->second.still_growing = false;
 						this->hotspot_regions.find(*it3)->second.base_temp = cur_bin->temp;
-						this->hotspot_regions.find(*it3)->second.temp_gradient =
-							this->hotspot_regions.find(*it3)->second.peak_temp - cur_bin->temp;
 
-						// the hotspot score is defined by its
-						// temp gradient over the bin count, i.e.,
-						// a measure of how ``compact'' the local
-						// maxima is spread
-						this->hotspot_regions.find(*it3)->second.region_score =
-							this->hotspot_regions.find(*it3)->second.temp_gradient /
-							this->hotspot_regions.find(*it3)->second.bins.size();
+						// the determination of temp gradient and
+						// score could be also conducted here, but
+						// is postponed since a post-processing of
+						// all regions is required anyway
 					}
 				}
 			}
 		}
+	}
+
+	// post-processing hotspot regions
+	for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
+
+		cur_region = &(*it4).second;
+
+		// some regions may be still marked as growing; mark such regions as not
+		// growing anymore
+		if (cur_region->still_growing) {
+
+			cur_region->still_growing = false;
+
+			// also approximate base temp, using the minimal temperature of
+			// all bins of the region; note that the actual base temp is
+			// slightly lower since the base-level bin is not included in the
+			// region
+			cur_region->base_temp = (*cur_region->bins.begin())->temp;
+			for (it1 = cur_region->bins.begin(); it1 != cur_region->bins.end(); ++it1) {
+
+				cur_region->base_temp = min(cur_region->base_temp, (*it1)->temp);
+			}
+		}
+
+		// using the base temp, determine gradient
+		cur_region->temp_gradient = cur_region->peak_temp - cur_region->base_temp;
+
+		// using the base temp, determine score; the score is defined by its temp
+		// gradient over the bin count, i.e., a measure of how ``compact'' the
+		// local maxima is spread
+		cur_region->region_score = cur_region->temp_gradient / cur_region->bins.size();
 	}
 
 	if (FloorPlanner::DBG_CLUSTERING) {
