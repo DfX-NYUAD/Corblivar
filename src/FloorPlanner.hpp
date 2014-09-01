@@ -29,6 +29,7 @@
 #include "Block.hpp"
 #include "Net.hpp"
 #include "ThermalAnalyzer.hpp"
+#include "LayoutOperations.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class CorblivarAlignmentReq;
@@ -39,7 +40,6 @@ class FloorPlanner {
 		static constexpr bool DBG_SA = false;
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
-		static constexpr bool DBG_ALIGNMENT = false;
 		static constexpr bool DBG_TSVS = false;
 		static constexpr bool DBG_CLUSTERING = true;
 
@@ -130,11 +130,6 @@ class FloorPlanner {
 
 			// SA parameters: temperature-scaling factors
 			double temp_factor_phase1, temp_factor_phase1_limit, temp_factor_phase2, temp_factor_phase3;
-
-			// SA parameters: layout generation options
-			bool layout_enhanced_hard_block_rotation, layout_enhanced_soft_block_shaping;
-			bool layout_power_aware_block_handling, layout_floorplacement, layout_signal_TSV_clustering;
-			int layout_packing_iterations;
 		} SA_parameters;
 
 		// SA cost variables: max cost values
@@ -228,34 +223,8 @@ class FloorPlanner {
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
 
-		// layout operations op-codes
-		static constexpr int OP_SWAP_BLOCKS = 1;
-		static constexpr int OP_MOVE_TUPLE = 2;
-		static constexpr int OP_SWITCH_INSERTION_DIR = 3;
-		static constexpr int OP_SWITCH_TUPLE_JUNCTS = 4;
-		static constexpr int OP_ROTATE_BLOCK__SHAPE_BLOCK = 5;
-		// used only for soft block shaping
-		static constexpr int OP_SHAPE_BLOCK__STRETCH_HORIZONTAL = 10;
-		static constexpr int OP_SHAPE_BLOCK__STRETCH_VERTICAL = 11;
-		static constexpr int OP_SHAPE_BLOCK__SHRINK_HORIZONTAL = 12;
-		static constexpr int OP_SHAPE_BLOCK__SHRINK_VERTICAL = 13;
-		static constexpr int OP_SHAPE_BLOCK__RANDOM_AR = 14;
-
-		// layout-operation handler variables
-		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
-
 		// layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two = false, bool const& revertLastOp = false);
-		// note that die and tuple parameters are return-by-reference; non-const
-		// reference for CorblivarCore in order to enable operations on CBL-encode data
-		inline bool prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2);
-		inline bool performOpMoveOrSwapBlocks(int const& mode, bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
-				int& die1, int& die2, int& tuple1, int& tuple2) const;
-		inline bool performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
-		inline bool performOpSwitchTupleJunctions(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1, int& juncts) const;
-		inline bool performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
-		inline bool performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
-		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
+		LayoutOperations layoutOp;
 
 		// auxiliary chip data, tracks major block power density parameters
 		struct power_stats {
@@ -355,7 +324,7 @@ class FloorPlanner {
 		};
 
 		inline bool const& powerAwareBlockHandling() {
-			return this->SA_parameters.layout_power_aware_block_handling;
+			return this->layoutOp.parameters.layout_power_aware_block_handling;
 		};
 
 		inline string const& getBenchmark() const {

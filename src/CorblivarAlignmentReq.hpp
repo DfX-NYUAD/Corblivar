@@ -30,8 +30,9 @@
 // forward declarations, if any
 
 class CorblivarAlignmentReq {
-	// debugging code switch (private)
-	private:
+	// debugging code switch
+	public:
+		static constexpr bool DBG = false;
 
 	// enum classes; have to be defined first
 	public:
