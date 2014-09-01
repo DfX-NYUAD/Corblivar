@@ -706,6 +706,8 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	ret.cost_temp = avg_temp * max_temp;
 	// store max temp
 	ret.max_temp = max_temp;
+	// also store temp offset
+	ret.temp_offset = parameters.temp_offset;
 	// also link whole thermal map to result
 	ret.thermal_map = &this->thermal_map;
 

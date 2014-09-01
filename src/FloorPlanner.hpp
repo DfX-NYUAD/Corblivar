@@ -30,6 +30,7 @@
 #include "Net.hpp"
 #include "ThermalAnalyzer.hpp"
 #include "LayoutOperations.hpp"
+#include "Clustering.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class CorblivarAlignmentReq;
@@ -41,7 +42,6 @@ class FloorPlanner {
 		static constexpr bool DBG_CALLS_SA = false;
 		static constexpr bool DBG_LAYOUT = false;
 		static constexpr bool DBG_TSVS = false;
-		static constexpr bool DBG_CLUSTERING = true;
 
 	// private data, functions
 	private:
@@ -210,16 +210,6 @@ class FloorPlanner {
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
-		// signal-TSV clustering
-		//
-		// POD wrapping nets' segments per layer
-		struct SegmentedNet {
-			Net const& net;
-			Rect bb;
-		};
-		// clustering handler, works on layer-wise vector of net's segments
-		void clusterSignalTSVs(vector< list<SegmentedNet> > &nets_seg, double temp_offset);
-
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
 
@@ -255,20 +245,8 @@ class FloorPlanner {
 		// thermal analyzer; current results of thermal analysis
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
 
-		// hotspot regions, required for thermal-aware clustering
-		//
-		// POD
-		struct HotspotRegion {
-			double peak_temp;
-			double base_temp;
-			double temp_gradient;
-			list<ThermalAnalyzer::ThermalMapBin*> bins;
-			bool still_growing;
-			int region_id;
-			double region_score;
-		};
-		// container
-		map<int, HotspotRegion> hotspot_regions;
+		// clustering handler
+		Clustering clustering;
 
 	// constructors, destructors, if any non-implicit
 	public:

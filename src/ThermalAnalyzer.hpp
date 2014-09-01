@@ -88,6 +88,7 @@ class ThermalAnalyzer {
 		struct ThermalAnalysisResult {
 			double cost_temp;
 			double max_temp;
+			double temp_offset;
 			array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> *thermal_map = nullptr;
 		};
 

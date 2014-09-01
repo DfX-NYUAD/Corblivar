@@ -1613,7 +1613,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 						// for clustering dbg, also mark
 						// background and undefined bins
-						if (FloorPlanner::DBG_CLUSTERING) {
+						if (Clustering::DBG_HOTSPOT_PLOT) {
 
 							gp_out << "set obj " << id << " rect from ";
 							gp_out << x << ", " << y << " to ";

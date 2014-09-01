@@ -57,6 +57,12 @@ class Net {
 		mutable int layer_bottom, layer_top;
 		bool clustered;
 
+		// POD wrapping nets' segments, required for class Clustering
+		struct Segments {
+			Net const& net;
+			Rect bb;
+		};
+
 		inline void setLayerBoundaries() const {
 
 			if (this->blocks.empty()) {
