@@ -62,7 +62,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	//
 	// also, for random layout operations in SA phase one, these blocks are not
 	// allowed to be swapped or moved, see performOpMoveOrSwapBlocks
-	if (this->layoutOp.parameters.layout_floorplacement) {
+	if (this->layoutOp.parameters.floorplacement) {
 		corb.sortCBLs(this->logMed(), CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE);
 	}
 
@@ -572,7 +572,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 
 	// annotate alignment success/failure in blocks; required for maintaining
 	// succeeded alignments during subsequent packing
-	if (this->SA_parameters.opt_alignment && this->layoutOp.parameters.layout_packing_iterations > 0) {
+	if (this->SA_parameters.opt_alignment && this->layoutOp.parameters.packing_iterations > 0) {
 		// ignore related cost; use dummy variable
 		Cost dummy;
 		// also don't derive TSVs; not required here
@@ -589,7 +589,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 		// sanity check for empty dies
 		if (!die.getCBL().empty()) {
 
-			for (int i = 1; i <= this->layoutOp.parameters.layout_packing_iterations; i++) {
+			for (int i = 1; i <= this->layoutOp.parameters.packing_iterations; i++) {
 				die.performPacking(Direction::HORIZONTAL);
 				die.performPacking(Direction::VERTICAL);
 			}
@@ -1301,7 +1301,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	// perform clustering of signal TSVs into TSV islands
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.layout_signal_TSV_clustering) {
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 		this->clusterSignalTSVs(nets_seg, this->power_blurring_parameters.temp_offset);
 	}
 

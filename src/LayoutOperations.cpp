@@ -597,7 +597,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 		// for power-aware block handling, ensure that blocks w/ lower power
 		// density remain in lower layer
-		if (this->parameters.layout_power_aware_block_handling) {
+		if (this->parameters.power_aware_block_handling) {
 			if (die1 < die2
 					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
 				return false;
@@ -610,7 +610,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 		// for SA phase one, floorplacement blocks, i.e., large macros, should not
 		// be moved/swapped
-		if (this->parameters.layout_floorplacement && SA_phase_one
+		if (this->parameters.floorplacement && SA_phase_one
 				&& (corb.getDie(die1).getBlock(tuple1)->floorplacement || corb.getDie(die2).getBlock(tuple2)->floorplacement)) {
 			return false;
 		}
@@ -664,7 +664,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 		// soft blocks: enhanced block shaping
 		if (shape_block->soft) {
 			// enhanced shaping, according to [Chen06]
-			if (this->parameters.layout_enhanced_soft_block_shaping) {
+			if (this->parameters.enhanced_soft_block_shaping) {
 				return this->performOpEnhancedSoftBlockShaping(corb, shape_block);
 			}
 			// simple random shaping
@@ -678,7 +678,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 		// which is checked during config file parsing
 		else {
 			// enhanced rotation
-			if (this->parameters.layout_enhanced_hard_block_rotation) {
+			if (this->parameters.enhanced_hard_block_rotation) {
 				return this->performOpEnhancedHardBlockRotation(corb, shape_block);
 			}
 			// simple rotation

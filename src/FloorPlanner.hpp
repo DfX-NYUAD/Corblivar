@@ -324,7 +324,7 @@ class FloorPlanner {
 		};
 
 		inline bool const& powerAwareBlockHandling() {
-			return this->layoutOp.parameters.layout_power_aware_block_handling;
+			return this->layoutOp.parameters.power_aware_block_handling;
 		};
 
 		inline string const& getBenchmark() const {

@@ -238,26 +238,26 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_enhanced_hard_block_rotation;
+	in >> fp.layoutOp.parameters.enhanced_hard_block_rotation;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_enhanced_soft_block_shaping;
+	in >> fp.layoutOp.parameters.enhanced_soft_block_shaping;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_packing_iterations;
+	in >> fp.layoutOp.parameters.packing_iterations;
 
 	// sanity check for packing iterations
-	if (fp.layoutOp.parameters.layout_packing_iterations < 0) {
+	if (fp.layoutOp.parameters.packing_iterations < 0) {
 		cout << "IO> Provide a positive packing iterations count or set 0 to disable!" << endl;
 		exit(1);
 	}
 
 	// sanity check for packing and block rotation
-	if (fp.layoutOp.parameters.layout_enhanced_hard_block_rotation && (fp.layoutOp.parameters.layout_packing_iterations > 0)) {
+	if (fp.layoutOp.parameters.enhanced_hard_block_rotation && (fp.layoutOp.parameters.packing_iterations > 0)) {
 		cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
 		exit(1);
 	}
@@ -265,17 +265,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_power_aware_block_handling;
+	in >> fp.layoutOp.parameters.power_aware_block_handling;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_floorplacement;
+	in >> fp.layoutOp.parameters.floorplacement;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.layoutOp.parameters.layout_signal_TSV_clustering;
+	in >> fp.layoutOp.parameters.signal_TSV_clustering;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -597,11 +597,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << endl;
 
 		// layout generation options
-		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.layout_enhanced_hard_block_rotation << endl;
-		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.layoutOp.parameters.layout_enhanced_soft_block_shaping << endl;
-		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.layoutOp.parameters.layout_packing_iterations << endl;
-		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.layout_power_aware_block_handling << endl;
-		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.layout_floorplacement << endl;
+		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << endl;
+		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.layoutOp.parameters.enhanced_soft_block_shaping << endl;
+		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.layoutOp.parameters.packing_iterations << endl;
+		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.power_aware_block_handling << endl;
+		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << endl;
 
 		// SA loop setup
 		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << endl;
@@ -1129,7 +1129,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 	}
 	// update config parameter, i.e., deactivate floorplacement if not required
-	fp.layoutOp.parameters.layout_floorplacement &= floorplacement;
+	fp.layoutOp.parameters.floorplacement &= floorplacement;
 
 	// determine block power statistics
 	fp.power_stats.avg /= fp.blocks.size();
@@ -1174,7 +1174,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// floorplacement
 		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", to be handled as floorplacement: " << floorplacement << endl;
-		if (!fp.layoutOp.parameters.layout_floorplacement && floorplacement) {
+		if (!fp.layoutOp.parameters.floorplacement && floorplacement) {
 			cout << "IO>   Note: floorplacement is ignored since it's deactivated" << endl;
 		}
 
