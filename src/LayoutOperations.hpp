@@ -56,7 +56,7 @@ class LayoutOperations {
 
 			// layout generation options; parsed in IO::parseParametersFiles
 			bool layout_enhanced_hard_block_rotation, layout_enhanced_soft_block_shaping;
-			bool layout_power_aware_block_handling, layout_floorplacement;
+			bool layout_power_aware_block_handling, layout_floorplacement, layout_signal_TSV_clustering;
 			int layout_packing_iterations;
 		} parameters;
 

@@ -1301,7 +1301,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	// perform clustering of signal TSVs into TSV islands
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->SA_parameters.layout_signal_TSV_clustering) {
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.layout_signal_TSV_clustering) {
 		this->clusterSignalTSVs(nets_seg, this->power_blurring_parameters.temp_offset);
 	}
 

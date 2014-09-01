@@ -275,7 +275,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.layout_signal_TSV_clustering;
+	in >> fp.layoutOp.parameters.layout_signal_TSV_clustering;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
