@@ -37,9 +37,14 @@
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
 //
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
-void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
-	unsigned i;
-	list<Net::Segments>::iterator it_net_seg;
+void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+	unsigned i, j;
+	list<Segments>::iterator it1;
+	list<Net const*>::iterator it2;
+	Rect segments_intersection, cluster_region;
+	bool all_clustered;
+	map<double, HotspotRegion, greater<double>>::iterator it4;
+	list<Cluster>::iterator it3;
 
 	if (Clustering::DBG) {
 		cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << endl;
@@ -56,33 +61,147 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments
 	// thermal-analysis run
 	this->determineHotspots(thermal_analysis);
 
-	// reset cluster flag
-	// TODO use for monitoring clustering process
-	for (Net& cur_net : nets) {
-		cur_net.clustered = false;
-	}
+	// reset previous cluster
+	this->clusters.clear();
 
-	// sort the nets' bounding boxes by their area
+	// perform layer-wise clustering
 	for (i = 0; i < nets_segments.size(); i++) {
 
+		// sort the nets' bounding boxes by their area
 		nets_segments[i].sort(
 			// lambda expression
-			[&](Net::Segments sn1, Net::Segments sn2) {
+			[&](Segments sn1, Segments sn2) {
 				return sn1.bb.area > sn2.bb.area;
 			}
 		);
-	}
 
-	// dbg, display all nets to consider for clustering
-	if (Clustering::DBG_CLUSTERING) {
-
-		for (i = 0; i < nets_segments.size(); i++) {
+		// dbg, display all nets to consider for clustering
+		if (Clustering::DBG_CLUSTERING) {
 
 			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
 
-			for (it_net_seg = nets_segments[i].begin(); it_net_seg != nets_segments[i].end(); ++it_net_seg) {
-				cout << "DBG_CLUSTERING>  net id: " << it_net_seg->net.id << endl;
-				cout << "DBG_CLUSTERING>   bb area: " << it_net_seg->bb.area << endl;
+			for (it1 = nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
+				cout << "DBG_CLUSTERING>  net id: " << it1->net->id << endl;
+				cout << "DBG_CLUSTERING>   bb area: " << it1->bb.area << endl;
+			}
+		}
+
+		// reset cluster flags of nets to consider on this layer
+		for (it1 = ++nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
+			(*it1).net->clustered = false;
+		}
+
+		// allocate cluster list
+		this->clusters.emplace_back(list<Cluster>());
+
+		// iteratively merge net segments into clusters; try at most so many times
+		// like nets are to considered on this layer
+		for (j = 1; j <= nets_segments[i].size(); j++) {
+
+			if (Clustering::DBG_CLUSTERING) {
+				cout << "DBG_CLUSTERING> merge net segments; clustering iteration " << j << endl;
+			}
+
+			// reset cluster region
+			cluster_region.area = 0.0;
+			// reset clustering flag
+			all_clustered = true;
+
+			for (it1 = nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
+
+				// ignore already clustered segments
+				if ((*it1).net->clustered) {
+					continue;
+				}
+				else {
+					// memorize that at least one net is not clustered
+					// yet
+					all_clustered = false;
+
+					// init new cluster if not done yet
+					if (cluster_region.area == 0.0) {
+
+						if (Clustering::DBG_CLUSTERING) {
+							cout << "DBG_CLUSTERING> init new cluster w/ net " << (*it1).net->id << endl;
+						}
+
+						// actual init
+						this->clusters[i].push_back({
+								list<Net const*>(1, (*it1).net),
+								(*it1).bb
+							});
+
+						// memorize initial cluster region
+						cluster_region = (*it1).bb;
+
+						// also mark initial net as clustered now
+						(*it1).net->clustered = true;
+
+						// TODO determine which hotspot region
+						// covers the initial cluster region
+					}
+					// cluster is already initialized; try to merge
+					// (further) segments into current cluster
+					else {
+
+						// determine intersection of cluster w/
+						// current segment
+						segments_intersection = Rect::determineIntersection(cluster_region, (*it1).bb);
+
+						// TODO determine intersection w/ hotspot
+						// region
+
+						// ignore merges which would results in
+						// empty (i.e., non-overlapping) segments
+						if (segments_intersection.area == 0.0) {
+
+							if (Clustering::DBG_CLUSTERING) {
+								cout << "DBG_CLUSTERING>  ignore net " << (*it1).net->id << " for this cluster" << endl;
+							}
+
+							continue;
+						}
+						// else update cluster
+						else {
+							this->clusters[i].back().nets.push_back((*it1).net);
+							this->clusters[i].back().bb = segments_intersection;
+
+							// also update cluster-region flag
+							cluster_region = segments_intersection;
+
+							// also mark net as clustered now
+							(*it1).net->clustered = true;
+
+							if (Clustering::DBG_CLUSTERING) {
+								cout << "DBG_CLUSTERING>  add net " << (*it1).net->id << " to this cluster" << endl;
+							}
+						}
+					}
+				}
+			}
+
+			// break merge loop in case all nets have been already clustered
+			if (all_clustered) {
+				break;
+			}
+		}
+
+		// dbg, display all cluster
+		if (Clustering::DBG_CLUSTERING) {
+
+			cout << "DBG_CLUSTERING> final set of clusters on layer " << i << ":" << endl;
+
+			for (it3 = this->clusters[i].begin(); it3 != this->clusters[i].end(); ++it3) {
+
+				cout << "DBG_CLUSTERING>  cluster bb:";
+				cout << " (" << (*it3).bb.ll.x << ",";
+				cout << (*it3).bb.ll.y << "),";
+				cout << " (" << (*it3).bb.ur.x << ",";
+				cout << (*it3).bb.ur.y << ")" << endl;
+
+				for (it2 = (*it3).nets.begin(); it2 != (*it3).nets.end(); ++it2) {
+					cout << "DBG_CLUSTERING>   net id: " << (*it2)->id << endl;
+				}
 			}
 		}
 	}

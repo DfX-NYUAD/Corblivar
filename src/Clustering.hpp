@@ -26,7 +26,6 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-#include "Net.hpp"
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
 
@@ -44,7 +43,18 @@ class Clustering {
 
 	// public data, functions
 	public:
-		void clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
+		// POD wrapping nets' segments
+		struct Segments {
+			Net const* net;
+			Rect bb;
+		};
+		// POD wrapping net clusters
+		struct Cluster {
+			list<Net const*> nets;
+			Rect bb;
+		};
+
+		void clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 
 	// private data, functions
 	private:
@@ -67,6 +77,9 @@ class Clustering {
 
 		// normalization scale for hotspot score
 		static constexpr double SCORE_NORMALIZATION = 1.0e6;
+
+		// cluster container
+		vector< list<Cluster> > clusters;
 };
 
 #endif

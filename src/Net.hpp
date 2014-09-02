@@ -55,13 +55,7 @@ class Net {
 		vector<Block const*> blocks;
 		vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
-		bool clustered;
-
-		// POD wrapping nets' segments, required for class Clustering
-		struct Segments {
-			Net const& net;
-			Rect bb;
-		};
+		mutable bool clustered;
 
 		inline void setLayerBoundaries() const {
 

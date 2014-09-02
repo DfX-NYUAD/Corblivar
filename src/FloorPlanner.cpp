@@ -30,6 +30,7 @@
 #include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "IO.hpp"
+#include "Clustering.hpp"
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
@@ -837,7 +838,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
-	vector< list<Net::Segments> > nets_segments;
+	vector< list<Clustering::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 
@@ -854,7 +855,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
 	for (i = 0; i < this->IC.layers; i++) {
-		nets_segments.emplace_back(list<Net::Segments>());
+		nets_segments.emplace_back(list<Clustering::Segments>());
 	}
 
 
@@ -934,7 +935,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 					// store bb as net segment; store in layer-wise
 					// vector, which is easier to handle during
 					// clustering
-					nets_segments[i].push_back({cur_net, bb});
+					nets_segments[i].push_back({&cur_net, bb});
 				}
 
 				if (Net::DBG) {
