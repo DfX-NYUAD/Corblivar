@@ -38,7 +38,6 @@
 //
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
 void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
-	int x, y;
 	unsigned i;
 	list<Net::Segments>::iterator it_net_seg;
 
@@ -53,17 +52,8 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments
 		return;
 	}
 
-	// reset hotspot regions
-	this->hotspot_regions.clear();
-
-	// reset hotspot associations in the thermal map
-	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-			(*thermal_analysis.thermal_map)[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
-		}
-	}
-
-	// determine hotspots according to (previous!) thermal-analysis run
+	// reset previous hotspots and re-determine hotspots according to (previous!)
+	// thermal-analysis run
 	this->determineHotspots(thermal_analysis);
 
 	// reset cluster flag
@@ -115,9 +105,20 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	list<int>::iterator it3;
 	ThermalAnalyzer::ThermalMapBin *cur_bin;
 	int hotspot_region_id;
-	map<int, HotspotRegion>::iterator it4;
+	map<double, HotspotRegion, greater<double>> hotspot_regions;
+	map<double, HotspotRegion, greater<double>>::iterator it4;
 	HotspotRegion *cur_region;
 	bool bin_handled;
+
+	// reset hotspot regions
+	this->hotspot_regions.clear();
+
+	// reset hotspot associations in the thermal map
+	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+			(*thermal_analysis.thermal_map)[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
+		}
+	}
 
 	// parse the thermal grid into an list (to be sorted below); data structure for
 	// blob detection
@@ -174,7 +175,9 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 			// initialize new hotspot
 			this->hotspot_regions.insert( pair<int, HotspotRegion>(
-					// region id is the key for the regions map
+					// region id is the (temporary) key for the
+					// regions map, used for easier data access during
+					// blob detection
 					hotspot_region_id,
 					// actual hotspot initialization
 					{
@@ -296,7 +299,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		}
 	}
 
-	// post-processing hotspot regions
+	// post-processing hotspot regions, also re-order them according to their score
 	for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
 
 		cur_region = &(*it4).second;
@@ -326,7 +329,17 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		// maxima is
 		cur_region->region_score = cur_region->temp_gradient * pow(cur_region->peak_temp, 2.0) * cur_region->bins.size() /
 			Clustering::SCORE_NORMALIZATION;
+
+		// put hotspot into (temporary) map, which is sorted by the hotspot scores
+		// and later replaces the global map
+		hotspot_regions.insert( pair<double, HotspotRegion>(
+				cur_region->region_score,
+				move(*cur_region)
+			));
 	}
+
+	// replace global map w/ new sorted map
+	this->hotspot_regions = move(hotspot_regions);
 
 	if (Clustering::DBG_HOTSPOT) {
 		int bins_hotspot = 0;

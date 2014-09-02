@@ -60,7 +60,7 @@ class Clustering {
 			double region_score;
 		};
 		// related container
-		map<int, HotspotRegion> hotspot_regions;
+		map<double, HotspotRegion, greater<double>> hotspot_regions;
 
 		// hotspot determination
 		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
