@@ -64,6 +64,9 @@ class Clustering {
 
 		// hotspot determination
 		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
+
+		// normalization scale for hotspot score
+		static constexpr double SCORE_NORMALIZATION = 1.0e6;
 };
 
 #endif

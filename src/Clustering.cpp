@@ -321,10 +321,11 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		// using the base temp, determine gradient
 		cur_region->temp_gradient = cur_region->peak_temp - cur_region->base_temp;
 
-		// using the base temp, determine score; the score is defined by its temp
-		// gradient over the bin count, i.e., a measure of how ``compact'' the
-		// local maxima is spread
-		cur_region->region_score = cur_region->temp_gradient / cur_region->bins.size();
+		// determine hotspot score; the score is defined by its peak temp, temp
+		// gradient, and bin count, i.e., measures how ``critical'' the local
+		// maxima is
+		cur_region->region_score = cur_region->temp_gradient * pow(cur_region->peak_temp, 2.0) * cur_region->bins.size() /
+			Clustering::SCORE_NORMALIZATION;
 	}
 
 	if (Clustering::DBG_HOTSPOT) {
