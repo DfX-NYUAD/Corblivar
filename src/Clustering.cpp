@@ -39,12 +39,12 @@
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
 void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
-	list<Segments>::iterator it1;
-	list<Net const*>::iterator it2;
+	list<Segments>::iterator it_seg;
+	list<Net const*>::iterator it_net;
 	Rect segments_intersection, cluster_region;
 	bool all_clustered;
-	map<double, HotspotRegion, greater<double>>::iterator it4;
-	list<Cluster>::iterator it3;
+	map<double, HotspotRegion, greater<double>>::iterator it_hotspot;
+	list<Cluster>::iterator it_cluster;
 
 	if (Clustering::DBG) {
 		cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << endl;
@@ -80,15 +80,15 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 
 			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
 
-			for (it1 = nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
-				cout << "DBG_CLUSTERING>  net id: " << it1->net->id << endl;
-				cout << "DBG_CLUSTERING>   bb area: " << it1->bb.area << endl;
+			for (it_seg = nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
+				cout << "DBG_CLUSTERING>  net id: " << it_seg->net->id << endl;
+				cout << "DBG_CLUSTERING>   bb area: " << it_seg->bb.area << endl;
 			}
 		}
 
 		// reset cluster flags of nets to consider on this layer
-		for (it1 = ++nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
-			(*it1).net->clustered = false;
+		for (it_seg = ++nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
+			(*it_seg).net->clustered = false;
 		}
 
 		// allocate cluster list
@@ -107,10 +107,10 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 			// reset clustering flag
 			all_clustered = true;
 
-			for (it1 = nets_segments[i].begin(); it1 != nets_segments[i].end(); ++it1) {
+			for (it_seg = nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
 
 				// ignore already clustered segments
-				if ((*it1).net->clustered) {
+				if ((*it_seg).net->clustered) {
 					continue;
 				}
 				else {
@@ -122,20 +122,20 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 					if (cluster_region.area == 0.0) {
 
 						if (Clustering::DBG_CLUSTERING) {
-							cout << "DBG_CLUSTERING> init new cluster w/ net " << (*it1).net->id << endl;
+							cout << "DBG_CLUSTERING> init new cluster w/ net " << (*it_seg).net->id << endl;
 						}
 
 						// actual init
 						this->clusters[i].push_back({
-								list<Net const*>(1, (*it1).net),
-								(*it1).bb
+								list<Net const*>(1, (*it_seg).net),
+								(*it_seg).bb
 							});
 
 						// memorize initial cluster region
-						cluster_region = (*it1).bb;
+						cluster_region = (*it_seg).bb;
 
 						// also mark initial net as clustered now
-						(*it1).net->clustered = true;
+						(*it_seg).net->clustered = true;
 
 						// TODO determine which hotspot region
 						// covers the initial cluster region
@@ -146,7 +146,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 
 						// determine intersection of cluster w/
 						// current segment
-						segments_intersection = Rect::determineIntersection(cluster_region, (*it1).bb);
+						segments_intersection = Rect::determineIntersection(cluster_region, (*it_seg).bb);
 
 						// TODO determine intersection w/ hotspot
 						// region
@@ -156,24 +156,24 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 						if (segments_intersection.area == 0.0) {
 
 							if (Clustering::DBG_CLUSTERING) {
-								cout << "DBG_CLUSTERING>  ignore net " << (*it1).net->id << " for this cluster" << endl;
+								cout << "DBG_CLUSTERING>  ignore net " << (*it_seg).net->id << " for this cluster" << endl;
 							}
 
 							continue;
 						}
 						// else update cluster
 						else {
-							this->clusters[i].back().nets.push_back((*it1).net);
+							this->clusters[i].back().nets.push_back((*it_seg).net);
 							this->clusters[i].back().bb = segments_intersection;
 
 							// also update cluster-region flag
 							cluster_region = segments_intersection;
 
 							// also mark net as clustered now
-							(*it1).net->clustered = true;
+							(*it_seg).net->clustered = true;
 
 							if (Clustering::DBG_CLUSTERING) {
-								cout << "DBG_CLUSTERING>  add net " << (*it1).net->id << " to this cluster" << endl;
+								cout << "DBG_CLUSTERING>  add net " << (*it_seg).net->id << " to this cluster" << endl;
 							}
 						}
 					}
@@ -191,16 +191,16 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 
 			cout << "DBG_CLUSTERING> final set of clusters on layer " << i << ":" << endl;
 
-			for (it3 = this->clusters[i].begin(); it3 != this->clusters[i].end(); ++it3) {
+			for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
 				cout << "DBG_CLUSTERING>  cluster bb:";
-				cout << " (" << (*it3).bb.ll.x << ",";
-				cout << (*it3).bb.ll.y << "),";
-				cout << " (" << (*it3).bb.ur.x << ",";
-				cout << (*it3).bb.ur.y << ")" << endl;
+				cout << " (" << (*it_cluster).bb.ll.x << ",";
+				cout << (*it_cluster).bb.ll.y << "),";
+				cout << " (" << (*it_cluster).bb.ur.x << ",";
+				cout << (*it_cluster).bb.ur.y << ")" << endl;
 
-				for (it2 = (*it3).nets.begin(); it2 != (*it3).nets.end(); ++it2) {
-					cout << "DBG_CLUSTERING>   net id: " << (*it2)->id << endl;
+				for (it_net = (*it_cluster).nets.begin(); it_net != (*it_cluster).nets.end(); ++it_net) {
+					cout << "DBG_CLUSTERING>   net id: " << (*it_net)->id << endl;
 				}
 			}
 		}
