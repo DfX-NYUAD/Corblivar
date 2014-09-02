@@ -284,7 +284,7 @@ class FloorPlanner {
 			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
 			// init thermal map, i.e., allocate data structure
-			this->thermalAnalyzer.initThermalMap();
+			this->thermalAnalyzer.initThermalMap(this->getOutline());
 		};
 
 		// getter / setter

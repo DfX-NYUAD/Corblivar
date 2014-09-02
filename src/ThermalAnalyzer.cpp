@@ -33,12 +33,16 @@
 // memory allocation
 constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 
-void ThermalAnalyzer::initThermalMap() {
+void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
 	int x, y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		cout << "-> ThermalAnalyzer::initThermalMap()" << endl;
 	}
+
+	// scale of thermal map dimensions
+	this->thermal_map_dim_x = die_outline.x / ThermalAnalyzer::THERMAL_MAP_DIM;
+	this->thermal_map_dim_y = die_outline.y / ThermalAnalyzer::THERMAL_MAP_DIM;
 
 	// init map data structure
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
@@ -50,12 +54,23 @@ void ThermalAnalyzer::initThermalMap() {
 					// grid-map coordinates
 					x,
 					y,
+					// dummy bb
+					Rect(),
 					// hotspot/blob region id; initialize as undefined
 					ThermalAnalyzer::HOTSPOT_UNDEFINED,
 					// allocation for neighbor's list; to be
 					// initialized during clustering
 					list<ThermalMapBin*>()
 			};
+
+			// determine the bin's bb
+			this->thermal_map[x][y].bb.ll.x = x * this->thermal_map_dim_x;
+			this->thermal_map[x][y].bb.ll.y = y * this->thermal_map_dim_y;
+			this->thermal_map[x][y].bb.ur.x = (x + 1) * this->thermal_map_dim_x;
+			this->thermal_map[x][y].bb.ur.y = (y + 1) * this->thermal_map_dim_y;
+			this->thermal_map[x][y].bb.w = this->thermal_map_dim_x;
+			this->thermal_map[x][y].bb.h = this->thermal_map_dim_y;
+			this->thermal_map[x][y].bb.area = this->thermal_map_dim_x * this->thermal_map_dim_y;
 		}
 	}
 

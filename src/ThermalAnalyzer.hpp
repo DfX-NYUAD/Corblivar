@@ -82,6 +82,7 @@ class ThermalAnalyzer {
 			double temp;
 			int x;
 			int y;
+			Rect bb;
 			int hotspot_region_id;
 			list<ThermalMapBin*> neighbors;
 		};
@@ -108,6 +109,8 @@ class ThermalAnalyzer {
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
 
+		// thermal modeling: parameters for generating thermal maps
+		double thermal_map_dim_x, thermal_map_dim_y;
 		// thermal modeling: parameters for generating power maps
 		double power_maps_dim_x, power_maps_dim_y;
 		double power_maps_bin_area;
@@ -219,7 +222,7 @@ class ThermalAnalyzer {
 
 		// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
-		void initThermalMap();
+		void initThermalMap(Point const& die_outline);
 		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		void adaptPowerMaps(int const& layers, vector<TSV_Group> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
