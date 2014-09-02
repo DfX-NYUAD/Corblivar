@@ -31,6 +31,7 @@
 #include "CorblivarAlignmentReq.hpp"
 #include "Net.hpp"
 #include "Math.hpp"
+#include "Clustering.hpp"
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
