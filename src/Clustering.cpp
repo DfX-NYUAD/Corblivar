@@ -37,13 +37,13 @@
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
 //
 // TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
-void Clustering::clusterSignalTSVs(vector< list<Net::Segments> > &nets_seg, ThermalAnalyzer::ThermalAnalysisResult thermal_analysis) {
+void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	int x, y;
 	unsigned i;
 	list<Net::Segments>::iterator it_net_seg;
 
 	if (Clustering::DBG) {
-		cout << "-> Clustering::clusterSignalTSVs(" << &nets_seg << ")" << endl;
+		cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << endl;
 	}
 
 	// sanity check for available thermal-analysis result; note that these results are
@@ -66,39 +66,36 @@ void Clustering::clusterSignalTSVs(vector< list<Net::Segments> > &nets_seg, Ther
 	// determine hotspots according to (previous!) thermal-analysis run
 	this->determineHotspots(thermal_analysis);
 
-//	// TODO use for monitoring clustering process
-//	//
-//	// reset cluster flag
-//	for (Net& cur_net : this->nets) {
-//		cur_net.clustered = false;
-//	}
-//
-//	// TODO net segments should be allocated in the respective nets
-//	//
-//	// sort the nets' bounding boxes by their area
-//	for (i = 0; i < nets_seg.size(); i++) {
-//
-//		nets_seg[i].sort(
-//			// lambda expression
-//			[&](Net::Segments sn1, Net::Segments sn2) {
-//				return sn1.bb.area > sn2.bb.area;
-//			}
-//		);
-//	}
-//
-//	// dbg, display all nets to consider for clustering
-//	if (Clustering::DBG_CLUSTERING) {
-//
-//		for (i = 0; i < nets_seg.size(); i++) {
-//
-//			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
-//
-//			for (it_net_seg = nets_seg[i].begin(); it_net_seg != nets_seg[i].end(); ++it_net_seg) {
-//				cout << "DBG_CLUSTERING>  net id: " << it_net_seg->net.id << endl;
-//				cout << "DBG_CLUSTERING>   bb area: " << it_net_seg->bb.area << endl;
-//			}
-//		}
-//	}
+	// reset cluster flag
+	// TODO use for monitoring clustering process
+	for (Net& cur_net : nets) {
+		cur_net.clustered = false;
+	}
+
+	// sort the nets' bounding boxes by their area
+	for (i = 0; i < nets_segments.size(); i++) {
+
+		nets_segments[i].sort(
+			// lambda expression
+			[&](Net::Segments sn1, Net::Segments sn2) {
+				return sn1.bb.area > sn2.bb.area;
+			}
+		);
+	}
+
+	// dbg, display all nets to consider for clustering
+	if (Clustering::DBG_CLUSTERING) {
+
+		for (i = 0; i < nets_segments.size(); i++) {
+
+			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
+
+			for (it_net_seg = nets_segments[i].begin(); it_net_seg != nets_segments[i].end(); ++it_net_seg) {
+				cout << "DBG_CLUSTERING>  net id: " << it_net_seg->net.id << endl;
+				cout << "DBG_CLUSTERING>   bb area: " << it_net_seg->bb.area << endl;
+			}
+		}
+	}
 
 	if (Clustering::DBG) {
 		cout << "<- Clustering::clusterSignalTSVs" << endl;
@@ -108,7 +105,7 @@ void Clustering::clusterSignalTSVs(vector< list<Net::Segments> > &nets_seg, Ther
 // Obtain hotspots (i.e., locally connected regions surrounding local maximum
 // temperatures) from the thermal analysis run. The determination of hotspots/blobs is
 // based on Lindeberg's grey-level blob detection algorithm.
-void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult thermal_analysis) {
+void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	int x, y;
 	list<ThermalAnalyzer::ThermalMapBin*> thermal_map_list;
 	list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;

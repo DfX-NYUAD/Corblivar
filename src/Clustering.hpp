@@ -44,7 +44,7 @@ class Clustering {
 
 	// public data, functions
 	public:
-		void clusterSignalTSVs(vector< list<Net::Segments> > &nets_seg, ThermalAnalyzer::ThermalAnalysisResult thermal_analysis);
+		void clusterSignalTSVs(vector<Net> &nets, vector< list<Net::Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 
 	// private data, functions
 	private:
@@ -63,7 +63,7 @@ class Clustering {
 		map<int, HotspotRegion> hotspot_regions;
 
 		// hotspot determination
-		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult thermal_analysis);
+		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 };
 
 #endif

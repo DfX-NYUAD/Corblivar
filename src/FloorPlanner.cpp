@@ -837,7 +837,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
 	vector<Rect const*> blocks_to_consider;
-	vector< list<Net::Segments> > nets_seg;
+	vector< list<Net::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 
@@ -854,8 +854,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
 	for (i = 0; i < this->IC.layers; i++) {
-		nets_seg.emplace_back(list<Net::Segments>());
+		nets_segments.emplace_back(list<Net::Segments>());
 	}
+
 
 	// determine HPWL and TSVs for each net
 	for (Net& cur_net : this->nets) {
@@ -916,8 +917,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 				if (i != cur_net.layer_top) {
 
 					// determBoundingBox may also return empty
-					// bounding boxes; here, for not considering the
-					// uppermost layer_top, only for nets w/o blocks
+					// bounding boxes, especially for nets w/o blocks
 					// on the currently considered layer. Then, we
 					// need to consider the non-empty box from one of
 					// the layers below in order to provide a net's bb
@@ -925,13 +925,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 					if (bb.area == 0.0) {
 						bb = prev_bb;
 					}
-					nets_seg[i].push_back({cur_net, bb});
-				}
+					// memorize current non-empty bb as previous bb
+					// for next iteration
+					else {
+						prev_bb = bb;
+					}
 
-				// memorize current non-empty bb as previous bb for next
-				// iteration
-				if (bb.area != 0.0) {
-					prev_bb = bb;
+					// store bb as net segment; store in layer-wise
+					// vector, which is easier to handle during
+					// clustering
+					nets_segments[i].push_back({cur_net, bb});
 				}
 
 				if (Net::DBG) {
@@ -959,7 +962,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 	// perform clustering of signal TSVs into TSV islands
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
-		this->clustering.clusterSignalTSVs(nets_seg, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->thermal_analysis);
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
