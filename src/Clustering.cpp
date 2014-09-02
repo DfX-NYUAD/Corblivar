@@ -185,8 +185,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						// temperature gradient; currently
 						// undefined
 						-1.0,
-						// allocate list of associated bins
-						list<ThermalAnalyzer::ThermalMapBin*>(),
+						// allocate list of associated bins;
+						// initialize with cur_bin as first bin of
+						// new hotspot
+						list<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
 						// memorize hotspot as still growing
 						true,
 						// region id
@@ -195,9 +197,6 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						-1.0
 						})
 				);
-
-			// memorize bin as first bin of new hotspot
-			this->hotspot_regions.find(hotspot_region_id)->second.bins.push_back(cur_bin);
 
 			// mark bin as associated to this new hotspot
 			cur_bin->hotspot_region_id = hotspot_region_id;
@@ -231,18 +230,14 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 				for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
 
-// not required, since not happened during
-// debugging
-//					// ignore so far undefined bins
-//					//
-//					if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
-//
-//						if (Clustering::DBG_HOTSPOT) {
-//							cout << "DBG_HOTSPOT> blob-detection error; undefined bin triggered" << endl;
-//						}
-//
-//						continue;
-//					}
+					if (Clustering::DBG_HOTSPOT) {
+
+						if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+
+							cout << "DBG_HOTSPOT> blob-detection error; undefined bin triggered" << endl;
+							continue;
+						}
+					}
 
 					neighbor_regions.push_back((*it2)->hotspot_region_id);
 				}
