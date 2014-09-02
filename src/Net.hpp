@@ -123,15 +123,16 @@ class Net {
 					}
 				}
 			}
+
 			// ignore cases with no blocks on current layer
 			if (blocks_to_consider.empty()) {
 				return bb;
 			}
 
-			// blocks on the layer above; required to assume a reasonable
-			// bounding box on current layer w/o actual placement of TSVs; the
-			// layer to consider is not necessarily the adjacent one, thus
-			// stepwise consider layers until some blocks are found
+			// consider blocks on the layer above; required to assume a
+			// reasonable bounding box on current layer w/o actual placement
+			// of TSVs; the layer to consider is not necessarily the adjacent
+			// one, thus stepwise consider layers until some blocks are found
 			blocks_above_considered = false;
 			i = layer + 1;
 			while (i <= this->layer_top) {
