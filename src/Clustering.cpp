@@ -87,7 +87,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 		}
 
 		// reset cluster flags of nets to consider on this layer
-		for (it_seg = ++nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
+		for (it_seg = nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
 			(*it_seg).net->clustered = false;
 		}
 
