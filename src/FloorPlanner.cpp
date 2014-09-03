@@ -737,16 +737,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// thermal profile in order to properly model hotspot cluster and TSV
 		// islands; the final / best solution's thermal distribution---which was
 		// determined above and which is the input data for hotspot determination
-		// and TSV clustering---is likely significantly different from the
-		// previous temporary solution, thus this re-determination is required.
+		// and TSV clustering---is thus properly addressed / improved by according
+		// TSV clustering
 		if (finalize) {
 
 			this->evaluateInterconnects(cost, false);
-			this->evaluateThermalDistr(cost, false);
-
-			// also re-determine alignment; only required to capture TSVs of
-			// vertical buses
 			this->evaluateAlignments(cost, alignments);
+
+			this->evaluateThermalDistr(cost, false);
 		}
 
 		// determine total cost; weight and sum up cost terms
