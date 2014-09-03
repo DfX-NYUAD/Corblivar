@@ -636,8 +636,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// determine interconnects cost; if interconnect opt is on or for finalize
-		// calls
+		// determine interconnects cost; also determines hotspot regions and
+		// clusters signal TSVs accordingly
 		if (this->SA_parameters.opt_interconnects) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
@@ -654,7 +654,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 
 		// cost for failed alignments, i.e., alignment mismatches; also annotates
 		// failed request, this provides feedback for further alignment
-		// optimization
+		// optimization; also derives and stores TSV islands
 		if (this->SA_parameters.opt_alignment) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
@@ -667,9 +667,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
-		// temperature-distribution cost; if thermal opt is on or for finalize
-		// run; note that vertical buses impact heat conduction via TSVs, thus the
-		// block alignment / bus planning is analysed before thermal distribution
+		// temperature-distribution cost and profile; note that vertical buses and
+		// TSV islands impact heat conduction, thus the block alignment / bus
+		// structures and interconnects are analysed before thermal distribution
 		if (this->SA_parameters.opt_thermal) {
 			this->evaluateThermalDistr(cost, set_max_cost);
 		}
@@ -682,12 +682,15 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.thermal = cost.thermal_actual_value = 0.0;
 		}
 
-		// for finalize calls, re-determine interconnects, for proper hotspot
-		// cluster and TSV islands; the best solution's thermal distribution is
-		// probably significantly different from the previous temporary solution,
-		// thus a re-determination is required for proper results
+		// for finalize calls, re-determine interconnects and the resulting
+		// thermal profile in order to properly model hotspot cluster and TSV
+		// islands; the final / best solution's thermal distribution---which was
+		// determined above and which is the input data for hotspot determination
+		// and TSV clustering---is likely significantly different from the
+		// previous temporary solution, thus this re-determination is required.
 		if (finalize) {
 			this->evaluateInterconnects(cost, false);
+			this->evaluateThermalDistr(cost, false);
 		}
 
 		// determine total cost; weight and sum up cost terms
