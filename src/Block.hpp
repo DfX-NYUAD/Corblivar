@@ -198,7 +198,6 @@ class TSV_Group : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		// TODO unify w/ other constructor
 		TSV_Group (string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
@@ -206,12 +205,6 @@ class TSV_Group : public Block {
 			this->bb = bb;
 
 			this->resetOutline(TSV_pitch);
-		};
-
-		TSV_Group (string const& id, int const& TSVs_count, int const& layer) : Block(id) {
-
-			this->TSVs_count = TSVs_count;
-			this->layer = layer;
 		};
 
 	// public data, functions

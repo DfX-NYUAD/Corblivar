@@ -1005,7 +1005,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost) {
 	Rect blocks_intersect;
 	Rect blocks_bb;
-	double TSVs_row_col;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << endl;
@@ -1338,7 +1337,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 		if (derive_TSVs && req.fulfilled) {
 
 			// consider valid block intersections independent of defined
-			// alignment; this way, all vertical buses arising from different
+			// alignment; this way, all _vertical_ buses arising from
+			// different (i.e., not necessarily as vertical buses defined)
 			// alignment requests will be considered 
 			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
 			if (blocks_intersect.area != 0.0) {
@@ -1346,77 +1346,21 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 				// consider TSVs in all affected layers
 				for (int layer = min(req.s_i->layer, req.s_j->layer); layer < max(req.s_i->layer, req.s_j->layer); layer++) {
 
-					// init new bus
-					TSV_Group vert_bus = TSV_Group("bus_" + req.s_i->id + "_" + req.s_j->id, req.signals, layer);
-
-					// define bus outline; consider required area for
-					// given amount of TSVs
-					//
-					// note that the following code does _not_consider
-					// a sanity check where the required area for TSVs
-					// is larger than the intersection; since TSVs are
-					// assumed to be embedded into blocks later on
-					// anyway, such over-usage of block area is not
-					// critical
-
-					// init TSV group with actual intersection; this
-					// way, the lower-left corners of the TSV group
-					// and the actual intersection match
-					vert_bus.bb = blocks_intersect;
-
-					// minimal side of TSV-group rectangle is
-					// intersection's width
-					if (blocks_intersect.w < blocks_intersect.h) {
-
-						// determine maximal amount of TSVs to be
-						// put in smaller side of TSV-group
-						// rectangle
-						TSVs_row_col = floor(blocks_intersect.w / this->IC.TSV_pitch);
-
-						// define smaller side of actual TSV-group
-						// rectangle
-						vert_bus.bb.w = TSVs_row_col * this->IC.TSV_pitch;
-						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
-
-						// define larger side of actual TSV-group
-						// rectangle; ceil accounts for additional
-						// row of TSVs if they are not completely
-						// fitting, i.e., not filling a rectangle
-						vert_bus.bb.h = ceil(vert_bus.TSVs_count / TSVs_row_col) * this->IC.TSV_pitch;
-						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
-					}
-					// minimal side of TSV-group rectangle is
-					// intersection's height
-					else {
-						// determine maximal amount of TSVs to be
-						// put in smaller side of TSV-group
-						// rectangle
-						TSVs_row_col = floor(blocks_intersect.h / this->IC.TSV_pitch);
-
-						// define smaller side of actual TSV-group
-						// rectangle
-						vert_bus.bb.h = TSVs_row_col * this->IC.TSV_pitch;
-						vert_bus.bb.ur.y = vert_bus.bb.ll.y + vert_bus.bb.h;
-
-						// define larger side of actual TSV-group
-						// rectangle; ceil accounts for additional
-						// column of TSVs if they are not completely
-						// fitting, i.e., not filling a rectangle
-						vert_bus.bb.w = ceil(vert_bus.TSVs_count / TSVs_row_col) * this->IC.TSV_pitch;
-						vert_bus.bb.ur.x = vert_bus.bb.ll.x + vert_bus.bb.w;
-					}
-
-					// dbg logging for TSV generation
-					if (FloorPlanner::DBG_TSVS) {
-
-						cout << "DBG_TSVs> TSV group" << endl;
-						cout << "DBG_TSVs>  " << vert_bus.id << endl;
-						cout << "DBG_TSVs>  (" << vert_bus.bb.ll.x << "," << vert_bus.bb.ll.y << ")";
-						cout << "(" << vert_bus.bb.ur.x << "," << vert_bus.bb.ur.y << ")" << endl;
-					}
-
-					// store bus
-					this->TSVs.push_back(move(vert_bus));
+					this->TSVs.emplace_back(TSV_Group(
+							// bus id
+							"bus_" + req.s_i->id + "_" + req.s_j->id,
+							// signal / TSV count
+							req.signals,
+							// TSV pitch; required for proper scaling
+							// of TSV island
+							this->IC.TSV_pitch,
+							// blocks intersection; reference
+							// point for placement of vertical
+							// bus / TSV island
+							blocks_intersect,
+							// layer assignment
+							layer
+						));
 				}
 			}
 		}
