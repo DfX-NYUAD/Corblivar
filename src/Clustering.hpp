@@ -68,6 +68,7 @@ class Clustering {
 			bool still_growing;
 			int region_id;
 			double region_score;
+			Rect bb;
 		};
 		// related container
 		map<double, HotspotRegion, greater<double>> hotspot_regions;

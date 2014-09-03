@@ -35,8 +35,6 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
-//
-// TODO put determined TSV islands into FloorPlanner's vector<TSV_Group> TSVs;
 void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	list<Segments>::iterator it_seg;
@@ -204,6 +202,13 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 				}
 			}
 		}
+
+		// (TODO) plot clusters
+		//
+		// better:
+		// TODO derive TSV islands from clusters and put them into FloorPlanner's
+		// vector<TSV_Group> TSVs; they will be handled and plotted in TSV-density
+		// maps anyway
 	}
 
 	if (Clustering::DBG) {
@@ -316,7 +321,9 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						// region id
 						hotspot_region_id,
 						// region score; currently undefined
-						-1.0
+						-1.0,
+						// enclosing bb; initialize with cur_bin
+						cur_bin->bb
 						})
 				);
 
@@ -449,6 +456,13 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		cur_region->region_score = cur_region->temp_gradient * pow(cur_region->peak_temp, 2.0) * cur_region->bins.size() /
 			Clustering::SCORE_NORMALIZATION;
 
+		// determine the (all bins enclosing) bb; this is used to simplify checks
+		// of nets overlapping hotspot regions, but also reduces spatial accuracy
+		for (it1 = cur_region->bins.begin(); it1 != cur_region->bins.end(); ++it1) {
+
+			cur_region->bb = Rect::determBoundingBox(cur_region->bb, (*it1)->bb);
+		}
+
 		// put hotspot into (temporary) map, which is sorted by the hotspot scores
 		// and later replaces the global map
 		hotspot_regions.insert( pair<double, HotspotRegion>(
@@ -469,6 +483,8 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 		for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
 			cout << "DBG_HOTSPOT>  region id: " << (*it4).second.region_id << endl;
+			cout << "DBG_HOTSPOT>   bb: (" << (*it4).second.bb.ll.x << "," << (*it4).second.bb.ll.y;
+				cout <<  "),(" << (*it4).second.bb.ur.x << "," << (*it4).second.bb.ur.y << ")" << endl;
 			cout << "DBG_HOTSPOT>   peak temp: " << (*it4).second.peak_temp << endl;
 			cout << "DBG_HOTSPOT>   base temp: " << (*it4).second.base_temp << endl;
 			cout << "DBG_HOTSPOT>   temp gradient: " << (*it4).second.temp_gradient << endl;
