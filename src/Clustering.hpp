@@ -58,7 +58,7 @@ class Clustering {
 
 		void clusterSignalTSVs(vector<Net> &nets,
 				vector< list<Segments> > &nets_segments,
-				vector<TSV_Group> &TSVs,
+				vector<TSV_Island> &TSVs,
 				double const& TSV_pitch,
 				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 

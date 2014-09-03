@@ -51,7 +51,7 @@ class FloorPlanner {
 		vector<Net> nets;
 
 		// groups of TSVs, will be defined from nets and vertical buses
-		vector<TSV_Group> TSVs;
+		vector<TSV_Island> TSVs;
 
 		// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;

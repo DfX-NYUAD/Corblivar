@@ -1922,7 +1922,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 		}
 
 		// output TSVs (blocks)
-		for (TSV_Group const& TSV_group : fp.TSVs) {
+		for (TSV_Island const& TSV_group : fp.TSVs) {
 
 			if (TSV_group.layer != cur_layer) {
 				continue;

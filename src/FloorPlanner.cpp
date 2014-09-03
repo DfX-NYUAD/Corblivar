@@ -1372,7 +1372,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 				// consider TSVs in all affected layers
 				for (int layer = min(req.s_i->layer, req.s_j->layer); layer < max(req.s_i->layer, req.s_j->layer); layer++) {
 
-					this->TSVs.emplace_back(TSV_Group(
+					this->TSVs.emplace_back(TSV_Island(
 							// bus id
 							"bus_" + req.s_i->id + "_" + req.s_j->id,
 							// signal / TSV count

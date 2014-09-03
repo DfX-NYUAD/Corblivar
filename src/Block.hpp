@@ -190,7 +190,7 @@ class Pin : public Block {
 };
 
 // derived TSVs class; encapsulates TSV island / bundle of TSVs
-class TSV_Group : public Block {
+class TSV_Island : public Block {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = false;
@@ -198,7 +198,7 @@ class TSV_Group : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		TSV_Group (string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
+		TSV_Island (string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
 			this->layer = layer;
@@ -248,7 +248,7 @@ class TSV_Group : public Block {
 			this->bb = new_bb;
 
 			// dbg logging for TSV scaling
-			if (TSV_Group::DBG) {
+			if (TSV_Island::DBG) {
 
 				cout << "DBG_TSVS> TSV group" << endl;
 				cout << "DBG_TSVS>  " << this->id << endl;
