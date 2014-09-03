@@ -55,17 +55,7 @@ class Clustering {
 			Rect bb;
 			int hotspot_id;
 		};
-
-		void clusterSignalTSVs(vector<Net> &nets,
-				vector< list<Segments> > &nets_segments,
-				vector<TSV_Island> &TSVs,
-				double const& TSV_pitch,
-				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
-
-	// private data, functions
-	private:
-
-		// POD for hotspot regions
+		// POD wrapping hotspot regions
 		struct Hotspot {
 			double peak_temp;
 			double base_temp;
@@ -76,8 +66,19 @@ class Clustering {
 			double score;
 			Rect bb;
 		};
-		// related container
+
+		// hotspots container
 		map<double, Hotspot, greater<double>> hotspots;
+
+		// clustering helper
+		void clusterSignalTSVs(vector<Net> &nets,
+				vector< list<Segments> > &nets_segments,
+				vector<TSV_Island> &TSVs,
+				double const& TSV_pitch,
+				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
+
+	// private data, functions
+	private:
 
 		// hotspot determination
 		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);

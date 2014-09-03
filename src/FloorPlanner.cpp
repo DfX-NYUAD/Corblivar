@@ -445,6 +445,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	Cost cost;
 	unsigned i;
 	int clustered_TSVs;
+	map<double, Clustering::Hotspot, greater<double>>::iterator it_hotspots;
+	double avg_peak_temp, avg_base_temp, avg_temp_gradient, avg_score, avg_bins_count;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << endl;
@@ -529,8 +531,38 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 
-			// TODO statistics of hotspot clusters
-			//
+			cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << endl;
+			this->IO_conf.results << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << endl;
+
+			if (!this->clustering.hotspots.empty()) {
+
+				avg_peak_temp = avg_base_temp = avg_temp_gradient = avg_score = avg_bins_count = 0.0;
+				for (it_hotspots = this->clustering.hotspots.begin(); it_hotspots != this->clustering.hotspots.end(); ++it_hotspots) {
+					avg_peak_temp += (*it_hotspots).second.peak_temp;
+					avg_base_temp += (*it_hotspots).second.base_temp;
+					avg_temp_gradient += (*it_hotspots).second.temp_gradient;
+					avg_score += (*it_hotspots).second.score;
+					avg_bins_count += (*it_hotspots).second.bins.size();
+				}
+
+				avg_peak_temp /= this->clustering.hotspots.size();
+				avg_base_temp /= this->clustering.hotspots.size();
+				avg_temp_gradient /= this->clustering.hotspots.size();
+				avg_score /= this->clustering.hotspots.size();
+				avg_bins_count /= this->clustering.hotspots.size();
+
+				cout << "Corblivar>  Avg peak temp: " << avg_peak_temp << endl;
+				this->IO_conf.results << "Corblivar>  Avg peak temp: " << avg_peak_temp << endl;
+				cout << "Corblivar>  Avg base temp: " << avg_base_temp << endl;
+				this->IO_conf.results << "Corblivar>  Avg base temp: " << avg_base_temp << endl;
+				cout << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << endl;
+				this->IO_conf.results << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << endl;
+				cout << "Corblivar>  Avg score: " << avg_score << endl;
+				this->IO_conf.results << "Corblivar>  Avg score: " << avg_score << endl;
+				cout << "Corblivar>  Avg bin count: " << avg_bins_count << endl;
+				this->IO_conf.results << "Corblivar>  Avg bin count: " << avg_bins_count << endl;
+			}
+
 			cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
 			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
 
