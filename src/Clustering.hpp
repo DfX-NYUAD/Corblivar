@@ -27,6 +27,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "ThermalAnalyzer.hpp"
+#include "Block.hpp"
 // forward declarations, if any
 
 class Clustering {
@@ -55,7 +56,10 @@ class Clustering {
 			int hotspot_id;
 		};
 
-		void clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
+		void clusterSignalTSVs(vector<Net> &nets,
+				vector< list<Segments> > &nets_segments,
+				vector<TSV_Group> &TSVs,
+				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 
 	// private data, functions
 	private:

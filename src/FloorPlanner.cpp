@@ -963,7 +963,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 	// perform clustering of signal TSVs into TSV islands
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
-		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->thermal_analysis);
 	}
 
 	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and

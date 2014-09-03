@@ -35,7 +35,7 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
-void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, vector<TSV_Group> &TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	list<Segments>::iterator it_seg;
 	list<Net const*>::iterator it_net;
@@ -247,12 +247,31 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 			cout << "DBG_CLUSTERING>" << endl;
 		}
 
-		// (TODO) plot clusters
-		//
-		// better:
-		// TODO derive TSV islands from clusters and put them into FloorPlanner's
-		// vector<TSV_Group> TSVs; they will be handled and plotted in TSV-density
-		// maps anyway
+		// derive TSV islands from clusters and store into global TSV container;
+		// they will will be handled and plotted in the TSV-density maps
+		for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
+
+			// TODO adapt TSV islands' outline according to required TSVs;
+			// streamline w/ related code in FloorPlanner
+
+			// consider associated hotspot id for naming the cluster
+			if ((*it_cluster).hotspot_id >= 0) {
+				TSVs.emplace_back(TSV_Group(
+						"cluster__hotspot_" + std::to_string((*it_cluster).hotspot_id),
+						(*it_cluster).nets.size(),
+						(*it_cluster).bb,
+						i
+					));
+			}
+			else {
+				TSVs.emplace_back(TSV_Group(
+						"cluster__no_hotspot",
+						(*it_cluster).nets.size(),
+						(*it_cluster).bb,
+						i
+					));
+			}
+		}
 	}
 
 	if (Clustering::DBG) {

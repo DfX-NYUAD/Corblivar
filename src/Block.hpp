@@ -195,6 +195,14 @@ class TSV_Group : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
+		// TODO unify
+		TSV_Group (string const& id, int const& TSVs_count, Rect const& bb, int const& layer) : Block(id) {
+
+			this->TSVs_count = TSVs_count;
+			this->layer = layer;
+			this->bb = bb;
+		};
+
 		TSV_Group (string const& id, int const& TSVs_count, int const& layer) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
