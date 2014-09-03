@@ -1547,15 +1547,15 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			}
 			// TSV-density maps: scale, label for cbrange
 			else if (flag == FLAGS::TSV_DENSITY) {
-				// fixed log scale to emphasize both low densities (single
-				// TSVs) as well as large densities (TSV groups, vertical
-				// buses)
-				// TODO revert to normal scale after TSV clustering is
-				// applied for regular nets
-				gp_out << "set log cb" << endl;
-				gp_out << "set cbrange [0.1:100]" << endl;
+				// fixed scale
+				gp_out << "set cbrange [0:100]" << endl;
+				// (TODO) also possible: fixed log scale to emphasize both
+				// low densities (single TSVs) as well as large densities
+				// (TSV cluster, vertical buses)
+				//gp_out << "set log cb" << endl;
+				//gp_out << "set cbrange [0.1:100]" << endl;
 				// label for power density
-				gp_out << "set cblabel \"Probabilistic TSV-Density [%]\"" << endl;
+				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
 			}
 
 			// tics
