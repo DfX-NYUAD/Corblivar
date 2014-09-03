@@ -191,16 +191,21 @@ class Pin : public Block {
 
 // derived TSVs class; encapsulates TSV island / bundle of TSVs
 class TSV_Group : public Block {
+	// debugging code switch (private)
+	private:
+		static constexpr bool DBG = false;
 
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		// TODO unify
-		TSV_Group (string const& id, int const& TSVs_count, Rect const& bb, int const& layer) : Block(id) {
+		// TODO unify w/ other constructor
+		TSV_Group (string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
 			this->layer = layer;
 			this->bb = bb;
+
+			this->resetOutline(TSV_pitch);
 		};
 
 		TSV_Group (string const& id, int const& TSVs_count, int const& layer) : Block(id) {
@@ -212,6 +217,52 @@ class TSV_Group : public Block {
 	// public data, functions
 	public:
 		int TSVs_count;
+
+		// reset TSV group's outline according to area required for given TSVs
+		//
+		// note that the following code does _not_consider a sanity check where
+		// the required area for TSVs is larger than the provided bb; since TSVs
+		// are assumed to be embedded into blocks later on anyway, such over-usage
+		// of area is not critical
+		void resetOutline(double TSV_pitch) {
+			double TSV_rows, TSV_cols;
+			Rect new_bb;
+
+			// determine number of TSV rows and cols from number of required
+			// TSVs; define a square TSV island
+			TSV_rows = sqrt(this->TSVs_count);
+			TSV_cols = sqrt(this->TSVs_count);
+
+			// round up rows and cols, spare TSVs are not as ``bad'' as
+			// missing TSVs for signal routing; this way it's also guaranteed
+			// that at least one row and col are considered
+			TSV_rows = ceil(TSV_rows);
+			TSV_cols = ceil(TSV_cols);
+
+			// determine new bb's outline and area
+			new_bb.w = TSV_rows * TSV_pitch;
+			new_bb.h = TSV_cols * TSV_pitch;
+			new_bb.area = new_bb.w * new_bb.h;
+			// place new bb such into the given bb that their center points
+			// are (roughly) aligned
+			new_bb.ll.x = this->bb.ll.x + (this->bb.w - new_bb.w) / 2.0;
+			new_bb.ll.y = this->bb.ll.y + (this->bb.h - new_bb.h) / 2.0;
+			// determine new bb's upper bound
+			new_bb.ur.x = new_bb.ll.x + new_bb.w;
+			new_bb.ur.y = new_bb.ll.y + new_bb.h;
+
+			// replace bb w/ new bb
+			this->bb = new_bb;
+
+			// dbg logging for TSV scaling
+			if (TSV_Group::DBG) {
+
+				cout << "DBG_TSVS> TSV group" << endl;
+				cout << "DBG_TSVS>  " << this->id << endl;
+				cout << "DBG_TSVS>  (" << this->bb.ll.x << "," << this->bb.ll.y << ")";
+				cout << "(" << this->bb.ur.x << "," << this->bb.ur.y << ")" << endl;
+			}
+		}
 };
 
 // derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets

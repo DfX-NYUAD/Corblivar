@@ -35,7 +35,7 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
-void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, vector<TSV_Group> &TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, vector<TSV_Group> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	list<Segments>::iterator it_seg;
 	list<Net const*>::iterator it_net;
@@ -251,23 +251,36 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 		// they will will be handled and plotted in the TSV-density maps
 		for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
-			// TODO adapt TSV islands' outline according to required TSVs;
-			// streamline w/ related code in FloorPlanner
-
 			// consider associated hotspot id for naming the cluster
 			if ((*it_cluster).hotspot_id >= 0) {
 				TSVs.emplace_back(TSV_Group(
+						// cluster id
 						"cluster__hotspot_" + std::to_string((*it_cluster).hotspot_id),
+						// signal / TSV count
 						(*it_cluster).nets.size(),
+						// TSV pitch; required for proper scaling
+						// of TSV island
+						TSV_pitch,
+						// cluster bb; reference point for
+						// placement of TSV island
 						(*it_cluster).bb,
+						// layer assignment
 						i
 					));
 			}
 			else {
 				TSVs.emplace_back(TSV_Group(
+						// cluster id
 						"cluster__no_hotspot",
+						// signal / TSV count
 						(*it_cluster).nets.size(),
+						// TSV pitch; required for proper scaling
+						// of TSV island
+						TSV_pitch,
+						// cluster bb; reference point for
+						// placement of TSV island
 						(*it_cluster).bb,
+						// layer assignment
 						i
 					));
 			}
