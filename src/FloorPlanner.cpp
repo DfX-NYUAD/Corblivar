@@ -624,20 +624,19 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// determine total cost; invert weight of area and outline cost since it's
-		// the only cost term
+		// determine total cost
+		//
+		// invert weight of area and outline cost since it's the only cost term
 		cost.total_cost = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost.area_outline;
 	}
 	// phase two: consider further cost factors
 	else {
-		// reset TSVs
-		this->TSVs.clear();
-
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// determine interconnects cost; also determines hotspot regions and
-		// clusters signal TSVs accordingly
+		// determine interconnects cost
+		//
+		// also determines hotspot regions and clusters signal TSVs accordingly
 		if (this->SA_parameters.opt_interconnects) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
@@ -652,9 +651,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.TSVs_area_deadspace_ratio = 0.0;
 		}
 
-		// cost for failed alignments, i.e., alignment mismatches; also annotates
-		// failed request, this provides feedback for further alignment
-		// optimization; also derives and stores TSV islands
+		// cost for failed alignments (i.e., alignment mismatches)
+		//
+		// also annotates failed request, this provides feedback for further
+		// alignment optimization
+		//
+		// also derives and stores TSV islands, and increases TSV count (TSV cost)
+		// accordingly
 		if (this->SA_parameters.opt_alignment) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
@@ -667,9 +670,11 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
-		// temperature-distribution cost and profile; note that vertical buses and
-		// TSV islands impact heat conduction, thus the block alignment / bus
-		// structures and interconnects are analysed before thermal distribution
+		// temperature-distribution cost and profile
+		//
+		// note that vertical buses and TSV islands impact heat conduction, thus
+		// the block alignment / bus structures and interconnects are analysed
+		// before thermal distribution
 		if (this->SA_parameters.opt_thermal) {
 			this->evaluateThermalDistr(cost, set_max_cost);
 		}
@@ -689,8 +694,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 		// and TSV clustering---is likely significantly different from the
 		// previous temporary solution, thus this re-determination is required.
 		if (finalize) {
+
 			this->evaluateInterconnects(cost, false);
 			this->evaluateThermalDistr(cost, false);
+
+			// also re-determine alignment; only required to capture TSVs of
+			// vertical buses
+			this->evaluateAlignments(cost, alignments);
 		}
 
 		// determine total cost; weight and sum up cost terms
@@ -861,6 +871,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		nets_segments.emplace_back(list<Clustering::Segments>());
 	}
 
+	// reset TSVs
+	this->TSVs.clear();
 
 	// determine HPWL and TSVs for each net
 	for (Net& cur_net : this->nets) {
@@ -990,7 +1002,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	// normalized values; refer to max value from initial sampling
 	//
 	cost.HPWL /= this->max_cost_WL;
-	// sanity check for zero TSVs; applies to 2D floorplanning
+	// sanity check for zero TSVs cost; applies to 2D floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs /= this->max_cost_TSVs;
 	}
@@ -1361,6 +1373,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 							// layer assignment
 							layer
 						));
+
+					// also update global TSV counter accordingly
+					cost.TSVs_actual_value += req.signals;
 				}
 			}
 		}
@@ -1375,6 +1390,12 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 	cost.alignments_actual_value = cost.alignments;
 	// normalize value; refers to max value from initial sampling
 	cost.alignments /= this->max_cost_alignments;
+
+	// update TSV cost;
+	// sanity check for zero TSVs cost; applies to 2D floorplanning
+	if (this->max_cost_TSVs != 0) {
+		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
+	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << endl;
