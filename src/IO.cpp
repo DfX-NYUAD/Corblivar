@@ -1939,7 +1939,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << "set label \"" << TSV_group.id << "\"";
 			gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.IC.outline_x;
 			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.IC.outline_y;
-			gp_out << " font \"Gill Sans,4\"";
+			gp_out << " font \"Gill Sans,2\"";
 			// prevents generating subscripts for underscore in labels
 			gp_out << " noenhanced" << endl;
 		}
