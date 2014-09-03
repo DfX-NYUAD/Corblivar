@@ -52,6 +52,7 @@ class Clustering {
 		struct Cluster {
 			list<Net const*> nets;
 			Rect bb;
+			int hotspot_id;
 		};
 
 		void clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
