@@ -443,6 +443,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	bool valid_solution;
 	double x, y;
 	Cost cost;
+	unsigned i;
+	int clustered_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << endl;
@@ -508,15 +510,27 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << endl;
 			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << endl;
 
-			// TODO statistics of hotspot clusters
-			//
-			// TODO statistics of TSV islands
 			cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << endl;
 			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << endl;
+
+			cout << "Corblivar>  TSV islands: " << this->TSVs.size() << endl;
+			this->IO_conf.results << "Corblivar>  TSV islands: " << this->TSVs.size() << endl;
+
+			clustered_TSVs = 0;
+			for (i = 0; i < this->TSVs.size(); i++) {
+				clustered_TSVs += this->TSVs[i].TSVs_count;
+			}
+
+			if (!this->TSVs.empty()) {
+				cout << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << endl;
+				this->IO_conf.results << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << endl;
+			}
 
 			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
 
+			// TODO statistics of hotspot clusters
+			//
 			cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
 			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
 
