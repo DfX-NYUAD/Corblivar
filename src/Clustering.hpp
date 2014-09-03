@@ -61,18 +61,18 @@ class Clustering {
 	private:
 
 		// POD for hotspot regions
-		struct HotspotRegion {
+		struct Hotspot {
 			double peak_temp;
 			double base_temp;
 			double temp_gradient;
 			list<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
-			int region_id;
-			double region_score;
+			int id;
+			double score;
 			Rect bb;
 		};
 		// related container
-		map<double, HotspotRegion, greater<double>> hotspot_regions;
+		map<double, Hotspot, greater<double>> hotspots;
 
 		// hotspot determination
 		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);

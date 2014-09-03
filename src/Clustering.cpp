@@ -39,9 +39,9 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 	unsigned i, j;
 	list<Segments>::iterator it_seg;
 	list<Net const*>::iterator it_net;
-	Rect intersection, cluster_region;
+	Rect intersection, cluster;
 	bool all_clustered;
-	map<double, HotspotRegion, greater<double>>::iterator it_hotspot;
+	map<double, Hotspot, greater<double>>::iterator it_hotspot;
 	list<Cluster>::iterator it_cluster;
 
 	if (Clustering::DBG) {
@@ -102,8 +102,8 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 				cout << "DBG_CLUSTERING> clustering of net segments; clustering iteration " << j << endl;
 			}
 
-			// reset cluster region
-			cluster_region.area = 0.0;
+			// reset cluster
+			cluster.area = 0.0;
 			// reset clustering flag
 			all_clustered = true;
 
@@ -119,7 +119,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 					all_clustered = false;
 
 					// init new cluster if not done yet
-					if (cluster_region.area == 0.0) {
+					if (cluster.area == 0.0) {
 
 						if (Clustering::DBG_CLUSTERING) {
 							cout << "DBG_CLUSTERING> init new cluster..." << endl;
@@ -139,36 +139,36 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 								-1
 							});
 
-						// memorize initial cluster region
-						cluster_region = (*it_seg).bb;
+						// memorize initial cluster
+						cluster = (*it_seg).bb;
 
 						// also mark initial net as clustered now
 						(*it_seg).net->clustered = true;
 
-						// try to merge with any hotspot region;
-						// considering the most critical regions
-						// first, done via iteration of by
-						// region-score sorted map
-						for (it_hotspot = this->hotspot_regions.begin(); it_hotspot != this->hotspot_regions.end(); ++it_hotspot) {
+						// try to merge with any hotspot;
+						// considering the most critical ones
+						// first, done via iteration of
+						// score-sorted map
+						for (it_hotspot = this->hotspots.begin(); it_hotspot != this->hotspots.end(); ++it_hotspot) {
 
-							intersection = Rect::determineIntersection(cluster_region, (*it_hotspot).second.bb);
+							intersection = Rect::determineIntersection(cluster, (*it_hotspot).second.bb);
 
-							// this hotspot region overlaps
-							// the initial net; consider their
+							// this hotspot overlaps the
+							// initial net; consider their
 							// intersection for further
 							// clustering
 							if (intersection.area != 0.0) {
 
-								cluster_region = intersection;
+								cluster = intersection;
 
 								if (Clustering::DBG_CLUSTERING) {
-									cout << "DBG_CLUSTERING>  considering hotspot region ";
-									cout << (*it_hotspot).second.region_id << " for this cluster" << endl;
+									cout << "DBG_CLUSTERING>  considering hotspot ";
+									cout << (*it_hotspot).second.id << " for this cluster" << endl;
 								}
 
 								//also memorize hotspot id
 								//in cluster itself
-								this->clusters[i].back().hotspot_id = (*it_hotspot).second.region_id;
+								this->clusters[i].back().hotspot_id = (*it_hotspot).second.id;
 
 								break;
 							}
@@ -180,7 +180,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 
 						// determine intersection of cluster w/
 						// current segment
-						intersection = Rect::determineIntersection(cluster_region, (*it_seg).bb);
+						intersection = Rect::determineIntersection(cluster, (*it_seg).bb);
 
 						// ignore merges which would results in
 						// empty (i.e., non-overlapping) segments
@@ -197,8 +197,9 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 							this->clusters[i].back().nets.push_back((*it_seg).net);
 							this->clusters[i].back().bb = intersection;
 
-							// also update cluster-region flag
-							cluster_region = intersection;
+							// also update cluster-region
+							// monitor variable
+							cluster = intersection;
 
 							// also mark net as clustered now
 							(*it_seg).net->clustered = true;
@@ -234,7 +235,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 				cout << " (" << (*it_cluster).bb.ur.x << ",";
 				cout << (*it_cluster).bb.ur.y << ")" << endl;
 
-				cout << "DBG_CLUSTERING>  associated hotspot region:" << (*it_cluster).hotspot_id << endl;
+				cout << "DBG_CLUSTERING>  associated hotspot:" << (*it_cluster).hotspot_id << endl;
 
 				for (it_net = (*it_cluster).nets.begin(); it_net != (*it_cluster).nets.end(); ++it_net) {
 					cout << "DBG_CLUSTERING>   net id: " << (*it_net)->id << endl;
@@ -268,22 +269,22 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;
 	list<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
 	list<ThermalAnalyzer::ThermalMapBin*>::iterator it2;
-	list<int> neighbor_regions;
+	list<int> neighbors;
 	list<int>::iterator it3;
 	ThermalAnalyzer::ThermalMapBin *cur_bin;
-	int hotspot_region_id;
-	map<double, HotspotRegion, greater<double>> hotspot_regions;
-	map<double, HotspotRegion, greater<double>>::iterator it4;
-	HotspotRegion *cur_region;
+	int hotspot_id;
+	map<double, Hotspot, greater<double>> hotspots;
+	map<double, Hotspot, greater<double>>::iterator it4;
+	Hotspot *cur_hotspot;
 	bool bin_handled;
 
 	// reset hotspot regions
-	this->hotspot_regions.clear();
+	this->hotspots.clear();
 
 	// reset hotspot associations in the thermal map
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-			(*thermal_analysis.thermal_map)[x][y].hotspot_region_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
+			(*thermal_analysis.thermal_map)[x][y].hotspot_id = ThermalAnalyzer::HOTSPOT_UNDEFINED;
 		}
 	}
 
@@ -322,7 +323,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	}
 
 	// group the thermal-map list into hotspot regions; perform actual blob detection
-	hotspot_region_id = 0;
+	hotspot_id = 0;
 	for (it1 = thermal_map_list.begin(); it1 != thermal_map_list.end(); ++it1) {
 
 		cur_bin = (*it1);
@@ -341,11 +342,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		if (relev_neighbors.empty()) {
 
 			// initialize new hotspot
-			this->hotspot_regions.insert( pair<int, HotspotRegion>(
-					// region id is the (temporary) key for the
-					// regions map, used for easier data access during
-					// blob detection
-					hotspot_region_id,
+			this->hotspots.insert( pair<int, Hotspot>(
+					// id is the (temporary) key for the map, used for
+					// easier data access during blob detection
+					hotspot_id,
 					// actual hotspot initialization
 					{
 						// peak temp
@@ -361,9 +361,9 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						list<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
 						// memorize hotspot as still growing
 						true,
-						// region id
-						hotspot_region_id,
-						// region score; currently undefined
+						// id
+						hotspot_id,
+						// score; currently undefined
 						-1.0,
 						// enclosing bb; initialize with cur_bin
 						cur_bin->bb
@@ -371,10 +371,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				);
 
 			// mark bin as associated to this new hotspot
-			cur_bin->hotspot_region_id = hotspot_region_id;
+			cur_bin->hotspot_id = hotspot_id;
 
-			// increment hotspot region counter/id
-			hotspot_region_id++;
+			// increment hotspot counter/id
+			hotspot_id++;
 		}
 
 		// some neighbor bins w/ higher temperatures exit
@@ -385,9 +385,9 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 			// also a background bin
 			for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
 
-				if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+				if ((*it2)->hotspot_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
 
-					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+					cur_bin->hotspot_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 					bin_handled = true;
 
 					break;
@@ -398,70 +398,69 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 			// if the neighbors belong to one or to different hotspots
 			if (!bin_handled) {
 
-				neighbor_regions.clear();
+				neighbors.clear();
 
 				for (it2 = relev_neighbors.begin(); it2 != relev_neighbors.end(); ++it2) {
 
 					if (Clustering::DBG_HOTSPOT) {
 
-						if ((*it2)->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+						if ((*it2)->hotspot_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
 
 							cout << "DBG_HOTSPOT> blob-detection error; undefined bin triggered" << endl;
 							continue;
 						}
 					}
 
-					neighbor_regions.push_back((*it2)->hotspot_region_id);
+					neighbors.push_back((*it2)->hotspot_id);
 				}
 
 				if (Clustering::DBG_HOTSPOT) {
 
-					if (neighbor_regions.empty()) {
+					if (neighbors.empty()) {
 						cout << "DBG_HOTSPOT> blob-detection error; no valid neighbor bin found" << endl;
 					}
 				}
 
-				// memorize only unique regions
-				neighbor_regions.sort();
-				neighbor_regions.unique();
+				// memorize only unique bins
+				neighbors.sort();
+				neighbors.unique();
 
 				// all neighbors belong to one specific hotspot
-				if (neighbor_regions.size() == 1) {
+				if (neighbors.size() == 1) {
 
-					cur_region = &this->hotspot_regions.find(neighbor_regions.front())->second;
+					cur_hotspot = &this->hotspots.find(neighbors.front())->second;
 
-					// if the hotspot region is still allowed to grow,
-					// associated this bin with it, and mark bin as
-					// associated
-					if (cur_region->still_growing) {
+					// if the hotspot is allowed to grow, associated
+					// this bin with it, and mark bin as well
+					if (cur_hotspot->still_growing) {
 
-						cur_region->bins.push_back(cur_bin);
-						cur_bin->hotspot_region_id = cur_region->region_id;
+						cur_hotspot->bins.push_back(cur_bin);
+						cur_bin->hotspot_id = cur_hotspot->id;
 					}
-					// if the region is not allowed to grow anymore,
+					// if the hotspot is not allowed to grow anymore,
 					// mark the bin as background bin
 					else {
-						cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+						cur_bin->hotspot_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 					}
 				}
 				// neighbors belong to different hotspots
 				else {
 					// the bin has to be background since it defines
 					// the base level for different hotspots
-					cur_bin->hotspot_region_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
+					cur_bin->hotspot_id = ThermalAnalyzer::HOTSPOT_BACKGROUND;
 
 					// the different hotspots have reached their base
 					// level w/ this bin; mark them as not growing
 					// anymore and memorize the base-level temp
-					for (it3 = neighbor_regions.begin(); it3 != neighbor_regions.end(); ++it3) {
+					for (it3 = neighbors.begin(); it3 != neighbors.end(); ++it3) {
 
-						this->hotspot_regions.find(*it3)->second.still_growing = false;
-						this->hotspot_regions.find(*it3)->second.base_temp = cur_bin->temp;
+						this->hotspots.find(*it3)->second.still_growing = false;
+						this->hotspots.find(*it3)->second.base_temp = cur_bin->temp;
 
 						// the determination of temp gradient and
 						// score could be also conducted here, but
 						// is postponed since a post-processing of
-						// all regions is required anyway
+						// all hotspot regions is required anyway
 					}
 				}
 			}
@@ -469,69 +468,69 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	}
 
 	// post-processing hotspot regions, also re-order them according to their score
-	for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
+	for (it4 = this->hotspots.begin(); it4 != this->hotspots.end(); ++it4) {
 
-		cur_region = &(*it4).second;
+		cur_hotspot = &(*it4).second;
 
 		// some regions may be still marked as growing; mark such regions as not
 		// growing anymore
-		if (cur_region->still_growing) {
+		if (cur_hotspot->still_growing) {
 
-			cur_region->still_growing = false;
+			cur_hotspot->still_growing = false;
 
 			// also approximate base temp, using the minimal temperature of
-			// all bins of the region; note that the actual base temp is
+			// all bins of the hotspot; note that the actual base temp is
 			// slightly lower since the base-level bin is not included in the
-			// region
-			cur_region->base_temp = (*cur_region->bins.begin())->temp;
-			for (it1 = cur_region->bins.begin(); it1 != cur_region->bins.end(); ++it1) {
+			// hotspot itself
+			cur_hotspot->base_temp = (*cur_hotspot->bins.begin())->temp;
+			for (it1 = cur_hotspot->bins.begin(); it1 != cur_hotspot->bins.end(); ++it1) {
 
-				cur_region->base_temp = min(cur_region->base_temp, (*it1)->temp);
+				cur_hotspot->base_temp = min(cur_hotspot->base_temp, (*it1)->temp);
 			}
 		}
 
 		// using the base temp, determine gradient
-		cur_region->temp_gradient = cur_region->peak_temp - cur_region->base_temp;
+		cur_hotspot->temp_gradient = cur_hotspot->peak_temp - cur_hotspot->base_temp;
 
 		// determine hotspot score; the score is defined by its peak temp, temp
 		// gradient, and bin count, i.e., measures how ``critical'' the local
 		// maxima is
-		cur_region->region_score = cur_region->temp_gradient * pow(cur_region->peak_temp, 2.0) * cur_region->bins.size() /
+		cur_hotspot->score = cur_hotspot->temp_gradient * pow(cur_hotspot->peak_temp, 2.0) * cur_hotspot->bins.size() /
 			Clustering::SCORE_NORMALIZATION;
 
 		// determine the (all bins enclosing) bb; this is used to simplify checks
 		// of nets overlapping hotspot regions, but also reduces spatial accuracy
-		for (it1 = cur_region->bins.begin(); it1 != cur_region->bins.end(); ++it1) {
+		for (it1 = cur_hotspot->bins.begin(); it1 != cur_hotspot->bins.end(); ++it1) {
 
-			cur_region->bb = Rect::determBoundingBox(cur_region->bb, (*it1)->bb);
+			cur_hotspot->bb = Rect::determBoundingBox(cur_hotspot->bb, (*it1)->bb);
 		}
 
 		// put hotspot into (temporary) map, which is sorted by the hotspot scores
 		// and later replaces the global map
-		hotspot_regions.insert( pair<double, HotspotRegion>(
-				cur_region->region_score,
-				move(*cur_region)
+		hotspots.insert( pair<double, Hotspot>(
+				cur_hotspot->score,
+				move(*cur_hotspot)
 			));
 	}
 
 	// replace global map w/ new sorted map
-	this->hotspot_regions = move(hotspot_regions);
+	this->hotspots = move(hotspots);
 
 	if (Clustering::DBG_HOTSPOT) {
 		int bins_hotspot = 0;
 		int bins_background = 0;
 		int bins_undefined = 0;
 
-		cout << "DBG_HOTSPOT> hotspot regions:" << endl;
+		cout << "DBG_HOTSPOT> hotspots :" << endl;
 
-		for (it4 = this->hotspot_regions.begin(); it4 != this->hotspot_regions.end(); ++it4) {
-			cout << "DBG_HOTSPOT>  region id: " << (*it4).second.region_id << endl;
+		for (it4 = this->hotspots.begin(); it4 != this->hotspots.end(); ++it4) {
+			cout << "DBG_HOTSPOT>  id: " << (*it4).second.id << endl;
 			cout << "DBG_HOTSPOT>   bb: (" << (*it4).second.bb.ll.x << "," << (*it4).second.bb.ll.y;
 				cout <<  "),(" << (*it4).second.bb.ur.x << "," << (*it4).second.bb.ur.y << ")" << endl;
 			cout << "DBG_HOTSPOT>   peak temp: " << (*it4).second.peak_temp << endl;
 			cout << "DBG_HOTSPOT>   base temp: " << (*it4).second.base_temp << endl;
 			cout << "DBG_HOTSPOT>   temp gradient: " << (*it4).second.temp_gradient << endl;
-			cout << "DBG_HOTSPOT>   region score: " << (*it4).second.region_score << endl;
+			cout << "DBG_HOTSPOT>   score: " << (*it4).second.score << endl;
 			cout << "DBG_HOTSPOT>   bins count: " << (*it4).second.bins.size() << endl;
 			cout << "DBG_HOTSPOT>   still growing: " << (*it4).second.still_growing << endl;
 		}
@@ -543,10 +542,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 				cur_bin = &(*thermal_analysis.thermal_map)[x][y];
 
-				if (cur_bin->hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+				if (cur_bin->hotspot_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
 					bins_background++;
 				}
-				else if (cur_bin->hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+				else if (cur_bin->hotspot_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
 					bins_undefined++;
 				}
 				else {

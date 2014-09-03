@@ -1600,8 +1600,8 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 						// mark bins belonging to a hotspot region
-						if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_region_id != ThermalAnalyzer::HOTSPOT_UNDEFINED &&
-								fp.thermalAnalyzer.thermal_map[x][y].hotspot_region_id != ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+						if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_id != ThermalAnalyzer::HOTSPOT_UNDEFINED &&
+								fp.thermalAnalyzer.thermal_map[x][y].hotspot_id != ThermalAnalyzer::HOTSPOT_BACKGROUND) {
 							gp_out << "set obj " << id << " rect from ";
 							gp_out << x << ", " << y << " to ";
 							gp_out << x + 1 << ", " << y + 1 << " ";
@@ -1621,10 +1621,10 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 							gp_out << x + 1 << ", " << y + 1 << " ";
 							gp_out << "front fillstyle empty border ";
 
-							if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_region_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
+							if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
 								gp_out << "rgb \"red\" linewidth 1";
 							}
-							else if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_region_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
+							else if (fp.thermalAnalyzer.thermal_map[x][y].hotspot_id == ThermalAnalyzer::HOTSPOT_BACKGROUND) {
 								gp_out << "rgb \"black\" linewidth 1";
 							}
 

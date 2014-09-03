@@ -83,7 +83,7 @@ class ThermalAnalyzer {
 			int x;
 			int y;
 			Rect bb;
-			int hotspot_region_id;
+			int hotspot_id;
 			list<ThermalMapBin*> neighbors;
 		};
 		struct ThermalAnalysisResult {
