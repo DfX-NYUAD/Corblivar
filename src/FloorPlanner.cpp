@@ -495,9 +495,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			std::cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
 			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
 			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << std::endl;
 			std::cout << "Corblivar>  x = " << x << std::endl;
@@ -505,18 +507,21 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << std::endl;
 			this->IO_conf.results << " x = " << x << std::endl;
 			this->IO_conf.results << " y = " << y << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
 			this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << std::endl;
 			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << std::endl;
 			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << std::endl;
 
 			std::cout << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
-			this->IO_conf.results << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
+			this->IO_conf.results << " TSV islands: " << this->TSVs.size() << std::endl;
 
 			clustered_TSVs = 0;
 			for (i = 0; i < this->TSVs.size(); i++) {
@@ -525,14 +530,15 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			if (!this->TSVs.empty()) {
 				std::cout << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
+				this->IO_conf.results << " Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
 			}
 
 			std::cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
-			this->IO_conf.results << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
+			this->IO_conf.results << "Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
 
 			if (!this->clustering.hotspots.empty()) {
 
@@ -552,19 +558,21 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				avg_bins_count /= this->clustering.hotspots.size();
 
 				std::cout << "Corblivar>  Avg peak temp: " << avg_peak_temp << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg peak temp: " << avg_peak_temp << std::endl;
+				this->IO_conf.results << " Avg peak temp: " << avg_peak_temp << std::endl;
 				std::cout << "Corblivar>  Avg base temp: " << avg_base_temp << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg base temp: " << avg_base_temp << std::endl;
+				this->IO_conf.results << " Avg base temp: " << avg_base_temp << std::endl;
 				std::cout << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << std::endl;
+				this->IO_conf.results << " Avg temp gradient: " << avg_temp_gradient << std::endl;
 				std::cout << "Corblivar>  Avg score: " << avg_score << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg score: " << avg_score << std::endl;
+				this->IO_conf.results << " Avg score: " << avg_score << std::endl;
 				std::cout << "Corblivar>  Avg bin count: " << avg_bins_count << std::endl;
-				this->IO_conf.results << "Corblivar>  Avg bin count: " << avg_bins_count << std::endl;
+				this->IO_conf.results << " Avg bin count: " << avg_bins_count << std::endl;
 			}
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
 			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << std::endl;
 		}
