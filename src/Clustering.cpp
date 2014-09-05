@@ -35,17 +35,17 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
-void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &nets_segments, vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::list<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
-	list<Segments>::iterator it_seg;
-	list<Net const*>::iterator it_net;
+	std::list<Segments>::iterator it_seg;
+	std::list<Net const*>::iterator it_net;
 	Rect intersection, cluster;
 	bool all_clustered;
-	map<double, Hotspot, greater<double>>::iterator it_hotspot;
-	list<Cluster>::iterator it_cluster;
+	std::map<double, Hotspot, std::greater<double>>::iterator it_hotspot;
+	std::list<Cluster>::iterator it_cluster;
 
 	if (Clustering::DBG) {
-		cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << endl;
+		std::cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << std::endl;
 	}
 
 	// sanity check for available thermal-analysis result; note that these results are
@@ -76,14 +76,14 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 		// dbg, display all nets to consider for clustering
 		if (Clustering::DBG_CLUSTERING) {
 
-			cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << endl;
+			std::cout << "DBG_CLUSTERING> nets to consider for clustering on layer " << i << ":" << std::endl;
 
 			for (it_seg = nets_segments[i].begin(); it_seg != nets_segments[i].end(); ++it_seg) {
-				cout << "DBG_CLUSTERING>  net id: " << it_seg->net->id << endl;
-				cout << "DBG_CLUSTERING>   bb area: " << it_seg->bb.area << endl;
+				std::cout << "DBG_CLUSTERING>  net id: " << it_seg->net->id << std::endl;
+				std::cout << "DBG_CLUSTERING>   bb area: " << it_seg->bb.area << std::endl;
 			}
 
-			cout << "DBG_CLUSTERING>" << endl;
+			std::cout << "DBG_CLUSTERING>" << std::endl;
 		}
 
 		// reset cluster flags of nets to consider on this layer
@@ -92,14 +92,14 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 		}
 
 		// allocate cluster list
-		this->clusters.emplace_back(list<Cluster>());
+		this->clusters.emplace_back(std::list<Cluster>());
 
 		// iteratively merge net segments into clusters; try at most so many times
 		// like nets are to considered on this layer
 		for (j = 1; j <= nets_segments[i].size(); j++) {
 
 			if (Clustering::DBG_CLUSTERING) {
-				cout << "DBG_CLUSTERING> clustering of net segments; clustering iteration " << j << endl;
+				std::cout << "DBG_CLUSTERING> clustering of net segments; clustering iteration " << j << std::endl;
 			}
 
 			// reset cluster
@@ -122,15 +122,15 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 					if (cluster.area == 0.0) {
 
 						if (Clustering::DBG_CLUSTERING) {
-							cout << "DBG_CLUSTERING> init new cluster..." << endl;
-							cout << "DBG_CLUSTERING>  initial net: " << (*it_seg).net->id << endl;
+							std::cout << "DBG_CLUSTERING> init new cluster..." << std::endl;
+							std::cout << "DBG_CLUSTERING>  initial net: " << (*it_seg).net->id << std::endl;
 						}
 
 						// actual init
 						this->clusters[i].push_back({
 								// init list of nets with
 								// this initial net
-								list<Net const*>(1, (*it_seg).net),
+								std::list<Net const*>(1, (*it_seg).net),
 								// init enclosing bb with
 								// this initial net
 								(*it_seg).bb,
@@ -162,8 +162,8 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 								cluster = intersection;
 
 								if (Clustering::DBG_CLUSTERING) {
-									cout << "DBG_CLUSTERING>  considering hotspot ";
-									cout << (*it_hotspot).second.id << " for this cluster" << endl;
+									std::cout << "DBG_CLUSTERING>  considering hotspot ";
+									std::cout << (*it_hotspot).second.id << " for this cluster" << std::endl;
 								}
 
 								//also memorize hotspot id
@@ -187,7 +187,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 						if (intersection.area == 0.0) {
 
 							if (Clustering::DBG_CLUSTERING) {
-								cout << "DBG_CLUSTERING>  ignore net " << (*it_seg).net->id << " for this cluster" << endl;
+								std::cout << "DBG_CLUSTERING>  ignore net " << (*it_seg).net->id << " for this cluster" << std::endl;
 							}
 
 							continue;
@@ -205,7 +205,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 							(*it_seg).net->clustered = true;
 
 							if (Clustering::DBG_CLUSTERING) {
-								cout << "DBG_CLUSTERING>  add net " << (*it_seg).net->id << " to this cluster" << endl;
+								std::cout << "DBG_CLUSTERING>  add net " << (*it_seg).net->id << " to this cluster" << std::endl;
 							}
 						}
 					}
@@ -213,7 +213,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 			}
 
 			if (Clustering::DBG_CLUSTERING) {
-				cout << "DBG_CLUSTERING>" << endl;
+				std::cout << "DBG_CLUSTERING>" << std::endl;
 			}
 
 			// break merge loop in case all nets have been already clustered
@@ -225,26 +225,26 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 		// dbg, display all cluster
 		if (Clustering::DBG_CLUSTERING) {
 
-			cout << "DBG_CLUSTERING> final set of clusters on layer " << i << ":" << endl;
+			std::cout << "DBG_CLUSTERING> final set of clusters on layer " << i << ":" << std::endl;
 
 			for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
-				cout << "DBG_CLUSTERING>  cluster bb:";
-				cout << " (" << (*it_cluster).bb.ll.x << ",";
-				cout << (*it_cluster).bb.ll.y << "),";
-				cout << " (" << (*it_cluster).bb.ur.x << ",";
-				cout << (*it_cluster).bb.ur.y << ")" << endl;
+				std::cout << "DBG_CLUSTERING>  cluster bb:";
+				std::cout << " (" << (*it_cluster).bb.ll.x << ",";
+				std::cout << (*it_cluster).bb.ll.y << "),";
+				std::cout << " (" << (*it_cluster).bb.ur.x << ",";
+				std::cout << (*it_cluster).bb.ur.y << ")" << std::endl;
 
-				cout << "DBG_CLUSTERING>  associated hotspot:" << (*it_cluster).hotspot_id << endl;
+				std::cout << "DBG_CLUSTERING>  associated hotspot:" << (*it_cluster).hotspot_id << std::endl;
 
 				for (it_net = (*it_cluster).nets.begin(); it_net != (*it_cluster).nets.end(); ++it_net) {
-					cout << "DBG_CLUSTERING>   net id: " << (*it_net)->id << endl;
+					std::cout << "DBG_CLUSTERING>   net id: " << (*it_net)->id << std::endl;
 				}
 
-				cout << "DBG_CLUSTERING>" << endl;
+				std::cout << "DBG_CLUSTERING>" << std::endl;
 			}
 
-			cout << "DBG_CLUSTERING>" << endl;
+			std::cout << "DBG_CLUSTERING>" << std::endl;
 		}
 
 		// derive TSV islands from clusters and store into global TSV container;
@@ -288,7 +288,7 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 	}
 
 	if (Clustering::DBG) {
-		cout << "<- Clustering::clusterSignalTSVs" << endl;
+		std::cout << "<- Clustering::clusterSignalTSVs" << std::endl;
 	}
 }
 
@@ -297,16 +297,16 @@ void Clustering::clusterSignalTSVs(vector<Net> &nets, vector< list<Segments> > &
 // based on Lindeberg's grey-level blob detection algorithm.
 void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	int x, y;
-	list<ThermalAnalyzer::ThermalMapBin*> thermal_map_list;
-	list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;
-	list<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
-	list<ThermalAnalyzer::ThermalMapBin*>::iterator it2;
-	list<int> neighbors;
-	list<int>::iterator it3;
+	std::list<ThermalAnalyzer::ThermalMapBin*> thermal_map_list;
+	std::list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;
+	std::list<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
+	std::list<ThermalAnalyzer::ThermalMapBin*>::iterator it2;
+	std::list<int> neighbors;
+	std::list<int>::iterator it3;
 	ThermalAnalyzer::ThermalMapBin *cur_bin;
 	int hotspot_id;
-	map<double, Hotspot, greater<double>> hotspots;
-	map<double, Hotspot, greater<double>>::iterator it4;
+	std::map<double, Hotspot, std::greater<double>> hotspots;
+	std::map<double, Hotspot, std::greater<double>>::iterator it4;
 	Hotspot *cur_hotspot;
 	bool bin_handled;
 
@@ -347,10 +347,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	);
 
 	if (Clustering::DBG_HOTSPOT) {
-		cout << "DBG_HOTSPOT> bin w/ global max temperature [x][y]: " << thermal_map_list.front()->x << ", " << thermal_map_list.front()->y << endl;
-		cout << "DBG_HOTSPOT>  temp: " << thermal_map_list.front()->temp << endl;
+		std::cout << "DBG_HOTSPOT> bin w/ global max temperature [x][y]: " << thermal_map_list.front()->x << ", " << thermal_map_list.front()->y << std::endl;
+		std::cout << "DBG_HOTSPOT>  temp: " << thermal_map_list.front()->temp << std::endl;
 		for (it1 = thermal_map_list.front()->neighbors.begin(); it1 != thermal_map_list.front()->neighbors.end(); ++it1) {
-			cout << "DBG_HOTSPOT>  neighbor bin [x][y]: " << (*it1)->x << ", " << (*it1)->y << endl;
+			std::cout << "DBG_HOTSPOT>  neighbor bin [x][y]: " << (*it1)->x << ", " << (*it1)->y << std::endl;
 		}
 	}
 
@@ -374,7 +374,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		if (relev_neighbors.empty()) {
 
 			// initialize new hotspot
-			this->hotspots.insert( pair<int, Hotspot>(
+			this->hotspots.insert( std::pair<int, Hotspot>(
 					// id is the (temporary) key for the map, used for
 					// easier data access during blob detection
 					hotspot_id,
@@ -390,7 +390,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						// allocate list of associated bins;
 						// initialize with cur_bin as first bin of
 						// new hotspot
-						list<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
+						std::list<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
 						// memorize hotspot as still growing
 						true,
 						// id
@@ -438,7 +438,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 						if ((*it2)->hotspot_id == ThermalAnalyzer::HOTSPOT_UNDEFINED) {
 
-							cout << "DBG_HOTSPOT> blob-detection error; undefined bin triggered" << endl;
+							std::cout << "DBG_HOTSPOT> blob-detection error; undefined bin triggered" << std::endl;
 							continue;
 						}
 					}
@@ -449,7 +449,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				if (Clustering::DBG_HOTSPOT) {
 
 					if (neighbors.empty()) {
-						cout << "DBG_HOTSPOT> blob-detection error; no valid neighbor bin found" << endl;
+						std::cout << "DBG_HOTSPOT> blob-detection error; no valid neighbor bin found" << std::endl;
 					}
 				}
 
@@ -517,7 +517,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 			cur_hotspot->base_temp = (*cur_hotspot->bins.begin())->temp;
 			for (it1 = cur_hotspot->bins.begin(); it1 != cur_hotspot->bins.end(); ++it1) {
 
-				cur_hotspot->base_temp = min(cur_hotspot->base_temp, (*it1)->temp);
+				cur_hotspot->base_temp = std::min(cur_hotspot->base_temp, (*it1)->temp);
 			}
 		}
 
@@ -539,35 +539,35 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 		// put hotspot into (temporary) map, which is sorted by the hotspot scores
 		// and later replaces the global map
-		hotspots.insert( pair<double, Hotspot>(
+		hotspots.insert( std::pair<double, Hotspot>(
 				cur_hotspot->score,
-				move(*cur_hotspot)
+				std::move(*cur_hotspot)
 			));
 	}
 
 	// replace global map w/ new sorted map
-	this->hotspots = move(hotspots);
+	this->hotspots = std::move(hotspots);
 
 	if (Clustering::DBG_HOTSPOT) {
 		int bins_hotspot = 0;
 		int bins_background = 0;
 		int bins_undefined = 0;
 
-		cout << "DBG_HOTSPOT> hotspots :" << endl;
+		std::cout << "DBG_HOTSPOT> hotspots :" << std::endl;
 
 		for (it4 = this->hotspots.begin(); it4 != this->hotspots.end(); ++it4) {
-			cout << "DBG_HOTSPOT>  id: " << (*it4).second.id << endl;
-			cout << "DBG_HOTSPOT>   bb: (" << (*it4).second.bb.ll.x << "," << (*it4).second.bb.ll.y;
-				cout <<  "),(" << (*it4).second.bb.ur.x << "," << (*it4).second.bb.ur.y << ")" << endl;
-			cout << "DBG_HOTSPOT>   peak temp: " << (*it4).second.peak_temp << endl;
-			cout << "DBG_HOTSPOT>   base temp: " << (*it4).second.base_temp << endl;
-			cout << "DBG_HOTSPOT>   temp gradient: " << (*it4).second.temp_gradient << endl;
-			cout << "DBG_HOTSPOT>   score: " << (*it4).second.score << endl;
-			cout << "DBG_HOTSPOT>   bins count: " << (*it4).second.bins.size() << endl;
-			cout << "DBG_HOTSPOT>   still growing: " << (*it4).second.still_growing << endl;
+			std::cout << "DBG_HOTSPOT>  id: " << (*it4).second.id << std::endl;
+			std::cout << "DBG_HOTSPOT>   bb: (" << (*it4).second.bb.ll.x << "," << (*it4).second.bb.ll.y;
+				std::cout <<  "),(" << (*it4).second.bb.ur.x << "," << (*it4).second.bb.ur.y << ")" << std::endl;
+			std::cout << "DBG_HOTSPOT>   peak temp: " << (*it4).second.peak_temp << std::endl;
+			std::cout << "DBG_HOTSPOT>   base temp: " << (*it4).second.base_temp << std::endl;
+			std::cout << "DBG_HOTSPOT>   temp gradient: " << (*it4).second.temp_gradient << std::endl;
+			std::cout << "DBG_HOTSPOT>   score: " << (*it4).second.score << std::endl;
+			std::cout << "DBG_HOTSPOT>   bins count: " << (*it4).second.bins.size() << std::endl;
+			std::cout << "DBG_HOTSPOT>   still growing: " << (*it4).second.still_growing << std::endl;
 		}
 
-		cout << "DBG_HOTSPOT> adapted thermal-map:" << endl;
+		std::cout << "DBG_HOTSPOT> adapted thermal-map:" << std::endl;
 
 		for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 			for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
@@ -586,8 +586,8 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 			}
 		}
 
-		cout << "DBG_HOTSPOT>  bins w/ hotspot assigned: " << bins_hotspot << endl;
-		cout << "DBG_HOTSPOT>  background bins: " << bins_background << endl;
-		cout << "DBG_HOTSPOT>  undefined bins: " << bins_undefined << endl;
+		std::cout << "DBG_HOTSPOT>  bins w/ hotspot assigned: " << bins_hotspot << std::endl;
+		std::cout << "DBG_HOTSPOT>  background bins: " << bins_background << std::endl;
+		std::cout << "DBG_HOTSPOT>  undefined bins: " << bins_undefined << std::endl;
 	}
 }

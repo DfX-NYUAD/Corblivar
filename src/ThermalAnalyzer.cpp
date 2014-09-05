@@ -37,7 +37,7 @@ void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
 	int x, y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::initThermalMap()" << endl;
+		std::cout << "-> ThermalAnalyzer::initThermalMap()" << std::endl;
 	}
 
 	// scale of thermal map dimensions
@@ -60,7 +60,7 @@ void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
 					ThermalAnalyzer::HOTSPOT_UNDEFINED,
 					// allocation for neighbor's list; to be
 					// initialized during clustering
-					list<ThermalMapBin*>()
+					std::list<ThermalMapBin*>()
 			};
 
 			// determine the bin's bb
@@ -151,7 +151,7 @@ void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
 	this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][0].neighbors.push_back(&this->thermal_map[ThermalAnalyzer::THERMAL_MAP_DIM - 1][1]);
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::initThermalMap" << endl;
+		std::cout << "<- ThermalAnalyzer::initThermalMap" << std::endl;
 	}
 }
 
@@ -161,7 +161,7 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	ThermalAnalyzer::PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::initPowerMaps(" << layers << ", " << die_outline.x << ", " << die_outline.y << ")" << endl;
+		std::cout << "-> ThermalAnalyzer::initPowerMaps(" << layers << ", " << die_outline.x << ", " << die_outline.y << ")" << std::endl;
 	}
 
 	this->power_maps.clear();
@@ -169,7 +169,7 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	// allocate power-maps arrays
 	for (i = 0; i < layers; i++) {
 		this->power_maps.emplace_back(
-			array<array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
+			std::array<std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
 		);
 	}
 
@@ -206,7 +206,7 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::initPowerMaps" << endl;
+		std::cout << "<- ThermalAnalyzer::initPowerMaps" << std::endl;
 	}
 }
 
@@ -223,12 +223,12 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	int x_y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::initThermalMasks(" << layers << ", " << log << ")" << endl;
+		std::cout << "-> ThermalAnalyzer::initThermalMasks(" << layers << ", " << log << ")" << std::endl;
 	}
 
 	if (log) {
-		cout << "ThermalAnalyzer> ";
-		cout << "Initializing thermals masks for power blurring ..." << endl;
+		std::cout << "ThermalAnalyzer> ";
+		std::cout << "Initializing thermals masks for power blurring ..." << std::endl;
 	}
 
 	// reset mask arrays
@@ -237,7 +237,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	// allocate mask arrays
 	for (i = 0; i < layers; i++) {
 		this->thermal_masks.emplace_back(
-			array<double,ThermalAnalyzer::THERMAL_MASK_DIM>()
+			std::array<double,ThermalAnalyzer::THERMAL_MASK_DIM>()
 		);
 	}
 
@@ -274,33 +274,33 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 
 	if (ThermalAnalyzer::DBG) {
 		// enforce fixed digit count for printing mask
-		cout << fixed;
+		std::cout << std::fixed;
 		// dump mask
 		for (i = 0; i < layers; i++) {
-			cout << "DBG> Thermal 1D mask for point source on layer " << i << ":" << endl;
+			std::cout << "DBG> Thermal 1D mask for point source on layer " << i << ":" << std::endl;
 			for (x_y = 0; x_y < ThermalAnalyzer::THERMAL_MASK_DIM; x_y++) {
-				cout << this->thermal_masks[i][x_y] << ", ";
+				std::cout << this->thermal_masks[i][x_y] << ", ";
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
 		// reset to default floating output
-		cout.unsetf(ios_base::floatfield);
+		std::cout.unsetf(std::ios_base::floatfield);
 
-		cout << endl;
-		cout << "DBG> Note that these values will be multiplied w/ each other in the final 2D mask" << endl;
+		std::cout << std::endl;
+		std::cout << "DBG> Note that these values will be multiplied w/ each other in the final 2D mask" << std::endl;
 	}
 
 	if (log) {
-		cout << "ThermalAnalyzer> ";
-		cout << "Done" << endl << endl;
+		std::cout << "ThermalAnalyzer> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::initThermalMasks" << endl;
+		std::cout << "<- ThermalAnalyzer::initThermalMasks" << std::endl;
 	}
 }
 
-void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
+void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
 	int x, y;
 	Rect bin, intersect, block_offset;
@@ -309,7 +309,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	ThermalAnalyzer::PowerMapBin init_bin;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", (" << die_outline.x << ", " << die_outline.y << "), " << &parameters << ", " << extend_boundary_blocks_into_padding_zone << ")" << endl;
+		std::cout << "-> ThermalAnalyzer::generatePowerMaps(" << layers << ", " << &blocks << ", (" << die_outline.x << ", " << die_outline.y << "), " << &parameters << ", " << extend_boundary_blocks_into_padding_zone << ")" << std::endl;
 	}
 
 	init_bin.power_density = 0.0;
@@ -384,8 +384,8 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
 			// +1 in order to efficiently emulate the result of ceil(); limit
 			// upper bound to power-maps dimenions
-			x_upper = min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-			y_upper = min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			x_upper = std::min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = std::min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
@@ -445,11 +445,11 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, vector<Block> const& 
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::generatePowerMaps" << endl;
+		std::cout << "<- ThermalAnalyzer::generatePowerMaps" << std::endl;
 	}
 }
 
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Island> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMaps(int const& layers, std::vector<TSV_Island> const& TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
@@ -458,7 +458,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Island> const
 	Rect bb, prev_bb;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << endl;
+		std::cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
 	}
 
 	// consider impact of vertical buses; map TSVs to power maps
@@ -481,14 +481,14 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Island> const
 		y_lower = static_cast<int>(TSV_group.bb.ll.y / this->power_maps_dim_y);
 		// +1 in order to efficiently emulate the result of ceil(); limit upper
 		// bound to power-maps dimensions
-		x_upper = min(static_cast<int>(TSV_group.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-		y_upper = min(static_cast<int>(TSV_group.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+		x_upper = std::min(static_cast<int>(TSV_group.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+		y_upper = std::min(static_cast<int>(TSV_group.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 		if (ThermalAnalyzer::DBG) {
-			cout << "DBG> TSV group " << TSV_group.id << endl;
-			cout << "DBG>  Affected power-map bins: " << x_lower << "," << y_lower
+			std::cout << "DBG> TSV group " << TSV_group.id << std::endl;
+			std::cout << "DBG>  Affected power-map bins: " << x_lower << "," << y_lower
 				<< " to " <<
-				x_upper << "," << y_upper << endl;
+				x_upper << "," << y_upper << std::endl;
 		}
 
 		// walk power-map bins covering intersection outline; adapt TSV densities
@@ -535,7 +535,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Island> const
 			// sanity check; TSV density should be <= 100%; might be larger
 			// due to superposition in calculations above
 			for (i = 0; i < layers; i++) {
-				this->power_maps[i][x][y].TSV_density = min(100.0, this->power_maps[i][x][y].TSV_density);
+				this->power_maps[i][x][y].TSV_density = std::min(100.0, this->power_maps[i][x][y].TSV_density);
 			}
 
 			// adapt maps for all layers; the uppermost layer next the
@@ -559,7 +559,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, vector<TSV_Island> const
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::adaptPowerMaps" << endl;
+		std::cout << "<- ThermalAnalyzer::adaptPowerMaps" << std::endl;
 	}
 }
 
@@ -577,10 +577,10 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
 	// convolution of padded power maps
-	array< array<double, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
+	std::array< std::array<double, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM> thermal_map_tmp;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "-> ThermalAnalyzer::performPowerBlurring(" << &ret << ", " << ", " << layers << ", " << &parameters << ")" << endl;
+		std::cout << "-> ThermalAnalyzer::performPowerBlurring(" << &ret << ", " << ", " << layers << ", " << &parameters << ")" << std::endl;
 	}
 
 	// init temp map w/ zero
@@ -640,11 +640,11 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 						// mass of dbg messages; only for insane
 						// flag
 						if (ThermalAnalyzer::DBG_INSANE) {
-							cout << "DBG> y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << endl;
+							std::cout << "DBG> y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << std::endl;
 						}
 
 						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
-							cout << "DBG> Convolution data error; i out of range (should be limited by x)" << endl;
+							std::cout << "DBG> Convolution data error; i out of range (should be limited by x)" << std::endl;
 						}
 					}
 
@@ -688,12 +688,12 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 						// mass of dbg messages; only for insane
 						// flag
 						if (ThermalAnalyzer::DBG_INSANE) {
-							cout << "DBG> x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
-							cout << ", mask_i=" << mask_i << ", i=" << i << endl;
+							std::cout << "DBG> x=" << x << ", y=" << y << ", map_x=" << map_x << ", map_y=" << map_y;
+							std::cout << ", mask_i=" << mask_i << ", i=" << i << std::endl;
 						}
 
 						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
-							cout << "DBG> Convolution data error; i out of range (should be limited by y)" << endl;
+							std::cout << "DBG> Convolution data error; i out of range (should be limited by y)" << std::endl;
 						}
 					}
 
@@ -711,7 +711,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	max_temp = avg_temp = 0.0;
 	for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-			max_temp = max(max_temp, this->thermal_map[x][y].temp);
+			max_temp = std::max(max_temp, this->thermal_map[x][y].temp);
 			avg_temp += this->thermal_map[x][y].temp;
 		}
 	}
@@ -727,6 +727,6 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 	ret.thermal_map = &this->thermal_map;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		cout << "<- ThermalAnalyzer::performPowerBlurring" << endl;
+		std::cout << "<- ThermalAnalyzer::performPowerBlurring" << std::endl;
 	}
 }

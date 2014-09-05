@@ -30,9 +30,9 @@ int main (int argc, char** argv) {
 	FloorPlanner fp;
 	bool done;
 
-	cout << endl;
-	cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << endl;
-	cout << "----- 3D floorplanning tool v 1.1.1 ------------------------------" << endl << endl;
+	std::cout << std::endl;
+	std::cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << std::endl;
+	std::cout << "----- 3D floorplanning tool v 1.1.1 ------------------------------" << std::endl << std::endl;
 
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);
@@ -54,8 +54,8 @@ int main (int argc, char** argv) {
 	if (fp.inputSolutionFileOpen()) {
 
 		if (fp.logMin()) {
-			cout << "Corblivar> ";
-			cout << "Handling given solution file ..." << endl << endl;
+			std::cout << "Corblivar> ";
+			std::cout << "Handling given solution file ..." << std::endl << std::endl;
 		}
 
 		// read from file
@@ -74,20 +74,20 @@ int main (int argc, char** argv) {
 		corb.initCorblivarRandomly(fp.logMed(), fp.getLayers(), fp.getBlocks(), fp.powerAwareBlockHandling());
 
 		if (fp.logMin()) {
-			cout << "Corblivar> ";
-			cout << "Performing SA floorplanning optimization ..." << endl << endl;
+			std::cout << "Corblivar> ";
+			std::cout << "Performing SA floorplanning optimization ..." << std::endl << std::endl;
 		}
 
 		// perform SA; main handler
 		done = fp.performSA(corb);
 
 		if (fp.logMin()) {
-			cout << "Corblivar> ";
+			std::cout << "Corblivar> ";
 			if (done) {
-				cout << "Done, floorplanning was successful" << endl << endl;
+				std::cout << "Done, floorplanning was successful" << std::endl << std::endl;
 			}
 			else {
-				cout << "Done, floorplanning was _not_ successful" << endl << endl;
+				std::cout << "Done, floorplanning was _not_ successful" << std::endl << std::endl;
 			}
 		}
 

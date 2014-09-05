@@ -52,8 +52,8 @@ class Net {
 	public:
 		int id;
 		bool hasExternalPin;
-		vector<Block const*> blocks;
-		vector<Pin const*> terminals;
+		std::vector<Block const*> blocks;
+		std::vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
 
@@ -66,8 +66,8 @@ class Net {
 				this->layer_bottom = this->layer_top = this->blocks[0]->layer;
 
 				for (Block const* b : this->blocks) {
-					this->layer_bottom = min(this->layer_bottom, b->layer);
-					this->layer_top = max(this->layer_top, b->layer);
+					this->layer_bottom = std::min(this->layer_bottom, b->layer);
+					this->layer_top = std::max(this->layer_top, b->layer);
 				}
 
 				// terminals have to be routed through die 0, that means
@@ -82,13 +82,13 @@ class Net {
 
 		inline Rect determBoundingBox(int const& layer) const {
 			int i;
-			vector<Rect const*> blocks_to_consider;
+			std::vector<Rect const*> blocks_to_consider;
 			bool blocks_above_considered;
 			// dummy return value
 			Rect bb;
 
 			if (Net::DBG) {
-				cout << "DBG_NET>   Determine bb for net " << this->id << " on layer " << layer << endl;
+				std::cout << "DBG_NET>   Determine bb for net " << this->id << " on layer " << layer << std::endl;
 			}
 
 			// blocks / pins for cur_net on this layer
@@ -99,7 +99,7 @@ class Net {
 					blocks_to_consider.push_back(&b->bb);
 
 					if (Net::DBG) {
-						cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << endl;
+						std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << std::endl;
 					}
 				}
 
@@ -112,7 +112,7 @@ class Net {
 						blocks_to_consider.push_back(&pin->bb);
 
 						if (Net::DBG) {
-							cout << "DBG_NET> 	Consider terminal pin " << pin->id << endl;
+							std::cout << "DBG_NET> 	Consider terminal pin " << pin->id << std::endl;
 						}
 					}
 				}
@@ -136,7 +136,7 @@ class Net {
 						blocks_above_considered = true;
 
 						if (Net::DBG) {
-							cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << endl;
+							std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << std::endl;
 						}
 					}
 				}
@@ -156,7 +156,7 @@ class Net {
 			if (blocks_to_consider.size() == 1 && layer == this->layer_top) {
 
 				if (Net::DBG) {
-					cout << "DBG_NET> 	Ignore single block on uppermost layer" << endl;
+					std::cout << "DBG_NET> 	Ignore single block on uppermost layer" << std::endl;
 				}
 
 				return bb;

@@ -84,13 +84,13 @@ class ThermalAnalyzer {
 			int y;
 			Rect bb;
 			int hotspot_id;
-			list<ThermalMapBin*> neighbors;
+			std::list<ThermalMapBin*> neighbors;
 		};
 		struct ThermalAnalysisResult {
 			double cost_temp;
 			double max_temp;
 			double temp_offset;
-			array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> *thermal_map = nullptr;
+			std::array< std::array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> *thermal_map = nullptr;
 		};
 
 	// private data, functions
@@ -102,12 +102,12 @@ class ThermalAnalyzer {
 		// thermal_masks[1] relates to the mask for layer 0 obtained by
 		// considering heat source in layer 1 and so forth.  Note that the masks
 		// are only 1D for the separated convolution.
-		vector< array<double, THERMAL_MASK_DIM> > thermal_masks;
+		std::vector< std::array<double, THERMAL_MASK_DIM> > thermal_masks;
 		// power_maps[i][x][y], whereas power_maps[0] relates to the map for layer
 		// 0 and so forth.
-		vector< array< array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
+		std::vector< std::array< std::array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
 		// thermal map for layer 0 (lowest layer), i.e., hottest layer
-		array< array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
+		std::array< std::array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
 
 		// thermal modeling: parameters for generating thermal maps
 		double thermal_map_dim_x, thermal_map_dim_y;
@@ -116,7 +116,7 @@ class ThermalAnalyzer {
 		double power_maps_bin_area;
 		double blocks_offset_x, blocks_offset_y;
 		double padding_right_boundary_blocks_distance, padding_upper_boundary_blocks_distance;
-		array<double, POWER_MAPS_DIM + 1> power_maps_bins_ll_x, power_maps_bins_ll_y;
+		std::array<double, POWER_MAPS_DIM + 1> power_maps_bins_ll_x, power_maps_bins_ll_y;
 		static constexpr double PADDING_ZONE_BLOCKS_DISTANCE_LIMIT = 0.01;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// Note: properties for heat spread and heat sink also from [Park09] (equal default
@@ -224,8 +224,8 @@ class ThermalAnalyzer {
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		void initThermalMap(Point const& die_outline);
 		void initPowerMaps(int const& layers, Point const& die_outline);
-		void generatePowerMaps(int const& layers, vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
-		void adaptPowerMaps(int const& layers, vector<TSV_Island> const& TSVs, vector<Net> const& nets, MaskParameters const& parameters);
+		void generatePowerMaps(int const& layers, std::vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
+		void adaptPowerMaps(int const& layers, std::vector<TSV_Island> const& TSVs, std::vector<Net> const& nets, MaskParameters const& parameters);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
 		void performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters);

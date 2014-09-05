@@ -29,7 +29,7 @@
 #include "CorblivarCore.hpp"
 
 void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
-	list<Block const*> relevBlocks;
+	std::list<Block const*> relevBlocks;
 
 	// current tuple; only mutable block parameters can be edited
 	Block const* cur_block = this->getCurrentBlock();
@@ -78,33 +78,33 @@ void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 
 void CorblivarDie::debugStacks() {
 	Block const* cur_block = this->getCurrentBlock();
-	list<Block const*>::iterator iter;
+	std::list<Block const*>::iterator iter;
 
-	cout << "DBG_CORB> ";
-	cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id + 1 << ": ";
-	cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
-	cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << endl;
+	std::cout << "DBG_CORB> ";
+	std::cout << "Processed (placed) CBL tuple " << this->getCBL().tupleString(this->pi) << " on die " << this->id + 1 << ": ";
+	std::cout << "LL=(" << cur_block->bb.ll.x << ", " << cur_block->bb.ll.y << "), ";
+	std::cout << "UR=(" << cur_block->bb.ur.x << ", " << cur_block->bb.ur.y << ")" << std::endl;
 
-	cout << "DBG_CORB>  new stack Hi: ";
+	std::cout << "DBG_CORB>  new stack Hi: ";
 	for (iter = this->Hi.begin(); iter != this->Hi.end(); ++iter) {
 
 		if (*iter != this->Hi.back()) {
-			cout << (*iter)->id << ", ";
+			std::cout << (*iter)->id << ", ";
 		}
 		else {
-			cout << (*iter)->id << endl;
+			std::cout << (*iter)->id << std::endl;
 			break;
 		}
 	}
 
-	cout << "DBG_CORB>  new stack Vi: ";
+	std::cout << "DBG_CORB>  new stack Vi: ";
 	for (iter = this->Vi.begin(); iter != this->Vi.end(); ++iter) {
 
 		if (*iter != this->Vi.back()) {
-			cout << (*iter)->id << ", ";
+			std::cout << (*iter)->id << ", ";
 		}
 		else {
-			cout << (*iter)->id << endl;
+			std::cout << (*iter)->id << std::endl;
 			break;
 		}
 	}
@@ -130,7 +130,7 @@ bool CorblivarDie::debugLayout() const {
 
 			// check for block overlaps
 			if (flag_inner && Rect::rectsIntersect(a->bb, b->bb)) {
-				cout << "DBG_LAYOUT> Invalid layout! die: " << this->id + 1 << "; overlapping blocks: " << a->id << ", " << b->id << endl;
+				std::cout << "DBG_LAYOUT> Invalid layout! die: " << this->id + 1 << "; overlapping blocks: " << a->id << ", " << b->id << std::endl;
 
 				invalid = true;
 			}
@@ -140,8 +140,8 @@ bool CorblivarDie::debugLayout() const {
 	return invalid;
 }
 
-list<Block const*> CorblivarDie::popRelevantBlocks() {
-	list<Block const*> ret;
+std::list<Block const*> CorblivarDie::popRelevantBlocks() {
+	std::list<Block const*> ret;
 	unsigned blocks_count;
 
 	// horizontal placement; consider stack Hi
@@ -149,11 +149,11 @@ list<Block const*> CorblivarDie::popRelevantBlocks() {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min<unsigned>(this->getJunctions(this->pi) + 1, this->Hi.size());
+		blocks_count = std::min<unsigned>(this->getJunctions(this->pi) + 1, this->Hi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {
-			ret.push_back(move(this->Hi.front()));
+			ret.push_back(std::move(this->Hi.front()));
 			this->Hi.pop_front();
 		}
 	}
@@ -162,11 +162,11 @@ list<Block const*> CorblivarDie::popRelevantBlocks() {
 
 		// relevant blocks count depends on the T-junctions to be covered and the
 		// current stack itself
-		blocks_count = min<unsigned>(this->getJunctions(this->pi) + 1, this->Vi.size());
+		blocks_count = std::min<unsigned>(this->getJunctions(this->pi) + 1, this->Vi.size());
 
 		// pop relevant blocks from stack into return list
 		while (blocks_count > ret.size()) {
-			ret.push_back(move(this->Vi.front()));
+			ret.push_back(std::move(this->Vi.front()));
 			this->Vi.pop_front();
 		}
 	}
@@ -174,7 +174,7 @@ list<Block const*> CorblivarDie::popRelevantBlocks() {
 	return ret;
 }
 
-void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack) {
+void CorblivarDie::updatePlacementStacks(std::list<Block const*>& relev_blocks_stack) {
 	bool add_to_stack;
 	Block const* b;
 
@@ -184,19 +184,19 @@ void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack)
 	Direction const& cur_dir = this->getCurrentDirection();
 
 	if (CorblivarDie::DBG_STACKS) {
-		cout << "DBG_CORB> Update stacks; current block: " << cur_block->id << "; block's dir: " << static_cast<unsigned>(cur_dir);
+		std::cout << "DBG_CORB> Update stacks; current block: " << cur_block->id << "; block's dir: " << static_cast<unsigned>(cur_dir);
 
-		cout << "; relevant blocks: ";
+		std::cout << "; relevant blocks: ";
 		for (Block const* b : relev_blocks_stack) {
 			if (b->id != relev_blocks_stack.back()->id) {
-				cout << b->id << ", ";
+				std::cout << b->id << ", ";
 			}
 			else {
-				cout << b->id;
+				std::cout << b->id;
 			}
 		}
 
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	// horizontal placement
@@ -230,7 +230,7 @@ void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack)
 		// by reverse iteration, we retain the (implicit) ordering of blocks
 		// popped from stack Hi regarding their insertion order; required for
 		// proper stack manipulation
-		for (list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
+		for (std::list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
 			b = *r_iter;
 
 			if (!Rect::rectA_leftOf_rectB(b->bb, cur_block->bb, true)) {
@@ -269,7 +269,7 @@ void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack)
 		// iteration, we retain the (implicit) ordering of blocks popped from
 		// stack Vi regarding their insertion order; required for proper stack
 		// manipulation
-		for (list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
+		for (std::list<Block const*>::reverse_iterator r_iter = relev_blocks_stack.rbegin(); r_iter != relev_blocks_stack.rend(); ++r_iter) {
 			b = *r_iter;
 
 			if (!Rect::rectA_below_rectB(b->bb, cur_block->bb, true)) {
@@ -279,9 +279,9 @@ void CorblivarDie::updatePlacementStacks(list<Block const*>& relev_blocks_stack)
 	}
 }
 
-void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack) {
-	list<Block const*>::iterator iter;
-	list<Block const*> stack_backup;
+void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_stack) {
+	std::list<Block const*>::iterator iter;
+	std::list<Block const*> stack_backup;
 	bool covered;
 
 	// current block
@@ -290,19 +290,19 @@ void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack
 	Direction const& cur_dir = this->getCurrentDirection();
 
 	if (CorblivarDie::DBG_STACKS) {
-		cout << "DBG_CORB> Rebuild stacks; current block: " << cur_block->id << ", block's dir: " << static_cast<unsigned>(cur_dir);
+		std::cout << "DBG_CORB> Rebuild stacks; current block: " << cur_block->id << ", block's dir: " << static_cast<unsigned>(cur_dir);
 
-		cout << "; relevant blocks: ";
+		std::cout << "; relevant blocks: ";
 		for (Block const* b : relev_blocks_stack) {
 			if (b->id != relev_blocks_stack.back()->id) {
-				cout << b->id << ", ";
+				std::cout << b->id << ", ";
 			}
 			else {
-				cout << b->id;
+				std::cout << b->id;
 			}
 		}
 
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	// after block shifting, we cannot easily make assumption on the resulting layout
@@ -469,14 +469,14 @@ void CorblivarDie::rebuildPlacementStacks(list<Block const*>& relev_blocks_stack
 
 				// dbg log for failure
 				if (CorblivarDie::DBG_STACKS) {
-					cout << "DBG_CORB>  Differing corner blocks on Hi, Vi; related stack fixing failed!" << endl;
+					std::cout << "DBG_CORB>  Differing corner blocks on Hi, Vi; related stack fixing failed!" << std::endl;
 				}
 			}
 		}
 	}
 }
 
-void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
+void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, std::list<Block const*> const& relev_blocks_stack, bool const& extended_check) const {
 	double x, y;
 
 	// current block
@@ -507,7 +507,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 						x = b->bb.ll.x;
 					}
 					else {
-						x = min(x, b->bb.ll.x);
+						x = std::min(x, b->bb.ll.x);
 					}
 				}
 			}
@@ -540,7 +540,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 						// only consider blocks which intersect in y-direction
 						if (Rect::rectsIntersectVertical(cur_block->bb, this->getBlock(b)->bb)) {
 							// determine right front
-							x = max(x, this->getBlock(b)->bb.ur.x);
+							x = std::max(x, this->getBlock(b)->bb.ur.x);
 						}
 					}
 				}
@@ -555,7 +555,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 					// only consider blocks which intersect in y-direction
 					if (Rect::rectsIntersectVertical(cur_block->bb, b->bb)) {
 						// determine right front
-						x = max(x, b->bb.ur.x);
+						x = std::max(x, b->bb.ur.x);
 					}
 				}
 			}
@@ -589,7 +589,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 						y = b->bb.ll.y;
 					}
 					else {
-						y = min(y, b->bb.ll.y);
+						y = std::min(y, b->bb.ll.y);
 					}
 				}
 			}
@@ -622,7 +622,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 						// only consider blocks which intersect in x-direction
 						if (Rect::rectsIntersectHorizontal(cur_block->bb, this->getBlock(b)->bb)) {
 							// determine upper front
-							y = max(y, this->getBlock(b)->bb.ur.y);
+							y = std::max(y, this->getBlock(b)->bb.ur.y);
 						}
 					}
 				}
@@ -637,7 +637,7 @@ void CorblivarDie::determCurrentBlockCoords(Coordinate const& coord, list<Block 
 					// only consider blocks which intersect in x-direction
 					if (Rect::rectsIntersectHorizontal(cur_block->bb, b->bb)) {
 						// determine upper front
-						y = max(y, b->bb.ur.y);
+						y = std::max(y, b->bb.ur.y);
 					}
 				}
 			}
@@ -684,8 +684,8 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		if (req->range_x()) {
 
 			// limit desired range, i.e., consider current block dimensions
-			range_x = min(shift_block->bb.w, reference_block->bb.w);
-			range_x = min(range_x, req->alignment_x);
+			range_x = std::min(shift_block->bb.w, reference_block->bb.w);
+			range_x = std::min(range_x, req->alignment_x);
 
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
@@ -731,7 +731,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 							neighbor_x = this->getBlock(b)->bb.ll.x;
 						}
 						else {
-							neighbor_x = min(neighbor_x, this->getBlock(b)->bb.ll.x);
+							neighbor_x = std::min(neighbor_x, this->getBlock(b)->bb.ll.x);
 						}
 					}
 				}
@@ -741,7 +741,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// restricted in order to avoid overlaps
 			if (neighbor_x_found) {
 
-				shift_x = min(shift_x, neighbor_x - shift_block->bb.ur.x);
+				shift_x = std::min(shift_x, neighbor_x - shift_block->bb.ur.x);
 			}
 
 			// memorize that shifting is possible (and conducted)
@@ -749,15 +749,15 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 
 			// dbg logging
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-				cout << " in x-direction by " << range_x - overlap_offset_x;
-				cout << " (feasible: " << shift_x << ")";
+				std::cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
+				std::cout << " in x-direction by " << range_x - overlap_offset_x;
+				std::cout << " (feasible: " << shift_x << ")";
 
 				if (dry_run) {
-					cout << " is required, but not performed now (dry run)";
+					std::cout << " is required, but not performed now (dry run)";
 				}
 
-				cout << endl;
+				std::cout << std::endl;
 			}
 
 			// apply shifting
@@ -778,7 +778,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			}
 
 			if (overlap_offset_x < range_x) {
-				cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in x-direction not effective; other block would need to be shifted!" << endl;
+				std::cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in x-direction not effective; other block would need to be shifted!" << std::endl;
 			}
 		}
 	}
@@ -792,8 +792,8 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		if (req->range_y()) {
 
 			// limit desired range, i.e., consider current block dimensions
-			range_y = min(shift_block->bb.h, reference_block->bb.h);
-			range_y = min(range_y, req->alignment_y);
+			range_y = std::min(shift_block->bb.h, reference_block->bb.h);
+			range_y = std::min(range_y, req->alignment_y);
 
 			// determine inherent overlap; for non-overlapping blocks this
 			// will be < 0
@@ -839,7 +839,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 							neighbor_y = this->getBlock(b)->bb.ll.y;
 						}
 						else {
-							neighbor_y = min(neighbor_y, this->getBlock(b)->bb.ll.y);
+							neighbor_y = std::min(neighbor_y, this->getBlock(b)->bb.ll.y);
 						}
 					}
 				}
@@ -849,7 +849,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// restricted in order to avoid overlaps
 			if (neighbor_y_found) {
 
-				shift_y = min(shift_y, neighbor_y - shift_block->bb.ur.y);
+				shift_y = std::min(shift_y, neighbor_y - shift_block->bb.ur.y);
 			}
 
 			// memorize that shifting is possible (and conducted)
@@ -857,15 +857,15 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 
 			// dbg logging
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
-				cout << " in y-direction by " << range_y - overlap_offset_y;
-				cout << " (feasible: " << shift_y << ")";
+				std::cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
+				std::cout << " in y-direction by " << range_y - overlap_offset_y;
+				std::cout << " (feasible: " << shift_y << ")";
 
 				if (dry_run) {
-					cout << " is required, but not performed now (dry run)";
+					std::cout << " is required, but not performed now (dry run)";
 				}
 
-				cout << endl;
+				std::cout << std::endl;
 			}
 
 			// apply shifting
@@ -886,7 +886,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			}
 
 			if (overlap_offset_y < range_y) {
-				cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in y-direction not effective; other block would need to be shifted!" << endl;
+				std::cout << "DBG_ALIGNMENT>      Shifting block " << shift_block->id << " in y-direction not effective; other block would need to be shifted!" << std::endl;
 			}
 		}
 	}
@@ -899,13 +899,13 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 // (FloorPlanner::determCostAlignment does annotate alignment success / failure to the
 // blocks themselves)
 void CorblivarDie::performPacking(Direction const& dir) {
-	list<Block const*> blocks;
-	list<Block const*>::iterator i1;
-	list<Block const*>::reverse_iterator i2;
+	std::list<Block const*> blocks;
+	std::list<Block const*>::iterator i1;
+	std::list<Block const*>::reverse_iterator i2;
 	Block const* block;
 	Block const* neighbor;
 	double x, y;
-	vector<Rect> blocks_checked;
+	std::vector<Rect> blocks_checked;
 	double range_checked;
 	Rect cur_intersect, cur_prev_intersect;
 
@@ -958,14 +958,14 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// check against other blocks; walk in reverse order since we only need to
 			// consider the blocks to the left
-			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+			for (i2 = std::list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
 				if (Rect::rectA_leftOf_rectB(neighbor->bb, block->bb, true)) {
 
 					// determine the packed coordinate by considering
 					// the neigbors nearest right front
-					x = max(x, neighbor->bb.ur.x);
+					x = std::max(x, neighbor->bb.ur.x);
 
 					// current blocks' intersection
 					cur_intersect = Rect::determineIntersection(neighbor->bb, block->bb);
@@ -1054,14 +1054,14 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// check against other blocks; walk in reverse order since we only need to
 			// consider the blocks below
-			for (i2 = list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+			for (i2 = std::list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
 				if (Rect::rectA_below_rectB(neighbor->bb, block->bb, true)) {
 
 					// determine the packed coordinate by considering
 					// the neigbors nearest right front
-					y = max(y, neighbor->bb.ur.y);
+					y = std::max(y, neighbor->bb.ur.y);
 
 					// current blocks' intersection
 					cur_intersect = Rect::determineIntersection(neighbor->bb, block->bb);

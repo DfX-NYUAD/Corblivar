@@ -43,8 +43,4 @@
 #include <ctime>
 #include <cstdlib>
 
-// catches all std libraries; however, also pollutest global namespace
-// http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Namespaces
-using namespace std;
-
 #endif

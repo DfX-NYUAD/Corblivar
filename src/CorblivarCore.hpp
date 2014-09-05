@@ -45,7 +45,7 @@ class CorblivarCore {
 	private:
 		// main data; encapsulated in CorblivarDie; Corblivar can thus be
 		// considered as 2.5D layout representation
-		vector<CorblivarDie> dies;
+		std::vector<CorblivarDie> dies;
 
 		// current-die pointer
 		CorblivarDie* p;
@@ -71,20 +71,20 @@ class CorblivarCore {
 		};
 
 		// sequence A; alignment requests
-		vector<CorblivarAlignmentReq> A;
+		std::vector<CorblivarAlignmentReq> A;
 
 		// alignments-in-process list
-		list<CorblivarAlignmentReq const*> AL;
+		std::list<CorblivarAlignmentReq const*> AL;
 
 		// handler for block alignment
 		bool alignBlocks(CorblivarAlignmentReq const* req);
 		static void sequentialShiftingHelper(
 				CorblivarDie* die_b1, CorblivarDie* die_b2,
 				CorblivarAlignmentReq const* req,
-				list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks,
+				std::list<Block const*> b1_relev_blocks, std::list<Block const*> b2_relev_blocks,
 				Direction const& dir_b1,
 				bool& b1_shifted, bool& b2_shifted);
-		list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
+		std::list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -99,7 +99,7 @@ class CorblivarCore {
 				// reserve mem for worst case, i.e., all blocks in one particular die
 				cur_die.CBL.reserve(blocks);
 
-				this->dies.push_back(move(cur_die));
+				this->dies.push_back(std::move(cur_die));
 			}
 		};
 
@@ -107,7 +107,7 @@ class CorblivarCore {
 	public:
 
 		// general operations
-		void initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment);
+		void initCorblivarRandomly(bool const& log, int const& layers, std::vector<Block> const& blocks, bool const& power_aware_assignment);
 		bool generateLayout(bool const& perform_alignment);
 
 		// getter
@@ -117,10 +117,10 @@ class CorblivarCore {
 		inline CorblivarDie const& getDie(unsigned const& die) const {
 			return this->dies[die];
 		};
-		inline vector<CorblivarAlignmentReq>& editAlignments() {
+		inline std::vector<CorblivarAlignmentReq>& editAlignments() {
 			return this->A;
 		};
-		inline vector<CorblivarAlignmentReq> const& getAlignments() const {
+		inline std::vector<CorblivarAlignmentReq> const& getAlignments() const {
 			return this->A;
 		};
 
@@ -135,36 +135,36 @@ class CorblivarCore {
 			}
 
 			// perform swap
-			swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
+			std::swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
 
 			if (DBG) {
-				cout << "DBG_CORE> swapBlocks;";
-				cout << " d1=" << die1;
-				cout << ", s1=" << this->dies[die1].CBL.S[tuple1]->id;
-				cout << ", d2=" << die2;
-				cout << ", s2=" << this->dies[die2].CBL.S[tuple2]->id;
-				cout << endl;
+				std::cout << "DBG_CORE> swapBlocks;";
+				std::cout << " d1=" << die1;
+				std::cout << ", s1=" << this->dies[die1].CBL.S[tuple1]->id;
+				std::cout << ", d2=" << die2;
+				std::cout << ", s2=" << this->dies[die2].CBL.S[tuple2]->id;
+				std::cout << std::endl;
 			}
 		};
 
 		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 
 			if (DBG) {
-				cout << "DBG_CORE> moveTuples;";
-				cout << " d1=" << die1;
-				cout << ", t1=" << tuple1;
-				cout << " (s1=" << this->dies[die1].CBL.S[tuple1]->id << ")";
-				cout << ", d2=" << die2;
-				cout << ", t2=" << tuple2;
-				cout << " (s2=" << this->dies[die2].CBL.S[tuple2]->id << ")";
-				cout << endl;
+				std::cout << "DBG_CORE> moveTuples;";
+				std::cout << " d1=" << die1;
+				std::cout << ", t1=" << tuple1;
+				std::cout << " (s1=" << this->dies[die1].CBL.S[tuple1]->id << ")";
+				std::cout << ", d2=" << die2;
+				std::cout << ", t2=" << tuple2;
+				std::cout << " (s2=" << this->dies[die2].CBL.S[tuple2]->id << ")";
+				std::cout << std::endl;
 			}
 
 			// move within same die: perform swaps
 			if (die1 == die2) {
-				swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
-				swap(this->dies[die1].CBL.L[tuple1], this->dies[die2].CBL.L[tuple2]);
-				swap(this->dies[die1].CBL.T[tuple1], this->dies[die2].CBL.T[tuple2]);
+				std::swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
+				std::swap(this->dies[die1].CBL.L[tuple1], this->dies[die2].CBL.L[tuple2]);
+				std::swap(this->dies[die1].CBL.T[tuple1], this->dies[die2].CBL.T[tuple2]);
 			}
 			// move across dies: perform insert and delete
 			else {
@@ -172,9 +172,9 @@ class CorblivarCore {
 				this->dies[die1].CBL.S[tuple1]->layer = die2;
 
 				// insert tuple1 from die1 into die2 w/ offset tuple2
-				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, move(this->dies[die1].CBL.S[tuple1]));
-				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, move(this->dies[die1].CBL.L[tuple1]));
-				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, move(this->dies[die1].CBL.T[tuple1]));
+				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, std::move(this->dies[die1].CBL.S[tuple1]));
+				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, std::move(this->dies[die1].CBL.L[tuple1]));
+				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, std::move(this->dies[die1].CBL.T[tuple1]));
 
 				// erase tuple1 from die1
 				this->dies[die1].CBL.S.erase(this->dies[die1].CBL.S.begin() + tuple1);
@@ -192,11 +192,11 @@ class CorblivarCore {
 			}
 
 			if (DBG) {
-				cout << "DBG_CORE> switchInsertionDirection;";
-				cout << " d1=" << die;
-				cout << ", t1=" << tuple;
-				cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
-				cout << endl;
+				std::cout << "DBG_CORE> switchInsertionDirection;";
+				std::cout << " d1=" << die;
+				std::cout << ", t1=" << tuple;
+				std::cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
+				std::cout << std::endl;
 			}
 		};
 
@@ -204,25 +204,25 @@ class CorblivarCore {
 			this->dies[die].CBL.T[tuple] = juncts;
 
 			if (DBG) {
-				cout << "DBG_CORE> switchTupleJunctions;";
-				cout << " d1=" << die;
-				cout << ", t1=" << tuple;
-				cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
-				cout << ", juncts=" << juncts;
-				cout << endl;
+				std::cout << "DBG_CORE> switchTupleJunctions;";
+				std::cout << " d1=" << die;
+				std::cout << ", t1=" << tuple;
+				std::cout << " (s1=" << this->dies[die].CBL.S[tuple]->id << ")";
+				std::cout << ", juncts=" << juncts;
+				std::cout << std::endl;
 			}
 		};
 
 		// CBL logging
-		inline string CBLsString() const {
-			stringstream ret;
+		inline std::string CBLsString() const {
+			std::stringstream ret;
 
-			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << endl;
-			ret << "data_start" << endl;
+			ret << "# tuple format: ( BLOCK_ID DIRECTION T-JUNCTS BLOCK_WIDTH BLOCK_HEIGHT )" << std::endl;
+			ret << "data_start" << std::endl;
 
 			for (CorblivarDie const& die : this->dies) {
-				ret << "CBL [ " << die.id << " ]" << endl;
-				ret << die.CBL.CBLString() << endl;
+				ret << "CBL [ " << die.id << " ]" << std::endl;
+				ret << die.CBL.CBLString() << std::endl;
 			}
 
 			return ret.str();
@@ -339,7 +339,7 @@ class CorblivarCore {
 			ret = (empty_dies != this->dies.size());
 
 			if (!ret && log) {
-				cout << "Corblivar> No best (fitting) solution available!" << endl << endl;
+				std::cout << "Corblivar> No best (fitting) solution available!" << std::endl << std::endl;
 			}
 
 			return ret;

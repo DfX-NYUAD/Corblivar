@@ -41,7 +41,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
 	Cost cost;
-	vector<double> cost_samples;
+	std::vector<double> cost_samples;
 	double cur_temp, init_temp;
 	double r;
 	int layout_fit_counter;
@@ -54,7 +54,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	bool valid_layout;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::performSA(" << &corb << ")" << endl;
+		std::cout << "-> FloorPlanner::performSA(" << &corb << ")" << std::endl;
 	}
 
 	// for handling floorplacement benchmarks, i.e., floorplanning w/ very large
@@ -86,7 +86,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	while (i <= this->SA_parameters.loopLimit) {
 
 		if (this->logMax()) {
-			cout << "SA> Optimization step: " << i << "/" << this->SA_parameters.loopLimit << endl;
+			std::cout << "SA> Optimization step: " << i << "/" << this->SA_parameters.loopLimit << std::endl;
 		}
 
 		// init loop parameters
@@ -123,7 +123,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					IO::writeFloorplanGP(*this, corb.getAlignments(), "invalid_layout");
 					// generate related Corblivar solution
 					if (this->IO_conf.solution_out.is_open()) {
-						this->IO_conf.solution_out << corb.CBLsString() << endl;
+						this->IO_conf.solution_out << corb.CBLsString() << std::endl;
 						this->IO_conf.solution_out.close();
 					}
 					// abort further run
@@ -137,8 +137,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				cost_diff = cur_cost - prev_cost;
 
 				if (FloorPlanner::DBG_SA) {
-					cout << "DBG_SA> Inner step: " << ii << "/" << innerLoopMax << endl;
-					cout << "DBG_SA> Cost diff: " << cost_diff << endl;
+					std::cout << "DBG_SA> Inner step: " << ii << "/" << innerLoopMax << std::endl;
+					std::cout << "DBG_SA> Cost diff: " << cost_diff << std::endl;
 				}
 
 				// revert solution w/ worse or same cost, depending on temperature
@@ -148,7 +148,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					if (r > exp(- cost_diff / cur_temp)) {
 
 						if (FloorPlanner::DBG_SA) {
-							cout << "DBG_SA> Revert op" << endl;
+							std::cout << "DBG_SA> Revert op" << std::endl;
 						}
 						accept = false;
 
@@ -192,13 +192,13 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 							// logging
 							if (this->logMax()) {
-								cout << "SA> " << endl;
+								std::cout << "SA> " << std::endl;
 							}
 							if (this->logMed()) {
-								cout << "SA> Phase II: optimizing within outline; switch cost function ..." << endl;
+								std::cout << "SA> Phase II: optimizing within outline; switch cost function ..." << std::endl;
 							}
 							if (this->logMax()) {
-								cout << "SA> " << endl;
+								std::cout << "SA> " << std::endl;
 							}
 						}
 						// not first but any fitting solution; in
@@ -250,12 +250,12 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		accepted_ops_ratio = static_cast<double>(accepted_ops) / ii;
 
 		if (this->logMax()) {
-			cout << "SA> Step done:" << endl;
-			cout << "SA>  new best solution found: " << best_sol_found << endl;
-			cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << endl;
-			cout << "SA>  valid-layouts ratio: " << fitting_layouts_ratio << endl;
-			cout << "SA>  avg cost: " << avg_cost << endl;
-			cout << "SA>  temp: " << cur_temp << endl;
+			std::cout << "SA> Step done:" << std::endl;
+			std::cout << "SA>  new best solution found: " << best_sol_found << std::endl;
+			std::cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << std::endl;
+			std::cout << "SA>  valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
+			std::cout << "SA>  avg cost: " << avg_cost << std::endl;
+			std::cout << "SA>  temp: " << cur_temp << std::endl;
 		}
 
 		// log temperature step
@@ -265,7 +265,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		cur_step.avg_cost = avg_cost;
 		cur_step.new_best_sol_found = best_sol_found;
 		cur_step.cost_best_sol = best_cost;
-		this->tempSchedule.push_back(move(cur_step));
+		this->tempSchedule.push_back(std::move(cur_step));
 
 		// update SA temperature
 		this->updateTemp(cur_temp, i, i_valid_layout_found);
@@ -275,12 +275,12 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	}
 
 	if (this->logMed()) {
-		cout << "SA> Done" << endl;
-		cout << endl;
+		std::cout << "SA> Done" << std::endl;
+		std::cout << std::endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::performSA : " << valid_layout_found << endl;
+		std::cout << "<- FloorPlanner::performSA : " << valid_layout_found << std::endl;
 	}
 
 	return valid_layout_found;
@@ -290,7 +290,7 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	float loop_factor;
 	double prev_temp;
 	int phase;
-	vector<double> prev_avg_cost;
+	std::vector<double> prev_avg_cost;
 	double std_dev_avg_cost;
 	unsigned i, temp_schedule_size;
 
@@ -344,11 +344,11 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	}
 
 	if (this->logMax()) {
-		cout << "SA>  (new) temp-update factor: " << cur_temp / prev_temp << " (phase " << phase << ")" << endl;
+		std::cout << "SA>  (new) temp-update factor: " << cur_temp / prev_temp << " (phase " << phase << ")" << std::endl;
 	}
 }
 
-void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {
+void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {
 	int i;
 	int accepted_ops;
 	bool op_success;
@@ -372,7 +372,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	/// initial sampling
 	//
 	if (this->logMed()) {
-		cout << "SA> Perform initial solution-space sampling..." << endl;
+		std::cout << "SA> Perform initial solution-space sampling..." << std::endl;
 	}
 
 	// init cost; ignore alignment here
@@ -426,11 +426,11 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 	init_temp = Math::stdDev(cost_samples) * this->SA_parameters.temp_init_factor;
 
 	if (this->logMed()) {
-		cout << "SA> Done; std dev of cost: " << Math::stdDev(cost_samples) << ", initial temperature: " << init_temp << endl;
-		cout << "SA> " << endl;
-		cout << "SA> Perform simulated annealing process..." << endl;
-		cout << "SA> Phase I: packing blocks into outline..." << endl;
-		cout << "SA> " << endl;
+		std::cout << "SA> Done; std dev of cost: " << Math::stdDev(cost_samples) << ", initial temperature: " << init_temp << std::endl;
+		std::cout << "SA> " << std::endl;
+		std::cout << "SA> Perform simulated annealing process..." << std::endl;
+		std::cout << "SA> Phase I: packing blocks into outline..." << std::endl;
+		std::cout << "SA> " << std::endl;
 	}
 
 	// restore initial CBLs
@@ -439,17 +439,17 @@ void FloorPlanner::initSA(CorblivarCore& corb, vector<double>& cost_samples, int
 
 void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost, bool const& handle_corblivar) {
 	struct timeb end;
-	stringstream runtime;
+	std::stringstream runtime;
 	bool valid_solution;
 	double x, y;
 	Cost cost;
 	unsigned i;
 	int clustered_TSVs;
-	map<double, Clustering::Hotspot, greater<double>>::iterator it_hotspots;
+	std::map<double, Clustering::Hotspot, std::greater<double>>::iterator it_hotspots;
 	double avg_peak_temp, avg_base_temp, avg_temp_gradient, avg_score, avg_bins_count;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << endl;
+		std::cout << "-> FloorPlanner::finalize(" << &corb << ", " << determ_overall_cost << ", " << handle_corblivar << ")" << std::endl;
 	}
 
 	// consider as regular Corblivar run
@@ -467,8 +467,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// 3D-IC stack
 		x = y = 0.0;
 		for (Block const& b : this->blocks) {
-			x = max(x, b.bb.ur.x);
-			y = max(y, b.bb.ur.y);
+			x = std::max(x, b.bb.ur.x);
+			y = std::max(y, b.bb.ur.y);
 		}
 
 		// shrink fixed outline considering the final layout
@@ -483,40 +483,40 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// logging IO_conf.results; consider non-normalized, actual values
 		if (this->logMin()) {
 
-			cout << "Corblivar> Characteristica of final solution:" << endl;
+			std::cout << "Corblivar> Characteristica of final solution:" << std::endl;
 
 			// overall cost only encode a useful number in case the whole
 			// optimization run is done, i.e., not for reading in given
 			// solution files
 			if (determ_overall_cost) {
-				cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << endl;
-				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << endl;
+				std::cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << std::endl;
+				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << std::endl;
 			}
 
-			cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
-			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << endl;
+			std::cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
+			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
 
-			cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << endl;
-			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << endl;
+			std::cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
+			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
 
-			cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << endl;
-			cout << "Corblivar>  x = " << x << endl;
-			cout << "Corblivar>  y = " << y << endl;
-			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << endl;
-			this->IO_conf.results << " x = " << x << endl;
-			this->IO_conf.results << " y = " << y << endl;
+			std::cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << std::endl;
+			std::cout << "Corblivar>  x = " << x << std::endl;
+			std::cout << "Corblivar>  y = " << y << std::endl;
+			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << std::endl;
+			this->IO_conf.results << " x = " << x << std::endl;
+			this->IO_conf.results << " y = " << y << std::endl;
 
-			cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
-			this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << endl;
+			std::cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+			this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
 
-			cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << endl;
-			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << endl;
+			std::cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << std::endl;
+			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << std::endl;
 
-			cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << endl;
-			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << endl;
+			std::cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << std::endl;
+			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << std::endl;
 
-			cout << "Corblivar>  TSV islands: " << this->TSVs.size() << endl;
-			this->IO_conf.results << "Corblivar>  TSV islands: " << this->TSVs.size() << endl;
+			std::cout << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
+			this->IO_conf.results << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
 
 			clustered_TSVs = 0;
 			for (i = 0; i < this->TSVs.size(); i++) {
@@ -524,15 +524,15 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (!this->TSVs.empty()) {
-				cout << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << endl;
-				this->IO_conf.results << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << endl;
+				std::cout << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
 			}
 
-			cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
-			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << endl;
+			std::cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
+			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 
-			cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << endl;
-			this->IO_conf.results << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << endl;
+			std::cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
+			this->IO_conf.results << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
 
 			if (!this->clustering.hotspots.empty()) {
 
@@ -551,22 +551,22 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				avg_score /= this->clustering.hotspots.size();
 				avg_bins_count /= this->clustering.hotspots.size();
 
-				cout << "Corblivar>  Avg peak temp: " << avg_peak_temp << endl;
-				this->IO_conf.results << "Corblivar>  Avg peak temp: " << avg_peak_temp << endl;
-				cout << "Corblivar>  Avg base temp: " << avg_base_temp << endl;
-				this->IO_conf.results << "Corblivar>  Avg base temp: " << avg_base_temp << endl;
-				cout << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << endl;
-				this->IO_conf.results << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << endl;
-				cout << "Corblivar>  Avg score: " << avg_score << endl;
-				this->IO_conf.results << "Corblivar>  Avg score: " << avg_score << endl;
-				cout << "Corblivar>  Avg bin count: " << avg_bins_count << endl;
-				this->IO_conf.results << "Corblivar>  Avg bin count: " << avg_bins_count << endl;
+				std::cout << "Corblivar>  Avg peak temp: " << avg_peak_temp << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg peak temp: " << avg_peak_temp << std::endl;
+				std::cout << "Corblivar>  Avg base temp: " << avg_base_temp << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg base temp: " << avg_base_temp << std::endl;
+				std::cout << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg temp gradient: " << avg_temp_gradient << std::endl;
+				std::cout << "Corblivar>  Avg score: " << avg_score << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg score: " << avg_score << std::endl;
+				std::cout << "Corblivar>  Avg bin count: " << avg_bins_count << std::endl;
+				this->IO_conf.results << "Corblivar>  Avg bin count: " << avg_bins_count << std::endl;
 			}
 
-			cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
-			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << endl;
+			std::cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
 
-			cout << endl;
+			std::cout << std::endl;
 		}
 	}
 
@@ -578,7 +578,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 	// generate Corblivar data if solution file is used as output
 	if (handle_corblivar && this->IO_conf.solution_out.is_open()) {
-		this->IO_conf.solution_out << corb.CBLsString() << endl;
+		this->IO_conf.solution_out << corb.CBLsString() << std::endl;
 		this->IO_conf.solution_out.close();
 
 		// delete file in case no valid solution was generated
@@ -599,15 +599,15 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	ftime(&end);
 	if (this->logMin()) {
 		runtime << "Runtime: " << (1000.0 * (end.time - this->time_start.time) + (end.millitm - this->time_start.millitm)) / 1000.0 << " s";
-		cout << "Corblivar> " << runtime.str() << endl;
-		this->IO_conf.results << runtime.str() << endl;
+		std::cout << "Corblivar> " << runtime.str() << std::endl;
+		this->IO_conf.results << runtime.str() << std::endl;
 	}
 
 	// close IO_conf.results file
 	this->IO_conf.results.close();
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::finalize" << endl;
+		std::cout << "<- FloorPlanner::finalize" << std::endl;
 	}
 }
 
@@ -657,11 +657,11 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 
 // adaptive cost model w/ two phases: first phase considers only cost for packing into
 // outline, second phase considers further factors like WL, thermal distr, etc.
-FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost, bool const& finalize) {
+FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost, bool const& finalize) {
 	Cost cost;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ", " << finalize << ")" << endl;
+		std::cout << "-> FloorPlanner::evaluateLayout(" << &alignments << ", " << fitting_layouts_ratio << ", " << SA_phase_two << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
 	}
 
 	// phase one: consider only cost for packing into outline
@@ -771,15 +771,15 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(vector<CorblivarAlignmentReq> co
 	}
 
 	if (FloorPlanner::DBG_LAYOUT) {
-		cout << "DBG_LAYOUT> Total cost: " << cost.total_cost << endl;
-		cout << "DBG_LAYOUT>  HPWL cost: " << cost.HPWL << endl;
-		cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << endl;
-		cout << "DBG_LAYOUT>  Alignments cost: " << cost.alignments << endl;
-		cout << "DBG_LAYOUT>  Thermal cost: " << cost.thermal << endl;
+		std::cout << "DBG_LAYOUT> Total cost: " << cost.total_cost << std::endl;
+		std::cout << "DBG_LAYOUT>  HPWL cost: " << cost.HPWL << std::endl;
+		std::cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << std::endl;
+		std::cout << "DBG_LAYOUT>  Alignments cost: " << cost.alignments << std::endl;
+		std::cout << "DBG_LAYOUT>  Thermal cost: " << cost.thermal << std::endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateLayout : " << cost << endl;
+		std::cout << "<- FloorPlanner::evaluateLayout : " << cost << std::endl;
 	}
 
 	return cost;
@@ -818,12 +818,12 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	double max_outline_x;
 	double max_outline_y;
 	int i;
-	vector<double> dies_AR;
-	vector<double> dies_area;
+	std::vector<double> dies_AR;
+	std::vector<double> dies_area;
 	bool layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateAreaOutline(" << fitting_layouts_ratio << ")" << endl;
+		std::cout << "-> FloorPlanner::evaluateAreaOutline(" << fitting_layouts_ratio << ")" << std::endl;
 	}
 
 	dies_AR.reserve(this->IC.layers);
@@ -839,8 +839,8 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 
 			if (block.layer == i) {
 				// update max outline coords
-				max_outline_x = max(max_outline_x, block.bb.ur.x);
-				max_outline_y = max(max_outline_y, block.bb.ur.y);
+				max_outline_x = std::max(max_outline_x, block.bb.ur.x);
+				max_outline_y = std::max(max_outline_y, block.bb.ur.y);
 			}
 		}
 
@@ -866,7 +866,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_outline = max(cost_outline, pow(dies_AR[i] - this->IC.die_AR, 2.0));
+		cost_outline = std::max(cost_outline, pow(dies_AR[i] - this->IC.die_AR, 2.0));
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
@@ -877,7 +877,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// area) guides towards balanced die occupation and area minimization
 	cost_area = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_area = max(cost_area, dies_area[i]);
+		cost_area = std::max(cost_area, dies_area[i]);
 	}
 	// store actual value
 	cost.area_actual_value = cost_area;
@@ -888,19 +888,19 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	cost.fits_fixed_outline = layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateAreaOutline" << endl;
+		std::cout << "<- FloorPlanner::evaluateAreaOutline" << std::endl;
 	}
 }
 
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
 	int i;
-	vector<Rect const*> blocks_to_consider;
-	vector< list<Clustering::Segments> > nets_segments;
+	std::vector<Rect const*> blocks_to_consider;
+	std::vector< std::list<Clustering::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << endl;
+		std::cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << std::endl;
 	}
 
 	// init cost terms
@@ -912,7 +912,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
 	for (i = 0; i < this->IC.layers; i++) {
-		nets_segments.emplace_back(list<Clustering::Segments>());
+		nets_segments.emplace_back(std::list<Clustering::Segments>());
 	}
 
 	// reset TSVs
@@ -926,7 +926,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		cur_net.setLayerBoundaries();
 
 		if (Net::DBG) {
-			cout << "DBG_NET> Determine interconnects for net " << cur_net.id << endl;
+			std::cout << "DBG_NET> Determine interconnects for net " << cur_net.id << std::endl;
 		}
 
 		// trivial HPWL estimation, considering one global bounding box; required
@@ -953,7 +953,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 			cost.HPWL += bb.h;
 
 			if (Net::DBG) {
-				cout << "DBG_NET> 		HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << endl;
+				std::cout << "DBG_NET> 		HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << std::endl;
 			}
 		}
 		// more detailed estimate; consider HPWL on each layer separately using
@@ -998,7 +998,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 				}
 
 				if (Net::DBG) {
-					cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << endl;
+					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
 				}
 			}
 		}
@@ -1016,7 +1016,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		}
 
 		if (Net::DBG) {
-			cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << endl;
+			std::cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << std::endl;
 		}
 	}
 
@@ -1052,18 +1052,18 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateInterconnects" << endl;
+		std::cout << "<- FloorPlanner::evaluateInterconnects" << std::endl;
 	}
 }
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
-void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost) {
+void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost) {
 	Rect blocks_intersect;
 	Rect blocks_bb;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << endl;
+		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << std::endl;
 	}
 
 	cost.alignments = cost.alignments_actual_value = 0.0;
@@ -1376,15 +1376,15 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 		// dbg logging for alignment
 		if (CorblivarAlignmentReq::DBG) {
 
-			cout << "DBG_ALIGNMENT> " << req.tupleString() << endl;
+			std::cout << "DBG_ALIGNMENT> " << req.tupleString() << std::endl;
 
 			if (req.fulfilled) {
-				cout << "DBG_ALIGNMENT>  Success" << endl;
+				std::cout << "DBG_ALIGNMENT>  Success" << std::endl;
 			}
 			else {
-				cout << "DBG_ALIGNMENT>  Failure" << endl;
-				cout << "DBG_ALIGNMENT>   block " << req.s_i->id << ": " << req.s_i->alignment << endl;
-				cout << "DBG_ALIGNMENT>   block " << req.s_j->id << ": " << req.s_j->alignment << endl;
+				std::cout << "DBG_ALIGNMENT>  Failure" << std::endl;
+				std::cout << "DBG_ALIGNMENT>   block " << req.s_i->id << ": " << req.s_i->alignment << std::endl;
+				std::cout << "DBG_ALIGNMENT>   block " << req.s_j->id << ": " << req.s_j->alignment << std::endl;
 			}
 		}
 
@@ -1400,7 +1400,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 			if (blocks_intersect.area != 0.0) {
 
 				// consider TSVs in all affected layers
-				for (int layer = min(req.s_i->layer, req.s_j->layer); layer < max(req.s_i->layer, req.s_j->layer); layer++) {
+				for (int layer = std::min(req.s_i->layer, req.s_j->layer); layer < std::max(req.s_i->layer, req.s_j->layer); layer++) {
 
 					this->TSVs.emplace_back(TSV_Island(
 							// bus id
@@ -1442,6 +1442,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, vector<CorblivarAlignmentReq> 
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << endl;
+		std::cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << std::endl;
 	}
 }

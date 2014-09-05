@@ -51,7 +51,7 @@ class Clustering {
 		};
 		// POD wrapping net clusters
 		struct Cluster {
-			list<Net const*> nets;
+			std::list<Net const*> nets;
 			Rect bb;
 			int hotspot_id;
 		};
@@ -60,7 +60,7 @@ class Clustering {
 			double peak_temp;
 			double base_temp;
 			double temp_gradient;
-			list<ThermalAnalyzer::ThermalMapBin*> bins;
+			std::list<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
 			int id;
 			double score;
@@ -68,12 +68,12 @@ class Clustering {
 		};
 
 		// hotspots container
-		map<double, Hotspot, greater<double>> hotspots;
+		std::map<double, Hotspot, std::greater<double>> hotspots;
 
 		// clustering helper
-		void clusterSignalTSVs(vector<Net> &nets,
-				vector< list<Segments> > &nets_segments,
-				vector<TSV_Island> &TSVs,
+		void clusterSignalTSVs(std::vector<Net> &nets,
+				std::vector< std::list<Segments> > &nets_segments,
+				std::vector<TSV_Island> &TSVs,
 				double const& TSV_pitch,
 				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 
@@ -87,7 +87,7 @@ class Clustering {
 		static constexpr double SCORE_NORMALIZATION = 1.0e6;
 
 		// cluster container
-		vector< list<Cluster> > clusters;
+		std::vector< std::list<Cluster> > clusters;
 };
 
 #endif

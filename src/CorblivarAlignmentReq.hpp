@@ -93,7 +93,7 @@ class CorblivarAlignmentReq {
 		int signals;
 		mutable bool fulfilled;
 
-		friend ostream& operator<< (ostream& out, Type const& type) {
+		friend std::ostream& operator<< (std::ostream& out, Type const& type) {
 
 			switch (type) {
 
@@ -114,7 +114,7 @@ class CorblivarAlignmentReq {
 			return out;
 		}
 
-		friend ostream& operator<< (ostream& out, Global_Type const& type) {
+		friend std::ostream& operator<< (std::ostream& out, Global_Type const& type) {
 
 			switch (type) {
 
@@ -151,8 +151,8 @@ class CorblivarAlignmentReq {
 			return (this->type_y == Type::OFFSET);
 		}
 
-		inline string tupleString() const {
-			stringstream ret;
+		inline std::string tupleString() const {
+			std::stringstream ret;
 
 			ret << "(" << this->type << ", " << this->signals << ", ";
 			ret << "(" << this->s_i->id << ", " << this->s_j->id << ", ";

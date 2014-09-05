@@ -38,7 +38,7 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	bool ret, swapping_failed_blocks;
 
 	if (LayoutOperations::DBG) {
-		cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << endl;
+		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << std::endl;
 	}
 
 	// init layout operation variables
@@ -118,7 +118,7 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	}
 
 	if (LayoutOperations::DBG) {
-		cout << "<- LayoutOperations::performRandomLayoutOp : " << ret << endl;
+		std::cout << "<- LayoutOperations::performRandomLayoutOp : " << ret << std::endl;
 	}
 
 	return ret;
@@ -292,9 +292,9 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			tuple2 = corb.getDie(die2).getTuple(b1_neighbour);
 
 			if (CorblivarAlignmentReq::DBG) {
-				cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << endl;
-				cout << "DBG_ALIGNMENT> considering swapping block " << b1->id << " on layer " << b1->layer;
-				cout << " with block " << b1_neighbour->id << " on layer " << b1_neighbour->layer << endl;
+				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
+				std::cout << "DBG_ALIGNMENT> considering swapping block " << b1->id << " on layer " << b1->layer;
+				std::cout << " with block " << b1_neighbour->id << " on layer " << b1_neighbour->layer << std::endl;
 			}
 
 			return true;
@@ -332,7 +332,7 @@ bool LayoutOperations::performOpEnhancedSoftBlockShaping(CorblivarCore const& co
 
 				// determine nearest right front of other blocks
 				if (b->bb.ur.x > shape_block->bb.ur.x) {
-					boundary_x = min(boundary_x, b->bb.ur.x);
+					boundary_x = std::min(boundary_x, b->bb.ur.x);
 				}
 			}
 
@@ -353,7 +353,7 @@ bool LayoutOperations::performOpEnhancedSoftBlockShaping(CorblivarCore const& co
 
 				// determine nearest left front of other blocks
 				if (b->bb.ll.x < shape_block->bb.ur.x) {
-					boundary_x = max(boundary_x, b->bb.ll.x);
+					boundary_x = std::max(boundary_x, b->bb.ll.x);
 				}
 			}
 
@@ -375,7 +375,7 @@ bool LayoutOperations::performOpEnhancedSoftBlockShaping(CorblivarCore const& co
 
 				// determine nearest top front of other blocks
 				if (b->bb.ur.y > shape_block->bb.ur.y) {
-					boundary_y = min(boundary_y, b->bb.ur.y);
+					boundary_y = std::min(boundary_y, b->bb.ur.y);
 				}
 			}
 
@@ -396,7 +396,7 @@ bool LayoutOperations::performOpEnhancedSoftBlockShaping(CorblivarCore const& co
 
 				// determine nearest bottom front of other blocks
 				if (b->bb.ll.y < shape_block->bb.ur.y) {
-					boundary_y = max(boundary_y, b->bb.ll.y);
+					boundary_y = std::max(boundary_y, b->bb.ll.y);
 				}
 			}
 
@@ -433,7 +433,7 @@ bool LayoutOperations::performOpEnhancedHardBlockRotation(CorblivarCore const& c
 		for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 			if (shape_block->bb.ll.y == b->bb.ll.y) {
-				row_max_height = max(row_max_height, b->bb.h);
+				row_max_height = std::max(row_max_height, b->bb.h);
 			}
 		}
 
@@ -452,7 +452,7 @@ bool LayoutOperations::performOpEnhancedHardBlockRotation(CorblivarCore const& c
 		for (Block const* b : corb.getDie(shape_block->layer).getBlocks()) {
 
 			if (shape_block->bb.ll.x == b->bb.ll.x) {
-				col_max_width = max(col_max_width, b->bb.w);
+				col_max_width = std::max(col_max_width, b->bb.w);
 			}
 		}
 

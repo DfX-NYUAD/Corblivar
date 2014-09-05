@@ -49,7 +49,7 @@ class CorblivarDie {
 		unsigned pi;
 
 		// placement stacks; for efficiency implemented as list
-		list<Block const*> Hi, Vi;
+		std::list<Block const*> Hi, Vi;
 
 		// main CBL sequence
 		CornerBlockList CBL;
@@ -92,14 +92,14 @@ class CorblivarDie {
 		bool shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq const* req, bool const& dry_run = false);
 
 		// layout-generation helper: determine coordinates of block in process
-		void determCurrentBlockCoords(Coordinate const& coord, list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
+		void determCurrentBlockCoords(Coordinate const& coord, std::list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
 		// layout-generation helper: pop relevant blocks to consider during
 		// placement from stacks
-		list<Block const*> popRelevantBlocks();
+		std::list<Block const*> popRelevantBlocks();
 		// layout-generation helper: update placement stack (after placement)
-		void updatePlacementStacks(list<Block const*>& relev_blocks_stack);
+		void updatePlacementStacks(std::list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: rebuild placement stack (after block shifting)
-		void rebuildPlacementStacks(list<Block const*>& relev_blocks_stack);
+		void rebuildPlacementStacks(std::list<Block const*>& relev_blocks_stack);
 		// layout-generation helper: placement stacks debugging
 		void debugStacks();
 
@@ -124,7 +124,7 @@ class CorblivarDie {
 		inline CornerBlockList const& getCBL() const {
 			return this->CBL;
 		};
-		inline vector<Block const*> const& getBlocks() const {
+		inline std::vector<Block const*> const& getBlocks() const {
 			return this->CBL.S;
 		};
 		inline Block const* getBlock(unsigned const& tuple) const {

@@ -50,7 +50,7 @@ class Rect {
 		double h, w;
 		double area;
 
-		inline static Rect determBoundingBox(vector<Rect const*> const& rects, bool const& consider_center = false) {
+		inline static Rect determBoundingBox(std::vector<Rect const*> const& rects, bool const& consider_center = false) {
 			Rect ret;
 
 			if (rects.empty()) {
@@ -67,10 +67,10 @@ class Rect {
 					// determine bounding box off all rects based on
 					// center points of rects
 					for (Rect const* r : rects) {
-						ret.ll.x = min(ret.ll.x, r->ll.x + r->w / 2.0);
-						ret.ur.x = max(ret.ur.x, r->ll.x + r->w / 2.0);
-						ret.ll.y = min(ret.ll.y, r->ll.y + r->h / 2.0);
-						ret.ur.y = max(ret.ur.y, r->ll.y + r->h / 2.0);
+						ret.ll.x = std::min(ret.ll.x, r->ll.x + r->w / 2.0);
+						ret.ur.x = std::max(ret.ur.x, r->ll.x + r->w / 2.0);
+						ret.ll.y = std::min(ret.ll.y, r->ll.y + r->h / 2.0);
+						ret.ur.y = std::max(ret.ur.y, r->ll.y + r->h / 2.0);
 					}
 				}
 				else {
@@ -82,10 +82,10 @@ class Rect {
 					// determine bounding box of all rects based on
 					// boxes of rects
 					for (Rect const* r : rects) {
-						ret.ll.x = min(ret.ll.x, r->ll.x);
-						ret.ll.y = min(ret.ll.y, r->ll.y);
-						ret.ur.x = max(ret.ur.x, r->ur.x);
-						ret.ur.y = max(ret.ur.y, r->ur.y);
+						ret.ll.x = std::min(ret.ll.x, r->ll.x);
+						ret.ll.y = std::min(ret.ll.y, r->ll.y);
+						ret.ur.x = std::max(ret.ur.x, r->ur.x);
+						ret.ur.y = std::max(ret.ur.y, r->ur.y);
 					}
 				}
 
@@ -103,16 +103,16 @@ class Rect {
 			// determine bounding box considering minx, max ranges of both
 			// rects; possibly consider center points as well
 			if (consider_center) {
-				ret.ll.x = min(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
-				ret.ll.y = min(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
-				ret.ur.x = max(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
-				ret.ur.y = max(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
+				ret.ll.x = std::min(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
+				ret.ll.y = std::min(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
+				ret.ur.x = std::max(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
+				ret.ur.y = std::max(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
 			}
 			else {
-				ret.ll.x = min(r1.ll.x, r2.ll.x);
-				ret.ll.y = min(r1.ll.y, r2.ll.y);
-				ret.ur.x = max(r1.ur.x, r2.ur.x);
-				ret.ur.y = max(r1.ur.y, r2.ur.y);
+				ret.ll.x = std::min(r1.ll.x, r2.ll.x);
+				ret.ll.y = std::min(r1.ll.y, r2.ll.y);
+				ret.ur.x = std::max(r1.ur.x, r2.ur.x);
+				ret.ur.y = std::max(r1.ur.y, r2.ur.y);
 			}
 
 			// determine rect properties
@@ -130,13 +130,13 @@ class Rect {
 			if (a.ll.x <= b.ll.x && b.ll.x <= a.ur.x) {
 				ret.ll.x = b.ll.x;
 				// right edge: minimum of ur.x
-				ret.ur.x = min(a.ur.x, b.ur.x);
+				ret.ur.x = std::min(a.ur.x, b.ur.x);
 			}
 			// left edge of a within b
 			else if (b.ll.x <= a.ll.x && a.ll.x <= b.ur.x) {
 				ret.ll.x = a.ll.x;
 				// right edge: minimum of ur.x
-				ret.ur.x = min(a.ur.x, b.ur.x);
+				ret.ur.x = std::min(a.ur.x, b.ur.x);
 			}
 			// no intersection
 			else {
@@ -147,13 +147,13 @@ class Rect {
 			if (a.ll.y <= b.ll.y && b.ll.y <= a.ur.y) {
 				ret.ll.y = b.ll.y;
 				// top edge: minimum of ur.y
-				ret.ur.y = min(a.ur.y, b.ur.y);
+				ret.ur.y = std::min(a.ur.y, b.ur.y);
 			}
 			// bottom edge of a within b
 			else if (b.ll.y <= a.ll.y && a.ll.y <= b.ur.y) {
 				ret.ll.y = a.ll.y;
 				// top edge: minimum of ur.y
-				ret.ur.y = min(a.ur.y, b.ur.y);
+				ret.ur.y = std::min(a.ur.y, b.ur.y);
 			}
 			// no intersection
 			else {

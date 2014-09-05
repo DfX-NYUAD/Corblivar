@@ -30,21 +30,21 @@
 // memory allocation
 constexpr int CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE;
 
-void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, vector<Block> const& blocks, bool const& power_aware_assignment) {
+void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, std::vector<Block> const& blocks, bool const& power_aware_assignment) {
 	Direction cur_dir;
 	int die, cur_t, cur_layer;
 	double blocks_area_per_layer, cur_blocks_area;
-	vector<Block> blocks_copy;
+	std::vector<Block> blocks_copy;
 	Block const* cur_block;
 
 	if (log) {
-		cout << "Corblivar> ";
-		cout << "Initializing Corblivar data for corb on " << layers << " layers; ";
+		std::cout << "Corblivar> ";
+		std::cout << "Initializing Corblivar data for corb on " << layers << " layers; ";
 		if (power_aware_assignment) {
-			cout << "w/ power-aware block handling..." << endl;
+			std::cout << "w/ power-aware block handling..." << std::endl;
 		}
 		else {
-			cout << "w/o power-aware block handling..." << endl;
+			std::cout << "w/o power-aware block handling..." << std::endl;
 		}
 	}
 
@@ -93,7 +93,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 			}
 
 			// sanity check to limit die
-			die = min(cur_layer, layers - 1);
+			die = std::min(cur_layer, layers - 1);
 		}
 		else {
 			// consider random die
@@ -115,36 +115,36 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, ve
 		cur_t = 0;
 
 		// store into separate CBL sequences
-		this->dies[die].CBL.S.push_back(move(cur_block));
-		this->dies[die].CBL.L.push_back(move(cur_dir));
-		this->dies[die].CBL.T.push_back(move(cur_t));
+		this->dies[die].CBL.S.push_back(std::move(cur_block));
+		this->dies[die].CBL.L.push_back(std::move(cur_dir));
+		this->dies[die].CBL.T.push_back(std::move(cur_t));
 	}
 
 	if (CorblivarCore::DBG) {
 		for (CorblivarDie const& die : this->dies) {
-			cout << "DBG_CORE> ";
-			cout << "Init CBL tuples for die " << die.id + 1 << "; " << die.CBL.size() << " tuples:" << endl;
-			cout << die.CBL.CBLString() << endl;
-			cout << "DBG_CORE> ";
-			cout << endl;
+			std::cout << "DBG_CORE> ";
+			std::cout << "Init CBL tuples for die " << die.id + 1 << "; " << die.CBL.size() << " tuples:" << std::endl;
+			std::cout << die.CBL.CBLString() << std::endl;
+			std::cout << "DBG_CORE> ";
+			std::cout << std::endl;
 		}
 	}
 
 	if (log) {
-		cout << "Corblivar> ";
-		cout << "Done" << endl << endl;
+		std::cout << "Corblivar> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 }
 
 bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	Block const* cur_block;
 	Block const* other_block;
-	list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
+	std::list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
 	CorblivarAlignmentReq const* req_processed;
 
 	if (CorblivarCore::DBG) {
-		cout << "DBG_CORE> ";
-		cout << "Performing layout generation..." << endl;
+		std::cout << "DBG_CORE> ";
+		std::cout << "Performing layout generation..." << std::endl;
 	}
 
 	// init die pointer
@@ -159,9 +159,9 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	AL.clear();
 
 	if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-		cout << "DBG_ALIGNMENT>" << endl;
-		cout << "DBG_ALIGNMENT> New layout-generation run..." << endl;
-		cout << "DBG_ALIGNMENT>" << endl;
+		std::cout << "DBG_ALIGNMENT>" << std::endl;
+		std::cout << "DBG_ALIGNMENT> New layout-generation run..." << std::endl;
+		std::cout << "DBG_ALIGNMENT>" << std::endl;
 	}
 
 	// perform layout generation in loop (until all blocks are placed)
@@ -185,7 +185,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 		// dbg logging for current block
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 
-			cout << "DBG_ALIGNMENT> Processing " << this->p->getCBL().tupleString(this->p->pi) << " on die " << this->p->id + 1 << endl;
+			std::cout << "DBG_ALIGNMENT> Processing " << this->p->getCBL().tupleString(this->p->pi) << " on die " << this->p->id + 1 << std::endl;
 		}
 
 		// handle stalled die, i.e., resolve paused alignment process by placing
@@ -193,8 +193,8 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 		if (this->p->stalled) {
 
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id + 1;
-				cout << " place current block : " << this->p->getCurrentBlock()->id << endl;
+				std::cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id + 1;
+				std::cout << " place current block : " << this->p->getCurrentBlock()->id << std::endl;
 			}
 
 			// place block, increment progress pointer
@@ -221,8 +221,8 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 					for (auto* cur_req : cur_block_alignment_reqs) {
 
 						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-							cout << "DBG_ALIGNMENT>  Handling alignment request for block " << cur_block->id << endl;
-							cout << "DBG_ALIGNMENT>   Request: " << cur_req->tupleString() << endl;
+							std::cout << "DBG_ALIGNMENT>  Handling alignment request for block " << cur_block->id << std::endl;
+							std::cout << "DBG_ALIGNMENT>   Request: " << cur_req->tupleString() << std::endl;
 						}
 
 						// determine other block of request
@@ -243,7 +243,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 							if (cur_req->id == req_in_process->id) {
 
 								if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-									cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << endl;
+									std::cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << std::endl;
 								}
 
 								// place/align blocks, but keep
@@ -281,9 +281,9 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 							this->p = &this->dies[other_block->layer];
 
 							if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-								cout << "DBG_ALIGNMENT>    Request not (yet) in process" << endl;
-								cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer + 1;
-								cout << ", continue on die " << this->p->id + 1 << endl;
+								std::cout << "DBG_ALIGNMENT>    Request not (yet) in process" << std::endl;
+								std::cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer + 1;
+								std::cout << ", continue on die " << this->p->id + 1 << std::endl;
 							}
 						}
 						// request is processed; drop from list of
@@ -299,7 +299,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 					if (!this->dies[cur_block->layer].stalled) {
 
 						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-							cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << endl;
+							std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
 						}
 
 						this->p->updateProgressPointerFlag();
@@ -323,8 +323,8 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	}
 
 	if (CorblivarCore::DBG) {
-		cout << "DBG_CORE> ";
-		cout << "Done" << endl;
+		std::cout << "DBG_CORE> ";
+		std::cout << "Done" << std::endl;
 	}
 
 	return true;
@@ -335,7 +335,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	Block const* b2;
 	CorblivarDie* die_b1;
 	CorblivarDie* die_b2;
-	list<Block const*> b1_relev_blocks, b2_relev_blocks;
+	std::list<Block const*> b1_relev_blocks, b2_relev_blocks;
 	Direction dir_b1, dir_b2;
 	bool b1_shifted, b2_shifted;
 	bool b1_to_shift_horizontal, b1_to_shift_vertical, b2_to_shift_horizontal, b2_to_shift_vertical;
@@ -344,7 +344,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	if (!req->s_i->placed && !req->s_j->placed) {
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-			cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << endl;
+			std::cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << std::endl;
 		}
 
 		// local mapping of blocks
@@ -376,7 +376,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 				// dbg placement direction
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed horizontally" << endl;
+					std::cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed horizontally" << std::endl;
 				}
 
 				// first, determine blocks' y-coordinates
@@ -402,7 +402,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 				// dbg placement direction
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed vertically" << endl;
+					std::cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed vertically" << std::endl;
 				}
 
 				// first, determine blocks' x-coordinates
@@ -430,7 +430,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 			// dbg placement direction
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Blocks are to be handled sequentially" << endl;
+				std::cout << "DBG_ALIGNMENT>     Blocks are to be handled sequentially" << std::endl;
 			}
 
 			// initially, determine all coordinates
@@ -543,7 +543,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	else if (req->s_i->placed && req->s_j->placed) {
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-			cout << "DBG_ALIGNMENT>     Both blocks previously placed; alignment not possible!" << endl;
+			std::cout << "DBG_ALIGNMENT>     Both blocks previously placed; alignment not possible!" << std::endl;
 		}
 	}
 
@@ -561,7 +561,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		}
 
 		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-			cout << "DBG_ALIGNMENT>     Block " << b2->id << " previously placed; try to shift block " << b1->id << endl;
+			std::cout << "DBG_ALIGNMENT>     Block " << b2->id << " previously placed; try to shift block " << b1->id << std::endl;
 		}
 
 		// retrieve related die pointer
@@ -573,7 +573,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		if (b1->id != die_b1->getCurrentBlock()->id) {
 
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << endl;
+				std::cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << std::endl;
 			}
 
 			return false;
@@ -587,7 +587,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 			// dbg placement direction
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Block is to be placed horizontally" << endl;
+				std::cout << "DBG_ALIGNMENT>     Block is to be placed horizontally" << std::endl;
 			}
 
 			// first, determine block's y-coordinates
@@ -609,7 +609,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 
 			// dbg placement direction
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-				cout << "DBG_ALIGNMENT>     Block is to be placed vertically" << endl;
+				std::cout << "DBG_ALIGNMENT>     Block is to be placed vertically" << std::endl;
 			}
 
 			// first, determine block's x-coordinates
@@ -649,7 +649,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	return true;
 }
 
-void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, list<Block const*> b1_relev_blocks, list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted) {
+void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie* die_b2, CorblivarAlignmentReq const* req, std::list<Block const*> b1_relev_blocks, std::list<Block const*> b2_relev_blocks, Direction const& dir_b1, bool& b1_shifted, bool& b2_shifted) {
 
 	// annotate that b1 is shifted at least in one direction
 	b1_shifted = true;
@@ -689,7 +689,7 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 			// simplified handling such (rare?) cases
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 				if (die_b1->shiftCurrentBlock(Direction::VERTICAL, req, true)) {
-					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
+					std::cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << std::endl;
 				}
 			}
 		}
@@ -730,15 +730,15 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 			// simplified handling such (rare?) cases
 			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
 				if (die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req, true)) {
-					cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << endl;
+					std::cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << std::endl;
 				}
 			}
 		}
 	}
 }
 
-list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
-	list<CorblivarAlignmentReq const*> ret;
+std::list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
+	std::list<CorblivarAlignmentReq const*> ret;
 
 	// sanity check for no given requests
 	if (this->A.empty()) {
@@ -755,7 +755,7 @@ list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const*
 			if (!req.s_i->placed || !req.s_j->placed) {
 
 				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
-					cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << endl;
+					std::cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << std::endl;
 				}
 
 				ret.push_back(&req);
@@ -777,8 +777,8 @@ list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const*
 }
 
 void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
-	vector<vector<CornerBlockList::Tuple>> tuples;
-	vector<CornerBlockList::Tuple> tuples_die;
+	std::vector<std::vector<CornerBlockList::Tuple>> tuples;
+	std::vector<CornerBlockList::Tuple> tuples_die;
 	CornerBlockList::Tuple cur_tuple;
 
 	// log
@@ -786,8 +786,8 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 		switch (mode) {
 
 			case CorblivarCore::SORT_CBLS_BY_BLOCKS_SIZE:
-				cout << "Corblivar> ";
-				cout << "Sorting CBL tuples by block sizes ..." << endl;
+				std::cout << "Corblivar> ";
+				std::cout << "Sorting CBL tuples by block sizes ..." << std::endl;
 
 				break;
 		}
@@ -800,14 +800,14 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 
 		for (unsigned t = 0; t < die.CBL.size(); t++) {
 
-			cur_tuple.S = move(die.CBL.S[t]);
-			cur_tuple.L = move(die.CBL.L[t]);
-			cur_tuple.T = move(die.CBL.T[t]);
+			cur_tuple.S = std::move(die.CBL.S[t]);
+			cur_tuple.L = std::move(die.CBL.L[t]);
+			cur_tuple.T = std::move(die.CBL.T[t]);
 
-			tuples_die.push_back(move(cur_tuple));
+			tuples_die.push_back(std::move(cur_tuple));
 		}
 
-		tuples.push_back(move(tuples_die));
+		tuples.push_back(std::move(tuples_die));
 	}
 
 	// perfom sorting
@@ -834,9 +834,9 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 
 		for (unsigned t = 0; t < die.CBL.size(); t++) {
 
-			die.CBL.S[t] = move(tuples[d][t].S);
-			die.CBL.L[t] = move(tuples[d][t].L);
-			die.CBL.T[t] = move(tuples[d][t].T);
+			die.CBL.S[t] = std::move(tuples[d][t].S);
+			die.CBL.L[t] = std::move(tuples[d][t].L);
+			die.CBL.T[t] = std::move(tuples[d][t].T);
 		}
 
 		d++;
@@ -844,7 +844,7 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 
 	// log
 	if (log) {
-		cout << "Corblivar> ";
-		cout << "Done" << endl << endl;
+		std::cout << "Corblivar> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 }

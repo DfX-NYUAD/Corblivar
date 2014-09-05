@@ -46,12 +46,12 @@ class FloorPlanner {
 	// private data, functions
 	private:
 		// chip data
-		vector<Block> blocks;
-		vector<Pin> terminals;
-		vector<Net> nets;
+		std::vector<Block> blocks;
+		std::vector<Pin> terminals;
+		std::vector<Net> nets;
 
 		// groups of TSVs, will be defined from nets and vertical buses
-		vector<TSV_Island> TSVs;
+		std::vector<TSV_Island> TSVs;
 
 		// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
@@ -86,9 +86,9 @@ class FloorPlanner {
 
 		// IO files and parameters
 		struct IO_conf {
-			string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
-			ofstream results, solution_out;
-			ifstream solution_in;
+			std::string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
+			std::ofstream results, solution_out;
+			std::ifstream solution_in;
 			// flag whether power density file is available / was handled /
 			// thermal analysis should be performed / thermal files should be
 			// generated
@@ -98,7 +98,7 @@ class FloorPlanner {
 		} IO_conf;
 
 		// benchmark name
-		string benchmark;
+		std::string benchmark;
 
 		// run mode; represents thermal analyser runs where TSV density is given
 		// as command-line parameter
@@ -162,14 +162,14 @@ class FloorPlanner {
 			bool fits_fixed_outline;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
-			friend ostream& operator<< (ostream& out, Cost const& cost) {
+			friend std::ostream& operator<< (std::ostream& out, Cost const& cost) {
 				out << "cost=" << cost.total_cost << ", fits_fixed_outline=" << cost.fits_fixed_outline;
 				return out;
 			}
 		};
 
 		// SA: cost functions, i.e., layout-evaluations
-		Cost evaluateLayout(vector<CorblivarAlignmentReq> const& alignments,
+		Cost evaluateLayout(std::vector<CorblivarAlignmentReq> const& alignments,
 				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
 				bool const& set_max_cost = false,
@@ -177,7 +177,7 @@ class FloorPlanner {
 		void evaluateThermalDistr(Cost& cost,
 				bool const& set_max_cost = false);
 		void evaluateAlignments(Cost& cost,
-				vector<CorblivarAlignmentReq> const& alignments,
+				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false);
 		void evaluateAreaOutline(Cost& cost,
@@ -204,7 +204,7 @@ class FloorPlanner {
 		};
 
 		// SA: temperature-schedule log data
-		vector<TempStep> tempSchedule;
+		std::vector<TempStep> tempSchedule;
 
 		// SA: reheating parameters, for SA phase 3
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
@@ -233,7 +233,7 @@ class FloorPlanner {
 
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference
-		void initSA(CorblivarCore& corb, vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
+		void initSA(CorblivarCore& corb, std::vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
 		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
 
 		// thermal analyzer
@@ -305,11 +305,11 @@ class FloorPlanner {
 			return this->layoutOp.parameters.power_aware_block_handling;
 		};
 
-		inline string const& getBenchmark() const {
+		inline std::string const& getBenchmark() const {
 			return this->benchmark;
 		};
 
-		inline vector<Block> const& getBlocks() const {
+		inline std::vector<Block> const& getBlocks() const {
 			return this->blocks;
 		};
 
@@ -340,8 +340,8 @@ class FloorPlanner {
 			// scale terminal pins; first determine original pins outline
 			pins_scale_x = pins_scale_y = 0.0;
 			for (Pin const& pin : this->terminals) {
-				pins_scale_x = max(pins_scale_x, pin.bb.ll.x);
-				pins_scale_y = max(pins_scale_y, pin.bb.ll.y);
+				pins_scale_x = std::max(pins_scale_x, pin.bb.ll.x);
+				pins_scale_y = std::max(pins_scale_y, pin.bb.ll.y);
 			}
 			// scale terminal pins; scale pin coordinates according to die outline
 			pins_scale_x = this->IC.outline_x / pins_scale_x;

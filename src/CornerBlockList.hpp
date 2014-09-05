@@ -38,9 +38,9 @@ class CornerBlockList {
 	// private data, functions
 	private:
 		// CBL sequences
-		vector<Block const*> S;
-		vector<Direction> L;
-		vector<unsigned> T;
+		std::vector<Block const*> S;
+		std::vector<Direction> L;
+		std::vector<unsigned> T;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -66,16 +66,16 @@ class CornerBlockList {
 				unsigned prev_ret;
 
 				prev_ret = ret = this->S.size();
-				ret = min<unsigned>(ret, this->L.size());
+				ret = std::min<unsigned>(ret, this->L.size());
 				mismatch = (ret != prev_ret);
 				prev_ret = ret;
-				ret = min<unsigned>(ret, this->T.size());
+				ret = std::min<unsigned>(ret, this->T.size());
 				mismatch = mismatch || (ret != prev_ret);
 
 				if (mismatch) {
-					cout << "DBG_CBL> CBL has sequences size mismatch!" << endl;
-					cout << "DBG_CBL> CBL: " << endl;
-					cout << this->CBLString() << endl;
+					std::cout << "DBG_CBL> CBL has sequences size mismatch!" << std::endl;
+					std::cout << "DBG_CBL> CBL: " << std::endl;
+					std::cout << this->CBLString() << std::endl;
 				}
 			}
 
@@ -108,8 +108,8 @@ class CornerBlockList {
 			this->T.push_back(tuple.T);
 		};
 
-		inline string tupleString(unsigned const& tuple) const {
-			stringstream ret;
+		inline std::string tupleString(unsigned const& tuple) const {
+			std::stringstream ret;
 
 			ret << "tuple " << tuple << " : ";
 			ret << "( " << this->S[tuple]->id << " " << static_cast<unsigned>(this->L[tuple]) << " " << this->T[tuple] << " ";
@@ -118,9 +118,9 @@ class CornerBlockList {
 			return ret.str();
 		};
 
-		inline string CBLString() const {
+		inline std::string CBLString() const {
 			unsigned i;
-			stringstream ret;
+			std::stringstream ret;
 
 			for (i = 0; i < this->size(); i++) {
 				ret << this->tupleString(i) << "; ";

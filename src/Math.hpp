@@ -63,7 +63,7 @@ class Math {
 		};
 
 		// standard deviation of samples
-		inline static double stdDev(vector<double> const& samples) {
+		inline static double stdDev(std::vector<double> const& samples) {
 			double avg, sq_diffs;
 
 			// determine avg of samples

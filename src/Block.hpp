@@ -47,7 +47,7 @@ class Block {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Block(string const& id) {
+		Block(std::string const& id) {
 			this->id = id;
 			this->layer = -1;
 			this->power_density= 0.0;
@@ -60,7 +60,7 @@ class Block {
 
 	// public data, functions
 	public:
-		string id;
+		std::string id;
 		mutable int layer;
 
 		// flag to monitor placement; also required for alignment handling
@@ -90,7 +90,7 @@ class Block {
 		// thus marked const
 		//
 		inline void rotate() const {
-			swap(this->bb.w, this->bb.h);
+			std::swap(this->bb.w, this->bb.h);
 		};
 		inline void shapeRandomlyByAR() const {
 
@@ -128,7 +128,7 @@ class Block {
 		}
 
 		// search blocks
-		inline static Block const* findBlock(string const& id, vector<Block> const& container) {
+		inline static Block const* findBlock(std::string const& id, std::vector<Block> const& container) {
 
 			for (Block const& b : container) {
 				if (b.id == id) {
@@ -139,7 +139,7 @@ class Block {
 			return nullptr;
 		};
 
-		friend ostream& operator<< (ostream& out, AlignmentStatus const& status) {
+		friend std::ostream& operator<< (std::ostream& out, AlignmentStatus const& status) {
 
 			switch (status) {
 
@@ -173,11 +173,11 @@ class Pin : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		Pin (string const& id) : Block(id) {
+		Pin (std::string const& id) : Block(id) {
 		};
 
 		// search pins
-		inline static Pin const* findPin(string const& id, vector<Pin> const& container) {
+		inline static Pin const* findPin(std::string const& id, std::vector<Pin> const& container) {
 
 			for (Pin const& b : container) {
 				if (b.id == id) {
@@ -198,7 +198,7 @@ class TSV_Island : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		TSV_Island (string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
+		TSV_Island (std::string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
 			this->layer = layer;
@@ -250,10 +250,10 @@ class TSV_Island : public Block {
 			// dbg logging for TSV scaling
 			if (TSV_Island::DBG) {
 
-				cout << "DBG_TSVS> TSV group" << endl;
-				cout << "DBG_TSVS>  " << this->id << endl;
-				cout << "DBG_TSVS>  (" << this->bb.ll.x << "," << this->bb.ll.y << ")";
-				cout << "(" << this->bb.ur.x << "," << this->bb.ur.y << ")" << endl;
+				std::cout << "DBG_TSVS> TSV group" << std::endl;
+				std::cout << "DBG_TSVS>  " << this->id << std::endl;
+				std::cout << "DBG_TSVS>  (" << this->bb.ll.x << "," << this->bb.ll.y << ")";
+				std::cout << "(" << this->bb.ur.x << "," << this->bb.ur.y << ")" << std::endl;
 			}
 		}
 };

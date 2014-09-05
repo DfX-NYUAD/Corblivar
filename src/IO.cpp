@@ -37,26 +37,26 @@
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	int file_version;
 	size_t last_slash;
-	ifstream in;
-	string config_file, technology_file;
-	stringstream results_file;
-	stringstream blocks_file;
-	stringstream alignments_file;
-	stringstream pins_file;
-	stringstream power_density_file;
-	stringstream nets_file;
-	string tmpstr;
+	std::ifstream in;
+	std::string config_file, technology_file;
+	std::stringstream results_file;
+	std::stringstream blocks_file;
+	std::stringstream alignments_file;
+	std::stringstream pins_file;
+	std::stringstream power_density_file;
+	std::stringstream nets_file;
+	std::string tmpstr;
 	ThermalAnalyzer::MaskParameters mask_parameters;
 
 	// print command-line parameters
 	if (argc < 4) {
-		cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << endl;
-		cout << "IO> " << endl;
-		cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << endl;
-		cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << endl;
-		cout << "IO> Mandatory parameter ``benchmarks_dir'': folder containing actual benchmark files in GSRC Bookshelf format" << endl;
-		cout << "IO> Optional parameter ``solution_file'': re-evaluate w/ given Corblivar solution" << endl;
-		cout << "IO> Optional parameter ``TSV density'': average TSV density to be considered across all dies, to be given in \%" << endl;
+		std::cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << std::endl;
+		std::cout << "IO> " << std::endl;
+		std::cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << std::endl;
+		std::cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << std::endl;
+		std::cout << "IO> Mandatory parameter ``benchmarks_dir'': folder containing actual benchmark files in GSRC Bookshelf format" << std::endl;
+		std::cout << "IO> Optional parameter ``solution_file'': re-evaluate w/ given Corblivar solution" << std::endl;
+		std::cout << "IO> Optional parameter ``TSV density'': average TSV density to be considered across all dies, to be given in \%" << std::endl;
 
 		exit(1);
 	}
@@ -95,7 +95,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// determine path of technology file; same as config file per definition
 	last_slash = config_file.find_last_of('/');
-	if (last_slash == string::npos) {
+	if (last_slash == std::string::npos) {
 		technology_file = "";
 	}
 	else {
@@ -110,8 +110,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// config file
 	in.open(config_file.c_str());
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "No such config file: " << config_file << endl;
+		std::cout << "IO> ";
+		std::cout << "No such config file: " << config_file << std::endl;
 		exit(1);
 	}
 	in.close();
@@ -119,8 +119,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// blocks file
 	in.open(fp.IO_conf.blocks_file.c_str());
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "Blocks file missing: " << fp.IO_conf.blocks_file << endl;
+		std::cout << "IO> ";
+		std::cout << "Blocks file missing: " << fp.IO_conf.blocks_file << std::endl;
 		exit(1);
 	}
 	in.close();
@@ -131,18 +131,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.IO_conf.alignments_file_avail = in.good();
 
 	if (!in.good() && fp.logMin()) {
-		cout << "IO> ";
-		cout << "Note: alignment-requests file missing : " << fp.IO_conf.alignments_file<< endl;
-		cout << "IO> Block alignment cannot be performed; is deactivated." << endl;
-		cout << endl;
+		std::cout << "IO> ";
+		std::cout << "Note: alignment-requests file missing : " << fp.IO_conf.alignments_file<< std::endl;
+		std::cout << "IO> Block alignment cannot be performed; is deactivated." << std::endl;
+		std::cout << std::endl;
 	}
 	in.close();
 
 	// pins file
 	in.open(fp.IO_conf.pins_file.c_str());
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "Pins file missing: " << fp.IO_conf.pins_file << endl;
+		std::cout << "IO> ";
+		std::cout << "Pins file missing: " << fp.IO_conf.pins_file << std::endl;
 		exit(1);
 	}
 	in.close();
@@ -153,10 +153,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.IO_conf.power_density_file_avail = in.good();
 
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "Note: power density file missing : " << fp.IO_conf.power_density_file << endl;
-		cout << "IO> Thermal analysis and optimization cannot be performed; is deactivated." << endl;
-		cout << endl;
+		std::cout << "IO> ";
+		std::cout << "Note: power density file missing : " << fp.IO_conf.power_density_file << std::endl;
+		std::cout << "IO> Thermal analysis and optimization cannot be performed; is deactivated." << std::endl;
+		std::cout << std::endl;
 
 		// for thermal-analyser runs, the power density files are mandatory
 		if (fp.thermal_analyser_run) {
@@ -168,8 +168,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// nets file
 	in.open(fp.IO_conf.nets_file.c_str());
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "Nets file missing: " << fp.IO_conf.nets_file << endl;
+		std::cout << "IO> ";
+		std::cout << "Nets file missing: " << fp.IO_conf.nets_file << std::endl;
 		exit(1);
 	}
 	in.close();
@@ -184,8 +184,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.IO_conf.solution_in.open(fp.IO_conf.solution_file.c_str());
 		if (!fp.IO_conf.solution_in.good())
 		{
-			cout << "IO> ";
-			cout << "No such solution file: " << fp.IO_conf.solution_file << endl;
+			std::cout << "IO> ";
+			std::cout << "No such solution file: " << fp.IO_conf.solution_file << std::endl;
 			exit(1);
 		}
 	}
@@ -209,7 +209,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.open(config_file.c_str());
 
 	if (fp.logMin()) {
-		cout << "IO> Parsing config file ..." << endl;
+		std::cout << "IO> Parsing config file ..." << std::endl;
 	}
 
 	// sanity check for file version
@@ -218,7 +218,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> file_version;
 
 	if (file_version != IO::CONFIG_VERSION) {
-		cout << "IO> Wrong version of config file; required version is \"" << IO::CONFIG_VERSION << "\"; consider using matching config file!" << endl;
+		std::cout << "IO> Wrong version of config file; required version is \"" << IO::CONFIG_VERSION << "\"; consider using matching config file!" << std::endl;
 		exit(1);
 	}
 
@@ -253,13 +253,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for packing iterations
 	if (fp.layoutOp.parameters.packing_iterations < 0) {
-		cout << "IO> Provide a positive packing iterations count or set 0 to disable!" << endl;
+		std::cout << "IO> Provide a positive packing iterations count or set 0 to disable!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for packing and block rotation
 	if (fp.layoutOp.parameters.enhanced_hard_block_rotation && (fp.layoutOp.parameters.packing_iterations > 0)) {
-		cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << endl;
+		std::cout << "IO> Activate only guided hard block rotation OR layout packing; both cannot be performed!" << std::endl;
 		exit(1);
 	}
 
@@ -290,7 +290,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.SA_parameters.loopFactor <= 0.0 || fp.SA_parameters.loopLimit <= 0.0) {
-		cout << "IO> Provide positive, non-zero SA loop parameters!" << endl;
+		std::cout << "IO> Provide positive, non-zero SA loop parameters!" << std::endl;
 		exit(1);
 	}
 
@@ -301,7 +301,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero factor
 	if (fp.SA_parameters.temp_init_factor <= 0.0) {
-		cout << "IO> Provide positive, non-zero SA start temperature scaling factor!" << endl;
+		std::cout << "IO> Provide positive, non-zero SA start temperature scaling factor!" << std::endl;
 		exit(1);
 	}
 
@@ -317,7 +317,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for dependent temperature-scaling factors
 	if (fp.SA_parameters.temp_factor_phase1 >= fp.SA_parameters.temp_factor_phase1_limit) {
-		cout << "IO> Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << endl;
+		std::cout << "IO> Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << std::endl;
 		exit(1);
 	}
 
@@ -328,7 +328,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (fp.SA_parameters.temp_factor_phase1 <= 0.0 || fp.SA_parameters.temp_factor_phase2 <= 0.0) {
-		cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << endl;
+		std::cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << std::endl;
 		exit(1);
 	}
 
@@ -370,13 +370,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive cost factors
 	if (fp.SA_parameters.cost_thermal < 0.0 || fp.SA_parameters.cost_WL < 0.0 || fp.SA_parameters.cost_TSVs < 0.0 || fp.SA_parameters.cost_alignment < 0.0) {
-		cout << "IO> Provide positive cost factors!" << endl;
+		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
 	if (abs(fp.SA_parameters.cost_thermal + fp.SA_parameters.cost_WL + fp.SA_parameters.cost_TSVs + fp.SA_parameters.cost_alignment - 1.0) > 0.1) {
-		cout << "IO> Cost factors should sum up to approx. 1!" << endl;
+		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}
 
@@ -399,17 +399,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero parameters
 	if (mask_parameters.impulse_factor <= 0.0) {
-		cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << endl;
+		std::cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << std::endl;
 		exit(1);
 	}
 	if (mask_parameters.mask_boundary_value <= 0.0) {
-		cout << "IO> Provide a positive, non-zero power blurring mask boundary value!" << endl;
+		std::cout << "IO> Provide a positive, non-zero power blurring mask boundary value!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for reasonable mask parameters
 	if (mask_parameters.impulse_factor <= mask_parameters.mask_boundary_value) {
-		cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << endl;
+		std::cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << std::endl;
 		exit(1);
 	}
 
@@ -420,7 +420,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive parameter
 	if (mask_parameters.power_density_scaling_padding_zone < 1.0) {
-		cout << "IO> Provide a positive (greater or equal 1.0) power-density scaling factor!" << endl;
+		std::cout << "IO> Provide a positive (greater or equal 1.0) power-density scaling factor!" << std::endl;
 		exit(1);
 	}
 
@@ -431,7 +431,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for parameter range
 	if (mask_parameters.power_density_scaling_TSV_region > 1.0 || mask_parameters.power_density_scaling_TSV_region < 0.0) {
-		cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << endl;
+		std::cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << std::endl;
 		exit(1);
 	}
 
@@ -442,7 +442,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive parameter
 	if (mask_parameters.temp_offset < 0.0) {
-		cout << "IO> Provide a positive temperature offset!" << endl;
+		std::cout << "IO> Provide a positive temperature offset!" << std::endl;
 		exit(1);
 	}
 
@@ -456,13 +456,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// initially test file
 	in.open(technology_file.c_str());
 	if (!in.good()) {
-		cout << "IO> ";
-		cout << "No such technology file: " << technology_file << endl;
+		std::cout << "IO> ";
+		std::cout << "No such technology file: " << technology_file << std::endl;
 		exit(1);
 	}
 
 	if (fp.logMin()) {
-		cout << "IO> Parsing technology file ..." << endl;
+		std::cout << "IO> Parsing technology file ..." << std::endl;
 	}
 
 	// reset tmpstr
@@ -474,8 +474,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> file_version;
 
 	if (file_version != IO::TECHNOLOGY_VERSION) {
-		cout << file_version << endl;
-		cout << "IO> Wrong version of technology file; required version is \"" << IO::TECHNOLOGY_VERSION << "\"; consider using matching technology file!" << endl;
+		std::cout << file_version << std::endl;
+		std::cout << "IO> Wrong version of technology file; required version is \"" << IO::TECHNOLOGY_VERSION << "\"; consider using matching technology file!" << std::endl;
 		exit(1);
 	}
 
@@ -490,7 +490,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero layer
 	if (fp.IC.layers <= 0) {
-		cout << "IO> Provide positive, non-zero layer count!" << endl;
+		std::cout << "IO> Provide positive, non-zero layer count!" << std::endl;
 		exit(1);
 	}
 
@@ -506,7 +506,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for positive, non-zero dimensions
 	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {
-		cout << "IO> Provide positive, non-zero outline dimensions!" << endl;
+		std::cout << "IO> Provide positive, non-zero outline dimensions!" << std::endl;
 		exit(1);
 	}
 
@@ -522,7 +522,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for block scaling factor
 	if (fp.IC.blocks_scale <= 0.0) {
-		cout << "IO> Provide a positive, non-zero block scaling factor!" << endl;
+		std::cout << "IO> Provide a positive, non-zero block scaling factor!" << std::endl;
 		exit(1);
 	}
 
@@ -574,83 +574,83 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.close();
 
 	if (fp.logMin()) {
-		cout << "IO> Done; technology and config values:" << endl;
+		std::cout << "IO> Done; technology and config values:" << std::endl;
 
 		// log
-		cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.log << endl;
+		std::cout << "IO>  Loglevel (1 to 3 for minimal, medium, maximal): " << fp.log << std::endl;
 
 		// general 3D IC setup
-		cout << "IO>  Chip -- Layers for 3D IC: " << fp.IC.layers << endl;
-		cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.IC.outline_x << endl;
-		cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.IC.outline_y << endl;
-		cout << "IO>  Chip -- Block scaling factor: " << fp.IC.blocks_scale << endl;
-		cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << endl;
+		std::cout << "IO>  Chip -- Layers for 3D IC: " << fp.IC.layers << std::endl;
+		std::cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.IC.outline_x << std::endl;
+		std::cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.IC.outline_y << std::endl;
+		std::cout << "IO>  Chip -- Block scaling factor: " << fp.IC.blocks_scale << std::endl;
+		std::cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << std::endl;
 
 		// technology parameters
-		cout << "IO>  Technology -- Die thickness [um]: " << fp.IC.die_thickness << endl;
-		cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.IC.Si_active_thickness << endl;
-		cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.IC.Si_passive_thickness << endl;
-		cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.IC.BEOL_thickness << endl;
-		cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << endl;
-		cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << endl;
-		cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << endl;
-		cout << "IO>  Technology -- TSV groups; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << endl;
-		cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << endl;
+		std::cout << "IO>  Technology -- Die thickness [um]: " << fp.IC.die_thickness << std::endl;
+		std::cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.IC.Si_active_thickness << std::endl;
+		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.IC.Si_passive_thickness << std::endl;
+		std::cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.IC.BEOL_thickness << std::endl;
+		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << std::endl;
+		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << std::endl;
+		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << std::endl;
+		std::cout << "IO>  Technology -- TSV groups; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << std::endl;
+		std::cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
 
 		// layout generation options
-		cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << endl;
-		cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.layoutOp.parameters.enhanced_soft_block_shaping << endl;
-		cout << "IO>  SA -- Layout generation; packing iterations: " << fp.layoutOp.parameters.packing_iterations << endl;
-		cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.power_aware_block_handling << endl;
-		cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << endl;
+		std::cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << std::endl;
+		std::cout << "IO>  SA -- Layout generation; guided soft block shaping: " << fp.layoutOp.parameters.enhanced_soft_block_shaping << std::endl;
+		std::cout << "IO>  SA -- Layout generation; packing iterations: " << fp.layoutOp.parameters.packing_iterations << std::endl;
+		std::cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.power_aware_block_handling << std::endl;
+		std::cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << std::endl;
 
 		// SA loop setup
-		cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << endl;
-		cout << "IO>  SA -- Outer-loop upper limit: " << fp.SA_parameters.loopLimit << endl;
+		std::cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << std::endl;
+		std::cout << "IO>  SA -- Outer-loop upper limit: " << fp.SA_parameters.loopLimit << std::endl;
 
 		// SA cooling schedule
-		cout << "IO>  SA -- Start temperature scaling factor: " << fp.SA_parameters.temp_init_factor << endl;
-		cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1 << endl;
-		cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1_limit << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.SA_parameters.temp_factor_phase2 << endl;
-		cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.SA_parameters.temp_factor_phase3 << endl;
+		std::cout << "IO>  SA -- Start temperature scaling factor: " << fp.SA_parameters.temp_init_factor << std::endl;
+		std::cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1 << std::endl;
+		std::cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1_limit << std::endl;
+		std::cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.SA_parameters.temp_factor_phase2 << std::endl;
+		std::cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.SA_parameters.temp_factor_phase3 << std::endl;
 
 		// SA cost factors
-		cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.SA_parameters.cost_thermal << endl;
+		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.SA_parameters.cost_thermal << std::endl;
 		if (!fp.IO_conf.power_density_file_avail) {
-			cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << endl;
+			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
 		}
-		cout << "IO>  SA -- Cost factor for wirelength: " << fp.SA_parameters.cost_WL << endl;
-		cout << "IO>  SA -- Cost factor for TSVs: " << fp.SA_parameters.cost_TSVs << endl;
-		cout << "IO>  SA -- Cost factor for block alignment: " << fp.SA_parameters.cost_alignment << endl;
+		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.SA_parameters.cost_WL << std::endl;
+		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.SA_parameters.cost_TSVs << std::endl;
+		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.SA_parameters.cost_alignment << std::endl;
 		if (!fp.IO_conf.alignments_file_avail) {
-			cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << endl;
+			std::cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << std::endl;
 		}
 
 		// power blurring mask parameters
-		cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Impulse factor: " << mask_parameters.impulse_factor << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Impulse scaling-factor: " << mask_parameters.impulse_factor_scaling_exponent << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Mask-boundary value: " << mask_parameters.mask_boundary_value << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (padding zone): " << mask_parameters.power_density_scaling_padding_zone << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Power-density down-scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << endl;
-		cout << "IO>  Power-blurring mask parameterization -- Temperature offset: " << mask_parameters.temp_offset << endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Impulse factor: " << mask_parameters.impulse_factor << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Impulse scaling-factor: " << mask_parameters.impulse_factor_scaling_exponent << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Mask-boundary value: " << mask_parameters.mask_boundary_value << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Power-density scaling factor (padding zone): " << mask_parameters.power_density_scaling_padding_zone << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Power-density down-scaling factor (TSV regions): " << mask_parameters.power_density_scaling_TSV_region << std::endl;
+		std::cout << "IO>  Power-blurring mask parameterization -- Temperature offset: " << mask_parameters.temp_offset << std::endl;
 
-		cout << endl;
+		std::cout << std::endl;
 	}
 }
 
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
-	string tmpstr;
+	std::string tmpstr;
 	CornerBlockList::Tuple tuple;
 	unsigned tuples;
 	int cur_layer;
-	string block_id;
+	std::string block_id;
 	unsigned dir;
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Initializing Corblivar data from solution file ..." << endl;
+		std::cout << "IO> ";
+		std::cout << "Initializing Corblivar data from solution file ..." << std::endl;
 	}
 
 	// drop solution file header
@@ -687,7 +687,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// find related block
 			tuple.S = Block::findBlock(block_id, fp.blocks);
 			if (tuple.S == nullptr) {
-				cout << "IO> Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << endl;
+				std::cout << "IO> Block " << block_id << " cannot be retrieved; ensure solution file and benchmark file match!" << std::endl;
 				exit(1);
 			}
 
@@ -717,26 +717,26 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.IO_conf.solution_in >> tmpstr;
 
 			// store successfully parsed tuple into CBL
-			corb.editDie(cur_layer).editCBL().insert(move(tuple));
+			corb.editDie(cur_layer).editCBL().insert(std::move(tuple));
 			tuples++;
 		}
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done; parsed " << tuples << " tuples" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done; parsed " << tuples << " tuples" << std::endl << std::endl;
 	}
 }
 
 // parse alignment-requests file
-void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>& alignments) {
-	ifstream al_in;
-	string tmpstr;
+void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignmentReq>& alignments) {
+	std::ifstream al_in;
+	std::string tmpstr;
 	int id;
-	string block_id;
+	std::string block_id;
 	Block const* b1;
 	Block const* b2;
-	string type_str;
+	std::string type_str;
 	int signals;
 	CorblivarAlignmentReq::Type type_x;
 	CorblivarAlignmentReq::Type type_y;
@@ -750,8 +750,8 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Parsing alignment requests..." << endl;
+		std::cout << "IO> ";
+		std::cout << "Parsing alignment requests..." << std::endl;
 	}
 
 	// open file
@@ -789,7 +789,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 			type = CorblivarAlignmentReq::Global_Type::FLEXIBLE;
 		}
 		else {
-			cout << "IO> Unknown global alignment type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
+			std::cout << "IO> Unknown global alignment type: " << type_str << "; ensure alignment-requests file has correct format!" << std::endl;
 			exit(1);
 		}
 
@@ -811,7 +811,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 			}
 			// otherwise, we triggered some parsing error
 			else {
-				cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+				std::cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << std::endl;
 				exit(1);
 			}
 		}
@@ -831,7 +831,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 			}
 			// otherwise, we triggered some parsing error
 			else {
-				cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << endl;
+				std::cout << "IO> Block " << block_id << " cannot be retrieved; ensure alignment-requests file and benchmark file match!" << std::endl;
 				exit(1);
 			}
 		}
@@ -852,7 +852,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 			type_x = CorblivarAlignmentReq::Type::UNDEF;
 		}
 		else {
-			cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
+			std::cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << std::endl;
 			exit(1);
 		}
 
@@ -875,7 +875,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 			type_y = CorblivarAlignmentReq::Type::UNDEF;
 		}
 		else {
-			cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << endl;
+			std::cout << "IO> Unknown alignment-request type: " << type_str << "; ensure alignment-requests file has correct format!" << std::endl;
 			exit(1);
 		}
 
@@ -893,31 +893,31 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, vector<CorblivarAlignmentReq>&
 
 	if (IO::DBG) {
 		for (CorblivarAlignmentReq const& req : alignments) {
-			cout << "DBG_IO> " << req.tupleString() << endl;
+			std::cout << "DBG_IO> " << req.tupleString() << std::endl;
 		}
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done; parsed " << id << " alignment requests" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done; parsed " << id << " alignment requests" << std::endl << std::endl;
 	}
 }
 
 // parse blocks file
 void IO::parseBlocks(FloorPlanner& fp) {
-	ifstream blocks_in, pins_in, power_in;
-	string tmpstr;
+	std::ifstream blocks_in, pins_in, power_in;
+	std::string tmpstr;
 	double power = 0.0;
 	double blocks_max_area = 0.0, blocks_avg_area = 0.0;
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
-	string id;
+	std::string id;
 	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
 	bool floorplacement;
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Parsing blocks..." << endl;
+		std::cout << "IO> ";
+		std::cout << "Parsing blocks..." << std::endl;
 	}
 
 	// open files
@@ -992,7 +992,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 			// pin cannot be found; log
 			if (pins_in.eof() && fp.logMin()) {
-				cout << "IO>  Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << endl;
+				std::cout << "IO>  Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << std::endl;
 			}
 			// initially, parse coordinates of found pin; they will be scaled
 			// after parsing whole blocks file
@@ -1067,8 +1067,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		}
 		// unknown block type
 		else {
-			cout << "IO>  Unknown block type: " << tmpstr << endl;
-			cout << "IO>  Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
+			std::cout << "IO>  Unknown block type: " << tmpstr << std::endl;
+			std::cout << "IO>  Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
 			exit(1);
 		}
 
@@ -1086,26 +1086,26 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 			else {
 				if (fp.logMin()) {
-					cout << "IO>  Some blocks have no power value assigned, consider checking the power density file!" << endl;
+					std::cout << "IO>  Some blocks have no power value assigned, consider checking the power density file!" << std::endl;
 				}
 			}
 		}
 
 		// track block power statistics
 		power += new_block.power();
-		fp.power_stats.max = max(fp.power_stats.max, new_block.power_density);
+		fp.power_stats.max = std::max(fp.power_stats.max, new_block.power_density);
 		if (fp.power_stats.min == -1) {
 			fp.power_stats.min = new_block.power_density;
 		}
-		fp.power_stats.min = min(fp.power_stats.min, new_block.power_density);
+		fp.power_stats.min = std::min(fp.power_stats.min, new_block.power_density);
 		fp.power_stats.avg += new_block.power_density;
 
 		// memorize summed blocks area and largest block, needs to fit into die
 		fp.IC.blocks_area += new_block.bb.area;
-		blocks_max_area = max(blocks_max_area, new_block.bb.area);
+		blocks_max_area = std::max(blocks_max_area, new_block.bb.area);
 
 		// store block
-		fp.blocks.push_back(move(new_block));
+		fp.blocks.push_back(std::move(new_block));
 	}
 
 	// close files
@@ -1142,67 +1142,67 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// sanity check of fixed outline
 	blocks_outline_ratio = fp.IC.blocks_area / fp.IC.stack_area;
 	if (blocks_outline_ratio > 1.0) {
-		cout << "IO>  Chip too small; consider increasing the die outline or layers count" << endl;
-		cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << endl;
+		std::cout << "IO>  Chip too small; consider increasing the die outline or layers count" << std::endl;
+		std::cout << "IO>  Summed Blocks/dies area ratio: " << blocks_outline_ratio << std::endl;
 		exit(1);
 	}
 	// sanity check for largest block
 	if (blocks_max_area > fp.IC.die_area) {
-		cout << "IO>  Die outline too small; consider increasing it" << endl;
-		cout << "IO>  Largest-block/die area ratio: " << blocks_max_area / fp.IC.die_area << endl;
+		std::cout << "IO>  Die outline too small; consider increasing it" << std::endl;
+		std::cout << "IO>  Largest-block/die area ratio: " << blocks_max_area / fp.IC.die_area << std::endl;
 		exit(1);
 	}
 
 	// sanity check for parsed blocks
 	if (fp.blocks.size() != (to_parse_soft_blocks + to_parse_hard_blocks)) {
-		cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
-		cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << endl;
+		std::cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+		std::cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << std::endl;
 		exit(1);
 	}
 
 	// sanity check for parsed terminals
 	if (fp.terminals.size() != to_parse_terminals) {
-		cout << "IO>  Not all given terminals could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
-		cout << "IO>   Parsed pins: " << fp.terminals.size() << ", expected pins count: " << to_parse_terminals << endl;
+		std::cout << "IO>  Not all given terminals could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+		std::cout << "IO>   Parsed pins: " << fp.terminals.size() << ", expected pins count: " << to_parse_terminals << std::endl;
 		exit(1);
 	}
 
 	// logging
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done; " << fp.blocks.size() << " blocks read in, " << fp.terminals.size() << " terminal pins read in" << endl;
-		cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << endl;
+		std::cout << "IO> ";
+		std::cout << "Done; " << fp.blocks.size() << " blocks read in, " << fp.terminals.size() << " terminal pins read in" << std::endl;
+		std::cout << "IO>  Soft blocks: " << soft_blocks << ", hard blocks: " << fp.blocks.size() - soft_blocks << std::endl;
 
 		// floorplacement
-		cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", to be handled as floorplacement: " << floorplacement << endl;
+		std::cout << "IO>  Largest-block / Average-block area ratio: " << blocks_max_area / blocks_avg_area << ", to be handled as floorplacement: " << floorplacement << std::endl;
 		if (!fp.layoutOp.parameters.floorplacement && floorplacement) {
-			cout << "IO>   Note: floorplacement is ignored since it's deactivated" << endl;
+			std::cout << "IO>   Note: floorplacement is ignored since it's deactivated" << std::endl;
 		}
 
 		// blocks power
-		cout << "IO>  Summed blocks power [W]: " << power;
+		std::cout << "IO>  Summed blocks power [W]: " << power;
 		if (power != 0.0) {
-			cout << "; min power density [uW/um^2]: " << fp.power_stats.min;
-			cout << ", max power density [uW/um^2]: " << fp.power_stats.max;
-			cout << ", avg power density [uW/um^2]: " << fp.power_stats.avg << endl;
+			std::cout << "; min power density [uW/um^2]: " << fp.power_stats.min;
+			std::cout << ", max power density [uW/um^2]: " << fp.power_stats.max;
+			std::cout << ", avg power density [uW/um^2]: " << fp.power_stats.avg << std::endl;
 		}
 		else {
-			cout << endl;
+			std::cout << std::endl;
 		}
 
 		// blocks area
-		cout << "IO>  Summed blocks area [cm^2]: " << fp.IC.blocks_area * 1.0e-8;
-		cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << endl;
-		cout << endl;
+		std::cout << "IO>  Summed blocks area [cm^2]: " << fp.IC.blocks_area * 1.0e-8;
+		std::cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << std::endl;
+		std::cout << std::endl;
 	}
 }
 
 // parse nets file
 void IO::parseNets(FloorPlanner& fp) {
-	ifstream in;
-	string tmpstr;
+	std::ifstream in;
+	std::string tmpstr;
 	int i, net_degree;
-	string net_block;
+	std::string net_block;
 	Block const* block;
 	Pin const* pin;
 	int id;
@@ -1210,8 +1210,8 @@ void IO::parseNets(FloorPlanner& fp) {
 	unsigned to_parse_nets;
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Parsing nets..." << endl;
+		std::cout << "IO> ";
+		std::cout << "Parsing nets..." << std::endl;
 	}
 
 	// reset nets
@@ -1263,7 +1263,7 @@ void IO::parseNets(FloorPlanner& fp) {
 				// mark net as net w/ external pin
 				new_net.hasExternalPin = true;
 				// store terminal
-				new_net.terminals.push_back(move(pin));
+				new_net.terminals.push_back(std::move(pin));
 				// pin found
 				pin_not_found = false;
 			}
@@ -1277,7 +1277,7 @@ void IO::parseNets(FloorPlanner& fp) {
 				block = Block::findBlock(net_block, fp.blocks);
 				if (block != nullptr) {
 					// store block
-					new_net.blocks.push_back(move(block));
+					new_net.blocks.push_back(std::move(block));
 					// block found
 					block_not_found = false;
 				}
@@ -1293,18 +1293,18 @@ void IO::parseNets(FloorPlanner& fp) {
 			// log pin parsing failure
 			if (fp.logMin()) {
 				if (block_not_found && !pin_not_found) {
-					cout << "IO>  Net " << id << "'s block \"" << net_block << "\"";
-					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
+					std::cout << "IO>  Net " << id << "'s block \"" << net_block << "\"";
+					std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
 				}
 				else if (block_not_found && pin_not_found) {
-					cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
-					cout << " cannot be retrieved; consider checking net / blocks file" << endl;
+					std::cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
+					std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
 				}
 			}
 		}
 
 		// store net
-		fp.nets.push_back(move(new_net));
+		fp.nets.push_back(std::move(new_net));
 
 		// consider next net id
 		id++;
@@ -1315,38 +1315,38 @@ void IO::parseNets(FloorPlanner& fp) {
 
 	if (IO::DBG) {
 		for (Net const& n : fp.nets) {
-			cout << "DBG_IO> ";
-			cout << "net " << n.id << endl;
+			std::cout << "DBG_IO> ";
+			std::cout << "net " << n.id << std::endl;
 
 			for (Block const* block : n.blocks) {
-				cout << "DBG_IO> ";
-				cout << " block " << block->id << endl;
+				std::cout << "DBG_IO> ";
+				std::cout << " block " << block->id << std::endl;
 			}
 
 			for (Pin const* pin : n.terminals) {
-				cout << "DBG_IO> ";
-				cout << " pin " << pin->id << endl;
+				std::cout << "DBG_IO> ";
+				std::cout << " pin " << pin->id << std::endl;
 			}
 		}
 	}
 
 	// sanity check for parsed nets
 	if (fp.nets.size() != to_parse_nets) {
-		cout << "IO>  Not all given nets could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << endl;
-		cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << endl;
+		std::cout << "IO>  Not all given nets could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+		std::cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << std::endl;
 		exit(1);
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done; " << fp.nets.size() << " nets read in" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done; " << fp.nets.size() << " nets read in" << std::endl << std::endl;
 	}
 
 }
 
 void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
-	ofstream gp_out;
-	ofstream data_out;
+	std::ofstream gp_out;
+	std::ofstream data_out;
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
@@ -1361,13 +1361,13 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
+		std::cout << "IO> ";
 
 		if (fp.thermal_analyser_run) {
-			cout << "Generating thermal map ..." << endl;
+			std::cout << "Generating thermal map ..." << std::endl;
 		}
 		else {
-			cout << "Generating power maps, TSV-density maps, and thermal map ..." << endl;
+			std::cout << "Generating power maps, TSV-density maps, and thermal map ..." << std::endl;
 		}
 	}
 
@@ -1402,8 +1402,8 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 		for (cur_layer = 0; cur_layer < layer_limit; cur_layer++) {
 			// build up file names
-			stringstream gp_out_name;
-			stringstream data_out_name;
+			std::stringstream gp_out_name;
+			std::stringstream data_out_name;
 			if (flag == FLAGS::POWER) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.data";
@@ -1424,13 +1424,13 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 			// file header for data file
 			if (flag == FLAGS::POWER) {
-				data_out << "# X Y power" << endl;
+				data_out << "# X Y power" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL) {
-				data_out << "# X Y thermal" << endl;
+				data_out << "# X Y thermal" << std::endl;
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
-				data_out << "# X Y TSV_density" << endl;
+				data_out << "# X Y TSV_density" << std::endl;
 			}
 
 			// output grid values for power maps
@@ -1438,19 +1438,19 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < ThermalAnalyzer::POWER_MAPS_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::POWER_MAPS_DIM; y++) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y].power_density << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x][y].power_density << std::endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-					data_out << x << "	" << ThermalAnalyzer::POWER_MAPS_DIM << "	" << "0.0" << endl;
+					data_out << x << "	" << ThermalAnalyzer::POWER_MAPS_DIM << "	" << "0.0" << std::endl;
 
 					// blank line marks new row for gnuplot
-					data_out << endl;
+					data_out << std::endl;
 				}
 
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
 				for (y = 0; y <= ThermalAnalyzer::POWER_MAPS_DIM; y++) {
-					data_out << ThermalAnalyzer::POWER_MAPS_DIM << "	" << y << "	" << "0.0" << endl;
+					data_out << ThermalAnalyzer::POWER_MAPS_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 
 			}
@@ -1461,22 +1461,22 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y].temp << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.thermal_map[x][y].temp << std::endl;
 						// also track max and min temp
-						max_temp = max(max_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
-						min_temp = min(min_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
+						max_temp = std::max(max_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
+						min_temp = std::min(min_temp, fp.thermalAnalyzer.thermal_map[x][y].temp);
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-					data_out << x << "	" << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << "0.0" << endl;
+					data_out << x << "	" << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << "0.0" << std::endl;
 
 					// blank line marks new row for gnuplot
-					data_out << endl;
+					data_out << std::endl;
 				}
 
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
 				for (y = 0; y <= ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << endl;
+					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 			}
 			// output grid values for TSV-density maps; consider only bin bins
@@ -1487,19 +1487,19 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 						// access map bins w/ offset related to
 						// padding zone
-						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x + ThermalAnalyzer::POWER_MAPS_PADDED_BINS][y + ThermalAnalyzer::POWER_MAPS_PADDED_BINS].TSV_density << endl;
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps[cur_layer][x + ThermalAnalyzer::POWER_MAPS_PADDED_BINS][y + ThermalAnalyzer::POWER_MAPS_PADDED_BINS].TSV_density << std::endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-					data_out << x << "	" << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << "0.0" << endl;
+					data_out << x << "	" << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << "0.0" << std::endl;
 
 					// blank line marks new row for gnuplot
-					data_out << endl;
+					data_out << std::endl;
 				}
 
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
 				for (y = 0; y <= ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << endl;
+					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 			}
 
@@ -1508,79 +1508,79 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == FLAGS::POWER) {
-				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL) {
-				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
-				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
+				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
 			}
 
-			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
-			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
-			gp_out << "set size square" << endl;
+			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
+			gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << std::endl;
+			gp_out << "set size square" << std::endl;
 
 			// different 2D ranges for maps; consider dummy data row and
 			// column, since gnuplot option corners2color cuts off last row
 			// and column
 			if (flag == FLAGS::POWER) {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL	|| flag == FLAGS::TSV_DENSITY) {
-				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
-				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << endl;
+				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
 
 			// power maps: scale, label for cbrange
 			if (flag == FLAGS::POWER) {
 				// label for power density
-				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << endl;
+				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << std::endl;
 			}
 			// thermal maps: scale, label for cbrange
 			else if (flag == FLAGS::THERMAL) {
 				// fixed scale to avoid remapping to extended range
-				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << endl;
+				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << std::endl;
 				// thermal estimation, correlates w/ power density
-				gp_out << "set cblabel \"Estimated Temperature [K]\"" << endl;
+				gp_out << "set cblabel \"Estimated Temperature [K]\"" << std::endl;
 			}
 			// TSV-density maps: scale, label for cbrange
 			else if (flag == FLAGS::TSV_DENSITY) {
 				// fixed scale
-				gp_out << "set cbrange [0:100]" << endl;
+				gp_out << "set cbrange [0:100]" << std::endl;
 				// (TODO) also possible: fixed log scale to emphasize both
 				// low densities (single TSVs) as well as large densities
 				// (TSV cluster, vertical buses)
-				//gp_out << "set log cb" << endl;
-				//gp_out << "set cbrange [0.1:100]" << endl;
+				//gp_out << "set log cb" << std::endl;
+				//gp_out << "set cbrange [0.1:100]" << std::endl;
 				// label for power density
-				gp_out << "set cblabel \"TSV-Density [%]\"" << endl;
+				gp_out << "set cblabel \"TSV-Density [%]\"" << std::endl;
 			}
 
 			// tics
-			gp_out << "set tics front" << endl;
-			gp_out << "set grid xtics ytics ztics" << endl;
+			gp_out << "set tics front" << std::endl;
+			gp_out << "set grid xtics ytics ztics" << std::endl;
 			// pm3d algorithm determines an average value for each pixel,
 			// considering sourrounding pixels;
 			// skip this behaviour w/ ``corners2color''; c1 means to select
 			// the lower-left value, practically loosing one row and column in
 			// the overall plot (compensated for by dummy data; see also
 			// http://gnuplot.sourceforge.net/demo/pm3d.html
-			gp_out << "set pm3d map corners2color c1" << endl;
+			gp_out << "set pm3d map corners2color c1" << std::endl;
 			//// color printable as gray
-			//gp_out << "set palette rgbformulae 30,31,32" << endl;
+			//gp_out << "set palette rgbformulae 30,31,32" << std::endl;
 			// mathlab color palette; see
 			// http://www.gnuplotting.org/matlab-colorbar-with-gnuplot/
-			gp_out << "set palette defined ( 0 \"#000090\",\\" << endl;
-			gp_out << "1 \"#000fff\",\\" << endl;
-			gp_out << "2 \"#0090ff\",\\" << endl;
-			gp_out << "3 \"#0fffee\",\\" << endl;
-			gp_out << "4 \"#90ff70\",\\" << endl;
-			gp_out << "5 \"#ffee00\",\\" << endl;
-			gp_out << "6 \"#ff7000\",\\" << endl;
-			gp_out << "7 \"#ee0000\",\\" << endl;
-			gp_out << "8 \"#7f0000\")" << endl;
+			gp_out << "set palette defined ( 0 \"#000090\",\\" << std::endl;
+			gp_out << "1 \"#000fff\",\\" << std::endl;
+			gp_out << "2 \"#0090ff\",\\" << std::endl;
+			gp_out << "3 \"#0fffee\",\\" << std::endl;
+			gp_out << "4 \"#90ff70\",\\" << std::endl;
+			gp_out << "5 \"#ffee00\",\\" << std::endl;
+			gp_out << "6 \"#ff7000\",\\" << std::endl;
+			gp_out << "7 \"#ee0000\",\\" << std::endl;
+			gp_out << "8 \"#7f0000\")" << std::endl;
 
 			// for padded power maps: draw rectangle for unpadded core
 			if (flag == FLAGS::POWER && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
@@ -1588,7 +1588,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " to ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " ";
-				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << endl;
+				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << std::endl;
 			}
 
 			// for thermal maps: draw rectangles for hotspot regions
@@ -1607,7 +1607,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 							gp_out << x + 1 << ", " << y + 1 << " ";
 							gp_out << "front fillstyle empty border ";
 							gp_out << "rgb \"white\" linewidth 1";
-							gp_out << endl;
+							gp_out << std::endl;
 
 							id++;
 						}
@@ -1628,7 +1628,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 								gp_out << "rgb \"black\" linewidth 1";
 							}
 
-							gp_out << endl;
+							gp_out << std::endl;
 
 							id++;
 						}
@@ -1636,7 +1636,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				}
 			}
 
-			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << endl;
+			gp_out << "splot \"" << data_out_name.str() << "\" using 1:2:3 notitle" << std::endl;
 
 			// close file stream for gnuplot script
 			gp_out.close();
@@ -1644,14 +1644,14 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 }
 
 void IO::writeTempSchedule(FloorPlanner const& fp) {
-	ofstream gp_out;
-	ofstream data_out;
+	std::ofstream gp_out;
+	std::ofstream data_out;
 	bool valid_solutions, first_valid_sol;
 
 	// sanity check
@@ -1660,13 +1660,13 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Generating GP scripts for SA temperature-schedule ..." << endl;
+		std::cout << "IO> ";
+		std::cout << "Generating GP scripts for SA temperature-schedule ..." << std::endl;
 	}
 
 	// build up file names
-	stringstream gp_out_name;
-	stringstream data_out_name;
+	std::stringstream gp_out_name;
+	std::stringstream data_out_name;
 	gp_out_name << fp.benchmark << "_TempSchedule.gp";
 	data_out_name << fp.benchmark << "_TempSchedule.data";
 
@@ -1676,25 +1676,25 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out.open(data_out_name.str().c_str());
 
 	// output data: SA step and SA temp
-	data_out << "# Step Temperature (index 0)" << endl;
+	data_out << "# Step Temperature (index 0)" << std::endl;
 
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
-		data_out << step.step << " " << step.temp << endl;
+		data_out << step.step << " " << step.temp << std::endl;
 	}
 
 	// two blank lines trigger gnuplot to interpret data file as separate data sets
-	data_out << endl;
-	data_out << endl;
+	data_out << std::endl;
+	data_out << std::endl;
 
 	// output data: SA step and avg costs phase 1
-	data_out << "# Step Avg_Cost_Phase_1 (index 1)" << endl;
+	data_out << "# Step Avg_Cost_Phase_1 (index 1)" << std::endl;
 
 	// memorize if valid solutions are given at all
 	valid_solutions = false;
 
 	for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
-		data_out << step.step << " " << step.avg_cost << endl;
+		data_out << step.step << " " << step.avg_cost << std::endl;
 
 		// output data until first valid solution is found
 		if (step.new_best_sol_found) {
@@ -1708,32 +1708,32 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	if (valid_solutions) {
 
 		// two blank lines trigger gnuplot to interpret data file as separate data sets
-		data_out << endl;
-		data_out << endl;
+		data_out << std::endl;
+		data_out << std::endl;
 
 		// output data: markers for best-solution steps
-		data_out << "# Step Temperature (only steps w/ new best solutions, index 2)" << endl;
+		data_out << "# Step Temperature (only steps w/ new best solutions, index 2)" << std::endl;
 
 		for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
 			if (step.new_best_sol_found) {
-				data_out << step.step << " " << step.temp << endl;
+				data_out << step.step << " " << step.temp << std::endl;
 			}
 		}
 
 		// two blank lines trigger gnuplot to interpret data file as separate data sets
-		data_out << endl;
-		data_out << endl;
+		data_out << std::endl;
+		data_out << std::endl;
 
 		// output data: SA step and avg costs phase 2
-		data_out << "# Step Avg_Cost_Phase_2 (index 3)" << endl;
+		data_out << "# Step Avg_Cost_Phase_2 (index 3)" << std::endl;
 
 		first_valid_sol = false;
 		for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
 			// output data only after first solution is found
 			if (first_valid_sol) {
-				data_out << step.step << " " << step.avg_cost << endl;
+				data_out << step.step << " " << step.avg_cost << std::endl;
 			}
 
 			if (step.new_best_sol_found) {
@@ -1742,18 +1742,18 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 		}
 
 		// two blank lines trigger gnuplot to interpret data file as separate data sets
-		data_out << endl;
-		data_out << endl;
+		data_out << std::endl;
+		data_out << std::endl;
 
 		// output data: SA step and best costs phase 2
-		data_out << "# Step Best_Cost_Phase_2 (index 4)" << endl;
+		data_out << "# Step Best_Cost_Phase_2 (index 4)" << std::endl;
 
 		first_valid_sol = false;
 		for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
 			// output data only after first solution is found
 			if (first_valid_sol) {
-				data_out << step.step << " " << step.cost_best_sol << endl;
+				data_out << step.step << " " << step.cost_best_sol << std::endl;
 			}
 
 			if (step.new_best_sol_found) {
@@ -1766,86 +1766,86 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out.close();
 
 	// gp header
-	gp_out << "set title \"Temperature and Cost Schedule - " << fp.benchmark << "\"" << endl;
-	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << endl;
+	gp_out << "set title \"Temperature and Cost Schedule - " << fp.benchmark << "\"" << std::endl;
+	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << std::endl;
 
 	// general settings for more attractive plots, extracted from
 	// http://youinfinitesnake.blogspot.de/2011/02/attractive-scientific-plots-with.html
-	gp_out << "set terminal pdfcairo font \"Gill Sans, 12\" linewidth 4 rounded" << endl;
-	gp_out << "# Line style for axes" << endl;
-	gp_out << "set style line 80 lt rgb \"#808080\"" << endl;
-	gp_out << "# Line style for grid" << endl;
-	gp_out << "set style line 81 lt 0  # dashed" << endl;
-	gp_out << "set style line 81 lt rgb \"#808080\"  # grey" << endl;
-	gp_out << "set grid back linestyle 81" << endl;
-	gp_out << "# Remove border on top and right." << endl;
-	gp_out << "# Also, put it in grey; no need for so much emphasis on a border." << endl;
-	gp_out << "set border 3 back linestyle 80" << endl;
-	gp_out << "set xtics nomirror" << endl;
-	gp_out << "set ytics nomirror" << endl;
-	gp_out << "# Line styles: try to pick pleasing colors, rather" << endl;
-	gp_out << "# than strictly primary colors or hard-to-see colors" << endl;
-	gp_out << "# like gnuplot's default yellow. Make the lines thick" << endl;
-	gp_out << "# so they're easy to see in small plots in papers." << endl;
-	gp_out << "set style line 1 lt rgb \"#A00000\" lw 2 pt 1" << endl;
-	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << endl;
-	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << endl;
-	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << endl;
+	gp_out << "set terminal pdfcairo font \"Gill Sans, 12\" linewidth 4 rounded" << std::endl;
+	gp_out << "# Line style for axes" << std::endl;
+	gp_out << "set style line 80 lt rgb \"#808080\"" << std::endl;
+	gp_out << "# Line style for grid" << std::endl;
+	gp_out << "set style line 81 lt 0  # dashed" << std::endl;
+	gp_out << "set style line 81 lt rgb \"#808080\"  # grey" << std::endl;
+	gp_out << "set grid back linestyle 81" << std::endl;
+	gp_out << "# Remove border on top and right." << std::endl;
+	gp_out << "# Also, put it in grey; no need for so much emphasis on a border." << std::endl;
+	gp_out << "set border 3 back linestyle 80" << std::endl;
+	gp_out << "set xtics nomirror" << std::endl;
+	gp_out << "set ytics nomirror" << std::endl;
+	gp_out << "# Line styles: try to pick pleasing colors, rather" << std::endl;
+	gp_out << "# than strictly primary colors or hard-to-see colors" << std::endl;
+	gp_out << "# like gnuplot's default yellow. Make the lines thick" << std::endl;
+	gp_out << "# so they're easy to see in small plots in papers." << std::endl;
+	gp_out << "set style line 1 lt rgb \"#A00000\" lw 2 pt 1" << std::endl;
+	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << std::endl;
+	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << std::endl;
+	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << std::endl;
 
 	// specific settings: labels
-	gp_out << "set xlabel \"SA Step\"" << endl;
-	gp_out << "set ylabel \"SA Temperature\"" << endl;
-	gp_out << "set y2label \"Normalized Avg Solution Cost\"" << endl;
+	gp_out << "set xlabel \"SA Step\"" << std::endl;
+	gp_out << "set ylabel \"SA Temperature\"" << std::endl;
+	gp_out << "set y2label \"Normalized Avg Solution Cost\"" << std::endl;
 	// specific settings: key, labels box
-	gp_out << "set key box lt rgb \"#808080\" out bottom center" << endl;
+	gp_out << "set key box lt rgb \"#808080\" out bottom center" << std::endl;
 	// specific settings: log scale (for SA temp)
-	gp_out << "set log y" << endl;
-	gp_out << "set mytics 10" << endl;
+	gp_out << "set log y" << std::endl;
+	gp_out << "set mytics 10" << std::endl;
 	// second, indepentend scale for cost values
-	gp_out << "set y2tics nomirror" << endl;
-	gp_out << "set mytics 10" << endl;
+	gp_out << "set y2tics nomirror" << std::endl;
+	gp_out << "set mytics 10" << std::endl;
 	// cut cost above 1 in order to emphasize cost trend
-	gp_out << "set y2range [:1]" << endl;
+	gp_out << "set y2range [:1]" << std::endl;
 
 	// gp data plot command
-	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"SA Temperature\" with lines linestyle 2, \\" << endl;
+	gp_out << "plot \"" << data_out_name.str() << "\" index 0 using 1:2 title \"SA Temperature\" with lines linestyle 2, \\" << std::endl;
 	// there may be no valid solutions, then only the costs for phase 1 are plotted
 	// besides the temperature schedule
 	if (!valid_solutions) {
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.)\" with lines linestyle 3 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.)\" with lines linestyle 3 axes x1y2" << std::endl;
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << std::endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << endl;
+		gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << std::endl;
 		//gp_out << "\"" << data_out_name.str() << "\" index 3";
-		//gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		//gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << std::endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 4";
-		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << endl;
+		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << std::endl;
 	}
 
 	// close file stream
 	gp_out.close();
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 }
 
 // generate GP plots of FP
-void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> const& alignment, string const& file_suffix) {
-	ofstream gp_out;
+void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& file_suffix) {
+	std::ofstream gp_out;
 	int cur_layer;
 	double ratio_inv;
 	int tics;
 	Rect alignment_rect, alignment_rect_tmp;
 	int req_x_fulfilled, req_y_fulfilled;
-	string alignment_color_fulfilled;
-	string alignment_color_failed;
-	string alignment_color_undefined;
+	std::string alignment_color_fulfilled;
+	std::string alignment_color_failed;
+	std::string alignment_color_undefined;
 
 	// sanity check, not for thermal-analysis runs
 	if (fp.thermal_analyser_run) {
@@ -1853,16 +1853,16 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
+		std::cout << "IO> ";
 		if (file_suffix != "")
-			cout << "Generating GP scripts for floorplan (suffix \"" << file_suffix << "\")..." << endl;
+			std::cout << "Generating GP scripts for floorplan (suffix \"" << file_suffix << "\")..." << std::endl;
 		else
-			cout << "Generating GP scripts for floorplan ..." << endl;
+			std::cout << "Generating GP scripts for floorplan ..." << std::endl;
 	}
 
 	// GP parameters
 	ratio_inv = 1.0 / fp.IC.die_AR;
-	tics = max(fp.IC.outline_x, fp.IC.outline_y) / 5;
+	tics = std::max(fp.IC.outline_x, fp.IC.outline_y) / 5;
 
 	// color for alignment rects; for fulfilled alignment, green-ish color
 	alignment_color_fulfilled = "#00A000";
@@ -1873,7 +1873,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 		// build up file name
-		stringstream out_name;
+		std::stringstream out_name;
 		out_name << fp.benchmark << "_" << cur_layer + 1;
 		if (file_suffix != "")
 			out_name << "_" << file_suffix;
@@ -1883,20 +1883,20 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 		gp_out.open(out_name.str().c_str());
 
 		// file header
-		gp_out << "set title \"Floorplan - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << endl;
-		gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << endl;
-		gp_out << "set output \"" << out_name.str() << ".pdf\"" << endl;
-		gp_out << "set size ratio " << ratio_inv << endl;
-		gp_out << "set xrange [0:" << fp.IC.outline_x << "]" << endl;
-		gp_out << "set yrange [0:" << fp.IC.outline_y << "]" << endl;
-		gp_out << "set xlabel \"Width [{/Symbol m}m]\"" << endl;
-		gp_out << "set ylabel \"Height [{/Symbol m}m]\"" << endl;
-		gp_out << "set xtics " << tics << endl;
-		gp_out << "set ytics " << tics << endl;
-		gp_out << "set mxtics 4" << endl;
-		gp_out << "set mytics 4" << endl;
-		gp_out << "set tics front" << endl;
-		gp_out << "set grid xtics ytics mxtics mytics" << endl;
+		gp_out << "set title \"Floorplan - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+		gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
+		gp_out << "set output \"" << out_name.str() << ".pdf\"" << std::endl;
+		gp_out << "set size ratio " << ratio_inv << std::endl;
+		gp_out << "set xrange [0:" << fp.IC.outline_x << "]" << std::endl;
+		gp_out << "set yrange [0:" << fp.IC.outline_y << "]" << std::endl;
+		gp_out << "set xlabel \"Width [{/Symbol m}m]\"" << std::endl;
+		gp_out << "set ylabel \"Height [{/Symbol m}m]\"" << std::endl;
+		gp_out << "set xtics " << tics << std::endl;
+		gp_out << "set ytics " << tics << std::endl;
+		gp_out << "set mxtics 4" << std::endl;
+		gp_out << "set mytics 4" << std::endl;
+		gp_out << "set tics front" << std::endl;
+		gp_out << "set grid xtics ytics mxtics mytics" << std::endl;
 
 		// output blocks
 		for (Block const& cur_block : fp.blocks) {
@@ -1910,7 +1910,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
 			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
 			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
-			gp_out << endl;
+			gp_out << std::endl;
 
 			// label
 			gp_out << "set label \"" << cur_block.id << "\"";
@@ -1918,7 +1918,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.IC.outline_y;
 			gp_out << " font \"Gill Sans,4\"";
 			// prevents generating subscripts for underscore in labels
-			gp_out << " noenhanced" << endl;
+			gp_out << " noenhanced" << std::endl;
 		}
 
 		// output TSVs (blocks)
@@ -1933,7 +1933,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << " from " << TSV_group.bb.ll.x << "," << TSV_group.bb.ll.y;
 			gp_out << " to " << TSV_group.bb.ur.x << "," << TSV_group.bb.ur.y;
 			gp_out << " fillcolor rgb \"#704a30\" fillstyle solid";
-			gp_out << endl;
+			gp_out << std::endl;
 
 			// label
 			gp_out << "set label \"" << TSV_group.id << "\"";
@@ -1941,7 +1941,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.IC.outline_y;
 			gp_out << " font \"Gill Sans,2\"";
 			// prevents generating subscripts for underscore in labels
-			gp_out << " noenhanced" << endl;
+			gp_out << " noenhanced" << std::endl;
 		}
 
 		// check alignment fulfillment; draw accordingly colored rectangles around
@@ -2048,8 +2048,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					else {
 						// define the rect as a bounding box
 						// w.r.t. the undefined dimension
-						alignment_rect.ll.x = min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
-						alignment_rect.ur.x = max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
+						alignment_rect.ll.x = std::min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
+						alignment_rect.ur.x = std::max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
 					}
 
 					// check partial request, vertical aligment
@@ -2138,8 +2138,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 					else {
 						// define the rect as a bounding box
 						// w.r.t. the undefined dimension
-						alignment_rect.ll.y = min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
-						alignment_rect.ur.y = max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+						alignment_rect.ll.y = std::min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
+						alignment_rect.ur.y = std::max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
 					}
 
 					// construct the alignment rectangle w/ separate,
@@ -2166,7 +2166,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " fs solid";
-							gp_out << endl;
+							gp_out << std::endl;
 						}
 						// non-zero offset, i.e., offset range;
 						// mark w/ arrows
@@ -2185,7 +2185,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " lw 3";
-							gp_out << endl;
+							gp_out << std::endl;
 						}
 					}
 					// range alignments
@@ -2207,7 +2207,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 						}
 						gp_out << " lw 3";
-						gp_out << endl;
+						gp_out << std::endl;
 
 						// upper horizontal line
 						gp_out << "set arrow";
@@ -2225,7 +2225,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 						}
 						gp_out << " lw 3";
-						gp_out << endl;
+						gp_out << std::endl;
 					}
 
 					// fixed offset alignments
@@ -2247,7 +2247,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " fs solid";
-							gp_out << endl;
+							gp_out << std::endl;
 						}
 						// non-zero offset, i.e., offset range;
 						// mark w/ arrows
@@ -2266,7 +2266,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " lw 3";
-							gp_out << endl;
+							gp_out << std::endl;
 						}
 					}
 					// range alignments
@@ -2288,7 +2288,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 						}
 						gp_out << " lw 3";
-						gp_out << endl;
+						gp_out << std::endl;
 
 						// right vertical line
 						gp_out << "set arrow";
@@ -2306,52 +2306,52 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, vector<CorblivarAlignmentReq> 
 							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 						}
 						gp_out << " lw 3";
-						gp_out << endl;
+						gp_out << std::endl;
 					}
 				}
 			}
 		}
 
 		// file footer
-		gp_out << "plot NaN notitle" << endl;
+		gp_out << "plot NaN notitle" << std::endl;
 
 		// close file stream
 		gp_out.close();
 	}
 
 	if (fp.logMed()) {
-		cout << "IO> ";
-		cout << "Done" << endl << endl;
+		std::cout << "IO> ";
+		std::cout << "Done" << std::endl << std::endl;
 	}
 }
 
 // generate files for HotSpot steady-state thermal simulation
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
-	ofstream file, file_bond;
+	std::ofstream file, file_bond;
 	int cur_layer;
 	int x, y;
 	int map_x, map_y;
 
 	if (fp.logMed()) {
-		cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << endl;
+		std::cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << std::endl;
 	}
 
 	/// generate floorplan files
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		// build up file name
-		stringstream fp_file;
+		std::stringstream fp_file;
 		fp_file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp";
 
 		// init file stream
 		file.open(fp_file.str().c_str());
 
 		// file header
-		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-		file << "# all dimensions are in meters" << endl;
-		file << "# comment lines begin with a '#'" << endl;
-		file << "# comments and empty lines are ignored" << endl;
-		file << endl;
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file << "# all dimensions are in meters" << std::endl;
+		file << "# comment lines begin with a '#'" << std::endl;
+		file << "# comments and empty lines are ignored" << std::endl;
+		file << std::endl;
 
 		// output blocks
 		for (Block const& cur_block : fp.blocks) {
@@ -2367,7 +2367,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	" << cur_block.bb.ll.y * Math::SCALE_UM_M;
 			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
 			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
-			file << endl;
+			file << std::endl;
 		}
 
 		// dummy block to describe layer outline
@@ -2378,7 +2378,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "	0.0";
 		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
 		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
-		file << endl;
+		file << std::endl;
 
 		// close file stream
 		file.close();
@@ -2388,9 +2388,9 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		// build up file names
-		stringstream Si_fp_file;
+		std::stringstream Si_fp_file;
 		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp";
-		stringstream bond_fp_file;
+		std::stringstream bond_fp_file;
 		bond_fp_file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp";
 
 		// init file streams
@@ -2398,14 +2398,14 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file_bond.open(bond_fp_file.str().c_str());
 
 		// file headers
-		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-		file << "# all dimensions are in meters" << endl;
-		file << "# comment lines begin with a '#'" << endl;
-		file << "# comments and empty lines are ignored" << endl;
-		file_bond << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-		file_bond << "# all dimensions are in meters" << endl;
-		file_bond << "# comment lines begin with a '#'" << endl;
-		file_bond << "# comments and empty lines are ignored" << endl;
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file << "# all dimensions are in meters" << std::endl;
+		file << "# comment lines begin with a '#'" << std::endl;
+		file << "# comments and empty lines are ignored" << std::endl;
+		file_bond << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file_bond << "# all dimensions are in meters" << std::endl;
+		file_bond << "# comment lines begin with a '#'" << std::endl;
+		file_bond << "# comments and empty lines are ignored" << std::endl;
 
 		// for thermal-analysis fitting runs, we consider one common TSV density
 		// for the whole chip outline
@@ -2418,7 +2418,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	0.0";
 			file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.power_blurring_parameters.TSV_density);
 			file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
-			file << endl;
+			file << std::endl;
 
 			file_bond << "bond_" << cur_layer + 1;
 			file_bond << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
@@ -2427,7 +2427,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file_bond << "	0.0";
 			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.power_blurring_parameters.TSV_density);
 			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
-			file_bond << endl;
+			file_bond << std::endl;
 		}
 		// for regular runs, i.e., Corblivar runs, we have to consider different
 		// TSV densities for each grid bin, given in the power_maps
@@ -2456,7 +2456,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					// thermal properties, depending on bin's TSV density
 					file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file << endl;
+					file << std::endl;
 
 					// put grid block as floorplan blocks; bonding layer
 					file_bond << "bond_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
@@ -2470,7 +2470,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					// thermal properties, depending on bin's TSV density
 					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file_bond << endl;
+					file_bond << std::endl;
 				}
 			}
 		}
@@ -2483,17 +2483,17 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	/// generate dummy floorplan for BEOL layer; TSVs are not to be considered
 	//
 	// build up file name
-	stringstream BEOL_fp_file;
+	std::stringstream BEOL_fp_file;
 	BEOL_fp_file << fp.benchmark << "_HotSpot_BEOL.flp";
 
 	// init file stream
 	file.open(BEOL_fp_file.str().c_str());
 
 	// file header
-	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << endl;
-	file << "# all dimensions are in meters" << endl;
-	file << "# comment lines begin with a '#'" << endl;
-	file << "# comments and empty lines are ignored" << endl;
+	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+	file << "# all dimensions are in meters" << std::endl;
+	file << "# comment lines begin with a '#'" << std::endl;
+	file << "# comments and empty lines are ignored" << std::endl;
 
 	// BEOL ``block''
 	file << "BEOL";
@@ -2503,7 +2503,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file << "	0.0";
 	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
 	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
-	file << endl;
+	file << std::endl;
 
 	// close file stream
 	file.close();
@@ -2511,7 +2511,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	/// generate power-trace file
 	//
 	// build up file name
-	stringstream power_file;
+	std::stringstream power_file;
 	power_file << fp.benchmark << "_HotSpot.ptrace";
 
 	// init file stream
@@ -2535,7 +2535,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		// dummy outline block
 		file << "outline" << cur_layer + 1 << " ";
 	}
-	file << endl;
+	file << std::endl;
 
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
@@ -2552,79 +2552,79 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		// dummy outline block
 		file << "0.0 ";
 	}
-	file << endl;
+	file << std::endl;
 
 	// close file stream
 	file.close();
 
 	/// generate 3D-IC description file
 	// build up file name
-	stringstream stack_file;
+	std::stringstream stack_file;
 	stack_file << fp.benchmark << "_HotSpot.lcf";
 
 	// init file stream
 	file.open(stack_file.str().c_str());
 
 	// file header
-	file << "#Lines starting with # are used for commenting" << endl;
-	file << "#Blank lines are also ignored" << endl;
-	file << endl;
-	file << "#File Format:" << endl;
-	file << "#<Layer Number>" << endl;
-	file << "#<Lateral heat flow Y/N?>" << endl;
-	file << "#<Power Dissipation Y/N?>" << endl;
-	file << "#<Specific heat capacity in J/(m^3K)>" << endl;
-	file << "#<Resistivity in (m-K)/W>" << endl;
-	file << "#<Thickness in m>" << endl;
-	file << "#<floorplan file>" << endl;
-	file << endl;
+	file << "#Lines starting with # are used for commenting" << std::endl;
+	file << "#Blank lines are also ignored" << std::endl;
+	file << std::endl;
+	file << "#File Format:" << std::endl;
+	file << "#<Layer Number>" << std::endl;
+	file << "#<Lateral heat flow Y/N?>" << std::endl;
+	file << "#<Power Dissipation Y/N?>" << std::endl;
+	file << "#<Specific heat capacity in J/(m^3K)>" << std::endl;
+	file << "#<Resistivity in (m-K)/W>" << std::endl;
+	file << "#<Thickness in m>" << std::endl;
+	file << "#<floorplan file>" << std::endl;
+	file << std::endl;
 
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
-		file << "# BEOL (interconnects) layer " << cur_layer + 1 << endl;
-		file << 4 * cur_layer << endl;
-		file << "Y" << endl;
-		file << "N" << endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << endl;
-		file << fp.IC.BEOL_thickness * Math::SCALE_UM_M << endl;
-		file << fp.benchmark << "_HotSpot_BEOL.flp" << endl;
-		file << endl;
+		file << "# BEOL (interconnects) layer " << cur_layer + 1 << std::endl;
+		file << 4 * cur_layer << std::endl;
+		file << "Y" << std::endl;
+		file << "N" << std::endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << std::endl;
+		file << fp.IC.BEOL_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.benchmark << "_HotSpot_BEOL.flp" << std::endl;
+		file << std::endl;
 
-		file << "# Active Si layer; design layer " << cur_layer + 1 << endl;
-		file << 4 * cur_layer + 1 << endl;
-		file << "Y" << endl;
-		file << "Y" << endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << fp.IC.Si_active_thickness * Math::SCALE_UM_M << endl;
-		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << endl;
-		file << endl;
+		file << "# Active Si layer; design layer " << cur_layer + 1 << std::endl;
+		file << 4 * cur_layer + 1 << std::endl;
+		file << "Y" << std::endl;
+		file << "Y" << std::endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
+		file << fp.IC.Si_active_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << std::endl;
+		file << std::endl;
 
-		file << "# Passive Si layer " << cur_layer + 1 << endl;
-		file << 4 * cur_layer + 2 << endl;
-		file << "Y" << endl;
-		file << "N" << endl;
+		file << "# Passive Si layer " << cur_layer + 1 << std::endl;
+		file << 4 * cur_layer + 2 << std::endl;
+		file << "Y" << std::endl;
+		file << "N" << std::endl;
 		// dummy values, proper values (depending on TSV densities) are in the
 		// actual floorplan file
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << endl;
-		file << fp.IC.Si_passive_thickness * Math::SCALE_UM_M << endl;
-		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << endl;
-		file << endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
+		file << fp.IC.Si_passive_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
+		file << std::endl;
 
 		if (cur_layer < (fp.IC.layers - 1)) {
-			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << endl;
-			file << 4 * cur_layer + 3 << endl;
-			file << "Y" << endl;
-			file << "N" << endl;
+			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << std::endl;
+			file << 4 * cur_layer + 3 << std::endl;
+			file << "Y" << std::endl;
+			file << "N" << std::endl;
 			// dummy values, proper values (depending on TSV densities) are in
 			// the actual floorplan file
-			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << endl;
-			file << fp.IC.bond_thickness * Math::SCALE_UM_M << endl;
-			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << endl;
-			file << endl;
+			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << std::endl;
+			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << std::endl;
+			file << fp.IC.bond_thickness * Math::SCALE_UM_M << std::endl;
+			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
+			file << std::endl;
 		}
 	}
 
@@ -2632,6 +2632,6 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	file.close();
 
 	if (fp.logMed()) {
-		cout << "IO> Done" << endl << endl;
+		std::cout << "IO> Done" << std::endl << std::endl;
 	}
 }
