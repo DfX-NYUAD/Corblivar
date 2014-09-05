@@ -22,7 +22,7 @@
 # floating number in the respective ALIGNMENT variable
 #
 # For alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
-# preplacement of sb10 at 10,50 use ( RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
+# preplacement of sb10 at 10,50 use ( STRICT 0 RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
 #
 # data_start
 
