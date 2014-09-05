@@ -141,15 +141,19 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 	// handle request; sanity check for found failed request
 	if (failed_req != nullptr) {
 
-		// randomly decide for one block; consider the dummy reference block if
+		// randomly decide for one block; avoid the dummy reference block if
 		// required
 		if (
 			// randomly select s_i if it's not the RBOD
 			(failed_req->s_i->id != "RBOD" && Math::randB()) ||
-			// if s_j is the RBOD, we need to use s_i; assuming that
-			// only s_i OR s_j are the RBOD
+			// also consider s_i if s_j is the RBOD
 			failed_req->s_j->id == "RBOD"
 		   ) {
+			// sanity check for both s_i and s_j being RBOD
+			if (failed_req->s_i->id == "RBOD") {
+				return false;
+			}
+
 			die1 = die2 = failed_req->s_i->layer;
 			tuple1 = corb.getDie(die1).getTuple(failed_req->s_i);
 			b1 = failed_req->s_i;
@@ -188,7 +192,9 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 				if (Rect::rectsIntersect(b1->bb, b2->bb)) {
 
 					// however, this should not be the partner block
-					// of the alignment request
+					// of the alignment request; otherwise,
+					// consecutively circular swap might occur which
+					// are not resolving the failing alignment
 					if (
 						(b1->id == failed_req->s_i->id && b2->id == failed_req->s_j->id) ||
 						(b1->id == failed_req->s_j->id && b2->id == failed_req->s_i->id)
@@ -209,7 +215,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		// nearest neighbour w.r.t. failure type
 		else {
 
-			// also consider randomly to change die2 as well; this is required
+			// also consider to randomly change die2 as well; this is required
 			// for alignments which cannot be fulfilled within one die and
 			// does not harm for alignments which could be fulfilled within
 			// one die (they can then also be fulfilled across dies); note
@@ -224,13 +230,14 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 					die2 = Math::randI(0, this->parameters.layers);
 				}
 			}
+
+			// consider different neighbours for different alignment failures
+			switch (b1->alignment) {
+
+				// determine nearest right block
+				case Block::AlignmentStatus::FAIL_HOR_TOO_LEFT:
 		
-			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
-
-				switch (b1->alignment) {
-
-					// determine nearest right block
-					case Block::AlignmentStatus::FAIL_HOR_TOO_LEFT:
+					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 						if (Rect::rectA_leftOf_rectB(b1->bb, b2->bb, true)) {
 
@@ -238,11 +245,14 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 								b1_neighbour = b2;
 							}
 						}
+					}
 
-						break;
+					break;
 
-					// determine nearest left block
-					case Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT:
+				// determine nearest left block
+				case Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT:
+		
+					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 						if (Rect::rectA_leftOf_rectB(b2->bb, b1->bb, true)) {
 
@@ -250,11 +260,14 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 								b1_neighbour = b2;
 							}
 						}
+					}
 
-						break;
+					break;
 
-					// determine nearest block above
-					case Block::AlignmentStatus::FAIL_VERT_TOO_LOW:
+				// determine nearest block above
+				case Block::AlignmentStatus::FAIL_VERT_TOO_LOW:
+		
+					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 						if (Rect::rectA_below_rectB(b1->bb, b2->bb, true)) {
 
@@ -262,11 +275,14 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 								b1_neighbour = b2;
 							}
 						}
+					}
 
-						break;
+					break;
 
-					// determine nearest block below
-					case Block::AlignmentStatus::FAIL_VERT_TOO_HIGH:
+				// determine nearest block below
+				case Block::AlignmentStatus::FAIL_VERT_TOO_HIGH:
+		
+					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 						if (Rect::rectA_below_rectB(b2->bb, b1->bb, true)) {
 
@@ -274,18 +290,18 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 								b1_neighbour = b2;
 							}
 						}
+					}
 
-						break;
+					break;
 
-					// dummy case, to catch other (here not occuring)
-					// alignment status
-					default:
-						break;
-				}
+				// dummy case, to catch other (here not occurring)
+				// alignment status
+				default:
+					break;
 			}
 		}
 
-		// determine related tuple of neigbhour block; == -1 in case the tuple
+		// determine related tuple of neighbour block; == -1 in case the tuple
 		// cannot be find; sanity check for undefined neighbour
 		if (b1_neighbour != nullptr) {
 
@@ -305,6 +321,8 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			return false;
 		}
 	}
+
+	// no failing request was found
 	else {
 		return false;
 	}
