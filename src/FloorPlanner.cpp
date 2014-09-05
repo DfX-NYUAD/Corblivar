@@ -40,7 +40,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	double accepted_ops_ratio;
 	bool op_success;
 	double cur_cost, best_cost, prev_cost, cost_diff, avg_cost, fitting_cost;
-	Cost cost;
+	Cost cost, cost_sanity_check;
 	std::vector<double> cost_samples;
 	double cur_temp, init_temp;
 	double r;
@@ -166,39 +166,70 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					// sum up cost for subsequent avg determination
 					avg_cost += cur_cost;
 
+					// consider solution to be accepted only if it
+					// actually fits the fixed outline
 					if (cost.fits_fixed_outline) {
-						// update count of solutions fitting into outline
-						layout_fit_counter++;
 
-						// switch to SA phase two when
+						// consider to switch to SA phase two when
 						// first fitting solution is found
 						if (!SA_phase_two) {
 
-							// switch phase
-							SA_phase_two = SA_phase_two_init = true;
+							// however, cases w/ alignment
+							// require another check
+							if (this->opt_flags.alignment) {
 
-							// re-calculate cost for new
-							// phase; assume fitting ratio 1.0
-							// for initialization and for
-							// effective comparison of further
-							// fitting solutions; also
-							// initialize all max cost terms
-							fitting_cost = this->evaluateLayout(corb.getAlignments(), 1.0, true, true).total_cost;
+								// first, we need to re-determine
+								// the layout w/ enforced
+								// alignment which has not
+								// happened previously
+								this->generateLayout(corb, true);
 
-							// also memorize in which
-							// iteration we found the first
-							// valid layout
-							i_valid_layout_found = i;
-
-							// logging
-							if (this->logMax()) {
-								std::cout << "SA> " << std::endl;
+								// re-determine if layout still
+								// fits, after applying alignment
+								// during layout generation; note
+								// that the fitting_layouts_ratio
+								// doesn't matter here, so it's
+								// arbitrarily set to 1.0
+								this->evaluateAreaOutline(cost_sanity_check, 1.0);
 							}
-							if (this->logMed()) {
-								std::cout << "SA> Phase II: optimizing within outline; switch cost function ..." << std::endl;
-							}
-							if (this->logMax()) {
-								std::cout << "SA> " << std::endl;
+
+							// for cases w/ alignment, only
+							// proceed when the layout fits;
+							// for cases w/o alignment,
+							// proceed anyway
+							if (
+								(this->opt_flags.alignment && cost_sanity_check.fits_fixed_outline) ||
+								!this->opt_flags.alignment
+							   ) {
+
+								// switch phase
+								SA_phase_two = SA_phase_two_init = true;
+
+								// re-calculate cost for new phase; assume
+								// fitting ratio 1.0 for initialization
+								// and for effective comparison of further
+								// fitting solutions; also initialize all
+								// max cost terms
+								fitting_cost =
+									this->evaluateLayout(corb.getAlignments(), 1.0, true, true).total_cost;
+
+								// also memorize in which iteration we
+								// found the first valid layout
+								i_valid_layout_found = i;
+
+								// logging
+								if (this->logMax()) {
+									std::cout << "SA> " << std::endl;
+								}
+								if (this->logMed()) {
+									std::cout << "SA> Phase II: optimizing within outline; switch cost function ..." << std::endl;
+								}
+								if (this->logMax()) {
+									std::cout << "SA> " << std::endl;
+								}
+
+								// update count of solutions fitting into outline
+								layout_fit_counter++;
 							}
 						}
 						// not first but any fitting solution; in
@@ -207,6 +238,10 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// w/ fitting ratio 1.0
 						else {
 							fitting_cost = cost.total_cost_fitting;
+
+							// update count of solutions
+							// fitting into outline
+							layout_fit_counter++;
 						}
 
 						// memorize best solution which fits into outline
