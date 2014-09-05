@@ -95,7 +95,7 @@ class Block {
 		inline void shapeRandomlyByAR() const {
 
 			// reshape block randomly w/in AR range; note that x^2 = AR * A
-			this->bb.w = sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
+			this->bb.w = std::sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
 			this->bb.h = this->bb.area / this->bb.w;
 			this->bb.ur.x = this->bb.ll.x + this->bb.w;
 			this->bb.ur.y = this->bb.ll.y + this->bb.h;
@@ -223,8 +223,8 @@ class TSV_Island : public Block {
 
 			// determine number of TSV rows and cols from number of required
 			// TSVs; define a square TSV island
-			TSV_rows = sqrt(this->TSVs_count);
-			TSV_cols = sqrt(this->TSVs_count);
+			TSV_rows = std::sqrt(this->TSVs_count);
+			TSV_cols = std::sqrt(this->TSVs_count);
 
 			// round up rows and cols, spare TSVs are not as ``bad'' as
 			// missing TSVs for signal routing; this way it's also guaranteed

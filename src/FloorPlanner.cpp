@@ -367,7 +367,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 	corb.backupCBLs();
 
 	// init SA parameter: inner loop ops
-	innerLoopMax = pow(static_cast<double>(this->blocks.size()), this->SA_parameters.loopFactor);
+	innerLoopMax = std::pow(static_cast<double>(this->blocks.size()), this->SA_parameters.loopFactor);
 
 	/// initial sampling
 	//
@@ -866,7 +866,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_outline = std::max(cost_outline, pow(dies_AR[i] - this->IC.die_AR, 2.0));
+		cost_outline = std::max(cost_outline, std::pow(dies_AR[i] - this->IC.die_AR, 2.0));
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
@@ -1032,7 +1032,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	}
 
 	// determine by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {

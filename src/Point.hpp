@@ -49,7 +49,7 @@ class Point {
 		double x, y;
 
 		inline static double dist(Point const& a, Point const& b) {
-			return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
+			return std::sqrt(std::pow(abs(a.x - b.x), 2) + std::pow(abs(a.y - b.y), 2));
 		};
 };
 

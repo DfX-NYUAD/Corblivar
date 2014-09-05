@@ -1051,7 +1051,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			blocks_in >> new_block.AR.max;
 
 			// scale up blocks area
-			new_block.bb.area *= pow(fp.IC.blocks_scale, 2);
+			new_block.bb.area *= std::pow(fp.IC.blocks_scale, 2);
 
 			// init block dimensions randomly
 			new_block.shapeRandomlyByAR();

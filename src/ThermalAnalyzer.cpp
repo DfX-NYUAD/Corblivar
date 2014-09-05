@@ -250,7 +250,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	// scaling is required for function fitting; the maximum of the gauss / exp
 	// function is defined by the impulse factor, the minimum by the
 	// mask_boundary_value
-	scale = sqrt(SPREAD * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / sqrt(2.0);
+	scale = std::sqrt(SPREAD * std::log(parameters.impulse_factor / (parameters.mask_boundary_value))) / std::sqrt(2.0);
 	// normalize factor according to half of mask dimension; i.e., fit spreading of
 	// exp function
 	scale /=  ThermalAnalyzer::THERMAL_MASK_CENTER;
@@ -259,14 +259,14 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 	for (i = 1; i <= layers; i++) {
 
 		// impulse factor is to be reduced notably for increasing layer count
-		layer_impulse_factor = parameters.impulse_factor / pow(i, parameters.impulse_factor_scaling_exponent);
+		layer_impulse_factor = parameters.impulse_factor / std::pow(i, parameters.impulse_factor_scaling_exponent);
 
 		ii = 0;
 		for (x_y = -ThermalAnalyzer::THERMAL_MASK_CENTER; x_y <= ThermalAnalyzer::THERMAL_MASK_CENTER; x_y++) {
 			// sqrt for impulse factor is mandatory since the mask is
 			// used for separated convolution (i.e., factor will be
 			// squared in final convolution result)
-			this->thermal_masks[i - 1][ii] = Math::gauss1D(x_y * scale, sqrt(layer_impulse_factor), SPREAD);
+			this->thermal_masks[i - 1][ii] = Math::gauss1D(x_y * scale, std::sqrt(layer_impulse_factor), SPREAD);
 
 			ii++;
 		}
@@ -715,7 +715,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 			avg_temp += this->thermal_map[x][y].temp;
 		}
 	}
-	avg_temp /= pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+	avg_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 
 	// determine cost: max temp estimation, weighted w/ avg temp
 	ret.cost_temp = avg_temp * max_temp;

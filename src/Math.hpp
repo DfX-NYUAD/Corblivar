@@ -76,17 +76,17 @@ class Math {
 			// determine sum of squared diffs for std dev
 			sq_diffs = 0.0;
 			for (double const& s : samples) {
-				sq_diffs += pow(s - avg, 2.0);
+				sq_diffs += std::pow(s - avg, 2.0);
 			}
 
 			// determine std dev
-			return sqrt(sq_diffs / ((double) samples.size()));
+			return std::sqrt(sq_diffs / ((double) samples.size()));
 		};
 
 		// 1D gauss function; used for separated convolution w/ 2D gauss function,
 		// provides the impulse response function for power blurring
 		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
-			return factor * exp(-(1.0 / spread) * pow(value, 2.0));
+			return factor * exp(-(1.0 / spread) * std::pow(value, 2.0));
 		};
 
 		// comparison of double values, allows minor deviation
