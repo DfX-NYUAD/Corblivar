@@ -229,8 +229,8 @@ class TSV_Island : public Block {
 			// round up rows and cols, spare TSVs are not as ``bad'' as
 			// missing TSVs for signal routing; this way it's also guaranteed
 			// that at least one row and col are considered
-			TSV_rows = ceil(TSV_rows);
-			TSV_cols = ceil(TSV_cols);
+			TSV_rows = std::ceil(TSV_rows);
+			TSV_cols = std::ceil(TSV_cols);
 
 			// determine new bb's outline and area
 			new_bb.w = TSV_rows * TSV_pitch;
