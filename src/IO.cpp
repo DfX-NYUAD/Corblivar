@@ -281,15 +281,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.loopFactor;
+	in >> fp.schedule.loop_factor;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.loopLimit;
+	in >> fp.schedule.loop_limit;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.SA_parameters.loopFactor <= 0.0 || fp.SA_parameters.loopLimit <= 0.0) {
+	if (fp.schedule.loop_factor <= 0.0 || fp.schedule.loop_limit <= 0.0) {
 		std::cout << "IO> Provide positive, non-zero SA loop parameters!" << std::endl;
 		exit(1);
 	}
@@ -297,10 +297,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.temp_init_factor;
+	in >> fp.schedule.temp_init_factor;
 
 	// sanity check for positive, non-zero factor
-	if (fp.SA_parameters.temp_init_factor <= 0.0) {
+	if (fp.schedule.temp_init_factor <= 0.0) {
 		std::cout << "IO> Provide positive, non-zero SA start temperature scaling factor!" << std::endl;
 		exit(1);
 	}
@@ -308,15 +308,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.temp_factor_phase1;
+	in >> fp.schedule.temp_factor_phase1;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.temp_factor_phase1_limit;
+	in >> fp.schedule.temp_factor_phase1_limit;
 
 	// sanity check for dependent temperature-scaling factors
-	if (fp.SA_parameters.temp_factor_phase1 >= fp.SA_parameters.temp_factor_phase1_limit) {
+	if (fp.schedule.temp_factor_phase1 >= fp.schedule.temp_factor_phase1_limit) {
 		std::cout << "IO> Initial cooling factor for SA phase 1 should be smaller than the related final factor!" << std::endl;
 		exit(1);
 	}
@@ -324,10 +324,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.temp_factor_phase2;
+	in >> fp.schedule.temp_factor_phase2;
 
 	// sanity check for positive, non-zero parameters
-	if (fp.SA_parameters.temp_factor_phase1 <= 0.0 || fp.SA_parameters.temp_factor_phase2 <= 0.0) {
+	if (fp.schedule.temp_factor_phase1 <= 0.0 || fp.schedule.temp_factor_phase2 <= 0.0) {
 		std::cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << std::endl;
 		exit(1);
 	}
@@ -335,47 +335,47 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.temp_factor_phase3;
+	in >> fp.schedule.temp_factor_phase3;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.cost_thermal;
+	in >> fp.weights.thermal;
 
 	// memorize if thermal optimization should be performed
-	fp.SA_parameters.opt_thermal = (fp.SA_parameters.cost_thermal > 0.0 && fp.IO_conf.power_density_file_avail);
+	fp.opt_flags.thermal = (fp.weights.thermal > 0.0 && fp.IO_conf.power_density_file_avail);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.cost_WL;
+	in >> fp.weights.WL;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.cost_TSVs;
+	in >> fp.weights.TSVs;
 
 	// memorize if interconnects optimization should be performed
-	fp.SA_parameters.opt_interconnects = (fp.SA_parameters.cost_WL > 0.0 || fp.SA_parameters.cost_TSVs > 0.0);
+	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.TSVs > 0.0);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.SA_parameters.cost_alignment;
+	in >> fp.weights.alignment;
 
 	// memorize if alignment optimization should be performed
-	fp.SA_parameters.opt_alignment = (fp.SA_parameters.cost_alignment > 0.0 && fp.IO_conf.alignments_file_avail);
+	fp.opt_flags.alignment = (fp.weights.alignment > 0.0 && fp.IO_conf.alignments_file_avail);
 	// also memorize in layout-operations handler
-	fp.layoutOp.parameters.opt_alignment = fp.SA_parameters.opt_alignment;
+	fp.layoutOp.parameters.opt_alignment = fp.opt_flags.alignment;
 
 	// sanity check for positive cost factors
-	if (fp.SA_parameters.cost_thermal < 0.0 || fp.SA_parameters.cost_WL < 0.0 || fp.SA_parameters.cost_TSVs < 0.0 || fp.SA_parameters.cost_alignment < 0.0) {
+	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
 		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
-	if (abs(fp.SA_parameters.cost_thermal + fp.SA_parameters.cost_WL + fp.SA_parameters.cost_TSVs + fp.SA_parameters.cost_alignment - 1.0) > 0.1) {
+	if (abs(fp.weights.thermal + fp.weights.WL + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}
@@ -605,24 +605,24 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << std::endl;
 
 		// SA loop setup
-		std::cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.SA_parameters.loopFactor << std::endl;
-		std::cout << "IO>  SA -- Outer-loop upper limit: " << fp.SA_parameters.loopLimit << std::endl;
+		std::cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.schedule.loop_factor << std::endl;
+		std::cout << "IO>  SA -- Outer-loop upper limit: " << fp.schedule.loop_limit << std::endl;
 
 		// SA cooling schedule
-		std::cout << "IO>  SA -- Start temperature scaling factor: " << fp.SA_parameters.temp_init_factor << std::endl;
-		std::cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1 << std::endl;
-		std::cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.SA_parameters.temp_factor_phase1_limit << std::endl;
-		std::cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.SA_parameters.temp_factor_phase2 << std::endl;
-		std::cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.SA_parameters.temp_factor_phase3 << std::endl;
+		std::cout << "IO>  SA -- Start temperature scaling factor: " << fp.schedule.temp_init_factor << std::endl;
+		std::cout << "IO>  SA -- Initial temperature-scaling factor for phase 1 (adaptive cooling): " << fp.schedule.temp_factor_phase1 << std::endl;
+		std::cout << "IO>  SA -- Final temperature-scaling factor for phase 1 (adaptive cooling): " << fp.schedule.temp_factor_phase1_limit << std::endl;
+		std::cout << "IO>  SA -- Temperature-scaling factor for phase 2 (reheating and freezing): " << fp.schedule.temp_factor_phase2 << std::endl;
+		std::cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.schedule.temp_factor_phase3 << std::endl;
 
 		// SA cost factors
-		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.SA_parameters.cost_thermal << std::endl;
+		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.weights.thermal << std::endl;
 		if (!fp.IO_conf.power_density_file_avail) {
 			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
 		}
-		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.SA_parameters.cost_WL << std::endl;
-		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.SA_parameters.cost_TSVs << std::endl;
-		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.SA_parameters.cost_alignment << std::endl;
+		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.weights.WL << std::endl;
+		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.weights.TSVs << std::endl;
+		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.weights.alignment << std::endl;
 		if (!fp.IO_conf.alignments_file_avail) {
 			std::cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << std::endl;
 		}

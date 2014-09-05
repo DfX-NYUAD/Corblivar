@@ -113,24 +113,27 @@ class FloorPlanner {
 		static constexpr int LOG_MEDIUM = 2;
 		static constexpr int LOG_MAXIMUM = 3;
 
-		// SA parameters
-		struct SA_parameters {
-
+		// SA schedule parameters
+		struct schedule {
 			// SA parameters: loop control
-			double loopFactor, loopLimit;
-
-			// SA parameters: optimization flags
-			bool opt_thermal, opt_interconnects, opt_alignment;
-
-			// SA parameters: cost factors
-			double cost_thermal, cost_WL, cost_TSVs, cost_alignment;
+			double loop_factor, loop_limit;
 
 			// SA parameter: scaling factor for initial temp
 			double temp_init_factor;
 
 			// SA parameters: temperature-scaling factors
 			double temp_factor_phase1, temp_factor_phase1_limit, temp_factor_phase2, temp_factor_phase3;
-		} SA_parameters;
+		} schedule;
+
+		// SA parameters: optimization flags
+		struct opt_flags {
+			bool thermal, interconnects, alignment;
+		} opt_flags;
+
+		// SA parameters: cost factors/weights
+		struct weights {
+			double thermal, WL, TSVs, alignment;
+		} weights;
 
 		// SA cost variables: max cost values
 		double max_cost_thermal, max_cost_WL, max_cost_alignments;

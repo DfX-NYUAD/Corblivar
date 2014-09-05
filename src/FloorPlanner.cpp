@@ -83,10 +83,10 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	best_cost = 100.0 * Math::stdDev(cost_samples);
 
 	/// outer loop: annealing -- temperature steps
-	while (i <= this->SA_parameters.loopLimit) {
+	while (i <= this->schedule.loop_limit) {
 
 		if (this->logMax()) {
-			std::cout << "SA> Optimization step: " << i << "/" << this->SA_parameters.loopLimit << std::endl;
+			std::cout << "SA> Optimization step: " << i << "/" << this->schedule.loop_limit << std::endl;
 		}
 
 		// init loop parameters
@@ -98,7 +98,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		best_sol_found = false;
 
 		// init cost for current layout and fitting ratio
-		this->generateLayout(corb, this->SA_parameters.opt_alignment && SA_phase_two);
+		this->generateLayout(corb, this->opt_flags.alignment && SA_phase_two);
 		cur_cost = this->evaluateLayout(corb.getAlignments(), fitting_layouts_ratio, SA_phase_two).total_cost;
 
 		// inner loop: layout operations
@@ -114,7 +114,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				// generate layout; also memorize whether layout is valid;
 				// note that this return value is only effective if
 				// CorblivarCore::DBG_VALID_LAYOUT is set
-				valid_layout = this->generateLayout(corb, this->SA_parameters.opt_alignment && SA_phase_two);
+				valid_layout = this->generateLayout(corb, this->opt_flags.alignment && SA_phase_two);
 
 				// dbg invalid layouts
 				if (CorblivarCore::DBG_VALID_LAYOUT && !valid_layout) {
@@ -315,19 +315,19 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	}
 
 	// phase 3; brief reheating due to cost convergence
-	if (this->SA_parameters.temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
-		cur_temp *= this->SA_parameters.temp_factor_phase3;
+	if (this->schedule.temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
+		cur_temp *= this->schedule.temp_factor_phase3;
 
 		phase = 3;
 	}
-	// phase 1; adaptive cooling (slows down from SA_parameters.temp_factor_phase1 to
-	// SA_parameters.temp_factor_phase1_limit)
+	// phase 1; adaptive cooling (slows down from schedule.temp_factor_phase1 to
+	// schedule.temp_factor_phase1_limit)
 	else if (iteration_first_valid_layout == Point::UNDEF) {
-		loop_factor = (this->SA_parameters.temp_factor_phase1_limit - this->SA_parameters.temp_factor_phase1)
-			* static_cast<float>(iteration - 1) / (this->SA_parameters.loopLimit - 1.0);
+		loop_factor = (this->schedule.temp_factor_phase1_limit - this->schedule.temp_factor_phase1)
+			* static_cast<float>(iteration - 1) / (this->schedule.loop_limit - 1.0);
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
-		cur_temp *= this->SA_parameters.temp_factor_phase1 + loop_factor;
+		cur_temp *= this->schedule.temp_factor_phase1 + loop_factor;
 
 		phase = 1;
 	}
@@ -337,8 +337,8 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	else {
 		// note that loop_factor must only consider the remaining iteration range
 		loop_factor = 1.0 - static_cast<float>(iteration - iteration_first_valid_layout) /
-			static_cast<float>(this->SA_parameters.loopLimit - iteration_first_valid_layout);
-		cur_temp *= this->SA_parameters.temp_factor_phase2 * loop_factor;
+			static_cast<float>(this->schedule.loop_limit - iteration_first_valid_layout);
+		cur_temp *= this->schedule.temp_factor_phase2 * loop_factor;
 
 		phase = 2;
 	}
@@ -367,7 +367,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 	corb.backupCBLs();
 
 	// init SA parameter: inner loop ops
-	innerLoopMax = std::pow(static_cast<double>(this->blocks.size()), this->SA_parameters.loopFactor);
+	innerLoopMax = std::pow(static_cast<double>(this->blocks.size()), this->schedule.loop_factor);
 
 	/// initial sampling
 	//
@@ -423,7 +423,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 
 	// init SA parameter: start temp, depends on std dev of costs [Huan86, see
 	// Shahookar91]
-	init_temp = Math::stdDev(cost_samples) * this->SA_parameters.temp_init_factor;
+	init_temp = Math::stdDev(cost_samples) * this->schedule.temp_init_factor;
 
 	if (this->logMed()) {
 		std::cout << "SA> Done; std dev of cost: " << Math::stdDev(cost_samples) << ", initial temperature: " << init_temp << std::endl;
@@ -457,7 +457,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// apply best solution, if available, as final solution
 		valid_solution = corb.applyBestCBLs(this->logMin());
 		// generate final layout
-		this->generateLayout(corb, this->SA_parameters.opt_alignment);
+		this->generateLayout(corb, this->opt_flags.alignment);
 	}
 
 	// determine final cost, also for non-Corblivar calls
@@ -619,7 +619,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 
 	// annotate alignment success/failure in blocks; required for maintaining
 	// succeeded alignments during subsequent packing
-	if (this->SA_parameters.opt_alignment && this->layoutOp.parameters.packing_iterations > 0) {
+	if (this->opt_flags.alignment && this->layoutOp.parameters.packing_iterations > 0) {
 		// ignore related cost; use dummy variable
 		Cost dummy;
 		// also don't derive TSVs; not required here
@@ -683,7 +683,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// determine interconnects cost
 		//
 		// also determines hotspot regions and clusters signal TSVs accordingly
-		if (this->SA_parameters.opt_interconnects) {
+		if (this->opt_flags.interconnects) {
 			this->evaluateInterconnects(cost, set_max_cost);
 		}
 		// for finalize calls and when no cost was previously determined, we need
@@ -704,7 +704,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		//
 		// also derives and stores TSV islands, and increases TSV count (TSV cost)
 		// accordingly
-		if (this->SA_parameters.opt_alignment) {
+		if (this->opt_flags.alignment) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
 		// for finalize calls and when no cost was previously determined, we need
@@ -721,7 +721,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// note that vertical buses and TSV islands impact heat conduction, thus
 		// the block alignment / bus structures and interconnects are analysed
 		// before thermal distribution
-		if (this->SA_parameters.opt_thermal) {
+		if (this->opt_flags.thermal) {
 			this->evaluateThermalDistr(cost, set_max_cost);
 		}
 		// for finalize calls and when no cost was previously determined, we need
@@ -750,10 +750,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// determine total cost; weight and sum up cost terms
 		cost.total_cost =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->SA_parameters.cost_WL * cost.HPWL
-					+ this->SA_parameters.cost_TSVs * cost.TSVs
-					+ this->SA_parameters.cost_alignment * cost.alignments
-					+ this->SA_parameters.cost_thermal * cost.thermal
+					this->weights.WL * cost.HPWL
+					+ this->weights.TSVs * cost.TSVs
+					+ this->weights.alignment * cost.alignments
+					+ this->weights.thermal * cost.thermal
 				)
 			// area, outline cost is already weighted
 			+ cost.area_outline;
@@ -761,10 +761,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// determine total cost assuming a fitting ratio of 1.0
 		cost.total_cost_fitting =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->SA_parameters.cost_WL * cost.HPWL
-					+ this->SA_parameters.cost_TSVs * cost.TSVs
-					+ this->SA_parameters.cost_alignment * cost.alignments
-					+ this->SA_parameters.cost_thermal * cost.thermal
+					this->weights.WL * cost.HPWL
+					+ this->weights.TSVs * cost.TSVs
+					+ this->weights.alignment * cost.alignments
+					+ this->weights.thermal * cost.thermal
 				)
 			// consider only area term for ratio 1.0, see evaluateAreaOutline
 			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
