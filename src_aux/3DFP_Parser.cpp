@@ -33,9 +33,9 @@ int main (int argc, char** argv) {
 	double x = 0.0, y = 0.0;
 	FloorPlanner fp;
 
-	cout << endl;
-	cout << "3DFP Results Parser" << endl;
-	cout << endl;
+	std::cout << std::endl;
+	std::cout << "3DFP Results Parser" << std::endl;
+	std::cout << std::endl;
 
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);
@@ -52,8 +52,8 @@ int main (int argc, char** argv) {
 
 	// determine die outline according to parsed layout
 	for (Block const& b : fp.getBlocks()) {
-		x = max(x, b.bb.ur.x);
-		y = max(y, b.bb.ur.y);
+		x = std::max(x, b.bb.ur.x);
+		y = std::max(y, b.bb.ur.y);
 	}
 
 	// reset die outline and related stuff
@@ -67,20 +67,20 @@ int main (int argc, char** argv) {
 }
 
 void parse3DFP(FloorPlanner& fp) {
-	ifstream layer_3DFP_file;
-	string tmpstr;
+	std::ifstream layer_3DFP_file;
+	std::string tmpstr;
 	Block const* block;
 	
 	for (int layer = 1; layer <= fp.getLayers(); layer++) {
 
 		// file name
-		stringstream layer_3DFP;
+		std::stringstream layer_3DFP;
 		layer_3DFP << "layer" << layer << ".flp";
 
 		// try file opening
 		layer_3DFP_file.open(layer_3DFP.str().c_str());
 		if (!layer_3DFP_file.good()) {
-			cout << "3DFP Layer file \"" << layer_3DFP.str() << "\" missing!" << endl;
+			std::cout << "3DFP Layer file \"" << layer_3DFP.str() << "\" missing!" << std::endl;
 			exit(1);
 		}
 
@@ -106,7 +106,7 @@ void parse3DFP(FloorPlanner& fp) {
 			// try to find related block
 			block = Block::findBlock(tmpstr, fp.getBlocks());
 			if (block == nullptr) {
-				cout << "Block parsed from 3DFP file cannot be found, block id: " << tmpstr << endl;
+				std::cout << "Block parsed from 3DFP file cannot be found, block id: " << tmpstr << std::endl;
 				exit(1);
 			}
 			else {
@@ -126,8 +126,8 @@ void parse3DFP(FloorPlanner& fp) {
 				block->bb.ur.y = block->bb.ll.y + block->bb.h;
 
 				// DBG
-				//cout << block->id << ", ";
-				//cout << block->bb.w << ", " << block->bb.h << ", " << block->bb.ll.x << ", " << block->bb.ll.y << endl;
+				//std::cout << block->id << ", ";
+				//std::cout << block->bb.w << ", " << block->bb.h << ", " << block->bb.ll.x << ", " << block->bb.ll.y << std::endl;
 
 				// annotate layer to block
 				block->layer = layer - 1;

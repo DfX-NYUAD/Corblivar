@@ -33,9 +33,9 @@ int main (int argc, char** argv) {
 	double x = 0.0, y = 0.0;
 	FloorPlanner fp;
 
-	cout << endl;
-	cout << "3DSTAF Results Parser" << endl;
-	cout << endl;
+	std::cout << std::endl;
+	std::cout << "3DSTAF Results Parser" << std::endl;
+	std::cout << std::endl;
 
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);
@@ -52,8 +52,8 @@ int main (int argc, char** argv) {
 
 	// determine die outline according to parsed layout
 	for (Block const& b : fp.getBlocks()) {
-		x = max(x, b.bb.ur.x);
-		y = max(y, b.bb.ur.y);
+		x = std::max(x, b.bb.ur.x);
+		y = std::max(y, b.bb.ur.y);
 	}
 
 	// reset die outline and related stuff
@@ -67,11 +67,11 @@ int main (int argc, char** argv) {
 }
 
 void parse3DSTAF(FloorPlanner& fp) {
-	ifstream file_3DSTAF;
-	stringstream name_3DSTAF;
-	string tmpstr;
+	std::ifstream file_3DSTAF;
+	std::stringstream name_3DSTAF;
+	std::string tmpstr;
 	Block const* block;
-	vector<Block> blocks;
+	std::vector<Block> blocks;
 	int layer;
 	int id;
 
@@ -81,7 +81,7 @@ void parse3DSTAF(FloorPlanner& fp) {
 	// try file opening
 	file_3DSTAF.open(name_3DSTAF.str().c_str());
 	if (!file_3DSTAF.good()) {
-		cout << "3DSTAF file \"" << name_3DSTAF.str() << "\" missing!" << endl;
+		std::cout << "3DSTAF file \"" << name_3DSTAF.str() << "\" missing!" << std::endl;
 		exit(1);
 	}
 
@@ -128,14 +128,14 @@ void parse3DSTAF(FloorPlanner& fp) {
 		// sanity check of 3DSTAF block id
 		id = stoi(tmpstr);
 		if (id < 0 || id >= static_cast<int>(blocks.size())) {
-			cout << "Block parsed from 3DSTAF file cannot be interpreted, block number: " << id << endl;
+			std::cout << "Block parsed from 3DSTAF file cannot be interpreted, block number: " << id << std::endl;
 			exit(1);
 		}
 
 		// try to find related block
 		block = Block::findBlock(blocks[id].id, fp.getBlocks());
 		if (block == nullptr) {
-			cout << "Block parsed from 3DSTAF file cannot be found, block id: " << tmpstr << endl;
+			std::cout << "Block parsed from 3DSTAF file cannot be found, block id: " << tmpstr << std::endl;
 			exit(1);
 		}
 		else {
@@ -150,8 +150,8 @@ void parse3DSTAF(FloorPlanner& fp) {
 			block->bb.ur.y = block->bb.ll.y + block->bb.h;
 
 			// DBG
-			//cout << block->id << ", ";
-			//cout << block->bb.w << ", " << block->bb.h << ", " << block->bb.ll.x << ", " << block->bb.ll.y << endl;
+			//std::cout << block->id << ", ";
+			//std::cout << block->bb.w << ", " << block->bb.h << ", " << block->bb.ll.x << ", " << block->bb.ll.y << std::endl;
 
 			// annotate layer to block
 			block->layer = layer - 1;
@@ -168,7 +168,7 @@ void parse3DSTAF(FloorPlanner& fp) {
 
 	// sanity check for parsed layers
 	if (layer != 0) {
-		cout << "Layer mismatch, parsed from 3D-STAF file: " << fp.getLayers() - layer << "; expected from Corblivar config file: " << fp.getLayers() << endl;
+		std::cout << "Layer mismatch, parsed from 3D-STAF file: " << fp.getLayers() - layer << "; expected from Corblivar config file: " << fp.getLayers() << std::endl;
 		exit(1);
 	}
 
