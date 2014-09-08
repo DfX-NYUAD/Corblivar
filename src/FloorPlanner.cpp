@@ -117,7 +117,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				valid_layout = this->generateLayout(corb, this->opt_flags.alignment && SA_phase_two);
 
 				// dbg invalid layouts
-				if (CorblivarCore::DBG_VALID_LAYOUT && !valid_layout) {
+				if (FloorPlanner::DBG_LAYOUT && !valid_layout) {
 
 					// generate invalid floorplan for dbg
 					IO::writeFloorplanGP(*this, corb.getAlignments(), "invalid_layout");
@@ -686,7 +686,7 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 		}
 
 		// dbg: sanity check for valid layout
-		if (CorblivarCore::DBG_VALID_LAYOUT) {
+		if (FloorPlanner::DBG_LAYOUT) {
 
 			// if true, the layout is buggy, i.e., invalid
 			if (die.debugLayout()) {
@@ -813,7 +813,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
 	}
 
-	if (FloorPlanner::DBG_LAYOUT) {
+	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "DBG_LAYOUT> Total cost: " << cost.total_cost << std::endl;
 		std::cout << "DBG_LAYOUT>  HPWL cost: " << cost.HPWL << std::endl;
 		std::cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << std::endl;
