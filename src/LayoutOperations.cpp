@@ -141,8 +141,8 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 	// handle request; sanity check for found failed request
 	if (failed_req != nullptr) {
 
-		// randomly decide for one block; avoid the dummy reference block if
-		// required
+		// randomly decide for one block to move around / to swap with other
+		// blocks; avoid the dummy reference block if required
 		if (
 			// randomly select s_i if it's not the RBOD
 			(failed_req->s_i->id != "RBOD" && Math::randB()) ||
@@ -154,14 +154,22 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 				return false;
 			}
 
-			die1 = die2 = failed_req->s_i->layer;
-			tuple1 = corb.getDie(die1).getTuple(failed_req->s_i);
+			// s_i is the block to be changed
 			b1 = failed_req->s_i;
+			die1 = b1->layer;
+			tuple1 = corb.getDie(die1).getTuple(b1);
+
+			// also memorize the layer of opposite block s_j
+			die2 = failed_req->s_j->layer;
 		}
 		else {
-			die1 = die2 = failed_req->s_j->layer;
-			tuple1 = corb.getDie(die1).getTuple(failed_req->s_j);
+			// s_j is the block to be changed
 			b1 = failed_req->s_j;
+			die1 = b1->layer;
+			tuple1 = corb.getDie(die1).getTuple(b1);
+
+			// also memorize the layer of opposite block s_i
+			die2 = failed_req->s_j->layer;
 		}
 
 		if (
@@ -173,7 +181,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 			// such alignment cannot be fulfilled in one die, i.e., differing
 			// dies required
-			if (failed_req->s_i->layer == failed_req->s_j->layer) {
+			if (die1 == die2) {
 
 				// this is only possible for > 1 layers; sanity check
 				if (this->parameters.layers == 1) {
