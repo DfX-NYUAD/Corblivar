@@ -26,7 +26,7 @@
 #include "CorblivarDie.hpp"
 // required Corblivar headers
 #include "Math.hpp"
-#include "CorblivarCore.hpp"
+#include "CorblivarAlignmentReq.hpp"
 
 void CorblivarDie::placeCurrentBlock(bool const& alignment_enabled) {
 	std::list<Block const*> relevBlocks;
@@ -748,7 +748,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			shifted = (shift_x > 0.0);
 
 			// dbg logging
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
 				std::cout << " in x-direction by " << range_x - overlap_offset_x;
 				std::cout << " (feasible: " << shift_x << ")";
@@ -768,7 +768,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		}
 
 		// sanity check for impossible shifting, i.e., other block should be shifted
-		else if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		else if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 
 			if (req->range_x()) {
 				overlap_offset_x = reference_block->bb.ur.x - shift_block->bb.ll.x;
@@ -856,7 +856,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			shifted = (shift_y > 0.0);
 
 			// dbg logging
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>      Shift block " << shift_block->id;
 				std::cout << " in y-direction by " << range_y - overlap_offset_y;
 				std::cout << " (feasible: " << shift_y << ")";
@@ -876,7 +876,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 		}
 
 		// sanity check for impossible shifting, i.e., other block should be shifted
-		else if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		else if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 
 			if (req->range_y()) {
 				overlap_offset_y = reference_block->bb.ur.y - shift_block->bb.ll.y;

@@ -39,7 +39,6 @@ class CorblivarCore {
 	// debugging code switch (public)
 	public:
 		static constexpr bool DBG_VALID_LAYOUT = false;
-		static constexpr bool DBG_ALIGNMENT_REQ = false;
 
 	// private data, functions
 	private:

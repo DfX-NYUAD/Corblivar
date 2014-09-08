@@ -158,7 +158,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	// reset alignments-in-process list
 	AL.clear();
 
-	if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+	if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 		std::cout << "DBG_ALIGNMENT>" << std::endl;
 		std::cout << "DBG_ALIGNMENT> New layout-generation run..." << std::endl;
 		std::cout << "DBG_ALIGNMENT>" << std::endl;
@@ -183,7 +183,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 		}
 
 		// dbg logging for current block
-		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 
 			std::cout << "DBG_ALIGNMENT> Processing " << this->p->getCBL().tupleString(this->p->pi) << " on die " << this->p->id + 1 << std::endl;
 		}
@@ -192,7 +192,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 		// current block
 		if (this->p->stalled) {
 
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>  Resolving stalled die: " << this->p->id + 1;
 				std::cout << " place current block : " << this->p->getCurrentBlock()->id << std::endl;
 			}
@@ -220,7 +220,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 					// handle each request
 					for (auto* cur_req : cur_block_alignment_reqs) {
 
-						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+						if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 							std::cout << "DBG_ALIGNMENT>  Handling alignment request for block " << cur_block->id << std::endl;
 							std::cout << "DBG_ALIGNMENT>   Request: " << cur_req->tupleString() << std::endl;
 						}
@@ -242,7 +242,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 
 							if (cur_req->id == req_in_process->id) {
 
-								if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+								if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 									std::cout << "DBG_ALIGNMENT>    Request in process; aligning related blocks" << std::endl;
 								}
 
@@ -280,7 +280,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 							// related to other block of request
 							this->p = &this->dies[other_block->layer];
 
-							if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+							if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 								std::cout << "DBG_ALIGNMENT>    Request not (yet) in process" << std::endl;
 								std::cout << "DBG_ALIGNMENT>     Mark request as in process; stall current die " << cur_block->layer + 1;
 								std::cout << ", continue on die " << this->p->id + 1 << std::endl;
@@ -298,7 +298,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 					// since block and related alignment requests are handled
 					if (!this->dies[cur_block->layer].stalled) {
 
-						if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+						if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 							std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
 						}
 
@@ -343,7 +343,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	// scenario I: both blocks are yet unplaced
 	if (!req->s_i->placed && !req->s_j->placed) {
 
-		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 			std::cout << "DBG_ALIGNMENT>     Both blocks not placed yet; consider adaptive alignment..." << std::endl;
 		}
 
@@ -375,7 +375,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			if (dir_b1 == Direction::HORIZONTAL) {
 
 				// dbg placement direction
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 					std::cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed horizontally" << std::endl;
 				}
 
@@ -401,7 +401,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			else {
 
 				// dbg placement direction
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 					std::cout << "DBG_ALIGNMENT>     Blocks are handled in parallel, and to be placed vertically" << std::endl;
 				}
 
@@ -429,7 +429,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		else {
 
 			// dbg placement direction
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>     Blocks are to be handled sequentially" << std::endl;
 			}
 
@@ -542,7 +542,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 	// alignment is not feasible
 	else if (req->s_i->placed && req->s_j->placed) {
 
-		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 			std::cout << "DBG_ALIGNMENT>     Both blocks previously placed; alignment not possible!" << std::endl;
 		}
 	}
@@ -560,7 +560,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 			b2 = req->s_i;
 		}
 
-		if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+		if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 			std::cout << "DBG_ALIGNMENT>     Block " << b2->id << " previously placed; try to shift block " << b1->id << std::endl;
 		}
 
@@ -572,7 +572,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// a block to be processed later on; thus, we skip the alignment for now
 		if (b1->id != die_b1->getCurrentBlock()->id) {
 
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << std::endl;
 			}
 
@@ -586,7 +586,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		if (die_b1->getCurrentDirection() == Direction::HORIZONTAL) {
 
 			// dbg placement direction
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>     Block is to be placed horizontally" << std::endl;
 			}
 
@@ -608,7 +608,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		else {
 
 			// dbg placement direction
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>     Block is to be placed vertically" << std::endl;
 			}
 
@@ -687,7 +687,7 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 			// circular problem and has to be consider
 			// iteratively; thus, we ignore for
 			// simplified handling such (rare?) cases
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				if (die_b1->shiftCurrentBlock(Direction::VERTICAL, req, true)) {
 					std::cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << std::endl;
 				}
@@ -728,7 +728,7 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 			// problem and has to be consider
 			// iteratively; thus, we ignore for
 			// simplified handling such (rare?) cases
-			if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				if (die_b1->shiftCurrentBlock(Direction::HORIZONTAL, req, true)) {
 					std::cout << "DBG_ALIGNMENT>      Circular dependency occured during sequential shifiting of both blocks; alignment is undermined!" << std::endl;
 				}
@@ -754,7 +754,7 @@ std::list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block c
 			// process, i.e., not both blocks are placed yet
 			if (!req.s_i->placed || !req.s_j->placed) {
 
-				if (CorblivarCore::DBG_ALIGNMENT_REQ) {
+				if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 					std::cout << "DBG_ALIGNMENT>  Unhandled request: " << req.tupleString() << std::endl;
 				}
 
