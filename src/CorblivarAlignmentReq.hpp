@@ -161,6 +161,8 @@ class CorblivarAlignmentReq {
 
 			return ret.str();
 		};
+
+		double evaluate() const;
 };
 
 #endif
