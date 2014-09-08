@@ -25,6 +25,7 @@
 #include "CorblivarAlignmentReq.hpp"
 // required Corblivar headers
 #include "Block.hpp"
+#include "Math.hpp"
 
 double CorblivarAlignmentReq::evaluate() const {
 	Rect blocks_bb;
@@ -349,6 +350,7 @@ double CorblivarAlignmentReq::evaluate() const {
 			std::cout << "DBG_ALIGNMENT>  Failure" << std::endl;
 			std::cout << "DBG_ALIGNMENT>   block " << this->s_i->id << ": " << this->s_i->alignment << std::endl;
 			std::cout << "DBG_ALIGNMENT>   block " << this->s_j->id << ": " << this->s_j->alignment << std::endl;
+			std::cout << "DBG_ALIGNMENT>   actual mismatch: " << cost << std::endl;
 		}
 	}
 
