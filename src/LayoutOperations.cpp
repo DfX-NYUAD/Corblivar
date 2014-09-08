@@ -172,12 +172,9 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			die2 = failed_req->s_j->layer;
 		}
 
-		if (
-			// zero-offset fixed alignment in both coordinates
-			(failed_req->offset_x() && failed_req->alignment_x == 0 && failed_req->offset_y() && failed_req->alignment_y == 0) ||
-			// min overlap in both dimensions
-			(failed_req->range_x() && failed_req->range_y())
-		   ) {
+		// dedicatedly defined vertical bus; failed vertical alignment across
+		// different dies
+		if (failed_req->vertical_bus()) {
 
 			// such alignment cannot be fulfilled in one die, i.e., differing
 			// dies required
@@ -217,7 +214,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			}
 		}
 
-		// failed alignment ranges and (partially) non-zero-offset fixed alignment
+		// other failed alignment ranges or non-zero-offset fixed alignment
 		//
 		// determine relevant neighbour block to perform swap operation, i.e.,
 		// nearest neighbour w.r.t. failure type

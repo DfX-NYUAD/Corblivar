@@ -152,6 +152,15 @@ class CorblivarAlignmentReq {
 			return (this->type_y == Type::OFFSET);
 		}
 
+		inline bool vertical_bus() const {
+			return (
+				// zero-offset fixed alignment in both coordinates
+				(this->offset_x() && this->alignment_x == 0 && this->offset_y() && this->alignment_y == 0) ||
+				// min overlap in both dimensions
+				(this->range_x() && this->range_y())
+			);
+		}
+
 		inline std::string tupleString() const {
 			std::stringstream ret;
 
