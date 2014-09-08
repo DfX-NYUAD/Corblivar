@@ -1119,14 +1119,15 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		// alignments
 		if (derive_TSVs && req.fulfilled) {
 
-			// consider valid block intersections independent of defined
-			// alignment; this way, all _vertical_ buses arising from
-			// different (i.e., not necessarily as vertical buses defined)
-			// alignment requests will be considered 
+			// consider block intersections, independent of defined alignment;
+			// this way, all _vertical_ buses arising from different (not
+			// necessarily as vertical buses defined) alignment requests will
+			// be considered 
 			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
 			if (blocks_intersect.area != 0.0) {
 
-				// consider TSVs in all affected layers
+				// derive TSVs in all affected layers
 				for (int layer = std::min(req.s_i->layer, req.s_j->layer); layer < std::max(req.s_i->layer, req.s_j->layer); layer++) {
 
 					this->TSVs.emplace_back(TSV_Island(
@@ -1145,8 +1146,14 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							layer
 						));
 
-					// also update global TSV counter accordingly
-					cost.TSVs_actual_value += req.signals;
+					// also update global TSV counter accordingly, but
+					// only for buses _not_ defined as vertical buses;
+					// this way, the cost function's minimization of
+					// TSVs will not counteract the cost function's
+					// block alignment of dedicated vertical buses
+					if (!req.vertical_bus()) {
+						cost.TSVs_actual_value += req.signals;
+					}
 				}
 			}
 		}
