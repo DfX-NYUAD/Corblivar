@@ -1166,10 +1166,13 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 	// store actual value
 	cost.alignments_actual_value = cost.alignments;
-	// normalize value; refers to max value from initial sampling
-	cost.alignments /= this->max_cost_alignments;
 
-	// update TSV cost;
+	// update normalizes cost; refers to max value from initial sampling
+	if (this->max_cost_alignments != 0) {
+		cost.alignments /= this->max_cost_alignments;
+	}
+
+	// update normalized TSV cost;
 	// sanity check for zero TSVs cost; applies to 2D floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
