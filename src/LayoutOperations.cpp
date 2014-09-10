@@ -54,9 +54,11 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	else {
 
 		// to enable guided block alignment during phase II, we prefer to perform
-		// block swapping on particular blocks of failing alignment requests
+		// block swapping on particular blocks of failing alignment requests;
+		// however, not for every operation this should be considered in order to
+		// not restrict the search too much
 		swapping_failed_blocks = false;
-		if (SA_phase_two && this->parameters.opt_alignment) {
+		if (SA_phase_two && this->parameters.opt_alignment && Math::randB()) {
 
 			// try to setup swapping failed blocks
 			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
