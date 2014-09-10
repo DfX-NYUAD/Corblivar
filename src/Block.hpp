@@ -260,13 +260,16 @@ class TSV_Island : public Block {
 
 // derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets
 class RBOD : public Block {
+	// public data, functions
+	public:
+		static constexpr const char* ID = "RBOD";
 
 	// constructors, destructors, if any non-implicit
 	//
 	// inherits properties of block and defines coordinates as 0,0, i.e., the
 	// lower-left corner of the die
 	public:
-		RBOD () : Block("RBOD") {
+		RBOD () : Block(ID) {
 
 			this->bb.ll.x = 0.0;
 			this->bb.ll.y = 0.0;

@@ -32,6 +32,7 @@
 #include "Net.hpp"
 #include "Math.hpp"
 #include "Clustering.hpp"
+#include "Block.hpp"
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
@@ -805,7 +806,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 		if (b1 == nullptr) {
 
 			// check for dummy reference block
-			if (block_id == "RBOD") {
+			if (block_id == RBOD::ID) {
 				// link dummy block to alignment request
 				b1 = &fp.RBOD;
 			}
@@ -825,7 +826,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 		if (b2 == nullptr) {
 
 			// check for dummy reference block
-			if (block_id == "RBOD") {
+			if (block_id == RBOD::ID) {
 				// link dummy block to alignment request
 				b2 = &fp.RBOD;
 			}

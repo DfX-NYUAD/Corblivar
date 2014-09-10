@@ -27,6 +27,7 @@
 #include "Math.hpp"
 #include "CorblivarCore.hpp"
 #include "CorblivarAlignmentReq.hpp"
+#include "Block.hpp"
 
 // memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
@@ -145,12 +146,12 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		// blocks; avoid the dummy reference block if required
 		if (
 			// randomly select s_i if it's not the RBOD
-			(failed_req->s_i->id != "RBOD" && Math::randB()) ||
+			(failed_req->s_i->id != RBOD::ID && Math::randB()) ||
 			// also consider s_i if s_j is the RBOD
-			failed_req->s_j->id == "RBOD"
+			failed_req->s_j->id == RBOD::ID
 		   ) {
 			// sanity check for both s_i and s_j being RBOD
-			if (failed_req->s_i->id == "RBOD") {
+			if (failed_req->s_i->id == RBOD::ID) {
 				return false;
 			}
 
