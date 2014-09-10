@@ -1732,8 +1732,9 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 		first_valid_sol = false;
 		for (FloorPlanner::TempStep step : fp.tempSchedule) {
 
-			// output data only after first solution is found
-			if (first_valid_sol) {
+			// output data only after first solution is found and only for
+			// cost larger 0
+			if (first_valid_sol && step.avg_cost > 0.0) {
 				data_out << step.step << " " << step.avg_cost << std::endl;
 			}
 
@@ -1792,11 +1793,12 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "set style line 2 lt rgb \"#00A000\" lw 2 pt 6" << std::endl;
 	gp_out << "set style line 3 lt rgb \"#5060D0\" lw 2 pt 2" << std::endl;
 	gp_out << "set style line 4 lt rgb \"#F25900\" lw 2 pt 9" << std::endl;
+	gp_out << "set style line 5 lt rgb \"#7806A0\" lw 2 pt 9" << std::endl;
 
 	// specific settings: labels
 	gp_out << "set xlabel \"SA Step\"" << std::endl;
 	gp_out << "set ylabel \"SA Temperature\"" << std::endl;
-	gp_out << "set y2label \"Normalized Avg Solution Cost\"" << std::endl;
+	gp_out << "set y2label \"Normalized Cost\"" << std::endl;
 	// specific settings: key, labels box
 	gp_out << "set key box lt rgb \"#808080\" out bottom center" << std::endl;
 	// specific settings: log scale (for SA temp)
@@ -1814,17 +1816,17 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	// besides the temperature schedule
 	if (!valid_solutions) {
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost (Accept. Sol.)\" with lines linestyle 3 axes x1y2" << std::endl;
+		gp_out << " using 1:2 title \"Avg. Cost\" with lines linestyle 3 axes x1y2" << std::endl;
 	}
 	// otherwise, we consider both cost and the best solutions data sets
 	else {
-		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"New Best Solution\" with points linestyle 1, \\" << std::endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 2 using 1:2 title \"Best Solutions\" with points linestyle 1, \\" << std::endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 1";
-		gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << std::endl;
-		//gp_out << "\"" << data_out_name.str() << "\" index 3";
-		//gp_out << " using 1:2 title \"Avg Cost (Accepted Sol.) - SA Phase 2\" with lines linestyle 4 axes x1y2" << std::endl;
+		gp_out << " using 1:2 title \"Avg. Cost - SA Phase 1\" with lines linestyle 3 axes x1y2, \\" << std::endl;
+		gp_out << "\"" << data_out_name.str() << "\" index 3";
+		gp_out << " using 1:2 title \"Avg. Cost - SA Phase 2\" with lines linestyle 5 axes x1y2, \\" << std::endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 4";
-		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << std::endl;
+		gp_out << " using 1:2 title \"Best Cost - SA Phase 2 (Diff. Norm.)\" with lines linestyle 4 axes x1y2" << std::endl;
 	}
 
 	// close file stream
