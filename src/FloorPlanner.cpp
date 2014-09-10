@@ -113,7 +113,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 				// generate layout; also memorize whether layout is valid;
 				// note that this return value is only effective if
-				// CorblivarCore::DBG_VALID_LAYOUT is set
+				// FloorPlanner::DBG_LAYOUT is set
 				valid_layout = this->generateLayout(corb, this->opt_flags.alignment && SA_phase_two);
 
 				// dbg invalid layouts
