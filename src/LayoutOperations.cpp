@@ -207,18 +207,13 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			// initially at least intersecting blocks
 			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
-				if (Rect::rectsIntersect(b1->bb, b2->bb)) {
-
-					// however, this should not be the partner block
+				if (Rect::rectsIntersect(b1->bb, b2->bb) &&
+					// also check that blocks are not partner blocks
 					// of the alignment request; otherwise,
 					// consecutively circular swap might occur which
 					// are not resolving the failing alignment
-					if (
-						(b1->id == failed_req->s_i->id && b2->id == failed_req->s_j->id) ||
-						(b1->id == failed_req->s_j->id && b2->id == failed_req->s_i->id)
-					   ) {
-						continue;
-					}
+					!failed_req->partner_blocks(b1, b2)
+				   ) {
 
 					b1_neighbour = b2;
 
@@ -257,7 +252,13 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		
 					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
-						if (Rect::rectA_leftOf_rectB(b1->bb, b2->bb, true)) {
+						if (Rect::rectA_leftOf_rectB(b1->bb, b2->bb, true) &&
+							// also check that blocks are not partner blocks
+							// of the alignment request; otherwise,
+							// consecutively circular swap might occur which
+							// are not resolving the failing alignment
+							!failed_req->partner_blocks(b1, b2)
+						   ) {
 
 							if (b1_neighbour == nullptr || b2->bb.ll.x < b1_neighbour->bb.ll.x) {
 								b1_neighbour = b2;
@@ -272,7 +273,13 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		
 					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
-						if (Rect::rectA_leftOf_rectB(b2->bb, b1->bb, true)) {
+						if (Rect::rectA_leftOf_rectB(b2->bb, b1->bb, true) &&
+							// also check that blocks are not partner blocks
+							// of the alignment request; otherwise,
+							// consecutively circular swap might occur which
+							// are not resolving the failing alignment
+							!failed_req->partner_blocks(b1, b2)
+						   ) {
 
 							if (b1_neighbour == nullptr || b2->bb.ur.x > b1_neighbour->bb.ur.x) {
 								b1_neighbour = b2;
@@ -287,7 +294,13 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		
 					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
-						if (Rect::rectA_below_rectB(b1->bb, b2->bb, true)) {
+						if (Rect::rectA_below_rectB(b1->bb, b2->bb, true) &&
+							// also check that blocks are not partner blocks
+							// of the alignment request; otherwise,
+							// consecutively circular swap might occur which
+							// are not resolving the failing alignment
+							!failed_req->partner_blocks(b1, b2)
+						   ) {
 
 							if (b1_neighbour == nullptr || b2->bb.ll.y < b1_neighbour->bb.ll.y) {
 								b1_neighbour = b2;
@@ -302,7 +315,13 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		
 					for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
-						if (Rect::rectA_below_rectB(b2->bb, b1->bb, true)) {
+						if (Rect::rectA_below_rectB(b2->bb, b1->bb, true) &&
+							// also check that blocks are not partner blocks
+							// of the alignment request; otherwise,
+							// consecutively circular swap might occur which
+							// are not resolving the failing alignment
+							!failed_req->partner_blocks(b1, b2)
+						   ) {
 
 							if (b1_neighbour == nullptr || b2->bb.ur.y > b1_neighbour->bb.ur.y) {
 								b1_neighbour = b2;

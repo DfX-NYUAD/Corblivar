@@ -133,6 +133,7 @@ class CorblivarAlignmentReq {
 			return out;
 		}
 
+		// alignment-type getter
 		inline bool range_x() const {
 			return (this->type_x == Type::MIN && this->alignment_x != 0.0);
 		}
@@ -152,6 +153,8 @@ class CorblivarAlignmentReq {
 			return (this->type_y == Type::OFFSET);
 		}
 
+		// alignment evaluation helper
+		//
 		inline bool vertical_bus() const {
 			return (
 				// zero-offset fixed alignment in both coordinates
@@ -159,6 +162,12 @@ class CorblivarAlignmentReq {
 				// min overlap in both dimensions
 				(this->range_x() && this->range_y())
 			);
+		}
+		inline bool partner_blocks(Block const* b1, Block const* b2) const {
+			return (
+				(b1->id == this->s_i->id && b2->id == this->s_j->id) ||
+				(b1->id == this->s_j->id && b2->id == this->s_i->id)
+			       );
 		}
 
 		inline std::string tupleString() const {
