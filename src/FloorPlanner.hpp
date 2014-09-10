@@ -214,7 +214,7 @@ class FloorPlanner {
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-6;
 
 		// layout-generation handler
-		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment);
+		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment = false);
 
 		// layout-operation handler
 		LayoutOperations layoutOp;

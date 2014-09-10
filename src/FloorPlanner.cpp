@@ -411,7 +411,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 	}
 
 	// init cost; ignore alignment here
-	this->generateLayout(corb, false);
+	this->generateLayout(corb);
 	cur_cost = this->evaluateLayout(corb.getAlignments()).total_cost;
 
 	// perform some random operations, for SA temperature = 0.0
@@ -431,7 +431,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 			prev_cost = cur_cost;
 
 			// generate layout
-			this->generateLayout(corb, false);
+			this->generateLayout(corb);
 			// evaluate layout, new cost
 			cur_cost = this->evaluateLayout(corb.getAlignments()).total_cost;
 			// cost difference
