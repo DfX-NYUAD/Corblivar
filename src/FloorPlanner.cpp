@@ -745,15 +745,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// also annotates failed request, this provides feedback for further
 		// alignment optimization
 		//
-		// also derives and stores TSV islands, and increases TSV count (TSV cost)
-		// accordingly
+		// also derives and stores TSV islands
 		if (this->opt_flags.alignment) {
 			this->evaluateAlignments(cost, alignments, true, set_max_cost);
 		}
 		// for finalize calls and when no cost was previously determined, we need
 		// to initialize the max_cost
 		else if (finalize) {
-			this->evaluateAlignments(cost, alignments, true, true);
+			this->evaluateAlignments(cost, alignments, true, true, true);
 		}
 		else {
 			cost.alignments = cost.alignments_actual_value = 0.0;
@@ -785,7 +784,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		if (finalize) {
 
 			this->evaluateInterconnects(cost, false);
-			this->evaluateAlignments(cost, alignments);
+			this->evaluateAlignments(cost, alignments, true, false, true);
 
 			this->evaluateThermalDistr(cost, false);
 		}
@@ -1101,14 +1100,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
-void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost) {
+void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect blocks_intersect;
+	int prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << std::endl;
 	}
 
 	cost.alignments = cost.alignments_actual_value = 0.0;
+	prev_TSVs = cost.TSVs_actual_value;
 
 	// evaluate all alignment requests
 	for (CorblivarAlignmentReq const& req : alignments) {
@@ -1146,13 +1147,18 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							layer
 						));
 
-					// also update global TSV counter accordingly, but
-					// only for buses _not_ defined as vertical buses;
-					// this way, the cost function's minimization of
-					// TSVs will not counteract the cost function's
-					// block alignment of dedicated vertical buses
-					if (!req.vertical_bus()) {
-						cost.TSVs_actual_value += req.signals;
+					// also update global TSV counter accordingly
+					if (
+						// only for buses _not_ defined as vertical buses;
+						// this way, the cost function's minimization of
+						// TSVs will not counteract the cost function's
+						// block alignment of dedicated vertical buses
+						!req.vertical_bus() ||
+						// for finalize runs, however, consider all TSVs
+						// for final layout evaluation
+						finalize) {
+
+							cost.TSVs_actual_value += req.signals;
 					}
 				}
 			}
@@ -1176,6 +1182,21 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	// sanity check for zero TSVs cost; applies to 2D floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
+	}
+
+	// update by TSVs occupied deadspace amount
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+
+	// also consider lengths of additional TSVs in HPWL; each TSV has to pass the
+	// whole Si layer and the bonding layer
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && finalize) {
+		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
+	}
+
+	// update normalized HPWL cost;
+	// sanity check for zero HPWL
+	if (this->max_cost_WL != 0) {
+		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
