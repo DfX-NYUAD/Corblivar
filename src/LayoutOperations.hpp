@@ -74,6 +74,9 @@ class LayoutOperations {
 		static constexpr int OP_SHAPE_BLOCK__SHRINK_HORIZONTAL = 12;
 		static constexpr int OP_SHAPE_BLOCK__SHRINK_VERTICAL = 13;
 		static constexpr int OP_SHAPE_BLOCK__RANDOM_AR = 14;
+		// used only for swapping blocks related to failed alignment request, and
+		// for ignoring power-aware block-die assignments
+		static constexpr int OP_SWAP_BLOCKS__ENFORCE= 20;
 
 		// layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;

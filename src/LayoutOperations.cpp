@@ -31,6 +31,7 @@
 
 // memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
+constexpr int LayoutOperations::OP_SWAP_BLOCKS__ENFORCE;
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
 bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp) {
@@ -59,7 +60,12 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 
 			// try to setup swapping failed blocks
 			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
-			this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS;
+
+			// prepare for swap operation; this dedicated __ENFORCE op-code
+			// ignores power-aware block-die assignments, such that block
+			// alignments can be also fulfilled when the option power-aware
+			// block assignment is activated
+			this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS__ENFORCE;
 		}
 
 		// for other regular cases or in case swapping failed blocks was not successful, we proceed with a random
@@ -81,6 +87,12 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 		case LayoutOperations::OP_SWAP_BLOCKS: // op-code: 1
 
 			ret = this->performOpMoveOrSwapBlocks(LayoutOperations::OP_SWAP_BLOCKS, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
+
+			break;
+
+		case LayoutOperations::OP_SWAP_BLOCKS__ENFORCE: // op-code: 20
+
+			ret = this->performOpMoveOrSwapBlocks(LayoutOperations::OP_SWAP_BLOCKS__ENFORCE, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -584,13 +596,14 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			die2 = Math::randI(0, this->parameters.layers);
 		}
 
+		// sanity checks; move operations: check for empty (origin) die
 		if (mode == LayoutOperations::OP_MOVE_TUPLE) {
-			// sanity check for empty (origin) die
 			if (corb.getDie(die1).getCBL().empty()) {
 				return false;
 			}
 		}
-		else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
+		// sanity checks; swap operations: check for empty dies
+		else {
 			// sanity check for empty dies
 			if (corb.getDie(die1).getCBL().empty() || corb.getDie(die2).getCBL().empty()) {
 				return false;
@@ -620,8 +633,10 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		}
 
 		// for power-aware block handling, ensure that blocks w/ lower power
-		// density remain in lower layer
-		if (this->parameters.power_aware_block_handling) {
+		// density remain in lower layer; ignore this for op-code
+		// OP_SWAP_BLOCKS__ENFORCE which is used for swapping blocks in case of
+		// failed alignment requrest
+		if (this->parameters.power_aware_block_handling && mode != LayoutOperations::OP_SWAP_BLOCKS__ENFORCE) {
 			if (die1 < die2
 					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
 				return false;
@@ -639,14 +654,15 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			return false;
 		}
 
-		// perform move/swap; applies only to valid candidates
+		// perform actual move or swap operation; applies only to valid candidates
 		if (mode == LayoutOperations::OP_MOVE_TUPLE) {
 			corb.moveTuples(die1, die2, tuple1, tuple2);
 		}
-		else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
+		else {
 			corb.swapBlocks(die1, die2, tuple1, tuple2);
 		}
 	}
+	// revert last operation
 	else {
 		if (mode == LayoutOperations::OP_MOVE_TUPLE) {
 			corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
