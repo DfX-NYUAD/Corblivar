@@ -350,7 +350,7 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 	}
 
 	// phase 3; brief reheating due to cost convergence
-	if (this->schedule.temp_factor_phase3 != 0.0 && std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
+	if (std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
 		cur_temp *= this->schedule.temp_factor_phase3;
 
 		phase = 3;

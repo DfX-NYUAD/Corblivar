@@ -327,16 +327,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.schedule.temp_factor_phase2;
 
-	// sanity check for positive, non-zero parameters
-	if (fp.schedule.temp_factor_phase1 <= 0.0 || fp.schedule.temp_factor_phase2 <= 0.0) {
-		std::cout << "IO> Provide positive, non-zero SA cooling factors for phases 1 and 2!" << std::endl;
-		exit(1);
-	}
-
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.schedule.temp_factor_phase3;
+
+	// sanity check for positive, non-zero parameters
+	if (fp.schedule.temp_factor_phase1 <= 0.0 || fp.schedule.temp_factor_phase2 <= 0.0 || fp.schedule.temp_factor_phase3 <= 0.0) {
+		std::cout << "IO> Provide positive, non-zero SA cooling factors for phases 1, 2 and 3!" << std::endl;
+		exit(1);
+	}
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
