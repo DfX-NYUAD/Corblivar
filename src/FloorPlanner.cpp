@@ -1180,11 +1180,14 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 			}
 		}
 
-		// for finalize runs, consider WL encapsulated w/in (both failed and
-		// successful) massive interconnects
-		if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL && finalize) {
+		// consider WL encapsulated w/in (both failed and successfully aligned)
+		// massive interconnects
+		if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL) {
 
-			// ignore vertical buses which have been handled above
+			// ignore vertical buses; first, they have been handled above,
+			// second, they don't contribute to HPWL considering that only
+			// block-level interconnects are considered, not the gate-level
+			// wires to connect to TSV landing pads w/in blocks
 			if (Rect::rectsIntersect(req.s_i->bb, req.s_j->bb)) {
 				continue;
 			}
@@ -1212,25 +1215,29 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		cost.alignments /= this->max_cost_alignments;
 	}
 
-	// update normalized TSV cost;
-	// sanity check for zero TSVs cost; applies to 2D floorplanning
-	if (this->max_cost_TSVs != 0) {
-		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
+	// update HPWL cost
+	if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL) {
+
+		// update normalized HPWL cost; sanity check for zero HPWL not required
+		// assuming that some nets are given
+		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 	}
 
-	// update by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	// for finalize runs, update TSVs-related statistics
+	if (finalize) {
 
-	// also consider lengths of additional TSVs in HPWL; each TSV has to pass the
-	// whole Si layer and the bonding layer
-	if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL && finalize) {
-
-		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
-
-		// update normalized HPWL cost; sanity check for zero HPWL
-		if (this->max_cost_WL != 0) {
-			cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
+		// update normalized TSV cost; sanity check for zero TSVs cost; applies to
+		// 2D floorplanning
+		if (this->max_cost_TSVs != 0) {
+			cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
 		}
+
+		// update by TSVs occupied deadspace amount
+		cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+
+		// consider lengths of additional TSVs in HPWL; each TSV has to pass the
+		// whole Si layer and the bonding layer
+		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
