@@ -1826,7 +1826,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 		gp_out << "\"" << data_out_name.str() << "\" index 3";
 		gp_out << " using 1:2 title \"Avg. Cost - SA Phase 2\" with lines linestyle 5 axes x1y2, \\" << std::endl;
 		gp_out << "\"" << data_out_name.str() << "\" index 4";
-		gp_out << " using 1:2 title \"Best Cost - SA Phase 2 (Diff. Norm.)\" with lines linestyle 4 axes x1y2" << std::endl;
+		gp_out << " using 1:2 title \"Best Cost - SA Phase 2\" with lines linestyle 4 axes x1y2" << std::endl;
 	}
 
 	// close file stream
