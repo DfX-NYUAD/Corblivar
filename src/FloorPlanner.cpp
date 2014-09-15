@@ -1128,11 +1128,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		// derive TSVs for vertical buses if desired or for finalize runs
 		if (derive_TSVs || finalize) {
 
-			// only consider fulfilled alignments
-			if (!req.fulfilled) {
-				continue;
-			}
-
 			// consider block intersections, independent of defined alignment;
 			// this way, all _vertical_ buses arising from different (not
 			// necessarily as vertical buses defined) alignment requests will
