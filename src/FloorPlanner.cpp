@@ -945,10 +945,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << std::endl;
 	}
 
-	// init cost terms
+	// reset cost terms
 	cost.HPWL = cost.HPWL_actual_value = 0.0;
 	cost.TSVs = cost.TSVs_actual_value = 0;
 	cost.TSVs_area_deadspace_ratio = 0.0;
+
+	// reset TSVs
+	this->TSVs.clear();
 
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
@@ -956,9 +959,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	for (i = 0; i < this->IC.layers; i++) {
 		nets_segments.emplace_back(std::list<Clustering::Segments>());
 	}
-
-	// reset TSVs
-	this->TSVs.clear();
 
 	// determine HPWL and TSVs for each net
 	for (Net& cur_net : this->nets) {
