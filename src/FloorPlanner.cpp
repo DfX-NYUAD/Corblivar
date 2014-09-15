@@ -52,6 +52,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	bool accept;
 	bool SA_phase_two, SA_phase_two_init;
 	bool valid_layout;
+	TempPhase cooling_phase;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::performSA(" << &corb << ")" << std::endl;
@@ -75,6 +76,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	// init loop parameters
 	i = 1;
 	cur_temp = init_temp;
+	cooling_phase = TempPhase::PHASE_1;
 	SA_phase_two = SA_phase_two_init = false;
 	valid_layout_found = false;
 	i_valid_layout_found = Point::UNDEF;
@@ -105,7 +107,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
-			op_success = layoutOp.performRandomLayoutOp(corb, SA_phase_two);
+			op_success = layoutOp.performRandomLayoutOp(corb, SA_phase_two, false, (cooling_phase == TempPhase::PHASE_3));
 
 			if (op_success) {
 
@@ -303,7 +305,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		this->tempSchedule.push_back(std::move(cur_step));
 
 		// update SA temperature
-		this->updateTemp(cur_temp, i, i_valid_layout_found);
+		cooling_phase = this->updateTemp(cur_temp, i, i_valid_layout_found);
 
 		// consider next outer step
 		i++;
@@ -321,10 +323,10 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	return valid_layout_found;
 }
 
-void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const {
+FloorPlanner::TempPhase FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const {
 	float loop_factor;
 	double prev_temp;
-	int phase;
+	TempPhase phase;
 	std::vector<double> prev_avg_cost;
 	double std_dev_avg_cost;
 	unsigned i, temp_schedule_size;
@@ -333,10 +335,8 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 
 	// consider reheating in case the SA search has converged in some (possibly local) minima
 	//
-	// determine std dev of avg cost of some previous temperature steps
-
+	// determine std dev of avg cost if some previous temperature steps exist
 	temp_schedule_size = this->tempSchedule.size();
-
 	if (temp_schedule_size >= FloorPlanner::SA_REHEAT_COST_SAMPLES) {
 
 		for (i = 1; i <= FloorPlanner::SA_REHEAT_COST_SAMPLES; i++) {
@@ -345,26 +345,30 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 
 		std_dev_avg_cost = Math::stdDev(prev_avg_cost);
 	}
+	// else ignore std dev by setting it above limit
 	else {
 		std_dev_avg_cost = FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT + 1;
 	}
 
 	// phase 3; brief reheating due to cost convergence
 	if (std_dev_avg_cost <= FloorPlanner::SA_REHEAT_STD_DEV_COST_LIMIT) {
+
 		cur_temp *= this->schedule.temp_factor_phase3;
 
-		phase = 3;
+		phase = TempPhase::PHASE_3;
 	}
 	// phase 1; adaptive cooling (slows down from schedule.temp_factor_phase1 to
 	// schedule.temp_factor_phase1_limit)
 	else if (iteration_first_valid_layout == Point::UNDEF) {
-		loop_factor = (this->schedule.temp_factor_phase1_limit - this->schedule.temp_factor_phase1)
-			* static_cast<float>(iteration - 1) / (this->schedule.loop_limit - 1.0);
+
+		loop_factor = (this->schedule.temp_factor_phase1_limit - this->schedule.temp_factor_phase1) *
+			static_cast<float>(iteration - 1) / (this->schedule.loop_limit - 1.0);
+
 		// note that loop_factor is additive in this case; the cooling factor is
 		// increased w/ increasing iterations
 		cur_temp *= this->schedule.temp_factor_phase1 + loop_factor;
 
-		phase = 1;
+		phase = TempPhase::PHASE_1;
 	}
 	// phase 2; reheating and converging (initially reheats and then increases cooling
 	// rate faster, i.e., heating factor is decreased w/ increasing iterations to
@@ -373,14 +377,17 @@ void FloorPlanner::updateTemp(double& cur_temp, int const& iteration, int const&
 		// note that loop_factor must only consider the remaining iteration range
 		loop_factor = 1.0 - static_cast<float>(iteration - iteration_first_valid_layout) /
 			static_cast<float>(this->schedule.loop_limit - iteration_first_valid_layout);
+
 		cur_temp *= this->schedule.temp_factor_phase2 * loop_factor;
 
-		phase = 2;
+		phase = TempPhase::PHASE_2;
 	}
 
 	if (this->logMax()) {
 		std::cout << "SA>  (new) temp-update factor: " << cur_temp / prev_temp << " (phase " << phase << ")" << std::endl;
 	}
+
+	return phase;
 }
 
 void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples, int& innerLoopMax, double& init_temp) {

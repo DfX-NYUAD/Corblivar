@@ -41,7 +41,11 @@ class LayoutOperations {
 	// public data, functions
 	public:
 		// layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two = false, bool const& revertLastOp = false);
+		bool performRandomLayoutOp(CorblivarCore& corb,
+				bool const& SA_phase_two = false,
+				bool const& revertLastOp = false,
+				bool const& cooling_phase_three = false
+			);
 
 		// layout-operation parameters
 		struct parameters {

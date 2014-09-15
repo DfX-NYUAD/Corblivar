@@ -211,6 +211,9 @@ class FloorPlanner {
 			double cost_best_sol;
 		};
 
+		// SA-related temperature phase; POD declaration
+		enum TempPhase : unsigned {PHASE_1 = 1, PHASE_2 = 2, PHASE_3 = 3};
+
 		// SA: temperature-schedule log data
 		std::vector<TempStep> tempSchedule;
 
@@ -242,7 +245,7 @@ class FloorPlanner {
 		// SA: helper for main handler
 		// note that various parameters are return-by-reference
 		void initSA(CorblivarCore& corb, std::vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
-		inline void updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
+		TempPhase updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
 
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;

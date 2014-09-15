@@ -34,13 +34,13 @@ constexpr int LayoutOperations::OP_SWAP_BLOCKS;
 constexpr int LayoutOperations::OP_SWAP_BLOCKS__ENFORCE;
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
-bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp) {
+bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
 	int die1, die2, tuple1, tuple2, juncts;
 	bool ret, swapping_failed_blocks;
 
 	if (LayoutOperations::DBG) {
-		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ")" << std::endl;
+		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
 	}
 
 	// init layout operation variables
@@ -52,13 +52,18 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	}
 	// perform new op
 	else {
+		swapping_failed_blocks = false;
 
 		// to enable guided block alignment during phase II, we prefer to perform
 		// block swapping on particular blocks of failing alignment requests;
-		// however, not for every operation this should be considered in order to
-		// not restrict the search too much
-		swapping_failed_blocks = false;
-		if (SA_phase_two && this->parameters.opt_alignment && Math::randB()) {
+		if (SA_phase_two && this->parameters.opt_alignment &&
+				// however, this should be only applied for cooling phase
+				// 3, i.e., when some local minima is reached; otherwise,
+				// when applying block swapping too often, the cost
+				// function will largely vary in value and is thus not an
+				// appropriate function for guided minimization anymore
+				cooling_phase_three
+		   ) {
 
 			// try to setup swapping failed blocks
 			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
