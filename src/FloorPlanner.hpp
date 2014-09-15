@@ -192,8 +192,12 @@ class FloorPlanner {
 		// SA: parameters for cost functions
 		//
 		// trivial HPWL refers to one global bounding box for each net;
-		// non-trivial considers the bounding boxes on each layer separately
+		// non-trivial (i.e., setting the flag to false) considers the bounding
+		// boxes on each layer separately
 		static constexpr bool SA_COST_INTERCONNECTS_TRIVIAL_HPWL = false;
+		// flag whether alignments should contribute to HPWL and TSVs count; only
+		// for non-trivial HPWL model relevant
+		static constexpr bool SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL = true && !SA_COST_INTERCONNECTS_TRIVIAL_HPWL;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;

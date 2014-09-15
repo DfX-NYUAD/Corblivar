@@ -1101,11 +1101,12 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
-	Rect blocks_intersect;
+	Rect intersect, bb;
 	int prev_TSVs;
+	int layer, min_layer, max_layer;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ")" << std::endl;
+		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
 	}
 
 	cost.alignments = cost.alignments_actual_value = 0.0;
@@ -1114,22 +1115,30 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	// evaluate all alignment requests
 	for (CorblivarAlignmentReq const& req : alignments) {
 
+		// actual evaluation handler
 		cost.alignments += req.evaluate();
 
-		// derive TSVs for vertical buses if desired; only consider fulfilled
-		// alignments
-		if (derive_TSVs && req.fulfilled) {
+		// derive TSVs for vertical buses if desired or for finalize runs
+		if (derive_TSVs || finalize) {
+
+			// only consider fulfilled alignments
+			if (!req.fulfilled) {
+				continue;
+			}
 
 			// consider block intersections, independent of defined alignment;
 			// this way, all _vertical_ buses arising from different (not
 			// necessarily as vertical buses defined) alignment requests will
 			// be considered 
-			blocks_intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+			intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
 
-			if (blocks_intersect.area != 0.0) {
+			if (intersect.area != 0.0) {
 
 				// derive TSVs in all affected layers
-				for (int layer = std::min(req.s_i->layer, req.s_j->layer); layer < std::max(req.s_i->layer, req.s_j->layer); layer++) {
+				min_layer = std::min(req.s_i->layer, req.s_j->layer);
+				max_layer = std::max(req.s_i->layer, req.s_j->layer);
+
+				for (layer = min_layer; layer < max_layer; layer++) {
 
 					this->TSVs.emplace_back(TSV_Island(
 							// bus id
@@ -1142,7 +1151,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							// blocks intersection; reference
 							// point for placement of vertical
 							// bus / TSV island
-							blocks_intersect,
+							intersect,
 							// layer assignment
 							layer
 						));
@@ -1162,6 +1171,24 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 					}
 				}
 			}
+		}
+
+		// for finalize runs, consider WL encapsulated w/in (both failed and
+		// successful) massive interconnects
+		if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL && finalize) {
+
+			// ignore vertical buses which have been handled above
+			if (Rect::rectsIntersect(req.s_i->bb, req.s_j->bb)) {
+				continue;
+			}
+
+			// derive blocks' bb
+			bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+
+			// add (by signal count weighted) HPWL to overall HPWL;
+			// normalization of related WL cost is done below
+			cost.HPWL_actual_value += (bb.w) * req.signals;
+			cost.HPWL_actual_value += (bb.h) * req.signals;
 		}
 	}
 
@@ -1189,14 +1216,14 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 	// also consider lengths of additional TSVs in HPWL; each TSV has to pass the
 	// whole Si layer and the bonding layer
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && finalize) {
-		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
-	}
+	if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL && finalize) {
 
-	// update normalized HPWL cost;
-	// sanity check for zero HPWL
-	if (this->max_cost_WL != 0) {
-		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
+		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+		// update normalized HPWL cost; sanity check for zero HPWL
+		if (this->max_cost_WL != 0) {
+			cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
+		}
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
