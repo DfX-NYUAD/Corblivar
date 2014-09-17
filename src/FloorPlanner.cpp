@@ -1099,9 +1099,12 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	cost.HPWL_actual_value = cost.HPWL;
 	cost.TSVs_actual_value = cost.TSVs;
 
-	// normalized values; refer to max value from initial sampling
+	// normalized values; max value refers to initial sampling, thus sanity check for
+	// zero cost is not required
 	cost.HPWL /= this->max_cost_WL;
-	// sanity check for zero TSVs cost; applies to 2D floorplanning
+
+	// sanity check for normalizing TSVs cost; zero max cost applies to 2D
+	// floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs /= this->max_cost_TSVs;
 	}
@@ -1196,8 +1199,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// for considering TSVs or for finalize runs, update TSVs-related statistics
-	// TODO refactor into separate function, to be called also from
-	// evaluateInterconnects
 	if (derive_TSVs || finalize) {
 
 		// update normalized TSV cost; sanity check for zero TSVs cost; applies to
@@ -1207,14 +1208,14 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		}
 
 		// update by TSVs occupied deadspace amount
-		cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+		cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 		// consider lengths of additional TSVs in HPWL; each TSV has to pass the
 		// whole Si layer and the bonding layer
 		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
 
 		// update normalized HPWL cost; sanity check for zero HPWL not required
-		// assuming that some nets are given
+		// since max cost are initialized during first phase
 		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 	}
 
