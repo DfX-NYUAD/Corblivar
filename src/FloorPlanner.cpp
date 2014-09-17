@@ -1107,6 +1107,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
+//
+// TODO refactor; separate determination of alignments' HPWL to separate function, which
+// is called from evaluateInterconnects; this way, the HPWL components of alignments are
+// always (for active WL optimization) considered
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb;
 	int prev_TSVs;
@@ -1174,27 +1178,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 				}
 			}
 		}
-
-		// consider WL encapsulated w/in (both failed and successfully aligned)
-		// massive interconnects
-		if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL) {
-
-			// ignore vertical buses; first, they have been handled above,
-			// second, they don't contribute to HPWL considering that only
-			// block-level interconnects are considered, not the gate-level
-			// wires to connect to TSV landing pads w/in blocks
-			if (Rect::rectsIntersect(req.s_i->bb, req.s_j->bb)) {
-				continue;
-			}
-
-			// derive blocks' bb
-			bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
-
-			// add (by signal count weighted) HPWL to overall HPWL;
-			// normalization of related WL cost is done below
-			cost.HPWL_actual_value += (bb.w) * req.signals;
-			cost.HPWL_actual_value += (bb.h) * req.signals;
-		}
 	}
 
 	// memorize max cost; initial sampling
@@ -1210,16 +1193,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		cost.alignments /= this->max_cost_alignments;
 	}
 
-	// update HPWL cost
-	if (FloorPlanner::SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL) {
-
-		// update normalized HPWL cost; sanity check for zero HPWL not required
-		// assuming that some nets are given
-		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
-	}
-
-	// for finalize runs, update TSVs-related statistics
-	if (finalize) {
+	// for considering TSVs or for finalize runs, update TSVs-related statistics
+	// TODO refactor into separate function, to be called also from
+	// evaluateInterconnects
+	if (derive_TSVs || finalize) {
 
 		// update normalized TSV cost; sanity check for zero TSVs cost; applies to
 		// 2D floorplanning
@@ -1233,6 +1210,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		// consider lengths of additional TSVs in HPWL; each TSV has to pass the
 		// whole Si layer and the bonding layer
 		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+		// update normalized HPWL cost; sanity check for zero HPWL not required
+		// assuming that some nets are given
+		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
