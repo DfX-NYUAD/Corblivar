@@ -182,6 +182,7 @@ class CorblivarCore {
 		};
 
 		inline void switchInsertionDirection(int const& die, int const& tuple) {
+
 			if (this->dies[die].CBL.L[tuple] == Direction::VERTICAL) {
 				this->dies[die].CBL.L[tuple] = Direction::HORIZONTAL;
 			}
@@ -198,7 +199,16 @@ class CorblivarCore {
 			}
 		};
 
+		inline void swapAlignmentCoordinates(int const& tuple) {
+
+			// swap alignment-request type
+			std::swap(this->A[tuple].type_x, this->A[tuple].type_y);
+			// also swap related offsets / ranges
+			std::swap(this->A[tuple].alignment_x, this->A[tuple].alignment_y);
+		};
+
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) {
+
 			this->dies[die].CBL.T[tuple] = juncts;
 
 			if (DBG) {

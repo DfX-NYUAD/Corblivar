@@ -80,12 +80,14 @@ class LayoutOperations {
 		static constexpr int OP_SHAPE_BLOCK__RANDOM_AR = 14;
 		// used only for blocks related to failed alignment request
 		static constexpr int OP_SWAP_BLOCKS_ENFORCE= 20;
+		static constexpr int OP_SWAP_ALIGNMENT_COORDINATES = 21;
 
 		// layout-operation handler variables
 		int last_op, last_op_die1, last_op_die2, last_op_tuple1, last_op_tuple2, last_op_juncts;
 		// note that die and tuple parameters are return-by-reference; non-const
 		// reference for CorblivarCore in order to enable operations on CBL-encode data
 		inline bool prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2);
+		inline bool prepareSwappingCoordinatesFailedAlignment(CorblivarCore const& corb, int& tuple1);
 		inline bool performOpMoveOrSwapBlocks(int const& mode, bool const& revert, bool const& SA_phase_one, CorblivarCore& corb,
 				int& die1, int& die2, int& tuple1, int& tuple2) const;
 		inline bool performOpSwitchInsertionDirection(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
@@ -93,6 +95,7 @@ class LayoutOperations {
 		inline bool performOpShapeBlock(bool const& revert, CorblivarCore& corb, int& die1, int& tuple1) const;
 		inline bool performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
+		inline bool performOpSwapAlignmentCoordinates(bool const& revert, CorblivarCore& corb, int& tuple1) const;
 };
 
 #endif

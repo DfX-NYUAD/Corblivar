@@ -40,11 +40,6 @@ class CorblivarAlignmentReq {
 		enum class Type : int {OFFSET = 0, MIN = 1, MAX = 2, UNDEF = -1};
 		enum class Handling : int {STRICT = 0, FLEXIBLE = 1};
 
-	// private data, functions
-	private:
-		Type type_x;
-		Type type_y;
-
 	// constructors, destructors, if any non-implicit
 	public:
 		CorblivarAlignmentReq(int const& id,
@@ -89,6 +84,8 @@ class CorblivarAlignmentReq {
 		int id;
 		Block const* s_i;
 		Block const* s_j;
+		Type type_x;
+		Type type_y;
 		double alignment_x, alignment_y;
 		Handling handling;
 		int signals;
