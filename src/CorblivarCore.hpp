@@ -205,6 +205,13 @@ class CorblivarCore {
 			std::swap(this->A[tuple].type_x, this->A[tuple].type_y);
 			// also swap related offsets / ranges
 			std::swap(this->A[tuple].alignment_x, this->A[tuple].alignment_y);
+
+			if (DBG) {
+				std::cout << "DBG_CORE> swapAlignmentCoordinates;";
+				std::cout << ", t1=" << tuple << "; ";
+				std::cout << this->A[tuple].tupleString();
+				std::cout << std::endl;
+			}
 		};
 
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) {
