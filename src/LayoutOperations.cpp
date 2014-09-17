@@ -31,7 +31,7 @@
 
 // memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
-constexpr int LayoutOperations::OP_SWAP_BLOCKS__ENFORCE;
+constexpr int LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
 bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
@@ -68,11 +68,11 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 			// try to setup swapping failed blocks
 			swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
 
-			// prepare for swap operation; this dedicated __ENFORCE op-code
+			// prepare for swap operation; this dedicated _ENFORCE op-code
 			// ignores power-aware block-die assignments, such that block
 			// alignments can be also fulfilled when the option power-aware
 			// block assignment is activated
-			this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS__ENFORCE;
+			this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
 		}
 
 		// for other regular cases or in case swapping failed blocks was not successful, we proceed with a random
@@ -97,9 +97,9 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 
 			break;
 
-		case LayoutOperations::OP_SWAP_BLOCKS__ENFORCE: // op-code: 20
+		case LayoutOperations::OP_SWAP_BLOCKS_ENFORCE: // op-code: 20
 
-			ret = this->performOpMoveOrSwapBlocks(LayoutOperations::OP_SWAP_BLOCKS__ENFORCE, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
+			ret = this->performOpMoveOrSwapBlocks(LayoutOperations::OP_SWAP_BLOCKS_ENFORCE, revertLastOp, !SA_phase_two, corb, die1, die2, tuple1, tuple2);
 
 			break;
 
@@ -660,9 +660,9 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 		// for power-aware block handling, ensure that blocks w/ lower power
 		// density remain in lower layer; ignore this for op-code
-		// OP_SWAP_BLOCKS__ENFORCE which is used for swapping blocks in case of
+		// OP_SWAP_BLOCKS_ENFORCE which is used for swapping blocks in case of
 		// failed alignment requrest
-		if (this->parameters.power_aware_block_handling && mode != LayoutOperations::OP_SWAP_BLOCKS__ENFORCE) {
+		if (this->parameters.power_aware_block_handling && mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 			if (die1 < die2
 					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
 				return false;
