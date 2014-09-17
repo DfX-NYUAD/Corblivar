@@ -184,9 +184,11 @@ class FloorPlanner {
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
+		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) const;
 		void evaluateAreaOutline(Cost& cost,
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,
+				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& set_max_cost = false);
 
 		// SA: parameters for cost functions
@@ -195,9 +197,6 @@ class FloorPlanner {
 		// non-trivial (i.e., setting the flag to false) considers the bounding
 		// boxes on each layer separately
 		static constexpr bool SA_COST_INTERCONNECTS_TRIVIAL_HPWL = false;
-		// flag whether alignments should contribute to HPWL and TSVs count; only
-		// for non-trivial HPWL model relevant
-		static constexpr bool SA_COST_INTERCONNECTS_ALIGNMENTS__CONTRIBUTE_HPWL = true && !SA_COST_INTERCONNECTS_TRIVIAL_HPWL;
 
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;

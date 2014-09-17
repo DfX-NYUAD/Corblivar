@@ -734,12 +734,12 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		//
 		// also determines hotspot regions and clusters signal TSVs accordingly
 		if (this->opt_flags.interconnects) {
-			this->evaluateInterconnects(cost, set_max_cost);
+			this->evaluateInterconnects(cost, alignments, set_max_cost);
 		}
 		// for finalize calls and when no cost was previously determined, we need
 		// to initialize the max_cost
 		else if (finalize) {
-			this->evaluateInterconnects(cost, true);
+			this->evaluateInterconnects(cost, alignments, true);
 		}
 		else {
 			cost.HPWL = cost.HPWL_actual_value = 0.0;
@@ -790,10 +790,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// TSV clustering
 		if (finalize) {
 
-			this->evaluateInterconnects(cost, false);
+			this->evaluateInterconnects(cost, alignments);
 			this->evaluateAlignments(cost, alignments, true, false, true);
 
-			this->evaluateThermalDistr(cost, false);
+			this->evaluateThermalDistr(cost);
 		}
 
 		// determine total cost; weight and sum up cost terms
@@ -941,7 +941,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
-void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& set_max_cost) {
+void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost) {
 	int i;
 	std::vector<Rect const*> blocks_to_consider;
 	std::vector< std::list<Clustering::Segments> > nets_segments;
@@ -949,7 +949,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	double prev_TSVs;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		std::cout << "-> FloorPlanner::evaluateInterconnects(" << set_max_cost << ")" << std::endl;
+		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
 	}
 
 	// reset cost terms
@@ -1069,13 +1069,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 		}
 	}
 
-	// perform clustering of signal TSVs into TSV islands
+	// perform clustering of regular signal TSVs into TSV islands
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
 	}
 
-	// also consider TSV lengths in HPWL; each TSV has to pass the whole Si layer and
-	// the bonding layer
+	// consider alignments' HWPL components; note that this function does not account
+	// for the alignments' TSVs, this is done in evaluateAlignments()
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
+	}
+
+	// also consider lengths of (regular signal) TSVs in HPWL; each TSV has to pass
+	// the whole Si layer and the bonding layer
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
 		cost.HPWL += cost.TSVs * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
@@ -1092,8 +1098,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 	// store actual values
 	cost.HPWL_actual_value = cost.HPWL;
 	cost.TSVs_actual_value = cost.TSVs;
+
 	// normalized values; refer to max value from initial sampling
-	//
 	cost.HPWL /= this->max_cost_WL;
 	// sanity check for zero TSVs cost; applies to 2D floorplanning
 	if (this->max_cost_TSVs != 0) {
@@ -1107,10 +1113,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, bool const& s
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
-//
-// TODO refactor; separate determination of alignments' HPWL to separate function, which
-// is called from evaluateInterconnects; this way, the HPWL components of alignments are
-// always (for active WL optimization) considered
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb;
 	int prev_TSVs;
@@ -1219,4 +1221,44 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << std::endl;
 	}
+}
+
+// separate determination of alignments' HPWL which is called from evaluateInterconnects;
+// this way, the HPWL components of alignments are always (for active WL optimization)
+// considered
+double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) const {
+	Rect bb;
+	double HPWL = 0.0;
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		std::cout << "-> FloorPlanner::evaluateAlignmentsHPWL(" << &alignments << ")" << std::endl;
+	}
+
+	// evaluate all alignment requests, i.e., consider WL encapsulated w/in (both
+	// failed and successfully aligned) massive interconnects
+	for (CorblivarAlignmentReq const& req : alignments) {
+
+		// ignore alignments comprising vertical buses for two reasons: first,
+		// they are handled (TSV-wise) in evaluateAlignments(); second, they don't
+		// contribute to HPWL considering that only block-level interconnects are
+		// considered, not the gate-level wires to connect to TSV landing pads
+		// w/in blocks
+		if (Rect::rectsIntersect(req.s_i->bb, req.s_j->bb)) {
+			continue;
+		}
+
+		// derive blocks' bb
+		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+
+		// add (by signal count weighted) HPWL to overall HPWL; normalization of
+		// related WL cost is done below
+		HPWL += (bb.w) * req.signals;
+		HPWL += (bb.h) * req.signals;
+	}
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		std::cout << "<- FloorPlanner::evaluateAlignmentsHPWL : " << HPWL << std::endl;
+	}
+
+	return HPWL;
 }
