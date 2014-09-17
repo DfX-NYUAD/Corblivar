@@ -38,7 +38,7 @@ class CorblivarAlignmentReq {
 	// enum classes; have to be defined first
 	public:
 		enum class Type : int {OFFSET = 0, MIN = 1, MAX = 2, UNDEF = -1};
-		enum class Global_Type : int {STRICT = 0, FLEXIBLE = 1};
+		enum class Handling : int {STRICT = 0, FLEXIBLE = 1};
 
 	// private data, functions
 	private:
@@ -48,7 +48,7 @@ class CorblivarAlignmentReq {
 	// constructors, destructors, if any non-implicit
 	public:
 		CorblivarAlignmentReq(int const& id,
-				Global_Type const& type,
+				Handling const& handling,
 				int const& signals,
 				Block const* s_i, Block const* s_j,
 				Type const& type_x, double const& alignment_x,
@@ -56,7 +56,7 @@ class CorblivarAlignmentReq {
 
 			this->id = id;
 
-			this->type = type;
+			this->handling = handling;
 
 			this->signals = signals;
 
@@ -90,7 +90,7 @@ class CorblivarAlignmentReq {
 		Block const* s_i;
 		Block const* s_j;
 		double alignment_x, alignment_y;
-		Global_Type type;
+		Handling handling;
 		int signals;
 		mutable bool fulfilled;
 
@@ -115,14 +115,14 @@ class CorblivarAlignmentReq {
 			return out;
 		}
 
-		friend std::ostream& operator<< (std::ostream& out, Global_Type const& type) {
+		friend std::ostream& operator<< (std::ostream& out, Handling const& handling) {
 
-			switch (type) {
+			switch (handling) {
 
-				case Global_Type::STRICT:
+				case Handling::STRICT:
 					out << "STRICT";
 					break;
-				case Global_Type::FLEXIBLE:
+				case Handling::FLEXIBLE:
 					out << "FLEXIBLE";
 					break;
 				default:
@@ -173,7 +173,7 @@ class CorblivarAlignmentReq {
 		inline std::string tupleString() const {
 			std::stringstream ret;
 
-			ret << "(" << this->type << ", " << this->signals << ", ";
+			ret << "(" << this->handling << ", " << this->signals << ", ";
 			ret << "(" << this->s_i->id << ", " << this->s_j->id << ", ";
 			ret << "(" << this->type_x << ", " << this->alignment_x << "), ";
 			ret << "(" << this->type_y << ", " << this->alignment_y << ") )";

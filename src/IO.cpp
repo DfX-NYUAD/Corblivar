@@ -737,11 +737,12 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 	std::string block_id;
 	Block const* b1;
 	Block const* b2;
+	std::string handling_str;
 	std::string type_str;
 	int signals;
 	CorblivarAlignmentReq::Type type_x;
 	CorblivarAlignmentReq::Type type_y;
-	CorblivarAlignmentReq::Global_Type type;
+	CorblivarAlignmentReq::Handling handling;
 	double alignment_x;
 	double alignment_y;
 
@@ -780,17 +781,17 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 			break;
 		}
 
-		// global alignment type
-		al_in >> type_str;
+		// global alignment handling
+		al_in >> handling_str;
 
-		if (type_str == "STRICT") {
-			type = CorblivarAlignmentReq::Global_Type::STRICT;
+		if (handling_str == "STRICT") {
+			handling = CorblivarAlignmentReq::Handling::STRICT;
 		}
-		else if (type_str == "FLEXIBLE") {
-			type = CorblivarAlignmentReq::Global_Type::FLEXIBLE;
+		else if (handling_str == "FLEXIBLE") {
+			handling = CorblivarAlignmentReq::Handling::FLEXIBLE;
 		}
 		else {
-			std::cout << "IO> Unknown global alignment type: " << type_str << "; ensure alignment-requests file has correct format!" << std::endl;
+			std::cout << "IO> Unknown global alignment handling: " << handling_str << "; ensure alignment-requests file has correct format!" << std::endl;
 			exit(1);
 		}
 
@@ -887,7 +888,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 		al_in >> tmpstr;
 
 		// generate and store successfully parsed request
-		alignments.push_back(CorblivarAlignmentReq(id, type, signals, b1, b2, type_x, alignment_x, type_y, alignment_y));
+		alignments.push_back(CorblivarAlignmentReq(id, handling, signals, b1, b2, type_x, alignment_x, type_y, alignment_y));
 
 		id++;
 	}
