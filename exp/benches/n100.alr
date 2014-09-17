@@ -1,13 +1,13 @@
 # Alignment-Requests File for Corblivar
 #
-# Requests have to be defined as tuples w/ the following format: ( STRICT_FLEXIBLE SIGNALS
-# BLOCK_1 BLOCK_2 TYPE_X ALIGNMENT_X TYPE_Y ALIGNMENT_Y )
+# Requests have to be defined as tuples w/ the following format:
+# ( STRICT_FLEXIBLE SIGNALS BLOCK_1 BLOCK_2 TYPE_X ALIGNMENT_X TYPE_Y ALIGNMENT_Y )
 #
-# The global alignment type can be controlled via the STRICT_FLEXIBLE flag; it can be
-# either strict, i.e., given alignments have to be fulfilled for the related dimensions,
-# or flexible, i.e., given alignments have to be fulfilled for any of the two dimensions.
-# For example, flexible buses would be encoded with a MIN and a MAX alignment; however, it
-# typically does not matter which alignment is defined for which dimension.
+# The alignment handling can be controlled via the STRICT_FLEXIBLE flag; it can be either
+# STRICT, i.e., given alignments have to be fulfilled for the related dimensions, or
+# FLEXIBLE, i.e., given alignments have to be fulfilled for any of the two dimensions.
+# For example, flexible buses with no preferred orientation would be encoded with a MIN
+# and a MAX alignment.
 #
 # The variable SIGNALS encode the number of parallel signals to be embedded via block
 # alignment. This is particularly required for TSV-site planning for vertical buses.
@@ -26,4 +26,12 @@
 #
 # data_start
 
-( STRICT 64 sb1 sb2 MIN 50.0 MIN 100.0 )
+( STRICT 1024 sb1 sb2 MIN 100.0 MIN 100.0 )
+
+( STRICT 1024 sb3 sb4 MIN 50.0 MAX 1000.0 )
+
+( STRICT 1024 sb5 sb6 MIN 50.0 MAX 1000.0 )
+
+( FLEXIBLE 1024 sb7 sb8 MIN 50.0 MAX 1000.0 )
+
+( FLEXIBLE 1024 sb9 sb10 MIN 50.0 MAX 1000.0 )
