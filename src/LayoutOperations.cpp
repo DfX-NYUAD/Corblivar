@@ -101,7 +101,7 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 				// setting up this operation was successful
 				if (swapping_flexible_alignment_coordinates) {
 
-					this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
+					this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
 				}
 				// this operation cannot be performed, consider the other
 				// (swapping blocks of failed alignments)
