@@ -194,6 +194,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 	CorblivarAlignmentReq const* failed_req = nullptr;
 	Block const* b1;
 	Block const* b1_neighbour = nullptr;
+	Rect bb;
 
 	// determine first failed alignment
 	for (unsigned r = 0; r < corb.getAlignments().size(); r++) {
@@ -256,23 +257,47 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 				}
 			}
 
-			// select block to swap with such that blocks to be aligned are
-			// initially at least intersecting blocks
-			for (Block const* b2 : corb.getDie(die2).getBlocks()) {
+			bb = b1->bb;
 
-				if (Rect::rectsIntersect(b1->bb, b2->bb) &&
-					// also check that blocks are not partner blocks
-					// of the alignment request; otherwise,
-					// consecutively circular swap might occur which
-					// are not resolving the failing alignment
-					!failed_req->partner_blocks(b1, b2)
-				   ) {
+			while (true) {
 
-					b1_neighbour = b2;
+				// select block to swap with such that blocks to be
+				// aligned are initially at least intersecting blocks;
+				for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
+					if (Rect::rectsIntersect(bb, b2->bb) &&
+						// also check that blocks are not partner blocks
+						// of the alignment request; otherwise,
+						// consecutively circular swap might occur which
+						// are not resolving the failing alignment
+						!failed_req->partner_blocks(b1, b2)
+					   ) {
+
+						b1_neighbour = b2;
+
+						break;
+					}
+				}
+
+				// no intersecting block was found, increase the search
+				// radius by doubling the considered bb
+				if (b1_neighbour == nullptr) {
+
+					bb.ll.x -= bb.w / 2.0;
+					bb.ur.x += bb.w / 2.0;
+					bb.ll.y -= bb.h / 2.0;
+					bb.ur.y += bb.h / 2.0;
+
+					bb.w = bb.ur.x - bb.ll.x;
+					bb.h = bb.ur.y - bb.ll.y;
+
+					bb.area = bb.w * bb.h;
+				}
+				else {
 					break;
 				}
 			}
+
 		}
 
 		// other failed alignment ranges or non-zero-offset fixed alignment
@@ -407,6 +432,11 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		}
 		else {
 			tuple2 = -1;
+
+			if (CorblivarAlignmentReq::DBG) {
+				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
+				std::cout << "DBG_ALIGNMENT> no appropriate block to swap with found" << std::endl;
+			}
 
 			return false;
 		}
