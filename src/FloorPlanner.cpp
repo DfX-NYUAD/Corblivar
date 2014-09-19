@@ -1138,10 +1138,20 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		if (derive_TSVs || finalize) {
 
 			// consider block intersections, independent of defined alignment;
-			// this way, all _vertical_ buses arising from different (not
-			// necessarily as vertical buses defined) alignment requests will
-			// be considered 
+			// this way, all _embedded_ vertical buses arising from different
+			// (not necessarily as vertical buses defined) alignment requests
+			// will be considered
 			intersect = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
+			// however, for cases w/o block intersections, we still need to
+			// check whether blocks are placed on separate dies; then, they
+			// require TSV islands as well
+			if (intersect.area == 0.0 && (req.s_i->layer != req.s_j->layer)) {
+
+				// here, we consider the blocks' bounding box for guiding
+				// placement of the required TSV island
+				intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+			}
 
 			if (intersect.area != 0.0) {
 
@@ -1239,11 +1249,11 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 	// failed and successfully aligned) massive interconnects
 	for (CorblivarAlignmentReq const& req : alignments) {
 
-		// ignore alignments comprising vertical buses for two reasons: first,
-		// they are handled (TSV-wise) in evaluateAlignments(); second, they don't
-		// contribute to HPWL considering that only block-level interconnects are
-		// considered, not the gate-level wires to connect to TSV landing pads
-		// w/in blocks
+		// ignore alignments comprising _embedded_ vertical buses for two reasons:
+		// first, they are handled (TSV-wise) in evaluateAlignments(); second,
+		// they don't contribute to HPWL considering that only block-level
+		// interconnects are considered, not the gate-level wires to connect to
+		// TSV landing pads w/in blocks
 		if (Rect::rectsIntersect(req.s_i->bb, req.s_j->bb)) {
 			continue;
 		}
