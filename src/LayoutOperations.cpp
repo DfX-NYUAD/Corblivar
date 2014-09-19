@@ -193,6 +193,7 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
 	CorblivarAlignmentReq const* failed_req = nullptr;
 	Block const* b1;
+	Block const* b1_partner;
 	Block const* b1_neighbour = nullptr;
 	Rect bb;
 
@@ -226,8 +227,10 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			die1 = b1->layer;
 			tuple1 = corb.getDie(die1).getTuple(b1);
 
+			// memorize the opposite block s_j
+			b1_partner = failed_req->s_j;
 			// also memorize the layer of opposite block s_j
-			die2 = failed_req->s_j->layer;
+			die2 = b1_partner->layer;
 		}
 		else {
 			// s_j is the block to be changed
@@ -235,19 +238,29 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 			die1 = b1->layer;
 			tuple1 = corb.getDie(die1).getTuple(b1);
 
+			// memorize the opposite block s_i
+			b1_partner = failed_req->s_i;
 			// also memorize the layer of opposite block s_i
-			die2 = failed_req->s_j->layer;
+			die2 = b1_partner->layer;
 		}
 
 		// dedicatedly defined vertical bus; failed vertical alignment across
 		// different dies
 		if (failed_req->vertical_bus()) {
 
-			// such alignment cannot be fulfilled in one die, i.e., differing
-			// dies required
+			// select block to swap with b1 such that blocks to be aligned (b1
+			// and its partner) are initially at least intersecting blocks;
+			// that means, we need to swap with a block that is intersecting
+			// with b1's partner block
+			//
+			// if b1 and its partner block are in one die, b1 needs to be
+			// swapped with a block on another layer which is intersecting
+			// b1's partner block; randomly select another layer
+			//
 			if (die1 == die2) {
 
-				// this is only possible for > 1 layers; sanity check
+				// such vertical alignment  is only possible for > 1
+				// layers; sanity check
 				if (this->parameters.layers == 1) {
 					return false;
 				}
@@ -256,13 +269,19 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 					die2 = Math::randI(0, this->parameters.layers);
 				}
 			}
+			// if b1 and its partner block are in different dies, b1 can be
+			// swapped with a block intersecting b1's partner block on the
+			// current die of b1
+			else {
+				die2 = die1;
+			}
 
-			bb = b1->bb;
+			// the block to swap w/ is stepwise searched according to this bb;
+			// init it with the bb of b1's partner block
+			bb = b1_partner->bb;
 
 			while (true) {
 
-				// select block to swap with such that blocks to be
-				// aligned are initially at least intersecting blocks;
 				for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
 					if (Rect::rectsIntersect(bb, b2->bb) &&
