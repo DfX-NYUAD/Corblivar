@@ -1,11 +1,11 @@
 #!/bin/bash
-root=~/code/Corblivar
+root=~/github/Corblivar
 base=$root/exp
 #fitting=thermal_analysis_fitting
 
-exp="alignments_set_5"
+exp="MI_WL_opt"
 benches="n100 n200 n300"
-runs=50
+runs=25
 
 for die_count in 2
 do
@@ -37,7 +37,7 @@ do
 	for bench in $benches
 	do
 		cp $base/benches/$bench.* .
-		cp $base/configs/$dies/$exp/$bench.* .
+		cp $base/configs/$dies/$exp/* .
 	done
 #
 #	cd $fitting
