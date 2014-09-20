@@ -111,8 +111,8 @@ end
 %% execute Corblivar with given floorplan and initial parameters
 % path for execution of Corblivar with given solution file 
 	
-pathCblsol = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution %s',
-		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);
+pathCblsol = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution',
+		dir.bin, bench, conf.path, dir.exp, bench);
 
 pathCblsolnt = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution %s >/dev/null',
 		dir.bin, bench, conf.path, dir.exp, bench, conf.TSV_density);
