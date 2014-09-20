@@ -2456,7 +2456,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					/// bin lower-left corner; float precision required in
 					//order to avoid grid coordinate mismatches
 					file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
-					file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
+					file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
 					// thermal properties, depending on bin's TSV density
 					file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
@@ -2470,7 +2470,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					/// bin lower-left corner; float precision required in
 					//order to avoid grid coordinate mismatches
 					file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
-					file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
+					file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
 					// thermal properties, depending on bin's TSV density
 					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
