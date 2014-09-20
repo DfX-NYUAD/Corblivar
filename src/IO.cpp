@@ -2335,6 +2335,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	int cur_layer;
 	int x, y;
 	int map_x, map_y;
+	float x_ll, y_ll;
+	float bin_w, bin_h;
 
 	if (fp.logMed()) {
 		std::cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << std::endl;
@@ -2436,27 +2438,64 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		// for regular runs, i.e., Corblivar runs, we have to consider different
 		// TSV densities for each grid bin, given in the power_maps
 		else {
-
 			// walk power-map grid to obtain specific TSV densities of bins
 			for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
 
 				// adapt index for final thermal map according to padding
 				map_x = x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
 
-				for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+				// pre-calculate bin's lower-left corner coordinates;
+				// float precision required to avoid grid coordinate
+				// mismatches
+				x_ll = static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 
+				// pre-calculate bin dimensions; float precision required
+				// to avoid grid coordinate mismatches; re-calculation
+				// only required for lower and upper bounds
+				//
+				// lower bound, regular bin dimension; value also used
+				// until reaching upper bound
+				if (x == ThermalAnalyzer::POWER_MAPS_PADDED_BINS) {
+					bin_w = static_cast<float>(fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
+				}
+				// upper bound, limit bin dimension according to overall
+				// chip outline
+				else if (x == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
+					bin_w = static_cast<float>(fp.IC.outline_x * Math::SCALE_UM_M - x_ll);
+				}
+
+				for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
 					// adapt index for final thermal map according to padding
 					map_y = y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+
+					// pre-calculate bin's lower-left corner
+					// coordinates; float precision required to avoid
+					// grid coordinate mismatches
+					y_ll = static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
+
+					// pre-calculate bin dimensions; float precision required
+					// to avoid grid coordinate mismatches; re-calculation
+					// only required for lower and upper bounds
+					//
+					// lower bound, regular bin dimension; value also used
+					// until reaching upper bound
+					if (y == ThermalAnalyzer::POWER_MAPS_PADDED_BINS) {
+						bin_h = static_cast<float>(fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
+					}
+					// upper bound, limit bin dimension according to overall
+					// chip outline
+					else if (y == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
+						bin_h = static_cast<float>(fp.IC.outline_y * Math::SCALE_UM_M - y_ll);
+					}
 
 					// put grid block as floorplan blocks; passive Si layer
 					file << "Si_passive_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
 					/// bin dimensions
-					file << "	" << fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M;
-					file << "	" << fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M;
-					/// bin lower-left corner; float precision required in
-					//order to avoid grid coordinate mismatches
-					file << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
-					file << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
+					file << "	" << bin_w;
+					file << "	" << bin_h;
+					/// bin's lower-left corner
+					file << "	" << x_ll;
+					file << "	" << y_ll;
 					// thermal properties, depending on bin's TSV density
 					file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
@@ -2465,12 +2504,11 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					// put grid block as floorplan blocks; bonding layer
 					file_bond << "bond_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
 					/// bin dimensions
-					file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M;
-					file_bond << "	" << fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M;
-					/// bin lower-left corner; float precision required in
-					//order to avoid grid coordinate mismatches
-					file_bond << "	" << static_cast<float>(map_x * fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
-					file_bond << "	" << static_cast<float>(map_y * fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
+					file_bond << "	" << bin_w;
+					file_bond << "	" << bin_h;
+					/// bin's lower-left corner
+					file_bond << "	" << x_ll;
+					file_bond << "	" << y_ll;
 					// thermal properties, depending on bin's TSV density
 					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_Si_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
