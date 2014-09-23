@@ -1258,8 +1258,10 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 			continue;
 		}
 
-		// derive blocks' bb
-		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+		// derive blocks' bb; only consider center points since massive
+		// interconnects (on average) will connect to pins within the block
+		// outline, not the worst-case outer block boundaries
+		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 
 		// add (by signal count weighted) HPWL to overall HPWL; normalization of
 		// related WL cost is done below
