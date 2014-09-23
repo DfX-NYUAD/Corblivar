@@ -1120,6 +1120,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	Rect intersect, bb;
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
+	CorblivarAlignmentReq::Evaluate eval;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
@@ -1132,7 +1133,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	for (CorblivarAlignmentReq const& req : alignments) {
 
 		// actual evaluation handler
-		cost.alignments += req.evaluate();
+		eval = req.evaluate();
+		cost.alignments += eval.cost;
+		cost.alignments_actual_value += eval.actual_mismatch;
 
 		// derive TSVs for vertical buses if desired or for finalize runs
 		if (derive_TSVs || finalize) {
@@ -1199,9 +1202,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	if (set_max_cost) {
 		this->max_cost_alignments = cost.alignments;
 	}
-
-	// store actual value
-	cost.alignments_actual_value = cost.alignments;
 
 	// update normalizes cost; refers to max value from initial sampling
 	if (this->max_cost_alignments != 0) {

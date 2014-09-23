@@ -91,6 +91,11 @@ class CorblivarAlignmentReq {
 		int signals;
 		mutable bool fulfilled;
 
+		struct Evaluate {
+			double cost;
+			double actual_mismatch;
+		};
+
 		friend std::ostream& operator<< (std::ostream& out, Type const& type) {
 
 			switch (type) {
@@ -178,7 +183,7 @@ class CorblivarAlignmentReq {
 			return ret.str();
 		};
 
-		double evaluate() const;
+		Evaluate evaluate() const;
 };
 
 #endif

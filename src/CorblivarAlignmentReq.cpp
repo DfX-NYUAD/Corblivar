@@ -27,13 +27,13 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
-double CorblivarAlignmentReq::evaluate() const {
+CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	Rect blocks_bb;
 	Rect blocks_intersect;
-	double cost;
+	Evaluate ret;
 
 	// initially, assume zero cost / alignment mismatch
-	cost = 0.0;
+	ret.cost = 0.0;
 
 	// initially, assume the request to be feasible
 	this->fulfilled = true;
@@ -62,7 +62,7 @@ double CorblivarAlignmentReq::evaluate() const {
 		if (blocks_intersect.w < this->alignment_x) {
 
 			// missing overlap
-			cost += this->alignment_x - blocks_intersect.w;
+			ret.cost += this->alignment_x - blocks_intersect.w;
 
 			// in case blocks don't overlap at all, also consider the
 			// blocks' distance as further cost
@@ -70,7 +70,7 @@ double CorblivarAlignmentReq::evaluate() const {
 
 				if (Rect::rectA_leftOf_rectB(this->s_i->bb, this->s_j->bb, false)) {
 
-					cost += this->s_j->bb.ll.x - this->s_i->bb.ur.x;
+					ret.cost += this->s_j->bb.ll.x - this->s_i->bb.ur.x;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
@@ -78,7 +78,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				}
 				else {
 
-					cost += this->s_i->bb.ll.x - this->s_j->bb.ur.x;
+					ret.cost += this->s_i->bb.ll.x - this->s_j->bb.ur.x;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
@@ -96,7 +96,7 @@ double CorblivarAlignmentReq::evaluate() const {
 		// consider the spatial mismatch as cost; distance too large
 		if (blocks_bb.w > this->alignment_x) {
 
-			cost += blocks_bb.w - this->alignment_x;
+			ret.cost += blocks_bb.w - this->alignment_x;
 
 			// annotate general alignment failure
 			this->fulfilled = false;
@@ -128,7 +128,7 @@ double CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far left, i.e., not sufficiently away
 					// from s_i
-					cost += abs(this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x);
+					ret.cost += abs(this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x);
 
 					// annotate block-alignment failure;
 					// s_j is too far left, s_i too far right
@@ -146,7 +146,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				else {
 					// cost includes distance b/w (right) s_i,
 					// (left) s_j and the failed offset
-					cost += this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x;
+					ret.cost += this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_RIGHT;
@@ -163,7 +163,7 @@ double CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far right, i.e., not sufficiently away
 					// from s_i
-					cost += abs(this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x);
+					ret.cost += abs(this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x);
 
 					// annotate block-alignment failure;
 					// s_j is too far right, s_i too far left
@@ -181,7 +181,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				else {
 					// cost includes distance b/w (left) s_i,
 					// (right) s_j and the failed (negative) offset
-					cost += this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x;
+					ret.cost += this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_HOR_TOO_LEFT;
@@ -203,7 +203,7 @@ double CorblivarAlignmentReq::evaluate() const {
 		if (blocks_intersect.h < this->alignment_y) {
 
 			// missing overlap
-			cost += this->alignment_y - blocks_intersect.h;
+			ret.cost += this->alignment_y - blocks_intersect.h;
 
 			// in case blocks don't overlap at all, also consider the
 			// blocks' distance as further cost
@@ -211,7 +211,7 @@ double CorblivarAlignmentReq::evaluate() const {
 
 				if (Rect::rectA_below_rectB(this->s_i->bb, this->s_j->bb, false)) {
 
-					cost += this->s_j->bb.ll.y - this->s_i->bb.ur.y;
+					ret.cost += this->s_j->bb.ll.y - this->s_i->bb.ur.y;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
@@ -219,7 +219,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				}
 				else {
 
-					cost += this->s_i->bb.ll.y - this->s_j->bb.ur.y;
+					ret.cost += this->s_i->bb.ll.y - this->s_j->bb.ur.y;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
@@ -237,7 +237,7 @@ double CorblivarAlignmentReq::evaluate() const {
 		// consider the spatial mismatch as cost; distance too large
 		if (blocks_bb.h > this->alignment_y) {
 
-			cost += blocks_bb.h - this->alignment_y;
+			ret.cost += blocks_bb.h - this->alignment_y;
 
 			// annotate general alignment failure
 			this->fulfilled = false;
@@ -269,7 +269,7 @@ double CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far lowerwards, i.e., not sufficiently
 					// away from s_i
-					cost += abs(this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y);
+					ret.cost += abs(this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y);
 
 					// annotate block-alignment failure;
 					// s_j is too far lowerwards, s_i too far upwards
@@ -288,7 +288,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				else {
 					// cost includes distance b/w (upper) s_i,
 					// (lower) s_j and the failed offset
-					cost += this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y;
+					ret.cost += this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_HIGH;
@@ -305,7 +305,7 @@ double CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far upwards, i.e., not sufficiently
 					// away from s_i
-					cost += abs(this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y);
+					ret.cost += abs(this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y);
 
 					// annotate block-alignment failure;
 					// s_j is too far upwards, s_i too far
@@ -325,7 +325,7 @@ double CorblivarAlignmentReq::evaluate() const {
 				else {
 					// cost includes distance b/w (lower) s_i,
 					// (upper) s_j and the failed (negative) offset
-					cost += this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y;
+					ret.cost += this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y;
 
 					// annotate block-alignment failure
 					this->s_i->alignment = Block::AlignmentStatus::FAIL_VERT_TOO_LOW;
@@ -337,6 +337,12 @@ double CorblivarAlignmentReq::evaluate() const {
 			this->fulfilled = false;
 		}
 	}
+
+	// memorize the actual mismatch
+	ret.actual_mismatch = ret.cost;
+
+	// weight the cost w/ signals count
+	ret.cost *= this->signals;
 
 	// dbg logging for alignment
 	if (CorblivarAlignmentReq::DBG) {
@@ -350,9 +356,10 @@ double CorblivarAlignmentReq::evaluate() const {
 			std::cout << "DBG_ALIGNMENT>  Failure" << std::endl;
 			std::cout << "DBG_ALIGNMENT>   block " << this->s_i->id << ": " << this->s_i->alignment << std::endl;
 			std::cout << "DBG_ALIGNMENT>   block " << this->s_j->id << ": " << this->s_j->alignment << std::endl;
-			std::cout << "DBG_ALIGNMENT>   actual mismatch: " << cost << std::endl;
+			std::cout << "DBG_ALIGNMENT>   actual mismatch: " << ret.actual_mismatch << std::endl;
+			std::cout << "DBG_ALIGNMENT>   weighted cost: " << ret.cost << std::endl;
 		}
 	}
 
-	return cost;
+	return ret;
 }
