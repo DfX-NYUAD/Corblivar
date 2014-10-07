@@ -98,17 +98,7 @@ config(p,conf);
 % path for executing Corblivar without a solution file
 
 pathCbl = sprintf('%s/Corblivar %s %s %s/benches/',dir.bin, bench, conf.path ,dir.exp);		% %s will be replaced by the parameter standing behind the string
-
-% execute only when no solution file exists
-solution_file = sprintf('%s.solution', bench);
-
-if exist(solution_file, 'file') == 0
-
-	system (pathCbl);										% system function uses terminal and bash notation
-
-end
  
-%% execute Corblivar with given floorplan and initial parameters
 % path for execution of Corblivar with given solution file 
 	
 pathCblsol = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution',
@@ -121,9 +111,11 @@ pathCblsolnt = sprintf('%s/Corblivar %s %s %s/benches/ %s.solution %s >/dev/null
 
 pathHS = sprintf('%s/HotSpot.sh %s %d',dir.exp, bench, p.opt.layers.value);
 
+%% inital solution, for thermal analysis
+system (pathCbl);										% system function uses terminal and bash notation
+
 %% execute 3D-HotSpot analysis
   
-system (pathCblsol);										% system function uses terminal and bash notation
 system (pathHS);
 
 %% plot thermal and power maps with given shell script

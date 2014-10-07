@@ -3,7 +3,7 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=$root/thermal_analysis_octave
 
-exp="THERMAL_NO_opt"
+exp="THERMAL_PABA_OPT"
 benches="n100 n200 n300"
 runs=15
 

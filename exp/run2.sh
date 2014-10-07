@@ -3,11 +3,11 @@ root=~/github/Corblivar
 base=$root/exp
 #fitting=thermal_analysis_fitting
 
-exp="MI_WL_ALIGN_opt"
+exp="MI_WL_ALIGN_opt3"
 benches="n100 n200 n300"
 runs=25
 
-for die_count in 2
+for die_count in 2 3
 do
 	dies=$die_count"dies"
 
