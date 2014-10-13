@@ -55,33 +55,27 @@ if your local setup differs, adapt the script accordingly.
 
 2) Configuration of Corblivar
 -----------------------------
-**see exp/Corblivar.conf or other examples in exp/configs**
+**see exp/Corblivar.conf and exp/Technology.conf, or other examples in exp/configs/**
 
-Most relevant is the section "3D-IC parameters", i.e., the number of layers in the IC
-stack and the fixed, common outline of these layers.
+Technology parameters like die dimensions and TSV sizes are configured in
+exp/Technology.conf
 
-The section "SA -- Layout generation options" can be used to configure the optimization
-heuristic. Reasonable values depend on the experiments under consideration. Some options,
-like power-aware block handling, are to be considered carefully. The latter acts as a
-hard constraint such that blocks with high power consumption are placed in the upper
-layer, nearest to the heatsink. Note that this has the largest positive impact on thermal
-management, i.e., notably greater impact than thermal-aware placement within separate
-layers. This option may, however, render some specific block-alignment configurations
-infeasible. For example, two high-power blocks could then not be aligned across layers
-for embedding of vertical buses.
+In exp/Corblivar.conf,
+the section "SA -- Layout generation options" can be used to configure the optimization
+heuristic. Reasonable values depend on the experiments under consideration.
 
 The sections "SA -- Loop parameters" and "SA -- Temperature schedule parameters" control
 the runtime behaviour of the optimization. These values can impact the success rate,
-especially for ``tight'' configurations with many block-alignment requests and/or dense
+especially for ``complex'' experiments with many block-alignment requests and/or dense
 packing. The latter section, however, is considered to be applicable for different
 experiments---the adaptive SA-optimization schedule draws the cooling parameters somewhat
-non-relevant since local minima in the solution space can be escaped easily by iterative
-temperature increases.
+robust since local minima in the solution space can be escaped easily by iterative
+temperature increases (cooling phase 3).
 
 The section "SA -- Factors for second-phase cost function" controls the various
 optimization modules; the related values should be adapted to reflect the desired
-optimization cost function. Note that zero values deactivates the respective optimization
-completely and thus allows to save some runtime.
+cost function. Note that zero values deactivate the respective optimization
+completely and thus allows to save runtime.
 
 The section "Power blurring (thermal analysis) -- Default thermal-mask parameters" can be
 left as is; the related parametrization is done via separate scripts, as described in the
@@ -89,30 +83,31 @@ next step.
 
 3) Parametrization of Power-Blurring Thermal Analysis
 -----------------------------------------------------
-**see thermal_analysis_fitting/ and doc/therma_analysis_octave.pdf**
+**see thermal_analysis_octave/ and doc/therma_analysis_octave.pdf**
 
-As indicated in 2), the thermal-mask parameters are obtained separately. The related
+As indicated in 2), the thermal-mask parameters are determined separately. The related
 Octave scripts should be run whenever the 3D-IC setup changes notably, i.e., when the
 number of layers, the outline, the heatsink, and/or the (magnitude of) power consumption
 of the benchmarks changes.
 
-To configure the Octave scripts, see thermal_analysis_fitting/parameters.m
+To configure the Octave scripts, see thermal_analysis_octave/parameters.m Note that
+given default parameters should be applicable for most GSRC-benchmarks-based experiments.
 
-To run the Octave scripts, either change directory to thermal_analysis_fitting/ and start
+To run the Octave scripts, either change directory to thermal_analysis_octave/ and start
 scripts from there (octave optimization.m BENCH CORBLIVAR.CONF), or copy the scripts from
-thermal_analysis_fitting/ to separate working directories; see below and/or exp/run9.sh
+thermal_analysis_octave/ to separate working directories; see below and/or exp/run9.sh
 for further details.
 
-The Octave scripts work like this: first, generate a floorplan solution; second, run
-HotSpot on this solution (note that specific and heterogeneous TSV densities are considered here);
+The Octave scripts work roughly like this: first, generate an initial floorplan solution, used as a baseline reference; second, run
+HotSpot on this solution (note that specific values for heterogeneous TSV densities are already considered here);
 third, match the power-blurring temperature map to the HotSpot map via a local search;
 fourth, output the related power-blurring parameters for the best match, which describes
 the HotSpot estimate most closely. For further details, see documentation_Octave.pdf.
 
-Note that Corblivar models the thermal impact of both regular signal TSVs and vertical
-buses, i.e., large TSV groups. Currently, regular signal TSVs are assumed placable within
-their related nets' bounding boxes, i.e., their superposed TSV densities are accordingly
-spread across the whole 3D-IC. Also, vertical buses are assumed to have tightest possible
+Note that Corblivar can model the thermal impact of both regular signal TSVs and vertical
+buses, i.e., large TSV groups. Regular signal TSVs are, however, only considered when the
+layout-generation option "Clustering of signal TSVs" is activated.
+Vertical buses are assumed to have tightest possible
 packing of multiple TSVs (100% TSV density) for the whole bus region, even if fewer TSVs
 would suffice for signal transmission.
 
@@ -132,7 +127,7 @@ in the related working directory.
 
 Comments
 ========
-**The further comments below are for understanding of the Corblivar tool and its structure**
+**The further comments below are for better understanding of the Corblivar tool and its structure**
 
 Various experiments can be started using exp/run*.sh; these scripts are not a complete
 set for running all experiments but rather a guideline for different setups.
@@ -140,10 +135,10 @@ set for running all experiments but rather a guideline for different setups.
 The folder exp/benches/ includes MCNC (some are not working, i.e., have issues with their
 content), GSRC, and IBM-HB+ benchmarks, all in the GSRC format
 
-The folder thermal_analysis_fitting/ includes Octave scripts for the parameterization of
+The folder thermal_analysis_octave/ includes Octave scripts for the parameterization of
 the power-blurring-based thermal analysis; they can be also included e.g. in run*.sh
 scripts.  Note that these scripts will produce temporary output data in
-thermal_analysis_fitting/, i.e., you might want to copy thermal_analysis_fitting/ into
+thermal_analysis_octave/, i.e., you might want to copy thermal_analysis_octave/ into
 separate working directories for parallel execution of different experiments, to avoid
 mixed up data. See for example exp/run9.sh
 
@@ -161,6 +156,24 @@ with ~/code/HotSpot is the default setup which should be working in any case.
 
 Changelog
 =========
+
+1.2.0
+-----
+*October 13, 2014, commit 3f770ef4302729f6aa253ecdb65d2ffbb6c2ffbb*
+**major updates (alignment encoding and handling, consideration of interconnects' HPWL),
+new features (clustering of signal TSVs and related hotspot determination), and various fixes and cleanups**
+- added handling for TSV blocks
+- added feature; clustering of signal TSVs into vertical buses, related features like blob-detection-based hotspot determination and handling of vertical buses during thermal analysis
+- update alignment encoding; added global type (strict, flexible) and signals count
+- update alignment handling; added dedicated swap operations for failed alignments
+- update massive-interconnects handling; consider interconnects' weighted HPWL during optimization (for fair comparison and better final results)
+- updates folder structure
+- added Technology.conf; separate file for technology parameters
+- updates and cleanups classes, code structure, and namespace
+- updates experimental setups and configs
+- updates and fixes octave scripts for thermal analysis
+- updates and fixes HotSpot file generation
+- various further fixes and updates
 
 1.1.1
 -----
