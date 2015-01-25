@@ -91,7 +91,7 @@ class Net {
 				std::cout << "DBG_NET>   Determine bb for net " << this->id << " on layer " << layer << std::endl;
 			}
 
-			// blocks / pins for cur_net on this layer
+			// blocks for cur_net on this layer
 			for (Block const* b : this->blocks) {
 
 				// blocks
@@ -102,18 +102,17 @@ class Net {
 						std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << std::endl;
 					}
 				}
+			}
 
-				// also consider routes to terminal pins; only on lowest
-				// die of stack since connections b/w terminal pins and
-				// blocks on upper dies are routed through the TSV in that
-				// lowermost die
-				if (layer == 0) {
-					for (Pin const* pin :  this->terminals) {
-						blocks_to_consider.push_back(&pin->bb);
+			// also consider terminal pins; only on lowest die of stack since
+			// connections b/w terminal pins and blocks on upper dies are
+			// routed through the TSV in that lowermost die
+			if (layer == 0) {
+				for (Pin const* pin :  this->terminals) {
+					blocks_to_consider.push_back(&pin->bb);
 
-						if (Net::DBG) {
-							std::cout << "DBG_NET> 	Consider terminal pin " << pin->id << std::endl;
-						}
+					if (Net::DBG) {
+						std::cout << "DBG_NET> 	Consider terminal pin " << pin->id << std::endl;
 					}
 				}
 			}
