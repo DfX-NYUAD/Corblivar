@@ -604,6 +604,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Layout generation; packing iterations: " << fp.layoutOp.parameters.packing_iterations << std::endl;
 		std::cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.power_aware_block_handling << std::endl;
 		std::cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << std::endl;
+		std::cout << "IO>  SA -- Layout generation; signal-TSV clustering: " << fp.layoutOp.parameters.signal_TSV_clustering << std::endl;
 
 		// SA loop setup
 		std::cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.schedule.loop_factor << std::endl;
