@@ -74,8 +74,8 @@ class CorblivarAlignmentReq {
 			   ) {
 
 				// negative range can be trivially resolved
-				this->alignment_x = abs(this->alignment_x);
-				this->alignment_y = abs(this->alignment_y);
+				this->alignment_x = std::abs(this->alignment_x);
+				this->alignment_y = std::abs(this->alignment_y);
 			}
 		};
 

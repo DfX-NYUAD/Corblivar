@@ -128,7 +128,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far left, i.e., not sufficiently away
 					// from s_i
-					ret.cost += abs(this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x);
+					ret.cost += std::abs(this->s_j->bb.ll.x - this->s_i->bb.ll.x - this->alignment_x);
 
 					// annotate block-alignment failure;
 					// s_j is too far left, s_i too far right
@@ -163,7 +163,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far right, i.e., not sufficiently away
 					// from s_i
-					ret.cost += abs(this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x);
+					ret.cost += std::abs(this->s_i->bb.ll.x - this->s_j->bb.ll.x + this->alignment_x);
 
 					// annotate block-alignment failure;
 					// s_j is too far right, s_i too far left
@@ -269,7 +269,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far lowerwards, i.e., not sufficiently
 					// away from s_i
-					ret.cost += abs(this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y);
+					ret.cost += std::abs(this->s_j->bb.ll.y - this->s_i->bb.ll.y - this->alignment_y);
 
 					// annotate block-alignment failure;
 					// s_j is too far lowerwards, s_i too far upwards
@@ -305,7 +305,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 					// abs required for cases where s_j is too
 					// far upwards, i.e., not sufficiently
 					// away from s_i
-					ret.cost += abs(this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y);
+					ret.cost += std::abs(this->s_i->bb.ll.y - this->s_j->bb.ll.y + this->alignment_y);
 
 					// annotate block-alignment failure;
 					// s_j is too far upwards, s_i too far

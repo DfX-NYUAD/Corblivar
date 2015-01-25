@@ -355,7 +355,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 			// they are close to the related chip boundaries
 			if (
 					extend_boundary_blocks_into_padding_zone &&
-					abs(die_outline.x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
+					std::abs(die_outline.x - block.bb.ur.x) < this->padding_right_boundary_blocks_distance
 			   ) {
 				// consider offset twice in order to reach right/uppper
 				// boundary related to layout described by padded power map
@@ -369,7 +369,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 
 			if (
 					extend_boundary_blocks_into_padding_zone
-					&& abs(die_outline.y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
+					&& std::abs(die_outline.y - block.bb.ur.y) < this->padding_upper_boundary_blocks_distance
 			   ) {
 				block_offset.ur.y = die_outline.y + 2.0 * this->blocks_offset_y;
 			}

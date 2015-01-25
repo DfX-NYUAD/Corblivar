@@ -376,7 +376,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 
 	// sanity check for sum of cost factors
-	if (abs(fp.weights.thermal + fp.weights.WL + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
+	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}

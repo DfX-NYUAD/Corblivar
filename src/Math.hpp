@@ -91,7 +91,7 @@ class Math {
 
 		// comparison of double values, allows minor deviation
 		inline static bool doubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
-			return abs(d1 - d2) < precision;
+			return std::abs(d1 - d2) < precision;
 		};
 
 		// factor to scale um downto m;
