@@ -36,6 +36,7 @@ class Clustering {
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_HOTSPOT = false;
 		static constexpr bool DBG_CLUSTERING = false;
+		static constexpr bool DBG_CLUSTERING_FINAL= false;
 	public:
 		static constexpr bool DBG_HOTSPOT_PLOT = false;
 

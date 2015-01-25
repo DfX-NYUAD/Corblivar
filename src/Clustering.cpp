@@ -34,7 +34,7 @@
 // operation does not alter the thermal profile _significantly_ this appears a valid
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
-// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.
+// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
 void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::list<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::list<Segments>::iterator it_seg;
@@ -46,13 +46,6 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 
 	if (Clustering::DBG) {
 		std::cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << std::endl;
-	}
-
-	// sanity check for available thermal-analysis result; note that these results are
-	// for example _not_ available during the very first run of SA Phase II where
-	// interconnects (and thus this function) are evaluated before the thermal profile
-	if (thermal_analysis.thermal_map == nullptr) {
-		return;
 	}
 
 	// reset previous hotspots and re-determine hotspots according to (previous!)
@@ -149,6 +142,11 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 						// considering the most critical ones
 						// first, done via iteration of
 						// score-sorted map
+						//
+						// note that this step is implicitly
+						// ignored when thermal optimization and
+						// thus thermal analysis are deactivated
+						//
 						for (it_hotspot = this->hotspots.begin(); it_hotspot != this->hotspots.end(); ++it_hotspot) {
 
 							intersection = Rect::determineIntersection(cluster, (*it_hotspot).second.bb);
@@ -223,9 +221,10 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 		}
 
 		// dbg, display all cluster
-		if (Clustering::DBG_CLUSTERING) {
+		if (Clustering::DBG_CLUSTERING_FINAL) {
 
 			std::cout << "DBG_CLUSTERING> final set of clusters on layer " << i << ":" << std::endl;
+			std::cout << "DBG_CLUSTERING>" << std::endl;
 
 			for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
@@ -255,7 +254,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 			if ((*it_cluster).hotspot_id >= 0) {
 				TSVs.emplace_back(TSV_Island(
 						// cluster id
-						"cluster__hotspot_" + std::to_string((*it_cluster).hotspot_id),
+						"TSVs_hotspot_" + std::to_string((*it_cluster).hotspot_id),
 						// signal / TSV count
 						(*it_cluster).nets.size(),
 						// TSV pitch; required for proper scaling
@@ -271,7 +270,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 			else {
 				TSVs.emplace_back(TSV_Island(
 						// cluster id
-						"cluster__no_hotspot",
+						"TSVs",
 						// signal / TSV count
 						(*it_cluster).nets.size(),
 						// TSV pitch; required for proper scaling
@@ -309,6 +308,13 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	std::map<double, Hotspot, std::greater<double>>::iterator it4;
 	Hotspot *cur_hotspot;
 	bool bin_handled;
+
+	// sanity check for available thermal-analysis result; note that these results are
+	// for example _not_ available during the very first run of SA Phase II where
+	// interconnects (and thus this function) are evaluated before the thermal profile
+	if (thermal_analysis.thermal_map == nullptr) {
+		return;
+	}
 
 	// reset hotspot regions
 	this->hotspots.clear();
