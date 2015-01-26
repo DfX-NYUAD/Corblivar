@@ -1053,6 +1053,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					// vector, which is easier to handle during
 					// clustering
 					nets_segments[i].push_back({&cur_net, bb});
+
+					if (Net::DBG) {
+						std::cout << "DBG_NET> 		Consider bounding box for clustering; HPWL: " << (bb.w + bb.h) << std::endl;
+					}
 				}
 			}
 		}
