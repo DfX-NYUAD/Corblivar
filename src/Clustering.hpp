@@ -47,12 +47,12 @@ class Clustering {
 	public:
 		// POD wrapping nets' segments
 		struct Segments {
-			Net const* net;
+			Net* net;
 			Rect bb;
 		};
 		// POD wrapping net clusters
 		struct Cluster {
-			std::list<Net const*> nets;
+			std::list<Net*> nets;
 			Rect bb;
 			int hotspot_id;
 		};

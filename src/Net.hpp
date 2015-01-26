@@ -53,6 +53,7 @@ class Net {
 		int id;
 		bool hasExternalPin;
 		std::vector<Block const*> blocks;
+		std::vector<TSV_Island const*> TSVs;
 		std::vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
@@ -100,6 +101,19 @@ class Net {
 
 					if (Net::DBG) {
 						std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << std::endl;
+					}
+				}
+			}
+
+			// TSVs for cur_net on this layer
+			for (TSV_Island const* t : this->TSVs) {
+
+				// TSVs
+				if (t->layer == layer) {
+					blocks_to_consider.push_back(&t->bb);
+
+					if (Net::DBG) {
+						std::cout << "DBG_NET> 	Consider TSV island " << t->id << " on layer " << layer << std::endl;
 					}
 				}
 			}

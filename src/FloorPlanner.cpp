@@ -960,6 +960,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// reset TSVs
 	this->TSVs.clear();
 
+	// reset TSVs also from nets
+	for (Net& cur_net : this->nets) {
+		cur_net.TSVs.clear();
+	}
+
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
@@ -1073,7 +1078,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
 	}
-
+	
 	// consider alignments' HWPL components; note that this function does not account
 	// for the alignments' TSVs, this is done in evaluateAlignments()
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {

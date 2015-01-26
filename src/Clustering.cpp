@@ -38,11 +38,12 @@
 void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::list<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::list<Segments>::iterator it_seg;
-	std::list<Net const*>::iterator it_net;
+	std::list<Net*>::iterator it_net;
 	Rect intersection, cluster;
 	bool all_clustered;
 	std::map<double, Hotspot, std::greater<double>>::iterator it_hotspot;
 	std::list<Cluster>::iterator it_cluster;
+	TSV_Island* TSVi;
 
 	if (Clustering::DBG) {
 		std::cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << std::endl;
@@ -123,13 +124,13 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 						this->clusters[i].push_back({
 								// init list of nets with
 								// this initial net
-								std::list<Net const*>(1, (*it_seg).net),
+								std::list<Net*>(1, (*it_seg).net),
 								// init enclosing bb with
 								// this initial net
 								(*it_seg).bb,
-								// init hotspot id;
-								// currently undefined
-								-1
+								// init hotspot id w/
+								// initial net
+								(*it_seg).net->id
 							});
 
 						// memorize initial cluster
@@ -248,40 +249,33 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 
 		// derive TSV islands from clusters and store into global TSV container;
 		// they will will be handled and plotted in the TSV-density maps
+		//
+		// also link TSVs (blocks) to the respective nets; this is required for
+		// more accurate wirelength estimation
+		//
 		for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
-			// consider associated hotspot id for naming the cluster
-			if ((*it_cluster).hotspot_id >= 0) {
-				TSVs.emplace_back(TSV_Island(
-						// cluster id
-						"TSVs_hotspot_" + std::to_string((*it_cluster).hotspot_id),
-						// signal / TSV count
-						(*it_cluster).nets.size(),
-						// TSV pitch; required for proper scaling
-						// of TSV island
-						TSV_pitch,
-						// cluster bb; reference point for
-						// placement of TSV island
-						(*it_cluster).bb,
-						// layer assignment
-						i
-					));
-			}
-			else {
-				TSVs.emplace_back(TSV_Island(
-						// cluster id
-						"TSVs",
-						// signal / TSV count
-						(*it_cluster).nets.size(),
-						// TSV pitch; required for proper scaling
-						// of TSV island
-						TSV_pitch,
-						// cluster bb; reference point for
-						// placement of TSV island
-						(*it_cluster).bb,
-						// layer assignment
-						i
-					));
+			TSVi = new TSV_Island(
+					// cluster id
+					"TSVs__" + std::to_string((*it_cluster).hotspot_id),
+					// signal / TSV count
+					(*it_cluster).nets.size(),
+					// TSV pitch; required for proper scaling
+					// of TSV island
+					TSV_pitch,
+					// cluster bb; reference point for
+					// placement of TSV island
+					(*it_cluster).bb,
+					// layer assignment
+					i
+				);
+
+			// store in global TSVs container
+			TSVs.push_back(*TSVi);
+
+			// link TSV block to each associated net
+			for (it_net = (*it_cluster).nets.begin(); it_net != (*it_cluster).nets.end(); ++it_net) {
+				(*it_net)->TSVs.push_back(TSVi);
 			}
 		}
 	}
