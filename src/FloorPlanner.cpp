@@ -1025,6 +1025,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
 
+				if (Net::DBG) {
+					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
+				}
+
 				// memorize bounding boxes for nets connecting further up
 				// (i.e., requiring a TSV); to be used later on for
 				// clustering
@@ -1049,10 +1053,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					// vector, which is easier to handle during
 					// clustering
 					nets_segments[i].push_back({&cur_net, bb});
-				}
-
-				if (Net::DBG) {
-					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
 				}
 			}
 		}
