@@ -85,6 +85,7 @@ class Net {
 			int i;
 			std::vector<Rect const*> blocks_to_consider;
 			bool blocks_above_considered;
+			bool TSV_in_layer;
 			// dummy return value
 			Rect bb;
 
@@ -105,12 +106,14 @@ class Net {
 				}
 			}
 
-			// TSVs for cur_net on this layer
+			// TSV for cur_net on this layer
+			TSV_in_layer = false;
 			for (TSV_Island const* t : this->TSVs) {
 
 				// TSVs
 				if (t->layer == layer) {
 					blocks_to_consider.push_back(&t->bb);
+					TSV_in_layer = true;
 
 					if (Net::DBG) {
 						std::cout << "DBG_NET> 	Consider TSV island " << t->id << " on layer " << layer << std::endl;
@@ -140,26 +143,49 @@ class Net {
 			// reasonable bounding box on current layer w/o actual placement
 			// of TSVs; the layer to consider is not necessarily the adjacent
 			// one, thus stepwise consider layers until some blocks are found
-			blocks_above_considered = false;
-			i = layer + 1;
-			while (i <= this->layer_top) {
-				for (Block const* b : this->blocks) {
-					if (b->layer == i) {
-						blocks_to_consider.push_back(&b->bb);
-						blocks_above_considered = true;
+			//
+			// note that this is only required when no TSV is placed yet on
+			// this layer
+			if (!TSV_in_layer) {
 
-						if (Net::DBG) {
-							std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << std::endl;
+				blocks_above_considered = false;
+				i = layer + 1;
+
+				while (i <= this->layer_top) {
+
+					for (Block const* b : this->blocks) {
+						if (b->layer == i) {
+							blocks_to_consider.push_back(&b->bb);
+							blocks_above_considered = true;
+
+							if (Net::DBG) {
+								std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << std::endl;
+							}
 						}
 					}
-				}
 
-				// loop handler
-				if (blocks_above_considered) {
-					break;
+					// loop handler
+					if (blocks_above_considered) {
+						break;
+					}
+					else {
+						i++;
+					}
 				}
-				else {
-					i++;
+			}
+
+			// also consider TSV from layer below; required to estimated routing to the respective landing pad
+			if (layer > 0) {
+
+				for (TSV_Island const* t : this->TSVs) {
+
+					if (t->layer == layer - 1) {
+						blocks_to_consider.push_back(&t->bb);
+
+						if (Net::DBG) {
+							std::cout << "DBG_NET> 	Consider TSV island " << t->id << " on layer " << layer - 1 << std::endl;
+						}
+					}
 				}
 			}
 
@@ -169,7 +195,7 @@ class Net {
 			if (blocks_to_consider.size() == 1 && layer == this->layer_top) {
 
 				if (Net::DBG) {
-					std::cout << "DBG_NET> 	Ignore single block on uppermost layer" << std::endl;
+					std::cout << "DBG_NET> 	  Ignore single block on uppermost layer" << std::endl;
 				}
 
 				return bb;
