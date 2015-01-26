@@ -1067,11 +1067,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 		// determine TSV count
 		cost.TSVs += cur_net.layer_top - cur_net.layer_bottom;
-		// also consider that terminal pins require TSV connections to the
-		// lowermost die
-		if (!cur_net.terminals.empty()) {
-			cost.TSVs += cur_net.layer_bottom;
-		}
 
 		if (Net::DBG) {
 			std::cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << std::endl;
