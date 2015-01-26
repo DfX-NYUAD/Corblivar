@@ -264,7 +264,10 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 					// of TSV island
 					TSV_pitch,
 					// cluster bb; reference point for
-					// placement of TSV island
+					// placement of TSV island;
+					//
+					// note that proper sizing is done via
+					// TSV_Island() constructor!
 					(*it_cluster).bb,
 					// layer assignment
 					i
