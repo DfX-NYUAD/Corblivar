@@ -1076,7 +1076,37 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 	// perform clustering of regular signal TSVs into TSV islands
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
+
+		// actual clustering
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
+
+		// after clustering, we can obtain a more accurate wirelength estimation
+		// by considering TSVs' positions as well
+		//
+		// reset previous HPWL
+		cost.HPWL = 0.0;
+
+		// determine HPWL for each net
+		for (Net& cur_net : this->nets) {
+
+			if (Net::DBG) {
+				std::cout << "DBG_NET> Determine HPWL (w/ consideration of TSV positions) for net " << cur_net.id << std::endl;
+			}
+
+			// determine HPWL on each related layer separately
+			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+
+				// determine HPWL using the net's bounding box on the current
+				// layer
+				bb = cur_net.determBoundingBox(i);
+				cost.HPWL += bb.w;
+				cost.HPWL += bb.h;
+
+				if (Net::DBG) {
+					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
+				}
+			}
+		}
 	}
 	
 	// consider alignments' HWPL components; note that this function does not account
