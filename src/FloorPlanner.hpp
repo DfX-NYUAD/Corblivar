@@ -343,6 +343,9 @@ class FloorPlanner {
 			// this also requires to reset the power maps setting
 			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
+			// and the routing-estimation maps have to be reset as well
+			this->routingCong.initCongMaps(this->IC.layers, this->getOutline());
+
 			// reset related die properties
 			this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
 			this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
