@@ -1009,6 +1009,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			cost.HPWL += bb.w;
 			cost.HPWL += bb.h;
 
+			// consider impact on routing-utilization; only in case clustering
+			// is not applied (otherwise this is only done after clustering)
+			//
+			// before TSVs are placed, the net shall impact the routing
+			// utilization on all affected layers
+			if (!this->layoutOp.parameters.signal_TSV_clustering) {
+
+				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+
+					this->routingCong.adaptCongMap(i, bb);
+				}
+			}
+
 			if (Net::DBG) {
 				std::cout << "DBG_NET> 		HPWL of bounding box of blocks to consider: " << (bb.w + bb. h) << std::endl;
 			}
@@ -1016,8 +1029,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		// more detailed estimate; consider HPWL on each layer separately using
 		// layer-related bounding boxes
 		else {
-			// reset previous bb
-			prev_bb.area = 0.0;
+			// reset of prev_bb not required: for the next net, since we
+			// previously determine the respective lower layer, we guarantee
+			// that at least one block is in that lowermost layer, i.e., that
+			// a non-empty bb can be constructed
 
 			// determine HPWL on each related layer separately
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
@@ -1032,39 +1047,46 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
 				}
 
+				// determBoundingBox may also return empty bounding boxes,
+				// namely for nets w/o blocks on the currently considered
+				// layer. Then, we need to consider the non-empty box from
+				// one of the layers below in order to provide a net's bb
+				// for clustering
+				if (bb.area == 0.0) {
+					bb = prev_bb;
+				}
+				// memorize current non-empty bb as previous bb for next
+				// iteration
+				else {
+					prev_bb = bb;
+				}
+
 				// memorize bounding boxes for nets connecting further up
 				// (i.e., requiring a TSV); to be used later on for
 				// clustering
-				if (i != cur_net.layer_top) {
+				if (i < cur_net.layer_top) {
 
-					// determBoundingBox may also return empty
-					// bounding boxes, especially for nets w/o blocks
-					// on the currently considered layer. Then, we
-					// need to consider the non-empty box from one of
-					// the layers below in order to provide a net's bb
-					// for clustering
-					if (bb.area == 0.0) {
-						bb = prev_bb;
-					}
-					// memorize current non-empty bb as previous bb
-					// for next iteration
-					else {
-						prev_bb = bb;
-					}
-
-					// store bb as net segment; store in layer-wise
-					// vector, which is easier to handle during
-					// clustering
+					// store bb as net segment; store in layer-wise vector,
+					// which is easier to handle during clustering
 					nets_segments[i].push_back({&cur_net, bb});
 
 					if (Net::DBG) {
 						std::cout << "DBG_NET> 		Consider bounding box for clustering; HPWL: " << (bb.w + bb.h) << std::endl;
 					}
 				}
+
+				// consider impact on routing-utilization; only in case
+				// clustering is not applied (otherwise this is only done
+				// after clustering)
+				//
+				// before TSVs are placed, the net shall impact the
+				// routing utilization on all affected layers
+				if (!this->layoutOp.parameters.signal_TSV_clustering) {
+
+					this->routingCong.adaptCongMap(i, bb);
+				}
 			}
 		}
-
-		// TODO estimate routing congestion w/o clustering
 
 		if (Net::DBG) {
 			prev_TSVs = cost.TSVs;
