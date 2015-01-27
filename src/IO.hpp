@@ -57,7 +57,7 @@ class IO {
 		static void writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& file_suffix = "");
 		static void writeHotSpotFiles(FloorPlanner const& fp);
 		// non-const reference due to map acces via []
-		static void writePowerThermalTSVMaps(FloorPlanner& fp);
+		static void writeMaps(FloorPlanner& fp);
 		static void writeTempSchedule(FloorPlanner const& fp);
 };
 

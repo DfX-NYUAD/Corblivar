@@ -639,8 +639,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 	// thermal-analysis files
 	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {
-		// generate power, thermal and TSV-density maps
-		IO::writePowerThermalTSVMaps(*this);
+		// generate power, thermal, routing-utilization and TSV-density maps
+		IO::writeMaps(*this);
 		// generate HotSpot files
 		IO::writeHotSpotFiles(*this);
 	}

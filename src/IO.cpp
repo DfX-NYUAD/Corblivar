@@ -1347,13 +1347,13 @@ void IO::parseNets(FloorPlanner& fp) {
 
 }
 
-void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
+void IO::writeMaps(FloorPlanner& fp) {
 	std::ofstream gp_out;
 	std::ofstream data_out;
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
-	enum FLAGS : int {POWER = 0, THERMAL = 1, TSV_DENSITY = 2};
+	enum FLAGS : int {POWER = 0, THERMAL = 1, ROUTING = 2, TSV_DENSITY = 3};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
 	int id;
@@ -1370,7 +1370,7 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			std::cout << "Generating thermal map ..." << std::endl;
 		}
 		else {
-			std::cout << "Generating power maps, TSV-density maps, and thermal map ..." << std::endl;
+			std::cout << "Generating power maps, routing-utilization maps, TSV-density maps, and thermal map ..." << std::endl;
 		}
 	}
 
@@ -1378,7 +1378,8 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	//
 	// flag=0: generate power maps
 	// flag=1: generate thermal map
-	// flag=2: generate TSV-density map
+	// flag=2: generate routing-utilization map
+	// flag=3: generate TSV-density map
 	//
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
@@ -1394,13 +1395,13 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 	// actual map generation	
 	for (flag = flag_start; flag <= flag_stop; flag++) {
 
-		// power and TSV-density maps for all layers
-		if (flag == FLAGS::POWER || flag == FLAGS::TSV_DENSITY) {
-			layer_limit = fp.IC.layers;
-		}
 		// thermal map only for layer 0
-		else if (flag == FLAGS::THERMAL) {
+		if (flag == FLAGS::THERMAL) {
 			layer_limit = 1;
+		}
+		// power, routing-utilization and TSV-density maps for all layers
+		else {
+			layer_limit = fp.IC.layers;
 		}
 
 		for (cur_layer = 0; cur_layer < layer_limit; cur_layer++) {
@@ -1419,6 +1420,10 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.data";
 			}
+			else if (flag == FLAGS::ROUTING) {
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_routing_util.gp";
+				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_routing_util.data";
+			}
 
 			// init file stream for gnuplot script
 			gp_out.open(gp_out_name.str().c_str());
@@ -1434,6 +1439,9 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
 				data_out << "# X Y TSV_density" << std::endl;
+			}
+			else if (flag == FLAGS::ROUTING) {
+				data_out << "# X Y routing_util" << std::endl;
 			}
 
 			// output grid values for power maps
@@ -1505,6 +1513,27 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 			}
+			// output grid values for routing-utilization maps
+			if (flag == FLAGS::ROUTING) {
+
+				for (x = 0; x < RoutingCongestion::CONG_MAPS_DIM; x++) {
+					for (y = 0; y < RoutingCongestion::CONG_MAPS_DIM; y++) {
+						data_out << x << "	" << y << "	" << fp.routingCong.cong_maps[cur_layer][x][y].utilization << std::endl;
+					}
+
+					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+					data_out << x << "	" << RoutingCongestion::CONG_MAPS_DIM << "	" << "0.0" << std::endl;
+
+					// blank line marks new row for gnuplot
+					data_out << std::endl;
+				}
+
+				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+				for (y = 0; y <= RoutingCongestion::CONG_MAPS_DIM; y++) {
+					data_out << RoutingCongestion::CONG_MAPS_DIM << "	" << y << "	" << "0.0" << std::endl;
+				}
+
+			}
 
 			// close file stream for data file
 			data_out.close();
@@ -1518,6 +1547,9 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
 				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+			}
+			else if (flag == FLAGS::ROUTING) {
+				gp_out << "set title \"Routing-Utilization Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
 			}
 
 			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
@@ -1535,20 +1567,24 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
+			else if (flag == FLAGS::ROUTING) {
+				gp_out << "set xrange [0:" << RoutingCongestion::CONG_MAPS_DIM << "]" << std::endl;
+				gp_out << "set yrange [0:" << RoutingCongestion::CONG_MAPS_DIM << "]" << std::endl;
+			}
 
-			// power maps: scale, label for cbrange
+			// power maps
 			if (flag == FLAGS::POWER) {
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << std::endl;
 			}
-			// thermal maps: scale, label for cbrange
+			// thermal maps
 			else if (flag == FLAGS::THERMAL) {
 				// fixed scale to avoid remapping to extended range
 				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << std::endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << std::endl;
 			}
-			// TSV-density maps: scale, label for cbrange
+			// TSV-density maps
 			else if (flag == FLAGS::TSV_DENSITY) {
 				// fixed scale
 				gp_out << "set cbrange [0:100]" << std::endl;
@@ -1559,6 +1595,11 @@ void IO::writePowerThermalTSVMaps(FloorPlanner& fp) {
 				//gp_out << "set cbrange [0.1:100]" << std::endl;
 				// label for power density
 				gp_out << "set cblabel \"TSV-Density [%]\"" << std::endl;
+			}
+			// routing-util maps
+			else if (flag == FLAGS::ROUTING) {
+				// label for utilization
+				gp_out << "set cblabel \"Estimated Routing Utilization\"" << std::endl;
 			}
 
 			// tics
