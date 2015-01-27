@@ -87,9 +87,8 @@ void RoutingCongestion::initCongMaps(int const& layers, Point const& die_outline
 void RoutingCongestion::adaptCongMap(int const& layer, Rect const& net_bb, double const& net_weight) {
 	int x, y;
 	double util;
-	Rect bin, bin_intersect;
 	int x_lower, x_upper, y_lower, y_upper;
-	Rect bb;
+	Rect bb_ext;
 
 	if (RoutingCongestion::DBG_CALLS) {
 		std::cout << "-> RoutingCongestion::adaptCongMap(" << layer << ", " << net_bb.area << ", " << net_weight << ")" << std::endl;
@@ -112,43 +111,23 @@ void RoutingCongestion::adaptCongMap(int const& layer, Rect const& net_bb, doubl
 	}
 
 	// simple routing-utilization model: even distribution, as discussed in
-	// [Meister11]; this model is surprisingly accurate for practical benchmarks
-	//
+	// [Meister11]; this model is surprisingly accurate for practical benchmarks;
 	// calculate utilization according to wirelength, covered area, and net weight
-	util = net_weight * (net_bb.w + net_bb.h) / net_bb.area;
+	//
+	// for area and wirelength, we consider the (by above floor and ceil index
+	// boundaries) slightly extended bb
+	bb_ext.w = this->cong_maps_bins_ll_x[x_upper] - this->cong_maps_bins_ll_x[x_lower];
+	bb_ext.h = this->cong_maps_bins_ll_y[y_upper] - this->cong_maps_bins_ll_y[y_lower];
+	bb_ext.area = bb_ext.w * bb_ext.h;
+
+	util = net_weight * ((bb_ext.w + bb_ext.h) / bb_ext.area);
 
 	// walk cong-map bins covering intersection; adapt routing utilization
 	for (x = x_lower; x < x_upper; x++) {
 		for (y = y_lower; y < y_upper; y++) {
 
-			// consider full utilization for fully covered bins
-			if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-
-				// adapt map on affected layer
-				this->cong_maps[layer][x][y].utilization += util;
-			}
-			// else consider utilization according to partial intersection
-			// with current bin
-			else {
-				// determine real coords of map bin
-				bin.ll.x = this->cong_maps_bins_ll_x[x];
-				bin.ll.y = this->cong_maps_bins_ll_y[y];
-				// note that +1 is guaranteed to be within bounds of
-				// cong_maps_bins_ll_x/y (size =
-				// RoutingCongestion::CONG_MAPS_DIM + 1); the related last
-				// tuple describes the upper-right corner coordinates of
-				// the right/top boundary
-				bin.ur.x = this->cong_maps_bins_ll_x[x + 1];
-				bin.ur.y = this->cong_maps_bins_ll_y[y + 1];
-
-				// determine intersection
-				bin_intersect = Rect::determineIntersection(bin, net_bb);
-				// normalize to full bin area
-				bin_intersect.area /= this->cong_maps_bin_area;
-
-				// adapt map on affected layer
-				this->cong_maps[layer][x][y].utilization += util * bin_intersect.area;
-			}
+			// adapt map on affected layer
+			this->cong_maps[layer][x][y].utilization += util;
 		}
 	}
 
