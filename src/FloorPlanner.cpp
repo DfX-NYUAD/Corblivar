@@ -947,6 +947,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	std::vector< std::list<Clustering::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
+	double net_weight;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
@@ -982,6 +983,15 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		// net's blocks
 		cur_net.setLayerBoundaries();
 
+		// determine net weight, for routing-utilization estimation across
+		// multiple layers
+		if (cur_net.layer_top > cur_net.layer_bottom) {
+			net_weight = 1.0 / (cur_net.layer_top - cur_net.layer_bottom);
+		}
+		else {
+			net_weight = 1.0;
+		}
+
 		if (Net::DBG) {
 			std::cout << "DBG_NET> Determine interconnects for net " << cur_net.id << std::endl;
 		}
@@ -1013,12 +1023,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			// is not applied (otherwise this is only done after clustering)
 			//
 			// before TSVs are placed, the net shall impact the routing
-			// utilization on all affected layers
+			// utilization on all affected layers but with accordingly
+			// down-scaled weight
 			if (!this->layoutOp.parameters.signal_TSV_clustering) {
 
 				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
-					this->routingCong.adaptCongMap(i, bb);
+					this->routingCong.adaptCongMap(i, bb, net_weight);
 				}
 			}
 
@@ -1050,8 +1061,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				// determBoundingBox may also return empty bounding boxes,
 				// namely for nets w/o blocks on the currently considered
 				// layer. Then, we need to consider the non-empty box from
-				// one of the layers below in order to provide a net's bb
-				// for clustering
+				// one of the layers below in order to provide a
+				// reasonable net's bb
 				if (bb.area == 0.0) {
 					bb = prev_bb;
 				}
@@ -1061,29 +1072,29 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					prev_bb = bb;
 				}
 
-				// memorize bounding boxes for nets connecting further up
-				// (i.e., requiring a TSV); to be used later on for
-				// clustering
-				if (i < cur_net.layer_top) {
+				// for clustering; memorize bounding boxes for nets
+				// connecting further up (i.e., requiring a TSV)
+				if (this->layoutOp.parameters.signal_TSV_clustering) {
+				
+					if (i < cur_net.layer_top) {
 
-					// store bb as net segment; store in layer-wise vector,
-					// which is easier to handle during clustering
-					nets_segments[i].push_back({&cur_net, bb});
+						// store bb as net segment; store in layer-wise vector,
+						// which is easier to handle during clustering
+						nets_segments[i].push_back({&cur_net, bb});
 
-					if (Net::DBG) {
-						std::cout << "DBG_NET> 		Consider bounding box for clustering; HPWL: " << (bb.w + bb.h) << std::endl;
+						if (Net::DBG) {
+							std::cout << "DBG_NET> 		Consider bounding box for clustering; HPWL: " << (bb.w + bb.h) << std::endl;
+						}
 					}
 				}
-
 				// consider impact on routing-utilization; only in case
 				// clustering is not applied (otherwise this is only done
 				// after clustering)
-				//
-				// before TSVs are placed, the net shall impact the
-				// routing utilization on all affected layers
-				if (!this->layoutOp.parameters.signal_TSV_clustering) {
-
-					this->routingCong.adaptCongMap(i, bb);
+				else {
+					// before TSVs are placed, the net shall impact
+					// the routing utilization on all affected layers
+					// but with accordingly down-scaled weight
+					this->routingCong.adaptCongMap(i, bb, net_weight);
 				}
 			}
 		}
