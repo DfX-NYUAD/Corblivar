@@ -31,6 +31,7 @@
 #include "ThermalAnalyzer.hpp"
 #include "LayoutOperations.hpp"
 #include "Clustering.hpp"
+#include "RoutingCongestion.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class CorblivarAlignmentReq;
@@ -258,6 +259,9 @@ class FloorPlanner {
 		// clustering handler
 		Clustering clustering;
 
+		// routing-congestion analyzer
+		RoutingCongestion routingCong;
+
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {
@@ -296,6 +300,11 @@ class FloorPlanner {
 			// init thermal map, i.e., allocate data structure
 			this->thermalAnalyzer.initThermalMap(this->getOutline());
 		};
+
+		// RoutingCongestion: handler
+		inline void initRoutingCongAnalyzer() {
+			this->routingCong.initCongMaps(this->IC.layers, this->getOutline());
+		}
 
 		// getter / setter
 		inline int const& getLayers() const {

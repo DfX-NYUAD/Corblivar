@@ -50,6 +50,9 @@ int main (int argc, char** argv) {
 	// init thermal analyzer, only reasonable after parsing config file
 	fp.initThermalAnalyzer();
 
+	// init routing-congestion analyzer
+	fp.initRoutingCongAnalyzer();
+
 	// non-regular run; read in solution file
 	if (fp.inputSolutionFileOpen()) {
 

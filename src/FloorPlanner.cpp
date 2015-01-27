@@ -965,6 +965,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		cur_net.TSVs.clear();
 	}
 
+	// reset routing-congestion estimation
+	this->routingCong.resetCongMaps(this->IC.layers);
+
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
@@ -1061,6 +1064,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			}
 		}
 
+		// TODO estimate routing congestion w/o clustering
+
 		if (Net::DBG) {
 			prev_TSVs = cost.TSVs;
 		}
@@ -1079,8 +1084,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		// actual clustering
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
 
-		// after clustering, we can obtain a more accurate wirelength estimation
-		// by considering TSVs' positions as well
+		// after clustering, we can obtain a more accurate wirelength and
+		// routing-congestion estimation by considering TSVs' positions as well
 		//
 		// reset previous HPWL
 		cost.HPWL = 0.0;
@@ -1095,11 +1100,15 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			// determine HPWL on each related layer separately
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
-				// determine HPWL using the net's bounding box on the current
-				// layer
+				// determine the net's bounding box on the current layer
 				bb = cur_net.determBoundingBox(i);
+
+				// add HPWL of bb to cost
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
+
+				// update related routing-congestion map
+				this->routingCong.adaptCongMap(i, bb);
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
@@ -1108,6 +1117,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		}
 	}
 	
+	// TODO update routing-congestion
+	//
 	// consider alignments' HWPL components; note that this function does not account
 	// for the alignments' TSVs, this is done in evaluateAlignments()
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
@@ -1122,6 +1133,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 	// determine by TSVs occupied deadspace amount
 	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+
+	// TODO determine and handle routing-congestion cost
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
