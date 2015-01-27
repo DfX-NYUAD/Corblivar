@@ -81,7 +81,7 @@ class Net {
 		};
 
 
-		inline Rect determBoundingBox(int const& layer) const {
+		inline Rect determBoundingBox(int const& layer, bool const& consider_center = false) const {
 			int i;
 			std::vector<Rect const*> blocks_to_consider;
 			bool blocks_above_considered;
@@ -201,7 +201,7 @@ class Net {
 				return bb;
 			}
 
-			return Rect::determBoundingBox(blocks_to_consider);
+			return Rect::determBoundingBox(blocks_to_consider, consider_center);
 		}
 };
 
