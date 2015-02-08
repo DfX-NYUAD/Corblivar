@@ -986,7 +986,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		// determine net weight, for routing-utilization estimation across
 		// multiple layers
 		if (cur_net.layer_top > cur_net.layer_bottom) {
-			net_weight = 1.0 / (cur_net.layer_top - cur_net.layer_bottom);
+			net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
 		}
 		else {
 			net_weight = 1.0;
