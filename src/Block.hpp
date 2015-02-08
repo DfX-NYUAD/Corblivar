@@ -236,10 +236,12 @@ class TSV_Island : public Block {
 			new_bb.w = TSV_rows * TSV_pitch;
 			new_bb.h = TSV_cols * TSV_pitch;
 			new_bb.area = new_bb.w * new_bb.h;
+
 			// place new bb such into the given bb that their center points
 			// are (roughly) aligned
-			new_bb.ll.x = this->bb.ll.x + (this->bb.w - new_bb.w) / 2.0;
-			new_bb.ll.y = this->bb.ll.y + (this->bb.h - new_bb.h) / 2.0;
+			new_bb.ll.x = std::max(0.0, this->bb.ll.x + (this->bb.w - new_bb.w) / 2.0);
+			new_bb.ll.y = std::max(0.0, this->bb.ll.y + (this->bb.h - new_bb.h) / 2.0);
+
 			// determine new bb's upper bound
 			new_bb.ur.x = new_bb.ll.x + new_bb.w;
 			new_bb.ur.y = new_bb.ll.y + new_bb.h;
