@@ -1204,6 +1204,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
 	CorblivarAlignmentReq::Evaluate eval;
+	TSV_Island* island;
+	bool shift;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
@@ -1247,7 +1249,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 				for (layer = min_layer; layer < max_layer; layer++) {
 
-					this->TSVs.emplace_back(TSV_Island(
+					// define new island
+					island = new TSV_Island(
 							// bus id
 							"bus_" + req.s_i->id + "_" + req.s_j->id,
 							// signal / TSV count
@@ -1261,7 +1264,32 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							intersect,
 							// layer assignment
 							layer
-						));
+						);
+
+					// perform greedy shifting in case new island
+					// overlaps with any previous one
+					//
+					shift = true;
+					while (shift) {
+
+						shift = false;
+
+						for (TSV_Island const& prev_island : this->TSVs) {
+
+							if (prev_island.layer != island->layer) {
+								continue;
+							}
+
+							if (Rect::rectsIntersect(prev_island.bb, island->bb)) {
+
+								Rect::greedyShiftingRemoveIntersection(prev_island.bb, island->bb);
+								shift = true;
+							}
+						}
+					}
+
+					// memorize TSV in global container
+					this->TSVs.push_back(*island);
 
 					// also update global TSV counter accordingly
 					if (

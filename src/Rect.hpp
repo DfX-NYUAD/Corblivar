@@ -167,6 +167,44 @@ class Rect {
 			return ret;
 		};
 
+		inline static void greedyShiftingRemoveIntersection(Rect& a, Rect& b) {
+			Rect intersect;
+
+			intersect = Rect::determineIntersection(a, b);
+
+			// the intersection is larger in x-dimension; thus shift in the
+			// y-dimension to minimize shifting
+			if (intersect.w > intersect.h) {
+
+				// A is below B; shift B to the top
+				if (Rect::rectA_below_rectB(a, b, false)) {
+
+					b.ll.y += intersect.h;
+					b.ur.y += intersect.h;
+				}
+				// B is below A; shift A to the top
+				else {
+					a.ll.y += intersect.h;
+					a.ur.y += intersect.h;
+				}
+			}
+			// the intersection is larger in y-dimension; thus shift in the
+			// x-dimension to minimize shifting
+			else {
+				// A is left of B; shift B to the right
+				if (Rect::rectA_leftOf_rectB(a, b, false)) {
+
+					b.ll.x += intersect.w;
+					b.ur.x += intersect.w;
+				}
+				// B is left of A; shift A to the right
+				else {
+					a.ll.x += intersect.w;
+					a.ur.x += intersect.w;
+				}
+			}
+		};
+
 		inline static bool rectsIntersectVertical(Rect const& a, Rect const& b) {
 			return (
 					(a.ll.y <= b.ll.y && b.ll.y < a.ur.y) ||
