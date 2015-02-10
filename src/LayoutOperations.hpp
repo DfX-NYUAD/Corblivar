@@ -42,6 +42,7 @@ class LayoutOperations {
 	public:
 		// layout-operation handler
 		bool performRandomLayoutOp(CorblivarCore& corb,
+				int const& layout_fit_counter = 0,
 				bool const& SA_phase_two = false,
 				bool const& revertLastOp = false,
 				bool const& cooling_phase_three = false
@@ -96,6 +97,7 @@ class LayoutOperations {
 		inline bool performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpSwapAlignmentCoordinates(bool const& revert, CorblivarCore& corb, int& tuple1) const;
+		inline void prepareBlocksExceedingOutline(CorblivarCore const& corb, int& die1, int& tuple1) const;
 };
 
 #endif

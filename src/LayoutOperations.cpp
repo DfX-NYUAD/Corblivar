@@ -34,17 +34,18 @@ constexpr int LayoutOperations::OP_SWAP_BLOCKS;
 constexpr int LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
-bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
+bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
-	int die1, die2, tuple1, tuple2, juncts;
+	int die1, tuple1, die2, tuple2, juncts;
 	bool ret, swapping_failed_blocks, swapping_flexible_alignment_coordinates;
 
 	if (LayoutOperations::DBG) {
-		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
+		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
 	}
 
 	// init layout operation variables
-	die1 = die2 = tuple1 = tuple2 = juncts = -1;
+	die1 = tuple1 = die2 = tuple2 = juncts = -1;
+	swapping_failed_blocks = swapping_flexible_alignment_coordinates = false;
 
 	// revert last op
 	if (revertLastOp) {
@@ -52,11 +53,20 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	}
 	// perform new op
 	else {
-		swapping_failed_blocks = swapping_flexible_alignment_coordinates = false;
+		// special scenario:
+		// if no fitting layout at all was determined during the last
+		// step, select blocks which are exceeding the outline; for
+		// simplicity, select the rightmost or topmost one
+		if (layout_fit_counter == 0) {
 
-		// to enable guided block alignment during phase II, we consider to
-		// dedicatedly handle particular blocks of failing requests / the requests
-		// themselves;
+			// search for rightmost or topmost block; then, we perform random
+			// layout op but on specific block given by tuple1 in die1
+			this->prepareBlocksExceedingOutline(corb, die1, tuple1);
+		}
+		// another special scenario:
+		else
+		// to enable guided block alignment during phase II, we dedicatedly handle
+		// particular blocks of failing requests / the requests themselves;
 		// however, this should only be considered for cooling phase 3, i.e., when
 		// some local minima is reached; otherwise, when these operations are
 		// applied too often, the cost function will largely vary in value and is
@@ -114,13 +124,10 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 				}
 			}
 		}
-
+		//
 		// for other, regular cases or in case above operations cannot be
 		// performed, we proceed with a random operation
 		if (!swapping_failed_blocks && !swapping_flexible_alignment_coordinates) {
-
-			// reset layout operation variables
-			die1 = die2 = tuple1 = tuple2 = juncts = -1;
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
@@ -188,6 +195,42 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, bool const& SA
 	}
 
 	return ret;
+}
+
+void LayoutOperations::prepareBlocksExceedingOutline(CorblivarCore const& corb, int& die1, int& tuple1) const {
+	bool rightmost;
+	Block const* block_to_handle;
+
+
+	// randomly decide whether to handle the rightmost or topmost blocks
+	rightmost = Math::randB();	
+
+	// init search for topmost/rightmost block with first block
+	block_to_handle = corb.getDie(0).getBlock(0);
+
+	// search all blocks
+	for (int l = 0; l < this->parameters. layers; l++) {
+
+		for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
+
+			// current block further right?
+			if (rightmost) {
+				if (corb.getDie(l).getBlock(b)->bb.ur.x > block_to_handle->bb.ur.x) {
+					block_to_handle = corb.getDie(l).getBlock(b);
+					die1 = l;
+					tuple1 = b;
+				}
+			}
+			// current block further above?
+			else {
+				if (corb.getDie(l).getBlock(b)->bb.ur.y > block_to_handle->bb.ur.y) {
+					block_to_handle = corb.getDie(l).getBlock(b);
+					die1 = l;
+					tuple1 = b;
+				}
+			}
+		}
+	}
 }
 
 bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {

@@ -95,7 +95,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		ii = 1;
 		avg_cost = 0.0;
 		accepted_ops = 0;
-		layout_fit_counter = 0.0;
+		layout_fit_counter = 0;
 		SA_phase_two_init = false;
 		best_sol_found = false;
 
@@ -107,7 +107,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		while (ii <= innerLoopMax) {
 
 			// perform random layout op
-			op_success = layoutOp.performRandomLayoutOp(corb, SA_phase_two, false, (cooling_phase == TempPhase::PHASE_3));
+			op_success = layoutOp.performRandomLayoutOp(corb, layout_fit_counter, SA_phase_two, false, (cooling_phase == TempPhase::PHASE_3));
 
 			if (op_success) {
 
@@ -155,7 +155,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						accept = false;
 
 						// revert last op
-						layoutOp.performRandomLayoutOp(corb, SA_phase_two, true);
+						layoutOp.performRandomLayoutOp(corb, layout_fit_counter, SA_phase_two, true);
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
 					}
@@ -431,7 +431,9 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 
 	while (i <= SA_SAMPLING_LOOP_FACTOR * static_cast<int>(this->blocks.size())) {
 
-		op_success = layoutOp.performRandomLayoutOp(corb);
+		// trigger random op, i.e., assume some fitting layout was found
+		// previously
+		op_success = layoutOp.performRandomLayoutOp(corb, 1);
 
 		if (op_success) {
 
@@ -447,7 +449,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 			// solution w/ worse cost, revert
 			if (cost_diff > 0.0) {
 				// revert last op
-				layoutOp.performRandomLayoutOp(corb, false, true);
+				layoutOp.performRandomLayoutOp(corb, 1, false, true);
 				// reset cost according to reverted CBL
 				cur_cost = prev_cost;
 			}
