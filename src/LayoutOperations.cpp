@@ -34,13 +34,13 @@ constexpr int LayoutOperations::OP_SWAP_BLOCKS;
 constexpr int LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
-bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
+bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
 	int die1, tuple1, die2, tuple2, juncts;
 	bool ret, swapping_failed_blocks, swapping_flexible_alignment_coordinates;
 
 	if (LayoutOperations::DBG) {
-		std::cout << "-> LayoutOperations::performRandomLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
+		std::cout << "-> LayoutOperations::performLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
 	}
 
 	// init layout operation variables
@@ -64,14 +64,13 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, int const& lay
 			this->prepareBlocksExceedingOutline(corb, die1, tuple1);
 		}
 		// another special scenario:
-		else
 		// to enable guided block alignment during phase II, we dedicatedly handle
 		// particular blocks of failing requests / the requests themselves;
 		// however, this should only be considered for cooling phase 3, i.e., when
 		// some local minima is reached; otherwise, when these operations are
 		// applied too often, the cost function will largely vary in value and is
 		// thus not an appropriate measure for guided minimization anymore
-		if (SA_phase_two && this->parameters.opt_alignment && cooling_phase_three) {
+		else if (SA_phase_two && this->parameters.opt_alignment && cooling_phase_three) {
 
 			// randomly decide which operation to try first; either block
 			// swapping or swapping coordinates of flexible alignments; the
@@ -191,7 +190,7 @@ bool LayoutOperations::performRandomLayoutOp(CorblivarCore& corb, int const& lay
 	}
 
 	if (LayoutOperations::DBG) {
-		std::cout << "<- LayoutOperations::performRandomLayoutOp : " << ret << std::endl;
+		std::cout << "<- LayoutOperations::performLayoutOp : " << ret << std::endl;
 	}
 
 	return ret;

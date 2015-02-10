@@ -41,7 +41,7 @@ class LayoutOperations {
 	// public data, functions
 	public:
 		// layout-operation handler
-		bool performRandomLayoutOp(CorblivarCore& corb,
+		bool performLayoutOp(CorblivarCore& corb,
 				int const& layout_fit_counter = 0,
 				bool const& SA_phase_two = false,
 				bool const& revertLastOp = false,

@@ -106,8 +106,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 		// inner loop: layout operations
 		while (ii <= innerLoopMax) {
 
-			// perform random layout op
-			op_success = layoutOp.performRandomLayoutOp(corb, layout_fit_counter, SA_phase_two, false, (cooling_phase == TempPhase::PHASE_3));
+			// perform layout op
+			op_success = layoutOp.performLayoutOp(corb, layout_fit_counter, SA_phase_two, false, (cooling_phase == TempPhase::PHASE_3));
 
 			if (op_success) {
 
@@ -155,7 +155,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						accept = false;
 
 						// revert last op
-						layoutOp.performRandomLayoutOp(corb, layout_fit_counter, SA_phase_two, true);
+						layoutOp.performLayoutOp(corb, layout_fit_counter, SA_phase_two, true);
 						// reset cost according to reverted CBL
 						cur_cost = prev_cost;
 					}
@@ -431,9 +431,10 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 
 	while (i <= SA_SAMPLING_LOOP_FACTOR * static_cast<int>(this->blocks.size())) {
 
-		// trigger random op, i.e., assume some fitting layout was found
-		// previously
-		op_success = layoutOp.performRandomLayoutOp(corb, 1);
+		// trigger random op; assume some fitting layout was found previously such
+		// that not only blocks exceeding the outline are adapted but rather
+		// random operations are performed
+		op_success = layoutOp.performLayoutOp(corb, 1);
 
 		if (op_success) {
 
@@ -449,7 +450,7 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 			// solution w/ worse cost, revert
 			if (cost_diff > 0.0) {
 				// revert last op
-				layoutOp.performRandomLayoutOp(corb, 1, false, true);
+				layoutOp.performLayoutOp(corb, 1, false, true);
 				// reset cost according to reverted CBL
 				cur_cost = prev_cost;
 			}
