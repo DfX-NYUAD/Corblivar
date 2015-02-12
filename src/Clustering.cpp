@@ -258,7 +258,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 
 			TSVi = new TSV_Island(
 					// cluster id
-					"TSVs__" + std::to_string((*it_cluster).hotspot_id),
+					"net_cluster__" + std::to_string((*it_cluster).hotspot_id),
 					// signal / TSV count
 					(*it_cluster).nets.size(),
 					// TSV pitch; required for proper scaling
