@@ -41,6 +41,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 	std::list<Net*>::iterator it_net;
 	Rect intersection, cluster;
 	bool all_clustered;
+	bool shift;
 	std::map<double, Hotspot, std::greater<double>>::iterator it_hotspot;
 	std::list<Cluster>::iterator it_cluster;
 	TSV_Island* TSVi;
@@ -272,6 +273,28 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 					// layer assignment
 					i
 				);
+
+			// perform greedy shifting in case new island overlaps with any
+			// previous one
+			//
+			shift = true;
+			while (shift) {
+
+				shift = false;
+
+				for (TSV_Island const& prev_island : TSVs) {
+
+					if (prev_island.layer != TSVi->layer) {
+						continue;
+					}
+
+					if (Rect::rectsIntersect(prev_island.bb, TSVi->bb)) {
+
+						Rect::greedyShiftingRemoveIntersection(prev_island.bb, TSVi->bb);
+						shift = true;
+					}
+				}
+			}
 
 			// store in global TSVs container
 			TSVs.push_back(*TSVi);
