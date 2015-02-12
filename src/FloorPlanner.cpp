@@ -1156,8 +1156,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// TODO update routing-congestion
 	//
 	// consider alignments' HWPL components; note that this function does not account
-	// for the alignments' TSVs, this is done in evaluateAlignments()
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+	// for the alignments' TSVs, this is done in evaluateAlignments(); also note that
+	// this rough estimate is only required if alignments are not directly optimized,
+	// otherwise the HPWL estimation in evaluateAlignments() is more precise
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 
@@ -1374,8 +1376,7 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 		// outline, not the worst-case outer block boundaries
 		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 
-		// add (by signal count weighted) HPWL to overall HPWL; normalization of
-		// related WL cost is done below
+		// determine by signal count weighted HPWL
 		HPWL += (bb.w) * req.signals;
 		HPWL += (bb.h) * req.signals;
 	}
