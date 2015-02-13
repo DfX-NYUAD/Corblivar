@@ -133,11 +133,11 @@ class FloorPlanner {
 
 		// SA parameters: cost factors/weights
 		struct weights {
-			double thermal, WL, TSVs, alignment;
+			double thermal, WL, TSVs, alignment, routing_cong;
 		} weights;
 
 		// SA cost variables: max cost values
-		double max_cost_thermal, max_cost_WL, max_cost_alignments;
+		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_cong;
 		int max_cost_TSVs;
 
 		// SA cost parameters: global weights, enforce that area and outline
@@ -152,6 +152,8 @@ class FloorPlanner {
 			double total_cost_fitting;
 			double HPWL;
 			double HPWL_actual_value;
+			double routing_cong;
+			double routing_cong_actual_value;
 			// requires double since it contains normalized values
 			double TSVs;
 			int TSVs_actual_value;
@@ -185,7 +187,7 @@ class FloorPlanner {
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
-		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments);
+		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments, double& max_routing_util);
 		void evaluateAreaOutline(Cost& cost,
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,

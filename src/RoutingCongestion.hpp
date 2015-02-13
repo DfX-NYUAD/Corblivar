@@ -76,7 +76,7 @@ class RoutingCongestion {
 		// congestion analysis: handlers
 		void initCongMaps(int const& layers, Point const& die_outline);
 		void resetCongMaps(int const& layers);
-		void adaptCongMap(int const& layer, Rect const& net_bb, double const& net_weight = 1.0);
+		void adaptCongMap(int const& layer, Rect const& net_bb, double& max_util, double const& net_weight = 1.0);
 };
 
 #endif

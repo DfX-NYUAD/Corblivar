@@ -84,7 +84,7 @@ void RoutingCongestion::initCongMaps(int const& layers, Point const& die_outline
 	}
 }
 
-void RoutingCongestion::adaptCongMap(int const& layer, Rect const& net_bb, double const& net_weight) {
+void RoutingCongestion::adaptCongMap(int const& layer, Rect const& net_bb, double& max_util, double const& net_weight) {
 	int x, y;
 	double util;
 	int x_lower, x_upper, y_lower, y_upper;
@@ -122,12 +122,18 @@ void RoutingCongestion::adaptCongMap(int const& layer, Rect const& net_bb, doubl
 
 	util = net_weight * ((bb_ext.w + bb_ext.h) / bb_ext.area);
 
-	// walk cong-map bins covering intersection; adapt routing utilization
+	// walk cong-map bins covering intersection; adapt routing utilization and
+	// determine max utilization
 	for (x = x_lower; x < x_upper; x++) {
 		for (y = y_lower; y < y_upper; y++) {
 
 			// adapt map on affected layer
 			this->cong_maps[layer][x][y].utilization += util;
+
+			// determine max util
+			if (this->cong_maps[layer][x][y].utilization > max_util) {
+				max_util = this->cong_maps[layer][x][y].utilization;
+			}
 		}
 	}
 

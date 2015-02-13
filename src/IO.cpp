@@ -354,10 +354,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.weights.routing_cong;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.weights.TSVs;
 
 	// memorize if interconnects optimization should be performed
-	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.TSVs > 0.0);
+	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.routing_cong > 0.0 || fp.weights.TSVs > 0.0);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -370,13 +375,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.layoutOp.parameters.opt_alignment = fp.opt_flags.alignment;
 
 	// sanity check for positive cost factors
-	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
+	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.routing_cong < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
 		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
-	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
+	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.routing_cong + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}
@@ -623,6 +628,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.weights.WL << std::endl;
+		std::cout << "IO>  SA -- Cost factor for routing congestion: " << fp.weights.routing_cong << std::endl;
 		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.weights.TSVs << std::endl;
 		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.weights.alignment << std::endl;
 		if (!fp.IO_conf.alignments_file_avail) {

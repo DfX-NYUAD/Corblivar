@@ -38,7 +38,7 @@ class IO {
 
 	// private data, functions
 	private:
-		static constexpr int CONFIG_VERSION = 15;
+		static constexpr int CONFIG_VERSION = 16;
 		static constexpr int TECHNOLOGY_VERSION = 2;
 
 	// constructors, destructors, if any non-implicit
