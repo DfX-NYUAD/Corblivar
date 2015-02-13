@@ -1165,7 +1165,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// alignments are not directly optimized, otherwise the HPWL and congestion
 	// estimation in evaluateAlignments() is more precise
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
-		cost.HPWL += this->evaluateAlignmentsHPWL(alignments, cost.routing_cong_actual_value);
+		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 
 	// also consider lengths of (regular signal) TSVs in HPWL; each TSV has to pass
@@ -1389,42 +1389,44 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		}
 	}
 
-	// memorize max cost; initial sampling
-	// TODO also HPWL and other cost
+	// update routing congestion
+	cong = this->routingCong.determCost();
+	cost.routing_cong = cong.cost;
+	cost.routing_cong_actual_value = cong.max_util;
+
+	// consider lengths of additional TSVs in HPWL; each TSV has to pass the
+	// whole Si layer and the bonding layer
+	cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+	// memorize max cost; initial sampling; also consider HPWL and other adapted cost
+	// terms
 	if (set_max_cost) {
 		this->max_cost_alignments = cost.alignments;
+		this->max_cost_WL = cost.HPWL_actual_value;
+		this->max_cost_TSVs = cost.TSVs_actual_value;
+		this->max_cost_routing_cong = cost.routing_cong;
 	}
 
-	// update normalizes cost; refers to max value from initial sampling
+	// update normalized cost; refers to max value from initial sampling
 	if (this->max_cost_alignments != 0) {
 		cost.alignments /= this->max_cost_alignments;
 	}
 
-	// for considering TSVs or for finalize runs, update TSVs-related statistics
-	if (derive_TSVs || finalize) {
+	// update normalized routing congestion
+	cost.routing_cong /= this->max_cost_routing_cong;
 
-		// update normalized TSV cost; sanity check for zero TSVs cost; applies to
-		// 2D floorplanning
-		if (this->max_cost_TSVs != 0) {
-			cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
-		}
-
-		// update by TSVs occupied deadspace amount
-		cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
-
-		// consider lengths of additional TSVs in HPWL; each TSV has to pass the
-		// whole Si layer and the bonding layer
-		cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
-
-		// update normalized HPWL cost; sanity check for zero HPWL not required
-		// since max cost are initialized during first phase
-		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
-
-		// update routing congestion
-		cong = this->routingCong.determCost();
-		cost.routing_cong = cong.cost;
-		cost.routing_cong_actual_value = cong.max_util;
+	// update normalized TSV cost; sanity check for zero TSVs cost; applies to
+	// 2D floorplanning
+	if (this->max_cost_TSVs != 0) {
+		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
 	}
+
+	// update by TSVs occupied deadspace amount
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+
+	// update normalized HPWL cost; sanity check for zero HPWL not required
+	// since max cost are initialized during first phase
+	cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << std::endl;
@@ -1434,7 +1436,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 // separate determination of alignments' HPWL which is called from evaluateInterconnects;
 // this way, the HPWL components of alignments are always (for active WL optimization)
 // considered
-double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments, double& max_routing_util) {
+double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;
 	double HPWL = 0.0;
 	int min_layer, max_layer;
