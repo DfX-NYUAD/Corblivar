@@ -1228,6 +1228,21 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		cost.alignments += eval.cost;
 		cost.alignments_actual_value += eval.actual_mismatch;
 
+		// blocks are on the same layer, i.e., neither vertical bus nor require
+		// TSVs; however, this alignment impacts WL and routing congestion
+		if (req.s_i->layer == req.s_j->layer) {
+
+			routing_bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+
+			// add HPWL of bb to cost
+			cost.HPWL_actual_value += routing_bb.w * req.signals;
+			cost.HPWL_actual_value += routing_bb.h * req.signals;
+
+			// update related routing-congestion map; weight according to
+			// signals' count
+			this->routingCong.adaptCongMap(req.s_i->layer, routing_bb, cost.routing_cong_actual_value, req.signals);
+		}
+
 		// derive TSVs for vertical buses if desired or for finalize runs
 		if (derive_TSVs || finalize) {
 
