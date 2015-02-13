@@ -1196,7 +1196,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
-	Rect intersect, bb;
+	Rect intersect, bb, routing_bb;
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
 	CorblivarAlignmentReq::Evaluate eval;
@@ -1287,6 +1287,56 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 					// memorize TSV in global container
 					this->TSVs.push_back(*island);
 
+					// determine the HPWL components and routing
+					// congestion; net segments are to be considered
+					// for routing b/w the block and TSV island on the
+					// lowermost and on the topmost layer
+					if (layer == min_layer) {
+
+						// determine the routing bb, connecting
+						// the TSV island and the block on the
+						// layer of interest
+						if (layer == req.s_i->layer) {
+							routing_bb = Rect::determBoundingBox(island->bb, req.s_i->bb);
+						}
+						else {
+							routing_bb = Rect::determBoundingBox(island->bb, req.s_j->bb);
+						}
+
+						// add HPWL of bb to cost
+						cost.HPWL_actual_value += routing_bb.w;
+						cost.HPWL_actual_value += routing_bb.h;
+
+						// update related routing-congestion map;
+						// weight according to signals' count
+						this->routingCong.adaptCongMap(layer, routing_bb, req.signals);
+					}
+					// the TSV itself is not placed on the topmost
+					// layer, but rather the one below; the routing
+					// congestion, however, is impacting the top
+					// layer where routing is conducted from the block
+					// to the TSV landing pads
+					if (layer == max_layer - 1) {
+
+						// determine the routing bb, connecting
+						// the TSV island and the block on the
+						// layer of interest
+						if (layer + 1 == req.s_i->layer) {
+							routing_bb = Rect::determBoundingBox(island->bb, req.s_i->bb);
+						}
+						else {
+							routing_bb = Rect::determBoundingBox(island->bb, req.s_j->bb);
+						}
+
+						// add HPWL of bb to cost
+						cost.HPWL_actual_value += routing_bb.w;
+						cost.HPWL_actual_value += routing_bb.h;
+
+						// update related routing-congestion map;
+						// weight according to signals' count
+						this->routingCong.adaptCongMap(layer + 1, routing_bb, req.signals);
+					}
+
 					// also update global TSV counter accordingly
 					if (
 						// only for buses _not_ defined as vertical buses;
@@ -1367,10 +1417,16 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 			continue;
 		}
 
-		// derive blocks' bb; only consider center points since massive
+		// derive blocks' bb
+		// 
+		// only consider center points since massive
 		// interconnects (on average) will connect to pins within the block
-		// outline, not the worst-case outer block boundaries
-		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+		// outline, not the worst-case outer block boundaries;
+		//
+		// deactivated for now, consider outer block boundaries, as it is done in
+		// evaluateAlignments
+		//bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
 
 		// consider rough estimate for routing congestion: spread across all
 		// affected layers
