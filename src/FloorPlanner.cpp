@@ -738,17 +738,17 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
 
-		// determine interconnects cost
+		// determine interconnects cost; also determines hotspot regions and
+		// clusters signal TSVs accordingly
 		//
-		// also determines hotspot regions and clusters signal TSVs accordingly
-		if (this->opt_flags.interconnects) {
-			this->evaluateInterconnects(cost, alignments, set_max_cost);
-		}
-		// for finalize calls and when no cost was previously determined, we need
-		// to initialize the max_cost
-		else if (finalize) {
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize) {
 			this->evaluateInterconnects(cost, alignments, true);
 		}
+		else if (this->opt_flags.interconnects) {
+			this->evaluateInterconnects(cost, alignments, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
 		else {
 			cost.HPWL = cost.HPWL_actual_value = 0.0;
 			cost.routing_cong = cost.routing_cong_actual_value = 0.0;
@@ -759,17 +759,16 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// cost for failed alignments (i.e., alignment mismatches)
 		//
 		// also annotates failed request, this provides feedback for further
-		// alignment optimization
+		// alignment optimization; also derives and stores TSV islands
 		//
-		// also derives and stores TSV islands
-		if (this->opt_flags.alignment) {
-			this->evaluateAlignments(cost, alignments, true, set_max_cost);
-		}
-		// for finalize calls and when no cost was previously determined, we need
-		// to initialize the max_cost
-		else if (finalize) {
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize) {
 			this->evaluateAlignments(cost, alignments, true, true, true);
 		}
+		else if (this->opt_flags.alignment) {
+			this->evaluateAlignments(cost, alignments, true, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
 		else {
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
@@ -779,14 +778,15 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// note that vertical buses and TSV islands impact heat conduction, thus
 		// the block alignment / bus structures and interconnects are analysed
 		// before thermal distribution
-		if (this->opt_flags.thermal) {
-			this->evaluateThermalDistr(cost, set_max_cost);
-		}
-		// for finalize calls and when no cost was previously determined, we need
-		// to initialize the max_cost
-		else if (finalize) {
+		//
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize) {
 			this->evaluateThermalDistr(cost, true);
 		}
+		else if (this->opt_flags.thermal) {
+			this->evaluateThermalDistr(cost, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
 		else {
 			cost.thermal = cost.thermal_actual_value = 0.0;
 		}
