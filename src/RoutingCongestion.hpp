@@ -47,11 +47,10 @@ class RoutingCongestion {
 		struct CongBin {
 			double utilization;
 		};
-		struct CongestionResult {
-			double cost_utilization;
-			double max_utilization;
-			double std_dev_utilization;
-			std::vector< std::array< std::array<CongBin, CONG_MAPS_DIM>, CONG_MAPS_DIM> > *cong_maps = nullptr;
+		struct CongResult {
+			double cost;
+			double avg_util;
+			double max_util;
 		};
 
 	// private data, functions
@@ -76,7 +75,8 @@ class RoutingCongestion {
 		// congestion analysis: handlers
 		void initCongMaps(int const& layers, Point const& die_outline);
 		void resetCongMaps(int const& layers);
-		void adaptCongMap(int const& layer, Rect const& net_bb, double& max_util, double const& net_weight = 1.0);
+		void adaptCongMap(int const& layer, Rect const& net_bb, double const& net_weight = 1.0);
+		CongResult determCost() const;
 };
 
 #endif

@@ -960,6 +960,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	Rect bb, prev_bb;
 	double prev_TSVs;
 	double net_weight;
+	RoutingCongestion::CongResult cong;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
@@ -1037,7 +1038,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
-					this->routingCong.adaptCongMap(i, bb, cost.routing_cong_actual_value, net_weight);
+					this->routingCong.adaptCongMap(i, bb, net_weight);
 				}
 			}
 
@@ -1102,7 +1103,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					// before TSVs are placed, the net shall impact
 					// the routing utilization on all affected layers
 					// but with accordingly down-scaled weight
-					this->routingCong.adaptCongMap(i, bb, cost.routing_cong_actual_value, net_weight);
+					this->routingCong.adaptCongMap(i, bb, net_weight);
 				}
 			}
 		}
@@ -1176,11 +1177,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// determine by TSVs occupied deadspace amount
 	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
+	// determine routing congestion
+	cong = this->routingCong.determCost();
+	cost.routing_cong = cong.cost;
+	cost.routing_cong_actual_value = cong.max_util;
+
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
 		this->max_cost_WL = cost.HPWL;
 		this->max_cost_TSVs = cost.TSVs;
-		this->max_cost_routing_cong = cost.routing_cong_actual_value;
+		this->max_cost_routing_cong = cost.routing_cong;
 	}
 
 	// store actual values
@@ -1190,7 +1196,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// normalized values; max value refers to initial sampling, thus sanity check for
 	// zero cost is not required
 	cost.HPWL /= this->max_cost_WL;
-	cost.routing_cong = cost.routing_cong_actual_value / this->max_cost_routing_cong;
+	cost.routing_cong /= this->max_cost_routing_cong;
 
 	// sanity check for normalizing TSVs cost; zero max cost applies to 2D
 	// floorplanning
@@ -1212,6 +1218,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	CorblivarAlignmentReq::Evaluate eval;
 	TSV_Island* island;
 	bool shift;
+	RoutingCongestion::CongResult cong;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateAlignments(" << &cost << ", " << &alignments << ", " << derive_TSVs << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
@@ -1240,7 +1247,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 			// update related routing-congestion map; weight according to
 			// signals' count
-			this->routingCong.adaptCongMap(req.s_i->layer, routing_bb, cost.routing_cong_actual_value, req.signals);
+			this->routingCong.adaptCongMap(req.s_i->layer, routing_bb, req.signals);
 		}
 
 		// derive TSVs for vertical buses if desired or for finalize runs
@@ -1336,7 +1343,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-congestion map;
 						// weight according to signals' count
-						this->routingCong.adaptCongMap(layer, routing_bb, cost.routing_cong_actual_value, req.signals);
+						this->routingCong.adaptCongMap(layer, routing_bb, req.signals);
 					}
 					// the TSV itself is not placed on the topmost
 					// layer, but rather the one below; the routing
@@ -1361,7 +1368,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-congestion map;
 						// weight according to signals' count
-						this->routingCong.adaptCongMap(layer + 1, routing_bb, cost.routing_cong_actual_value, req.signals);
+						this->routingCong.adaptCongMap(layer + 1, routing_bb, req.signals);
 					}
 
 					// also update global TSV counter accordingly
@@ -1383,6 +1390,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// memorize max cost; initial sampling
+	// TODO also HPWL and other cost
 	if (set_max_cost) {
 		this->max_cost_alignments = cost.alignments;
 	}
@@ -1413,7 +1421,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
 
 		// update routing congestion
-		cost.routing_cong = cost.routing_cong_actual_value / this->max_cost_routing_cong;
+		cong = this->routingCong.determCost();
+		cost.routing_cong = cong.cost;
+		cost.routing_cong_actual_value = cong.max_util;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1467,7 +1477,7 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 		for (int layer = min_layer; layer <= max_layer; layer++) {
 			// update routing-congestion map; consider both (by layer count
 			// down-scaled) net weight and signal count
-			this->routingCong.adaptCongMap(layer, bb, max_routing_util, net_weight * req.signals);
+			this->routingCong.adaptCongMap(layer, bb, net_weight * req.signals);
 		}
 
 		// determine by signal count weighted HPWL
