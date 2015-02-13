@@ -1247,6 +1247,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 				intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
 			}
 
+			// either an embedded vertical bus or blocks on separate dies but
+			// not overlapping; both cases require TSVs
 			if (intersect.area != 0.0) {
 
 				// derive TSVs in all affected layers
@@ -1314,8 +1316,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						}
 
 						// add HPWL of bb to cost
-						cost.HPWL_actual_value += routing_bb.w;
-						cost.HPWL_actual_value += routing_bb.h;
+						cost.HPWL_actual_value += routing_bb.w * req.signals;
+						cost.HPWL_actual_value += routing_bb.h * req.signals;
 
 						// update related routing-congestion map;
 						// weight according to signals' count
@@ -1339,8 +1341,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						}
 
 						// add HPWL of bb to cost
-						cost.HPWL_actual_value += routing_bb.w;
-						cost.HPWL_actual_value += routing_bb.h;
+						cost.HPWL_actual_value += routing_bb.w * req.signals;
+						cost.HPWL_actual_value += routing_bb.h * req.signals;
 
 						// update related routing-congestion map;
 						// weight according to signals' count
