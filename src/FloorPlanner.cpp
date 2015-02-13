@@ -988,12 +988,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 		// determine net weight, for routing-utilization estimation across
 		// multiple layers
-		if (cur_net.layer_top > cur_net.layer_bottom) {
-			net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
-		}
-		else {
-			net_weight = 1.0;
-		}
+		net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
 
 		if (Net::DBG) {
 			std::cout << "DBG_NET> Determine interconnects for net " << cur_net.id << std::endl;
@@ -1153,12 +1148,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		}
 	}
 	
-	// TODO update routing-congestion
-	//
-	// consider alignments' HWPL components; note that this function does not account
-	// for the alignments' TSVs, this is done in evaluateAlignments(); also note that
-	// this rough estimate is only required if alignments are not directly optimized,
-	// otherwise the HPWL estimation in evaluateAlignments() is more precise
+	// consider alignments' HWPL components and related routing congestion; note that
+	// this function does not account for the alignments' TSVs, this is done in
+	// evaluateAlignments(); also note that this rough estimate is only required if
+	// alignments are not directly optimized, otherwise the HPWL and congestion
+	// estimation in evaluateAlignments() is more precise
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
@@ -1350,9 +1344,11 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 // separate determination of alignments' HPWL which is called from evaluateInterconnects;
 // this way, the HPWL components of alignments are always (for active WL optimization)
 // considered
-double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) const {
+double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;
 	double HPWL = 0.0;
+	int min_layer, max_layer;
+	int net_weight;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateAlignmentsHPWL(" << &alignments << ")" << std::endl;
@@ -1375,6 +1371,20 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 		// interconnects (on average) will connect to pins within the block
 		// outline, not the worst-case outer block boundaries
 		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+
+		// consider rough estimate for routing congestion: spread across all
+		// affected layers
+		min_layer = std::min(req.s_i->layer, req.s_j->layer);
+		max_layer = std::max(req.s_i->layer, req.s_j->layer);
+		// determine net weight, for routing-utilization estimation across
+		// multiple layers
+		net_weight = 1.0 / (max_layer + 1 - min_layer);
+
+		for (int layer = min_layer; layer <= max_layer; layer++) {
+			// update routing-congestion map; consider both (by layer count
+			// down-scaled) net weight and signal count
+			this->routingCong.adaptCongMap(layer, bb, net_weight * req.signals);
+		}
 
 		// determine by signal count weighted HPWL
 		HPWL += (bb.w) * req.signals;
