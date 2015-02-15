@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar routing-congestion analyzer
+ *    Description:  Corblivar routing-utilization analyzer
  *
  *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
  *
@@ -20,8 +20,8 @@
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_ROUTINGCONGESTION
-#define _CORBLIVAR_ROUTINGCONGESTION
+#ifndef _CORBLIVAR_ROUTING_UTIL
+#define _CORBLIVAR_ROUTING_UTIL
 
 // library includes
 #include "Corblivar.incl.hpp"
@@ -30,7 +30,7 @@
 // forward declarations, if any
 class Point;
 
-class RoutingCongestion {
+class RoutingUtilization {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = false;
@@ -39,15 +39,15 @@ class RoutingCongestion {
 	// public data
 	public:
 
-		// dimensions for routing-congestion map
-		static constexpr int CONG_MAPS_DIM = 64;
+		// dimensions for routing-utilization map
+		static constexpr int UTIL_MAPS_DIM = 64;
 
 	// PODs, to be declared early on
 	public:
-		struct CongBin {
+		struct UtilBin {
 			double utilization;
 		};
-		struct CongResult {
+		struct UtilResult {
 			double cost;
 			double avg_util;
 			double max_util;
@@ -56,13 +56,13 @@ class RoutingCongestion {
 	// private data, functions
 	private:
 
-		// congestion maps [i][x][y] whereas i relates to the layer
-		std::vector< std::array< std::array<CongBin, CONG_MAPS_DIM>, CONG_MAPS_DIM> > cong_maps;
+		// utilization maps [i][x][y] whereas i relates to the layer
+		std::vector< std::array< std::array<UtilBin, UTIL_MAPS_DIM>, UTIL_MAPS_DIM> > util_maps;
 
-		// parameters for generating congestion maps
-		double cong_maps_dim_x, cong_maps_dim_y;
-		double cong_maps_bin_area;
-		std::array<double, CONG_MAPS_DIM + 1> cong_maps_bins_ll_x, cong_maps_bins_ll_y;
+		// parameters for generating utilization maps
+		double util_maps_dim_x, util_maps_dim_y;
+		double util_maps_bin_area;
+		std::array<double, UTIL_MAPS_DIM + 1> util_maps_bins_ll_x, util_maps_bins_ll_y;
 
 
 	// constructors, destructors, if any non-implicit
@@ -72,11 +72,11 @@ class RoutingCongestion {
 	public:
 		friend class IO;
 
-		// congestion analysis: handlers
-		void initCongMaps(int const& layers, Point const& die_outline);
-		void resetCongMaps(int const& layers);
-		void adaptCongMap(int const& layer, Rect const& net_bb, double const& net_weight = 1.0);
-		CongResult determCost() const;
+		// utilization analysis: handlers
+		void initUtilMaps(int const& layers, Point const& die_outline);
+		void resetUtilMaps(int const& layers);
+		void adaptUtilMap(int const& layer, Rect const& net_bb, double const& net_weight = 1.0);
+		UtilResult determCost() const;
 };
 
 #endif

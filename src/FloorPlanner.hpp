@@ -31,7 +31,7 @@
 #include "ThermalAnalyzer.hpp"
 #include "LayoutOperations.hpp"
 #include "Clustering.hpp"
-#include "RoutingCongestion.hpp"
+#include "RoutingUtilization.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class CorblivarAlignmentReq;
@@ -133,11 +133,11 @@ class FloorPlanner {
 
 		// SA parameters: cost factors/weights
 		struct weights {
-			double thermal, WL, TSVs, alignment, routing_cong;
+			double thermal, WL, TSVs, alignment, routing_util;
 		} weights;
 
 		// SA cost variables: max cost values
-		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_cong;
+		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util;
 		int max_cost_TSVs;
 
 		// SA cost parameters: global weights, enforce that area and outline
@@ -152,8 +152,8 @@ class FloorPlanner {
 			double total_cost_fitting;
 			double HPWL;
 			double HPWL_actual_value;
-			double routing_cong;
-			double routing_cong_actual_value;
+			double routing_util;
+			double routing_util_actual_value;
 			// requires double since it contains normalized values
 			double TSVs;
 			int TSVs_actual_value;
@@ -261,8 +261,8 @@ class FloorPlanner {
 		// clustering handler
 		Clustering clustering;
 
-		// routing-congestion analyzer
-		RoutingCongestion routingCong;
+		// routing-utilization analyzer
+		RoutingUtilization routingUtil;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -303,9 +303,9 @@ class FloorPlanner {
 			this->thermalAnalyzer.initThermalMap(this->getOutline());
 		};
 
-		// RoutingCongestion: handler
-		inline void initRoutingCongAnalyzer() {
-			this->routingCong.initCongMaps(this->IC.layers, this->getOutline());
+		// RoutingUtilization: handler
+		inline void initRoutingUtilAnalyzer() {
+			this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
 		}
 
 		// getter / setter
@@ -346,7 +346,7 @@ class FloorPlanner {
 			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
 			// and the routing-estimation maps have to be reset as well
-			this->routingCong.initCongMaps(this->IC.layers, this->getOutline());
+			this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
 
 			// reset related die properties
 			this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;

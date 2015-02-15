@@ -354,7 +354,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.weights.routing_cong;
+	in >> fp.weights.routing_util;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -362,7 +362,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> fp.weights.TSVs;
 
 	// memorize if interconnects optimization should be performed
-	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.routing_cong > 0.0 || fp.weights.TSVs > 0.0);
+	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.routing_util > 0.0 || fp.weights.TSVs > 0.0);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -375,13 +375,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.layoutOp.parameters.opt_alignment = fp.opt_flags.alignment;
 
 	// sanity check for positive cost factors
-	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.routing_cong < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
+	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.routing_util < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
 		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
-	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.routing_cong + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
+	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.routing_util + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}
@@ -628,7 +628,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.weights.WL << std::endl;
-		std::cout << "IO>  SA -- Cost factor for routing congestion: " << fp.weights.routing_cong << std::endl;
+		std::cout << "IO>  SA -- Cost factor for routing utilization: " << fp.weights.routing_util << std::endl;
 		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.weights.TSVs << std::endl;
 		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.weights.alignment << std::endl;
 		if (!fp.IO_conf.alignments_file_avail) {
@@ -1522,21 +1522,21 @@ void IO::writeMaps(FloorPlanner& fp) {
 			// output grid values for routing-utilization maps
 			if (flag == FLAGS::ROUTING) {
 
-				for (x = 0; x < RoutingCongestion::CONG_MAPS_DIM; x++) {
-					for (y = 0; y < RoutingCongestion::CONG_MAPS_DIM; y++) {
-						data_out << x << "	" << y << "	" << fp.routingCong.cong_maps[cur_layer][x][y].utilization << std::endl;
+				for (x = 0; x < RoutingUtilization::UTIL_MAPS_DIM; x++) {
+					for (y = 0; y < RoutingUtilization::UTIL_MAPS_DIM; y++) {
+						data_out << x << "	" << y << "	" << fp.routingUtil.util_maps[cur_layer][x][y].utilization << std::endl;
 					}
 
 					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
-					data_out << x << "	" << RoutingCongestion::CONG_MAPS_DIM << "	" << "0.0" << std::endl;
+					data_out << x << "	" << RoutingUtilization::UTIL_MAPS_DIM << "	" << "0.0" << std::endl;
 
 					// blank line marks new row for gnuplot
 					data_out << std::endl;
 				}
 
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
-				for (y = 0; y <= RoutingCongestion::CONG_MAPS_DIM; y++) {
-					data_out << RoutingCongestion::CONG_MAPS_DIM << "	" << y << "	" << "0.0" << std::endl;
+				for (y = 0; y <= RoutingUtilization::UTIL_MAPS_DIM; y++) {
+					data_out << RoutingUtilization::UTIL_MAPS_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 
 			}
@@ -1574,8 +1574,8 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
 			else if (flag == FLAGS::ROUTING) {
-				gp_out << "set xrange [0:" << RoutingCongestion::CONG_MAPS_DIM << "]" << std::endl;
-				gp_out << "set yrange [0:" << RoutingCongestion::CONG_MAPS_DIM << "]" << std::endl;
+				gp_out << "set xrange [0:" << RoutingUtilization::UTIL_MAPS_DIM << "]" << std::endl;
+				gp_out << "set yrange [0:" << RoutingUtilization::UTIL_MAPS_DIM << "]" << std::endl;
 			}
 
 			// power maps
