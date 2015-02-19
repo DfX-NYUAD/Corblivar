@@ -1,1 +1,3 @@
 exp/benches/* linguist-vendored
+exp/*/*.conf linguist-vendored
+exp/*.conf linguist-vendored
