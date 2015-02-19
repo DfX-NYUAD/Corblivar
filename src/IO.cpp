@@ -2425,7 +2425,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		}
 
 		// dummy block to describe layer outline
-		file << "outline" << cur_layer + 1;
+		file << "outline_" << cur_layer + 1;
 		file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
 		file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 		file << "	0.0";
@@ -2572,31 +2572,36 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	/// generate dummy floorplan for BEOL layer; TSVs are not to be considered
 	//
-	// build up file name
-	std::stringstream BEOL_fp_file;
-	BEOL_fp_file << fp.benchmark << "_HotSpot_BEOL.flp";
+	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
-	// init file stream
-	file.open(BEOL_fp_file.str().c_str());
 
-	// file header
-	file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
-	file << "# all dimensions are in meters" << std::endl;
-	file << "# comment lines begin with a '#'" << std::endl;
-	file << "# comments and empty lines are ignored" << std::endl;
+		// build up file name
+		std::stringstream BEOL_fp_file;
+		BEOL_fp_file << fp.benchmark << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp";
 
-	// BEOL ``block''
-	file << "BEOL";
-	file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
-	file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
-	file << "	0.0";
-	file << "	0.0";
-	file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
-	file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
-	file << std::endl;
+		// init file stream
+		file.open(BEOL_fp_file.str().c_str());
 
-	// close file stream
-	file.close();
+		// file header
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file << "# all dimensions are in meters" << std::endl;
+		file << "# comment lines begin with a '#'" << std::endl;
+		file << "# comments and empty lines are ignored" << std::endl;
+		file << std::endl;
+
+		// dummy BEOL ``block''
+		file << "BEOL_" << cur_layer + 1;;
+		file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
+		file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
+		file << "	0.0";
+		file << "	0.0";
+		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
+		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
+		file << std::endl;
+
+		// close file stream
+		file.close();
+	}
 
 	/// generate power-trace file
 	//
@@ -2623,7 +2628,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		}
 
 		// dummy outline block
-		file << "outline" << cur_layer + 1 << " ";
+		file << "outline_" << cur_layer + 1 << " ";
 	}
 	file << std::endl;
 
@@ -2678,7 +2683,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << std::endl;
 		file << fp.IC.BEOL_thickness * Math::SCALE_UM_M << std::endl;
-		file << fp.benchmark << "_HotSpot_BEOL.flp" << std::endl;
+		file << fp.benchmark << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
 		file << "# Active Si layer; design layer " << cur_layer + 1 << std::endl;
