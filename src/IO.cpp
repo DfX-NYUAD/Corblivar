@@ -2507,9 +2507,10 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					bin_w = static_cast<float>(fp.thermalAnalyzer.power_maps_dim_x * Math::SCALE_UM_M);
 				}
 				// upper bound, limit bin dimension according to overall
-				// chip outline
+				// chip outline; scale down slightly is required to avoid
+				// rounding errors during HotSpot's grid mapping
 				else if (x == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
-					bin_w = static_cast<float>(fp.IC.outline_x * Math::SCALE_UM_M - x_ll);
+					bin_w = 0.999 * static_cast<float>(fp.IC.outline_x * Math::SCALE_UM_M - x_ll);
 				}
 
 				for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
@@ -2530,10 +2531,12 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					if (y == ThermalAnalyzer::POWER_MAPS_PADDED_BINS) {
 						bin_h = static_cast<float>(fp.thermalAnalyzer.power_maps_dim_y * Math::SCALE_UM_M);
 					}
-					// upper bound, limit bin dimension according to overall
-					// chip outline
+					// upper bound, limit bin dimension according to
+					// overall chip outline; scale down slightly is
+					// required to avoid rounding errors during
+					// HotSpot's grid mapping
 					else if (y == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
-						bin_h = static_cast<float>(fp.IC.outline_y * Math::SCALE_UM_M - y_ll);
+						bin_h = 0.999 * static_cast<float>(fp.IC.outline_y * Math::SCALE_UM_M - y_ll);
 					}
 
 					// put grid block as floorplan blocks; passive Si layer
