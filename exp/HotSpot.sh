@@ -22,6 +22,7 @@ DIM=64
 
 # perform HS call
 echo "Perform HotSpot run ..."
+echo "$HS/hotspot -c $HS/hotspot.config -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -model_type grid -grid_map_mode max -detailed_3D on -grid_layer_file $GRID_LCF -grid_rows $DIM -grid_cols $DIM > $LOG"
 $HS/hotspot -c $HS/hotspot.config -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -model_type grid -grid_map_mode max -detailed_3D on -grid_layer_file $GRID_LCF -grid_rows $DIM -grid_cols $DIM > $LOG
 STATUS=$?
 # log hottest block
@@ -42,7 +43,7 @@ if [ "$STATUS" == "0" ]; then
 		# render SVG
 		$HS/grid_thermal_map.pl $FP $STEADY_GRID_OUTPUT.layer_$layer $DIM $DIM > $FP.svg
 		# generate PDF
-		cairosvg-py3 $FP.svg -f pdf -o $FP.pdf
+		cairosvg $FP.svg -f pdf -o $FP.pdf
 		# drop svg
 		rm $FP.svg
 

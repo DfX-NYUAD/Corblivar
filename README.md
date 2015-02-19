@@ -34,7 +34,7 @@ Compile & Run
 - gnuplot
 - octave
 - perl
-- cairosvg-py3
+- cairosvg
 - a modified copy of the BU's HotSpot 3D-IC thermal analyzer; the code should be provided
 along with Corblivar or can be retrieved from https://github.com/jknechtel/HotSpot. Note
 that this code has to be compiled separately.
