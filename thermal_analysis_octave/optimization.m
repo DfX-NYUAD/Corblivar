@@ -377,6 +377,8 @@ system (pathGP);
 %% evaluate the optimal solution
 
 [eval,Cbl] = evalCorb(p,bench,HS);
+  
+system (pathHS);
 
 %% print results as colourmaps 
  
