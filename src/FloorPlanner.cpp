@@ -1149,8 +1149,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
 
-				// update related routing-utilization map
-				this->routingUtil.adaptUtilMap(i, bb, cost.routing_util_actual_value);
+				// update related routing-utilization map; each single net
+				// has default weight of 1.0
+				this->routingUtil.adaptUtilMap(i, bb, 1.0);
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
