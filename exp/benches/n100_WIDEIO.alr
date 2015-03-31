@@ -1,0 +1,44 @@
+# Alignment-Requests File for Corblivar
+#
+# Requests have to be defined as tuples w/ the following format:
+# ( STRICT_FLEXIBLE SIGNALS BLOCK_1 BLOCK_2 TYPE_X ALIGNMENT_X TYPE_Y ALIGNMENT_Y )
+#
+# The alignment handling can be controlled via the STRICT_FLEXIBLE flag; it can be either
+# STRICT, i.e., given alignments have to be fulfilled for the related dimensions, or
+# FLEXIBLE, i.e., given alignments have to be fulfilled for any of the two dimensions.
+# For example, flexible buses with no preferred orientation would be encoded with a MIN
+# and a MAX alignment.
+#
+# The variable SIGNALS encode the number of parallel signals to be embedded via block
+# alignment. This is particularly required for TSV-site planning for vertical buses.
+#
+# The following alignment types can be defined: MIN, MAX, OFFSET, or UNDEF;
+# 	MIN is used to describe a minimal overlap b/w blocks,
+# 	MAX is used to describe a maximal distance b/w blocks,
+# 	OFFSET is used to describe an fixed offset b/w blocks' lower-left corners
+# 	UNDEF is used to describe an undefined offset, i.e., don't care for that dimension
+#
+# The minimal overlap / maximal distance / fixed offset themselves are to be given as
+# floating number in the respective ALIGNMENT variable
+#
+# For alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
+# preplacement of sb10 at 10,50 use ( STRICT 0 RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
+#
+#
+# data_start
+
+( STRICT 960 WIDE_IO_1 WIDE_IO_2 MIN 600.0 MIN 160.0 )
+
+( FLEXIBLE 512 sb1 sb2 MAX 2000.0 MIN 50.0 )
+( FLEXIBLE 512 sb2 sb3 MAX 2000.0 MIN 50.0 )
+( FLEXIBLE 512 sb3 sb4 MAX 2000.0 MIN 50.0 )
+( FLEXIBLE 512 sb4 sb5 MAX 2000.0 MIN 50.0 )
+
+( FLEXIBLE 512 sb6 sb7 MIN 50.0 MAX 2000.0 )
+( FLEXIBLE 512 sb7 sb8 MIN 50.0 MAX 2000.0 )
+( FLEXIBLE 512 sb8 sb9 MIN 50.0 MAX 2000.0 )
+( FLEXIBLE 512 sb9 sb10 MIN 50.0 MAX 2000.0 )
+
+( FLEXIBLE 512 sb11 sb12 MIN 50.0 MIN 50.0 )
+
+( FLEXIBLE 512 sb13 sb14 MIN 50.0 MIN 50.0 )

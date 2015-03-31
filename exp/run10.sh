@@ -1,13 +1,15 @@
 #!/bin/bash
-root=~/code/Corblivar
+root=~/github/Corblivar
 base=$root/exp
-fitting=thermal_analysis_fitting
+fitting=thermal_analysis_octave
 
 exp="3DFP-Corb"
-benches="ami33 xerox"
-runs=15
+#benches="ami33 xerox"
+benches=$1
+runs=25
 
-for die_count in 3
+#for die_count in 2 3
+for die_count in $2
 do
 	dies=$die_count"dies"
 
@@ -31,22 +33,22 @@ do
 	#
 
 	# HotSpot, thermal fitting related
-	cp -r $base/$fitting .
+	cp -r $root/$fitting .
 	cp $base/HotSpot.sh .
 	ln -s $base/benches .
 	cp $base/gp.sh .
 
-	# HotSpot, thermal fitting related; local copy for thermal fitting
+	# local copy of config files
 	for bench in $benches
 	do
-		cp $base/configs/$dies/$exp/$bench.conf .
+		cp $base/configs/$dies/$exp/*.conf .
 	done
 
 	cd $fitting
 
 	for bench in $benches
 	do
-		octave optimization.m $bench $bench.conf
+		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
 	done
 
 	cd $base/$dies/$exp

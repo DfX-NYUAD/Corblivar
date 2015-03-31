@@ -1,5 +1,5 @@
 #!/bin/bash
-root=~/code/Corblivar
+root=~/github/Corblivar
 base=$root/exp
 
 exp="3DFP"
