@@ -21,6 +21,9 @@
 # The minimal overlap / maximal distance / fixed offset themselves are to be given as
 # floating number in the respective ALIGNMENT variable
 #
+# Note that actual overlap/distance/offset ranges are _not_ scaled by the block-scaling
+# factor given in Technology.conf
+#
 # For alignments w.r.t. the die's lower-left corner, use the dummy block "RBOD"; e.g., for
 # preplacement of sb10 at 10,50 use ( STRICT 0 RBOD sb10 OFFSET 10.0 OFFSET 50.0 )
 #
@@ -29,16 +32,16 @@
 
 ( STRICT 960 WIDE_IO_1 WIDE_IO_2 MIN 600.0 MIN 160.0 )
 
-( FLEXIBLE 512 sb1 sb2 MAX 2000.0 MIN 50.0 )
-( FLEXIBLE 512 sb2 sb3 MAX 2000.0 MIN 50.0 )
-( FLEXIBLE 512 sb3 sb4 MAX 2000.0 MIN 50.0 )
-( FLEXIBLE 512 sb4 sb5 MAX 2000.0 MIN 50.0 )
+( FLEXIBLE 512 sb1 sb2 MAX 2000.0 MIN 51.2 )
+( FLEXIBLE 512 sb2 sb3 MAX 2000.0 MIN 51.2 )
+( FLEXIBLE 512 sb3 sb4 MAX 2000.0 MIN 51.2 )
+( FLEXIBLE 512 sb4 sb5 MAX 2000.0 MIN 51.2 )
 
-( FLEXIBLE 512 sb6 sb7 MIN 50.0 MAX 2000.0 )
-( FLEXIBLE 512 sb7 sb8 MIN 50.0 MAX 2000.0 )
-( FLEXIBLE 512 sb8 sb9 MIN 50.0 MAX 2000.0 )
-( FLEXIBLE 512 sb9 sb10 MIN 50.0 MAX 2000.0 )
+( FLEXIBLE 512 sb6 sb7 MIN 51.2 MAX 2000.0 )
+( FLEXIBLE 512 sb7 sb8 MIN 51.2 MAX 2000.0 )
+( FLEXIBLE 512 sb8 sb9 MIN 51.2 MAX 2000.0 )
+( FLEXIBLE 512 sb9 sb10 MIN 51.2 MAX 2000.0 )
 
-( FLEXIBLE 512 sb11 sb12 MIN 50.0 MIN 50.0 )
+( FLEXIBLE 512 sb11 sb12 MIN 230.0 MIN 230.0 )
 
-( FLEXIBLE 512 sb13 sb14 MIN 50.0 MIN 50.0 )
+( FLEXIBLE 512 sb13 sb14 MIN 230.0 MIN 230.0 )

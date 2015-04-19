@@ -7,8 +7,8 @@ NumSoftRectangularBlocks : 0
 NumHardRectilinearBlocks : 202
 NumTerminals : 564
 
-WIDE_IO_1 hardrectilinear 4 (0, 0) (0, 16) (60, 16) (60, 0)
-WIDE_IO_2 hardrectilinear 4 (0, 0) (0, 16) (60, 16) (60, 0)
+WIDE_IO_1 hardrectilinear 4 (0, 0) (0, 32) (120, 32) (120, 0)
+WIDE_IO_2 hardrectilinear 4 (0, 0) (0, 32) (120, 32) (120, 0)
 sb0 hardrectilinear 4 (0, 0) (0, 16) (36, 16) (36, 0)
 sb1 hardrectilinear 4 (0, 0) (0, 39) (19, 39) (19, 0)
 sb2 hardrectilinear 4 (0, 0) (0, 35) (41, 35) (41, 0)
