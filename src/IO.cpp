@@ -1935,7 +1935,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 		gp_out.open(out_name.str().c_str());
 
 		// file header
-		gp_out << "set title \"Floorplan - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+		gp_out << "set title \"Floorplan - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 		gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
 		gp_out << "set output \"" << out_name.str() << ".pdf\"" << std::endl;
 		gp_out << "set size ratio " << ratio_inv << std::endl;
