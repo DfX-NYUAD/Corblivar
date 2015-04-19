@@ -1294,7 +1294,11 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							// bus / TSV island
 							intersect,
 							// layer assignment
-							layer
+							layer,
+							// for vertical buses, provide
+							// specific width according to
+							// alignment requirement
+							req.vertical_bus() ? req.alignment_x : -1.0
 						);
 
 					// perform greedy shifting in case new island

@@ -198,13 +198,13 @@ class TSV_Island : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		TSV_Island (std::string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer) : Block(id) {
+		TSV_Island (std::string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer, double width = -1.0) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
 			this->layer = layer;
 			this->bb = bb;
 
-			this->resetOutline(TSV_pitch);
+			this->resetOutline(TSV_pitch, width);
 		};
 
 	// public data, functions
@@ -213,28 +213,37 @@ class TSV_Island : public Block {
 
 		// reset TSV group's outline according to area required for given TSVs
 		//
-		// note that the following code does _not_consider a sanity check where
+		// note that the following code does _not_ consider a sanity check where
 		// the required area for TSVs is larger than the provided bb; since TSVs
 		// are assumed to be embedded into blocks later on anyway, such over-usage
 		// of area is not critical
-		void resetOutline(double TSV_pitch) {
+		void resetOutline(double TSV_pitch, double width) {
 			double TSV_rows, TSV_cols;
 			Rect new_bb;
 
-			// determine number of TSV rows and cols from number of required
-			// TSVs; define a square TSV island
-			TSV_rows = std::sqrt(this->TSVs_count);
-			TSV_cols = std::sqrt(this->TSVs_count);
+			// if width is given, orient the island's dimension based on that
+			if (width > 0.0) {
+				new_bb.w = width;
+				new_bb.h = this->TSVs_count * pow(TSV_pitch, 2.0) / width;
+			}
+			// else plan for square island
+			else {
+				// determine number of TSV rows and cols from number of
+				// required TSVs; define a square TSV island
+				TSV_rows = std::sqrt(this->TSVs_count);
+				TSV_cols = std::sqrt(this->TSVs_count);
 
-			// round up rows and cols, spare TSVs are not as ``bad'' as
-			// missing TSVs for signal routing; this way it's also guaranteed
-			// that at least one row and col are considered
-			TSV_rows = std::ceil(TSV_rows);
-			TSV_cols = std::ceil(TSV_cols);
+				// round up rows and cols, spare TSVs are not as ``bad''
+				// as missing TSVs for signal routing; this way it's also
+				// guaranteed that at least one row and col are considered
+				TSV_rows = std::ceil(TSV_rows);
+				TSV_cols = std::ceil(TSV_cols);
 
-			// determine new bb's outline and area
-			new_bb.w = TSV_rows * TSV_pitch;
-			new_bb.h = TSV_cols * TSV_pitch;
+				new_bb.w = TSV_rows * TSV_pitch;
+				new_bb.h = TSV_cols * TSV_pitch;
+			}
+
+			// calculate island's area
 			new_bb.area = new_bb.w * new_bb.h;
 
 			// place new bb such into the given bb that their center points
