@@ -56,6 +56,7 @@ class Block {
 			this->soft = false;
 			this->floorplacement = false;
 			this->alignment = AlignmentStatus::UNDEF;
+			this->rotatable = true;
 		};
 
 	// public data, functions
@@ -86,27 +87,46 @@ class Block {
 		// large macro, flag for floorplacement handling
 		bool floorplacement;
 
+		// blocks related to STRICT alignment requests will not be rotatable
+		mutable bool rotatable;
+
 		// layout-generation related helper; perform operations on mutable bb,
 		// thus marked const
 		//
-		inline void rotate() const {
-			std::swap(this->bb.w, this->bb.h);
-		};
-		inline void shapeRandomlyByAR() const {
+		inline bool rotate() const {
 
-			// reshape block randomly w/in AR range; note that x^2 = AR * A
-			this->bb.w = std::sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
-			this->bb.h = this->bb.area / this->bb.w;
-			this->bb.ur.x = this->bb.ll.x + this->bb.w;
-			this->bb.ur.y = this->bb.ll.y + this->bb.h;
+			if (this->rotatable) {
+				std::swap(this->bb.w, this->bb.h);
+				return true;
+			}
+			else {
+				return false;
+			}
+		};
+		inline bool shapeRandomlyByAR() const {
+
+			if (this->rotatable) {
+				// reshape block randomly w/in AR range; note that x^2 = AR * A
+				this->bb.w = std::sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
+				this->bb.h = this->bb.area / this->bb.w;
+				this->bb.ur.x = this->bb.ll.x + this->bb.w;
+				this->bb.ur.y = this->bb.ll.y + this->bb.h;
+
+				return true;
+			}
+			else {
+				return false;
+			}
 		};
 		inline bool shapeByWidthHeight(double const& width, double const& height) const {
 			double AR;
 
 			AR = width / height;
 
-			// apply new dimensions in case the resulting AR is allowed
-			if (this->AR.min <= AR && AR <= this->AR.max) {
+			// apply new dimensions in case the resulting AR is allowed; also
+			// consider whether block should be allowed to rotated / reshaped
+			// at all
+			if (this->AR.min <= AR && AR <= this->AR.max && this->rotatable) {
 
 				this->bb.ur.x = this->bb.ll.x + width;
 				this->bb.ur.y = this->bb.ll.y + height;

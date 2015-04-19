@@ -845,6 +845,18 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 			}
 		}
 
+		// memorize blocks with STRICT alignment request as not to be rotated
+		if (handling == CorblivarAlignmentReq::Handling::STRICT) {
+
+			if (b1 != &fp.RBOD) {
+				b1->rotatable = false;
+			}
+
+			if (b2 != &fp.RBOD) {
+				b2->rotatable = false;
+			}
+		}
+
 		// alignment type for x-dimension
 		al_in >> type_str;
 

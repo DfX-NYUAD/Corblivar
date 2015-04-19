@@ -608,9 +608,7 @@ bool LayoutOperations::performOpEnhancedSoftBlockShaping(CorblivarCore const& co
 
 		case LayoutOperations::OP_SHAPE_BLOCK__RANDOM_AR: // op-code: 14
 
-			shape_block->shapeRandomlyByAR();
-
-			return true;
+			return shape_block->shapeRandomlyByAR();
 
 		// to avoid compiler warnings, non-reachable code due to
 		// constrained op value
@@ -665,9 +663,7 @@ bool LayoutOperations::performOpEnhancedHardBlockRotation(CorblivarCore const& c
 
 	// perform rotation if no loss or gain > loss
 	if (loss < 0.0 || gain > loss) {
-		shape_block->rotate();
-
-		return true;
+		return shape_block->rotate();
 	}
 	else {
 		return false;
@@ -872,7 +868,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 			}
 			// simple random shaping
 			else {
-				shape_block->shapeRandomlyByAR();
+				return shape_block->shapeRandomlyByAR();
 			}
 		}
 		// hard blocks: simple rotation or enhanced rotation (perform block
@@ -886,7 +882,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 			}
 			// simple rotation
 			else {
-				shape_block->rotate();
+				return shape_block->rotate();
 			}
 		}
 	}
