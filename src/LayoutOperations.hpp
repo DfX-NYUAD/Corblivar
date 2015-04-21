@@ -97,7 +97,7 @@ class LayoutOperations {
 		inline bool performOpEnhancedHardBlockRotation(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpSwapAlignmentCoordinates(bool const& revert, CorblivarCore& corb, int& tuple1) const;
-		inline void prepareBlocksExceedingOutline(CorblivarCore const& corb, int& die1, int& tuple1) const;
+		inline void determineOutermostBlock(CorblivarCore const& corb, int& die1, int& tuple1) const;
 };
 
 #endif

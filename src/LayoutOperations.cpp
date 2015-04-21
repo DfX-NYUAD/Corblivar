@@ -54,14 +54,12 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 	// perform new op
 	else {
 		// special scenario:
-		// if no fitting layout at all was determined during the last
-		// step, select blocks which are exceeding the outline; for
-		// simplicity, select the rightmost or topmost one
+		// if no fitting layout at all was determined so far (during the current
+		// annealing step), select the outermost block (in randomly x- or
+		// y-dimension); then, we perform random layout on this outermost block
+		// given by tuple1 in die1
 		if (layout_fit_counter == 0) {
-
-			// search for rightmost or topmost block; then, we perform random
-			// layout op but on specific block given by tuple1 in die1
-			this->prepareBlocksExceedingOutline(corb, die1, tuple1);
+			this->determineOutermostBlock(corb, die1, tuple1);
 		}
 		// another special scenario:
 		// to enable guided block alignment during phase II, we dedicatedly handle
@@ -196,32 +194,36 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 	return ret;
 }
 
-void LayoutOperations::prepareBlocksExceedingOutline(CorblivarCore const& corb, int& die1, int& tuple1) const {
-	bool rightmost;
+void LayoutOperations::determineOutermostBlock(CorblivarCore const& corb, int& die1, int& tuple1) const {
 	Block const* block_to_handle;
-
-
-	// randomly decide whether to handle the rightmost or topmost blocks
-	rightmost = Math::randB();	
 
 	// init search for topmost/rightmost block with first block
 	block_to_handle = corb.getDie(0).getBlock(0);
 
-	// search all blocks
-	for (int l = 0; l < this->parameters. layers; l++) {
+	// randomly decide whether to handle the rightmost or topmost blocks
+	if (Math::randB()) {
 
-		for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
+		// search all blocks, consider x-dimension
+		for (int l = 0; l < this->parameters.layers; l++) {
 
-			// current block further right?
-			if (rightmost) {
+			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
+
+				// current block further right?
 				if (corb.getDie(l).getBlock(b)->bb.ur.x > block_to_handle->bb.ur.x) {
 					block_to_handle = corb.getDie(l).getBlock(b);
 					die1 = l;
 					tuple1 = b;
 				}
 			}
-			// current block further above?
-			else {
+		}
+	}
+	else {
+		// search all blocks, consider y-dimension
+		for (int l = 0; l < this->parameters.layers; l++) {
+
+			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
+
+				// current block further above?
 				if (corb.getDie(l).getBlock(b)->bb.ur.y > block_to_handle->bb.ur.y) {
 					block_to_handle = corb.getDie(l).getBlock(b);
 					die1 = l;
