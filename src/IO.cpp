@@ -845,8 +845,9 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 			}
 		}
 
-		// memorize blocks with STRICT alignment request as not to be rotated
-		if (handling == CorblivarAlignmentReq::Handling::STRICT) {
+		// memorize blocks with STRICT alignment request as not to be rotated;
+		// only if alignment is actually to be considered
+		if (handling == CorblivarAlignmentReq::Handling::STRICT && fp.opt_flags.alignment) {
 
 			if (b1 != &fp.RBOD) {
 				b1->rotatable = false;
