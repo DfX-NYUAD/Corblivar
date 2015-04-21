@@ -37,7 +37,7 @@ constexpr int LayoutOperations::OP_MOVE_TUPLE;
 bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
 	int die1, tuple1, die2, tuple2, juncts;
-	bool ret, swapping_failed_blocks, swapping_flexible_alignment_coordinates;
+	bool ret, random;
 
 	if (LayoutOperations::DBG) {
 		std::cout << "-> LayoutOperations::performLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
@@ -45,15 +45,17 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 
 	// init layout operation variables
 	die1 = tuple1 = die2 = tuple2 = juncts = -1;
-	swapping_failed_blocks = swapping_flexible_alignment_coordinates = false;
+	random = true;
 
 	// revert last op
 	if (revertLastOp) {
 		op = this->last_op;
+		random = false;
 	}
 	// perform new op
 	else {
 		// special scenario:
+		//
 		// if no fitting layout at all was determined so far (during the current
 		// annealing step), select the outermost block (in randomly x- or
 		// y-dimension); then, we perform random layout on this outermost block
@@ -62,25 +64,25 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 			this->determineOutermostBlock(corb, die1, tuple1);
 		}
 		// another special scenario:
+		//
 		// to enable guided block alignment during phase II, we dedicatedly handle
 		// particular blocks of failing requests / the requests themselves;
 		// however, this should only be considered for cooling phase 3, i.e., when
 		// some local minima is reached; otherwise, when these operations are
 		// applied too often, the cost function will largely vary in value and is
 		// thus not an appropriate measure for guided minimization anymore
+		//
+		// note that the related handlers below do only return true in case any
+		// failed alignment exists
 		else if (SA_phase_two && this->parameters.opt_alignment && cooling_phase_three) {
 
-			// randomly decide which operation to try first; either block
-			// swapping or swapping coordinates of flexible alignments; the
-			// other operation is considered anyways if the first fails
+			// randomly decide to try either block swapping or swapping
+			// coordinates of flexible alignments
 			//
 			if (Math::randB()) {
 
-				// first, try to setup swapping failed blocks
-				swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
-
-				// setting up this operation was successful
-				if (swapping_failed_blocks) {
+				// try to setup swapping failed blocks
+				if (this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2)) {
 
 					// engage swap operation; this dedicated _ENFORCE
 					// op-code ignores power-aware block-die
@@ -88,43 +90,25 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 					// also fulfilled when the option power-aware
 					// block assignment is activated
 					this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
-				}
-				// this operation cannot be performed, consider the other
-				// (swapping coordinates of flexible alignments)
-				else {
-					swapping_flexible_alignment_coordinates = this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1);
 
-					if (swapping_flexible_alignment_coordinates) {
-						this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
-					}
+					random = false;
 				}
 			}
 			// other order of trying operations
 			else {
 
-				// first, try to setup swapping alignment coordinates
-				swapping_flexible_alignment_coordinates = this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1);
-
-				// setting up this operation was successful
-				if (swapping_flexible_alignment_coordinates) {
+				// try to setup swapping alignment coordinates
+				if (this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1)) {
 
 					this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
-				}
-				// this operation cannot be performed, consider the other
-				// (swapping blocks of failed alignments)
-				else {
-					swapping_failed_blocks = this->prepareBlockSwappingFailedAlignment(corb, die1, tuple1, die2, tuple2);
-
-					if (swapping_failed_blocks) {
-						this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
-					}
+					random = false;
 				}
 			}
 		}
 		//
 		// for other, regular cases or in case above operations cannot be
 		// performed, we proceed with a random operation
-		if (!swapping_failed_blocks && !swapping_flexible_alignment_coordinates) {
+		if (random) {
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
