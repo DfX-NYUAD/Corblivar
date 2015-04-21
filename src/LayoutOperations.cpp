@@ -252,25 +252,20 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 			// s_i is the block to be changed
 			b1 = failed_req->s_i;
-			die1 = b1->layer;
-			tuple1 = corb.getDie(die1).getTuple(b1);
-
 			// memorize the opposite block s_j
 			b1_partner = failed_req->s_j;
-			// also memorize the layer of opposite block s_j
-			die2 = b1_partner->layer;
 		}
 		else {
 			// s_j is the block to be changed
 			b1 = failed_req->s_j;
-			die1 = b1->layer;
-			tuple1 = corb.getDie(die1).getTuple(b1);
-
 			// memorize the opposite block s_i
 			b1_partner = failed_req->s_i;
-			// also memorize the layer of opposite block s_i
-			die2 = b1_partner->layer;
 		}
+
+		// determine die and tuple variables; tuple2 is to be determined below
+		die1 = b1->layer;
+		tuple1 = corb.getDie(die1).getTuple(b1);
+		die2 = b1_partner->layer;
 
 		// dedicatedly defined vertical bus; failed vertical alignment across
 		// different dies
@@ -334,11 +329,6 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 					bb.ur.x += bb.w / 2.0;
 					bb.ll.y -= bb.h / 2.0;
 					bb.ur.y += bb.h / 2.0;
-
-					bb.w = bb.ur.x - bb.ll.x;
-					bb.h = bb.ur.y - bb.ll.y;
-
-					bb.area = bb.w * bb.h;
 				}
 				else {
 					break;
