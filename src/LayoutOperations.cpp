@@ -220,22 +220,24 @@ void LayoutOperations::determineOutermostBlock(CorblivarCore const& corb, int& d
 
 bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
 	CorblivarAlignmentReq const* failed_req = nullptr;
+	std::vector<CorblivarAlignmentReq const*> failed_reqs;
 	Block const* b1;
 	Block const* b1_partner;
 	Block const* b1_neighbour = nullptr;
 	Rect bb;
 
-	// determine first failed alignment
+	// determine failed alignments
 	for (unsigned r = 0; r < corb.getAlignments().size(); r++) {
 
 		if (!corb.getAlignments()[r].fulfilled) {
-			failed_req = &corb.getAlignments()[r];
-			break;
+			failed_reqs.push_back(&corb.getAlignments()[r]);
 		}
 	}
 
-	// handle request; sanity check for found failed request
-	if (failed_req != nullptr) {
+	// randomly pick any failed alignment
+	if (!failed_reqs.empty()) {
+
+		failed_req = failed_reqs[Math::randI(0, failed_reqs.size())];
 
 		// randomly decide for one block to move around / to swap with other
 		// blocks; avoid the dummy reference block if required
@@ -873,22 +875,28 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 }
 
 bool LayoutOperations::prepareSwappingCoordinatesFailedAlignment(CorblivarCore const& corb, int& tuple1) {
+	std::vector<unsigned> failed_reqs_tuple_index;
 
-	// determine first failed alignment w/ flexible alignment handling; only such
-	// flexible requests allow to swap their coordinates / partial requests
+	// determine failed alignments w/ flexible alignment handling; only such flexible
+	// requests allow to swap their coordinates / partial requests
 	for (unsigned r = 0; r < corb.getAlignments().size(); r++) {
 
 		if (!corb.getAlignments()[r].fulfilled && corb.getAlignments()[r].handling == CorblivarAlignmentReq::Handling::FLEXIBLE) {
-
-			tuple1 = r;
-
-			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
-				std::cout << "DBG_ALIGNMENT> " << corb.getAlignments()[r].tupleString() << " failed so far;" << std::endl;
-				std::cout << "DBG_ALIGNMENT> swapping flexible partial alignments (swapping x- and y-alignment)" << std::endl;
-			}
-
-			return true;
+			failed_reqs_tuple_index.push_back(r);
 		}
+	}
+
+	// randomly pick any failed alignment; onl
+	if (!failed_reqs_tuple_index.empty()) {
+
+		tuple1 = failed_reqs_tuple_index[Math::randI(0, failed_reqs_tuple_index.size())];
+
+		if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
+			std::cout << "DBG_ALIGNMENT> " << corb.getAlignments()[tuple1].tupleString() << " failed so far;" << std::endl;
+			std::cout << "DBG_ALIGNMENT> swapping flexible partial alignments (swapping x- and y-alignment)" << std::endl;
+		}
+
+		return true;
 	}
 
 	return false;
