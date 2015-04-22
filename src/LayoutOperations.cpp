@@ -309,7 +309,11 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 				for (Block const* b2 : corb.getDie(die2).getBlocks()) {
 
+					// candidate block; overlaps with b1's partner
+					// block
 					if (Rect::rectsIntersect(bb, b2->bb) &&
+						// avoid swapping with b1 itself
+						b1->id != b2->id &&
 						// also check that blocks are not partner blocks
 						// of the alignment request; otherwise,
 						// consecutively circular swap might occur which
