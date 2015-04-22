@@ -32,7 +32,8 @@
 class CorblivarAlignmentReq {
 	// debugging code switch
 	public:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG_HANDLE_FAILED = true;
+		static constexpr bool DBG_EVALUATE = false;
 		static constexpr bool DBG_LAYOUT_GENERATION = false;
 
 	// enum classes; have to be defined first

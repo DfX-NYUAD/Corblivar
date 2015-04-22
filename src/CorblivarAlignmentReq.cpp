@@ -345,7 +345,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	ret.cost *= this->signals;
 
 	// dbg logging for alignment
-	if (CorblivarAlignmentReq::DBG) {
+	if (CorblivarAlignmentReq::DBG_EVALUATE) {
 
 		std::cout << "DBG_ALIGNMENT> " << this->tupleString() << std::endl;
 

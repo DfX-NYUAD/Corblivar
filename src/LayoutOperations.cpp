@@ -459,7 +459,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 			tuple2 = corb.getDie(die2).getTuple(b1_neighbour);
 
-			if (CorblivarAlignmentReq::DBG) {
+			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
 				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
 				std::cout << "DBG_ALIGNMENT> considering swapping block " << b1->id << " on layer " << b1->layer;
 				std::cout << " with block " << b1_neighbour->id << " on layer " << b1_neighbour->layer << std::endl;
@@ -470,7 +470,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		else {
 			tuple2 = -1;
 
-			if (CorblivarAlignmentReq::DBG) {
+			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
 				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
 				std::cout << "DBG_ALIGNMENT> no appropriate block to swap with found" << std::endl;
 			}
@@ -881,6 +881,11 @@ bool LayoutOperations::prepareSwappingCoordinatesFailedAlignment(CorblivarCore c
 		if (!corb.getAlignments()[r].fulfilled && corb.getAlignments()[r].handling == CorblivarAlignmentReq::Handling::FLEXIBLE) {
 
 			tuple1 = r;
+
+			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
+				std::cout << "DBG_ALIGNMENT> " << corb.getAlignments()[r].tupleString() << " failed so far;" << std::endl;
+				std::cout << "DBG_ALIGNMENT> swapping flexible partial alignments (swapping x- and y-alignment)" << std::endl;
+			}
 
 			return true;
 		}
