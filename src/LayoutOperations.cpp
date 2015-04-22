@@ -467,6 +467,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
 				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
+				std::cout << "DBG_ALIGNMENT>  failed alignment status (" << b1->id << "): " << b1->alignment << std::endl;
 				std::cout << "DBG_ALIGNMENT> considering swapping block " << b1->id << " on layer " << b1->layer;
 				std::cout << " with block " << b1_neighbour->id << " on layer " << b1_neighbour->layer << std::endl;
 			}
@@ -478,6 +479,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 
 			if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
 				std::cout << "DBG_ALIGNMENT> " << failed_req->tupleString() << " failed so far;" << std::endl;
+				std::cout << "DBG_ALIGNMENT>  failed alignment status (" << b1->id << "): " << b1->alignment << std::endl;
 				std::cout << "DBG_ALIGNMENT> no appropriate block to swap with found" << std::endl;
 			}
 
