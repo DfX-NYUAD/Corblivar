@@ -32,7 +32,7 @@
 class CorblivarAlignmentReq {
 	// debugging code switch
 	public:
-		static constexpr bool DBG_HANDLE_FAILED = true;
+		static constexpr bool DBG_HANDLE_FAILED = false;
 		static constexpr bool DBG_EVALUATE = false;
 		static constexpr bool DBG_LAYOUT_GENERATION = false;
 
@@ -158,25 +158,8 @@ class CorblivarAlignmentReq {
 
 		// alignment evaluation helper
 		//
-		inline bool vertical_bus() const {
-			return (
-				// min overlap in both dimensions
-				(this->range_x() && this->range_y()) ||
-				// zero-offset fixed alignment in both dimensions
-				(this->offset_x() && this->alignment_x == 0 && this->offset_y() && this->alignment_y == 0) ||
-				// non-zero offset in both dimensions, but with
-				// sufficiently small offset such that blocks will
-				// partially intersect
-				(this->offset_x() && this->offset_y() &&
-					// positive offset: b_j not further offset to the
-					// right/top than b_j is wide/high; negative
-					// offset: b_j not further offset to the
-					// left/bottom than b_j is wide/high
-				 	this->alignment_x > 0.0 ? this->alignment_x < this->s_i->bb.w : this->alignment_x > -(this->s_j->bb.w) &&
-				 	this->alignment_y > 0.0 ? this->alignment_y < this->s_i->bb.h : this->alignment_y > -(this->s_j->bb.h)
-				)
-			);
-		}
+		bool vertical_bus() const;
+
 		inline bool partner_blocks(Block const* b1, Block const* b2) const {
 			return (
 				(b1->id == this->s_i->id && b2->id == this->s_j->id) ||

@@ -363,3 +363,24 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 
 	return ret;
 }
+
+bool CorblivarAlignmentReq::vertical_bus() const {
+	return (
+		// min overlap in both dimensions
+		(this->range_x() && this->range_y()) ||
+		// zero-offset fixed alignment in both dimensions
+		(this->offset_x() && this->alignment_x == 0 && this->offset_y() && this->alignment_y == 0) ||
+		// non-zero offset in both dimensions;
+		(this->offset_x() && this->alignment_x != 0.0 && this->offset_y() && this->alignment_y != 0.0
+			// but with sufficiently small offset such that blocks will
+			// partially intersect
+			&& (
+				// positive offset: b_j not further offset to the right/top than
+				// b_i is wide/high; negative offset: b_j not further offset to
+				// the left/bottom than b_j is wide/high
+				(this->alignment_x > 0.0) ? this->alignment_x < this->s_i->bb.w : this->alignment_x > -(this->s_j->bb.w) &&
+				(this->alignment_y > 0.0) ? this->alignment_y < this->s_i->bb.h : this->alignment_y > -(this->s_j->bb.h)
+			   )
+		)
+	);
+}
