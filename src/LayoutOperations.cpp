@@ -58,10 +58,18 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 		//
 		// if no fitting layout at all was determined so far (during the current
 		// annealing step), select the outermost block (in randomly x- or
-		// y-dimension); then, we perform random layout on this outermost block
-		// given by tuple1 in die1
+		// y-dimension); then, we perform selected operations on this outermost
+		// block given by tuple1 in die1
 		if (layout_fit_counter == 0) {
+
 			this->determineOutermostBlock(corb, die1, tuple1);
+
+			// for outermost blocks, we consider to move the whole tuple
+			// (op-code 2), switch the insertion direction (code 3) or switch
+			// the T-junctions (code 4); recall that randI(x,y) is [x,y)
+			this->last_op = op = Math::randI(2, 5);
+
+			random = false;
 		}
 		// another special scenario:
 		//
@@ -101,6 +109,7 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 				if (this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1)) {
 
 					this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
+
 					random = false;
 				}
 			}
