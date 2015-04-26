@@ -758,6 +758,7 @@ bool LayoutOperations::performOpSwitchInsertionDirection(bool const& revert, Cor
 }
 
 bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& revert, bool const& SA_phase_one, CorblivarCore& corb, int& die1, int& die2, int& tuple1, int& tuple2) const {
+	Block const* b2;
 
 	if (!revert) {
 
@@ -820,6 +821,28 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			std::cout << " revert: 0;";
 			std::cout << " SA_phase_one: " << SA_phase_one;
 			std::cout << "; die1: " << die1 << "; die2: " << die2 << "; tuple1: " << tuple1 << "; tuple2: " << tuple2 << std::endl;
+		}
+
+		// improve alignment optimization; in case the block from die1 is
+		// associated with some vertical bus, ensure that these bus' blocks are
+		// not within one die afterwards
+		if (this->parameters.opt_alignment) {
+
+			for (CorblivarAlignmentReq const* req : corb.getDie(die1).getBlock(tuple1)->alignments_vertical_bus) {
+
+				if (req->s_i->id == corb.getDie(die1).getBlock(tuple1)->id) {
+					b2 = req->s_j;
+				}
+				else {
+					b2 = req->s_i;
+				}
+
+				// if the target die die2 is the same as of the
+				// alignment's partner block b2, prohibit this operation
+				if (die2 == b2->layer) {
+					return false;
+				}
+			}
 		}
 
 		// for power-aware block handling, ensure that blocks w/ higher power
