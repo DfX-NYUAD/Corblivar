@@ -822,17 +822,43 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			std::cout << "; die1: " << die1 << "; die2: " << die2 << "; tuple1: " << tuple1 << "; tuple2: " << tuple2 << std::endl;
 		}
 
-		// for power-aware block handling, ensure that blocks w/ lower power
-		// density remain in lower layer; ignore this for op-code
-		// OP_SWAP_BLOCKS_ENFORCE which is used for swapping blocks in case of
-		// failed alignment requrest
-		if (this->parameters.power_aware_block_handling && mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
-			if (die1 < die2
-					&& (corb.getDie(die1).getBlock(tuple1)->power_density < corb.getDie(die2).getBlock(tuple2)->power_density)) {
+		// for power-aware block handling, ensure that blocks w/ higher power
+		// density remain in upper layer
+		if (this->parameters.power_aware_block_handling) {
+	
+			// if the higher-power block is in the upper layer d1, both swaps
+			// and moves from the upper layer d1 down to the lower layer d2
+			// should be prohibited
+			if (die1 > die2	&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)
+					//but for OP_SWAP_BLOCKS_ENFORCE (which is used
+					//for handling failed alignments) they should be
+					//considered
+					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
+
+				if (LayoutOperations::DBG) {
+					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "     b1: " << corb.getDie(die1).getBlock(tuple1)->power_density <<
+						"; b2: " << corb.getDie(die2).getBlock(tuple2)->power_density << std::endl;
+				}
+
 				return false;
 			}
-			else if (die2 < die1
-					&& (corb.getDie(die2).getBlock(tuple2)->power_density < corb.getDie(die1).getBlock(tuple1)->power_density)) {
+			// if the higher-power block is in the upper layer d2, only swaps
+			// should be prohibited but moving the lower-power block from d1
+			// up to die2 is fine
+			else if (die1 < die2
+					&& (corb.getDie(die2).getBlock(tuple2)->power_density > corb.getDie(die1).getBlock(tuple1)->power_density)
+					// note that by considering only OP_SWAP_BLOCKS,
+					// both OP_MOVE_TUPLE and OP_SWAP_BLOCKS are
+					// allowed
+					&& mode == LayoutOperations::OP_SWAP_BLOCKS) {
+
+				if (LayoutOperations::DBG) {
+					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "     b2: " << corb.getDie(die2).getBlock(tuple2)->power_density <<
+						"; b1: " << corb.getDie(die1).getBlock(tuple1)->power_density << std::endl;
+				}
+
 				return false;
 			}
 		}
