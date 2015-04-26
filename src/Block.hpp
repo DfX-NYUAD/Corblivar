@@ -29,6 +29,7 @@
 #include "Rect.hpp"
 #include "Math.hpp"
 // forward declarations, if any
+class CorblivarAlignmentReq;
 
 class Block {
 	// debugging code switch (private)
@@ -67,8 +68,12 @@ class Block {
 		// flag to monitor placement; also required for alignment handling
 		mutable bool placed;
 
-		// flag to monitor block alignment
+		// flag to monitor block alignment; only considers status of most recently
+		// evaluated request but not all associated request
 		mutable AlignmentStatus alignment;
+
+		// pointers to alignments representing vertical bus, if any
+		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
 		// density in [uW/(um^2)]
 		double power_density;

@@ -845,19 +845,6 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 			}
 		}
 
-		// memorize blocks with STRICT alignment request as not to be rotated;
-		// only if alignment is actually to be considered
-		if (handling == CorblivarAlignmentReq::Handling::STRICT && fp.opt_flags.alignment) {
-
-			if (b1 != &fp.RBOD) {
-				b1->rotatable = false;
-			}
-
-			if (b2 != &fp.RBOD) {
-				b2->rotatable = false;
-			}
-		}
-
 		// alignment type for x-dimension
 		al_in >> type_str;
 
@@ -911,6 +898,39 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 		alignments.push_back(CorblivarAlignmentReq(id, handling, signals, b1, b2, type_x, alignment_x, type_y, alignment_y));
 
 		id++;
+	}
+
+	// update blocks' status according to alignments
+	for (CorblivarAlignmentReq& req : alignments) {
+
+		// memorize blocks with STRICT alignment request as not to be rotated;
+		// only if alignment is actually to be considered
+		if (req.handling == CorblivarAlignmentReq::Handling::STRICT && fp.opt_flags.alignment) {
+
+			if (req.s_i != &fp.RBOD) {
+				req.s_i->rotatable = false;
+			}
+
+			if (req.s_j != &fp.RBOD) {
+				req.s_j->rotatable = false;
+			}
+		}
+
+		// memorize pointer to vertical-bus requests
+		//
+		// link pointer to blocks only now, i.e., after all blocks are handled;
+		// otherwise, some new alignments will trigger reallocation of alignments
+		// vector and thus invalidate previous pointer
+		if (req.vertical_bus()) {
+
+			if (req.s_i != &fp.RBOD) {
+				req.s_i->alignments_vertical_bus.push_back(&req);
+			}
+
+			if (req.s_j != &fp.RBOD) {
+				req.s_j->alignments_vertical_bus.push_back(&req);
+			}
+		}
 	}
 
 	if (IO::DBG) {
