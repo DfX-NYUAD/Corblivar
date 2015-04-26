@@ -1579,16 +1579,16 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == FLAGS::POWER) {
-				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL) {
-				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
-				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 			else if (flag == FLAGS::ROUTING) {
-				gp_out << "set title \"Routing-Utilization Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\"" << std::endl;
+				gp_out << "set title \"Routing-Utilization Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 
 			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
@@ -1850,7 +1850,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	data_out.close();
 
 	// gp header
-	gp_out << "set title \"Temperature and Cost Schedule - " << fp.benchmark << "\"" << std::endl;
+	gp_out << "set title \"Temperature and Cost Schedule - " << fp.benchmark << "\" noenhanced" << std::endl;
 	gp_out << "set output \"" << gp_out_name.str() << ".pdf\"" << std::endl;
 
 	// general settings for more attractive plots, extracted from
