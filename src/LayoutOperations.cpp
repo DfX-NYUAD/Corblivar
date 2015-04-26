@@ -876,7 +876,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		if (mode == LayoutOperations::OP_MOVE_TUPLE) {
 			corb.moveTuples(this->last_op_die2, this->last_op_die1, this->last_op_tuple2, this->last_op_tuple1);
 		}
-		else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
+		else {
 			corb.swapBlocks(this->last_op_die1, this->last_op_die2, this->last_op_tuple1, this->last_op_tuple2);
 		}
 	}
