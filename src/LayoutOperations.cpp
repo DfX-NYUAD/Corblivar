@@ -901,8 +901,38 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			corb.swapBlocks(die1, die2, tuple1, tuple2);
 		}
 	}
+
 	// revert last operation
 	else {
+		// offsets may have to be adapted for moves within one die
+		//
+		if (this->last_op_die1 == this->last_op_die2) {
+
+			// previous move: origin offset was greater than target offset;
+			// thus, the tuple was moved before the origin offset, and the
+			// origin offset has to increased by one
+			//
+			// note that, if last_op_tuple1 was the last element in the
+			// underlying vector, the index will then refer to the
+			// vector::end, which does not trigger memory errors and is also
+			// the correct index
+			if (this->last_op_tuple1 > this->last_op_tuple2) {
+				this->last_op_tuple1++;
+			}
+			// previous move: origin offset was less than target offset; thus,
+			// the target offset has to be decreased by one to account for the
+			// removed tuple
+			//
+			// note that, since tuple1 != tuple2 by previously defined
+			// original move operation for within one die, and since tuple1 <
+			// tuple2 due to previous reason and above case handling (tuple1 >
+			// tuple2), tuple2 is guaranteed to meet tuple2 > 1. This avoids
+			// tuple2-- to be < 0 and thus avoids memory access errors
+			else {
+				this->last_op_tuple2--;
+			}
+		}
+
 		// dbg output for operation
 		if (LayoutOperations::DBG) {
 			if (mode == LayoutOperations::OP_MOVE_TUPLE) {

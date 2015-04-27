@@ -146,6 +146,9 @@ class CorblivarCore {
 		};
 
 		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
+			Block const* t1_S;
+			Direction t1_L;
+			unsigned t1_T;
 
 			if (DBG) {
 				std::cout << "DBG_CORE> moveTuples;";
@@ -158,13 +161,38 @@ class CorblivarCore {
 				std::cout << std::endl;
 			}
 
-			// move within same die: perform swaps
+			// move within same die
 			if (die1 == die2) {
-				std::swap(this->dies[die1].CBL.S[tuple1], this->dies[die2].CBL.S[tuple2]);
-				std::swap(this->dies[die1].CBL.L[tuple1], this->dies[die2].CBL.L[tuple2]);
-				std::swap(this->dies[die1].CBL.T[tuple1], this->dies[die2].CBL.T[tuple2]);
+
+				// temporary copy of source data; otherwise, if insert and
+				// readout are done at the same time, the wrong data may
+				// be read out since the offsets are already adapted for
+				// inserting the new element
+				t1_S = std::move(this->dies[die1].CBL.S[tuple1]);
+				t1_L = std::move(this->dies[die1].CBL.L[tuple1]);
+				t1_T = std::move(this->dies[die1].CBL.T[tuple1]);
+
+				// insert tuple1 from die1 into die1/die2 w/ offset tuple2
+				this->dies[die2].CBL.S.insert(this->dies[die2].CBL.S.begin() + tuple2, t1_S);
+				this->dies[die2].CBL.L.insert(this->dies[die2].CBL.L.begin() + tuple2, t1_L);
+				this->dies[die2].CBL.T.insert(this->dies[die2].CBL.T.begin() + tuple2, t1_T);
+
+				// erase tuple1 from die1
+				//
+				// adapt offset; in case tuple2 comes before tuple1, the
+				// offsets are all shifted by one after insertion
+				if (tuple1 > tuple2) {
+					this->dies[die1].CBL.S.erase(this->dies[die1].CBL.S.begin() + tuple1 + 1);
+					this->dies[die1].CBL.L.erase(this->dies[die1].CBL.L.begin() + tuple1 + 1);
+					this->dies[die1].CBL.T.erase(this->dies[die1].CBL.T.begin() + tuple1 + 1);
+				}
+				else {
+					this->dies[die1].CBL.S.erase(this->dies[die1].CBL.S.begin() + tuple1);
+					this->dies[die1].CBL.L.erase(this->dies[die1].CBL.L.begin() + tuple1);
+					this->dies[die1].CBL.T.erase(this->dies[die1].CBL.T.begin() + tuple1);
+				}
 			}
-			// move across dies: perform insert and delete
+			// move across dies
 			else {
 				// pre-update layer assignment for block to be moved
 				this->dies[die1].CBL.S[tuple1]->layer = die2;
