@@ -897,6 +897,11 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 				// alignment's partner block b2, prohibit this operation
 				if (die2 == b2->layer) {
 
+					if (LayoutOperations::DBG) {
+						std::cout << "    Alignment-aware block handling; operation not allowed" << std::endl;
+						std::cout << "     Related alignment: " << req->tupleString() << std::endl;
+					}
+
 					return false;
 				}
 			}
