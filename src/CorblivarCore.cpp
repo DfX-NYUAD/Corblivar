@@ -288,7 +288,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 						if (req_processed == nullptr) {
 
 							// stall layout generation on this die;
-							this->dies[cur_block->layer].stalled = true;
+							this->p->stalled = true;
 							// memorize alignment as in process;
 							this->AL.push_back(cur_req);
 							// continue layout generation on die
@@ -308,21 +308,21 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 						}
 					}
 
-					// check if any request at all was processed
+					// if this die is not stalled after handling
+					// requests, then all requests were handled
+					// successfully and further layout generation to
+					// be continued on this die;
 					//
-					if (alignments_processed) {
+					// that means, increment progress pointer since
+					// block and related alignment requests are
+					// handled
+					if (!this->p->stalled) {
 
-						// all requests are handled and further layout generation
-						// to be continued on this die; increment progress pointer
-						// since block and related alignment requests are handled
-						if (!this->dies[cur_block->layer].stalled) {
-
-							if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
-								std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
-							}
-
-							this->p->updateProgressPointerFlag();
+						if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
+							std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
 						}
+
+						this->p->updateProgressPointerFlag();
 					}
 				}
 
