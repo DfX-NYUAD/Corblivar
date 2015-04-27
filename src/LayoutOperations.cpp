@@ -896,6 +896,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 				// if the target die die2 is the same as of the
 				// alignment's partner block b2, prohibit this operation
 				if (die2 == b2->layer) {
+
 					return false;
 				}
 			}
@@ -962,7 +963,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 	else {
 		// offsets may have to be adapted for moves within one die
 		//
-		if (this->last_op_die1 == this->last_op_die2) {
+		if (mode == LayoutOperations::OP_MOVE_TUPLE && this->last_op_die1 == this->last_op_die2) {
 
 			// previous move: origin offset was greater than target offset;
 			// thus, the tuple was moved before the origin offset, and the
