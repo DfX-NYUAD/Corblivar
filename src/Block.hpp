@@ -75,6 +75,9 @@ class Block {
 		// pointers to alignments representing vertical bus, if any
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
+		// pointers to all alignments, if any
+		mutable std::list<CorblivarAlignmentReq*> alignments_all;
+
 		// density in [uW/(um^2)]
 		double power_density;
 
