@@ -141,7 +141,6 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	Block const* other_block;
 	std::list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
 	CorblivarAlignmentReq const* req_processed;
-	bool alignments_processed;
 
 	if (CorblivarCore::DBG) {
 		std::cout << "DBG_CORE> ";
@@ -212,28 +211,14 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 			// handle block alignment only if desired
 			if (perform_alignment) {
 
-				//// determine related requests for current block
-				//cur_block_alignment_reqs = this->findAlignmentReqs(cur_block);
+				// determine related requests for current block
+				cur_block_alignment_reqs = this->findAlignmentReqs(cur_block);
 
-				alignments_processed = false;
-
-				// some requests are associated with the current block,
-				// handle them stepwise
-				if (!cur_block->alignments_all.empty()) {
+				// some requests are given, handle them stepwise
+				if (!cur_block_alignment_reqs.empty()) {
 
 					// handle each request
-					for (auto* cur_req : cur_block->alignments_all) {
-
-						// only consider request which are still in
-						// process, i.e., not both blocks are placed yet
-						if (cur_req->s_i->placed && cur_req->s_j->placed) {
-							continue;
-						}
-						else {
-							// memorize that any alignment was
-							// processed
-							alignments_processed = true;
-						}
+					for (auto* cur_req : cur_block_alignment_reqs) {
 
 						if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 							std::cout << "DBG_ALIGNMENT>  Handling alignment request for block " << cur_block->id << std::endl;
@@ -308,28 +293,21 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 						}
 					}
 
-					// check if any request at all was processed
-					//
-					if (alignments_processed) {
+					// all requests are handled and further layout generation
+					// to be continued on this die; increment progress pointer
+					// since block and related alignment requests are handled
+					if (!this->dies[cur_block->layer].stalled) {
 
-						// all requests are handled and further layout generation
-						// to be continued on this die; increment progress pointer
-						// since block and related alignment requests are handled
-						if (!this->dies[cur_block->layer].stalled) {
-
-							if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
-								std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
-							}
-
-							this->p->updateProgressPointerFlag();
+						if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
+							std::cout << "DBG_ALIGNMENT>  All requests handled for block " << cur_block->id << "; continue w/ next block" << std::endl;
 						}
+
+						this->p->updateProgressPointerFlag();
 					}
 				}
 
-				// no alignment requested given for current block; or no
-				// request was processed
-				if (cur_block->alignments_all.empty() || !alignments_processed) {
-
+				// no alignment requested given for current block
+				else {
 					// place block, increment progress pointer
 					this->p->placeCurrentBlock(perform_alignment);
 					this->p->updateProgressPointerFlag();

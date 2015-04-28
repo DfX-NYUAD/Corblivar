@@ -931,16 +931,6 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 				req.s_j->alignments_vertical_bus.push_back(&req);
 			}
 		}
-
-		// also memorize pointer to any alignment request
-		//
-		if (req.s_i != &fp.RBOD) {
-			req.s_i->alignments_all.push_back(&req);
-		}
-
-		if (req.s_j != &fp.RBOD) {
-			req.s_j->alignments_all.push_back(&req);
-		}
 	}
 
 	if (IO::DBG) {
