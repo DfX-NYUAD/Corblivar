@@ -915,9 +915,9 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			// and moves from the upper layer d1 down to the lower layer d2
 			// should be prohibited
 			if (die1 > die2	&& (corb.getDie(die1).getBlock(tuple1)->power_density > corb.getDie(die2).getBlock(tuple2)->power_density)
-					//but for OP_SWAP_BLOCKS_ENFORCE (which is used
-					//for handling failed alignments) they should be
-					//considered
+					// but for OP_SWAP_BLOCKS_ENFORCE (which is used
+					// for handling failed alignments) they should be
+					// considered
 					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
@@ -933,8 +933,8 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 			// up to die2 is fine
 			else if (die1 < die2
 					&& (corb.getDie(die2).getBlock(tuple2)->power_density > corb.getDie(die1).getBlock(tuple1)->power_density)
-					// note that by considering only OP_SWAP_BLOCKS,
-					// both OP_MOVE_TUPLE and OP_SWAP_BLOCKS are
+					// note that by blocking only OP_SWAP_BLOCKS, both
+					// OP_MOVE_TUPLE and OP_SWAP_BLOCKS_ENFORCE are
 					// allowed
 					&& mode == LayoutOperations::OP_SWAP_BLOCKS) {
 
