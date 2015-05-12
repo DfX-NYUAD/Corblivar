@@ -159,9 +159,9 @@ Changelog
 
 1.3.0
 -----
-*March 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024 *
-** considerable updates and fixes (interconnects handling, clustering, layout operations,
-HotSpot data, etc), new feature: routing-congestion estimation  **
+*March 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024*
+**considerable updates and fixes (interconnects handling, clustering, layout operations,
+HotSpot data, etc), new feature: routing-congestion estimation**
 - added estimation of routing congestion; considering all wires, also connecting to TSVs
 - various fixes regarding clustering and related interconnects handling
 - improved accuracy for determination of interconnects; for TSVs, regular wires and
