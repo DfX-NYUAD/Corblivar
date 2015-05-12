@@ -1,7 +1,7 @@
 Licence
 =======
 
-Copyright (C) 2014 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
 
 https://github.com/jknechtel/Corblivar
 
@@ -156,6 +156,25 @@ with ~/code/HotSpot is the default setup which should be working in any case.
 
 Changelog
 =========
+
+1.3.0
+-----
+*March 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024 *
+** considerable updates and fixes (interconnects handling, clustering, layout operations,
+HotSpot data, etc), new feature: routing-congestion estimation  **
+- added estimation of routing congestion; considering all wires, also connecting to TSVs
+- various fixes regarding clustering and related interconnects handling
+- improved accuracy for determination of interconnects; for TSVs, regular wires and
+massive busses
+- improved layout packing; added dedicated handling for outer blocks
+- improved handling TSV islands, greedy shifting to avoid overlaps
+- various fixes regarding gridding of HotSpot input-data; HotSpot errors due to conversion
+errors are now settled
+- updates and fixes handling of strictly aligned massive interconnects
+- updates and fixes for handling for intermediately failed alignmentsA
+- updates and fixes layout operations
+- various updates and cleanups for logging
+- various updates and cleanups for benchmarks and experimental setups
 
 1.2.0
 -----
