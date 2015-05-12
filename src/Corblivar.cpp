@@ -32,7 +32,7 @@ int main (int argc, char** argv) {
 
 	std::cout << std::endl;
 	std::cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << std::endl;
-	std::cout << "----- 3D floorplanning tool v 1.2.0 ------------------------------" << std::endl << std::endl;
+	std::cout << "----- 3D floorplanning tool v 1.3.0 ------------------------------" << std::endl << std::endl;
 
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);
