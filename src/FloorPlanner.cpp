@@ -1265,9 +1265,15 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 			// require TSV islands as well
 			if (intersect.area == 0.0 && (req.s_i->layer != req.s_j->layer)) {
 
-				// here, we consider the blocks' bounding box for guiding
-				// placement of the required TSV island
-				intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+				// however, block alignments with respect to RBOD (since
+				// RBOD layer is -1 and RBOD.bb is zero, they will be
+				// triggered here) should be ignored as well
+				if (req.s_i->id != RBOD::ID && req.s_j->id != RBOD::ID) {
+
+					// here, we consider the blocks' bounding box for
+					// guiding placement of the required TSV island
+					intersect = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+				}
 			}
 
 			// either an embedded vertical bus or blocks on separate dies but
