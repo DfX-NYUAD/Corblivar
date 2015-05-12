@@ -276,9 +276,14 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 							this->dies[cur_block->layer].stalled = true;
 							// memorize alignment as in process;
 							this->AL.push_back(cur_req);
-							// continue layout generation on die
-							// related to other block of request
-							this->p = &this->dies[other_block->layer];
+							// continue layout generation on
+							// die related to other block of
+							// request; only applicable for
+							// regular blocks, i.e., for RBOD,
+							// continue on current die
+							if (other_block->id != RBOD::ID) {
+								this->p = &this->dies[other_block->layer];
+							}
 
 							if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 								std::cout << "DBG_ALIGNMENT>    Request not (yet) in process" << std::endl;
