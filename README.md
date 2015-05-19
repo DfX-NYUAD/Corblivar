@@ -157,9 +157,17 @@ with ~/code/HotSpot is the default setup which should be working in any case.
 Changelog
 =========
 
+1.3.1
+-----
+*May 2015, commit f770ba1d2e56f9df6f3f0dab0d9e2b020e111928*
+**minor updates and fixes**
+- fixes related to handling aligmnet with RBOD, i.e., alignments for pre-fixed blocks
+- updates for TSV handling; put single TSVs (in net's bounding boxes' center) in case
+clustering is not applied
+
 1.3.0
 -----
-*March 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024*
+*May 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024*
 **considerable updates and fixes (interconnects handling, clustering, layout operations,
 HotSpot data, etc), new feature: routing-congestion estimation**
 - added estimation of routing congestion; considering all wires, also connecting to TSVs
