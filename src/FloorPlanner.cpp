@@ -961,6 +961,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	double prev_TSVs;
 	double net_weight;
 	RoutingUtilization::UtilResult util;
+	TSV_Island* island;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
@@ -1096,14 +1097,47 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 						}
 					}
 				}
-				// consider impact on routing-utilization; only in case
-				// clustering is not applied (otherwise this is only done
-				// after clustering)
+				// consider impact of bounding boxes on
+				// routing-utilization and place dummy TSVs (not optimized
+				// but rather placed into the center of each bounding box,
+				// only required for proper thermal simulation)
+				//
+				// only in case clustering is not applied, otherwise
+				// proper routing utilization and TSV placement is done by
+				// clustering itself
 				else {
-					// before TSVs are placed, the net shall impact
+					// for ignored clustering, the net shall impact
 					// the routing utilization on all affected layers
 					// but with accordingly down-scaled weight
 					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+
+					// place dummy TSVs in all but uppermost affected
+					// layer; required for proper thermal simulation
+					//
+					if (i < cur_net.layer_top) {
+
+						// define new trivial island, with one TSV
+						island = new TSV_Island(
+								// net id and layer
+								"net_" + std::to_string(cur_net.id) + "_" + std::to_string(i),
+								// one TSV count
+								1,
+								// TSV pitch; required for proper scaling
+								// of TSV island
+								this->IC.TSV_pitch,
+								// reference point for placement
+								// of dummy TSV is net bb
+								bb,
+								// layer assignment
+								i
+							);
+
+						// here, greedy shifting is ignored for simplicity and runtime
+						//
+
+						// memorize TSV in global container
+						this->TSVs.push_back(*island);
+					}
 				}
 			}
 		}
