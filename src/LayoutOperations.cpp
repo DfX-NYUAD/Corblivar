@@ -330,9 +330,28 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		}
 
 		// determine die and tuple variables; tuple2 is to be determined below
+		//
 		die1 = b1->layer;
 		tuple1 = corb.getDie(die1).getTuple(b1);
-		die2 = b1_partner->layer;
+		// for RBOD being the partner, we assume the same die as for the block to
+		// be changed
+		if (b1_partner->id == RBOD::ID) {
+			die2 = die1;
+		}
+		else {
+			die2 = b1_partner->layer;
+		}
+
+		if (CorblivarAlignmentReq::DBG_HANDLE_FAILED) {
+			std::cout << "DBG_ALIGNMENT> s_i: " << failed_req->s_i->id << std::endl;
+			std::cout << "DBG_ALIGNMENT> s_j: " << failed_req->s_j->id << std::endl;
+			std::cout << "DBG_ALIGNMENT> b1: " << b1->id << std::endl;
+			std::cout << "DBG_ALIGNMENT> b1_partner: " << b1_partner->id << std::endl;
+			std::cout << "DBG_ALIGNMENT> die1: " << die1 << std::endl;
+			std::cout << "DBG_ALIGNMENT> tuple1: " << tuple1 << std::endl;
+			std::cout << "DBG_ALIGNMENT> die2: " << die2 << std::endl;
+			std::cout << "DBG_ALIGNMENT> tuple1: to be determined" << std::endl;
+		}
 
 		// dedicatedly defined vertical bus; failed vertical alignment across
 		// different dies
