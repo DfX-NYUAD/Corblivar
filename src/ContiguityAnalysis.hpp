@@ -40,10 +40,26 @@ class ContiguityAnalysis {
 	// PODs, to be declared early on
 	public:
 		struct ContiguousNeighbour {
+
 			Block const* neighbour;
-			double common_boundary_x;
-			double common_boundary_y;
-			double common_boundary_z;
+
+			// common boundaries; encode the intersecting range of abutting
+			// blocks
+			//
+			// by definition, this value is smaller than zero for the
+			// neighbour being left of the current block, and greater than
+			// zero for the neighbour being right of the current block
+			double common_boundary_hor;
+			// by definition, this value is smaller than zero for the
+			// neighbour being below of the current block, and greater than
+			// zero for the neighbour being above of the current block
+			double common_boundary_vert;
+
+			// these values are similar to the horizontal and vertical above,
+			// but may only refer to the neighbour block being stacked above
+			// the current block, in the next upper die
+			double common_boundary_stacked_hor;
+			double common_boundary_stacked_vert;
 		};
 
 	// private data, functions
