@@ -1133,6 +1133,30 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
+		// TODO throw error in case the set of parsed voltages is larger than
+		// MultipleVoltages::MAX_VOLTAGES
+
+		// TODO applicable voltages; init according to globally available
+		// voltages; init such that all blocks may assume any voltage but unused
+		// bits shall remain zero
+		for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
+
+			//new_block.feasible_voltages[v] = 1;
+
+			// TODO drop 
+			// dummy data, randomly assign voltages
+			//
+			// the highest voltage shall be always applicable
+			if (v == 0) {
+				new_block.feasible_voltages[0] = 1;
+			}
+			// any other, lower voltage shall be randomly considered; the
+			// probabilities are reduced with the voltage
+			else {
+				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && Math::randB();
+			}
+		}
+
 		// track block power statistics
 		power += new_block.power();
 		fp.power_stats.max = std::max(fp.power_stats.max, new_block.power_density);
