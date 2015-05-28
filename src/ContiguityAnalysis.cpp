@@ -107,11 +107,6 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		std::sort(boundaries_hor[l].begin(), boundaries_hor[l].end(), ContiguityAnalysis::boundaries_hor_comp);
 		std::sort(boundaries_vert[l].begin(), boundaries_vert[l].end(), ContiguityAnalysis::boundaries_vert_comp);
 
-		// then, walk boundaries and whenever two boundaries are intersecting on
-		// the same x- and y-coordinates, consider their related blocks as
-		// contiguous neighbours
-		// TODO
-
 		if (ContiguityAnalysis::DBG) {
 
 			std::cout << "DBG_CONTIGUITY> Sorted boundaries; die " << l << "; horizontal boundaries:" << std::endl;
@@ -129,6 +124,49 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 				std::cout << "(" << boundary.p1.x << "," << boundary.p1.y << ")";
 				std::cout << "(" << boundary.p2.x << "," << boundary.p2.y << "); block " << boundary.block->id << std::endl;
 			}
+		}
+
+		// then, walk boundaries and whenever two boundaries are intersecting on
+		// the same x- and y-coordinates, consider their related blocks as
+		// contiguous neighbours
+		//
+		if (ContiguityAnalysis::DBG) {
+
+			std::cout << "DBG_CONTIGUITY> Determine intersecting boundaries; derive contiguity" << std::endl;
+		}
+
+		for (i1 = boundaries_hor[l].begin(); i1 != boundaries_hor[l].end(); ++i1) {
+
+			ContiguityAnalysis::Boundary& b1 = (*i1);
+
+			if (ContiguityAnalysis::DBG) {
+				std::cout << "DBG_CONTIGUITY>  Currently considered horizontal segment ";
+				std::cout << "(" << b1.p1.x << "," << b1.p1.y << ")";
+				std::cout << "(" << b1.p2.x << "," << b1.p2.y << "); block " << b1.block->id << std::endl;
+			}
+
+			// the boundary b2, to be compared to b1, should have the same
+			// x-coordinate; thus, we start from the next element (not the
+			// same, in order to avoid comparison with itself) in the set of
+			// sorted boundaries
+			i2 = i1 + 1;
+			for (; i2 != boundaries_hor[l].end(); ++i2) {
+
+				ContiguityAnalysis::Boundary& b2 = (*i2);
+
+				// TODO determine intersections; if found, memorize; else
+				// break loop if x-coordinate is larger than for b1 or if
+				// b2.p1.y > b1.p2.y, i.e., the boundary b2 is above b2
+
+				// TODO only report actually intersecting boundaries,
+				// i.e., contiguity of blocks
+				if (ContiguityAnalysis::DBG) {
+					std::cout << "DBG_CONTIGUITY>   Horizontal segment to consider as potentially intersecting";
+					std::cout << "(" << b2.p1.x << "," << b2.p1.y << ")";
+					std::cout << "(" << b2.p2.x << "," << b2.p2.y << "); block " << b2.block->id << std::endl;
+				}
+			}
+
 		}
 	}
 
