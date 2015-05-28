@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar libraries includes
+ *    Description:  Corblivar contiguity analysis, required for multiple-voltages feature
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
  *
  *    This file is part of Corblivar.
  *    
@@ -20,28 +20,41 @@
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_LIBRARY_INCLUDES
-#define _CORBLIVAR_LIBRARY_INCLUDES
+#ifndef _CORBLIVAR_CONTIGUITY
+#define _CORBLIVAR_CONTIGUITY
 
-// STL
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <array>
-#include <vector>
-#include <map>
-#include <list>
-#include <bitset>
-#include <utility>
-#include <algorithm>
-// (TODO) replace w/ chrono
-#include <sys/timeb.h>
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
+// forward declarations, if any
+class Block;
 
-// C libaries
-// (TODO) replace w/ STL where possible
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
+class ContiguityAnalysis {
+	// debugging code switch (private)
+	private:
+		static constexpr bool DBG = false;
+
+	// public data
+	public:
+
+	// PODs, to be declared early on
+	public:
+		struct ContiguousNeighbour {
+			Block const* neighbour;
+			double common_boundary_x;
+			double common_boundary_y;
+			double common_boundary_z;
+		};
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
+	public:
+		static void analyseBlocks(std::vector<Block> const& blocks);
+};
 
 #endif

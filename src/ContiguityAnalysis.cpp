@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar libraries includes
+ *    Description:  Corblivar contiguity analysis, required for multiple-voltages feature
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
  *
  *    This file is part of Corblivar.
  *    
@@ -20,28 +20,10 @@
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_LIBRARY_INCLUDES
-#define _CORBLIVAR_LIBRARY_INCLUDES
 
-// STL
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <array>
-#include <vector>
-#include <map>
-#include <list>
-#include <bitset>
-#include <utility>
-#include <algorithm>
-// (TODO) replace w/ chrono
-#include <sys/timeb.h>
+// own Corblivar header
+#include "ContiguityAnalysis.hpp"
+// required Corblivar headers
 
-// C libaries
-// (TODO) replace w/ STL where possible
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
-
-#endif
+void ContiguityAnalysis::analyseBlocks(std::vector<Block> const& blocks) {
+}

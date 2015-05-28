@@ -28,6 +28,8 @@
 // Corblivar includes, if any
 #include "Rect.hpp"
 #include "Math.hpp"
+#include "MultipleVoltages.hpp"
+#include "ContiguityAnalysis.hpp"
 // forward declarations, if any
 class CorblivarAlignmentReq;
 
@@ -76,7 +78,19 @@ class Block {
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
 		// density in [uW/(um^2)]
+		// TODO container w/ multiple values, related to feasible_voltages
 		double power_density;
+
+		// bit-wise flags for applicable voltages, where feasible_voltages[0]
+		// encodes the highest voltage, and remaining bits encode the lower
+		// voltages in ascending order; note that if less than
+		// MultipleVoltages::MAX_VOLTAGES are globally available, the non-required
+		// bits are left as is, i.e., zero by constructor definition
+		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
+
+		// list of contiguous neighbours, required for determining compound blocks
+		// for voltage volumes
+		mutable std::list<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
 
 		// rectangle, represents block geometry and placement
 		mutable Rect bb, bb_backup, bb_best;

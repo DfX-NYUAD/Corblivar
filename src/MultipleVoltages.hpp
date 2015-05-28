@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *    Description:  Corblivar libraries includes
+ *    Description:  Corblivar handler for multiple voltages
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
  *
  *    This file is part of Corblivar.
  *    
@@ -20,28 +20,37 @@
  *
  * =====================================================================================
  */
-#ifndef _CORBLIVAR_LIBRARY_INCLUDES
-#define _CORBLIVAR_LIBRARY_INCLUDES
+#ifndef _CORBLIVAR_MULTIPLEVOLTAGES
+#define _CORBLIVAR_MULTIPLEVOLTAGES
 
-// STL
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <array>
-#include <vector>
-#include <map>
-#include <list>
-#include <bitset>
-#include <utility>
-#include <algorithm>
-// (TODO) replace w/ chrono
-#include <sys/timeb.h>
+// library includes
+#include "Corblivar.incl.hpp"
+// Corblivar includes, if any
+// forward declarations, if any
 
-// C libaries
-// (TODO) replace w/ STL where possible
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
+class MultipleVoltages {
+	// debugging code switch (private)
+	private:
+		static constexpr bool DBG = false;
+
+	// public data
+	public:
+
+		// dimension for feasible voltages;
+		// represents the upper bound for globally available voltages
+		static constexpr int MAX_VOLTAGES = 4;
+
+	// PODs, to be declared early on
+	public:
+
+	// private data, functions
+	private:
+
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
+	public:
+};
 
 #endif
