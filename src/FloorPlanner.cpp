@@ -402,6 +402,8 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 	this->max_cost_TSVs = 0;
 	this->max_cost_thermal = 0.0;
 	this->max_cost_alignments = 0.0;
+	this->max_cost_timing = 0.0;
+	this->max_cost_voltage_assignment = 0.0;
 
 	// reset temperature-schedule log
 	this->tempSchedule.clear();
@@ -624,6 +626,15 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
 			this->IO_conf.results << std::endl;
 
+			std::cout << "Corblivar> Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
+			this->IO_conf.results << "Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
+			this->IO_conf.results << std::endl;
+
+			// TODO actual value; in terms of?
+			std::cout << "Corblivar> Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+			this->IO_conf.results << "Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+			this->IO_conf.results << std::endl;
+
 			std::cout << std::endl;
 		}
 	}
@@ -773,11 +784,33 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
+		// determine voltage-assignment cost; also determines initially the timing
+		// information and later on the actual optimized voltage volumes
+		//
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize) {
+			this->evaluateTiming(cost, true);
+			this->evaluateVoltageAssignment(cost, true);
+		}
+		else if (this->opt_flags.voltage_assignment) {
+			this->evaluateTiming(cost, set_max_cost);
+			this->evaluateVoltageAssignment(cost, set_max_cost);
+		}
+		// only consider timing
+		else if (this->opt_flags.timing) {
+			this->evaluateTiming(cost, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
+		else {
+			cost.timing = 0.0;
+			cost.voltage_assignment = 0.0;
+		}
+
 		// temperature-distribution cost and profile
 		//
-		// note that vertical buses and TSV islands impact heat conduction, thus
-		// the block alignment / bus structures and interconnects are analysed
-		// before thermal distribution
+		// note that a) vertical buses and TSV islands and b) voltage assignment
+		// impacts power densities and heat conduction, thus the thermal
+		// distribution is analysed only now
 		//
 		// for finalize calls, we need to initialize the max_cost
 		if (finalize) {
@@ -813,6 +846,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 					+ this->weights.TSVs * cost.TSVs
 					+ this->weights.alignment * cost.alignments
 					+ this->weights.thermal * cost.thermal
+					+ this->weights.voltage_assignment * cost.voltage_assignment
+					+ this->weights.timing * cost.timing
 				)
 			// area, outline cost is already weighted
 			+ cost.area_outline;
@@ -825,6 +860,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 					+ this->weights.TSVs * cost.TSVs
 					+ this->weights.alignment * cost.alignments
 					+ this->weights.thermal * cost.thermal
+					+ this->weights.voltage_assignment * cost.voltage_assignment
+					+ this->weights.timing * cost.timing
 				)
 			// consider only area term for ratio 1.0, see evaluateAreaOutline
 			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
@@ -837,6 +874,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		std::cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << std::endl;
 		std::cout << "DBG_LAYOUT>  Alignments cost: " << cost.alignments << std::endl;
 		std::cout << "DBG_LAYOUT>  Thermal cost: " << cost.thermal << std::endl;
+		std::cout << "DBG_LAYOUT>  Timing cost: " << cost.timing << std::endl;
+		std::cout << "DBG_LAYOUT>  Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -844,6 +883,22 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	}
 
 	return cost;
+}
+
+// TODO evaluate timing from current layout; provide timing slacks for all paths within
+// dedicated data structure
+// TODO encapsulate similar as done in
+// FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
+void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
+}
+
+// TODO encapsulate similar as done in
+// FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
+void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
+// TODO multiple voltages: 
+// - derive contiguity for each block from current layout
+// - derive applicable voltages for each block based on timing slacks
+// - generate voltage-volume assignment
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

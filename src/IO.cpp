@@ -49,6 +49,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	std::string tmpstr;
 	ThermalAnalyzer::MaskParameters mask_parameters;
 
+	// TODO drop dummy data
+	// TODO introduce new parameter
+	fp.opt_flags.voltage_assignment = true;
+	fp.opt_flags.timing = true;
+
 	// print command-line parameters
 	if (argc < 4) {
 		std::cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << std::endl;

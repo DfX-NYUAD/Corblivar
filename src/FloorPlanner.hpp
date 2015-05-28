@@ -128,16 +128,16 @@ class FloorPlanner {
 
 		// SA parameters: optimization flags
 		struct opt_flags {
-			bool thermal, interconnects, alignment;
+			bool thermal, interconnects, alignment, voltage_assignment, timing;
 		} opt_flags;
 
 		// SA parameters: cost factors/weights
 		struct weights {
-			double thermal, WL, TSVs, alignment, routing_util;
+			double thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
 		} weights;
 
 		// SA cost variables: max cost values
-		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util;
+		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment;
 		int max_cost_TSVs;
 
 		// SA cost parameters: global weights, enforce that area and outline
@@ -166,6 +166,9 @@ class FloorPlanner {
 			double area_actual_value;
 			double outline_actual_value;
 			bool fits_fixed_outline;
+			double timing;
+			double timing_actual_value;
+			double voltage_assignment;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
 			friend std::ostream& operator<< (std::ostream& out, Cost const& cost) {
@@ -192,6 +195,10 @@ class FloorPlanner {
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost,
 				std::vector<CorblivarAlignmentReq> const& alignments,
+				bool const& set_max_cost = false);
+		void evaluateTiming(Cost& cost,
+				bool const& set_max_cost = false);
+		void evaluateVoltageAssignment(Cost& cost,
 				bool const& set_max_cost = false);
 
 		// SA: parameters for cost functions
