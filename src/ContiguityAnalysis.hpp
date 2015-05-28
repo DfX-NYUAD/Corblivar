@@ -26,6 +26,7 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Point.hpp"
 // forward declarations, if any
 class Block;
 
@@ -62,15 +63,49 @@ class ContiguityAnalysis {
 			double common_boundary_stacked_vert;
 		};
 
+		struct Boundary {
+
+			Block const* block;
+			
+			Point p1;
+			Point p2;
+		};
+
 	// private data, functions
 	private:
+		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2) {
+			return (
+					// x-coordinates are the first criterion; note
+					// that it's sufficient to compare the first
+					// (lower) points
+					(b1.p1.x < b2.p1.x)
+					// for boundaries with same x-coordinate, resolve
+					// equal values by considering the boundaries'
+					// y-coordinate
+					|| ((b1.p1.x == b2.p1.x) && (b1.p1.y < b2.p1.y))
+			       );
+		};
+
+		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2) {
+			return (
+					// y-coordinates are the first criterion; note
+					// that it's sufficient to compare the first
+					// (left) points
+					(b1.p1.y < b2.p1.y)
+					// for boundaries with same y-coordinate, resolve
+					// equal values by considering the boundaries'
+					// x-coordinate
+					|| ((b1.p1.y == b2.p1.y) && (b1.p1.x < b2.p1.x))
+			       );
+		};
+
 
 	// constructors, destructors, if any non-implicit
 	public:
 
 	// public data, functions
 	public:
-		static void analyseBlocks(std::vector<Block> const& blocks);
+		static void analyseBlocks(int layers, std::vector<Block> const& blocks);
 };
 
 #endif

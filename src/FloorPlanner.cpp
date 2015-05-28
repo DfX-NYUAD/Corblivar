@@ -31,6 +31,7 @@
 #include "Net.hpp"
 #include "IO.hpp"
 #include "Clustering.hpp"
+#include "ContiguityAnalysis.hpp"
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
@@ -892,13 +893,17 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 }
 
+// TODO multiple voltages: 
+// - derive applicable voltages for each block based on timing slacks
+// - generate voltage-volume assignment
 // TODO encapsulate similar as done in
 // FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
-// TODO multiple voltages: 
-// - derive contiguity for each block from current layout
-// - derive applicable voltages for each block based on timing slacks
-// - generate voltage-volume assignment
+
+	// derive contiguity for each block from current layout; contiguity matrix is kept
+	// as reduced contiguity list within blocks themselves, only encoding the actual
+	// neighbours of each block
+	ContiguityAnalysis::analyseBlocks(this->IC.layers, this->blocks);
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

@@ -90,7 +90,7 @@ class Block {
 
 		// list of contiguous neighbours, required for determining compound blocks
 		// for voltage volumes
-		mutable std::list<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
+		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
 
 		// rectangle, represents block geometry and placement
 		mutable Rect bb, bb_backup, bb_best;
