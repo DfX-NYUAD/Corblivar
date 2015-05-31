@@ -956,7 +956,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost) {
 	int i;
 	std::vector<Rect const*> blocks_to_consider;
-	std::vector< std::list<Clustering::Segments> > nets_segments;
+	std::vector< std::vector<Clustering::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 	double net_weight;
@@ -988,7 +988,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
 	for (i = 0; i < this->IC.layers; i++) {
-		nets_segments.emplace_back(std::list<Clustering::Segments>());
+		nets_segments.emplace_back(std::vector<Clustering::Segments>());
 	}
 
 	// determine HPWL and TSVs for each net
