@@ -26,6 +26,7 @@
 // required Corblivar headers
 #include "Point.hpp"
 #include "Block.hpp"
+#include "Math.hpp"
 
 void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blocks) {
 	ContiguityAnalysis::Boundary cur_boundary;
@@ -155,12 +156,16 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 				ContiguityAnalysis::Boundary& b2 = (*i2);
 
-				// break loop if the lower point of b2 is already above
-				// the upper point of b1, i.e., when no intersection is
-				// feasible anymore; also break the loop we reached the
-				// next x-coordinate already, i.e., again no intersection
-				// is feasible anymore
-				if (b2.p1.y > b1.p2.y || b2.p1.x > b1.p1.x) {
+				// break loop conditions;
+				if (
+					// if the lower point of b2 is just matching or
+					// already above the upper point of b1, i.e., when
+					// no intersection is feasible anymore
+					(Math::doubleComp(b2.p1.y, b1.p2.y) || b2.p1.y > b1.p2.y)
+					// or if we reached the next x-coordinate already,
+					// i.e., again no intersection is feasible anymore
+					|| (b2.p1.x > b1.p1.x)
+				   ) {
 					break;
 				}
 
@@ -194,3 +199,39 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		}
 	}
 }
+
+inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
+	return (
+			// x-coordinates are the first criterion; note
+			// that it's sufficient to compare the first
+			// (lower) points since it's a vertical segment
+			(b1.p1.x < b2.p1.x)
+			// for boundaries with same x-coordinate, resolve
+			// equal values by considering the boundaries'
+			// y-coordinate
+			|| (Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.p1.y < b2.p1.y))
+			// there will also be cases when segments start on
+			// the same x- and y-coordinate; then, resolve by
+			// block order, i.e., the segment of the left
+			// block comes first
+			|| (Math::doubleComp(b1.p1.x, b2.p1.x) && Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
+	       );
+};
+
+inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
+	return (
+			// y-coordinates are the first criterion; note
+			// that it's sufficient to compare the first
+			// (left) points since it's a horizontal segment
+			(b1.p1.y < b2.p1.y)
+			// for boundaries with same y-coordinate, resolve
+			// equal values by considering the boundaries'
+			// x-coordinate
+			|| (Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.p1.x < b2.p1.x))
+			// there will also be cases when segments start on
+			// the same y- and x-coordinate; then, resolve by
+			// block order, i.e., the segment of the lower
+			// block comes first
+			|| (Math::doubleComp(b1.p1.y, b2.p1.y) && Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
+	       );
+};

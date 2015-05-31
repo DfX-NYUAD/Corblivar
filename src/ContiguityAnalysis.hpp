@@ -74,31 +74,8 @@ class ContiguityAnalysis {
 
 	// private data, functions
 	private:
-		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2) {
-			return (
-					// x-coordinates are the first criterion; note
-					// that it's sufficient to compare the first
-					// (lower) points
-					(b1.p1.x < b2.p1.x)
-					// for boundaries with same x-coordinate, resolve
-					// equal values by considering the boundaries'
-					// y-coordinate
-					|| (Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.p1.y < b2.p1.y))
-			       );
-		};
-
-		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2) {
-			return (
-					// y-coordinates are the first criterion; note
-					// that it's sufficient to compare the first
-					// (left) points
-					(b1.p1.y < b2.p1.y)
-					// for boundaries with same y-coordinate, resolve
-					// equal values by considering the boundaries'
-					// x-coordinate
-					|| (Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.p1.x < b2.p1.x))
-			       );
-		};
+		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2);
+		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2);
 
 
 	// constructors, destructors, if any non-implicit
