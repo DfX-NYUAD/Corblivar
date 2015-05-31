@@ -26,6 +26,7 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 #include "Net.hpp"
+#include "Math.hpp"
 
 // For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal
 // analysis, but for clustering TSVs we require the result of the thermal analysis. Thus,
@@ -61,6 +62,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 	for (i = 0; i < nets_segments.size(); i++) {
 
 		// sort the nets' bounding boxes by their area
+		// TODO sorted vector if applicable
 		nets_segments[i].sort(
 			// lambda expression
 			[&](Segments sn1, Segments sn2) {
@@ -361,14 +363,11 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	}
 
 	// sort list by temperature values
+	// TODO sorted vector if applicable
 	thermal_map_list.sort(
 		// lambda expression
 		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
-			return (b1->temp > b2->temp)
-				// in cases with equal temperature, randomly shuffle bins
-				// such that chances for neighboring bins w/ same
-				// temperatures are mitigated
-				|| ((b1->temp == b2->temp) && Math::randB());
+			return (b1->temp > b2->temp);
 		}
 	);
 
@@ -480,6 +479,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				}
 
 				// memorize only unique bins
+				// TODO sorted vector if applicable
 				neighbors.sort();
 				neighbors.unique();
 

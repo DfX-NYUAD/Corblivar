@@ -358,6 +358,7 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 
 	// c) sort stack by y-dimension in descending order; retains the proper stack
 	// structure for further horizontal block insertion
+	// TODO sorted vector if applicable
 	this->Hi.sort(
 		// lambda expression
 		[&](Block const* b1, Block const* b2) {
@@ -411,6 +412,7 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 
 	// c) sort stack by x-dimension in descending order; retains the proper stack
 	// structure for further vertical block insertion
+	// TODO sorted vector if applicable
 	this->Vi.sort(
 		// lambda expression
 		[&](Block const* b1, Block const* b2) {
@@ -915,6 +917,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	if (dir == Direction::HORIZONTAL) {
 
 		// sort blocks by lower-left x-coordinate (ascending order)
+		// TODO sorted vector if applicable
 		blocks.sort(
 			// lambda expression
 			[&](Block const* b1, Block const* b2){
@@ -924,12 +927,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// list, thus consider them first during
 					// subsequent checking for adjacent blocks
 					// (reverse list traversal)
-					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x < b2->bb.ur.x))
+					|| (Math::doubleComp(b1->bb.ll.x, b2->bb.ll.x) && (b1->bb.ur.x < b2->bb.ur.x))
 					// for blocks on same column and w/ same width,
 					// order additionally by y-coordinate to ease list
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
-					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x == b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
+					|| (Math::doubleComp(b1->bb.ll.x, b2->bb.ll.x) && Math::doubleComp(b1->bb.ur.x, b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
 					;
 			}
 		);
@@ -1011,6 +1014,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	else {
 
 		// sort blocks by lower-left y-coordinate (ascending order)
+		// TODO sorted vector if applicable
 		blocks.sort(
 			// lambda expression
 			[&](Block const* b1, Block const* b2){
@@ -1020,12 +1024,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// list, thus consider them first during
 					// subsequent checking for adjacent blocks
 					// (reverse list traversal)
-					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y < b2->bb.ur.y))
+					|| (Math::doubleComp(b1->bb.ll.y, b2->bb.ll.y) && (b1->bb.ur.y < b2->bb.ur.y))
 					// for blocks on same row and w/ same height,
 					// order additionally by x-coordinate to ease list
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
-					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y == b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
+					|| (Math::doubleComp(b1->bb.ll.y, b2->bb.ll.y) && Math::doubleComp(b1->bb.ur.y, b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
 					;
 			}
 		);
