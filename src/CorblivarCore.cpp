@@ -139,7 +139,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, st
 bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 	Block const* cur_block;
 	Block const* other_block;
-	std::list<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
+	std::vector<CorblivarAlignmentReq const*> cur_block_alignment_reqs;
 	CorblivarAlignmentReq const* req_processed;
 
 	if (CorblivarCore::DBG) {
@@ -742,8 +742,8 @@ void CorblivarCore::sequentialShiftingHelper(CorblivarDie* die_b1, CorblivarDie*
 	}
 }
 
-std::list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
-	std::list<CorblivarAlignmentReq const*> ret;
+std::vector<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block const* b) const {
+	std::vector<CorblivarAlignmentReq const*> ret;
 
 	// sanity check for no given requests
 	if (this->A.empty()) {
@@ -771,8 +771,7 @@ std::list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block c
 	// requests w/ placed blocks are considered first; eases handling
 	// of alignment requests such that blocks ready for alignment are
 	// placed/aligned first
-	// TODO sorted vector if applicable
-	ret.sort(
+	sort(ret.begin(), ret.end(),
 		// lambda expression
 		[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
 			return (req1->s_i->placed || req1->s_j->placed) && (!req2->s_i->placed && !req2->s_j->placed);
