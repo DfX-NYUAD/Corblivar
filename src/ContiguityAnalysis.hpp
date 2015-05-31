@@ -51,17 +51,17 @@ class ContiguityAnalysis {
 			// by definition, this value is smaller than zero for the
 			// neighbour being left of the current block, and greater than
 			// zero for the neighbour being right of the current block
-			double common_boundary_vert;
+			double common_boundary_vert = 0.0;
 			// by definition, this value is smaller than zero for the
 			// neighbour being below of the current block, and greater than
 			// zero for the neighbour being above of the current block
-			double common_boundary_hor;
+			double common_boundary_hor = 0.0;
 
 			// these values are similar to the horizontal and vertical above,
 			// but may only refer to the neighbour block being stacked above
 			// the current block, in the next upper die
-			double common_boundary_stacked_vert;
-			double common_boundary_stacked_hor;
+			double common_boundary_stacked_vert = 0.0;
+			double common_boundary_stacked_hor = 0.0;
 		};
 
 		struct Boundary {
@@ -76,7 +76,8 @@ class ContiguityAnalysis {
 	private:
 		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2);
 		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2);
-
+		inline static double common_boundary_vert(Boundary const& b1, Boundary const& b2);
+		inline static double common_boundary_hor(Boundary const& b1, Boundary const& b2);
 
 	// constructors, destructors, if any non-implicit
 	public:
