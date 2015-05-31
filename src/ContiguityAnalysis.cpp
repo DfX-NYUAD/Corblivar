@@ -65,7 +65,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.p2.x = block.bb.ll.x;
 		cur_boundary.p2.y = block.bb.ur.y;
 
-		boundaries_hor[block.layer].push_back(cur_boundary);
+		boundaries_vert[block.layer].push_back(cur_boundary);
 
 		// right boundary
 		cur_boundary.p1.x = block.bb.ur.x;
@@ -73,7 +73,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.p2.x = block.bb.ur.x;
 		cur_boundary.p2.y = block.bb.ur.y;
 
-		boundaries_hor[block.layer].push_back(cur_boundary);
+		boundaries_vert[block.layer].push_back(cur_boundary);
 
 		// bottom boundary
 		cur_boundary.p1.x = block.bb.ll.x;
@@ -81,7 +81,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.p2.x = block.bb.ur.x;
 		cur_boundary.p2.y = block.bb.ll.y;
 
-		boundaries_vert[block.layer].push_back(cur_boundary);
+		boundaries_hor[block.layer].push_back(cur_boundary);
 
 		// top boundary
 		cur_boundary.p1.x = block.bb.ll.x;
@@ -89,7 +89,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.p2.x = block.bb.ur.x;
 		cur_boundary.p2.y = block.bb.ur.y;
 
-		boundaries_vert[block.layer].push_back(cur_boundary);
+		boundaries_hor[block.layer].push_back(cur_boundary);
 
 		// TODO drop dummy data
 		cur_neighbour.neighbour = &block;
@@ -100,10 +100,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 	//
 	for (int l = 0; l < layers; l++) {
 
-		// first, sort boundaries such that they are ordered by their main
-		// dimension first (e.g., x for horizontal boundaries) and also by their
-		// second dimension; this way, boundaries can next be easily compared with
-		// each other
+		// first, sort boundaries such that they are ordered by their orthogonal
+		// dimension first (i.e., y for horizontal, and x for vertical boundaries)
+		// and also by their extension dimension; this way, boundaries can next be
+		// easily compared with each other
 		std::sort(boundaries_hor[l].begin(), boundaries_hor[l].end(), ContiguityAnalysis::boundaries_hor_comp);
 		std::sort(boundaries_vert[l].begin(), boundaries_vert[l].end(), ContiguityAnalysis::boundaries_vert_comp);
 
@@ -135,12 +135,13 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			std::cout << "DBG_CONTIGUITY> Determine intersecting boundaries; derive contiguity" << std::endl;
 		}
 
-		for (i1 = boundaries_hor[l].begin(); i1 != boundaries_hor[l].end(); ++i1) {
+		// vertical boundaries
+		for (i1 = boundaries_vert[l].begin(); i1 != boundaries_vert[l].end(); ++i1) {
 
 			ContiguityAnalysis::Boundary& b1 = (*i1);
 
 			if (ContiguityAnalysis::DBG) {
-				std::cout << "DBG_CONTIGUITY>  Currently considered horizontal segment ";
+				std::cout << "DBG_CONTIGUITY>  Currently considered vertical segment ";
 				std::cout << "(" << b1.p1.x << "," << b1.p1.y << ")";
 				std::cout << "(" << b1.p2.x << "," << b1.p2.y << "); block " << b1.block->id << std::endl;
 			}
@@ -150,13 +151,22 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			// same, in order to avoid comparison with itself) in the set of
 			// sorted boundaries
 			i2 = i1 + 1;
-			for (; i2 != boundaries_hor[l].end(); ++i2) {
+			for (; i2 != boundaries_vert[l].end(); ++i2) {
 
 				ContiguityAnalysis::Boundary& b2 = (*i2);
 
-				// TODO determine intersections; if found, memorize; else
-				// break loop if x-coordinate is larger than for b1 or if
-				// b2.p1.y > b1.p2.y, i.e., the boundary b2 is above b2
+				// break loop if the lower point of b2 is already above
+				// the upper point of b1, i.e., when no intersection is
+				// feasible anymore; also break the loop we reached the
+				// next x-coordinate already, i.e., again no intersection
+				// is feasible anymore
+				if (b2.p1.y > b1.p2.y || b2.p1.x > b1.p1.x) {
+					break;
+				}
+
+				// TODO
+				// otherwise, check for and determine amount of
+				// intersection; memorize intersection as common boundary
 
 				// TODO only report actually intersecting boundaries,
 				// i.e., contiguity of blocks
