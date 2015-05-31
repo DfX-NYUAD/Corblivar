@@ -358,7 +358,6 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 
 	// c) sort stack by y-dimension in descending order; retains the proper stack
 	// structure for further horizontal block insertion
-	// TODO sorted vector if applicable
 	this->Hi.sort(
 		// lambda expression
 		[&](Block const* b1, Block const* b2) {
@@ -412,7 +411,6 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 
 	// c) sort stack by x-dimension in descending order; retains the proper stack
 	// structure for further vertical block insertion
-	// TODO sorted vector if applicable
 	this->Vi.sort(
 		// lambda expression
 		[&](Block const* b1, Block const* b2) {
@@ -901,9 +899,9 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 // (FloorPlanner::determCostAlignment does annotate alignment success / failure to the
 // blocks themselves)
 void CorblivarDie::performPacking(Direction const& dir) {
-	std::list<Block const*> blocks;
-	std::list<Block const*>::iterator i1;
-	std::list<Block const*>::reverse_iterator i2;
+	std::vector<Block const*> blocks;
+	std::vector<Block const*>::iterator i1;
+	std::vector<Block const*>::reverse_iterator i2;
 	Block const* block;
 	Block const* neighbor;
 	double x, y;
@@ -917,8 +915,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	if (dir == Direction::HORIZONTAL) {
 
 		// sort blocks by lower-left x-coordinate (ascending order)
-		// TODO sorted vector if applicable
-		blocks.sort(
+		sort(blocks.begin(), blocks.end(),
 			// lambda expression
 			[&](Block const* b1, Block const* b2){
 				return (b1->bb.ll.x < b2->bb.ll.x)
@@ -961,7 +958,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// check against other blocks; walk in reverse order since we only need to
 			// consider the blocks to the left
-			for (i2 = std::list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+			for (i2 = std::vector<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
 				if (Rect::rectA_leftOf_rectB(neighbor->bb, block->bb, true)) {
@@ -1014,8 +1011,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	else {
 
 		// sort blocks by lower-left y-coordinate (ascending order)
-		// TODO sorted vector if applicable
-		blocks.sort(
+		sort(blocks.begin(), blocks.end(),
 			// lambda expression
 			[&](Block const* b1, Block const* b2){
 				return (b1->bb.ll.y < b2->bb.ll.y)
@@ -1058,7 +1054,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 			// check against other blocks; walk in reverse order since we only need to
 			// consider the blocks below
-			for (i2 = std::list<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
+			for (i2 = std::vector<Block const*>::reverse_iterator(i1); i2 != blocks.rend(); ++i2) {
 				neighbor = *i2;
 
 				if (Rect::rectA_below_rectB(neighbor->bb, block->bb, true)) {
