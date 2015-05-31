@@ -82,7 +82,7 @@ class CorblivarCore {
 				std::list<Block const*> b1_relev_blocks, std::list<Block const*> b2_relev_blocks,
 				Direction const& dir_b1,
 				bool& b1_shifted, bool& b2_shifted);
-		std::list<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
+		std::vector<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit
 	public:

@@ -61,7 +61,7 @@ class Clustering {
 			double peak_temp;
 			double base_temp;
 			double temp_gradient;
-			std::list<ThermalAnalyzer::ThermalMapBin*> bins;
+			std::vector<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
 			int id;
 			double score;
@@ -73,7 +73,7 @@ class Clustering {
 
 		// clustering helper
 		void clusterSignalTSVs(std::vector<Net> &nets,
-				std::vector< std::list<Segments> > &nets_segments,
+				std::vector< std::vector<Segments> > &nets_segments,
 				std::vector<TSV_Island> &TSVs,
 				double const& TSV_pitch,
 				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);

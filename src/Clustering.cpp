@@ -36,9 +36,9 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
-void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::list<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
-	std::list<Segments>::iterator it_seg;
+	std::vector<Segments>::iterator it_seg;
 	std::list<Net*>::iterator it_net;
 	Rect intersection, cluster;
 	bool all_clustered;
@@ -62,8 +62,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 	for (i = 0; i < nets_segments.size(); i++) {
 
 		// sort the nets' bounding boxes by their area
-		// TODO sorted vector if applicable
-		nets_segments[i].sort(
+		sort(nets_segments[i].begin(), nets_segments[i].end(),
 			// lambda expression
 			[&](Segments sn1, Segments sn2) {
 				return sn1.bb.area > sn2.bb.area;
@@ -318,12 +317,12 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 // based on Lindeberg's grey-level blob detection algorithm.
 void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	int x, y;
-	std::list<ThermalAnalyzer::ThermalMapBin*> thermal_map_list;
+	std::vector<ThermalAnalyzer::ThermalMapBin*> thermal_map;
+	std::vector<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
 	std::list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;
-	std::list<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
 	std::list<ThermalAnalyzer::ThermalMapBin*>::iterator it2;
-	std::list<int> neighbors;
-	std::list<int>::iterator it3;
+	std::vector<int> neighbors;
+	std::vector<int>::iterator it3;
 	ThermalAnalyzer::ThermalMapBin *cur_bin;
 	int hotspot_id;
 	std::map<double, Hotspot, std::greater<double>> hotspots;
@@ -358,13 +357,12 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				continue;
 			}
 
-			thermal_map_list.push_back(&(*thermal_analysis.thermal_map)[x][y]);
+			thermal_map.push_back(&(*thermal_analysis.thermal_map)[x][y]);
 		}
 	}
 
 	// sort list by temperature values
-	// TODO sorted vector if applicable
-	thermal_map_list.sort(
+	sort(thermal_map.begin(), thermal_map.end(),
 		// lambda expression
 		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
 			return (b1->temp > b2->temp);
@@ -372,16 +370,16 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	);
 
 	if (Clustering::DBG_HOTSPOT) {
-		std::cout << "DBG_HOTSPOT> bin w/ global max temperature [x][y]: " << thermal_map_list.front()->x << ", " << thermal_map_list.front()->y << std::endl;
-		std::cout << "DBG_HOTSPOT>  temp: " << thermal_map_list.front()->temp << std::endl;
-		for (it1 = thermal_map_list.front()->neighbors.begin(); it1 != thermal_map_list.front()->neighbors.end(); ++it1) {
-			std::cout << "DBG_HOTSPOT>  neighbor bin [x][y]: " << (*it1)->x << ", " << (*it1)->y << std::endl;
+		std::cout << "DBG_HOTSPOT> bin w/ global max temperature [x][y]: " << thermal_map.front()->x << ", " << thermal_map.front()->y << std::endl;
+		std::cout << "DBG_HOTSPOT>  temp: " << thermal_map.front()->temp << std::endl;
+		for (it2 = thermal_map.front()->neighbors.begin(); it2 != thermal_map.front()->neighbors.end(); ++it2) {
+			std::cout << "DBG_HOTSPOT>  neighbor bin [x][y]: " << (*it2)->x << ", " << (*it2)->y << std::endl;
 		}
 	}
 
 	// group the thermal-map list into hotspot regions; perform actual blob detection
 	hotspot_id = 0;
-	for (it1 = thermal_map_list.begin(); it1 != thermal_map_list.end(); ++it1) {
+	for (it1 = thermal_map.begin(); it1 != thermal_map.end(); ++it1) {
 
 		cur_bin = (*it1);
 
@@ -412,10 +410,10 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						// temperature gradient; currently
 						// undefined
 						-1.0,
-						// allocate list of associated bins;
+						// allocate vector of associated bins;
 						// initialize with cur_bin as first bin of
 						// new hotspot
-						std::list<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
+						std::vector<ThermalAnalyzer::ThermalMapBin*>(1, cur_bin),
 						// memorize hotspot as still growing
 						true,
 						// id
@@ -479,9 +477,8 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				}
 
 				// memorize only unique bins
-				// TODO sorted vector if applicable
-				neighbors.sort();
-				neighbors.unique();
+				sort(neighbors.begin(), neighbors.end());
+				unique(neighbors.begin(), neighbors.end());
 
 				// all neighbors belong to one specific hotspot
 				if (neighbors.size() == 1) {
