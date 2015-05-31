@@ -196,12 +196,84 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 				if (ContiguityAnalysis::DBG) {
 					std::cout << "DBG_CONTIGUITY>   Common boundary with block " << b2.block->id;
-					std::cout << "; (" << b2.p1.x << "," << b2.p1.y << ")";
+					std::cout << "; " << b2.block->id << "'s related segment ";
+					std::cout << "(" << b2.p1.x << "," << b2.p1.y << ")";
 					std::cout << "(" << b2.p2.x << "," << b2.p2.y << ")";
 					std::cout << "; length of boundary: " << common_boundary << std::endl;
 				}
 			}
+		}
 
+		// horizontal boundaries
+		for (i1 = boundaries_hor[l].begin(); i1 != boundaries_hor[l].end(); ++i1) {
+
+			ContiguityAnalysis::Boundary& b1 = (*i1);
+
+			if (ContiguityAnalysis::DBG) {
+				std::cout << "DBG_CONTIGUITY>  Currently considered horizontal segment ";
+				std::cout << "(" << b1.p1.x << "," << b1.p1.y << ")";
+				std::cout << "(" << b1.p2.x << "," << b1.p2.y << "); block " << b1.block->id << std::endl;
+			}
+
+			// the boundary b2, to be compared to b1, should have the same
+			// y-coordinate; thus, we start from the next element (not the
+			// same, in order to avoid comparison with itself) in the set of
+			// sorted boundaries
+			i2 = i1 + 1;
+			for (; i2 != boundaries_hor[l].end(); ++i2) {
+
+				ContiguityAnalysis::Boundary& b2 = (*i2);
+
+				// break loop conditions;
+				if (
+					// if the left point of b2 is just matching or
+					// already to the right of the right point of b1,
+					// i.e., when no intersection is feasible anymore
+					(Math::doubleComp(b2.p1.x, b1.p2.x) || b2.p1.x > b1.p2.x)
+					// or if we reached the next y-coordinate already,
+					// i.e., again no intersection is feasible anymore
+					|| (b2.p1.y > b1.p1.y)
+				   ) {
+					break;
+				}
+
+				// otherwise, some intersection exits; determine amount of
+				// intersection / common boundary and memorize within both
+				// blocks
+				common_boundary = ContiguityAnalysis::common_boundary_hor(b1, b2);
+
+				// init neighbourship storage
+				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b1;
+				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b2;
+				neighbour_for_b1.neighbour = b2.block;
+				neighbour_for_b2.neighbour = b1.block;
+
+				// for b2 being atop of b1, the common boundary to be
+				// stored in b1 is positive and the one for b2 is
+				// negative
+				if (b2.block->bb.ll.y > b1.block->bb.ll.y) {
+					neighbour_for_b1.common_boundary_hor = common_boundary;
+					neighbour_for_b2.common_boundary_hor = -common_boundary;
+				}
+				// b2 is below of b1, store negative value in b1 and
+				// positive in b2
+				else {
+					neighbour_for_b1.common_boundary_hor = -common_boundary;
+					neighbour_for_b2.common_boundary_hor = common_boundary;
+				}
+
+				// memorize within each block
+				b1.block->contiguous_neighbours.push_back(neighbour_for_b1);
+				b2.block->contiguous_neighbours.push_back(neighbour_for_b2);
+
+				if (ContiguityAnalysis::DBG) {
+					std::cout << "DBG_CONTIGUITY>   Common boundary with block " << b2.block->id;
+					std::cout << "; " << b2.block->id << "'s related segment ";
+					std::cout << "(" << b2.p1.x << "," << b2.p1.y << ")";
+					std::cout << "(" << b2.p2.x << "," << b2.p2.y << ")";
+					std::cout << "; length of boundary: " << common_boundary << std::endl;
+				}
+			}
 		}
 	}
 
