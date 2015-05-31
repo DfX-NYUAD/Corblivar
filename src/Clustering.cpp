@@ -367,11 +367,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	thermal_map_list.sort(
 		// lambda expression
 		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
-			return (b1->temp > b2->temp)
-				// in cases with equal temperature, randomly shuffle bins
-				// such that chances for neighboring bins w/ same
-				// temperatures are mitigated
-				|| (Math::doubleComp(b1->temp, b2->temp) && Math::randB());
+			return (b1->temp > b2->temp);
 		}
 	);
 
