@@ -61,6 +61,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::lis
 	for (i = 0; i < nets_segments.size(); i++) {
 
 		// sort the nets' bounding boxes by their area
+		// TODO sorted vector if applicable
 		nets_segments[i].sort(
 			// lambda expression
 			[&](Segments sn1, Segments sn2) {
@@ -361,6 +362,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	}
 
 	// sort list by temperature values
+	// TODO sorted vector if applicable
 	thermal_map_list.sort(
 		// lambda expression
 		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
@@ -480,6 +482,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				}
 
 				// memorize only unique bins
+				// TODO sorted vector if applicable
 				neighbors.sort();
 				neighbors.unique();
 

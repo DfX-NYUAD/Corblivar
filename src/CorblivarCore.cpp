@@ -771,6 +771,7 @@ std::list<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block c
 	// requests w/ placed blocks are considered first; eases handling
 	// of alignment requests such that blocks ready for alignment are
 	// placed/aligned first
+	// TODO sorted vector if applicable
 	ret.sort(
 		// lambda expression
 		[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
