@@ -27,6 +27,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Point.hpp"
+#include "Math.hpp"
 // forward declarations, if any
 class Block;
 
@@ -73,7 +74,7 @@ class ContiguityAnalysis {
 
 	// private data, functions
 	private:
-		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2) {
+		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2) {
 			return (
 					// x-coordinates are the first criterion; note
 					// that it's sufficient to compare the first
@@ -82,11 +83,11 @@ class ContiguityAnalysis {
 					// for boundaries with same x-coordinate, resolve
 					// equal values by considering the boundaries'
 					// y-coordinate
-					|| ((b1.p1.x == b2.p1.x) && (b1.p1.y < b2.p1.y))
+					|| (Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.p1.y < b2.p1.y))
 			       );
 		};
 
-		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2) {
+		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2) {
 			return (
 					// y-coordinates are the first criterion; note
 					// that it's sufficient to compare the first
@@ -95,7 +96,7 @@ class ContiguityAnalysis {
 					// for boundaries with same y-coordinate, resolve
 					// equal values by considering the boundaries'
 					// x-coordinate
-					|| ((b1.p1.y == b2.p1.y) && (b1.p1.x < b2.p1.x))
+					|| (Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.p1.x < b2.p1.x))
 			       );
 		};
 
