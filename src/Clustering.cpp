@@ -26,6 +26,7 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 #include "Net.hpp"
+#include "Math.hpp"
 
 // For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal
 // analysis, but for clustering TSVs we require the result of the thermal analysis. Thus,
@@ -370,7 +371,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 				// in cases with equal temperature, randomly shuffle bins
 				// such that chances for neighboring bins w/ same
 				// temperatures are mitigated
-				|| ((b1->temp == b2->temp) && Math::randB());
+				|| (Math::doubleComp(b1->temp, b2->temp) && Math::randB());
 		}
 	);
 
