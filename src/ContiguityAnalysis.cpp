@@ -28,6 +28,7 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
+// TODO contiguity across adjacent dies
 void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blocks) {
 	ContiguityAnalysis::Boundary cur_boundary;
 	std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_hor;

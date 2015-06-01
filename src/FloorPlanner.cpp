@@ -893,17 +893,21 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 }
 
-// TODO multiple voltages: 
-// - derive applicable voltages for each block based on timing slacks
-// - generate voltage-volume assignment
-// TODO encapsulate similar as done in
-// FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
+// TODO derive applicable voltages for each block based on timing slacks
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept
 	// as reduced contiguity list within blocks themselves, only encoding the actual
 	// neighbours of each block
 	ContiguityAnalysis::analyseBlocks(this->IC.layers, this->blocks);
+
+	// TODO voltage-volume assignment: bottom-up phase, i.e., determine set of
+	// compound modules with their assignable voltages and their (local) cost for
+	// power-domain routing
+
+	// TODO voltage-volume assignment: top-down phase, i.e., determine optimal
+	// selection of compound modules such that all blocks are assigned to a voltage
+	// and that both power and routing resources for power domains are minimized
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
