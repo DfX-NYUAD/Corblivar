@@ -174,8 +174,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 				// init neighbourship storage
 				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b1;
 				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b2;
-				neighbour_for_b1.neighbour = b2.block;
-				neighbour_for_b2.neighbour = b1.block;
+				neighbour_for_b1.block = b2.block;
+				neighbour_for_b2.block = b1.block;
 
 				// for b2 being right of b1, the common boundary to be
 				// stored in b1 is positive and the one for b2 is
@@ -246,8 +246,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 				// init neighbourship storage
 				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b1;
 				ContiguityAnalysis::ContiguousNeighbour neighbour_for_b2;
-				neighbour_for_b1.neighbour = b2.block;
-				neighbour_for_b2.neighbour = b1.block;
+				neighbour_for_b1.block = b2.block;
+				neighbour_for_b2.block = b1.block;
 
 				// for b2 being atop of b1, the common boundary to be
 				// stored in b1 is positive and the one for b2 is
@@ -285,12 +285,12 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 			std::cout << "DBG_CONTIGUITY>  Block " << block.id << ":";
 
-			for (auto& cont_neighbour : block.contiguous_neighbours) {
-				std::cout << " " << cont_neighbour.neighbour->id;
-				std::cout << " (" << cont_neighbour.common_boundary_hor;
-				std::cout << ", " << cont_neighbour.common_boundary_vert;
-				std::cout << ", " << cont_neighbour.common_boundary_stacked_hor;
-				std::cout << ", " << cont_neighbour.common_boundary_stacked_vert;
+			for (auto& neighbour : block.contiguous_neighbours) {
+				std::cout << " " << neighbour.block->id;
+				std::cout << " (" << neighbour.common_boundary_hor;
+				std::cout << ", " << neighbour.common_boundary_vert;
+				std::cout << ", " << neighbour.common_boundary_stacked_hor;
+				std::cout << ", " << neighbour.common_boundary_stacked_vert;
 				std::cout << ")";
 			}
 			std::cout << std::endl;

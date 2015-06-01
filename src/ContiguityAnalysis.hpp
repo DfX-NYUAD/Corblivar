@@ -43,7 +43,7 @@ class ContiguityAnalysis {
 	public:
 		struct ContiguousNeighbour {
 
-			Block const* neighbour;
+			Block const* block;
 
 			// common boundaries; encode the intersecting range of abutting
 			// blocks
