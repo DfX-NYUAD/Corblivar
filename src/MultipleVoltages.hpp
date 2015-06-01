@@ -85,7 +85,7 @@ class MultipleVoltages {
 
 	// public data, functions
 	public:
-		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
+		void determineCompoundModules(std::vector<Block> const& blocks);
 };
 
 #endif

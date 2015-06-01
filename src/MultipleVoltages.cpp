@@ -29,7 +29,7 @@
 
 // TODO consider compound modules across dies; this requires to determine contiguity
 // across dies first, see ContiguityAnalysis::analyseBlocks
-void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks) {
+void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks) {
 	std::bitset<MAX_VOLTAGES> feasible_voltages;
 
 	this->modules.clear();
