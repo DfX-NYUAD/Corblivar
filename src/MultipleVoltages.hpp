@@ -33,7 +33,7 @@ class Block;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 
 	// public constants
 	public:
@@ -54,7 +54,16 @@ class MultipleVoltages {
 			std::set<std::string> block_ids;
 
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
-			std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
+
+			// key: neighbour block id
+			//
+			// with an unsorted_map, redundant neighbours which may arise
+			// during stepwise build-up of compound modules are ignored
+			//
+			// TODO if the actual contiguity changes for compound modules,
+			// this should be reflected in an own copy of
+			// ContiguityAnalysis::ContiguousNeighbour
+			std::unordered_map<std::string, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
 
 			// TODO some terms of cost for power-domain routing, preferably
 			// derived from contiguity analysis
@@ -64,6 +73,9 @@ class MultipleVoltages {
 	public:
 		// set of unique compound modules
 		std::unordered_map< std::string, CompoundModule> modules;
+		// TODO may be not required
+		// by number of comprised blocks sorted container of pointers to module
+		std::multimap<int, CompoundModule*, std::greater<int>> modules_sorted;
 
 	// private data, functions
 	private:

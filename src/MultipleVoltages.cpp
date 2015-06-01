@@ -25,36 +25,132 @@
 #include "MultipleVoltages.hpp"
 // required Corblivar headers
 #include "Block.hpp"
+#include "ContiguityAnalysis.hpp"
 
+// TODO consider compound modules across dies; this requires to determine contiguity
+// across dies first, see ContiguityAnalysis::analyseBlocks
 void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks) {
+	std::bitset<MAX_VOLTAGES> feasible_voltages;
+
+	this->modules.clear();
 
 	// consider each block as starting point for a compound module
-	for (Block const& block : blocks) {
+	for (Block const& start : blocks) {
 
 		// init the trivial compound module, containing only the block itself
 		MultipleVoltages::CompoundModule module;
-		// TODO may be not required
-		//module.blocks.push_back(&block);
-		module.feasible_voltages = block.feasible_voltages;
-		module.block_ids.insert(block.id);
-		module.contiguous_neighbours = block.contiguous_neighbours;
+		// copy feasible voltages
+		module.feasible_voltages = start.feasible_voltages;
+		// init sorted set of block ids, they will be used for key generation of
+		// compound modules
+		module.block_ids.insert(start.id);
+		// copy neighbours; pointers to block's neighbour data is sufficient
+		for (auto& neighbour : start.contiguous_neighbours) {
+			module.contiguous_neighbours.insert({neighbour.block->id, &neighbour});
+		}
 
-		// store trivial compound module
-		this->modules.insert(std::make_pair<std::string, MultipleVoltages::CompoundModule>(
-					// make_pair has move semantics, thus we need a
-					// copy of the key string
-					std::string(block.id),
-					// the module can be moved, it will be accessed
-					// from the map later on
-					std::move(module)
-				));
-
-		// consider adding single blocks stepwise into each compound module until
-		// all blocks are merged
+		// stepwise consider adding single blocks into the compound module until
+		// all blocks are considered; note that this implies to determine
+		// transitive neighbours
 		//
-		// TODO consider all blocks; this requires to determine contiguity across
-		// dies first, see ContiguityAnalysis::analyseBlocks
-		for (unsigned b = 0; b < 10; b++) {
+		// TODO transitive traversal; work on this->modules
+		for (auto& neighbour : start.contiguous_neighbours) {
+
+			// first, determine if adding this neighbour would lead to an
+			// trivial solution, i.e., only the highest possible voltage is
+			// assignable; such modules are ignored and thus we can achieve
+			// notable reduction in memory and runtime by pruning trivial
+			// solutions early on during bottom-up phase
+			//
+			// bit-wise AND to obtain the intersection of feasible voltages
+			feasible_voltages = module.feasible_voltages & neighbour.block->feasible_voltages;
+
+			// only one voltage is feasible, which is trivially the highest
+			// possible; ignore this potential compound module
+			if (feasible_voltages.count() == 1) {
+				continue;
+			}
+			// more than one voltage is feasible; generate the related
+			// compound module
+			else {
+				// init the new compound module, comprising the previous
+				// module and the relevant neigbhour
+				MultipleVoltages::CompoundModule new_module;
+
+				// move feasible voltages
+				new_module.feasible_voltages = std::move(feasible_voltages);
+
+				// init sorted set of block ids with copy from previous
+				// compound module
+				new_module.block_ids = module.block_ids;
+				// add id of now additionally considered block
+				new_module.block_ids.insert(neighbour.block->id);
+
+				// init pointers to neighbours with copy from previous
+				// compound module
+				for (auto& it : module.contiguous_neighbours) {
+					new_module.contiguous_neighbours.insert({it.first, it.second});
+				}
+				// add (copy of pointers to) neighbours of now
+				// additionally considered block; note that only non yet
+				// considered neighbours are added effectively into the
+				// contiguous_neighbours map
+				for (auto& n : neighbour.block->contiguous_neighbours) {
+					new_module.contiguous_neighbours.insert({n.block->id, &n});
+				}
+
+				// copy the separate (sorted) block ids into one large
+				// string, which defines the unique key for this compound
+				// module
+				std::string compound_id;
+				for (std::string id : new_module.block_ids) {
+					compound_id += id + ",";
+				}
+
+				// store new compound module; note that it is only
+				// inserted if not existing before; this avoids storage of
+				// redundant modules for commutative orders of blocks,
+				// which will arise from different start points / initial
+				// modules; e.g., a compound module of "sb1,sb2" is the
+				// same as "sb2,sb1", and by 1) sorting the block ids and
+				// 2) inserting compound modules into a map, "sb2,sb1" is
+				// effectively ignored
+				this->modules.insert(std::make_pair<std::string, MultipleVoltages::CompoundModule>(
+							std::move(compound_id),
+							std::move(new_module)
+						));
+			}
+		}
+
+		// store trivial compound module; the module can be moved now, it will be
+		// accessed from the map later on
+		this->modules.insert({start.id, std::move(module)});
+	}
+
+	// fill container with sorted compound modules; consider only pointers to actual
+	// modules
+	this->modules_sorted.clear();
+	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
+		// note that the number of comprised blocks can be retrieved from the size
+		// of block_ids
+		this->modules_sorted.insert({it->second.block_ids.size(), &(it->second)});
+	}
+
+	if (MultipleVoltages::DBG) {
+
+		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "); view ordered by number of comprised blocks:" << std::endl;
+
+		for (auto it = this->modules_sorted.begin(); it != this->modules_sorted.end(); ++it) {
+
+			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: ";
+			for (auto& id : it->second->block_ids) {
+				std:: cout << id << ", ";
+			}
+			std::cout << std::endl;
+
+			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << it->second->feasible_voltages << std::endl;
 		}
 	}
 }
