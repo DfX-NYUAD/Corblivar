@@ -88,8 +88,7 @@ class Block {
 		// bits are left as is, i.e., zero by constructor definition
 		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 
-		// list of contiguous neighbours, required for determining compound blocks
-		// for voltage volumes
+		// vector of contiguous neighbours, required for voltage assignment
 		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
 
 		// rectangle, represents block geometry and placement

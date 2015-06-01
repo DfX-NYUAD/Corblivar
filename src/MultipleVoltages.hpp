@@ -26,22 +26,44 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "ContiguityAnalysis.hpp"
 // forward declarations, if any
+class Block;
 
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = false;
 
-	// public data
+	// public constants
 	public:
-
 		// dimension for feasible voltages;
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
 	// PODs, to be declared early on
 	public:
+		struct CompoundModule {
+
+			// TODO may be not required
+			//std::vector<Block const*> blocks;
+
+			// used to identify compound modules; since set is sorted, the
+			// order of blocks added doesn't matter, each compound module is
+			// unique in terms of blocks considered
+			std::set<std::string> block_ids;
+
+			std::bitset<MAX_VOLTAGES> feasible_voltages;
+			std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
+
+			// TODO some terms of cost for power-domain routing, preferably
+			// derived from contiguity analysis
+		};
+
+	// public data
+	public:
+		// set of unique compound modules
+		std::unordered_map< std::string, CompoundModule> modules;
 
 	// private data, functions
 	private:
@@ -51,6 +73,7 @@ class MultipleVoltages {
 
 	// public data, functions
 	public:
+		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
 };
 
 #endif

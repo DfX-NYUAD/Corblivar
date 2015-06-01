@@ -32,6 +32,7 @@
 #include "IO.hpp"
 #include "Clustering.hpp"
 #include "ContiguityAnalysis.hpp"
+#include "MultipleVoltages.hpp"
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
@@ -895,6 +896,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 
 // TODO derive applicable voltages for each block based on timing slacks
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
+	MultipleVoltages voltages;
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept
 	// as reduced contiguity list within blocks themselves, only encoding the actual
@@ -903,7 +905,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 
 	// TODO voltage-volume assignment: bottom-up phase, i.e., determine set of
 	// compound modules with their assignable voltages and their (local) cost for
-	// power-domain routing
+	// power-domain routing; here, modules are stepwise arranged into compound modules
+	voltages.determineCompoundModules(this->IC.layers, this->blocks);
 
 	// TODO voltage-volume assignment: top-down phase, i.e., determine optimal
 	// selection of compound modules such that all blocks are assigned to a voltage
