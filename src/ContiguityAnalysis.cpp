@@ -28,7 +28,6 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
-// TODO contiguity across adjacent dies
 void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blocks) {
 	ContiguityAnalysis::Boundary cur_boundary;
 	std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_hor;
@@ -38,9 +37,9 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 	double common_boundary;
 
 	// for horizontal and vertical contiguity, extract blocks' boundaries, and order
-	// them by coordinates; this will reduced required comparisons between pairs of
-	// blocks notably by considering only nearby blocks as potential contiguous
-	// neighbours
+	// them by coordinates; this will reduce required comparisons between (in
+	// principal all pairs of) blocks notably by considering only abutting blocks as
+	// potential contiguous neighbours
 	//
 
 	// init die-wise lists of boundaries
@@ -130,7 +129,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		//
 		if (ContiguityAnalysis::DBG) {
 
-			std::cout << "DBG_CONTIGUITY> Determine intersecting boundaries; derive contiguity" << std::endl;
+			std::cout << "DBG_CONTIGUITY> Determine intersecting boundaries on die " << l << "; derive intra-die contiguity" << std::endl;
 		}
 
 		// vertical boundaries
@@ -275,6 +274,17 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					std::cout << "; length of boundary: " << common_boundary << std::endl;
 				}
 			}
+		}
+	}
+
+	// TODO
+	// determine contiguous neighbours across adjacent dies
+	//
+	for (int l = 0; l < layers - 1; l++) {
+
+		if (ContiguityAnalysis::DBG) {
+
+			std::cout << "DBG_CONTIGUITY> Determine intersecting boundaries for dies " << l << " and " << l + 1 << "; derive inter-die contiguity" << std::endl;
 		}
 	}
 
