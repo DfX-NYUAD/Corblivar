@@ -130,14 +130,17 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			MultipleVoltages::CompoundModule potential_new_module;
 
 			// initially, to try insertion, we have to build up at least the
-			// compound-id string
+			// sorted compound-id string
 			std::string compound_id;
-			// previous compound-module ids
-			for (std::string id : module.block_ids) {
+			// init sorted set of block ids with copy from previous
+			// compound module
+			potential_new_module.block_ids = module.block_ids;
+			// add id of now additionally considered block
+			potential_new_module.block_ids.insert(neighbour->block->id);
+			// actual build up of id string
+			for (std::string id : potential_new_module.block_ids) {
 				compound_id += id + ",";
 			}
-			// add id of now additionally considered block (current neighbour)
-			compound_id += neighbour->block->id + ",";
 
 			// store new compound module; note that it is only inserted if not
 			// existing before; this avoids storage of redundant modules for
@@ -165,15 +168,8 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 				// we also have to initialize remaining members of the
 				// compound module, which was deferred until now, when
-				// it's clear whether the module has to be considered at
-				// all
+				// it's clear that the module has to be considered at all
 				//
-
-				// init sorted set of block ids with copy from previous
-				// compound module
-				inserted_new_module.block_ids = module.block_ids;
-				// add id of now additionally considered block
-				inserted_new_module.block_ids.insert(neighbour->block->id);
 
 				// move feasible voltages
 				inserted_new_module.feasible_voltages = std::move(feasible_voltages);
