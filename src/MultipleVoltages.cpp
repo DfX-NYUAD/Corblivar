@@ -92,7 +92,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
 	std::pair<
 		std::unordered_map< std::string, CompoundModule>::iterator,
-		bool> new_module_insertion;
+		bool> insertion;
 
 	// walk all current neighbours
 	for (auto it = module.contiguous_neighbours.begin(); it != module.contiguous_neighbours.end(); ++it) {
@@ -109,41 +109,35 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		feasible_voltages = module.feasible_voltages & neighbour->block->feasible_voltages;
 
 		// only one voltage is feasible, which is trivially the highest possible;
-		// ignore this potential compound module
+		// ignore this trivial compound module
 		if (feasible_voltages.count() == 1) {
 			continue;
 		}
-		// more than one voltage is feasible; generate the related compound module
+		// more than one voltage is feasible; generate the potential compound module
 		else {
-			// init the new compound module, comprising the previous module
-			// and the relevant neigbhour
-			MultipleVoltages::CompoundModule new_module;
+			// first, we have to check whether this compound module was
+			// already considered previously, i.e., during consideration of
+			// another starting block; only if the compound module is a new
+			// one, we continue (recursively)
+			//
+			// to check if the module already exits, we could a) search it
+			// first, and if not found insert it (2x constant or worst case
+			// linear time), or b) try to insert and only proceed if insertion
+			// was successful (1x constant or linear time)
+			//
+			// init the potential compound module which, if considered,
+			// comprises the previous module and the current neighbour
+			MultipleVoltages::CompoundModule potential_new_module;
 
-			// move feasible voltages
-			new_module.feasible_voltages = std::move(feasible_voltages);
-
-			// init sorted set of block ids with copy from previous compound
-			// module
-			new_module.block_ids = module.block_ids;
-			// add id of now additionally considered block
-			new_module.block_ids.insert(neighbour->block->id);
-
-			// init pointers to neighbours with copy from previous compound
-			// module
-			new_module.contiguous_neighbours = module.contiguous_neighbours;
-			// add (pointers to) neighbours of now additionally considered
-			// block; note that only non yet considered neighbours are added
-			// effectively into the map
-			for (auto& n : neighbour->block->contiguous_neighbours) {
-				new_module.contiguous_neighbours.insert({n.block->id, &n});
-			}
-
-			// copy the separate (sorted) block ids into one large string,
-			// which defines the unique key for this compound module
+			// initially, to try insertion, we have to build up at least the
+			// compound-id string
 			std::string compound_id;
-			for (std::string id : new_module.block_ids) {
+			// previous compound-module ids
+			for (std::string id : module.block_ids) {
 				compound_id += id + ",";
 			}
+			// add id of now additionally considered block (current neighbour)
+			compound_id += neighbour->block->id + ",";
 
 			// store new compound module; note that it is only inserted if not
 			// existing before; this avoids storage of redundant modules for
@@ -153,20 +147,49 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// ids and 2) inserting compound modules into a map, "sb2,sb1" is
 			// effectively ignored
 			//
-			new_module_insertion = this->modules.insert(std::make_pair<std::string, MultipleVoltages::CompoundModule>(
+			insertion = this->modules.insert(std::make_pair<std::string, MultipleVoltages::CompoundModule>(
 						std::move(compound_id),
-						std::move(new_module)
+						std::move(potential_new_module)
 					));
 
 			// only if this compound module was successfully inserted, i.e.,
 			// not already previously inserted, we also consider it for
 			// recursive calls, to determine next-level compound modules by
 			// considering the currently added block's neighbours
-			if (new_module_insertion.second) {
+			if (insertion.second) {
+
 				// first: iterator to just into this->modules inserted
 				// element;
 				// first->second: actual reference to compound module
-				this->buildCompoundModulesHelper(new_module_insertion.first->second);
+				MultipleVoltages::CompoundModule& inserted_new_module = insertion.first->second;
+
+				// we also have to initialize remaining members of the
+				// compound module, which was deferred until now, when
+				// it's clear whether the module has to be considered at
+				// all
+				//
+
+				// init sorted set of block ids with copy from previous
+				// compound module
+				inserted_new_module.block_ids = module.block_ids;
+				// add id of now additionally considered block
+				inserted_new_module.block_ids.insert(neighbour->block->id);
+
+				// move feasible voltages
+				inserted_new_module.feasible_voltages = std::move(feasible_voltages);
+
+				// init pointers to neighbours with copy from previous
+				// compound module
+				inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
+				// add (pointers to) neighbours of now additionally
+				// considered block; note that only non yet considered
+				// neighbours are added effectively into the map
+				for (auto& n : neighbour->block->contiguous_neighbours) {
+					inserted_new_module.contiguous_neighbours.insert({n.block->id, &n});
+				}
+
+				// recursive call
+				this->buildCompoundModulesHelper(inserted_new_module);
 			}
 		}
 	}
