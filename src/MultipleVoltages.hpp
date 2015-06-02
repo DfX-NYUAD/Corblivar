@@ -79,6 +79,7 @@ class MultipleVoltages {
 
 	// private data, functions
 	private:
+		void buildCompoundModulesHelper(CompoundModule& module);
 
 	// constructors, destructors, if any non-implicit
 	public:
