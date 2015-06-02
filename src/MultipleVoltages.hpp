@@ -33,7 +33,7 @@ class Block;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 
 	// public constants
 	public:
@@ -44,9 +44,6 @@ class MultipleVoltages {
 	// PODs, to be declared early on
 	public:
 		struct CompoundModule {
-
-			// TODO may be not required
-			//std::vector<Block const*> blocks;
 
 			// used to identify compound modules; since set is sorted, the
 			// order of blocks added doesn't matter, each compound module is
