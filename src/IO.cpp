@@ -730,6 +730,18 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 		}
 	}
 
+	// sanity check for same number of dies
+	if (fp.getLayers() != cur_layer + 1) {
+		std::cout << "IO> Parsing error: solution file contains " << cur_layer + 1 << " dies; config file is set for " << fp.getLayers() << " dies!" << std::endl;
+		exit(1);
+	}
+
+	// sanity check for same number of blocks
+	if (fp.getBlocks().size() != tuples) {
+		std::cout << "IO> Parsing error: solution file contains " << tuples << " tuples/blocks; read in benchmark contains " << fp.getBlocks().size() << " blocks!" << std::endl;
+		exit(1);
+	}
+
 	if (fp.logMed()) {
 		std::cout << "IO> ";
 		std::cout << "Done; parsed " << tuples << " tuples" << std::endl << std::endl;
