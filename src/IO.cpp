@@ -33,6 +33,7 @@
 #include "Math.hpp"
 #include "Clustering.hpp"
 #include "Block.hpp"
+#include "MultipleVoltages.hpp"
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
@@ -2033,6 +2034,16 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			gp_out << " font \"Gill Sans,4\"";
 			// prevents generating subscripts for underscore in labels
 			gp_out << " noenhanced" << std::endl;
+
+			// feasible voltages, as bitset
+			if (MultipleVoltages::DBG_FLOORPLAN) {
+				gp_out << "set label \"" << cur_block.feasible_voltages << "\"";
+				gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.IC.outline_x;
+				gp_out << "," << cur_block.bb.ur.y - 0.01 * fp.IC.outline_y;
+				gp_out << " font \"Gill Sans,2\"";
+				// prevents generating subscripts for underscore in labels
+				gp_out << " noenhanced" << std::endl;
+			}
 		}
 
 		// output TSVs (blocks)
