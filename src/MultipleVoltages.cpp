@@ -27,8 +27,6 @@
 #include "Block.hpp"
 #include "ContiguityAnalysis.hpp"
 
-// TODO consider compound modules across dies; this requires to determine contiguity
-// across dies first, see ContiguityAnalysis::analyseBlocks
 void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks) {
 
 	this->modules.clear();
