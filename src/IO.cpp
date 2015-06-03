@@ -667,6 +667,8 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	}
 
 	tuples = 0;
+	cur_layer = -1;
+
 	while (!fp.IO_conf.solution_in.eof()) {
 		fp.IO_conf.solution_in >> tmpstr;
 
@@ -724,16 +726,16 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// drop ");"
 			fp.IO_conf.solution_in >> tmpstr;
 
+			// sanity check for same number of dies
+			if (cur_layer > fp.getLayers() - 1) {
+				std::cout << "IO> Parsing error: solution file contains " << cur_layer + 1 << " dies; config file is set for " << fp.getLayers() << " dies!" << std::endl;
+				exit(1);
+			}
+
 			// store successfully parsed tuple into CBL
 			corb.editDie(cur_layer).editCBL().insert(std::move(tuple));
 			tuples++;
 		}
-	}
-
-	// sanity check for same number of dies
-	if (fp.getLayers() != cur_layer + 1) {
-		std::cout << "IO> Parsing error: solution file contains " << cur_layer + 1 << " dies; config file is set for " << fp.getLayers() << " dies!" << std::endl;
-		exit(1);
 	}
 
 	// sanity check for same number of blocks
