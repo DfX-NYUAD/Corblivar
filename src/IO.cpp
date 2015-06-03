@@ -52,7 +52,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// TODO drop dummy data
 	// TODO introduce new parameter
-	fp.opt_flags.voltage_assignment = true;
+	fp.opt_flags.voltage_assignment = false;
 	fp.opt_flags.timing = true;
 
 	// print command-line parameters
@@ -1157,7 +1157,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// TODO applicable voltages; init according to globally available
 		// voltages; init such that all blocks may assume any voltage but unused
 		// bits shall remain zero
-		for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
+		// TODO test case w/ 3 max voltages
+		for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
 
 			//new_block.feasible_voltages[v] = 1;
 
@@ -1171,7 +1172,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// any other, lower voltage shall be randomly considered; the
 			// probabilities are reduced with the voltage
 			else {
-				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && Math::randB();
+				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && (Math::randB() && Math::randB());
 			}
 		}
 
@@ -2049,7 +2050,14 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 
 			// feasible voltages, as bitset
 			if (MultipleVoltages::DBG_FLOORPLAN) {
-				gp_out << "set label \"" << cur_block.feasible_voltages << "\"";
+
+				gp_out << "set label \"";
+				// TODO test case w/ 3 max voltages
+				for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
+					gp_out << cur_block.feasible_voltages[v];
+				}
+				gp_out << "\"";
+
 				gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.IC.outline_x;
 				gp_out << "," << cur_block.bb.ur.y - 0.01 * fp.IC.outline_y;
 				gp_out << " font \"Gill Sans,2\"";
