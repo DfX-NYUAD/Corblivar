@@ -80,7 +80,12 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 			}
 			std::cout << std::endl;
 
-			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << it->second->feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module voltages bitset: ";
+			// TODO test case w/ 3 max voltages
+			for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
+				std::cout << it->second->feasible_voltages[v];
+			}
+			std::cout << std::endl;
 		}
 	}
 }
