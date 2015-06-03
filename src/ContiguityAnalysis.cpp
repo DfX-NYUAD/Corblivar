@@ -293,18 +293,19 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 		for (Block const& block : blocks) {
 
-			std::cout << "DBG_CONTIGUITY>  Block " << block.id << ":";
+			std::cout << "DBG_CONTIGUITY>  Block " << block.id << ":" << std::endl;
 
 			for (auto& neighbour : block.contiguous_neighbours) {
-				std::cout << " " << neighbour.block->id;
+				std::cout << "DBG_CONTIGUITY>   " << neighbour.block->id;
 				std::cout << " (" << neighbour.common_boundary_hor;
 				std::cout << ", " << neighbour.common_boundary_vert;
 				std::cout << ", " << neighbour.common_boundary_stacked_hor;
 				std::cout << ", " << neighbour.common_boundary_stacked_vert;
-				std::cout << ")";
+				std::cout << ")" << std::endl;
 			}
-			std::cout << std::endl;
 		}
+
+		std::cout << std::endl;
 	}
 }
 
