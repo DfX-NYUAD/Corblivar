@@ -2044,366 +2044,369 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 		// check alignment fulfillment; draw accordingly colored rectangles around
 		// affected blocks
 		//
-		for (Block const& cur_block : fp.blocks) {
+		if (fp.opt_flags.alignment) {
 
-			if (cur_block.layer != cur_layer) {
-				continue;
-			}
+			for (Block const& cur_block : fp.blocks) {
 
-			// for each alignment request defined for the block; draw the
-			// related intersection/offset to illustrate block alignment
-			for (CorblivarAlignmentReq const& req :  alignment) {
+				if (cur_block.layer != cur_layer) {
+					continue;
+				}
 
-				if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
+				// for each alignment request defined for the block; draw the
+				// related intersection/offset to illustrate block alignment
+				for (CorblivarAlignmentReq const& req :  alignment) {
 
-					// init alignment flags; -1 equals undefined
-					req_x_fulfilled = req_y_fulfilled = -1;
+					if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
 
-					// check partial request, horizontal aligment
-					//
-					// alignment range
-					if (req.range_x()) {
+						// init alignment flags; -1 equals undefined
+						req_x_fulfilled = req_y_fulfilled = -1;
 
-						// determine the blocks' intersection in
-						// x-dimensions; equals the partial
-						// alignment rect
-						alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+						// check partial request, horizontal aligment
+						//
+						// alignment range
+						if (req.range_x()) {
 
-						alignment_rect.ll.x = alignment_rect_tmp.ll.x;
-						alignment_rect.ur.x = alignment_rect_tmp.ur.x;
-						alignment_rect.w = alignment_rect_tmp.w;
+							// determine the blocks' intersection in
+							// x-dimensions; equals the partial
+							// alignment rect
+							alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
 
-						// overlap and thus alignment fulfilled
-						if (alignment_rect.w >= req.alignment_x) {
+							alignment_rect.ll.x = alignment_rect_tmp.ll.x;
+							alignment_rect.ur.x = alignment_rect_tmp.ur.x;
+							alignment_rect.w = alignment_rect_tmp.w;
 
-							req_x_fulfilled = 1;
-						}
-						// overlap and thus alignment failed
-						else {
+							// overlap and thus alignment fulfilled
+							if (alignment_rect.w >= req.alignment_x) {
 
-							req_x_fulfilled = 0;
-
-							// extend the intersection such
-							// that inner block fronts are
-							// covered w.r.t. the failed
-							// dimension
-							if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
-								alignment_rect.ll.x = req.s_i->bb.ur.x;
-								alignment_rect.ur.x = req.s_j->bb.ll.x;
+								req_x_fulfilled = 1;
 							}
+							// overlap and thus alignment failed
 							else {
-								alignment_rect.ll.x = req.s_j->bb.ur.x;
-								alignment_rect.ur.x = req.s_i->bb.ll.x;
+
+								req_x_fulfilled = 0;
+
+								// extend the intersection such
+								// that inner block fronts are
+								// covered w.r.t. the failed
+								// dimension
+								if (Rect::rectA_leftOf_rectB(req.s_i->bb, req.s_j->bb, false)) {
+									alignment_rect.ll.x = req.s_i->bb.ur.x;
+									alignment_rect.ur.x = req.s_j->bb.ll.x;
+								}
+								else {
+									alignment_rect.ll.x = req.s_j->bb.ur.x;
+									alignment_rect.ur.x = req.s_i->bb.ll.x;
+								}
 							}
 						}
-					}
-					// max distance range
-					else if (req.range_max_x()) {
+						// max distance range
+						else if (req.range_max_x()) {
 
-						// determine the blocks' bounding box in
-						// x-dimensions; equals the partial
-						// alignment rect; consider the blocks'
-						// center points
-						alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+							// determine the blocks' bounding box in
+							// x-dimensions; equals the partial
+							// alignment rect; consider the blocks'
+							// center points
+							alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 
-						alignment_rect.ll.x = alignment_rect_tmp.ll.x;
-						alignment_rect.ur.x = alignment_rect_tmp.ur.x;
-						alignment_rect.w = alignment_rect_tmp.w;
+							alignment_rect.ll.x = alignment_rect_tmp.ll.x;
+							alignment_rect.ur.x = alignment_rect_tmp.ur.x;
+							alignment_rect.w = alignment_rect_tmp.w;
 
-						// distance and thus alignment fulfilled
-						if (alignment_rect.w <= req.alignment_x) {
+							// distance and thus alignment fulfilled
+							if (alignment_rect.w <= req.alignment_x) {
 
-							req_x_fulfilled = 1;
-						}
-						// distance and thus alignment failed
-						else {
-
-							req_x_fulfilled = 0;
-						}
-					}
-					// alignment offset
-					else if (req.offset_x()) {
-
-						// for an alignment offset, the related
-						// blocks' lower-left corners are relevant
-						alignment_rect.ll.x = req.s_i->bb.ll.x;
-						alignment_rect.ur.x = req.s_j->bb.ll.x;
-						alignment_rect.w = alignment_rect.ur.x - alignment_rect.ll.x;
-
-						// offset and thus alignment fulfilled
-						if (Math::doubleComp(alignment_rect.w,  req.alignment_x)) {
-
-							req_x_fulfilled = 1;
-						}
-						// offset and thus alignment failed
-						else {
-
-							req_x_fulfilled = 0;
-						}
-					}
-					// undefined request
-					else {
-						// define the rect as a bounding box
-						// w.r.t. the undefined dimension
-						alignment_rect.ll.x = std::min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
-						alignment_rect.ur.x = std::max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
-					}
-
-					// check partial request, vertical aligment
-					//
-					// alignment range
-					if (req.range_y()) {
-
-						// determine the blocks' intersection in
-						// y-dimensions; equals the partial
-						// alignment rect
-						alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
-
-						alignment_rect.ll.y = alignment_rect_tmp.ll.y;
-						alignment_rect.ur.y = alignment_rect_tmp.ur.y;
-						alignment_rect.h = alignment_rect_tmp.h;
-
-						// overlap and thus alignment fulfilled
-						if (alignment_rect.h >= req.alignment_y) {
-
-							req_y_fulfilled = 1;
-						}
-						// overlap and thus alignment failed
-						else {
-
-							req_y_fulfilled = 0;
-
-							// extend the intersection such
-							// that inner block fronts are
-							// covered w.r.t. the failed
-							// dimension
-							if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
-								alignment_rect.ll.y = req.s_i->bb.ur.y;
-								alignment_rect.ur.y = req.s_j->bb.ll.y;
+								req_x_fulfilled = 1;
 							}
+							// distance and thus alignment failed
 							else {
-								alignment_rect.ll.y = req.s_j->bb.ur.y;
-								alignment_rect.ur.y = req.s_i->bb.ll.y;
+
+								req_x_fulfilled = 0;
 							}
 						}
-					}
-					// max distance range
-					else if (req.range_max_y()) {
+						// alignment offset
+						else if (req.offset_x()) {
 
-						// determine the blocks' bounding box in
-						// y-dimensions; equals the partial
-						// alignment rect; consider the blocks'
-						// center points
-						alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+							// for an alignment offset, the related
+							// blocks' lower-left corners are relevant
+							alignment_rect.ll.x = req.s_i->bb.ll.x;
+							alignment_rect.ur.x = req.s_j->bb.ll.x;
+							alignment_rect.w = alignment_rect.ur.x - alignment_rect.ll.x;
 
-						alignment_rect.ll.y = alignment_rect_tmp.ll.y;
-						alignment_rect.ur.y = alignment_rect_tmp.ur.y;
-						alignment_rect.h = alignment_rect_tmp.h;
+							// offset and thus alignment fulfilled
+							if (Math::doubleComp(alignment_rect.w,  req.alignment_x)) {
 
-						// distance and thus alignment fulfilled
-						if (alignment_rect.h <= req.alignment_y) {
-
-							req_y_fulfilled = 1;
-						}
-						// distance and thus alignment failed
-						else {
-
-							req_y_fulfilled = 0;
-						}
-					}
-					// alignment offset
-					else if (req.offset_y()) {
-
-						// for an alignment offset, the related
-						// blocks' lower-left corners are relevant
-						alignment_rect.ll.y = req.s_i->bb.ll.y;
-						alignment_rect.ur.y = req.s_j->bb.ll.y;
-						alignment_rect.h = alignment_rect.ur.y - alignment_rect.ll.y;
-
-						// offset and thus alignment fulfilled
-						if (Math::doubleComp(alignment_rect.h,  req.alignment_y)) {
-
-							req_y_fulfilled = 1;
-						}
-						// offset and thus alignment failed
-						else {
-
-							req_y_fulfilled = 0;
-						}
-					}
-					// undefined request
-					else {
-						// define the rect as a bounding box
-						// w.r.t. the undefined dimension
-						alignment_rect.ll.y = std::min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
-						alignment_rect.ur.y = std::max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
-					}
-
-					// construct the alignment rectangle w/ separate,
-					// possibly different color-coded lines, in order
-					// to represent particular failed/fulfilled
-					// alignment requests
-
-					// fixed offset alignments
-					if (req.offset_x()) {
-
-						// zero offset, i.e., alignment in
-						// x-coordinate; mark w/ small rect
-						if (alignment_rect.w == 0.0) {
-
-							// rect as marker
-							gp_out << "set obj rect ";
-							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
-							// box colors
-							if (req_x_fulfilled == 1) {
-								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+								req_x_fulfilled = 1;
 							}
+							// offset and thus alignment failed
 							else {
-								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+
+								req_x_fulfilled = 0;
 							}
-							gp_out << " fs solid";
-							gp_out << std::endl;
 						}
-						// non-zero offset, i.e., offset range;
-						// mark w/ arrows
+						// undefined request
+						else {
+							// define the rect as a bounding box
+							// w.r.t. the undefined dimension
+							alignment_rect.ll.x = std::min(req.s_i->bb.ll.x, req.s_j->bb.ll.x);
+							alignment_rect.ur.x = std::max(req.s_i->bb.ur.x, req.s_j->bb.ur.x);
+						}
+
+						// check partial request, vertical aligment
+						//
+						// alignment range
+						if (req.range_y()) {
+
+							// determine the blocks' intersection in
+							// y-dimensions; equals the partial
+							// alignment rect
+							alignment_rect_tmp = Rect::determineIntersection(req.s_i->bb, req.s_j->bb);
+
+							alignment_rect.ll.y = alignment_rect_tmp.ll.y;
+							alignment_rect.ur.y = alignment_rect_tmp.ur.y;
+							alignment_rect.h = alignment_rect_tmp.h;
+
+							// overlap and thus alignment fulfilled
+							if (alignment_rect.h >= req.alignment_y) {
+
+								req_y_fulfilled = 1;
+							}
+							// overlap and thus alignment failed
+							else {
+
+								req_y_fulfilled = 0;
+
+								// extend the intersection such
+								// that inner block fronts are
+								// covered w.r.t. the failed
+								// dimension
+								if (Rect::rectA_below_rectB(req.s_i->bb, req.s_j->bb, false)) {
+									alignment_rect.ll.y = req.s_i->bb.ur.y;
+									alignment_rect.ur.y = req.s_j->bb.ll.y;
+								}
+								else {
+									alignment_rect.ll.y = req.s_j->bb.ur.y;
+									alignment_rect.ur.y = req.s_i->bb.ll.y;
+								}
+							}
+						}
+						// max distance range
+						else if (req.range_max_y()) {
+
+							// determine the blocks' bounding box in
+							// y-dimensions; equals the partial
+							// alignment rect; consider the blocks'
+							// center points
+							alignment_rect_tmp = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
+
+							alignment_rect.ll.y = alignment_rect_tmp.ll.y;
+							alignment_rect.ur.y = alignment_rect_tmp.ur.y;
+							alignment_rect.h = alignment_rect_tmp.h;
+
+							// distance and thus alignment fulfilled
+							if (alignment_rect.h <= req.alignment_y) {
+
+								req_y_fulfilled = 1;
+							}
+							// distance and thus alignment failed
+							else {
+
+								req_y_fulfilled = 0;
+							}
+						}
+						// alignment offset
+						else if (req.offset_y()) {
+
+							// for an alignment offset, the related
+							// blocks' lower-left corners are relevant
+							alignment_rect.ll.y = req.s_i->bb.ll.y;
+							alignment_rect.ur.y = req.s_j->bb.ll.y;
+							alignment_rect.h = alignment_rect.ur.y - alignment_rect.ll.y;
+
+							// offset and thus alignment fulfilled
+							if (Math::doubleComp(alignment_rect.h,  req.alignment_y)) {
+
+								req_y_fulfilled = 1;
+							}
+							// offset and thus alignment failed
+							else {
+
+								req_y_fulfilled = 0;
+							}
+						}
+						// undefined request
+						else {
+							// define the rect as a bounding box
+							// w.r.t. the undefined dimension
+							alignment_rect.ll.y = std::min(req.s_i->bb.ll.y, req.s_j->bb.ll.y);
+							alignment_rect.ur.y = std::max(req.s_i->bb.ur.y, req.s_j->bb.ur.y);
+						}
+
+						// construct the alignment rectangle w/ separate,
+						// possibly different color-coded lines, in order
+						// to represent particular failed/fulfilled
+						// alignment requests
+
+						// fixed offset alignments
+						if (req.offset_x()) {
+
+							// zero offset, i.e., alignment in
+							// x-coordinate; mark w/ small rect
+							if (alignment_rect.w == 0.0) {
+
+								// rect as marker
+								gp_out << "set obj rect ";
+								gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+								gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
+								// box colors
+								if (req_x_fulfilled == 1) {
+									gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+								}
+								else {
+									gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+								}
+								gp_out << " fs solid";
+								gp_out << std::endl;
+							}
+							// non-zero offset, i.e., offset range;
+							// mark w/ arrows
+							else {
+
+								// horizontal arrow
+								gp_out << "set arrow";
+								gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+								gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+								gp_out << " head";
+								// line colors
+								if (req_x_fulfilled == 1) {
+									gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+								}
+								else {
+									gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+								}
+								gp_out << " lw 3";
+								gp_out << std::endl;
+							}
+						}
+						// range alignments
 						else {
 
-							// horizontal arrow
+							// lower horizontal line
 							gp_out << "set arrow";
 							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
 							gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
-							gp_out << " head";
+							gp_out << " nohead";
 							// line colors
 							if (req_x_fulfilled == 1) {
 								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
 							}
+							else if (req_x_fulfilled == -1) {
+								gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+							}
+							else {
+								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " lw 3";
+							gp_out << std::endl;
+
+							// upper horizontal line
+							gp_out << "set arrow";
+							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+							gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
+							gp_out << " nohead";
+							// line colors
+							if (req_x_fulfilled == 1) {
+								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else if (req_x_fulfilled == -1) {
+								gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+							}
 							else {
 								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " lw 3";
 							gp_out << std::endl;
 						}
-					}
-					// range alignments
-					else {
 
-						// lower horizontal line
-						gp_out << "set arrow";
-						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
-						gp_out << " nohead";
-						// line colors
-						if (req_x_fulfilled == 1) {
-							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
-						}
-						else if (req_x_fulfilled == -1) {
-							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
-						}
-						else {
-							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
-						}
-						gp_out << " lw 3";
-						gp_out << std::endl;
+						// fixed offset alignments
+						if (req.offset_y()) {
 
-						// upper horizontal line
-						gp_out << "set arrow";
-						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
-						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
-						gp_out << " nohead";
-						// line colors
-						if (req_x_fulfilled == 1) {
-							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
-						}
-						else if (req_x_fulfilled == -1) {
-							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
-						}
-						else {
-							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
-						}
-						gp_out << " lw 3";
-						gp_out << std::endl;
-					}
+							// zero offset, i.e., alignment in
+							// y-coordinate; mark w/ small rect
+							if (alignment_rect.h == 0.0) {
 
-					// fixed offset alignments
-					if (req.offset_y()) {
-
-						// zero offset, i.e., alignment in
-						// y-coordinate; mark w/ small rect
-						if (alignment_rect.h == 0.0) {
-
-							// rect as marker
-							gp_out << "set obj rect ";
-							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-							gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
-							// box colors
-							if (req_y_fulfilled == 1) {
-								gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+								// rect as marker
+								gp_out << "set obj rect ";
+								gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+								gp_out << " to " << alignment_rect.ll.x + 0.01 * fp.IC.outline_x << "," << alignment_rect.ll.y + 0.01 * fp.IC.outline_y;
+								// box colors
+								if (req_y_fulfilled == 1) {
+									gp_out << " fc rgb \"" << alignment_color_fulfilled << "\"";
+								}
+								else {
+									gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+								}
+								gp_out << " fs solid";
+								gp_out << std::endl;
 							}
+							// non-zero offset, i.e., offset range;
+							// mark w/ arrows
 							else {
-								gp_out << " fc rgb \"" << alignment_color_failed << "\"";
+
+								// vertical arrow
+								gp_out << "set arrow";
+								gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
+								gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
+								gp_out << " head";
+								// line colors
+								if (req_y_fulfilled == 1) {
+									gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+								}
+								else {
+									gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+								}
+								gp_out << " lw 3";
+								gp_out << std::endl;
 							}
-							gp_out << " fs solid";
-							gp_out << std::endl;
 						}
-						// non-zero offset, i.e., offset range;
-						// mark w/ arrows
+						// range alignments
 						else {
 
-							// vertical arrow
+							// left vertical line
 							gp_out << "set arrow";
 							gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
 							gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
-							gp_out << " head";
+							gp_out << " nohead";
 							// line colors
 							if (req_y_fulfilled == 1) {
 								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
 							}
+							else if (req_y_fulfilled == -1) {
+								gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+							}
+							else {
+								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
+							}
+							gp_out << " lw 3";
+							gp_out << std::endl;
+
+							// right vertical line
+							gp_out << "set arrow";
+							gp_out << " from " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
+							gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
+							gp_out << " nohead";
+							// line colors
+							if (req_y_fulfilled == 1) {
+								gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
+							}
+							else if (req_y_fulfilled == -1) {
+								gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
+							}
 							else {
 								gp_out << " lc rgb \"" << alignment_color_failed << "\"";
 							}
 							gp_out << " lw 3";
 							gp_out << std::endl;
 						}
-					}
-					// range alignments
-					else {
-
-						// left vertical line
-						gp_out << "set arrow";
-						gp_out << " from " << alignment_rect.ll.x << "," << alignment_rect.ll.y;
-						gp_out << " to " << alignment_rect.ll.x << "," << alignment_rect.ur.y;
-						gp_out << " nohead";
-						// line colors
-						if (req_y_fulfilled == 1) {
-							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
-						}
-						else if (req_y_fulfilled == -1) {
-							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
-						}
-						else {
-							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
-						}
-						gp_out << " lw 3";
-						gp_out << std::endl;
-
-						// right vertical line
-						gp_out << "set arrow";
-						gp_out << " from " << alignment_rect.ur.x << "," << alignment_rect.ll.y;
-						gp_out << " to " << alignment_rect.ur.x << "," << alignment_rect.ur.y;
-						gp_out << " nohead";
-						// line colors
-						if (req_y_fulfilled == 1) {
-							gp_out << " lc rgb \"" << alignment_color_fulfilled << "\"";
-						}
-						else if (req_y_fulfilled == -1) {
-							gp_out << " lc rgb \"" << alignment_color_undefined << "\"";
-						}
-						else {
-							gp_out << " lc rgb \"" << alignment_color_failed << "\"";
-						}
-						gp_out << " lw 3";
-						gp_out << std::endl;
 					}
 				}
 			}
