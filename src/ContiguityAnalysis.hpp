@@ -68,8 +68,8 @@ class ContiguityAnalysis {
 
 			Block const* block;
 			
-			Point p1;
-			Point p2;
+			Point low;
+			Point high;
 		};
 
 	// private data, functions

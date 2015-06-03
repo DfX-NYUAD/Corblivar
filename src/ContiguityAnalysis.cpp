@@ -71,10 +71,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.block = &block;
 
 		// left boundary
-		cur_boundary.p1.x = block.bb.ll.x;
-		cur_boundary.p1.y = block.bb.ll.y;
-		cur_boundary.p2.x = block.bb.ll.x;
-		cur_boundary.p2.y = block.bb.ur.y;
+		cur_boundary.low.x = block.bb.ll.x;
+		cur_boundary.low.y = block.bb.ll.y;
+		cur_boundary.high.x = block.bb.ll.x;
+		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
 		boundaries_vert[block.layer].push_back(cur_boundary);
@@ -96,19 +96,19 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		}
 
 		// right boundary
-		cur_boundary.p1.x = block.bb.ur.x;
-		cur_boundary.p1.y = block.bb.ll.y;
-		cur_boundary.p2.x = block.bb.ur.x;
-		cur_boundary.p2.y = block.bb.ur.y;
+		cur_boundary.low.x = block.bb.ur.x;
+		cur_boundary.low.y = block.bb.ll.y;
+		cur_boundary.high.x = block.bb.ur.x;
+		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
 		boundaries_vert[block.layer].push_back(cur_boundary);
 
 		// bottom boundary
-		cur_boundary.p1.x = block.bb.ll.x;
-		cur_boundary.p1.y = block.bb.ll.y;
-		cur_boundary.p2.x = block.bb.ur.x;
-		cur_boundary.p2.y = block.bb.ll.y;
+		cur_boundary.low.x = block.bb.ll.x;
+		cur_boundary.low.y = block.bb.ll.y;
+		cur_boundary.high.x = block.bb.ur.x;
+		cur_boundary.high.y = block.bb.ll.y;
 
 		// intra-die contiguity
 		boundaries_hor[block.layer].push_back(cur_boundary);
@@ -130,10 +130,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		}
 
 		// top boundary
-		cur_boundary.p1.x = block.bb.ll.x;
-		cur_boundary.p1.y = block.bb.ur.y;
-		cur_boundary.p2.x = block.bb.ur.x;
-		cur_boundary.p2.y = block.bb.ur.y;
+		cur_boundary.low.x = block.bb.ll.x;
+		cur_boundary.low.y = block.bb.ur.y;
+		cur_boundary.high.x = block.bb.ur.x;
+		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
 		boundaries_hor[block.layer].push_back(cur_boundary);
@@ -157,16 +157,16 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			for (auto const& boundary : boundaries_hor[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
-				std::cout << "(" << boundary.p1.x << "," << boundary.p1.y << ")";
-				std::cout << "(" << boundary.p2.x << "," << boundary.p2.y << "); block " << boundary.block->id << std::endl;
+				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
+				std::cout << "(" << boundary.high.x << "," << boundary.high.y << "); block " << boundary.block->id << std::endl;
 			}
 
 			std::cout << "DBG_CONTIGUITY> Sorted boundaries; die " << l << "; vertical boundaries:" << std::endl;
 			for (auto const& boundary : boundaries_vert[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
-				std::cout << "(" << boundary.p1.x << "," << boundary.p1.y << ")";
-				std::cout << "(" << boundary.p2.x << "," << boundary.p2.y << "); block " << boundary.block->id << std::endl;
+				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
+				std::cout << "(" << boundary.high.x << "," << boundary.high.y << "); block " << boundary.block->id << std::endl;
 			}
 
 			std::cout << "DBG_CONTIGUITY>" << std::endl;
@@ -188,8 +188,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 			if (ContiguityAnalysis::DBG) {
 				std::cout << "DBG_CONTIGUITY>  Currently considered vertical segment ";
-				std::cout << "(" << b1.p1.x << "," << b1.p1.y << ")";
-				std::cout << "(" << b1.p2.x << "," << b1.p2.y << "); block " << b1.block->id << std::endl;
+				std::cout << "(" << b1.low.x << "," << b1.low.y << ")";
+				std::cout << "(" << b1.high.x << "," << b1.high.y << "); block " << b1.block->id << std::endl;
 			}
 
 			// the boundary b2, to be compared to b1, should have the same
@@ -206,10 +206,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					// if the lower point of b2 is just matching or
 					// already above the upper point of b1, i.e., when
 					// no intersection is feasible anymore
-					(Math::doubleComp(b2.p1.y, b1.p2.y) || b2.p1.y > b1.p2.y)
+					(Math::doubleComp(b2.low.y, b1.high.y) || b2.low.y > b1.high.y)
 					// or if we reached the next x-coordinate already,
 					// i.e., again no intersection is feasible anymore
-					|| (b2.p1.x > b1.p1.x)
+					|| (b2.low.x > b1.low.x)
 				   ) {
 					break;
 				}
@@ -246,8 +246,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 				if (ContiguityAnalysis::DBG) {
 					std::cout << "DBG_CONTIGUITY>   Common boundary with block " << b2.block->id;
 					std::cout << "; " << b2.block->id << "'s related segment ";
-					std::cout << "(" << b2.p1.x << "," << b2.p1.y << ")";
-					std::cout << "(" << b2.p2.x << "," << b2.p2.y << ")";
+					std::cout << "(" << b2.low.x << "," << b2.low.y << ")";
+					std::cout << "(" << b2.high.x << "," << b2.high.y << ")";
 					std::cout << "; length of boundary: " << common_boundary << std::endl;
 				}
 			}
@@ -260,8 +260,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 
 			if (ContiguityAnalysis::DBG) {
 				std::cout << "DBG_CONTIGUITY>  Currently considered horizontal segment ";
-				std::cout << "(" << b1.p1.x << "," << b1.p1.y << ")";
-				std::cout << "(" << b1.p2.x << "," << b1.p2.y << "); block " << b1.block->id << std::endl;
+				std::cout << "(" << b1.low.x << "," << b1.low.y << ")";
+				std::cout << "(" << b1.high.x << "," << b1.high.y << "); block " << b1.block->id << std::endl;
 			}
 
 			// the boundary b2, to be compared to b1, should have the same
@@ -278,10 +278,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					// if the left point of b2 is just matching or
 					// already to the right of the right point of b1,
 					// i.e., when no intersection is feasible anymore
-					(Math::doubleComp(b2.p1.x, b1.p2.x) || b2.p1.x > b1.p2.x)
+					(Math::doubleComp(b2.low.x, b1.high.x) || b2.low.x > b1.high.x)
 					// or if we reached the next y-coordinate already,
 					// i.e., again no intersection is feasible anymore
-					|| (b2.p1.y > b1.p1.y)
+					|| (b2.low.y > b1.low.y)
 				   ) {
 					break;
 				}
@@ -318,8 +318,8 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 				if (ContiguityAnalysis::DBG) {
 					std::cout << "DBG_CONTIGUITY>   Common boundary with block " << b2.block->id;
 					std::cout << "; " << b2.block->id << "'s related segment ";
-					std::cout << "(" << b2.p1.x << "," << b2.p1.y << ")";
-					std::cout << "(" << b2.p2.x << "," << b2.p2.y << ")";
+					std::cout << "(" << b2.low.x << "," << b2.low.y << ")";
+					std::cout << "(" << b2.high.x << "," << b2.high.y << ")";
 					std::cout << "; length of boundary: " << common_boundary << std::endl;
 				}
 			}
@@ -346,16 +346,16 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			for (auto const& boundary : inter_die__boundaries_hor[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
-				std::cout << "(" << boundary.p1.x << "," << boundary.p1.y << ")";
-				std::cout << "(" << boundary.p2.x << "," << boundary.p2.y << "); block " << boundary.block->id << "; die " << boundary.block->layer << std::endl;
+				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
+				std::cout << "(" << boundary.high.x << "," << boundary.high.y << "); block " << boundary.block->id << "; die " << boundary.block->layer << std::endl;
 			}
 
 			std::cout << "DBG_CONTIGUITY> Sorted and merged boundaries; dies " << l << " and " << l + 1 << "; left (vertical) boundaries:" << std::endl;
 			for (auto const& boundary : inter_die__boundaries_vert[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
-				std::cout << "(" << boundary.p1.x << "," << boundary.p1.y << ")";
-				std::cout << "(" << boundary.p2.x << "," << boundary.p2.y << "); block " << boundary.block->id << "; die " << boundary.block->layer << std::endl;
+				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
+				std::cout << "(" << boundary.high.x << "," << boundary.high.y << "); block " << boundary.block->id << "; die " << boundary.block->layer << std::endl;
 			}
 
 			std::cout << "DBG_CONTIGUITY>" << std::endl;
@@ -399,16 +399,16 @@ inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundar
 			// x-coordinates are the first criterion; note
 			// that it's sufficient to compare the first
 			// (lower) points since it's a vertical segment
-			(b1.p1.x < b2.p1.x)
+			(b1.low.x < b2.low.x)
 			// for boundaries with same x-coordinate, resolve
 			// equal values by considering the boundaries'
 			// y-coordinate
-			|| (Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.p1.y < b2.p1.y))
+			|| (Math::doubleComp(b1.low.x, b2.low.x) && (b1.low.y < b2.low.y))
 			// there will also be cases when segments start on
 			// the same x- and y-coordinate; then, resolve by
 			// block order, i.e., the segment of the left
 			// block comes first
-			|| (Math::doubleComp(b1.p1.x, b2.p1.x) && Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
+			|| (Math::doubleComp(b1.low.x, b2.low.x) && Math::doubleComp(b1.low.y, b2.low.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
 	       );
 };
 
@@ -417,24 +417,24 @@ inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary
 			// y-coordinates are the first criterion; note
 			// that it's sufficient to compare the first
 			// (left) points since it's a horizontal segment
-			(b1.p1.y < b2.p1.y)
+			(b1.low.y < b2.low.y)
 			// for boundaries with same y-coordinate, resolve
 			// equal values by considering the boundaries'
 			// x-coordinate
-			|| (Math::doubleComp(b1.p1.y, b2.p1.y) && (b1.p1.x < b2.p1.x))
+			|| (Math::doubleComp(b1.low.y, b2.low.y) && (b1.low.x < b2.low.x))
 			// there will also be cases when segments start on
 			// the same y- and x-coordinate; then, resolve by
 			// block order, i.e., the segment of the lower
 			// block comes first
-			|| (Math::doubleComp(b1.p1.y, b2.p1.y) && Math::doubleComp(b1.p1.x, b2.p1.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
+			|| (Math::doubleComp(b1.low.y, b2.low.y) && Math::doubleComp(b1.low.x, b2.low.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
 	       );
 };
 
 inline double ContiguityAnalysis::common_boundary_vert(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	double y_lower, y_upper;
 
-	y_lower = std::max(b1.p1.y, b2.p1.y);
-	y_upper = std::min(b1.p2.y, b2.p2.y);
+	y_lower = std::max(b1.low.y, b2.low.y);
+	y_upper = std::min(b1.high.y, b2.high.y);
 
 	return y_upper - y_lower;
 };
@@ -442,8 +442,8 @@ inline double ContiguityAnalysis::common_boundary_vert(ContiguityAnalysis::Bound
 inline double ContiguityAnalysis::common_boundary_hor(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	double x_left, x_right;
 
-	x_left = std::max(b1.p1.x, b2.p1.x);
-	x_right = std::min(b1.p2.x, b2.p2.x);
+	x_left = std::max(b1.low.x, b2.low.x);
+	x_right = std::min(b1.high.x, b2.high.x);
 
 	return x_right - x_left;
 };
