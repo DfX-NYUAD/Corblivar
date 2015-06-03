@@ -308,7 +308,9 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			}
 		}
 
-		std::cout << "DBG_CONTIGUITY>" << std::endl;
+		if (ContiguityAnalysis::DBG) {
+			std::cout << "DBG_CONTIGUITY>" << std::endl;
+		}
 	}
 
 	// determine contiguous neighbours across adjacent dies; inter-die contiguity
@@ -443,7 +445,9 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			}
 		}
 
-		std::cout << "DBG_CONTIGUITY>" << std::endl;
+		if (ContiguityAnalysis::DBG) {
+			std::cout << "DBG_CONTIGUITY>" << std::endl;
+		}
 	}
 
 	if (ContiguityAnalysis::DBG) {
