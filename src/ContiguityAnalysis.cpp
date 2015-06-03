@@ -398,10 +398,12 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					break;
 				}
 
-				// otherwise, some intersection _may_ exit, but only if
-				// there is some overlap in y-direction
-				if (b1.low.y <= b2.high.y && b2.low.y <= b1.high.y) {
-
+				// otherwise, some intersection _may_ exit, but only a)
+				// for blocks of the other die and b) if there is some
+				// overlap in y-direction
+				if ((b2.block->layer != b1.block->layer) &&
+						(b1.low.y <= b2.high.y && b2.low.y <= b1.high.y)
+				   ) {
 					// at this point, we know that b2 is intersecting
 					// with b1 to some degree in _both_ dimensions;
 					// thus, we can simplify the inter-die contiguity
@@ -411,7 +413,10 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					// determine amount of intersections / common
 					// boundaries and memorize within both blocks
 					common_boundary_vert = ContiguityAnalysis::common_boundary_vert(b1, b2);
-					common_boundary_hor = ContiguityAnalysis::common_boundary_hor(b1, b2);
+					// the boundaries b1 and b2 are vertical ones,
+					// thus we have to extract the horizontal common
+					// boundary from the blocks themselves
+					common_boundary_hor = ContiguityAnalysis::common_boundary_hor(b1.block, b2.block);
 
 					// init neighbourship storage
 					ContiguityAnalysis::ContiguousNeighbour neighbour_for_b1;
@@ -457,7 +462,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 						std::cout << " (" << neighbour_for_b1.common_boundary_inter_die_hor;
 						std::cout << ", " << neighbour_for_b1.common_boundary_inter_die_vert;
 						std::cout << "); dimensions of related intersection box:";
-						Rect bb = Rect::determBoundingBox(b1.block->bb, b2.block->bb);
+						Rect bb = Rect::determineIntersection(b1.block->bb, b2.block->bb);
 						std::cout << " (" << bb.w;
 						std::cout << ", " << bb.h;
 						std::cout << ")" << std::endl;
@@ -540,6 +545,15 @@ inline double ContiguityAnalysis::common_boundary_hor(ContiguityAnalysis::Bounda
 
 	x_left = std::max(b1.low.x, b2.low.x);
 	x_right = std::min(b1.high.x, b2.high.x);
+
+	return x_right - x_left;
+};
+
+inline double ContiguityAnalysis::common_boundary_hor(Block const* b1, Block const* b2) {
+	double x_left, x_right;
+
+	x_left = std::max(b1->bb.ll.x, b2->bb.ll.x);
+	x_right = std::min(b1->bb.ur.x, b2->bb.ur.x);
 
 	return x_right - x_left;
 };

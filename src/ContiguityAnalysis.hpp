@@ -60,8 +60,8 @@ class ContiguityAnalysis {
 			// these values are similar to the horizontal and vertical above,
 			// but may only refer to the neighbour block being stacked above
 			// the current block, in the next upper die
-			double common_boundary_stacked_vert = 0.0;
-			double common_boundary_stacked_hor = 0.0;
+			double common_boundary_inter_die_vert = 0.0;
+			double common_boundary_inter_die_hor = 0.0;
 		};
 
 		struct Boundary {
@@ -78,6 +78,7 @@ class ContiguityAnalysis {
 		inline static bool boundaries_hor_comp(Boundary const& b1, Boundary const& b2);
 		inline static double common_boundary_vert(Boundary const& b1, Boundary const& b2);
 		inline static double common_boundary_hor(Boundary const& b1, Boundary const& b2);
+		inline static double common_boundary_hor(Block const* b1, Block const* b2);
 
 	// constructors, destructors, if any non-implicit
 	public:
