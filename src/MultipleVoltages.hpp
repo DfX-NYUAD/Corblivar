@@ -117,6 +117,7 @@ class MultipleVoltages {
 	// private helper functions
 	private:
 		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
+		inline void insertCompoundModuleHelper(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, std::bitset<MAX_VOLTAGES> feasible_voltages, modules_type::iterator hint);
 };
 
 #endif
