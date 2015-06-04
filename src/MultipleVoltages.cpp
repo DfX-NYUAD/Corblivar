@@ -48,7 +48,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 
 		// stepwise, recursive consideration of all blocks for merging into
 		// compound module
-		this->buildCompoundModulesHelper(module);
+		this->buildCompoundModulesHelper(module, this->modules.begin());
 
 		// store trivial compound module; the module can be moved now, it will be
 		// accessed from the map later on
@@ -81,10 +81,11 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 
 // stepwise consider adding single blocks into the compound module until all blocks are
 // considered; note that this implies recursive calls to determine transitive neighbours
-void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module) {
+void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint) {
 	std::bitset<MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
-	std::pair< MultipleVoltages::modules_type::iterator, bool > insertion;
+	MultipleVoltages::modules_type::iterator inserted;
+	unsigned modules_before, modules_after;
 
 	// walk all current neighbours
 	for (auto it = module.contiguous_neighbours.begin(); it != module.contiguous_neighbours.end(); ++it) {
@@ -136,18 +137,21 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// ids and 2) inserting compound modules into a map, "sb2,sb1" is
 			// effectively ignored
 			//
-			insertion = this->modules.insert({potential_new_module.block_ids, std::move(potential_new_module)});
+			// hint provided is the iterator to the previously inserted
+			// module; given that modules are ordered in ascending size, this
+			// new module should follow (with some offset, depending on actual
+			// string ids) the hint
+			modules_before = this->modules.size();
+			inserted = this->modules.insert(hint, {potential_new_module.block_ids, std::move(potential_new_module)});
+			modules_after = this->modules.size();
 
 			// only if this compound module was successfully inserted, i.e.,
 			// not already previously inserted, we also consider it for
 			// recursive calls, to determine next-level compound modules by
 			// considering the currently added block's neighbours
-			if (insertion.second) {
+			if (modules_after > modules_before) {
 
-				// first: iterator to just into this->modules inserted
-				// element;
-				// first->second: actual reference to compound module
-				MultipleVoltages::CompoundModule& inserted_new_module = insertion.first->second;
+				MultipleVoltages::CompoundModule& inserted_new_module = (*inserted).second;
 
 				// we also have to initialize remaining members of the
 				// compound module, which was deferred until now, when
@@ -167,8 +171,9 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 					inserted_new_module.contiguous_neighbours.insert({n.block->id, &n});
 				}
 
-				// recursive call
-				this->buildCompoundModulesHelper(inserted_new_module);
+				// recursive call; provide iterator to just inserted
+				// module as hint for next insertion
+				this->buildCompoundModulesHelper(inserted_new_module, inserted);
 			}
 		}
 	}

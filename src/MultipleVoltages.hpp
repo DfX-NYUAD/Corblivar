@@ -33,7 +33,7 @@ class Block;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 
 	// public constants
 	public:
@@ -76,10 +76,12 @@ class MultipleVoltages {
 
 	// private data, functions
 	private:
-		void buildCompoundModulesHelper(CompoundModule& module);
-
 		// note that the comparator has to be implemented as type, for proper map
 		// template handling
+		//
+		// also note that the less-than order is important for providing hints
+		// (iterators) during stepwise insertion, where elements to insert will
+		// always be larger, thus to be added after the hinting iterator
 		struct modules_comp {
 			bool operator() (std::set<std::string> const& s1, std::set<std::string> const& s2) const {
 
@@ -90,10 +92,10 @@ class MultipleVoltages {
 					// of blocks in the module), a hint for insertion
 					// can be given which reduces complexity for
 					// actual insertion
-					(s1.size() > s2.size())
+					(s1.size() < s2.size())
 					// if they have the same size, perform regular
 					// (lexicographical) comparison
-					|| (s1.size() == s2.size() && s1 > s2)
+					|| (s1.size() == s2.size() && s1 < s2)
 				       );
 			}
 		};
@@ -111,6 +113,10 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(std::vector<Block> const& blocks);
+
+	// private helper functions
+	private:
+		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
 };
 
 #endif
