@@ -52,28 +52,19 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 
 		// store trivial compound module; the module can be moved now, it will be
 		// accessed from the map later on
-		this->modules.insert({start.id, std::move(module)});
-	}
-
-	// fill container with sorted compound modules; consider only pointers to actual
-	// modules
-	this->modules_sorted.clear();
-	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
-		// note that the number of comprised blocks can be retrieved from the size
-		// of block_ids
-		this->modules_sorted.insert({it->second.block_ids.size(), &(it->second)});
+		this->modules.insert({module.block_ids, std::move(module)});
 	}
 
 	if (MultipleVoltages::DBG) {
 
 		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "); view ordered by number of comprised blocks:" << std::endl;
 
-		for (auto it = this->modules_sorted.begin(); it != this->modules_sorted.end(); ++it) {
+		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 
 			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
-			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: ";
-			for (auto& id : it->second->block_ids) {
+			for (auto& id : it->second.block_ids) {
 				std:: cout << id << ", ";
 			}
 			std::cout << std::endl;
@@ -81,7 +72,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: ";
 			// TODO test case w/ 3 max voltages
 			for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
-				std::cout << it->second->feasible_voltages[v];
+				std::cout << it->second.feasible_voltages[v];
 			}
 			std::cout << std::endl;
 		}
@@ -93,16 +84,14 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module) {
 	std::bitset<MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
-	std::pair<
-		std::unordered_map< std::string, CompoundModule>::iterator,
-		bool> insertion;
+	std::pair< MultipleVoltages::modules_type::iterator, bool > insertion;
 
 	// walk all current neighbours
 	for (auto it = module.contiguous_neighbours.begin(); it != module.contiguous_neighbours.end(); ++it) {
 
 		neighbour = it->second;
 
-		// first, determine if adding this neighbour would lead to an trivial
+		// first, we determine if adding this neighbour would lead to an trivial
 		// solution, i.e., only the highest possible voltage is assignable; such
 		// modules are ignored and thus we can achieve notable reduction in memory
 		// and runtime by pruning trivial solutions early on during recursive
@@ -133,17 +122,11 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			MultipleVoltages::CompoundModule potential_new_module;
 
 			// initially, to try insertion, we have to build up at least the
-			// sorted compound-id string
-			std::string compound_id;
-			// init sorted set of block ids with copy from previous
-			// compound module
+			// sorted set of block ids; init sorted set of block ids with copy
+			// from previous compound module
 			potential_new_module.block_ids = module.block_ids;
 			// add id of now additionally considered block
 			potential_new_module.block_ids.insert(neighbour->block->id);
-			// actual build up of id string
-			for (std::string id : potential_new_module.block_ids) {
-				compound_id += id + ",";
-			}
 
 			// store new compound module; note that it is only inserted if not
 			// existing before; this avoids storage of redundant modules for
@@ -153,10 +136,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// ids and 2) inserting compound modules into a map, "sb2,sb1" is
 			// effectively ignored
 			//
-			insertion = this->modules.insert(std::make_pair<std::string, MultipleVoltages::CompoundModule>(
-						std::move(compound_id),
-						std::move(potential_new_module)
-					));
+			insertion = this->modules.insert({potential_new_module.block_ids, std::move(potential_new_module)});
 
 			// only if this compound module was successfully inserted, i.e.,
 			// not already previously inserted, we also consider it for

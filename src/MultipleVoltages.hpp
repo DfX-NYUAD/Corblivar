@@ -33,7 +33,7 @@ class Block;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 
 	// public constants
 	public:
@@ -47,11 +47,17 @@ class MultipleVoltages {
 	public:
 		struct CompoundModule {
 
-			// used to identify compound modules; since set is sorted, the
-			// order of blocks added doesn't matter, each compound module is
-			// unique in terms of blocks considered
+			// used to identify compound modules; since the ids are in a
+			// sorted set, the order of blocks added doesn't matter, each
+			// compound module is unique in terms of blocks considered , i.e.,
+			// different merging steps will results in the same compound
+			// module as long as the same set of blocks is underlying
 			std::set<std::string> block_ids;
 
+			// TODO pointers to blocks may be required
+
+			// feasible voltages for whole module; defined by intersection of
+			// all comprised blocks
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
 
 			// key: neighbour block id
@@ -68,17 +74,36 @@ class MultipleVoltages {
 			// derived from contiguity analysis
 		};
 
-	// public data
-	public:
-		// set of unique compound modules
-		std::unordered_map< std::string, CompoundModule> modules;
-		// TODO may be not required
-		// by number of comprised blocks sorted container of pointers to module
-		std::multimap<int, CompoundModule*, std::greater<int>> modules_sorted;
-
 	// private data, functions
 	private:
 		void buildCompoundModulesHelper(CompoundModule& module);
+
+		// note that the comparator has to be implemented as type, for proper map
+		// template handling
+		struct modules_comp {
+			bool operator() (std::set<std::string> const& s1, std::set<std::string> const& s2) const {
+
+				return (
+					// size of the sets is the first criterion; this
+					// also facilitates stepwise insertion of modules,
+					// since based on the set's size (i.e., the number
+					// of blocks in the module), a hint for insertion
+					// can be given which reduces complexity for
+					// actual insertion
+					(s1.size() > s2.size())
+					// if they have the same size, perform regular
+					// (lexicographical) comparison
+					|| (s1.size() == s2.size() && s1 > s2)
+				       );
+			}
+		};
+
+	// public data
+	public:
+		// set of unique compound modules; the respective keys are the (sorted)
+		// ids of all comprised blocks
+		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
+		modules_type modules;
 
 	// constructors, destructors, if any non-implicit
 	public:
