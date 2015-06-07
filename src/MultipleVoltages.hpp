@@ -34,7 +34,7 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 
 	// public constants
 	public:
@@ -166,7 +166,13 @@ class MultipleVoltages {
 	// private helper data, functions
 	private:
 		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
-		inline void insertCompoundModuleHelper(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, std::bitset<MAX_VOLTAGES> feasible_voltages, modules_type::iterator hint);
+		inline void insertCompoundModuleHelper(
+				CompoundModule& module,
+				ContiguityAnalysis::ContiguousNeighbour* neighbour,
+				bool consider_prev_neighbours,
+				std::bitset<MAX_VOLTAGES> feasible_voltages,
+				modules_type::iterator hint
+			);
 };
 
 #endif

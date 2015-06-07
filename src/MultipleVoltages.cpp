@@ -164,7 +164,10 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				std::cout << "DBG_VOLTAGES>  Change in applicable voltages; non-trivial solution; try insertion of related new module" << std::endl;
 			}
 
-			this->insertCompoundModuleHelper(module, neighbour, feasible_voltages, hint);
+			// previous neighbours shall be considered, since the related new
+			// module has a different set of voltages, i.e., no tie-braking
+			// was considered among some candidate neighbours
+			this->insertCompoundModuleHelper(module, neighbour, true, feasible_voltages, hint);
 		}
 	}
 
@@ -223,15 +226,20 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 					std::cout << "; cost: " << best_candidate_cost << "; try insertion of related new module" << std::endl;
 				}
 
-				// insert the candidate with the best cost; continue recursively with this
-				// new module
-				this->insertCompoundModuleHelper(module, best_candidate, feasible_voltages, hint);
+				// insert the candidate with the best cost; continue
+				// recursively with this new module; other neighbours
+				// shall not be considered anymore, otherwise the
+				// selection of best-cost candidate would be undermined;
+				// note that in practice some blocks will still be
+				// (rightfully) considered since they are also contiguous
+				// neighbours with the now considered best-cost candidate
+				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint);
 			}
 		}
 	}
 }
 
-inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages, MultipleVoltages::modules_type::iterator hint) {
+inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages, MultipleVoltages::modules_type::iterator hint) {
 	MultipleVoltages::modules_type::iterator inserted;
 	unsigned modules_before, modules_after;
 
@@ -287,12 +295,17 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// w.r.t. added (neighbour) block
 		inserted_new_module.updateOutlineCost(neighbour);
 
-		// init pointers to neighbours with copy from previous compound module
-		inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
-		// ignore the just considered neighbour (inserted_new_module); deleting
-		// afterwards is computationally less expansive than checking each
-		// neighbor's id during copying
-		inserted_new_module.contiguous_neighbours.erase(neighbour->block->id);
+		// if previous neighbours shall be considered, init the related pointers
+		// as copy from the previous module
+		if (consider_prev_neighbours) {
+
+			inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
+
+			// ignore the just considered neighbour (inserted_new_module);
+			// deleting afterwards is computationally less expansive than
+			// checking each neighbor's id during copying
+			inserted_new_module.contiguous_neighbours.erase(neighbour->block->id);
+		}
 
 		// add (pointers to) neighbours of the now additionally considered block;
 		// note that only yet not considered neighbours are effectively added to
