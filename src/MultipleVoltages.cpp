@@ -88,12 +88,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 
 			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first.size() << std::endl;
-			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: ";
-			for (auto& id : it->second.block_ids) {
-				std:: cout << id << ", ";
-			}
-			std::cout << std::endl;
-
+			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << it->second.id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: ";
 			// TODO test case w/ 3 max voltages
 			for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
@@ -132,9 +127,19 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		// bit-wise AND to obtain the intersection of feasible voltages
 		feasible_voltages = module.feasible_voltages & neighbour->block->feasible_voltages;
 
+		if (MultipleVoltages::DBG) {
+
+			std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "); consider neighbour block: " << neighbour->block->id << std::endl;
+		}
+
 		// only one voltage is applicable, which is trivially the highest
 		// possible; ignore this trivial compound module
 		if (feasible_voltages.count() == 1) {
+
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES>  Trivial solution; only highest possible voltage applicable; skip this neighbour block" << std::endl;
+			}
+
 			continue;
 		}
 		// more than one voltage is applicable, but the resulting set of voltages
@@ -144,12 +149,21 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		// consider only the one with the lowest cost for further branching
 		else if (feasible_voltages == module.feasible_voltages) {
 
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES>  No change in applicable voltages; consider neighbour block as candidate" << std::endl;
+			}
+
 			candidates.push_back(neighbour);
 		}
 		// more than one voltage is applicable, and the set of voltages has
 		// changed; such a module should be considered without notice of cost,
 		// since it impacts the overall set of possible voltage islands
 		else {
+
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES>  Change in applicable voltages; non-trivial solution; try insertion of new module" << std::endl;
+			}
+
 			this->insertCompoundModuleHelper(module, neighbour, feasible_voltages, hint);
 		}
 	}
@@ -164,6 +178,10 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 	//
 	if (!candidates.empty()) {
 
+		if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "); evaluate candidates" << std::endl;
+		}
+
 		ContiguityAnalysis::ContiguousNeighbour* best_candidate;
 
 		// init with zero dummy cost; max cost is to be determined
@@ -176,11 +194,19 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			//
 			cur_candidate_cost = MultipleVoltages::updateOutlineCost(module, candidate, false);
 
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << cur_candidate_cost << std::endl;
+			}
+
 			if (cur_candidate_cost > best_candidate_cost) {
 
 				best_candidate_cost = cur_candidate_cost;
 				best_candidate = candidate;
 			}
+		}
+
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES>  Best candidate block " << best_candidate->block->id <<"; cost: " << best_candidate_cost << "; try insertion" << std::endl;
 		}
 
 		// insert the candidate with the best cost; continue recursively with this
@@ -254,9 +280,16 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 			inserted_new_module.contiguous_neighbours.insert({n.block->id, &n});
 		}
 
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES> Insertion successful; continue recursively with this module" << std::endl;
+		}
+
 		// recursive call; provide iterator to just inserted module as hint for
 		// next insertion
 		this->buildCompoundModulesHelper(inserted_new_module, inserted);
+	}
+	else if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
 	}
 }
 

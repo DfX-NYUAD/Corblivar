@@ -44,10 +44,10 @@ class MultipleVoltages {
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
-	// PODs, to be declared early on
-	public:
-		struct CompoundModule {
+	// inner class, to be declared early on
+	class CompoundModule {
 
+		public:
 			// used to identify compound modules; since the ids are in a
 			// sorted set, the order of blocks added doesn't matter, each
 			// compound module is unique in terms of blocks considered , i.e.,
@@ -98,7 +98,24 @@ class MultipleVoltages {
 
 			// TODO some terms of cost for power-domain routing, preferably
 			// derived from contiguity analysis
-		};
+
+			// helper function to return string comprising all (sorted) block ids
+			inline std::string id() {
+				std::string ret;
+
+				for (auto& id : this->block_ids) {
+					// the last id shall not be followed by a comma
+					if (id == *std::prev(this->block_ids.end())) {
+						ret += id;
+					}
+					else {
+						ret += id + ", ";
+					}
+				}
+
+				return ret;
+			};
+	};
 
 	// private data, functions
 	private:
