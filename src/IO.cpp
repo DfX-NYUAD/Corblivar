@@ -2058,10 +2058,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			if (MultipleVoltages::DBG_FLOORPLAN) {
 
 				gp_out << "set label \"";
-				// TODO test case w/ 3 max voltages
-				for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
-					gp_out << cur_block.feasible_voltages[v];
-				}
+				gp_out << cur_block.feasible_voltages;
 				gp_out << "\"";
 
 				gp_out << " at " << cur_block.bb.ll.x + 0.01 * fp.IC.outline_x;
