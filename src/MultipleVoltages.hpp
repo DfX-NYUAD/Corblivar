@@ -47,6 +47,7 @@ class MultipleVoltages {
 	// inner class, to be declared early on
 	class CompoundModule {
 
+		// public data
 		public:
 			// used to identify compound modules; since the ids are in a
 			// sorted set, the order of blocks added doesn't matter, each
@@ -98,6 +99,11 @@ class MultipleVoltages {
 
 			// TODO some terms of cost for power-domain routing, preferably
 			// derived from contiguity analysis
+
+
+		// public functions
+		public:
+			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 
 			// helper function to return string comprising all (sorted) block ids
 			inline std::string id() {
@@ -161,7 +167,6 @@ class MultipleVoltages {
 	private:
 		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
 		inline void insertCompoundModuleHelper(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, std::bitset<MAX_VOLTAGES> feasible_voltages, modules_type::iterator hint);
-		inline static double updateOutlineCost(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 };
 
 #endif

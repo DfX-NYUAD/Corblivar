@@ -192,7 +192,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// apply_update = false; i.e., only calculate cost of potentially
 			// adding the candidate block
 			//
-			cur_candidate_cost = MultipleVoltages::updateOutlineCost(module, candidate, false);
+			cur_candidate_cost = module.updateOutlineCost(candidate, false);
 
 			if (MultipleVoltages::DBG) {
 				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << cur_candidate_cost << std::endl;
@@ -269,7 +269,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
-		MultipleVoltages::updateOutlineCost(inserted_new_module, neighbour);
+		inserted_new_module.updateOutlineCost(neighbour);
 
 		// init pointers to neighbours with copy from previous compound module
 		inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
@@ -293,20 +293,20 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	}
 }
 
-inline double MultipleVoltages::updateOutlineCost(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
+inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
 
 	int neighbour_layer = neighbour->block->layer;
 
 	// these data structures are used to calculate the changes resulting from adding
-	// ContiguousNeighbour* block to CompoundModule& module;
-	// they are eventually only applied if apply_update == true
+	// ContiguousNeighbour* block to the module; they are eventually only applied if
+	// apply_update == true
 	//
 	// init them from the module's current state
-	std::vector<double> outline_cost_die = module.outline_cost_die;
-	std::vector<Rect> bb = module.bb;
-	std::vector<double> blocks_area = module.blocks_area;
+	std::vector<double> outline_cost_die = this->outline_cost_die;
+	std::vector<Rect> bb = this->bb;
+	std::vector<double> blocks_area = this->blocks_area;
 
 	// update bounding box and blocks area on (by added block) affected die;
 	// note that the added block may be the first on its related die which is
@@ -319,7 +319,7 @@ inline double MultipleVoltages::updateOutlineCost(MultipleVoltages::CompoundModu
 	}
 	else {
 		// update existing bb
-		bb[neighbour_layer] = Rect::determBoundingBox(module.bb[neighbour_layer], neighbour->block->bb);
+		bb[neighbour_layer] = Rect::determBoundingBox(this->bb[neighbour_layer], neighbour->block->bb);
 		// update blocks area
 		blocks_area[neighbour_layer] += neighbour->block->bb.area;
 	}
@@ -357,10 +357,10 @@ inline double MultipleVoltages::updateOutlineCost(MultipleVoltages::CompoundModu
 	// the affected die; this is because CompoundModule& module is a new module
 	// instance
 	if (apply_update) {
-		module.bb = std::move(bb);
-		module.blocks_area = std::move(blocks_area);
-		module.outline_cost_die = std::move(outline_cost_die);
-		module.outline_cost = overall_cost;
+		this->bb = std::move(bb);
+		this->blocks_area = std::move(blocks_area);
+		this->outline_cost_die = std::move(outline_cost_die);
+		this->outline_cost = overall_cost;
 	}
 
 	return overall_cost;
