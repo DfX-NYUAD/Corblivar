@@ -168,6 +168,10 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		}
 	}
 
+	if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "); all neighbour blocks considered" << std::endl;
+	}
+
 	// some neighbours may be added such that there is no change in the set of
 	// applicable voltages; out of the related candidates, proceed only with the
 	// lowest-cost candidate (w.r.t. outline_cost); this way, the solution space is
@@ -285,10 +289,21 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// init pointers to neighbours with copy from previous compound module
 		inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
-		// add (pointers to) neighbours of now additionally considered block; note
-		// that only yet not considered neighbours are effectively added to the
-		// map
+		// ignore the just considered neighbour (inserted_new_module); deleting
+		// afterwards is computationally less expansive than checking each
+		// neighbor's id during copying
+		inserted_new_module.contiguous_neighbours.erase(neighbour->block->id);
+
+		// add (pointers to) neighbours of the now additionally considered block;
+		// note that only yet not considered neighbours are effectively added to
+		// the map
 		for (auto& n : neighbour->block->contiguous_neighbours) {
+
+			// ignore any neighbour which is already comprised in the module
+			if (module.block_ids.find(n.block->id) != module.block_ids.end()) {
+				continue;
+			}
+
 			inserted_new_module.contiguous_neighbours.insert({n.block->id, &n});
 		}
 
