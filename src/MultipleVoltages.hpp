@@ -29,11 +29,12 @@
 #include "ContiguityAnalysis.hpp"
 // forward declarations, if any
 class Block;
+class Rect;
 
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 
 	// public constants
 	public:
@@ -53,6 +54,31 @@ class MultipleVoltages {
 			// different merging steps will results in the same compound
 			// module as long as the same set of blocks is underlying
 			std::set<std::string> block_ids;
+
+			// die-wise bounding boxes for whole module
+			std::vector<Rect> bb;
+
+			// outline_cost is avg(A(blocks)/A(bounding box)) over all
+			// _affected_ dies (having some blocks on the respective die being
+			// assigned to this module); the higher the cost the better
+			//
+			// this simple cost term models packing density which, in turn,
+			// has some direct implications on power-domain cost: a low
+			// packing density implies a) long power rings, b) higher
+			// probability for intersection with other power domains c)
+			// potentially more power-ring corners due to blocks from other
+			// voltage domains being more likely to intersect the (loosely
+			// packed) module [b)] which requires insertion of corners to
+			// avoid overlaps of different power-domain rings
+			double outline_cost = -1.0;
+			//
+			// to save recalculations for not affected dies, we memorize the
+			// per-die cost terms individually
+			std::vector<double> outline_cost_die;
+
+			// die-wise sum of blocks' area; required for calculating
+			// outline_cost
+			std::vector<double> blocks_area;
 
 			// TODO pointers to blocks may be required
 
@@ -112,12 +138,13 @@ class MultipleVoltages {
 
 	// public data, functions
 	public:
-		void determineCompoundModules(std::vector<Block> const& blocks);
+		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
 
-	// private helper functions
+	// private helper data, functions
 	private:
 		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
 		inline void insertCompoundModuleHelper(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, std::bitset<MAX_VOLTAGES> feasible_voltages, modules_type::iterator hint);
+		inline static double updateOutlineCost(CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 };
 
 #endif

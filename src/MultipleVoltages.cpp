@@ -25,9 +25,10 @@
 #include "MultipleVoltages.hpp"
 // required Corblivar headers
 #include "Block.hpp"
+#include "Rect.hpp"
 #include "ContiguityAnalysis.hpp"
 
-void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks) {
+void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks) {
 
 	this->modules.clear();
 
@@ -36,15 +37,39 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 
 		// init the trivial compound module, containing only the block itself
 		MultipleVoltages::CompoundModule module;
+
 		// copy feasible voltages
 		module.feasible_voltages = start.feasible_voltages;
+
 		// init sorted set of block ids, they will be used for key generation of
 		// compound modules
 		module.block_ids.insert(start.id);
+
 		// init neighbours; pointers to block's neighbour is sufficient
 		for (auto& neighbour : start.contiguous_neighbours) {
 			module.contiguous_neighbours.insert({neighbour.block->id, &neighbour});
 		}
+
+		// init die-wise data
+		module.bb.reserve(layers);
+		module.blocks_area.reserve(layers);
+		module.outline_cost_die.reserve(layers);
+		for (int l = 0; l < layers; l++) {
+
+			if (start.layer == l) {
+				module.bb.emplace_back(start.bb);
+				module.blocks_area.emplace_back(start.bb.area);
+				module.outline_cost_die.emplace_back(1.0);
+			}
+			else {
+				module.bb.emplace_back(Rect());
+				module.blocks_area.emplace_back(0.0);
+				module.outline_cost_die.emplace_back(0.0);
+			}
+		}
+
+		// init overall outline cost
+		module.outline_cost = 1.0;
 
 		// stepwise, recursive consideration of all blocks for merging into
 		// compound module
@@ -87,6 +112,9 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint) {
 	std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
+	std::vector<ContiguityAnalysis::ContiguousNeighbour*> candidates;
+	double best_candidate_cost;
+	double cur_candidate_cost;
 
 	// walk all current neighbours; perform breadth-first search for each next-level
 	// compound module with same set of applicable voltages
@@ -112,14 +140,11 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		// more than one voltage is applicable, but the resulting set of voltages
 		// is the same as for the previous module, without consideration of the
 		// current neighbour; here, we don't insert the new module immediately,
-		// but rather memorize all such candidate modules and then consider only
-		// the one with the lowest cost for further branching
+		// but rather memorize all such candidate modules / neighbours and then
+		// consider only the one with the lowest cost for further branching
 		else if (feasible_voltages == module.feasible_voltages) {
 
-			// TODO revise such that 1) all such candidates are memorized and
-			// 2) only the candidate with the lowest cost is inserted (and
-			// recursively continued with)
-			this->insertCompoundModuleHelper(module, neighbour, feasible_voltages, hint);
+			candidates.push_back(neighbour);
 		}
 		// more than one voltage is applicable, and the set of voltages has
 		// changed; such a module should be considered without notice of cost,
@@ -127,6 +152,40 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		else {
 			this->insertCompoundModuleHelper(module, neighbour, feasible_voltages, hint);
 		}
+	}
+
+	// some neighbours may be added such that there is no change in the set of
+	// applicable voltages; out of the related candidates, proceed only with the
+	// lowest-cost candidate (w.r.t. outline_cost); this way, the solution space is
+	// notably reduced, and the top-down process would select partial solutions
+	// (compound modules) of lowest cost anyway, thus this decision can already be
+	// applied here
+	//
+	//
+	if (!candidates.empty()) {
+
+		ContiguityAnalysis::ContiguousNeighbour* best_candidate;
+
+		// init with zero dummy cost; max cost is to be determined
+		best_candidate_cost = 0.0;
+
+		for (auto& candidate : candidates) {
+
+			// apply_update = false; i.e., only calculate cost of potentially
+			// adding the candidate block
+			//
+			cur_candidate_cost = MultipleVoltages::updateOutlineCost(module, candidate, false);
+
+			if (cur_candidate_cost > best_candidate_cost) {
+
+				best_candidate_cost = cur_candidate_cost;
+				best_candidate = candidate;
+			}
+		}
+
+		// insert the candidate with the best cost; continue recursively with this
+		// new module
+		this->insertCompoundModuleHelper(module, best_candidate, feasible_voltages, hint);
 	}
 }
 
@@ -177,6 +236,15 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// assign feasible voltages
 		inserted_new_module.feasible_voltages = std::move(feasible_voltages);
 
+		// init bounding box, blocks area and cost from the previous module
+		inserted_new_module.outline_cost_die = module.outline_cost_die;
+		inserted_new_module.bb = module.bb;
+		inserted_new_module.blocks_area = module.blocks_area;
+
+		// update bounding box, blocks area, and recalculate outline cost; all
+		// w.r.t. added (neighbour) block
+		MultipleVoltages::updateOutlineCost(inserted_new_module, neighbour);
+
 		// init pointers to neighbours with copy from previous compound module
 		inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
 		// add (pointers to) neighbours of now additionally considered block; note
@@ -190,4 +258,77 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// next insertion
 		this->buildCompoundModulesHelper(inserted_new_module, inserted);
 	}
+}
+
+inline double MultipleVoltages::updateOutlineCost(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
+	double overall_cost = 0.0;
+	double dies_to_consider = 0;
+
+	int neighbour_layer = neighbour->block->layer;
+
+	// these data structures are used to calculate the changes resulting from adding
+	// ContiguousNeighbour* block to CompoundModule& module;
+	// they are eventually only applied if apply_update == true
+	//
+	// init them from the module's current state
+	std::vector<double> outline_cost_die = module.outline_cost_die;
+	std::vector<Rect> bb = module.bb;
+	std::vector<double> blocks_area = module.blocks_area;
+
+	// update bounding box and blocks area on (by added block) affected die;
+	// note that the added block may be the first on its related die which is
+	// assigned to this module
+	if (blocks_area[neighbour_layer] == 0.0) {
+		// init new bb
+		bb[neighbour_layer] = neighbour->block->bb;
+		// init blocks area
+		blocks_area[neighbour_layer] = neighbour->block->bb.area;
+	}
+	else {
+		// update existing bb
+		bb[neighbour_layer] = Rect::determBoundingBox(module.bb[neighbour_layer], neighbour->block->bb);
+		// update blocks area
+		blocks_area[neighbour_layer] += neighbour->block->bb.area;
+	}
+
+	// update affected layer's and overall cost; walk all dies
+	//
+	for (unsigned l = 0; l < blocks_area.size(); l++) {
+
+		// sanity check for some block being assigned to the die
+		//
+		if (blocks_area[l] > 0.0) {
+
+			// affected die; update die-wise cost first
+			if (l == static_cast<unsigned>(neighbour_layer)) {
+
+				outline_cost_die[l] = blocks_area[l] / bb[l].area;
+			}
+
+			// in any case (die affected or not), update intermediate terms,
+			// i.e., sum up cost for total cost
+			overall_cost += outline_cost_die[l];
+			dies_to_consider++;
+		}
+	}
+
+	// normalize cost to avg cost; note that div by zero cannot occur since each
+	// module has at least one block assigned
+	overall_cost /= dies_to_consider;
+
+	// apply updates to module only if requested; this way, both the actual change for
+	// new modules and the potential change for candidate modules can be unified in
+	// this helper
+	//
+	// note that the whole data structures have to be moved, not only the values for
+	// the affected die; this is because CompoundModule& module is a new module
+	// instance
+	if (apply_update) {
+		module.bb = std::move(bb);
+		module.blocks_area = std::move(blocks_area);
+		module.outline_cost_die = std::move(outline_cost_die);
+		module.outline_cost = overall_cost;
+	}
+
+	return overall_cost;
 }
