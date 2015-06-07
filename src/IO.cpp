@@ -1176,6 +1176,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			else {
 				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && Math::randB();
 			}
+
+			// TODO drop
+			// dummy data, assign fixed voltages
+			//new_block.feasible_voltages[v] = 1;
 		}
 
 		// track block power statistics
