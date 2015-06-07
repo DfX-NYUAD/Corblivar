@@ -52,7 +52,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// TODO drop dummy data
 	// TODO introduce new parameter
-	fp.opt_flags.voltage_assignment = false;
+	fp.opt_flags.voltage_assignment = true;
 	fp.opt_flags.timing = true;
 
 	// print command-line parameters
@@ -1174,7 +1174,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// any other, lower voltage shall be randomly considered; the
 			// probabilities are reduced with the voltage
 			else {
-				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && (Math::randB() && Math::randB());
+				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && Math::randB();
 			}
 		}
 
