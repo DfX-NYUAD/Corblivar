@@ -109,7 +109,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
 	std::vector<ContiguityAnalysis::ContiguousNeighbour*> candidates;
 	double best_candidate_cost;
-	double cur_candidate_cost;
+	std::vector<double> candidates_cost;
 
 	// walk all current neighbours; perform breadth-first search for each next-level
 	// compound module with same set of applicable voltages
@@ -161,7 +161,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		else {
 
 			if (MultipleVoltages::DBG) {
-				std::cout << "DBG_VOLTAGES>  Change in applicable voltages; non-trivial solution; try insertion of new module" << std::endl;
+				std::cout << "DBG_VOLTAGES>  Change in applicable voltages; non-trivial solution; try insertion of related new module" << std::endl;
 			}
 
 			this->insertCompoundModuleHelper(module, neighbour, feasible_voltages, hint);
@@ -182,36 +182,48 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "); evaluate candidates" << std::endl;
 		}
 
-		ContiguityAnalysis::ContiguousNeighbour* best_candidate;
-
 		// init with zero dummy cost; max cost is to be determined
 		best_candidate_cost = 0.0;
 
+		// 1) determine all cost and max cost
+		candidates_cost.reserve(candidates.size());
 		for (auto& candidate : candidates) {
 
 			// apply_update = false; i.e., only calculate cost of potentially
-			// adding the candidate block
+			// adding the candidate block, don't add block yet
 			//
-			cur_candidate_cost = module.updateOutlineCost(candidate, false);
+			// memorize cost since more than one module may show best cost
+			//
+			candidates_cost.push_back(module.updateOutlineCost(candidate, false));
 
 			if (MultipleVoltages::DBG) {
-				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << cur_candidate_cost << std::endl;
+				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << candidates_cost.back() << std::endl;
 			}
 
-			if (cur_candidate_cost > best_candidate_cost) {
-
-				best_candidate_cost = cur_candidate_cost;
-				best_candidate = candidate;
+			// determine max cost
+			if (candidates_cost.back() > best_candidate_cost) {
+				best_candidate_cost = candidates_cost.back();
 			}
 		}
 
-		if (MultipleVoltages::DBG) {
-			std::cout << "DBG_VOLTAGES>  Best candidate block " << best_candidate->block->id <<"; cost: " << best_candidate_cost << "; try insertion" << std::endl;
-		}
+		// consider all candidates w/ best cost
+		//
+		for (unsigned c = 0; c < candidates.size(); c++) {
 
-		// insert the candidate with the best cost; continue recursively with this
-		// new module
-		this->insertCompoundModuleHelper(module, best_candidate, feasible_voltages, hint);
+			if (Math::doubleComp(candidates_cost[c], best_candidate_cost)) {
+
+				ContiguityAnalysis::ContiguousNeighbour* best_candidate = candidates[c];
+
+				if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "); best candidate block " << best_candidate->block->id;
+					std::cout << "; cost: " << best_candidate_cost << "; try insertion of related new module" << std::endl;
+				}
+
+				// insert the candidate with the best cost; continue recursively with this
+				// new module
+				this->insertCompoundModuleHelper(module, best_candidate, feasible_voltages, hint);
+			}
+		}
 	}
 }
 
