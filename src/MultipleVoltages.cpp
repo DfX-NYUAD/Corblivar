@@ -90,6 +90,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << it->second.id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << it->second.feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (local) cost: " << it->second.outline_cost << std::endl;
 		}
 	}
 }
