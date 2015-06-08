@@ -170,8 +170,8 @@ class MultipleVoltages {
 				CompoundModule& module,
 				ContiguityAnalysis::ContiguousNeighbour* neighbour,
 				bool consider_prev_neighbours,
-				std::bitset<MAX_VOLTAGES> feasible_voltages,
-				modules_type::iterator hint
+				std::bitset<MAX_VOLTAGES>& feasible_voltages,
+				modules_type::iterator& hint
 			);
 };
 
