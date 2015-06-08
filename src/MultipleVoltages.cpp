@@ -220,6 +220,9 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 				ContiguityAnalysis::ContiguousNeighbour* best_candidate = candidates[c];
 
+				// redetermine intersection of feasible voltages
+				feasible_voltages = module.feasible_voltages & best_candidate->block->feasible_voltages;
+
 				if (MultipleVoltages::DBG) {
 					std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "),(" << module.feasible_voltages << ");";
 					std::cout << " best candidate block " << best_candidate->block->id;
