@@ -333,6 +333,10 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	}
 }
 
+// TODO consider contiguity, or similar measure to estimate power-domain synthesis cost
+//
+// current cost term: blocks area over bounding box; i.e., packing density; i.e., the
+// higher the cost the better
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
@@ -375,6 +379,8 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			// affected die; update die-wise cost first
 			if (l == static_cast<unsigned>(neighbour_layer)) {
 
+				// actual cost term; blocks area over bounding box; i.e.,
+				// packing density
 				outline_cost_die[l] = blocks_area[l] / bb[l].area;
 			}
 
