@@ -92,6 +92,33 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << it->second.feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (local) cost: " << it->second.outline_cost << std::endl;
 		}
+		std::cout << "DBG_VOLTAGES>" << std::endl;
+	}
+}
+
+void MultipleVoltages::selectCompoundModules() {
+
+	this->modules_w_cost.clear();
+
+	// first, insert all modules into (by cost sorted) set
+	//
+	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
+		this->modules_w_cost.insert(&(it->second));
+	}
+
+	if (MultipleVoltages::DBG) {
+
+		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "); view ordered by total cost:" << std::endl;
+
+		for (auto* module : this->modules_w_cost) {
+
+			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->block_ids.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
+		}
+		std::cout << "DBG_VOLTAGES>" << std::endl;
 	}
 }
 

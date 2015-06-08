@@ -34,7 +34,7 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 
 	// public constants
 	public:
@@ -121,6 +121,15 @@ class MultipleVoltages {
 
 				return ret;
 			};
+
+			// TODO proper cost; gain in power reduction compared to trivial
+			// highest voltage
+			//
+			// test data; packing density times blocks considered, the higher
+			// the better
+			inline double cost() const {
+				return (this->outline_cost * this->block_ids.size());
+			}
 	};
 
 	// private data, functions
@@ -149,12 +158,24 @@ class MultipleVoltages {
 			}
 		};
 
-	// public data
-	public:
-		// set of unique compound modules; the respective keys are the (sorted)
-		// ids of all comprised blocks
+		struct modules_cost_comp {
+			bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
+
+				return (m1->cost() > m2->cost());
+			}
+		};
+
+		// map of unique compound modules; the respective keys are the (sorted)
+		// ids of all comprised blocks; required for determineCompoundModules()
 		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
 		modules_type modules;
+
+		// set of unique compound modules; the modules are sorted by the overall
+		// cost; required for selectCompoundModules()
+		std::set<CompoundModule*, modules_cost_comp> modules_w_cost;
+
+	// public data
+	public:
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -162,6 +183,7 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
+		void selectCompoundModules();
 
 	// private helper data, functions
 	private:
