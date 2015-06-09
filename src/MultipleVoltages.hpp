@@ -173,13 +173,6 @@ class MultipleVoltages {
 			}
 		};
 
-		struct modules_cost_comp {
-			bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
-
-				return (m1->cost() > m2->cost());
-			}
-		};
-
 		// map of unique compound modules; the respective keys are the (sorted)
 		// ids of all comprised blocks; required for determineCompoundModules();
 		// not that a map is required in order to alter inserted elements; a set

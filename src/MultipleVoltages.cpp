@@ -100,10 +100,16 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 }
 
 std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundModules() {
-	// set of compound modules; the modules are sorted by the overall cost; required
-	// for selectCompoundModules(); multiset since cost may be equal for some modules,
-	// especially for trivial modules comprising one block
-	std::multiset<CompoundModule*, MultipleVoltages::modules_cost_comp> modules_w_cost;
+	// set of compound modules; the modules are sorted by the overall cost; multiset
+	// since cost may be equal for some modules, especially for trivial modules
+	// comprising one block
+	struct modules_cost_comp {
+		bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
+
+			return (m1->cost() > m2->cost());
+		}
+	};
+	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
 
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 	MultipleVoltages::CompoundModule* cur_selected_module;
