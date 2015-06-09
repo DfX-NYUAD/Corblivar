@@ -79,6 +79,7 @@ class Block {
 
 		// density in [uW/(um^2)]
 		// TODO container w/ multiple values, related to feasible_voltages
+		// TODO or scale according to some global scaling factors
 		double power_density;
 
 		// bit-wise flags for applicable voltages, where feasible_voltages[0]
@@ -87,6 +88,9 @@ class Block {
 		// MultipleVoltages::MAX_VOLTAGES are globally available, the non-required
 		// bits are left as is, i.e., zero by constructor definition
 		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
+
+		// final, optimized voltage assignment; actual voltage
+		mutable double voltage;
 
 		// vector of contiguous neighbours, required for voltage assignment
 		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;

@@ -34,7 +34,8 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
+		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
 	public:
@@ -49,6 +50,9 @@ class MultipleVoltages {
 
 		// public data
 		public:
+			// pointers to comprised blocks, key is block id
+			std::unordered_map<std::string, Block const*> blocks;
+
 			// used to identify compound modules; since the ids are in a
 			// sorted set, the order of blocks added doesn't matter, each
 			// compound module is unique in terms of blocks considered , i.e.,
@@ -80,8 +84,6 @@ class MultipleVoltages {
 			// die-wise sum of blocks' area; required for calculating
 			// outline_cost
 			std::vector<double> blocks_area;
-
-			// TODO pointers to blocks may be required
 
 			// feasible voltages for whole module; defined by intersection of
 			// all comprised blocks
@@ -128,7 +130,20 @@ class MultipleVoltages {
 			// test data; packing density times blocks considered, the higher
 			// the better
 			inline double cost() const {
-				return (this->outline_cost * this->block_ids.size());
+				return (this->outline_cost * this->blocks.size());
+			}
+
+			// TODO proper scaling; proper voltage value
+			inline double min_voltage() const {
+
+				for (unsigned v = 0; v < MAX_VOLTAGES; v++) {
+
+					if (feasible_voltages[v]) {
+						return v;
+					}
+				}
+
+				return MAX_VOLTAGES;
 			}
 	};
 
@@ -172,11 +187,6 @@ class MultipleVoltages {
 		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
 		modules_type modules;
 
-		// set of compound modules; the modules are sorted by the overall cost;
-		// required for selectCompoundModules(); multiset since cost may be equal
-		// for some modules, especially for trivial modules comprising one block
-		std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
-
 	// public data
 	public:
 
@@ -186,7 +196,7 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
-		void selectCompoundModules();
+		std::vector<CompoundModule*> selectCompoundModules();
 
 	// private helper data, functions
 	private:

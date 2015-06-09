@@ -41,6 +41,9 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		// copy feasible voltages
 		module.feasible_voltages = start.feasible_voltages;
 
+		// init pointers to blocks
+		module.blocks.insert({start.id, &start});
+
 		// init sorted set of block ids, they will be used for key generation of
 		// compound modules
 		module.block_ids.insert(start.id);
@@ -96,30 +99,145 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	}
 }
 
-void MultipleVoltages::selectCompoundModules() {
+std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundModules() {
+	// set of compound modules; the modules are sorted by the overall cost; required
+	// for selectCompoundModules(); multiset since cost may be equal for some modules,
+	// especially for trivial modules comprising one block
+	std::multiset<CompoundModule*, MultipleVoltages::modules_cost_comp> modules_w_cost;
 
-	this->modules_w_cost.clear();
+	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
+	MultipleVoltages::CompoundModule* cur_selected_module;
+	MultipleVoltages::CompoundModule* module_to_check;
+	Block const* block;
+	double cur_selected_module_voltage;
+	bool module_to_remove;
+
+	unsigned count;
 
 	// first, insert all modules into (by cost sorted) set
 	//
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
-		this->modules_w_cost.insert(&(it->second));
+		modules_w_cost.insert(&(it->second));
+	}
+
+	// stepwise select module with best cost, assign module's voltage to all related
+	// modules, remove the other (candidate) modules which comprise any of the already
+	// assigned blocks (to avoid redundant assignments with non-optimal cost for any
+	// block); proceed until all modules have been considered, which implies until all
+	// blocks have a cost-optimal voltage assignment
+	//
+	while (!modules_w_cost.empty()) {
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+
+			std::cout << "DBG_VOLTAGES> Current set of compound modules to be considered (in total " << modules_w_cost.size() << "); view ordered by total cost:" << std::endl;
+
+			for (auto* module : modules_w_cost) {
+
+				std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
+				std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->blocks.size() << std::endl;
+				std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
+				std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
+				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
+
+			}
+			std::cout << "DBG_VOLTAGES>" << std::endl;
+		}
+
+		// select module with currently best cost
+		cur_selected_module = *(modules_w_cost.begin());
+
+		// determine optimal (lowest out of module's feasible) voltage
+		cur_selected_module_voltage = cur_selected_module->min_voltage();
+
+		// memorize this module as selected
+		selected_modules.push_back(cur_selected_module);
+
+		// assign voltage to all blocks comprised in this module
+		//
+		for (auto it = cur_selected_module->blocks.begin(); it != cur_selected_module->blocks.end(); ++it) {
+
+			block = it->second;
+
+			block->voltage = cur_selected_module_voltage;
+		}
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+
+			std::cout << "DBG_VOLTAGES> Selected compound module (out of " << modules_w_cost.size() << " modules);" << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << cur_selected_module->blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << cur_selected_module->id() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << cur_selected_module->feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost() << std::endl;
+		}
+
+		// remove other modules which contain some already contained blocks; start
+		// with 1st module in set to also remove the just considered module
+		//
+		if (MultipleVoltages::DBG_VERBOSE) {
+			count = 0;
+		}
+
+		for (auto it = modules_w_cost.begin(); it != modules_w_cost.end();) {
+
+			module_to_check = *it;
+			module_to_remove = false;
+
+			for (auto& id : cur_selected_module->block_ids) {
+
+				// the module to check contains a block which is assigned
+				// in the current module; thus, we drop the module
+				if (module_to_check->block_ids.find(id) != module_to_check->block_ids.end()) {
+
+					if (MultipleVoltages::DBG_VERBOSE) {
+
+						count++;
+
+						std::cout << "DBG_VOLTAGES>     Module to be deleted after selecting the module above: " << module_to_check->id() << std::endl;
+					}
+
+					// also update iterator; pointing to next element
+					// after erased element
+					it = modules_w_cost.erase(it);
+					module_to_remove = true;
+
+					break;
+				}
+			}
+
+			// no module to remove; simply increment iterator
+			if (!module_to_remove) {
+				++it;
+			}
+		}
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+			std::cout << "DBG_VOLTAGES>     Deleted modules count: " << count << std::endl;
+		}
 	}
 
 	if (MultipleVoltages::DBG) {
 
-		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "); view ordered by total cost:" << std::endl;
+		count = 0;
 
-		for (auto* module : this->modules_w_cost) {
+		std::cout << "DBG_VOLTAGES> Selected compound modules (in total " << selected_modules.size() << "); view ordered by total cost:" << std::endl;
+
+		for (auto* module : selected_modules) {
 
 			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
-			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->block_ids.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
+
+			count += module->blocks.size();
 		}
 		std::cout << "DBG_VOLTAGES>" << std::endl;
+		std::cout << "DBG_VOLTAGES> In total assigned blocks to modules: " << count << std::endl;
+		std::cout << "DBG_VOLTAGES>" << std::endl;
 	}
+
+	return selected_modules;
 }
 
 // stepwise consider adding single blocks into the compound module until all blocks are
@@ -316,6 +434,11 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// assign feasible voltages
 		inserted_new_module.feasible_voltages = std::move(feasible_voltages);
+
+		// init block pointers from previous module
+		inserted_new_module.blocks = module.blocks;
+		// insert now additionally considered neighbour
+		inserted_new_module.blocks.insert({neighbour->block->id, neighbour->block});
 
 		// init bounding box, blocks area and cost from the previous module
 		inserted_new_module.outline_cost_die = module.outline_cost_die;
