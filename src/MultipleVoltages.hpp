@@ -166,13 +166,16 @@ class MultipleVoltages {
 		};
 
 		// map of unique compound modules; the respective keys are the (sorted)
-		// ids of all comprised blocks; required for determineCompoundModules()
+		// ids of all comprised blocks; required for determineCompoundModules();
+		// not that a map is required in order to alter inserted elements; a set
+		// may contain only const elements
 		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
 		modules_type modules;
 
-		// set of unique compound modules; the modules are sorted by the overall
-		// cost; required for selectCompoundModules()
-		std::set<CompoundModule*, modules_cost_comp> modules_w_cost;
+		// set of compound modules; the modules are sorted by the overall cost;
+		// required for selectCompoundModules(); multiset since cost may be equal
+		// for some modules, especially for trivial modules comprising one block
+		std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
 
 	// public data
 	public:
