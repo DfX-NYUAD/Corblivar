@@ -316,11 +316,23 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 	// horizontal stack Hi
 	//
 	// a) check remaining blocks if they are covered now (by current block)
-	for (iter = this->Hi.begin(); iter != this->Hi.end(); ++iter) {
+	for (iter = this->Hi.begin(); iter != this->Hi.end();) {
+
+		covered = false;
+
 		// block is now covered
 		if (Rect::rectA_leftOf_rectB((*iter)->bb, cur_block->bb, true)) {
-			// drop block from stack
+
+			covered = true;
+
+			// drop block from stack; also update iter to point to next
+			// element
 			iter = this->Hi.erase(iter);
+		}
+
+		// regular iter update
+		if (!covered) {
+			++iter;
 		}
 	}
 
@@ -369,11 +381,23 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 	// vertical stack Vi
 	//
 	// a) check remaining blocks if they are covered now (by current block)
-	for (iter = this->Vi.begin(); iter != this->Vi.end(); ++iter) {
+	for (iter = this->Vi.begin(); iter != this->Vi.end();) {
+
+		covered = false;
+
 		// block is now covered
 		if (Rect::rectA_below_rectB((*iter)->bb, cur_block->bb, true)) {
-			// drop block from stack
+
+			covered = true;
+
+			// drop block from stack; also update iter to point to next
+			// element
 			iter = this->Vi.erase(iter);
+		}
+
+		// regular iter update
+		if (!covered) {
+			++iter;
 		}
 	}
 
