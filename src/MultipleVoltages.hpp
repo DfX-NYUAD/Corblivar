@@ -182,6 +182,7 @@ class MultipleVoltages {
 
 	// public data
 	public:
+		std::vector<CompoundModule*> selected_modules;
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -189,7 +190,7 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
-		std::vector<CompoundModule*> selectCompoundModules();
+		void selectCompoundModules();
 
 	// private helper data, functions
 	private:

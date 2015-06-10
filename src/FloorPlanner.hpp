@@ -271,6 +271,9 @@ class FloorPlanner {
 		// routing-utilization analyzer
 		RoutingUtilization routingUtil;
 
+		// multi-voltage-domain handler
+		MultipleVoltages voltages;
+
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {

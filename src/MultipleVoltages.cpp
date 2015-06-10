@@ -99,7 +99,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	}
 }
 
-std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundModules() {
+void MultipleVoltages::selectCompoundModules() {
 	// set of compound modules; the modules are sorted by the overall cost; multiset
 	// since cost may be equal for some modules, especially for trivial modules
 	// comprising one block
@@ -111,7 +111,6 @@ std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundM
 	};
 	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
 
-	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 	Block const* block;
@@ -132,6 +131,7 @@ std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundM
 	// block); proceed until all modules have been considered, which implies until all
 	// blocks have a cost-optimal voltage assignment
 	//
+	this->selected_modules.clear();
 	while (!modules_w_cost.empty()) {
 
 		if (MultipleVoltages::DBG_VERBOSE) {
@@ -157,7 +157,7 @@ std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundM
 		cur_selected_module_voltage = cur_selected_module->min_voltage();
 
 		// memorize this module as selected
-		selected_modules.push_back(cur_selected_module);
+		this->selected_modules.push_back(cur_selected_module);
 
 		// assign voltage to all blocks comprised in this module
 		//
@@ -226,9 +226,9 @@ std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundM
 
 		count = 0;
 
-		std::cout << "DBG_VOLTAGES> Selected compound modules (in total " << selected_modules.size() << "); view ordered by total cost:" << std::endl;
+		std::cout << "DBG_VOLTAGES> Selected compound modules (in total " << this->selected_modules.size() << "); view ordered by total cost:" << std::endl;
 
-		for (auto* module : selected_modules) {
+		for (auto* module : this->selected_modules) {
 
 			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->blocks.size() << std::endl;
@@ -242,8 +242,6 @@ std::vector<MultipleVoltages::CompoundModule*> MultipleVoltages::selectCompoundM
 		std::cout << "DBG_VOLTAGES> In total assigned blocks to modules: " << count << std::endl;
 		std::cout << "DBG_VOLTAGES>" << std::endl;
 	}
-
-	return selected_modules;
 }
 
 // stepwise consider adding single blocks into the compound module until all blocks are
