@@ -82,9 +82,9 @@ class Block {
 		// TODO or scale according to some global scaling factors
 		double power_density;
 
-		// bit-wise flags for applicable voltages, where feasible_voltages[0]
-		// encodes the highest voltage, and remaining bits encode the lower
-		// voltages in ascending order; note that if less than
+		// bit-wise flags for applicable voltages, where feasible_voltages[k]
+		// encodes the highest voltage V_k, and remaining bits encode the lower
+		// voltages in descending order; note that if less than
 		// MultipleVoltages::MAX_VOLTAGES are globally available, the non-required
 		// bits are left as is, i.e., zero by constructor definition
 		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;

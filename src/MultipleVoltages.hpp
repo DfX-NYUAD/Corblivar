@@ -39,7 +39,7 @@ class MultipleVoltages {
 
 	// public constants
 	public:
-		static constexpr bool DBG_FLOORPLAN = true;
+		static constexpr bool DBG_FLOORPLAN = false;
 
 		// dimension for feasible voltages;
 		// represents the upper bound for globally available voltages
@@ -108,7 +108,7 @@ class MultipleVoltages {
 			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 
 			// helper function to return string comprising all (sorted) block ids
-			inline std::string id() {
+			inline std::string id() const {
 				std::string ret;
 
 				for (auto& id : this->block_ids) {
@@ -133,12 +133,14 @@ class MultipleVoltages {
 				return (this->outline_cost * this->blocks.size());
 			}
 
-			// TODO proper scaling; proper voltage value
+			// TODO proper scaling; proper voltage value; v == 0 is lowest
+			// voltage and v == k <= MAX_VOLTAGES is max voltage
+			//
 			inline double min_voltage() const {
 
 				for (unsigned v = 0; v < MAX_VOLTAGES; v++) {
 
-					if (feasible_voltages[v]) {
+					if (this->feasible_voltages[v]) {
 						return v;
 					}
 				}

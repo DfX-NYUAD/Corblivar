@@ -1160,21 +1160,19 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// voltages; init such that all blocks may assume any voltage but unused
 		// bits shall remain zero
 		// TODO test case w/ 3 max voltages
-		for (unsigned v = 0; v < 3 && v < MultipleVoltages::MAX_VOLTAGES; v++) {
-
-			//new_block.feasible_voltages[v] = 1;
+		for (int v = 2; v >= 0; v--) {
 
 			// TODO drop 
 			// dummy data, randomly assign voltages
 			//
 			// the highest voltage shall be always applicable
-			if (v == 0) {
-				new_block.feasible_voltages[0] = 1;
+			if (v == 2) {
+				new_block.feasible_voltages[v] = 1;
 			}
 			// any other, lower voltage shall be randomly considered; the
 			// probabilities are reduced with the voltage
 			else {
-				new_block.feasible_voltages[v] = new_block.feasible_voltages[v - 1] && Math::randB();
+				new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
 			}
 
 			// TODO drop
