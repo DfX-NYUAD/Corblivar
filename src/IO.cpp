@@ -2067,6 +2067,41 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			}
 		}
 
+		// output voltage volumes; die-wise as islands
+		for (auto const* module : fp.voltages.selected_modules) {
+
+			Rect const& bb = module->bb[cur_layer];
+
+			if (bb.area == 0) {
+				continue;
+			}
+
+			// island outline
+			gp_out << "set obj rect";
+			gp_out << " from " << bb.ll.x << "," << bb.ll.y;
+			gp_out << " to " << bb.ur.x << "," << bb.ur.y;
+			gp_out << " front fillstyle empty border ";
+			// color depending on voltage, whereas to color range goes from
+			// #ffff00 (yello) to #dd0000 (red); only G values are scaled
+			// (down)
+			gp_out << "rgb \"#";
+			// TODO test data w/ 3 voltages
+			gp_out << "ff";
+			gp_out << std::hex;
+			gp_out << static_cast<int>(0xff - module->min_voltage_index() * (0xee / (3 - 1)));
+			gp_out << std::dec;
+			gp_out << "00";
+			gp_out << "\" linewidth 1" << std::endl;
+
+			// label; to module assigned blocks and their shared voltage
+			gp_out << "set label \"" << module->id() << ": " << module->min_voltage() << " V\"";
+			gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
+			gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
+			gp_out << " font \"Gill Sans,2\"";
+			// prevents generating subscripts for underscore in labels
+			gp_out << " noenhanced" << std::endl;
+		}
+
 		// output TSVs (blocks)
 		for (TSV_Island const& TSV_group : fp.TSVs) {
 
