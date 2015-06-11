@@ -105,6 +105,7 @@ class MultipleVoltages {
 
 		// public functions
 		public:
+			// local cost; required during bottom-up construction
 			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 
 			// helper function to return string comprising all (sorted) block ids
@@ -124,8 +125,16 @@ class MultipleVoltages {
 				return ret;
 			};
 
+			// global cost; required during top-down selection
+			//
 			// TODO proper cost; gain in power reduction compared to trivial
-			// highest voltage
+			// highest voltage;
+			//
+			// TODO maybe also further terms like overlap with other modules,
+			// having a different set of voltages; this could be similarly
+			// calculated as for vertical overlap of blocks; i.e., the
+			// respective parts of function ContiguityAnalysis::analyseBlocks
+			// should be refactored to work on general rectangles, not blocks
 			//
 			// test data; packing density times blocks considered, the higher
 			// the better
