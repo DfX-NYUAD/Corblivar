@@ -2093,7 +2093,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			gp_out << "\" linewidth 1" << std::endl;
 
 			// label; to module assigned blocks and their shared voltage
-			gp_out << "set label \"" << module->id() << ": " << module->min_voltage() << " V\"";
+			gp_out << "set label \"" << module->id() << "\\n" << module->min_voltage() << " V\"";
 			gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
 			gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
 			gp_out << " font \"Gill Sans,2\"";
