@@ -265,22 +265,28 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 		// first, we determine if adding this neighbour would lead to an trivial
 		// solution, i.e., only the highest possible voltage is assignable; such
-		// modules are ignored and thus we can achieve notable reduction in memory
-		// and runtime by pruning trivial solutions early on during recursive
-		// bottom-up phase
+		// modules are mainly ignored (one exception, see below) and thus we can
+		// achieve notable reduction in memory and runtime by pruning trivial
+		// solutions early on during recursive bottom-up phase
 		//
+		// the only exception where modules with only highest voltage shall be
+		// further investigated is in case adjacent trivial compound modules
+		// (single blocks) can be merged
+		//
+
 		// bit-wise AND to obtain the intersection of feasible voltages
 		feasible_voltages = module.feasible_voltages & neighbour->block->feasible_voltages;
 
 		if (MultipleVoltages::DBG) {
 
 			std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "),(" << module.feasible_voltages << ");";
-			std::cout << " consider neighbour block: " << neighbour->block->id << std::endl;
+			std::cout << " consider neighbour block: (" << neighbour->block->id << "),(" << neighbour->block->feasible_voltages << ")" << std::endl;
 		}
 
-		// only one voltage is applicable, which is trivially the highest
-		// possible; ignore this trivial compound module
-		if (feasible_voltages.count() == 1) {
+		// only one voltage is applicable _afterwards_, i.e., only after adding
+		// the current neighbour; this voltage is trivially the highest possible;
+		// ignore this trivial compound module
+		if (module.feasible_voltages.count() > 1 && feasible_voltages.count() == 1) {
 
 			if (MultipleVoltages::DBG) {
 				std::cout << "DBG_VOLTAGES>  Trivial solution; only highest possible voltage applicable (" << feasible_voltages << ");";
@@ -289,11 +295,15 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 			continue;
 		}
-		// more than one voltage is applicable, but the resulting set of voltages
-		// is the same as for the previous module, without consideration of the
-		// current neighbour; here, we don't insert the new module immediately,
-		// but rather memorize all such candidate modules / neighbours and then
-		// consider only the one with the lowest cost for further branching
+		// two similar cases: a) more than one voltage is applicable _afterwards_,
+		// but the resulting set of voltages is the same as _before_ for the
+		// previous module or b) merging trivial compound modules w/ only highest
+		// voltage applicable; both cases can be simplified to comparing previous
+		// and new set of voltages, ignoring the count of applicable voltages
+		//
+		// here, we don't insert the new module immediately, but rather memorize
+		// all such candidate modules / neighbours and then consider only the one
+		// with the lowest cost for further branching
 		else if (feasible_voltages == module.feasible_voltages) {
 
 			if (MultipleVoltages::DBG) {
