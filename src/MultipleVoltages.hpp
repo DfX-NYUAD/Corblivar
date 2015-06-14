@@ -142,21 +142,6 @@ class MultipleVoltages {
 				return (this->outline_cost * this->blocks.size());
 			}
 
-			// TODO proper scaling; proper voltage value; v == 0 is lowest
-			// voltage and v == k <= MAX_VOLTAGES is max voltage
-			//
-			inline double min_voltage() const {
-
-				for (unsigned v = 1; v <= MAX_VOLTAGES; v++) {
-
-					if (this->feasible_voltages[v - 1]) {
-						return v;
-					}
-				}
-
-				return MAX_VOLTAGES;
-			}
-
 			inline unsigned min_voltage_index() const {
 
 				for (unsigned v = 0; v < MAX_VOLTAGES; v++) {

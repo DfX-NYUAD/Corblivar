@@ -115,7 +115,6 @@ void MultipleVoltages::selectCompoundModules() {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 	Block const* block;
-	double cur_selected_module_voltage;
 	bool module_to_remove;
 
 	unsigned count;
@@ -155,9 +154,6 @@ void MultipleVoltages::selectCompoundModules() {
 		// select module with currently best cost
 		cur_selected_module = *(modules_w_cost.begin());
 
-		// determine optimal (lowest out of module's feasible) voltage
-		cur_selected_module_voltage = cur_selected_module->min_voltage();
-
 		// memorize this module as selected
 		this->selected_modules.push_back(cur_selected_module);
 
@@ -167,7 +163,8 @@ void MultipleVoltages::selectCompoundModules() {
 
 			block = it->second;
 
-			block->voltage = cur_selected_module_voltage;
+			// TODO voltage index
+//			block->voltage = cur_selected_module_voltage;
 		}
 
 		if (MultipleVoltages::DBG_VERBOSE) {
