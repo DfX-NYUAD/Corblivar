@@ -856,9 +856,12 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			if (this->opt_flags.alignment) {
 				this->evaluateAlignments(cost, alignments, true, false, true);
 			}
-			if (this->opt_flags.thermal) {
-				this->evaluateThermalDistr(cost);
-			}
+
+			// perform this final thermal evaluation, even if thermal
+			// optimization is not active; this way, we obtain the
+			// power-density and thermal maps which may be helpful for other
+			// (debugging) purposes
+			this->evaluateThermalDistr(cost);
 		}
 
 		// determine total cost; weight and sum up cost terms
