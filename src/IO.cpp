@@ -649,11 +649,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// sanity check for voltages order; from highest to lowest
+	// sanity check for voltages order; from lowest to highest
 	for (auto iter = std::next(fp.IC.voltages.begin()); iter != fp.IC.voltages.end(); ++iter) {
 
-		if (*std::prev(iter) < *iter) {
-			std::cout << "IO> Check the voltages; they have to be provided in the order from highest to lowest!" << std::endl;
+		if (*std::prev(iter) > *iter) {
+			std::cout << "IO> Check the voltages; they have to be provided in the order from lowest to highest!" << std::endl;
 			exit(1);
 		}
 	}
