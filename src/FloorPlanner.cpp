@@ -811,7 +811,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		}
 		// no optimization considered, reset cost to zero
 		else {
-			cost.timing = 0.0;
+			cost.timing = cost.timing_actual_value = 0.0;
 			cost.voltage_assignment = 0.0;
 		}
 
@@ -898,6 +898,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 // dedicated data structure
 // TODO encapsulate similar as done in
 // FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
+// TODO both timing_value and timing_actual_value, similar like FloorPlanner::evaluateThermalDistr()
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 }
 

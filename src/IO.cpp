@@ -654,7 +654,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.IC.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
 	}
 
-	// update optimization flag in case only one voltage shall be considered
+	// deactivate voltage assignment in case only one voltage shall be considered
 	fp.opt_flags.voltage_assignment &= fp.IC.voltages.size() > 1;
 
 	// (TODO) sanity check for proper number of parsed in values
