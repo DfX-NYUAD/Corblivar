@@ -755,6 +755,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// clusters signal TSVs accordingly
 		//
 		// for finalize calls, we need to initialize the max_cost
+		// note that interconnects will be evaluated anyway, even if they are not
+		// optimized; they are a key criterion to be reported
 		if (finalize) {
 			this->evaluateInterconnects(cost, alignments, true);
 		}
@@ -775,7 +777,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// alignment optimization; also derives and stores TSV islands
 		//
 		// for finalize calls, we need to initialize the max_cost
-		if (finalize) {
+		if (finalize && this->opt_flags.alignment) {
 			this->evaluateAlignments(cost, alignments, true, true, true);
 		}
 		else if (this->opt_flags.alignment) {
@@ -790,11 +792,16 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// information and later on the actual optimized voltage volumes
 		//
 		// for finalize calls, we need to initialize the max_cost
-		if (finalize) {
+		if (finalize && this->opt_flags.voltage_assignment) {
+			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, true);
 			this->evaluateVoltageAssignment(cost, true);
 		}
+		else if (finalize && this->opt_flags.timing) {
+			this->evaluateTiming(cost, true);
+		}
 		else if (this->opt_flags.voltage_assignment) {
+			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, set_max_cost);
 			this->evaluateVoltageAssignment(cost, set_max_cost);
 		}
