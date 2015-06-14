@@ -917,6 +917,9 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 }
 
 // TODO derive applicable voltages for each block based on timing slacks
+//
+// TODO applicable voltages; init such that all blocks may assume their highest and any
+// lower voltage but unused bits shall remain zero
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept

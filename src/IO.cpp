@@ -1298,29 +1298,22 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
-		// TODO applicable voltages; init according to globally available
-		// voltages; init such that all blocks may assume any voltage but unused
-		// bits shall remain zero
-		// TODO test case w/ 3 max voltages
-		for (int v = 2; v >= 0; v--) {
+		// TODO drop; to be determined via FloorPlanner::evaluateTiming
+		//
+		for (int v = fp.IC.voltages.size() - 1; v >= 0; v--) {
 
 			// TODO drop 
 			// dummy data, randomly assign voltages
 			//
 			// the highest voltage shall be always applicable
-			if (v == 2) {
+			if (v == static_cast<int>((fp.IC.voltages.size() - 1))) {
 				new_block.feasible_voltages[v] = 1;
 			}
 			// any other, lower voltage shall be randomly considered; the
 			// probabilities are reduced with the voltage
 			else {
 				new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
-				//new_block.feasible_voltages[v] = 0;
 			}
-
-			// TODO drop
-			// dummy data, assign fixed voltages
-			//new_block.feasible_voltages[v] = 1;
 		}
 
 		// track block power statistics
