@@ -639,6 +639,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.IC.voltages.push_back(atof(tmpstr.c_str()));
 	}
 
+	// sanity check for at least one voltage defined
+	if (fp.IC.voltages.empty() || voltages_count == 0) {
+		std::cout << "IO> Check the voltage, power-scaling and delay-scaling factors; indicated are " << voltages_count << " values, provided are:";
+		std::cout << " voltages: " << fp.IC.voltages.size();
+		std::cout << " power-scaling: " << fp.IC.voltages_power_factors.size();
+		std::cout << " delay-scaling: " << fp.IC.voltages_delay_factors.size();
+		std::cout << std::endl;
+		exit(1);
+	}
+
 	// sanity check for voltages order; from highest to lowest
 	for (auto iter = std::next(fp.IC.voltages.begin()); iter != fp.IC.voltages.end(); ++iter) {
 
@@ -647,6 +657,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			exit(1);
 		}
 	}
+
+	// deactivate voltage assignment in case only one voltage shall be considered
+	fp.opt_flags.voltage_assignment &= fp.IC.voltages.size() > 1;
 
 	// power-scaling factors; drop header
 	in >> tmpstr;
@@ -668,26 +681,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	for (unsigned v = 1; v <= voltages_count; v++) {
 		in >> tmpstr;
 		fp.IC.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
-	}
-
-	// deactivate voltage assignment in case only one voltage shall be considered
-	fp.opt_flags.voltage_assignment &= fp.IC.voltages.size() > 1;
-
-	// sanity check for proper number of parsed in values
-	if (
-		fp.IC.voltages.size() != voltages_count ||
-		fp.IC.voltages_power_factors.size() != voltages_count ||
-		fp.IC.voltages_delay_factors.size() != voltages_count ||
-		// also consider whether no levels had been provided at all; this will
-		// result in zero values
-		fp.IC.voltages.empty() || voltages_count == 0
-	   ) {
-		std::cout << "IO> Check the voltage, power-scaling and delay-scaling factors; indicated are " << voltages_count << " values, provided are:";
-		std::cout << " voltages: " << fp.IC.voltages.size();
-		std::cout << " power-scaling: " << fp.IC.voltages_power_factors.size();
-		std::cout << " delay-scaling: " << fp.IC.voltages_delay_factors.size();
-		std::cout << std::endl;
-		exit(1);
 	}
 
 	// sanity check for appropriate, i.e., positive non-zero values
