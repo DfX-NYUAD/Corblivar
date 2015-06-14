@@ -1324,6 +1324,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// correct values even if no assignment is performed and/or only one
 		// voltage is globally available
 		new_block.feasible_voltages[fp.IC.voltages.size() - 1] = 1;
+		new_block.assigned_voltage_index = fp.IC.voltages.size() - 1;
 
 		// TODO drop; to be determined via FloorPlanner::evaluateTiming
 		//
