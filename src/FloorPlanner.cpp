@@ -559,9 +559,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << " y = " << y << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
-			this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
-			this->IO_conf.results << std::endl;
+			if (this->opt_flags.alignment) {
+				std::cout << "Corblivar> Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+				this->IO_conf.results << "Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
 			std::cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << std::endl;
 			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << std::endl;
@@ -577,12 +579,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			std::cout << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
 			this->IO_conf.results << " TSV islands: " << this->TSVs.size() << std::endl;
 
-			clustered_TSVs = 0;
-			for (i = 0; i < this->TSVs.size(); i++) {
-				clustered_TSVs += this->TSVs[i].TSVs_count;
-			}
-
 			if (!this->TSVs.empty()) {
+
+				clustered_TSVs = 0;
+				for (i = 0; i < this->TSVs.size(); i++) {
+					clustered_TSVs += this->TSVs[i].TSVs_count;
+				}
+
 				std::cout << "Corblivar>  Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
 				this->IO_conf.results << " Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
 			}
@@ -591,10 +594,10 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
-			this->IO_conf.results << "Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
-
 			if (!this->clustering.hotspots.empty()) {
+
+				std::cout << "Corblivar> Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
+				this->IO_conf.results << "Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
 
 				avg_peak_temp = avg_base_temp = avg_temp_gradient = avg_score = avg_bins_count = 0.0;
 				for (it_hotspots = this->clustering.hotspots.begin(); it_hotspots != this->clustering.hotspots.end(); ++it_hotspots) {
@@ -624,18 +627,24 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
-			this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
-			this->IO_conf.results << std::endl;
+			if (this->opt_flags.thermal) {
+				std::cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+				this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
-			std::cout << "Corblivar> Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
-			this->IO_conf.results << "Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
-			this->IO_conf.results << std::endl;
+			if (this->opt_flags.timing) {
+				std::cout << "Corblivar> Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << "Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
-			// TODO actual value; in terms of?
-			std::cout << "Corblivar> Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
-			this->IO_conf.results << "Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
-			this->IO_conf.results << std::endl;
+			if (this->opt_flags.voltage_assignment) {
+				// TODO actual value; in terms of?
+				std::cout << "Corblivar> Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+				this->IO_conf.results << "Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
 			std::cout << std::endl;
 		}
@@ -755,7 +764,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// clusters signal TSVs accordingly
 		//
 		// for finalize calls, we need to initialize the max_cost
-		// note that interconnects will be evaluated anyway, even if they are not
+		//
+		// note that interconnects will be always evaluated, even if they are not
 		// optimized; they are a key criterion to be reported
 		if (finalize) {
 			this->evaluateInterconnects(cost, alignments, true);
@@ -822,7 +832,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// distribution is analysed only now
 		//
 		// for finalize calls, we need to initialize the max_cost
-		if (finalize) {
+		if (finalize && this->opt_flags.thermal) {
 			this->evaluateThermalDistr(cost, true);
 		}
 		else if (this->opt_flags.thermal) {
@@ -842,9 +852,13 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		if (finalize) {
 
 			this->evaluateInterconnects(cost, alignments);
-			this->evaluateAlignments(cost, alignments, true, false, true);
 
-			this->evaluateThermalDistr(cost);
+			if (this->opt_flags.alignment) {
+				this->evaluateAlignments(cost, alignments, true, false, true);
+			}
+			if (this->opt_flags.thermal) {
+				this->evaluateThermalDistr(cost);
+			}
 		}
 
 		// determine total cost; weight and sum up cost terms
