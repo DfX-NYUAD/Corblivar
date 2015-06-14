@@ -24,8 +24,9 @@ Corblivar.  If not, see <http://www.gnu.org/licenses/>.
 Citation
 ========
 If you find this tool useful, and apply it for your research and publications, please
-cite our paper:
-	Knechtel, J.; Young, E. F. Y. & Lienig, J. "Structural Planning of 3D-IC Interconnects by Block Alignment" Proc. Asia South Pacific Des. Autom. Conf., pp. 53-60, 2014
+cite our papers:
+- Knechtel, J.; Young, E. F. Y. & Lienig, J. "Planning Massive Interconnects in 3D Chips" IEEE Trans. Comput.-Aided Des. Integr. Circuits Sys., 2015, DOI: http://dx.doi.org/10.1109/TCAD.2015.2432141
+- Knechtel, J.; Young, E. F. Y. & Lienig, J. "Structural Planning of 3D-IC Interconnects by Block Alignment" Proc. Asia South Pacific Des. Autom. Conf., pp. 53-60, 2014
 
 Compile & Run
 =============
