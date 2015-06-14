@@ -583,6 +583,67 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.IC.TSV_group_Cu_area_ratio = (fp.IC.TSV_dimension * fp.IC.TSV_dimension) /
 		(fp.IC.TSV_pitch * fp.IC.TSV_pitch);
 
+	// multiple-voltages values
+	//
+	unsigned voltages_count;
+
+	// voltages count
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> voltages_count;
+
+	// actual voltages; drop header
+	in >> tmpstr;
+	while (tmpstr != "values" && !in.eof())
+		in >> tmpstr;
+
+	// actual voltages; parse values
+	for (unsigned v = 1; v <= voltages_count; v++) {
+		in >> tmpstr;
+		fp.IC.voltages.push_back(atof(tmpstr.c_str()));
+	}
+
+	// power-scaling factors; drop header
+	in >> tmpstr;
+	while (tmpstr != "values" && !in.eof())
+		in >> tmpstr;
+
+	// power-scaling factors; parse values
+	for (unsigned v = 1; v <= voltages_count; v++) {
+		in >> tmpstr;
+		fp.IC.voltages_power_factors.push_back(atof(tmpstr.c_str()));
+	}
+
+	// delay-scaling factors; drop header
+	in >> tmpstr;
+	while (tmpstr != "values" && !in.eof())
+		in >> tmpstr;
+
+	// delay-scaling factors; parse values
+	for (unsigned v = 1; v <= voltages_count; v++) {
+		in >> tmpstr;
+		fp.IC.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
+	}
+
+	// (TODO) sanity check for proper number of parsed in values
+	// 
+	// this way it won't work, since just any characters can be interpreted as double
+	// in the code above; proper way would be to parse and count linewise
+	//
+	if (
+		fp.IC.voltages.size() != voltages_count ||
+		fp.IC.voltages_power_factors.size() != voltages_count ||
+		fp.IC.voltages_delay_factors.size() != voltages_count
+	   ) {
+		std::cout << "IO> Check the voltage, power-scaling and delay-scaling factors; indicated are " << voltages_count << " values, provided are:";
+		std::cout << " voltages: " << fp.IC.voltages.size();
+		std::cout << " power-scaling: " << fp.IC.voltages_power_factors.size();
+		std::cout << " delay-scaling: " << fp.IC.voltages_delay_factors.size();
+		std::cout << std::endl;
+		exit(1);
+	}
+
 	in.close();
 
 	if (fp.logMin()) {
@@ -608,6 +669,47 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << std::endl;
 		std::cout << "IO>  Technology -- TSV groups; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << std::endl;
 		std::cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
+
+		// technology parameters for multi-voltage domains
+		//
+		std::cout << "IO>  Technology -- Multi-voltage domains; voltage levels: ";
+		for (unsigned v = 0; v < fp.IC.voltages.size(); v++) {
+
+			// last value shall have no tailing comma
+			if (v == fp.IC.voltages.size() - 1) {
+				std::cout << fp.IC.voltages[v];
+			}
+			else {
+				std::cout << fp.IC.voltages[v] << ", ";
+			}
+		}
+		std::cout << std::endl;
+
+		std::cout << "IO>  Technology -- Multi-voltage domains; power-scaling factors: ";
+		for (unsigned v = 0; v < fp.IC.voltages_power_factors.size(); v++) {
+
+			// last value shall have no tailing comma
+			if (v == fp.IC.voltages_power_factors.size() - 1) {
+				std::cout << fp.IC.voltages_power_factors[v];
+			}
+			else {
+				std::cout << fp.IC.voltages_power_factors[v] << ", ";
+			}
+		}
+		std::cout << std::endl;
+
+		std::cout << "IO>  Technology -- Multi-voltage domains; delay-scaling factors: ";
+		for (unsigned v = 0; v < fp.IC.voltages_delay_factors.size(); v++) {
+
+			// last value shall have no tailing comma
+			if (v == fp.IC.voltages_delay_factors.size() - 1) {
+				std::cout << fp.IC.voltages_delay_factors[v];
+			}
+			else {
+				std::cout << fp.IC.voltages_delay_factors[v] << ", ";
+			}
+		}
+		std::cout << std::endl;
 
 		// layout generation options
 		std::cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << std::endl;
@@ -1173,6 +1275,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// probabilities are reduced with the voltage
 			else {
 				new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
+				//new_block.feasible_voltages[v] = 0;
 			}
 
 			// TODO drop

@@ -72,6 +72,7 @@ class FloorPlanner {
 			double stack_area, stack_deadspace;
 
 			// technology parameters
+			//
 			double die_thickness;;
 			double Si_active_thickness;
 			double Si_passive_thickness;
@@ -83,6 +84,12 @@ class FloorPlanner {
 			double TSV_group_Cu_Si_ratio;
 			// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
+
+			// multi-voltage domain: voltages and related scaling factors for
+			// power consumption and module delays
+			std::vector<double> voltages;
+			std::vector<double> voltages_power_factors;
+			std::vector<double> voltages_delay_factors;
 		} IC;
 
 		// IO files and parameters
