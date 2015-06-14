@@ -114,7 +114,6 @@ void MultipleVoltages::selectCompoundModules() {
 
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
-	Block const* block;
 	bool module_to_remove;
 
 	unsigned count;
@@ -157,14 +156,12 @@ void MultipleVoltages::selectCompoundModules() {
 		// memorize this module as selected
 		this->selected_modules.push_back(cur_selected_module);
 
-		// assign voltage to all blocks comprised in this module
+		// assign (index of) lowest applicable voltage to all blocks comprised in
+		// this module
 		//
 		for (auto it = cur_selected_module->blocks.begin(); it != cur_selected_module->blocks.end(); ++it) {
 
-			block = it->second;
-
-			// TODO voltage index
-//			block->voltage = cur_selected_module_voltage;
+			it->second->assigned_voltage_index = cur_selected_module->min_voltage_index();
 		}
 
 		if (MultipleVoltages::DBG_VERBOSE) {

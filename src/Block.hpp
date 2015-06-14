@@ -82,6 +82,9 @@ class Block {
 		// TODO or scale according to some global scaling factors
 		double power_density;
 
+		// TODO set also 
+		double delay;
+
 		// bit-wise flags for applicable voltages, where feasible_voltages[k]
 		// encodes the highest voltage V_k, and remaining bits encode the lower
 		// voltages in descending order; note that if less than
@@ -89,8 +92,10 @@ class Block {
 		// bits are left as is, i.e., zero by constructor definition
 		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 
-		// final, optimized voltage assignment; actual voltage
-		mutable double voltage;
+		// current voltage assignment; this index refers to the lowest applicable
+		// voltage, according the lowest set bit of feasible_voltages; this index
+		// will also be used for proper delay and power calculations
+		mutable unsigned assigned_voltage_index;
 
 		// vector of contiguous neighbours, required for voltage assignment
 		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
