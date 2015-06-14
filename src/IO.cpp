@@ -50,11 +50,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	std::string tmpstr;
 	ThermalAnalyzer::MaskParameters mask_parameters;
 
-	// TODO drop dummy data
-	// TODO introduce new parameter
-	fp.opt_flags.voltage_assignment = true;
-	fp.opt_flags.timing = true;
-
 	// print command-line parameters
 	if (argc < 4) {
 		std::cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << std::endl;
@@ -380,14 +375,47 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// also memorize in layout-operations handler
 	fp.layoutOp.parameters.opt_alignment = fp.opt_flags.alignment;
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.weights.timing;
+
+	// memorize if timing optimization should be performed
+	fp.opt_flags.timing = fp.weights.timing > 0.0;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.weights.voltage_assignment;
+
+	// memorize if voltage optimization should be performed; to be updated below after
+	// technology file is parsed
+	fp.opt_flags.voltage_assignment = fp.weights.voltage_assignment > 0.0;
+
 	// sanity check for positive cost factors
-	if (fp.weights.thermal < 0.0 || fp.weights.WL < 0.0 || fp.weights.routing_util < 0.0 || fp.weights.TSVs < 0.0 || fp.weights.alignment < 0.0) {
+	if (
+		fp.weights.thermal < 0.0 ||
+		fp.weights.WL < 0.0 ||
+		fp.weights.routing_util < 0.0 ||
+		fp.weights.TSVs < 0.0 ||
+		fp.weights.alignment < 0.0 ||
+		fp.weights.timing < 0.0 ||
+		fp.weights.voltage_assignment < 0.0
+	) {
 		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
 	}
 
 	// sanity check for sum of cost factors
-	if (std::abs(fp.weights.thermal + fp.weights.WL + fp.weights.routing_util + fp.weights.TSVs + fp.weights.alignment - 1.0) > 0.1) {
+	if (std::abs(
+			fp.weights.thermal +
+			fp.weights.WL +
+			fp.weights.routing_util +
+			fp.weights.TSVs +
+			fp.weights.alignment +
+			fp.weights.timing +
+			fp.weights.voltage_assignment
+	- 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
 	}
@@ -626,6 +654,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.IC.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
 	}
 
+	// update optimization flag in case only one voltage shall be considered
+	fp.opt_flags.voltage_assignment &= fp.IC.voltages.size() > 1;
+
 	// (TODO) sanity check for proper number of parsed in values
 	// 
 	// this way it won't work, since just any characters can be interpreted as double
@@ -742,6 +773,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		if (!fp.IO_conf.alignments_file_avail) {
 			std::cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << std::endl;
 		}
+		std::cout << "IO>  SA -- Cost factor for timing optimization: " << fp.weights.timing << std::endl;
+		if (fp.opt_flags.voltage_assignment) {
+			std::cout << "IO>     Note: Timing analysis (not optimization) is conducted anyway since voltage assignment is activated" << std::endl;
+		}
+		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
