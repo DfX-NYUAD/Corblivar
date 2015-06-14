@@ -621,6 +621,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> voltages_count;
 
+	// sanity check for enough bits to encode all voltage levels
+	if (voltages_count > MultipleVoltages::MAX_VOLTAGES) {
+		std::cout << "IO> Recompile with increased MultipleVoltages::MAX_VOLTAGES; voltage levels given, i.e., bits required to encode: " << voltages_count;
+		std::cout << "; count of bits that can be encoded according to MultipleVoltages::MAX_VOLTAGES: " << MultipleVoltages::MAX_VOLTAGES << std::endl;
+		exit(1);
+	}
+
 	// actual voltages; drop header
 	in >> tmpstr;
 	while (tmpstr != "values" && !in.eof())
@@ -1290,9 +1297,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 				}
 			}
 		}
-
-		// TODO throw error in case the set of parsed voltages is larger than
-		// MultipleVoltages::MAX_VOLTAGES
 
 		// TODO applicable voltages; init according to globally available
 		// voltages; init such that all blocks may assume any voltage but unused
