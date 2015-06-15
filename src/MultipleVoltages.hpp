@@ -81,9 +81,12 @@ class MultipleVoltages {
 			// per-die cost terms individually
 			std::vector<double> outline_cost_die;
 
-			// die-wise sum of blocks' area; required for calculating
-			// outline_cost
+			// die-wise sum of blocks' area; required for calculating local
+			// cost
 			std::vector<double> blocks_area;
+
+			// total sum of blocks' area; required for global cost
+			double blocks_area_total;
 
 			// feasible voltages for whole module; defined by intersection of
 			// all comprised blocks
@@ -166,7 +169,7 @@ class MultipleVoltages {
 					// if they have the same size, perform regular
 					// (lexicographical) comparison
 					|| (s1.size() == s2.size() && s1 < s2)
-				       );
+			       );
 			}
 		};
 

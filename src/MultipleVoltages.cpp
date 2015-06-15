@@ -71,6 +71,9 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			}
 		}
 
+		// init total blocks' area
+		module.blocks_area_total = start.bb.area;
+
 		// init overall outline cost
 		module.outline_cost = 1.0;
 
@@ -107,7 +110,16 @@ void MultipleVoltages::selectCompoundModules() {
 	struct modules_cost_comp {
 		bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
 
-			return (m1->cost() > m2->cost());
+			return (
+				// module cost is the first criterion; the higher the
+				// better
+				m1->cost() > m2->cost()
+				// for same cost, larger islands shall be preferred in
+				// order to avoid excessive clustering into small islands;
+				// this especially applies to trivial islands with only
+				// one block
+				|| (Math::doubleComp(m1->cost(), m2->cost()) && m1->blocks_area_total > m2->blocks_area_total)
+			);
 		}
 	};
 	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
@@ -456,6 +468,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		inserted_new_module.outline_cost_die = module.outline_cost_die;
 		inserted_new_module.bb = module.bb;
 		inserted_new_module.blocks_area = module.blocks_area;
+		inserted_new_module.blocks_area_total = module.blocks_area_total;
 
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
@@ -518,6 +531,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	std::vector<double> outline_cost_die = this->outline_cost_die;
 	std::vector<Rect> bb = this->bb;
 	std::vector<double> blocks_area = this->blocks_area;
+	double blocks_area_total = this->blocks_area_total;
 
 	// update bounding box and blocks area on (by added block) affected die;
 	// note that the added block may be the first on its related die which is
@@ -555,6 +569,9 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			// i.e., sum up cost for total cost
 			overall_cost += outline_cost_die[l];
 			dies_to_consider++;
+
+			// also sum up total area
+			blocks_area_total += blocks_area[l];
 		}
 	}
 
@@ -572,6 +589,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	if (apply_update) {
 		this->bb = std::move(bb);
 		this->blocks_area = std::move(blocks_area);
+		this->blocks_area_total = std::move(blocks_area_total);
 		this->outline_cost_die = std::move(outline_cost_die);
 		this->outline_cost = overall_cost;
 	}
