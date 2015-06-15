@@ -35,11 +35,11 @@ class MultipleVoltages {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = true;
-		static constexpr bool DBG_VERBOSE = true;
+		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
 	public:
-		static constexpr bool DBG_FLOORPLAN = false;
+		static constexpr bool DBG_FLOORPLAN = true;
 
 		// dimension for feasible voltages;
 		// represents the upper bound for globally available voltages
@@ -63,6 +63,9 @@ class MultipleVoltages {
 			// die-wise bounding boxes for whole module
 			std::vector<Rect> bb;
 
+			// TODO replace with some terms of cost for power-domain routing,
+			// preferably derived from contiguity analysis
+			//
 			// outline_cost is avg(A(blocks)/A(bounding box)) over all
 			// _affected_ dies (having some blocks on the respective die being
 			// assigned to this module); the higher the cost the better
@@ -101,10 +104,6 @@ class MultipleVoltages {
 			// this should be reflected in an own copy of
 			// ContiguityAnalysis::ContiguousNeighbour
 			std::unordered_map<std::string, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
-
-			// TODO some terms of cost for power-domain routing, preferably
-			// derived from contiguity analysis
-
 
 		// public functions
 		public:

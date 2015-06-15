@@ -114,6 +114,9 @@ void MultipleVoltages::selectCompoundModules() {
 				// module cost is the first criterion; the higher the
 				// better
 				m1->cost() > m2->cost()
+				// TODO may be dropped when cost considers other terms
+				// than only gain in power reduction
+				//
 				// for same cost, larger islands shall be preferred in
 				// order to avoid excessive clustering into small islands;
 				// this especially applies to trivial islands with only
@@ -616,10 +619,16 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 // intermediate assignments are not troublesome since the actual module selection will
 // take care of the final voltage assignment
 //
-// TODO maybe also further terms like overlap with other modules, having a different set
+// TODO further terms like overlap with other modules, having a different set
 // of voltages; this could be similarly calculated as for vertical overlap of blocks;
 // i.e., the respective parts of function ContiguityAnalysis::analyseBlocks should be
 // refactored to work on general rectangles, not blocks
+//
+// TODO consider intersections within each die separately, walk all dies, and consider each modules' bb[die];
+// sum up intersections on all affected dies for each module
+//
+// related TODOs:
+// - weight factors for power saving, overlaps b/w domains
 inline double MultipleVoltages::CompoundModule::cost() const {
 	double total_max_power;
 	double total_power;

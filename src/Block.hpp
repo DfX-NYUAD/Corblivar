@@ -92,7 +92,11 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
 		}
 
-		// TODO set similar to power_density
+		// TODO calculate similar to power_density; also consider calculation for
+		// base delay as proposed in [Lin10]
+		// related TODO: introduce scaling parameter for delay threshold, related
+		// to max delay for initially fitting solution (transition to phase II)
+		// loosely related TODO: calculate delays on wires and across TSVs
 		double delay;
 
 		// bit-wise flags for applicable voltages, where feasible_voltages[k]
