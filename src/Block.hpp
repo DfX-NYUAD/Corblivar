@@ -87,8 +87,8 @@ class Block {
 		// pointers to alignments representing vertical bus, if any
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
-		// density in [uW/(um^2)]
-		double power_density() const {
+		// density in [uW/(um^2)]; relates to currently assigned voltages
+		inline double power_density() const {
 			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
 		}
 
@@ -182,6 +182,12 @@ class Block {
 			// power density is given in uW/um^2, area is given in um^2, thus
 			// we have to convert uW to W
 			return this->power_density() * this->bb.area * 1.0e-6;
+		}
+
+		// the theoretical max power, for highest applicable voltage
+		inline double power_max() const {
+
+			return this->power_density_unscaled * this->voltages_power_factors.back() * this->bb.area * 1.0e-6;
 		}
 
 		// search blocks

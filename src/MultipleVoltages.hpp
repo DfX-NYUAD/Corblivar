@@ -35,7 +35,7 @@ class MultipleVoltages {
 	// debugging code switch (private)
 	private:
 		static constexpr bool DBG = true;
-		static constexpr bool DBG_VERBOSE = false;
+		static constexpr bool DBG_VERBOSE = true;
 
 	// public constants
 	public:
@@ -108,6 +108,9 @@ class MultipleVoltages {
 			// local cost; required during bottom-up construction
 			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
 
+			// global cost; required during top-down selection
+			inline double cost() const;
+
 			// helper function to return string comprising all (sorted) block ids
 			inline std::string id() const {
 				std::string ret;
@@ -125,23 +128,9 @@ class MultipleVoltages {
 				return ret;
 			};
 
-			// global cost; required during top-down selection
-			//
-			// TODO proper cost; gain in power reduction compared to trivial
-			// highest voltage;
-			//
-			// TODO maybe also further terms like overlap with other modules,
-			// having a different set of voltages; this could be similarly
-			// calculated as for vertical overlap of blocks; i.e., the
-			// respective parts of function ContiguityAnalysis::analyseBlocks
-			// should be refactored to work on general rectangles, not blocks
-			//
-			// test data; packing density times blocks considered, the higher
-			// the better
-			inline double cost() const {
-				return (this->outline_cost * this->blocks.size());
-			}
-
+			// helper to return index of minimal assignable voltage, note that
+			// this is not necessarily the globally minimal index but rather
+			// depends on the intersection of all comprised blocks' voltages
 			inline unsigned min_voltage_index() const {
 
 				for (unsigned v = 0; v < MAX_VOLTAGES; v++) {

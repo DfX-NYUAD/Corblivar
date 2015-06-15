@@ -499,10 +499,11 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	}
 }
 
-// TODO consider contiguity, or similar measure to estimate power-domain synthesis cost
+// local cost, used during bottom-up merging
 //
 // current cost term: blocks area over bounding box; i.e., packing density; i.e., the
 // higher the cost the better
+// TODO consider contiguity, or similar measure to estimate power-domain synthesis cost
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
@@ -576,4 +577,41 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	}
 
 	return overall_cost;
+}
+
+// global cost, used during bottom-up merging
+//
+// cost term: achievable gain in power reduction; comparing lowest applicable to highest
+// (trivial solution) voltage / power for all comprised blocks; the higher the cost the
+// better; look-ahead determination, evaluates and memorizes cost, impacting the blocks'
+// voltage assignment, even if this module will not be selected later on; this
+// intermediate assignments are not troublesome since the actual module selection will
+// take care of the final voltage assignment
+//
+// TODO maybe also further terms like overlap with other modules, having a different set
+// of voltages; this could be similarly calculated as for vertical overlap of blocks;
+// i.e., the respective parts of function ContiguityAnalysis::analyseBlocks should be
+// refactored to work on general rectangles, not blocks
+inline double MultipleVoltages::CompoundModule::cost() const {
+	double total_max_power;
+	double total_power;
+
+	total_max_power = total_power = 0.0;
+
+	for (auto it = this->blocks.begin(); it != this->blocks.end(); ++it) {
+
+		// assign intermediate voltage value, the best achievable for each block
+		// if this module would be selected, required for proper cost calculation
+		it->second->assigned_voltage_index = this->min_voltage_index();
+
+		// this value is the globally max power (trivial solution)
+		total_max_power += it->second->power_max();
+		// this value is affected by the above intermediate assignment
+		total_power += it->second->power();
+	}
+
+	return total_max_power - total_power;
+
+	//// test data; packing density times blocks considered, the higher the better
+	//return (this->outline_cost * this->blocks.size());
 }
