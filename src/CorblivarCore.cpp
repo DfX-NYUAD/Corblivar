@@ -62,7 +62,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, st
 		sort(blocks_copy.begin(), blocks_copy.end(),
 			// lambda expression
 			[&](Block b1, Block b2) {
-				return b1.power_density < b2.power_density;
+				return b1.power_density() < b2.power_density();
 			}
 		    );
 

@@ -39,6 +39,16 @@ class Block {
 
 	// private data, functions
 	private:
+		friend class IO;
+
+		// these values are required for multi-voltage domains; the
+		// power_density_unscaled is read in from the benchmarks, while the
+		// factors are read in from the Technology.conf; the power_density() and
+		// delay() are calculated accordingly to these factors and the current
+		// assigned voltage, given in assigned_voltage_index
+		double power_density_unscaled;
+		std::vector<double> voltages_power_factors;
+		std::vector<double> voltages_delay_factors;
 
 	// enum class for alignment status; has to be defined first
 	public:
@@ -53,7 +63,7 @@ class Block {
 		Block(std::string const& id) {
 			this->id = id;
 			this->layer = -1;
-			this->power_density= 0.0;
+			this->power_density_unscaled = 0.0;
 			this->AR.min = AR.max = 1.0;
 			this->placed = false;
 			this->soft = false;
@@ -78,11 +88,11 @@ class Block {
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
 		// density in [uW/(um^2)]
-		// TODO container w/ multiple values, related to feasible_voltages
-		// TODO or scale according to some global scaling factors
-		double power_density;
+		double power_density() const {
+			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
+		}
 
-		// TODO set also 
+		// TODO set similar to power_density
 		double delay;
 
 		// bit-wise flags for applicable voltages, where feasible_voltages[k]
@@ -171,7 +181,7 @@ class Block {
 		inline double power() const {
 			// power density is given in uW/um^2, area is given in um^2, thus
 			// we have to convert uW to W
-			return this->power_density * this->bb.area * 1.0e-6;
+			return this->power_density() * this->bb.area * 1.0e-6;
 		}
 
 		// search blocks

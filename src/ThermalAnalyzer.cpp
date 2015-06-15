@@ -407,10 +407,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 					// consider full block power density for fully covered bins
 					if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
 						if (padding_zone) {
-							this->power_maps[i][x][y].power_density += block.power_density * parameters.power_density_scaling_padding_zone;
+							this->power_maps[i][x][y].power_density += block.power_density() * parameters.power_density_scaling_padding_zone;
 						}
 						else {
-							this->power_maps[i][x][y].power_density += block.power_density;
+							this->power_maps[i][x][y].power_density += block.power_density();
 						}
 					}
 					// else consider block power according to
@@ -433,10 +433,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 						intersect.area /= this->power_maps_bin_area;
 
 						if (padding_zone) {
-							this->power_maps[i][x][y].power_density += block.power_density * intersect.area * parameters.power_density_scaling_padding_zone;
+							this->power_maps[i][x][y].power_density += block.power_density() * intersect.area * parameters.power_density_scaling_padding_zone;
 						}
 						else {
-							this->power_maps[i][x][y].power_density += block.power_density * intersect.area;
+							this->power_maps[i][x][y].power_density += block.power_density() * intersect.area;
 						}
 					}
 				}

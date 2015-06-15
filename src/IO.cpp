@@ -1302,15 +1302,20 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// determine power density
 		if (fp.IO_conf.power_density_file_avail) {
+
 			if (!power_in.eof()) {
-				power_in >> new_block.power_density;
+
+				// unscaled value; due to different voltage levels scaled
+				// density can be obtained via power_density()
+				power_in >> new_block.power_density_unscaled;
+
 				// GSRC benchmarks provide power density in 10^5 W/m^2
 				// which equals 10^-1 uW/um^2; scale by factor 10 in order
 				// to obtain uW/um^2
 				//
 				// (TODO) scaling up ignored in order to limit
 				// power-density to reasonable values
-				//new_block.power_density *= 10.0;
+				//new_block.power_density_unscaled *= 10.0;
 			}
 			else {
 				if (fp.logMin()) {
@@ -1339,14 +1344,19 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
 		}
 
+		// copy the global power and delay scaling factors; they are required for
+		// dynamic calculation of power_density() and delay()
+		new_block.voltages_power_factors = fp.IC.voltages_power_factors;
+		new_block.voltages_delay_factors = fp.IC.voltages_delay_factors;
+
 		// track block power statistics
 		power += new_block.power();
-		fp.power_stats.max = std::max(fp.power_stats.max, new_block.power_density);
+		fp.power_stats.max = std::max(fp.power_stats.max, new_block.power_density());
 		if (fp.power_stats.min == -1) {
-			fp.power_stats.min = new_block.power_density;
+			fp.power_stats.min = new_block.power_density();
 		}
-		fp.power_stats.min = std::min(fp.power_stats.min, new_block.power_density);
-		fp.power_stats.avg += new_block.power_density;
+		fp.power_stats.min = std::min(fp.power_stats.min, new_block.power_density());
+		fp.power_stats.avg += new_block.power_density();
 
 		// memorize summed blocks area and largest block, needs to fit into die
 		fp.IC.blocks_area += new_block.bb.area;
