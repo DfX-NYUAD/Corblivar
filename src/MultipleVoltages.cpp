@@ -613,14 +613,16 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 inline double MultipleVoltages::CompoundModule::cost() const {
 	double total_max_power;
 	double total_power;
+	unsigned min_voltage_index;
 
 	total_max_power = total_power = 0.0;
+	min_voltage_index = this->min_voltage_index();
 
 	for (auto it = this->blocks.begin(); it != this->blocks.end(); ++it) {
 
 		// assign intermediate voltage value, the best achievable for each block
 		// if this module would be selected, required for proper cost calculation
-		it->second->assigned_voltage_index = this->min_voltage_index();
+		it->second->assigned_voltage_index = min_voltage_index;
 
 		// this value is the globally max power (trivial solution)
 		total_max_power += it->second->power_max();
