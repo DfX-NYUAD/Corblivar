@@ -60,16 +60,18 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 
 		for (int l = 0; l < layers; l++) {
 
+			// empty bb
 			module.outline.emplace_back(std::vector<Rect>());
 
+			// neutral cost element
+			module.outline_cost_die.emplace_back(0.0);
+
 			if (start.layer == l) {
-				module.outline[l].emplace_back(start.bb);
 				module.blocks_area.emplace_back(start.bb.area);
-				module.outline_cost_die.emplace_back(1.0);
+				module.outline[l].emplace_back(start.bb);
 			}
 			else {
 				module.blocks_area.emplace_back(0.0);
-				module.outline_cost_die.emplace_back(0.0);
 				// note that outline[l] shall remain empty in this case
 			}
 		}
@@ -588,8 +590,8 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 				continue;
 			}
 
-			// at this point, a boundary b1 is found which shares the lower
-			// x-coordinate of the extended bb; check for intruding
+			// at this point, a boundary b1 is found which is greater than the
+			// lower x-coordinate of the extended bb; check for intruding
 			// boundaries/blocks
 			for (auto i2 = i1; i2 != cont.boundaries_vert[n_l].end(); ++i2) {
 
