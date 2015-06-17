@@ -60,9 +60,14 @@ class MultipleVoltages {
 			// module as long as the same set of blocks is underlying
 			std::set<std::string> block_ids;
 
-			// die-wise bounding boxes for whole module
-			std::vector<Rect> bb;
+			// die-wise bounding boxes for whole module; only the set/vector of
+			// by other blocks not covered partial boxes are memorized; thus,
+			// the die-wise voltage islands' proper outlines are captured here
+			std::vector< std::vector<Rect> > outline;
 
+			// TODO revise cost terms
+			// TODO review whether area terms are still required
+			//
 			// TODO replace with some terms of cost for power-domain routing,
 			// preferably derived from contiguity analysis
 			//
@@ -84,12 +89,8 @@ class MultipleVoltages {
 			// per-die cost terms individually
 			std::vector<double> outline_cost_die;
 
-			// die-wise sum of blocks' area; required for calculating local
-			// cost
+			// die-wise sum of blocks' area; eases calculating cost as well
 			std::vector<double> blocks_area;
-
-			// total sum of blocks' area; required for global cost
-			double blocks_area_total;
 
 			// feasible voltages for whole module; defined by intersection of
 			// all comprised blocks

@@ -54,25 +54,25 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		}
 
 		// init die-wise data
-		module.bb.reserve(layers);
+		module.outline.reserve(layers);
 		module.blocks_area.reserve(layers);
 		module.outline_cost_die.reserve(layers);
 		for (int l = 0; l < layers; l++) {
 
+			module.outline[l] = std::vector<Rect>();
+
 			if (start.layer == l) {
-				module.bb.emplace_back(start.bb);
+				module.outline[l].emplace_back(start.bb);
 				module.blocks_area.emplace_back(start.bb.area);
 				module.outline_cost_die.emplace_back(1.0);
 			}
 			else {
-				module.bb.emplace_back(Rect());
 				module.blocks_area.emplace_back(0.0);
 				module.outline_cost_die.emplace_back(0.0);
+
+				// note that outline[l] shall remain empty
 			}
 		}
-
-		// init total blocks' area
-		module.blocks_area_total = start.bb.area;
 
 		// init overall outline cost
 		module.outline_cost = 1.0;
@@ -110,19 +110,8 @@ void MultipleVoltages::selectCompoundModules() {
 	struct modules_cost_comp {
 		bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
 
-			return (
-				// module cost is the first criterion; the higher the
-				// better
-				m1->cost() > m2->cost()
-				// TODO may be dropped when cost considers other terms
-				// than only gain in power reduction
-				//
-				// for same cost, larger islands shall be preferred in
-				// order to avoid excessive clustering into small islands;
-				// this especially applies to trivial islands with only
-				// one block
-				|| (Math::doubleComp(m1->cost(), m2->cost()) && m1->blocks_area_total > m2->blocks_area_total)
-			);
+			// the higher the cost, the better
+			return (m1->cost() > m2->cost());
 		}
 	};
 	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost;
@@ -477,11 +466,10 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// insert now additionally considered neighbour
 		inserted_new_module.blocks.insert({neighbour->block->id, neighbour->block});
 
-		// init bounding box, blocks area and cost from the previous module
-		inserted_new_module.outline_cost_die = module.outline_cost_die;
-		inserted_new_module.bb = module.bb;
+		// init bounding boxes, blocks area and cost from the previous module
+		inserted_new_module.outline = module.outline;
 		inserted_new_module.blocks_area = module.blocks_area;
-		inserted_new_module.blocks_area_total = module.blocks_area_total;
+		inserted_new_module.outline_cost_die = module.outline_cost_die;
 
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
@@ -542,29 +530,39 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	//
 	// init them from the module's current state
 	std::vector<double> outline_cost_die = this->outline_cost_die;
-	std::vector<Rect> bb = this->bb;
+	std::vector< std::vector<Rect> > outline = this->outline;
 	std::vector<double> blocks_area = this->blocks_area;
-	double blocks_area_total = this->blocks_area_total;
 
-	// update bounding box and blocks area on (by added block) affected die;
-	// note that the added block may be the first on its related die which is
-	// assigned to this module
-	if (blocks_area[neighbour_layer] == 0.0) {
+	// update bounding boxes on (by added block) affected die; note that the added
+	// block may be the first on its related die which is assigned to this module
+	if (outline[neighbour_layer].empty()) {
+
 		// init new bb
-		bb[neighbour_layer] = neighbour->block->bb;
+		outline[neighbour_layer].emplace_back(neighbour->block->bb);
+
 		// init blocks area
 		blocks_area[neighbour_layer] = neighbour->block->bb.area;
 	}
+	// TODO
+	// update existing bb; try to extend bb to cover all blocks; check for intrusion
+	// by any other block
 	else {
-		// update existing bb
-		bb[neighbour_layer] = Rect::determBoundingBox(this->bb[neighbour_layer], neighbour->block->bb);
+		// in case no intrusion would occur, merge the bounding box
+		// TODO which box to merge with?
+		//outline[neighbour_layer].emplace_back(Rect::determBoundingBox(this->bb[neighbour_layer], neighbour->block->bb));
+
+		// in case any intrusion would occur, memorize only the separate,
+		// non-intruded boxes
+		outline[neighbour_layer].emplace_back(neighbour->block->bb);
+
 		// update blocks area
 		blocks_area[neighbour_layer] += neighbour->block->bb.area;
 	}
 
+	// determine overall cost
 	// update affected layer's and overall cost; walk all dies
 	//
-	for (unsigned l = 0; l < blocks_area.size(); l++) {
+	for (unsigned l = 0; l < outline_cost_die.size(); l++) {
 
 		// sanity check for some block being assigned to the die
 		//
@@ -573,23 +571,23 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			// affected die; update die-wise cost first
 			if (l == static_cast<unsigned>(neighbour_layer)) {
 
+				// TODO amount of potential (and avoided) intrusion,
+				// normalized to layer's blocks' total area
+				//
 				// actual cost term; blocks area over bounding box; i.e.,
 				// packing density
-				outline_cost_die[l] = blocks_area[l] / bb[l].area;
+//				outline_cost_die[l] = blocks_area[l] / bb[l].area;
 			}
 
 			// in any case (die affected or not), update intermediate terms,
 			// i.e., sum up cost for total cost
 			overall_cost += outline_cost_die[l];
 			dies_to_consider++;
-
-			// also sum up total area
-			blocks_area_total += blocks_area[l];
 		}
 	}
 
 	// normalize cost to avg cost; note that div by zero cannot occur since each
-	// module has at least one block assigned
+	// module has at least one block assigned, i.e., covers at least one die
 	overall_cost /= dies_to_consider;
 
 	// apply updates to module only if requested; this way, both the actual change for
@@ -600,9 +598,8 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	// the affected die; this is because CompoundModule& module is a new module
 	// instance
 	if (apply_update) {
-		this->bb = std::move(bb);
+		this->outline = std::move(outline);
 		this->blocks_area = std::move(blocks_area);
-		this->blocks_area_total = std::move(blocks_area_total);
 		this->outline_cost_die = std::move(outline_cost_die);
 		this->outline_cost = overall_cost;
 	}
@@ -623,6 +620,11 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 // of voltages; this could be similarly calculated as for vertical overlap of blocks;
 // i.e., the respective parts of function ContiguityAnalysis::analyseBlocks should be
 // refactored to work on general rectangles, not blocks
+// 
+// TODO or we could, with hopefully reduced computation, derive this (and more appropriate
+// sets of bb's for die-wise voltage islands) during bottom-up phase, where we check each
+// added block against any further neighbour which is penetrating the bounding box of the
+// previous module and the added block
 //
 // TODO consider intersections within each die separately, walk all dies, and consider each modules' bb[die];
 // sum up intersections on all affected dies for each module

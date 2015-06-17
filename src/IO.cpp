@@ -2210,30 +2210,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			gp_out << "set obj rect";
 			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
 			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
-
-			// color blocks according to assigned voltage
-			if (MultipleVoltages::DBG_FLOORPLAN) {
-				// color depending on voltage, whereas to color range goes from
-				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
-				gp_out << "fillcolor rgb \"#";
-				gp_out << std::hex;
-				if (fp.IC.voltages.size() == 1) {
-					gp_out << static_cast<int>(0x11);
-					gp_out << static_cast<int>(0xff);
-				}
-				else {
-					gp_out << static_cast<int>(0x11 + cur_block.assigned_voltage_index * (0xee / (fp.IC.voltages.size() - 1) ));
-					gp_out << static_cast<int>(0xff - cur_block.assigned_voltage_index * (0x99 / (fp.IC.voltages.size() - 1) ));
-				}
-				gp_out << std::dec;
-				gp_out << "00";
-				gp_out << "\" fillstyle solid" << std::endl;
-			}
-			// common color for all blocks
-			else {
-				gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
-			}
-
+			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
 			gp_out << std::endl;
 
 			// label
@@ -2259,43 +2236,45 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			}
 		}
 
-		// output voltage volumes; die-wise as islands
+		// output voltage volumes; die-wise as islands comprised of several boxes
 		for (auto const* module : fp.voltages.selected_modules) {
 
-			Rect const& bb = module->bb[cur_layer];
+			// walk all partial boxes of the voltage island
+			// (TODO) label only for one bb
+			for (auto& bb : module->outline[cur_layer]) {
 
-			if (bb.area == 0) {
-				continue;
-			}
+				if (bb.area == 0) {
+					continue;
+				}
 
-			// island outline
-			gp_out << "set obj rect";
-			gp_out << " from " << bb.ll.x << "," << bb.ll.y;
-			gp_out << " to " << bb.ur.x << "," << bb.ur.y;
-			gp_out << " front fillstyle empty border ";
-			// color depending on voltage, whereas to color range goes from
-			// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
-			gp_out << "rgb \"#";
-			gp_out << std::hex;
-			if (fp.IC.voltages.size() == 1) {
-				gp_out << static_cast<int>(0x11);
-				gp_out << static_cast<int>(0xff);
-			}
-			else {
-				gp_out << static_cast<int>(0x11 + module->min_voltage_index() * (0xee / (fp.IC.voltages.size() - 1) ));
-				gp_out << static_cast<int>(0xff - module->min_voltage_index() * (0x99 / (fp.IC.voltages.size() - 1) ));
-			}
-			gp_out << std::dec;
-			gp_out << "00";
-			gp_out << "\" linewidth 3" << std::endl;
+				// box outline
+				gp_out << "set obj rect";
+				gp_out << " from " << bb.ll.x << "," << bb.ll.y;
+				gp_out << " to " << bb.ur.x << "," << bb.ur.y;
+				gp_out << " front fillstyle transparent solid 0.5 noborder";
+				// color depending on voltage, whereas to color range goes from
+				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
+				gp_out << " fillcolor rgb \"#";
+				gp_out << std::hex;
+				if (fp.IC.voltages.size() == 1) {
+					gp_out << static_cast<int>(0x11);
+					gp_out << static_cast<int>(0xff);
+				}
+				else {
+					gp_out << static_cast<int>(0x11 + module->min_voltage_index() * (0xee / (fp.IC.voltages.size() - 1) ));
+					gp_out << static_cast<int>(0xff - module->min_voltage_index() * (0x99 / (fp.IC.voltages.size() - 1) ));
+				}
+				gp_out << std::dec;
+				gp_out << "00\"" << std::endl;
 
-			// label; to module assigned blocks and their shared voltage
-			gp_out << "set label \"" << module->id() << "\\n" << fp.IC.voltages[module->min_voltage_index()] << " V\"";
-			gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
-			gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
-			gp_out << " font \"Gill Sans,2\"";
-			// prevents generating subscripts for underscore in labels
-			gp_out << " noenhanced" << std::endl;
+				// label; to module assigned blocks and their shared voltage
+				gp_out << "set label \"" << module->id() << "\\n" << fp.IC.voltages[module->min_voltage_index()] << " V\"";
+				gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
+				gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
+				gp_out << " font \"Gill Sans,2\"";
+				// prevents generating subscripts for underscore in labels
+				gp_out << " noenhanced" << std::endl;
+				}
 		}
 
 		// output TSVs (blocks)
