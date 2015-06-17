@@ -77,7 +77,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		}
 
 		// init overall outline cost
-		module.outline_cost = 1.0;
+		module.outline_cost = 0.0;
 
 		// stepwise, recursive consideration of all blocks for merging into
 		// compound module
