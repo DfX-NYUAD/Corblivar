@@ -72,6 +72,13 @@ class ContiguityAnalysis {
 			Point high;
 		};
 
+		// these data structures are used for intra-die contiguity analysis, as
+		// well as for checking MultipleVoltages::CompoundModules for intrusions
+		// of any block (implemented in
+		// MultipleVoltages::CompoundModule::updateOutlineCost); thus the data is public
+		std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_hor;
+		std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_vert;
+
 	// private data, functions
 	private:
 		inline static bool boundaries_vert_comp(Boundary const& b1, Boundary const& b2);
@@ -85,7 +92,7 @@ class ContiguityAnalysis {
 
 	// public data, functions
 	public:
-		static void analyseBlocks(int layers, std::vector<Block> const& blocks);
+		void analyseBlocks(int layers, std::vector<Block> const& blocks);
 };
 
 #endif

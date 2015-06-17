@@ -37,9 +37,7 @@
 void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blocks) {
 
 	ContiguityAnalysis::Boundary cur_boundary;
-	// these data structures are used for intra-die contiguity analysis
-	std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_hor;
-	std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_vert;
+
 	// this data structure is used for inter-die contiguity analysis; note and see
 	// below that considering / walking one dimension's boundaries is sufficient to
 	// determine intersections in both dimensions / overlaps
@@ -50,12 +48,14 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 	double common_boundary_hor, common_boundary_vert;
 
 	// init die-wise lists of boundaries
-	boundaries_hor.reserve(layers);
-	boundaries_vert.reserve(layers);
+	this->boundaries_hor.clear();
+	this->boundaries_hor.reserve(layers);
+	this->boundaries_vert.clear();
+	this->boundaries_vert.reserve(layers);
 	inter_die_boundaries_vert.reserve(layers - 1);
 	for (int l = 0; l < layers; l++) {
-		boundaries_hor.push_back(std::vector<ContiguityAnalysis::Boundary>());
-		boundaries_vert.push_back(std::vector<ContiguityAnalysis::Boundary>());
+		this->boundaries_hor.push_back(std::vector<ContiguityAnalysis::Boundary>());
+		this->boundaries_vert.push_back(std::vector<ContiguityAnalysis::Boundary>());
 	}
 	for (int l = 0; l < layers - 1; l++) {
 		inter_die_boundaries_vert.push_back(std::vector<ContiguityAnalysis::Boundary>());
@@ -76,7 +76,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
-		boundaries_vert[block.layer].push_back(cur_boundary);
+		this->boundaries_vert[block.layer].push_back(cur_boundary);
 
 		// inter-die contiguity; merge left boundaries for adjacent dies' blocks
 		// into one layer of inter_die_boundaries, such that determination of
@@ -101,7 +101,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
-		boundaries_vert[block.layer].push_back(cur_boundary);
+		this->boundaries_vert[block.layer].push_back(cur_boundary);
 
 		// bottom boundary
 		cur_boundary.low.x = block.bb.ll.x;
@@ -110,7 +110,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.high.y = block.bb.ll.y;
 
 		// intra-die contiguity
-		boundaries_hor[block.layer].push_back(cur_boundary);
+		this->boundaries_hor[block.layer].push_back(cur_boundary);
 
 		// top boundary
 		cur_boundary.low.x = block.bb.ll.x;
@@ -119,7 +119,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		cur_boundary.high.y = block.bb.ur.y;
 
 		// intra-die contiguity
-		boundaries_hor[block.layer].push_back(cur_boundary);
+		this->boundaries_hor[block.layer].push_back(cur_boundary);
 	}
 
 	// determine horizontal and vertical contiguous neighbours die-wise; intra-die
@@ -131,13 +131,13 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		// dimension first (i.e., y for horizontal, and x for vertical boundaries)
 		// and also by their extension dimension; this way, boundaries can next be
 		// easily compared with each other
-		std::sort(boundaries_hor[l].begin(), boundaries_hor[l].end(), ContiguityAnalysis::boundaries_hor_comp);
-		std::sort(boundaries_vert[l].begin(), boundaries_vert[l].end(), ContiguityAnalysis::boundaries_vert_comp);
+		std::sort(this->boundaries_hor[l].begin(), this->boundaries_hor[l].end(), ContiguityAnalysis::boundaries_hor_comp);
+		std::sort(this->boundaries_vert[l].begin(), this->boundaries_vert[l].end(), ContiguityAnalysis::boundaries_vert_comp);
 
 		if (ContiguityAnalysis::DBG) {
 
 			std::cout << "DBG_CONTIGUITY> Sorted boundaries; die " << l << "; horizontal boundaries:" << std::endl;
-			for (auto const& boundary : boundaries_hor[l]) {
+			for (auto const& boundary : this->boundaries_hor[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
 				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
@@ -145,7 +145,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			}
 
 			std::cout << "DBG_CONTIGUITY> Sorted boundaries; die " << l << "; vertical boundaries:" << std::endl;
-			for (auto const& boundary : boundaries_vert[l]) {
+			for (auto const& boundary : this->boundaries_vert[l]) {
 
 				std::cout << "DBG_CONTIGUITY>  Boundary: ";
 				std::cout << "(" << boundary.low.x << "," << boundary.low.y << ")";
@@ -165,7 +165,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		}
 
 		// vertical boundaries
-		for (i1 = boundaries_vert[l].begin(); i1 != boundaries_vert[l].end(); ++i1) {
+		for (i1 = this->boundaries_vert[l].begin(); i1 != this->boundaries_vert[l].end(); ++i1) {
 
 			ContiguityAnalysis::Boundary& b1 = (*i1);
 
@@ -180,7 +180,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			// same, in order to avoid comparison with itself) in the set of
 			// sorted boundaries
 			i2 = i1 + 1;
-			for (; i2 != boundaries_vert[l].end(); ++i2) {
+			for (; i2 != this->boundaries_vert[l].end(); ++i2) {
 
 				ContiguityAnalysis::Boundary& b2 = (*i2);
 
@@ -237,7 +237,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 		}
 
 		// horizontal boundaries
-		for (i1 = boundaries_hor[l].begin(); i1 != boundaries_hor[l].end(); ++i1) {
+		for (i1 = this->boundaries_hor[l].begin(); i1 != this->boundaries_hor[l].end(); ++i1) {
 
 			ContiguityAnalysis::Boundary& b1 = (*i1);
 
@@ -252,7 +252,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 			// same, in order to avoid comparison with itself) in the set of
 			// sorted boundaries
 			i2 = i1 + 1;
-			for (; i2 != boundaries_hor[l].end(); ++i2) {
+			for (; i2 != this->boundaries_hor[l].end(); ++i2) {
 
 				ContiguityAnalysis::Boundary& b2 = (*i2);
 

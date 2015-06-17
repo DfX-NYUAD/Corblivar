@@ -109,7 +109,7 @@ class MultipleVoltages {
 		// public functions
 		public:
 			// local cost; required during bottom-up construction
-			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update = true);
+			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
 
 			// global cost; required during top-down selection
 			inline double cost() const;
@@ -189,18 +189,19 @@ class MultipleVoltages {
 
 	// public data, functions
 	public:
-		void determineCompoundModules(int layers, std::vector<Block> const& blocks);
+		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
 		void selectCompoundModules();
 
 	// private helper data, functions
 	private:
-		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint);
+		void buildCompoundModulesHelper(CompoundModule& module, modules_type::iterator hint, ContiguityAnalysis& cont);
 		inline void insertCompoundModuleHelper(
 				CompoundModule& module,
 				ContiguityAnalysis::ContiguousNeighbour* neighbour,
 				bool consider_prev_neighbours,
 				std::bitset<MAX_VOLTAGES>& feasible_voltages,
-				modules_type::iterator& hint
+				modules_type::iterator& hint,
+				ContiguityAnalysis& cont
 			);
 };
 

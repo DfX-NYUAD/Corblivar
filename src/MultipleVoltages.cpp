@@ -28,7 +28,7 @@
 #include "Rect.hpp"
 #include "ContiguityAnalysis.hpp"
 
-void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks) {
+void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
 
 	this->modules.clear();
 
@@ -57,6 +57,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		module.outline.reserve(layers);
 		module.blocks_area.reserve(layers);
 		module.outline_cost_die.reserve(layers);
+
 		for (int l = 0; l < layers; l++) {
 
 			module.outline[l] = std::vector<Rect>();
@@ -79,7 +80,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 
 		// stepwise, recursive consideration of all blocks for merging into
 		// compound module
-		this->buildCompoundModulesHelper(module, this->modules.begin());
+		this->buildCompoundModulesHelper(module, this->modules.begin(), cont);
 
 		// store trivial compound module; the module can be moved now, it will be
 		// accessed from the map later on
@@ -251,7 +252,7 @@ void MultipleVoltages::selectCompoundModules() {
 // also note that a breadth-first search is applied to determine which is the best block
 // to be merged such that total cost (sum of local cost, where the sum differs for
 // different starting blocks) cost remain low
-void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint) {
+void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint, ContiguityAnalysis& cont) {
 	std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
 	std::vector<ContiguityAnalysis::ContiguousNeighbour*> candidates;
@@ -328,7 +329,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// previous neighbours shall be considered, since the related new
 			// module has a different set of voltages, i.e., no tie-braking
 			// was considered among some candidate neighbours
-			this->insertCompoundModuleHelper(module, neighbour, true, feasible_voltages, hint);
+			this->insertCompoundModuleHelper(module, neighbour, true, feasible_voltages, hint, cont);
 		}
 		// any other case, i.e., only one (trivially the highest possible) voltage
 		// applicable for the new module; to be ignored
@@ -372,7 +373,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			//
 			// memorize cost since more than one module may show best cost
 			//
-			candidates_cost.push_back(module.updateOutlineCost(candidate, false));
+			candidates_cost.push_back(module.updateOutlineCost(candidate, cont, false));
 
 			if (MultipleVoltages::DBG) {
 				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << candidates_cost.back() << std::endl;
@@ -408,13 +409,13 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				// note that in practice some blocks will still be
 				// (rightfully) considered since they are also contiguous
 				// neighbours with the now considered best-cost candidate
-				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint);
+				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint, cont);
 			}
 		}
 	}
 }
 
-inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES>& feasible_voltages, MultipleVoltages::modules_type::iterator& hint) {
+inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES>& feasible_voltages, MultipleVoltages::modules_type::iterator& hint, ContiguityAnalysis& cont) {
 	MultipleVoltages::modules_type::iterator inserted;
 	unsigned modules_before, modules_after;
 
@@ -473,7 +474,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
-		inserted_new_module.updateOutlineCost(neighbour);
+		inserted_new_module.updateOutlineCost(neighbour, cont);
 
 		// if previous neighbours shall be considered, init the related pointers
 		// as copy from the previous module
@@ -506,7 +507,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// recursive call; provide iterator to just inserted module as hint for
 		// next insertion
-		this->buildCompoundModulesHelper(inserted_new_module, inserted);
+		this->buildCompoundModulesHelper(inserted_new_module, inserted, cont);
 	}
 	else if (MultipleVoltages::DBG) {
 		std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
@@ -518,11 +519,12 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 // current cost term: blocks area over bounding box; i.e., packing density; i.e., the
 // higher the cost the better
 // TODO consider contiguity, or similar measure to estimate power-domain synthesis cost
-inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, bool apply_update) {
+inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
+	Rect ext_bb;
 
-	int neighbour_layer = neighbour->block->layer;
+	int n_l = neighbour->block->layer;
 
 	// these data structures are used to calculate the changes resulting from adding
 	// ContiguousNeighbour* block to the module; they are eventually only applied if
@@ -535,28 +537,31 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 	// update bounding boxes on (by added block) affected die; note that the added
 	// block may be the first on its related die which is assigned to this module
-	if (outline[neighbour_layer].empty()) {
+	if (outline[n_l].empty()) {
 
 		// init new bb
-		outline[neighbour_layer].emplace_back(neighbour->block->bb);
+		outline[n_l].emplace_back(neighbour->block->bb);
 
 		// init blocks area
-		blocks_area[neighbour_layer] = neighbour->block->bb.area;
+		blocks_area[n_l] = neighbour->block->bb.area;
 	}
-	// TODO
-	// update existing bb; try to extend bb to cover all blocks; check for intrusion
-	// by any other block
+	// update existing bb; try to extend bb to cover previous blocks and the new
+	// neighbour block; check for intrusion by any other block
 	else {
-		// in case no intrusion would occur, merge the bounding box
-		// TODO which box to merge with?
-		//outline[neighbour_layer].emplace_back(Rect::determBoundingBox(this->bb[neighbour_layer], neighbour->block->bb));
+		// consider the by the neighbour extend bb; the relevant bb to be extended
+		// is the last one of the vector (by this just introduced definition)
+		ext_bb = Rect::determBoundingBox(outline[n_l].back(), neighbour->block->bb);
+	
+		// TODO no intrustion?
+		// in case no intrusion would occur, memorize the extended bb
+		outline[n_l].back() = ext_bb;
 
 		// in case any intrusion would occur, memorize only the separate,
-		// non-intruded boxes
-		outline[neighbour_layer].emplace_back(neighbour->block->bb);
+		// non-intruded boxes, i.e., add the neighbours sole bb
+		outline[n_l].emplace_back(neighbour->block->bb);
 
-		// update blocks area
-		blocks_area[neighbour_layer] += neighbour->block->bb.area;
+		// update blocks area in any case
+		blocks_area[n_l] += neighbour->block->bb.area;
 	}
 
 	// determine overall cost
@@ -569,7 +574,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		if (blocks_area[l] > 0.0) {
 
 			// affected die; update die-wise cost first
-			if (l == static_cast<unsigned>(neighbour_layer)) {
+			if (l == static_cast<unsigned>(n_l)) {
 
 				// TODO amount of potential (and avoided) intrusion,
 				// normalized to layer's blocks' total area

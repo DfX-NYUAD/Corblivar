@@ -928,12 +928,12 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// derive contiguity for each block from current layout; contiguity matrix is kept
 	// as reduced contiguity list within blocks themselves, only encoding the actual
 	// neighbours of each block
-	ContiguityAnalysis::analyseBlocks(this->IC.layers, this->blocks);
+	this->contigAnalyser.analyseBlocks(this->IC.layers, this->blocks);
 
 	// voltage-volume assignment: bottom-up phase, i.e., determine set of compound
 	// modules with their assignable voltages and their (local) cost for power-domain
 	// routing; here, modules are stepwise arranged into compound modules
-	this->voltages.determineCompoundModules(this->IC.layers, this->blocks);
+	this->voltages.determineCompoundModules(this->IC.layers, this->blocks, this->contigAnalyser);
 
 	// TODO voltage-volume assignment: top-down phase, i.e., determine optimal
 	// selection of compound modules such that all blocks are assigned to a voltage

@@ -281,6 +281,9 @@ class FloorPlanner {
 		// multi-voltage-domain handler
 		MultipleVoltages voltages;
 
+		// contiguity-analysis handler
+		ContiguityAnalysis contigAnalyser;
+
 	// constructors, destructors, if any non-implicit
 	public:
 		FloorPlanner() {
