@@ -2229,7 +2229,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				gp_out << "\"";
 
 				gp_out << " at " << cur_block.bb.ur.x - 0.03 * fp.IC.outline_x;
-				gp_out << "," << cur_block.bb.ur.y - 0.01 * fp.IC.outline_y;
+				gp_out << "," << cur_block.bb.ll.y + 0.01 * fp.IC.outline_y;
 				gp_out << " font \"Gill Sans,2\"";
 				// prevents generating subscripts for underscore in labels
 				gp_out << " noenhanced" << std::endl;
