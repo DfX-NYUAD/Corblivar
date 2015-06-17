@@ -197,7 +197,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					break;
 				}
 
-				// otherwise, some intersection exits; determine amount of
+				// otherwise, some intersection exist; determine amount of
 				// intersection / common boundary and memorize within both
 				// blocks
 				common_boundary_vert = ContiguityAnalysis::common_boundary_vert(b1, b2);
@@ -269,7 +269,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					break;
 				}
 
-				// otherwise, some intersection exits; determine amount of
+				// otherwise, some intersection exist; determine amount of
 				// intersection / common boundary and memorize within both
 				// blocks
 				common_boundary_hor = ContiguityAnalysis::common_boundary_hor(b1, b2);
@@ -372,7 +372,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					break;
 				}
 
-				// otherwise, some intersection _may_ exit, but only a)
+				// otherwise, some intersection _may_ exist, but only a)
 				// for blocks of the other die and b) if there is some
 				// overlap in y-direction
 				if ((b2.block->layer != b1.block->layer) &&
