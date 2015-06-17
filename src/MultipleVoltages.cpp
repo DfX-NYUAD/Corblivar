@@ -626,12 +626,27 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 					// at this point, we know that b2 is intersecting
 					// with extended bb to some degree in _both_
-					// dimensions; we memorize the intruding block (in
-					// a map to avoid considering blocks two times;
-					// which is naturally happening when walking the
-					// two vertical boundaries of all blocks)
+					// dimensions; we _may_ memorize the _potentially_
+					// intruding block (in a map to avoid considering
+					// blocks two times; which is naturally happening
+					// when walking the two vertical boundaries of all
+					// blocks)
 					//
-					intruding_blocks.insert({b2.block->id, b2.block});
+					// finally, look ahead whether this blocks
+					// represents an relevant intrusion, i.e., whether
+					// the voltages will be different; this can only
+					// be addressed conservatively, since the actual
+					// assignment is not done yet, i.e., only when the
+					// intruding block has only the trivial highest
+					// voltage applicable, when can assume this block
+					// to be intruding anyway, since such neighbours
+					// will not be considered for merging and such
+					// modules with only highest voltage applicable
+					// will not be generated
+					//
+					if (b2.block->feasible_voltages.count() == 1) {
+						intruding_blocks.insert({b2.block->id, b2.block});
+					}
 				}
 			}
 
