@@ -362,10 +362,11 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "),(" << module.feasible_voltages << "); evaluate candidates" << std::endl;
 		}
 
-		// init with zero dummy cost; max cost is to be determined
-		best_candidate_cost = 0.0;
+		// init with dummy cost (each bb cannot be more intruded than by factor
+		// 1.0); min cost is to be determined
+		best_candidate_cost = 1.0;
 
-		// 1) determine all cost and max cost
+		// 1) determine all cost and min cost
 		candidates_cost.reserve(candidates.size());
 		for (auto& candidate : candidates) {
 
@@ -380,8 +381,8 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << candidates_cost.back() << std::endl;
 			}
 
-			// determine max cost
-			if (candidates_cost.back() > best_candidate_cost) {
+			// determine min cost
+			if (candidates_cost.back() < best_candidate_cost) {
 				best_candidate_cost = candidates_cost.back();
 			}
 		}
