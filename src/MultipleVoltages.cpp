@@ -670,25 +670,23 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			}
 		}
 
-		// update outline cost and blocks area in any case; note that the outline
-		// cost always considers the amount of intrusion, despite the fact that
-		// only the non-intruded bb's are memorized; this is required in order to
-		// model the amount of intrusion as local cost, required for local
-		// tree-pruning decisions during bottom-up phase
+		// update outline cost and blocks area in any case
+		//
+		// note that the outline cost always considers the amount of _current_
+		// intrusion, despite the fact that only the non-intruded bb's are
+		// memorized; this is required in order to model the amount of intrusion
+		// as local cost, required for local tree-pruning decisions during
+		// bottom-up phase
+		//
+		// note that only _current_ intrusion is considered, i.e. the amount of
+		// intrusion in any previous merging step is ignored; this is valid since
+		// the module was already selected as best-cost module, despite any amount
+		// of intrusion, and the separated bb have been memorized, i.e., the
+		// starting condition, before considering the neighbour, was a
+		// non-intruded module
 		//
 
-		if (MultipleVoltages::DBG) {
-			std::cout << "DBG_VOLTAGES>   Previous outline cost: " << this->outline_cost << std::endl;
-		}
-
-		// first, revert the previous outline cost to obtain the previous amount
-		// of intrusion; to do so, multiply the previous cost by the previous area
-		outline_cost_die[n_l] *= blocks_area[n_l];
-		// add the additional amount of intrusion
-		outline_cost_die[n_l] += intrusion_area;
-		// and finally normalize by the new area; first update this very area
-		blocks_area[n_l] += neighbour->block->bb.area;
-		outline_cost_die[n_l] /= blocks_area[n_l];
+		outline_cost_die[n_l] = intrusion_area / ext_bb.area;
 	}
 
 	// determine overall cost
@@ -720,10 +718,6 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		this->blocks_area = std::move(blocks_area);
 		this->outline_cost_die = std::move(outline_cost_die);
 		this->outline_cost = overall_cost;
-	}
-
-	if (MultipleVoltages::DBG) {
-		std::cout << "DBG_VOLTAGES>   New outline cost: " << overall_cost << std::endl;
 	}
 
 	return overall_cost;
