@@ -582,8 +582,9 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 			// the boundary b2, to be compared to b1, should be within the
 			// x-range of the extended bb; thus we initially search for the
-			// first boundary at the same left x-coordinate
-			if (!Math::doubleComp(b1.low.x, ext_bb.ll.x)) {
+			// first boundary (slightly larger than) the extended bb's left
+			// x-coordinate
+			if (b1.low.x <= ext_bb.ll.x) {
 				continue;
 			}
 
@@ -594,9 +595,10 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 				ContiguityAnalysis::Boundary& b2 = (*i2);
 
-				// break condition; if b2 is outside to the right of
-				// extended bb, no intersection if feasible anymore
-				if (b2.low.x > ext_bb.ur.x) {
+				// break condition; if b2 is just touching (or later on
+				// outside to) the right of extended bb, no intersection
+				// if feasible anymore
+				if (Math::doubleComp(b2.low.x, ext_bb.ur.x)) {
 
 					checked_boundaries = true;
 
@@ -609,7 +611,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 				// y-direction; check for b) first since it's easier to
 				// compute
 				//
-				if (ext_bb.ll.y <= b2.high.y && b2.low.y <= ext_bb.ur.y) {
+				if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
 
 					// now check against a)
 					if (this->blocks.find(b2.block->id) != this->blocks.end()) {
