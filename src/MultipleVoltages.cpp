@@ -60,7 +60,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 
 		for (int l = 0; l < layers; l++) {
 
-			module.outline[l] = std::vector<Rect>();
+			module.outline.emplace_back(std::vector<Rect>());
 
 			if (start.layer == l) {
 				module.outline[l].emplace_back(start.bb);
@@ -70,8 +70,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			else {
 				module.blocks_area.emplace_back(0.0);
 				module.outline_cost_die.emplace_back(0.0);
-
-				// note that outline[l] shall remain empty
+				// note that outline[l] shall remain empty in this case
 			}
 		}
 
@@ -523,6 +522,9 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
 	Rect ext_bb;
+	double intrusion_area = 0.0;
+	std::unordered_map<std::string, Block const*> intruding_blocks;
+	bool checked_boundaries = false;
 
 	int n_l = neighbour->block->layer;
 
@@ -534,6 +536,17 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	std::vector<double> outline_cost_die = this->outline_cost_die;
 	std::vector< std::vector<Rect> > outline = this->outline;
 	std::vector<double> blocks_area = this->blocks_area;
+
+
+	if (MultipleVoltages::DBG) {
+		if (apply_update) {
+			std::cout << "DBG_VOLTAGES>  Update outline cost; module " << this->id() << ";";
+		}
+		else {
+			std::cout << "DBG_VOLTAGES>  Determine (but don't update) outline cost; module " << this->id() << ";";
+		}
+		std::cout << " neighbour block " << neighbour->block->id << "; affected die " << n_l << std::endl;
+	}
 
 	// update bounding boxes on (by added block) affected die; note that the added
 	// block may be the first on its related die which is assigned to this module
@@ -551,21 +564,129 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		// consider the by the neighbour extend bb; the relevant bb to be extended
 		// is the last one of the vector (by this just introduced definition)
 		ext_bb = Rect::determBoundingBox(outline[n_l].back(), neighbour->block->bb);
-	
-		// TODO no intrustion?
-		// in case no intrusion would occur, memorize the extended bb
-		outline[n_l].back() = ext_bb;
 
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES>   Currently considered extended bb ";
+			std::cout << "(" << ext_bb.ll.x << "," << ext_bb.ll.y << ")";
+			std::cout << "(" << ext_bb.ur.x << "," << ext_bb.ur.y << ")" << std::endl;
+		}
+
+		// walking vertical boundaries, provided by ContiguityAnalysis; the
+		// boundaries of the relevant die will be checked whether they intrude the
+		// extended bb, and if so to what degree note that walking the vertical
+		// boundaries is sufficient for determining overlaps in x- and
+		// y-dimension; also see ContiguityAnalysis::analyseBlocks
+		for (auto i1 = cont.boundaries_vert[n_l].begin(); i1 != cont.boundaries_vert[n_l].end(); ++i1) {
+
+			ContiguityAnalysis::Boundary& b1 = (*i1);
+
+			// the boundary b2, to be compared to b1, should be within the
+			// x-range of the extended bb; thus we initially search for the
+			// first boundary at the same left x-coordinate
+			if (!Math::doubleComp(b1.low.x, ext_bb.ll.x)) {
+				continue;
+			}
+
+			// at this point, a boundary b1 is found which shares the lower
+			// x-coordinate of the extended bb; check for intruding
+			// boundaries/blocks
+			for (auto i2 = i1; i2 != cont.boundaries_vert[n_l].end(); ++i2) {
+
+				ContiguityAnalysis::Boundary& b2 = (*i2);
+
+				// break condition; if b2 is outside to the right of
+				// extended bb, no intersection if feasible anymore
+				if (b2.low.x > ext_bb.ur.x) {
+
+					checked_boundaries = true;
+
+					break;
+				}
+
+				// otherwise, some intersection _may_ exist, but only a)
+				// for blocks not covered in the module yet, not being
+				// the neighbour and b) if there is some overlap in
+				// y-direction; check for b) first since it's easier to
+				// compute
+				//
+				if (ext_bb.ll.y <= b2.high.y && b2.low.y <= ext_bb.ur.y) {
+
+					// now check against a)
+					if (this->blocks.find(b2.block->id) != this->blocks.end()) {
+						continue;
+					}
+					if (b2.block->id == neighbour->block->id) {
+						continue;
+					}
+
+					// at this point, we know that b2 is intersecting
+					// with extended bb to some degree in _both_
+					// dimensions; we memorize the intruding block (in
+					// a map to avoid considering blocks two times;
+					// which is naturally happening when walking the
+					// two vertical boundaries of all blocks)
+					//
+					intruding_blocks.insert({b2.block->id, b2.block});
+				}
+			}
+
+			// break condition, all relevant boundaries have been considered
+			if (checked_boundaries) {
+				break;
+			}
+		}
+	
+		// in case no intrusion would occur, memorize the extended bb
+		if (intruding_blocks.empty()) {
+
+			outline[n_l].back() = ext_bb;
+
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES>   Extended bb is not intruded by any block; memorize this extended bb" << std::endl;
+			}
+		}
 		// in case any intrusion would occur, memorize only the separate,
 		// non-intruded boxes, i.e., add the neighbours sole bb
-		outline[n_l].emplace_back(neighbour->block->bb);
+		else {
 
-		// update blocks area in any case
+			outline[n_l].emplace_back(neighbour->block->bb);
+
+			// also determine the amount of intersection/intrusion
+			for (auto it = intruding_blocks.begin(); it != intruding_blocks.end(); ++it) {
+
+				intrusion_area += Rect::determineIntersection(ext_bb, it->second->bb).area;
+
+				if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES>   Extended bb is intruded by block " << it->second->id;
+					std::cout << "; block bb (" << it->second->bb.ll.x << "," << it->second->bb.ll.y << ")";
+					std::cout << "(" << it->second->bb.ur.x << "," << it->second->bb.ur.y << ")";
+					std::cout << "; amount of intrusion / area of intersection: " << Rect::determineIntersection(ext_bb, it->second->bb).area << std::endl;
+				}
+			}
+		}
+
+		// update outline cost and blocks area in any case; note that the outline
+		// cost always considers the amount of intrusion, despite the fact that
+		// only the non-intruded bb's are memorized; this is required in order to
+		// model the amount of intrusion as local cost, required for local
+		// tree-pruning decisions during bottom-up phase
+		//
+
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES>   Previous outline cost: " << this->outline_cost << std::endl;
+		}
+
+		// first, revert the previous outline cost to obtain the previous amount
+		// of intrusion; to do so, multiply the previous cost by the previous area
+		outline_cost_die[n_l] *= blocks_area[n_l];
+		// add the additional amount of intrusion
+		outline_cost_die[n_l] += intrusion_area;
+		// and finally normalize by the new area; first update this very area
 		blocks_area[n_l] += neighbour->block->bb.area;
+		outline_cost_die[n_l] /= blocks_area[n_l];
 	}
 
 	// determine overall cost
-	// update affected layer's and overall cost; walk all dies
 	//
 	for (unsigned l = 0; l < outline_cost_die.size(); l++) {
 
@@ -573,26 +694,13 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		//
 		if (blocks_area[l] > 0.0) {
 
-			// affected die; update die-wise cost first
-			if (l == static_cast<unsigned>(n_l)) {
-
-				// TODO amount of potential (and avoided) intrusion,
-				// normalized to layer's blocks' total area
-				//
-				// actual cost term; blocks area over bounding box; i.e.,
-				// packing density
-//				outline_cost_die[l] = blocks_area[l] / bb[l].area;
-			}
-
-			// in any case (die affected or not), update intermediate terms,
-			// i.e., sum up cost for total cost
 			overall_cost += outline_cost_die[l];
 			dies_to_consider++;
 		}
 	}
 
-	// normalize cost to avg cost; note that div by zero cannot occur since each
-	// module has at least one block assigned, i.e., covers at least one die
+	// normalize cost to considered dies; note that div by zero cannot occur since
+	// each module has at least one block assigned, i.e., covers at least one die
 	overall_cost /= dies_to_consider;
 
 	// apply updates to module only if requested; this way, both the actual change for
@@ -607,6 +715,10 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		this->blocks_area = std::move(blocks_area);
 		this->outline_cost_die = std::move(outline_cost_die);
 		this->outline_cost = overall_cost;
+	}
+
+	if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES>   New outline cost: " << overall_cost << std::endl;
 	}
 
 	return overall_cost;
