@@ -626,25 +626,31 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 					// at this point, we know that b2 is intersecting
 					// with extended bb to some degree in _both_
-					// dimensions; we _may_ memorize the _potentially_
+					// dimensions; we may memorize the _potentially_
 					// intruding block (in a map to avoid considering
-					// blocks two times; which is naturally happening
-					// when walking the two vertical boundaries of all
-					// blocks)
+					// blocks two times which may happen when walking
+					// the two vertical boundaries of all blocks)
 					//
 					// finally, look ahead whether this blocks
 					// represents an relevant intrusion, i.e., whether
 					// the voltages will be different; this can only
 					// be addressed conservatively, since the actual
-					// assignment is not done yet, i.e., only when the
-					// intruding block has only the trivial highest
-					// voltage applicable, when can assume this block
-					// to be intruding anyway, since such neighbours
-					// will not be considered for merging and such
-					// modules with only highest voltage applicable
-					// will not be generated
+					// assignment is not done yet: when the intruding
+					// block has a different set of voltages
+					// applicable than the module's current set of
+					// voltage we shall assume this block to be
+					// intruding at this point, since such neighbours,
+					// if merged into the module, will be altering the
+					// set of applicable voltages and thus change the
+					// module's properties altogether, or, if not
+					// merged, will be intruding the module; note that
+					// this consideration will always result in
+					// trivial neighbours (with only highest voltage
+					// applicable) to be rightfully considered as
+					// intruding; such modules will not be generated
+					// where trivial neighbours are merged into
 					//
-					if (b2.block->feasible_voltages.count() == 1) {
+					if (this->feasible_voltages != b2.block->feasible_voltages) {
 						intruding_blocks.insert({b2.block->id, b2.block});
 					}
 				}
