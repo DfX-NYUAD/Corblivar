@@ -539,6 +539,11 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 // cost term: ratio of (by other blocks with non-compatible voltage) intruded area of the
 // module's bb; the lower the better
 //
+// note that the cost always considers the amount of _current_ intrusion (after adding
+// neighbour to module), despite the fact that only the non-intruded bb's are memorized;
+// this is required in order to model the amount of intrusion as local cost, required for
+// local tree-pruning decisions during bottom-up phase
+//
 // also, extended bbs with minimized number of corners for power-ring synthesis are
 // generated hered
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
@@ -771,12 +776,6 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		}
 
 		// update outline cost and blocks area in any case
-		//
-		// note that the outline cost always considers the amount of _current_
-		// intrusion, despite the fact that only the non-intruded bb's are
-		// memorized; this is required in order to model the amount of intrusion
-		// as local cost, required for local tree-pruning decisions during
-		// bottom-up phase
 		//
 		// note that only _current_ intrusion is considered, i.e. the amount of
 		// intrusion in any previous merging step is ignored; this is valid since
