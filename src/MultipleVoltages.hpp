@@ -128,6 +128,19 @@ class MultipleVoltages {
 
 				return MAX_VOLTAGES;
 			}
+
+			// helper to return overall blocks area
+			inline double blocks_area_total() const {
+
+				double ret = 0.0;
+
+				for (unsigned a = 0; a < this->blocks_area.size(); a++) {
+
+					ret += this->blocks_area[a];
+				}
+
+				return ret;
+			}
 	};
 
 	// private data, functions
