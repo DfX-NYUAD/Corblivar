@@ -94,9 +94,6 @@ class MultipleVoltages {
 			// local cost; required during bottom-up construction
 			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
 
-			// global cost; required during top-down selection
-			inline double cost() const;
-
 			// helper function to return string comprising all (sorted) block ids
 			inline std::string id() const {
 				std::string ret;
@@ -141,6 +138,19 @@ class MultipleVoltages {
 
 				return ret;
 			}
+
+			// helper to estimate max number of corners in power rings
+			// (separate for each die)
+			//
+			inline unsigned corners_outline_max() const;
+
+			// helper to estimate gain in power reduction
+			//
+			inline double power_saving() const;
+
+			// global cost, required during top-down selection
+			//
+			inline double cost() const;
 	};
 
 	// private data, functions

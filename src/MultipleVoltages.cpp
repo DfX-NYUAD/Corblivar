@@ -257,6 +257,9 @@ void MultipleVoltages::selectCompoundModules() {
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_outline_max() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << module->blocks_area_total() << std::endl;
 
 			count += module->blocks.size();
 		}
@@ -821,31 +824,57 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	return overall_cost;
 }
 
-// global cost, used during bottom-up merging
+// helper to estimate max number of corners in power rings (separate for each die)
 //
-// cost term: achievable gain in power reduction; comparing lowest applicable to highest
-// (trivial solution) voltage / power for all comprised blocks; the higher the cost the
-// better; look-ahead determination, evaluates and memorizes cost, impacting the blocks'
-// voltage assignment, even if this module will not be selected later on; this
-// intermediate assignments are not troublesome since the actual module selection will
-// take care of the final voltage assignment
+// each rectangle / partial bb of the die outline will introduce four corners; however, if
+// for example two rectangles are sharing a boundary then only six corners are found for
+// these two rectangles; thus, we only consider the unique boundaries and estimate that
+// each unique boundary introduces two corners; a shared boundary may arise in vertical or
+// horizontal direction, the actual number of corners will be given by the maximum of both
+// estimates
 //
-// TODO further terms like overlap with other modules, having a different set
-// of voltages; this could be similarly calculated as for vertical overlap of blocks;
-// i.e., the respective parts of function ContiguityAnalysis::analyseBlocks should be
-// refactored to work on general rectangles, not blocks
-// 
-// TODO or we could, with hopefully reduced computation, derive this (and more appropriate
-// sets of bb's for die-wise voltage islands) during bottom-up phase, where we check each
-// added block against any further neighbour which is penetrating the bounding box of the
-// previous module and the added block
+inline unsigned MultipleVoltages::CompoundModule::corners_outline_max() const {
+
+	unsigned estimate_vert, estimate_hor;
+	unsigned estimate = 0;
+	std::set<double> vert_boundaries;
+	std::set<double> hor_boundaries;
+
+	for (auto& die_outline: this->outline) {
+
+		vert_boundaries.clear();
+		hor_boundaries.clear();
+		estimate_vert = estimate_hor = 0;
+
+		for (auto& outline_rect : die_outline) {
+			vert_boundaries.insert(outline_rect.ll.x);
+			vert_boundaries.insert(outline_rect.ur.x);
+			hor_boundaries.insert(outline_rect.ll.y);
+			hor_boundaries.insert(outline_rect.ur.y);
+		}
+
+		estimate_vert = 2 * vert_boundaries.size();
+		estimate_hor = 2 * vert_boundaries.size();
+
+		// recall that the estimates for vertical and
+		// horizontal estimates may differ, consider only
+		// the max of both; also memorize only the max
+		// estimate across all dies
+		estimate = std::max(estimate, std::max(estimate_vert, estimate_hor));
+	}
+
+	return estimate;
+}
+
+// helper to estimate gain in power reduction
 //
-// TODO consider intersections within each die separately, walk all dies, and consider each modules' bb[die];
-// sum up intersections on all affected dies for each module
+// this is done by comparing lowest applicable to highest (trivial solution) voltage /
+// power for all comprised blocks; look-ahead determination, evaluates and memorizes cost,
+// impacting the blocks' voltage assignment, even if this module will not be selected
+// later on; this intermediate assignments are not troublesome since the actual module
+// selection will take care of the final voltage assignment
 //
-// related TODOs:
-// - weight factors for power saving, overlaps b/w domains
-inline double MultipleVoltages::CompoundModule::cost() const {
+inline double MultipleVoltages::CompoundModule::power_saving() const {
 	double total_max_power;
 	double total_power;
 	unsigned min_voltage_index;
@@ -865,8 +894,16 @@ inline double MultipleVoltages::CompoundModule::cost() const {
 		total_power += it->second->power();
 	}
 
-	return total_max_power - total_power;
+	return (total_max_power - total_power);
+}
 
-	//// test data; packing density times blocks considered, the higher the better
-	//return (this->outline_cost * this->blocks.size());
+// global cost, required during top-down selection
+//
+// cost term: achievable gain in power reduction, weighted with inverse of max corners in
+// power rings; the higher the cost the better
+//
+// TODO weight factors for power saving, corners ?
+inline double MultipleVoltages::CompoundModule::cost() const {
+
+	return this->power_saving() * (1.0 / static_cast<double>(this->corners_outline_max()));
 }
