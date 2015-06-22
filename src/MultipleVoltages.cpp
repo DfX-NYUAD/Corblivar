@@ -124,11 +124,10 @@ void MultipleVoltages::selectCompoundModules() {
 			return (
 					// the higher the cost, the better
 					(c1 > c2)
-					// TODO replace with proper modelling via cost()
-					//
 					// if cost are similar, consider larger modules;
 					// this is especially relevant for trivial modules
-					// comprising only one block
+					// comprising only one block; these blocks will
+					// have same cost
 					|| (Math::doubleComp(c1, c2) && a1 > a2)
 			       );
 		}
