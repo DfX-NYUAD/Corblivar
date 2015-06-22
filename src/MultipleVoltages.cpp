@@ -518,9 +518,11 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 // local cost, used during bottom-up merging
 //
-// current cost term: blocks area over bounding box; i.e., packing density; i.e., the
-// higher the cost the better
-// TODO consider contiguity, or similar measure to estimate power-domain synthesis cost
+// cost term: ratio of (by other blocks with non-compatible voltage) intruded area of the
+// module's bb; the lower the better
+//
+// also, extended bbs with minimized number of corners for power-ring synthesis are
+// generated hered
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
 	double overall_cost = 0.0;
 	double dies_to_consider = 0;
@@ -765,7 +767,6 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		// starting condition, before considering the neighbour, was a
 		// non-intruded module
 		//
-
 		outline_cost_die[n_l] = intrusion_area / ext_bb.area;
 	}
 

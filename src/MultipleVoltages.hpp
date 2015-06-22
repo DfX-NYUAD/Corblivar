@@ -34,7 +34,7 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
@@ -65,24 +65,10 @@ class MultipleVoltages {
 			// the die-wise voltage islands' proper outlines are captured here
 			std::vector< std::vector<Rect> > outline;
 
-			// TODO revise cost terms
-			// TODO review whether area terms are still required
+			// (local) cost term: outline cost is ratio of (by other blocks
+			// with non-compatible voltage) intruded area of the module's bb;
+			// the lower the better
 			//
-			// TODO replace with some terms of cost for power-domain routing,
-			// preferably derived from contiguity analysis
-			//
-			// outline_cost is avg(A(blocks)/A(bounding box)) over all
-			// _affected_ dies (having some blocks on the respective die being
-			// assigned to this module); the higher the cost the better
-			//
-			// this simple cost term models packing density which, in turn,
-			// has some direct implications on power-domain cost: a low
-			// packing density implies a) long power rings, b) higher
-			// probability for intersection with other power domains c)
-			// potentially more power-ring corners due to blocks from other
-			// voltage domains being more likely to intersect the (loosely
-			// packed) module [b)] which requires insertion of corners to
-			// avoid overlaps of different power-domain rings
 			double outline_cost = -1.0;
 			//
 			// to save recalculations for not affected dies, we memorize the
@@ -101,9 +87,6 @@ class MultipleVoltages {
 			// with an unsorted_map, redundant neighbours which may arise
 			// during stepwise build-up of compound modules are ignored
 			//
-			// TODO if the actual contiguity changes for compound modules,
-			// this should be reflected in an own copy of
-			// ContiguityAnalysis::ContiguousNeighbour
 			std::unordered_map<std::string, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
 
 		// public functions
