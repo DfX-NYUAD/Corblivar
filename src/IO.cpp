@@ -2252,7 +2252,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				gp_out << "set obj rect";
 				gp_out << " from " << bb.ll.x << "," << bb.ll.y;
 				gp_out << " to " << bb.ur.x << "," << bb.ur.y;
-				gp_out << " fillstyle transparent solid 0.5 noborder";
+				gp_out << " fillstyle transparent solid 0.5 border";
 				// color depending on voltage, whereas to color range goes from
 				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
 				gp_out << " fillcolor rgb \"#";
