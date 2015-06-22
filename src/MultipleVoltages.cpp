@@ -853,7 +853,7 @@ inline unsigned MultipleVoltages::CompoundModule::corners_outline_max() const {
 		}
 
 		estimate_vert = 2 * vert_boundaries.size();
-		estimate_hor = 2 * vert_boundaries.size();
+		estimate_hor = 2 * hor_boundaries.size();
 
 		// recall that the estimates for vertical and
 		// horizontal estimates may differ, consider only
