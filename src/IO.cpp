@@ -2239,8 +2239,9 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 		// output voltage volumes; die-wise as islands comprised of several boxes
 		for (auto const* module : fp.voltages.selected_modules) {
 
+			bool label_put = false;
+
 			// walk all partial boxes of the voltage island
-			// (TODO) label only for one bb
 			for (auto& bb : module->outline[cur_layer]) {
 
 				if (bb.area == 0) {
@@ -2251,7 +2252,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				gp_out << "set obj rect";
 				gp_out << " from " << bb.ll.x << "," << bb.ll.y;
 				gp_out << " to " << bb.ur.x << "," << bb.ur.y;
-				gp_out << " front fillstyle transparent solid 0.5 noborder";
+				gp_out << " fillstyle transparent solid 0.5 noborder";
 				// color depending on voltage, whereas to color range goes from
 				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
 				gp_out << " fillcolor rgb \"#";
@@ -2267,14 +2268,18 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				gp_out << std::dec;
 				gp_out << "00\"" << std::endl;
 
-				// label; to module assigned blocks and their shared voltage
-				gp_out << "set label \"" << module->id() << "\\n" << fp.IC.voltages[module->min_voltage_index()] << " V\"";
-				gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
-				gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
-				gp_out << " font \"Gill Sans,2\"";
-				// prevents generating subscripts for underscore in labels
-				gp_out << " noenhanced" << std::endl;
+				// put label once label; to module assigned blocks and their shared voltage
+				if (!label_put) {
+					gp_out << "set label \"" << module->id() << "\\n" << fp.IC.voltages[module->min_voltage_index()] << " V\"";
+					gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
+					gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
+					gp_out << " font \"Gill Sans,2\"";
+					// prevents generating subscripts for underscore in labels
+					gp_out << " noenhanced" << std::endl;
+
+					label_put = true;
 				}
+			}
 		}
 
 		// output TSVs (blocks)
