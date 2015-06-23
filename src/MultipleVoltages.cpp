@@ -553,6 +553,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	double dies_to_consider = 0;
 	Rect ext_bb;
 	Rect neighbour_ext_bb;
+	Rect prev_bb_ext;
 	double intrusion_area = 0.0;
 	std::unordered_map<std::string, Block const*> intruding_blocks;
 	bool checked_boundaries = false;
@@ -595,7 +596,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		// consider the by the neighbour extend bb; the relevant bb to be extended
 		// is the last one of the vector (by this just introduced definition)
 		//
-		Rect const& prev_bb = outline[n_l].back();
+		Rect& prev_bb = outline[n_l].back();
 		ext_bb = Rect::determBoundingBox(prev_bb, neighbour->block->bb);
 
 		if (MultipleVoltages::DBG) {
@@ -702,34 +703,39 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			}
 		}
 		// in case any intrusion would occur, memorize only the separate,
-		// non-intruded boxes, i.e., add the neighbours (extended) bb
+		// non-intruded boxes
 		//
 		else {
+			// add the neighbours (extended) bb and extend the previous bb;
 			// the extension shall be applied such that number of corners will
-			// be minimized, i.e., the neighbours bb should be sized to match
-			// the overall bb as close as possible but still considering
-			// intruding blocks
+			// be minimized, i.e., the bbs should be sized to match the
+			// overall bb (enclosing previous bb and neighbour) as close as
+			// possible but still considering intruding blocks
 			//
 
-			// init with neighbour bb
+			// init extended neighbour bb with actual neighbour bb
 			neighbour_ext_bb = neighbour->block->bb;
+			// init extended prev bb with actual prev bb
+			prev_bb_ext = prev_bb;
 
-			// extent bb to meet boundaries of overall (intruded) bb; to do
-			// so, increase the bb but don't overlap with previous bb, i.e.,
-			// extend only the dimension respective to neighbour's addition to
-			// the previous bb
+			// extent both bbs to meet boundaries of overall bb; to do so,
+			// increase the bbs separately in the relevant dimensions
 			//
-			if (Rect::rectsIntersectVertical(neighbour_ext_bb, prev_bb)) {
-				neighbour_ext_bb.ll.y = std::min(neighbour->block->bb.ll.y, prev_bb.ll.y);
-				neighbour_ext_bb.ur.y = std::max(neighbour->block->bb.ur.y, prev_bb.ur.y);
+			// prev bb and neighbour are vertically intersecting, thus extend
+			// the vertical dimensions
+			if (Rect::rectsIntersectVertical(neighbour->block->bb, prev_bb)) {
+				neighbour_ext_bb.ll.y = prev_bb_ext.ll.y = std::min(neighbour->block->bb.ll.y, prev_bb.ll.y);
+				neighbour_ext_bb.ur.y = prev_bb_ext.ur.y = std::max(neighbour->block->bb.ur.y, prev_bb.ur.y);
 			}
-			else if (Rect::rectsIntersectHorizontal(neighbour_ext_bb, prev_bb)) {
-				neighbour_ext_bb.ll.x = std::min(neighbour->block->bb.ll.x, prev_bb.ll.x);
-				neighbour_ext_bb.ur.x = std::max(neighbour->block->bb.ur.x, prev_bb.ur.x);
+			// prev bb and neighbour are horizontally intersecting, thus
+			// extend the horizontal dimensions
+			else if (Rect::rectsIntersectHorizontal(neighbour->block->bb, prev_bb)) {
+				neighbour_ext_bb.ll.x = prev_bb_ext.ll.x = std::min(neighbour->block->bb.ll.x, prev_bb.ll.x);
+				neighbour_ext_bb.ur.x = prev_bb_ext.ur.x = std::max(neighbour->block->bb.ur.x, prev_bb.ur.x);
 			}
 
 			// determine the amount of intersection/intrusion; and ``cut''
-			// parts of neighbour_ext_bb which are intruded
+			// parts of extended bbs which are intruded
 			//
 			for (auto it = intruding_blocks.begin(); it != intruding_blocks.end(); ++it) {
 
@@ -741,6 +747,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 				// note that checking for intersection is not required
 				// since neighbours are continuous by definition, the same
 				// applies to the other cases below
+				//
 				if (Rect::rectA_below_rectB(cur_intruding_bb, neighbour->block->bb, false)) {
 					neighbour_ext_bb.ll.y = std::max(cur_intruding_bb.ur.y, neighbour_ext_bb.ll.y);
 				}
@@ -760,6 +767,29 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 					neighbour_ext_bb.ur.x = std::min(cur_intruding_bb.ll.x, neighbour_ext_bb.ur.x);
 				}
 
+				// same as above also applies to the prev bb
+				//
+				// if the intruding block is below the prev bb, consider
+				// to limit the lower boundary of the extended bb
+				if (Rect::rectA_below_rectB(cur_intruding_bb, prev_bb, false)) {
+					prev_bb_ext.ll.y = std::max(cur_intruding_bb.ur.y, prev_bb.ll.y);
+				}
+				// if the intruding block is above the prev bb, consider
+				// to limit the upper boundary of the extended bb
+				if (Rect::rectA_below_rectB(prev_bb, cur_intruding_bb, false)) {
+					prev_bb_ext.ur.y = std::min(cur_intruding_bb.ll.y, prev_bb.ur.y);
+				}
+				// if the intruding block is left of the prev bb,
+				// consider to limit the left boundary of the extended bb
+				if (Rect::rectA_leftOf_rectB(cur_intruding_bb, prev_bb, false)) {
+					prev_bb_ext.ll.x = std::max(cur_intruding_bb.ur.x, prev_bb.ll.x);
+				}
+				// if the intruding block is right of the prev bb,
+				// consider to limit the right boundary of the extended bb
+				if (Rect::rectA_leftOf_rectB(prev_bb, cur_intruding_bb, false)) {
+					prev_bb_ext.ur.x = std::min(cur_intruding_bb.ll.x, prev_bb.ur.x);
+				}
+
 				// determine the amount of intrusion; only consider the
 				// actual intersection
 				intrusion_area += Rect::determineIntersection(ext_bb, cur_intruding_bb).area;
@@ -772,8 +802,11 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 				}
 			}
 
-			// memorize the extended bb
+			// memorize the extended bbs
 			//
+			// note that prev_bb is a reference to the related outline[n_l]
+			// element, i.e., reassignment is effective for writing back
+			prev_bb = prev_bb_ext;
 			outline[n_l].emplace_back(neighbour_ext_bb);
 		}
 
