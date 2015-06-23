@@ -118,12 +118,14 @@ void MultipleVoltages::selectCompoundModules() {
 
 			c1 = m1->cost();
 			c2 = m2->cost();
+			// TODO refactor such that max area on any affected layer is
+			// returned
 			a1 = m1->blocks_area_total();
 			a2 = m2->blocks_area_total();
 
 			return (
-					// the higher the cost, the better
-					(c1 > c2)
+					// the smaller the cost, the better
+					(c1 < c2)
 					// if cost are similar, consider larger modules;
 					// this is especially relevant for trivial modules
 					// comprising only one block; these blocks will
@@ -935,13 +937,60 @@ inline double MultipleVoltages::CompoundModule::power_saving() const {
 	return (total_max_power - total_power);
 }
 
+// helper to estimate theoretical max gain in power reduction for all blocks covered in
+// this module; for this estimate, the voltage assignment of the module is ignored but
+// rather the lowest possible voltage for each assigned block is assumed; this value is a
+// measure of maximal achievable power reduction if the assigned blocks would be handled
+// as separate modules
+//
+inline double MultipleVoltages::CompoundModule::max_power_saving_blocks() const {
+	double total_max_power;
+	double total_min_power;
+
+	total_max_power = total_min_power = 0.0;
+
+	for (auto it = this->blocks.begin(); it != this->blocks.end(); ++it) {
+
+		// this value is the globally max power (trivial solution)
+		total_max_power += it->second->power_max();
+		// this value is the theoretical lowest power, independent of actual
+		// module's voltage assignment
+		total_min_power += it->second->power_min();
+	}
+
+	return (total_max_power - total_min_power);
+}
+
 // global cost, required during top-down selection
 //
-// cost term: achievable gain in power reduction, weighted with inverse of max corners in
-// power rings; the higher the cost the better
+// cost terms: actual power reduction, relative power reduction, relative number of
+// corners in power rings; the smaller the cost the better
 //
-// TODO weight factors for power saving, corners ?
 inline double MultipleVoltages::CompoundModule::cost() const {
+	// TODO weight factors for config file
+	double alpha = 0.5;
+	// TODO put into MultipleVoltages.hpp
+	double epsilon = 1.0e-12;
 
-	return this->power_saving() * (1.0 / static_cast<double>(this->corners_outline_max()));
+	// this primary term models the gain in power reduction; the larger the gain, the
+	// smaller the term; i.e., smaller cost are better cost
+	//
+	double power_saving_term = 1.0 / (this->power_saving() + epsilon);
+
+	// this term models the relative power saving, i.e., it puts the theoretical max
+	// gain over the actual gain; the larger the actual gain, the smaller the term
+	//
+	double relative_power_saving = this->max_power_saving_blocks() * power_saving_term;
+
+	// this term models the relative number of corners, i.e., puts the actual number
+	// over the theoretical minima of four; the smaller the number, the smaller the
+	// term
+	//
+	double corners_term = static_cast<double>(this->corners_outline_max()) / 4.0;
+
+	return
+		// the primary term (gain in power reduction) shall always be considered
+		power_saving_term *
+			// the other terms are dependent on alpha
+			(alpha * relative_power_saving + (1.0 - alpha) * corners_term);
 }

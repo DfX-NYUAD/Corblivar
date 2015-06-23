@@ -194,6 +194,20 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors.back() * this->bb.area * 1.0e-6;
 		}
 
+		// the theoretical min power, for lowest applicable voltage
+		inline double power_min() const {
+
+			for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
+
+				if (this->feasible_voltages[v]) {
+					return this->power_density_unscaled * this->voltages_power_factors[v] * this->bb.area * 1.0e-6;
+				}
+			}
+
+			// sanity return, if no feasible voltages are assigned
+			return this->power_max();
+		}
+
 		// search blocks
 		inline static Block const* findBlock(std::string const& id, std::vector<Block> const& container) {
 

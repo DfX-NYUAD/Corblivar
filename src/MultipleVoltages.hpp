@@ -144,9 +144,10 @@ class MultipleVoltages {
 			//
 			inline unsigned corners_outline_max() const;
 
-			// helper to estimate gain in power reduction
+			// helpers to estimate gain in power reduction
 			//
 			inline double power_saving() const;
+			inline double max_power_saving_blocks() const;
 
 			// global cost, required during top-down selection
 			//
