@@ -863,6 +863,11 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			this->evaluateThermalDistr(cost);
 		}
 
+		// sanity check for reasonable thermal cost
+		if (isinf(cost.thermal)) {
+			cost.thermal = 0.0;
+		}
+
 		// determine total cost; weight and sum up cost terms
 		cost.total_cost =
 			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
