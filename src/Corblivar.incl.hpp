@@ -43,7 +43,6 @@
 
 // C libaries
 // (TODO) replace w/ STL where possible
-#include <cmath>
 #include <ctime>
 #include <cstdlib>
 
