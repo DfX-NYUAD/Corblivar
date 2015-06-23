@@ -113,24 +113,18 @@ void MultipleVoltages::selectCompoundModules() {
 	struct modules_cost_comp {
 		bool operator() (CompoundModule const* m1, CompoundModule const* m2) const {
 
-			double c1, c2;
-			double a1, a2;
-
-			c1 = m1->cost();
-			c2 = m2->cost();
-			// TODO refactor such that max area on any affected layer is
-			// returned
-			a1 = m1->blocks_area_total();
-			a2 = m2->blocks_area_total();
+			double c1 = m1->cost();
+			double c2 = m2->cost();
 
 			return (
 					// the smaller the cost, the better
 					(c1 < c2)
-					// if cost are similar, consider larger modules;
-					// this is especially relevant for trivial modules
-					// comprising only one block; these blocks will
-					// have same cost
-					|| (Math::doubleComp(c1, c2) && a1 > a2)
+					// if cost are similar, consider larger modules in
+					// the sense of modules covering more blocks; this
+					// is especially relevant to discourage trivial
+					// modules comprising only one block; these blocks
+					// will have same cost
+					|| (Math::doubleComp(c1, c2) && m1->blocks.size() > m2->blocks.size())
 			       );
 		}
 	};
@@ -172,7 +166,7 @@ void MultipleVoltages::selectCompoundModules() {
 				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_outline_max() << std::endl;
-				std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << module->blocks_area_total() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << module->blocks.size() << std::endl;
 
 			}
 			std::cout << "DBG_VOLTAGES>" << std::endl;
@@ -202,7 +196,7 @@ void MultipleVoltages::selectCompoundModules() {
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << cur_selected_module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_outline_max() << std::endl;
-			std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << cur_selected_module->blocks_area_total() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << cur_selected_module->blocks.size() << std::endl;
 		}
 
 		// remove other modules which contain some already contained blocks; start
@@ -266,7 +260,7 @@ void MultipleVoltages::selectCompoundModules() {
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_outline_max() << std::endl;
-			std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << module->blocks_area_total() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << module->blocks.size() << std::endl;
 
 			count += module->blocks.size();
 		}
