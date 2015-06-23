@@ -34,8 +34,8 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
-		static constexpr bool DBG_VERBOSE = true;
+		static constexpr bool DBG = false;
+		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
 	public:
@@ -45,6 +45,8 @@ class MultipleVoltages {
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
+	// private constants
+	private:
 		// factor for global-cost terms (power saving and number of corners);
 		// alpha == 1.0 emphasizes only power saving while alpha == 0.0 emphasizes
 		// power saving and also corners of power rings
@@ -57,8 +59,11 @@ class MultipleVoltages {
 	// inner class, to be declared early on
 	class CompoundModule {
 
-		// public data
-		public:
+		// private data
+		private:
+			friend class MultipleVoltages;
+			friend class IO;
+
 			// pointers to comprised blocks, key is block id
 			std::unordered_map<std::string, Block const*> blocks;
 
@@ -152,6 +157,8 @@ class MultipleVoltages {
 
 	// private data, functions
 	private:
+		friend class IO;
+
 		// note that the comparator has to be implemented as type, for proper map
 		// template handling
 		//
@@ -183,8 +190,7 @@ class MultipleVoltages {
 		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
 		modules_type modules;
 
-	// public data
-	public:
+		// vector of selected modules, filled by selectCompoundModules()
 		std::vector<CompoundModule*> selected_modules;
 
 	// constructors, destructors, if any non-implicit
