@@ -168,6 +168,9 @@ void MultipleVoltages::selectCompoundModules() {
 				std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
 				std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
 				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_outline_max() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << module->blocks_area_total() << std::endl;
 
 			}
 			std::cout << "DBG_VOLTAGES>" << std::endl;
@@ -195,6 +198,9 @@ void MultipleVoltages::selectCompoundModules() {
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << cur_selected_module->feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << cur_selected_module->min_voltage_index() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << cur_selected_module->power_saving() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_outline_max() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Total blocks area (not modeled in cost, but considered during selection): " << cur_selected_module->blocks_area_total() << std::endl;
 		}
 
 		// remove other modules which contain some already contained blocks; start
