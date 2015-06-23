@@ -45,6 +45,15 @@ class MultipleVoltages {
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
+		// factor for global-cost terms (power saving and number of corners);
+		// alpha == 1.0 emphasizes only power saving while alpha == 0.0 emphasizes
+		// power saving and also corners of power rings
+		//
+		static constexpr double alpha = 0.5;
+		// small value, required for proper global-cost calculation with divisor
+		// of zero
+		static constexpr double epsilon = 1.0e-12;
+
 	// inner class, to be declared early on
 	class CompoundModule {
 

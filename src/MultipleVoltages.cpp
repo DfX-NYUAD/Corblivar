@@ -967,15 +967,11 @@ inline double MultipleVoltages::CompoundModule::max_power_saving_blocks() const 
 // corners in power rings; the smaller the cost the better
 //
 inline double MultipleVoltages::CompoundModule::cost() const {
-	// TODO weight factors for config file
-	double alpha = 0.5;
-	// TODO put into MultipleVoltages.hpp
-	double epsilon = 1.0e-12;
 
 	// this primary term models the gain in power reduction; the larger the gain, the
 	// smaller the term; i.e., smaller cost are better cost
 	//
-	double power_saving_term = 1.0 / (this->power_saving() + epsilon);
+	double power_saving_term = 1.0 / (this->power_saving() + MultipleVoltages::epsilon);
 
 	// this term models the relative power saving, i.e., it puts the theoretical max
 	// gain over the actual gain; the larger the actual gain, the smaller the term
@@ -992,5 +988,5 @@ inline double MultipleVoltages::CompoundModule::cost() const {
 		// the primary term (gain in power reduction) shall always be considered
 		power_saving_term *
 			// the other terms are dependent on alpha
-			(alpha * relative_power_saving + (1.0 - alpha) * corners_term);
+			(MultipleVoltages::alpha * relative_power_saving + (1.0 - MultipleVoltages::alpha) * corners_term);
 }
