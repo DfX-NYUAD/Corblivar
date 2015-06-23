@@ -538,6 +538,36 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	}
 }
 
+// helper to evaluate results, thus to be called after selectCompoundModules(); sum of
+// selected modules' cost
+//
+double MultipleVoltages::cost() const {
+
+	double ret = 0.0;
+
+	for (auto* module : this->selected_modules) {
+
+		ret += module->cost();
+	}
+
+	return ret;
+}
+
+// helper to evaluate results, thus to be called after selectCompoundModules(); sum of
+// selected modules' power saving
+//
+double MultipleVoltages::power_saving() const {
+
+	double ret = 0.0;
+
+	for (auto* module : this->selected_modules) {
+
+		ret += module->power_saving();
+	}
+
+	return ret;
+}
+
 // local cost, used during bottom-up merging
 //
 // cost term: ratio of (by other blocks with non-compatible voltage) intruded area of the

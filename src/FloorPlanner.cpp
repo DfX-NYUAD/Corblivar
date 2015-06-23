@@ -628,21 +628,20 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << std::endl;
 
 			if (this->opt_flags.thermal) {
-				std::cout << "Corblivar> Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
-				this->IO_conf.results << "Temp cost (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+				std::cout << "Corblivar> Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+				this->IO_conf.results << "Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
 			if (this->opt_flags.timing) {
-				std::cout << "Corblivar> Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
-				this->IO_conf.results << "Timing cost (estimated total slack): " << cost.timing_actual_value << std::endl;
+				std::cout << "Corblivar> Timing (estimated total slack): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << "Timing (estimated total slack): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
 			if (this->opt_flags.voltage_assignment) {
-				// TODO actual value; in terms of?
-				std::cout << "Corblivar> Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
-				this->IO_conf.results << "Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+				std::cout << "Corblivar> Voltage assignment (achieved power reduction): " << cost.voltage_assignment_actual_value << std::endl;
+				this->IO_conf.results << "Voltage assignment (achieved power reduction): " << cost.voltage_assignment_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
@@ -920,7 +919,6 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 }
 
 // TODO derive applicable voltages for each block based on timing slacks
-//
 // TODO applicable voltages; init such that all blocks may assume their highest and any
 // lower voltage but unused bits shall remain zero
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
@@ -935,11 +933,22 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// routing; here, modules are stepwise arranged into compound modules
 	this->voltages.determineCompoundModules(this->IC.layers, this->blocks, this->contigAnalyser);
 
-	// TODO voltage-volume assignment: top-down phase, i.e., determine optimal
-	// selection of compound modules such that all blocks are assigned to a voltage
-	// and that both power and routing resources for power domains are minimized
-	// TODO derive cost from selected compound modules or from overall assignment
+	// voltage-volume assignment: top-down phase, i.e., determine optimal selection of
+	// compound modules such that all blocks are assigned to a voltage and that both
+	// power and routing resources for power domains are minimized
+	//
 	this->voltages.selectCompoundModules();
+
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_voltage_assignment = this->voltages.cost();
+	}
+
+	// store normalized assignment cost
+	cost.voltage_assignment = this->voltages.cost() / this->max_cost_voltage_assignment;
+	// store actual value, i.e., total and absolute power reduction achieved by
+	// current assignment
+	cost.voltage_assignment_actual_value = this->voltages.power_saving();
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

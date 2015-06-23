@@ -34,8 +34,8 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
-		static constexpr bool DBG_VERBOSE = false;
+		static constexpr bool DBG = true;
+		static constexpr bool DBG_VERBOSE = true;
 
 	// public constants
 	public:
@@ -135,19 +135,6 @@ class MultipleVoltages {
 				return MAX_VOLTAGES;
 			}
 
-			// helper to return overall blocks area
-			inline double blocks_area_total() const {
-
-				double ret = 0.0;
-
-				for (unsigned a = 0; a < this->blocks_area.size(); a++) {
-
-					ret += this->blocks_area[a];
-				}
-
-				return ret;
-			}
-
 			// helper to estimate max number of corners in power rings
 			// (separate for each die)
 			//
@@ -207,6 +194,12 @@ class MultipleVoltages {
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
 		void selectCompoundModules();
+
+		// helpers to evaluate results, thus to be called after
+		// selectCompoundModules()
+		//
+		double cost() const;
+		double power_saving() const;
 
 	// private helper data, functions
 	private:
