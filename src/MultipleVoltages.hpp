@@ -34,7 +34,7 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
@@ -47,14 +47,12 @@ class MultipleVoltages {
 
 	// private constants
 	private:
+		// TODO replace w/ config parameter
 		// factor for global-cost terms (power saving and number of corners);
 		// alpha == 1.0 emphasizes only power saving while alpha == 0.0 emphasizes
 		// power saving and also corners of power rings
 		//
-		static constexpr double alpha = 0.5;
-		// small value, required for proper global-cost calculation with divisor
-		// of zero
-		static constexpr double epsilon = 1.0e-12;
+		static constexpr double alpha = 1.0;
 
 	// inner class, to be declared early on
 	class CompoundModule {
@@ -152,7 +150,7 @@ class MultipleVoltages {
 
 			// global cost, required during top-down selection
 			//
-			inline double cost() const;
+			inline double cost(double const& max_power_saving, unsigned const& max_corners) const;
 	};
 
 	// private data, functions
@@ -165,22 +163,25 @@ class MultipleVoltages {
 		// also note that the less-than order is important for providing hints
 		// (iterators) during stepwise insertion, where elements to insert will
 		// always be larger, thus to be added after the hinting iterator
-		struct modules_comp {
-			bool operator() (std::set<std::string> const& s1, std::set<std::string> const& s2) const {
+		class modules_comp {
 
-				return (
-					// size of the sets is the first criterion; this
-					// also facilitates stepwise insertion of modules,
-					// since based on the set's size (i.e., the number
-					// of blocks in the module), a hint for insertion
-					// can be given which reduces complexity for
-					// actual insertion
-					(s1.size() < s2.size())
-					// if they have the same size, perform regular
-					// (lexicographical) comparison
-					|| (s1.size() == s2.size() && s1 < s2)
-			       );
-			}
+			public:
+				bool operator() (std::set<std::string> const& s1, std::set<std::string> const& s2) const {
+
+					return (
+						// size of the sets is the first
+						// criterion; this also facilitates
+						// stepwise insertion of modules, since
+						// based on the set's size (i.e., the
+						// number of blocks in the module), a hint
+						// for insertion can be given which
+						// reduces complexity for actual insertion
+						(s1.size() < s2.size())
+						// if they have the same size, perform
+						// regular (lexicographical) comparison
+						|| (s1.size() == s2.size() && s1 < s2)
+				       );
+				}
 		};
 
 		// map of unique compound modules; the respective keys are the (sorted)
@@ -192,6 +193,11 @@ class MultipleVoltages {
 
 		// vector of selected modules, filled by selectCompoundModules()
 		std::vector<CompoundModule*> selected_modules;
+
+		// parameters required for normalization of global cost
+		//
+		double max_power_saving;
+		unsigned max_corners;
 
 	// constructors, destructors, if any non-implicit
 	public:
