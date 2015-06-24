@@ -640,8 +640,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.voltage_assignment) {
-				std::cout << "Corblivar> Voltage assignment (achieved power reduction): " << cost.voltage_assignment_actual_value << std::endl;
-				this->IO_conf.results << "Voltage assignment (achieved power reduction): " << cost.voltage_assignment_actual_value << std::endl;
+				std::cout << "Corblivar> Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
+				this->IO_conf.results << "Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
