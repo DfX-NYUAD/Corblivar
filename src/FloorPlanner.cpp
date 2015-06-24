@@ -942,15 +942,15 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// compound modules such that all blocks are assigned to a voltage and that both
 	// power and routing resources for power domains are minimized
 	//
-	this->voltages.selectCompoundModules(this->IC.max_power_saving, this->IC.max_corners, this->IC.weight_power_saving);
+	this->voltages.selectCompoundModules(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving);
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_voltage_assignment = this->voltages.cost(this->IC.max_power_saving, this->IC.max_corners, this->IC.weight_power_saving);
+		this->max_cost_voltage_assignment = this->voltages.cost(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving);
 	}
 
 	// store normalized assignment cost
-	cost.voltage_assignment = this->voltages.cost(this->IC.max_power_saving, this->IC.max_corners, this->IC.weight_power_saving) / this->max_cost_voltage_assignment;
+	cost.voltage_assignment = this->voltages.cost(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving) / this->max_cost_voltage_assignment;
 	// store actual value, i.e., total and absolute power reduction achieved by
 	// current assignment
 	cost.voltage_assignment_actual_value = this->voltages.power_saving();

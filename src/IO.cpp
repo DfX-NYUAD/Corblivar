@@ -426,10 +426,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.weight_power_saving;
+	in >> fp.MVD.weight_power_saving;
 
 	// sanity check for appropriate range
-	if (fp.IC.weight_power_saving < 0.0 || fp.IC.weight_power_saving > 1.0) {
+	if (fp.MVD.weight_power_saving < 0.0 || fp.MVD.weight_power_saving > 1.0) {
 		std::cout << "IO> Provide a power-saving factor between 0.0 and 1.0!" << std::endl;
 		exit(1);
 	}
@@ -650,21 +650,21 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// actual voltages; parse values
 	for (unsigned v = 1; v <= voltages_count; v++) {
 		in >> tmpstr;
-		fp.IC.voltages.push_back(atof(tmpstr.c_str()));
+		fp.MVD.voltages.push_back(atof(tmpstr.c_str()));
 	}
 
 	// sanity check for at least one voltage defined
-	if (fp.IC.voltages.empty() || voltages_count == 0) {
+	if (fp.MVD.voltages.empty() || voltages_count == 0) {
 		std::cout << "IO> Check the voltage, power-scaling and delay-scaling factors; indicated are " << voltages_count << " values, provided are:";
-		std::cout << " voltages: " << fp.IC.voltages.size();
-		std::cout << " power-scaling: " << fp.IC.voltages_power_factors.size();
-		std::cout << " delay-scaling: " << fp.IC.voltages_delay_factors.size();
+		std::cout << " voltages: " << fp.MVD.voltages.size();
+		std::cout << " power-scaling: " << fp.MVD.voltages_power_factors.size();
+		std::cout << " delay-scaling: " << fp.MVD.voltages_delay_factors.size();
 		std::cout << std::endl;
 		exit(1);
 	}
 
 	// sanity check for voltages order; from lowest to highest
-	for (auto iter = std::next(fp.IC.voltages.begin()); iter != fp.IC.voltages.end(); ++iter) {
+	for (auto iter = std::next(fp.MVD.voltages.begin()); iter != fp.MVD.voltages.end(); ++iter) {
 
 		if (*std::prev(iter) > *iter) {
 			std::cout << "IO> Check the voltages; they have to be provided in the order from lowest to highest!" << std::endl;
@@ -673,7 +673,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 
 	// deactivate voltage assignment in case only one voltage shall be considered
-	fp.opt_flags.voltage_assignment &= fp.IC.voltages.size() > 1;
+	fp.opt_flags.voltage_assignment &= fp.MVD.voltages.size() > 1;
 
 	// power-scaling factors; drop header
 	in >> tmpstr;
@@ -683,7 +683,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// power-scaling factors; parse values
 	for (unsigned v = 1; v <= voltages_count; v++) {
 		in >> tmpstr;
-		fp.IC.voltages_power_factors.push_back(atof(tmpstr.c_str()));
+		fp.MVD.voltages_power_factors.push_back(atof(tmpstr.c_str()));
 	}
 
 	// delay-scaling factors; drop header
@@ -694,23 +694,23 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// delay-scaling factors; parse values
 	for (unsigned v = 1; v <= voltages_count; v++) {
 		in >> tmpstr;
-		fp.IC.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
+		fp.MVD.voltages_delay_factors.push_back(atof(tmpstr.c_str()));
 	}
 
 	// sanity check for appropriate, i.e., positive non-zero values
-	for (auto& v : fp.IC.voltages) {
+	for (auto& v : fp.MVD.voltages) {
 		if (v <= 0.0) {
 			std::cout << "IO> Check the provided voltage values, they should be all positive and non-zero!" << std::endl;
 			exit(1);
 		}
 	}
-	for (auto& v : fp.IC.voltages_power_factors) {
+	for (auto& v : fp.MVD.voltages_power_factors) {
 		if (v <= 0.0) {
 			std::cout << "IO> Check the provided power-scaling values, they should be all positive and non-zero!" << std::endl;
 			exit(1);
 		}
 	}
-	for (auto& v : fp.IC.voltages_delay_factors) {
+	for (auto& v : fp.MVD.voltages_delay_factors) {
 		if (v <= 0.0) {
 			std::cout << "IO> Check the provided delay-scaling values, they should be all positive and non-zero!" << std::endl;
 			exit(1);
@@ -746,40 +746,40 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		// technology parameters for multi-voltage domains
 		//
 		std::cout << "IO>  Technology -- Multi-voltage domains; voltage levels: ";
-		for (unsigned v = 0; v < fp.IC.voltages.size(); v++) {
+		for (unsigned v = 0; v < fp.MVD.voltages.size(); v++) {
 
 			// last value shall have no tailing comma
-			if (v == fp.IC.voltages.size() - 1) {
-				std::cout << fp.IC.voltages[v];
+			if (v == fp.MVD.voltages.size() - 1) {
+				std::cout << fp.MVD.voltages[v];
 			}
 			else {
-				std::cout << fp.IC.voltages[v] << ", ";
+				std::cout << fp.MVD.voltages[v] << ", ";
 			}
 		}
 		std::cout << std::endl;
 
 		std::cout << "IO>  Technology -- Multi-voltage domains; power-scaling factors: ";
-		for (unsigned v = 0; v < fp.IC.voltages_power_factors.size(); v++) {
+		for (unsigned v = 0; v < fp.MVD.voltages_power_factors.size(); v++) {
 
 			// last value shall have no tailing comma
-			if (v == fp.IC.voltages_power_factors.size() - 1) {
-				std::cout << fp.IC.voltages_power_factors[v];
+			if (v == fp.MVD.voltages_power_factors.size() - 1) {
+				std::cout << fp.MVD.voltages_power_factors[v];
 			}
 			else {
-				std::cout << fp.IC.voltages_power_factors[v] << ", ";
+				std::cout << fp.MVD.voltages_power_factors[v] << ", ";
 			}
 		}
 		std::cout << std::endl;
 
 		std::cout << "IO>  Technology -- Multi-voltage domains; delay-scaling factors: ";
-		for (unsigned v = 0; v < fp.IC.voltages_delay_factors.size(); v++) {
+		for (unsigned v = 0; v < fp.MVD.voltages_delay_factors.size(); v++) {
 
 			// last value shall have no tailing comma
-			if (v == fp.IC.voltages_delay_factors.size() - 1) {
-				std::cout << fp.IC.voltages_delay_factors[v];
+			if (v == fp.MVD.voltages_delay_factors.size() - 1) {
+				std::cout << fp.MVD.voltages_delay_factors[v];
 			}
 			else {
-				std::cout << fp.IC.voltages_delay_factors[v] << ", ";
+				std::cout << fp.MVD.voltages_delay_factors[v] << ", ";
 			}
 		}
 		std::cout << std::endl;
@@ -820,7 +820,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: Timing analysis (not optimization) is conducted anyway since voltage assignment is activated" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
-		std::cout << "IO>  Voltage assignment -- Cost factor for power minimization: " << fp.IC.weight_power_saving << std::endl;
+		std::cout << "IO>  Voltage assignment -- Cost factor for power minimization: " << fp.MVD.weight_power_saving << std::endl;
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
@@ -1343,12 +1343,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// considered initially; this enables all the related functions to return
 		// correct values even if no assignment is performed and/or only one
 		// voltage is globally available
-		new_block.feasible_voltages[fp.IC.voltages.size() - 1] = 1;
-		new_block.assigned_voltage_index = fp.IC.voltages.size() - 1;
+		new_block.feasible_voltages[fp.MVD.voltages.size() - 1] = 1;
+		new_block.assigned_voltage_index = fp.MVD.voltages.size() - 1;
 
 		// TODO drop; to be determined via FloorPlanner::evaluateTiming
 		//
-		for (int v = fp.IC.voltages.size() - 2; v >= 0; v--) {
+		for (int v = fp.MVD.voltages.size() - 2; v >= 0; v--) {
 
 			// TODO drop 
 			// dummy data, randomly assign voltages
@@ -1361,8 +1361,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// copy the global power and delay scaling factors; they are required for
 		// dynamic calculation of power_density() and delay()
-		new_block.voltages_power_factors = fp.IC.voltages_power_factors;
-		new_block.voltages_delay_factors = fp.IC.voltages_delay_factors;
+		new_block.voltages_power_factors = fp.MVD.voltages_power_factors;
+		new_block.voltages_delay_factors = fp.MVD.voltages_delay_factors;
 
 		// track block power statistics
 		power += new_block.power();
@@ -1390,12 +1390,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// power saving is achieved when all blocks have the minimal power consumption,
 	// max corners are experienced when all blocks are separated
 	//
-	fp.IC.max_power_saving = 0.0;
+	fp.MVD.max_power_saving = 0.0;
 	for (Block& block : fp.blocks) {
-		fp.IC.max_power_saving += block.power_max() - block.power_min();
+		fp.MVD.max_power_saving += block.power_max() - block.power_min();
 	}
 
-	fp.IC.max_corners = 4 * fp.blocks.size();
+	fp.MVD.max_corners = 4 * fp.blocks.size();
 
 	// determine deadspace amount for whole stack, now that the occupied blocks area
 	// is known
@@ -2283,20 +2283,20 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
 				gp_out << " fillcolor rgb \"#";
 				gp_out << std::hex;
-				if (fp.IC.voltages.size() == 1) {
+				if (fp.MVD.voltages.size() == 1) {
 					gp_out << static_cast<int>(0x11);
 					gp_out << static_cast<int>(0xff);
 				}
 				else {
-					gp_out << static_cast<int>(0x11 + module->min_voltage_index() * (0xee / (fp.IC.voltages.size() - 1) ));
-					gp_out << static_cast<int>(0xff - module->min_voltage_index() * (0x99 / (fp.IC.voltages.size() - 1) ));
+					gp_out << static_cast<int>(0x11 + module->min_voltage_index() * (0xee / (fp.MVD.voltages.size() - 1) ));
+					gp_out << static_cast<int>(0xff - module->min_voltage_index() * (0x99 / (fp.MVD.voltages.size() - 1) ));
 				}
 				gp_out << std::dec;
 				gp_out << "00\"" << std::endl;
 
 				// put label once label; to module assigned blocks and their shared voltage
 				if (!label_put) {
-					gp_out << "set label \"" << module->id() << "\\n" << fp.IC.voltages[module->min_voltage_index()] << " V\"";
+					gp_out << "set label \"" << module->id() << "\\n" << fp.MVD.voltages[module->min_voltage_index()] << " V\"";
 					gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
 					gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
 					gp_out << " font \"Gill Sans,2\"";

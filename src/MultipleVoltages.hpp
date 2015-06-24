@@ -34,7 +34,7 @@ class Rect;
 class MultipleVoltages {
 	// debugging code switch (private)
 	private:
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 		static constexpr bool DBG_VERBOSE = false;
 
 	// public constants
