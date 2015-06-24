@@ -420,6 +420,20 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
+	// voltage assignment; weight factor for power reduction, the factor for
+	// minimizing corners in the power ring will be 1.0 minus this factor
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.weight_power_saving;
+
+	// sanity check for appropriate range
+	if (fp.IC.weight_power_saving < 0.0 || fp.IC.weight_power_saving > 1.0) {
+		std::cout << "IO> Provide a power-saving factor between 0.0 and 1.0!" << std::endl;
+		exit(1);
+	}
+
 	// thermal-analysis parameters
 	//
 	in >> tmpstr;
@@ -806,6 +820,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: Timing analysis (not optimization) is conducted anyway since voltage assignment is activated" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
+		std::cout << "IO>  Voltage assignment -- Cost factor for power minimization: " << fp.IC.weight_power_saving << std::endl;
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;

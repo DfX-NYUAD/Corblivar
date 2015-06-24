@@ -98,6 +98,10 @@ class FloorPlanner {
 			double max_power_saving;
 			unsigned max_corners;
 
+			// the weight shall be in [0..1] range, and the weight for
+			// minimizing corners is 1.0 minus this weight
+			double weight_power_saving;
+
 		} IC;
 
 		// IO files and parameters

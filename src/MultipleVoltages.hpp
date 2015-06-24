@@ -45,15 +45,6 @@ class MultipleVoltages {
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
-	// private constants
-	private:
-		// TODO replace w/ config parameter
-		// factor for global-cost terms (power saving and number of corners);
-		// alpha == 1.0 emphasizes only power saving while alpha == 0.0 emphasizes
-		// power saving and also corners of power rings
-		//
-		static constexpr double alpha = 1.0;
-
 	// inner class, to be declared early on
 	class CompoundModule {
 
@@ -149,7 +140,7 @@ class MultipleVoltages {
 
 			// global cost, required during top-down selection
 			//
-			inline double cost(double const& max_power_saving, unsigned const& max_corners) const;
+			inline double cost(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving) const;
 	};
 
 	// private data, functions
@@ -204,12 +195,12 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
-		void selectCompoundModules(double const& max_power_saving, unsigned const& max_corners);
+		void selectCompoundModules(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving);
 
 		// helpers to evaluate results, thus to be called after
 		// selectCompoundModules()
 		//
-		double cost(double const& max_power_saving, unsigned const& max_corners) const;
+		double cost(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving) const;
 		double power_saving() const;
 
 	// private helper data, functions
