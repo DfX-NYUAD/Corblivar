@@ -952,14 +952,10 @@ inline unsigned MultipleVoltages::CompoundModule::corners_outline_max() const {
 // later on; this intermediate assignments are not troublesome since the actual module
 // selection will take care of the final voltage assignment
 //
-// TODO drop two double values; unify into one
 inline double MultipleVoltages::CompoundModule::power_saving() const {
-	double total_max_power;
-	double total_power;
-	unsigned min_voltage_index;
 
-	total_max_power = total_power = 0.0;
-	min_voltage_index = this->min_voltage_index();
+	double ret = 0.0;
+	unsigned min_voltage_index = this->min_voltage_index();
 
 	for (auto it = this->blocks.begin(); it != this->blocks.end(); ++it) {
 
@@ -967,13 +963,13 @@ inline double MultipleVoltages::CompoundModule::power_saving() const {
 		// if this module would be selected, required for proper cost calculation
 		it->second->assigned_voltage_index = min_voltage_index;
 
-		// this value is the globally max power (trivial solution)
-		total_max_power += it->second->power_max();
-		// this value is affected by the above intermediate assignment
-		total_power += it->second->power();
+		// for each block, the power saving is given by the theoretical max power
+		// consumption minus the current (above intermediately assigned) power
+		// consumption
+		ret += (it->second->power_max() - it->second->power());
 	}
 
-	return (total_max_power - total_power);
+	return ret;
 }
 
 // global cost, required during top-down selection
