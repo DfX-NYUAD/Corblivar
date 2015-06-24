@@ -85,11 +85,19 @@ class FloorPlanner {
 			// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
 
+			// TODO separate into own structure
+			//
 			// multi-voltage domain: voltages and related scaling factors for
 			// power consumption and module delays
 			std::vector<double> voltages;
 			std::vector<double> voltages_power_factors;
 			std::vector<double> voltages_delay_factors;
+
+			// multi-voltage domain: theoretical maximal values for power
+			// saving and corners; to be filled by IO::parseBlocks()
+			double max_power_saving;
+			unsigned max_corners;
+
 		} IC;
 
 		// IO files and parameters

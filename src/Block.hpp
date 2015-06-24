@@ -194,18 +194,12 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors.back() * this->bb.area * 1.0e-6;
 		}
 
-		// the theoretical min power, for lowest applicable voltage
+		// the theoretical min power, for lowest applicable voltage; ignoring
+		// current timing and set of feasible voltages but only reflects best
+		// achievable value 
 		inline double power_min() const {
 
-			for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
-
-				if (this->feasible_voltages[v]) {
-					return this->power_density_unscaled * this->voltages_power_factors[v] * this->bb.area * 1.0e-6;
-				}
-			}
-
-			// sanity return, if no feasible voltages are assigned
-			return this->power_max();
+			return this->power_density_unscaled * this->voltages_power_factors.front() * this->bb.area * 1.0e-6;
 		}
 
 		// search blocks

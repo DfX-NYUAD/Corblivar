@@ -1371,6 +1371,17 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	power_in.close();
 	pins_in.close();
 
+	// determine max values for multi-voltage-domain related cost normalization; max
+	// power saving is achieved when all blocks have the minimal power consumption,
+	// max corners are experienced when all blocks are separated
+	//
+	fp.IC.max_power_saving = 0.0;
+	for (Block& block : fp.blocks) {
+		fp.IC.max_power_saving += block.power_max() - block.power_min();
+	}
+
+	fp.IC.max_corners = 4 * fp.blocks.size();
+
 	// determine deadspace amount for whole stack, now that the occupied blocks area
 	// is known
 	fp.IC.stack_deadspace = fp.IC.stack_area - fp.IC.blocks_area;

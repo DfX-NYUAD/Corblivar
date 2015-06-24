@@ -204,12 +204,12 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
-		void selectCompoundModules();
+		void selectCompoundModules(double const& max_power_saving, unsigned const& max_corners);
 
 		// helpers to evaluate results, thus to be called after
 		// selectCompoundModules()
 		//
-		double cost() const;
+		double cost(double const& max_power_saving, unsigned const& max_corners) const;
 		double power_saving() const;
 
 	// private helper data, functions
