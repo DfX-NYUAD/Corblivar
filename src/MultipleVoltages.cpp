@@ -988,30 +988,6 @@ inline double MultipleVoltages::CompoundModule::power_saving() const {
 	return (total_max_power - total_power);
 }
 
-// helper to estimate theoretical max gain in power reduction for all blocks covered in
-// this module; for this estimate, the voltage assignment of the module is ignored but
-// rather the lowest possible voltage for each assigned block is assumed; this value is a
-// measure of maximal achievable power reduction if the assigned blocks would be handled
-// as separate modules
-//
-inline double MultipleVoltages::CompoundModule::max_power_saving_blocks() const {
-	double total_max_power;
-	double total_min_power;
-
-	total_max_power = total_min_power = 0.0;
-
-	for (auto it = this->blocks.begin(); it != this->blocks.end(); ++it) {
-
-		// this value is the globally max power (trivial solution)
-		total_max_power += it->second->power_max();
-		// this value is the theoretical lowest power, independent of actual
-		// module's voltage assignment
-		total_min_power += it->second->power_min();
-	}
-
-	return (total_max_power - total_min_power);
-}
-
 // global cost, required during top-down selection
 //
 // cost terms: normalized power reduction and number of corners in power rings; the
