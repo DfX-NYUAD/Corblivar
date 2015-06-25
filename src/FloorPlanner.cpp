@@ -640,13 +640,16 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.voltage_assignment) {
-				// TODO output all values
-				std::cout << "Corblivar> Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
-				this->IO_conf.results << "Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
+				std::cout << "Corblivar> Voltage assignment: " << std::endl;
+				std::cout << "Corblivar>  Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
+				this->IO_conf.results << "Voltage assignment: " << std::endl;
+				this->IO_conf.results << " Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				this->IO_conf.results << std::endl;
 			}
-
-			std::cout << std::endl;
 		}
 	}
 
@@ -955,7 +958,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 
 		// for power saving, the sum is relevant
 		power_saving += module->power_saving();
-		// for corners, the avg number is relevant
+		// for corners, the avg number (of max across all die-wise rings for
+		// module) is relevant
 		corners_avg += module->corners_powerring_max();
 	}
 	// modules count
@@ -986,9 +990,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// apply cost normalization
 	cost.voltage_assignment /= this->max_cost_voltage_assignment;
 
-	// store actual value, i.e., total and absolute power reduction achieved by
-	// current assignment
-	cost.voltage_assignment_actual_value = power_saving;
+	// store actual values
+	cost.voltage_assignment_power_saving = power_saving;
+	cost.voltage_assignment_corners_avg = corners_avg;
+	cost.voltage_assignment_modules_count = module_count;
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

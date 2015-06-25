@@ -172,7 +172,9 @@ class FloorPlanner {
 			double timing;
 			double timing_actual_value;
 			double voltage_assignment;
-			double voltage_assignment_actual_value;
+			double voltage_assignment_power_saving;
+			double voltage_assignment_corners_avg;
+			unsigned voltage_assignment_modules_count;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
 			friend std::ostream& operator<< (std::ostream& out, Cost const& cost) {
