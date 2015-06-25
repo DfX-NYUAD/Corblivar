@@ -69,7 +69,7 @@ class MultipleVoltages {
 		// max evaluation values have to memorized as well, in order to enable
 		// comparison during different SA iterations
 		struct max_values {
-			double power_saving, corners_avg;
+			double inv_power_saving, corners_avg;
 			unsigned module_count;
 		} max_values;
 

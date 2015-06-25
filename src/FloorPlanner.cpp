@@ -931,7 +931,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 // TODO applicable voltages; init such that all blocks may assume their highest and any
 // lower voltage but unused bits shall remain zero
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
-	double power_saving = 0.0;
+	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
@@ -957,11 +957,13 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	for (auto* module : selected_modules) {
 
 		// for power saving, the sum is relevant
-		power_saving += module->power_saving();
+		inv_power_saving += module->power_saving();
 		// for corners, the avg number (of max across all die-wise rings for
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();
 	}
+	// for minimization purposes, consider the inverse of power saving
+	inv_power_saving = 1.0 / inv_power_saving;
 	// modules count
 	module_count = selected_modules.size();
 	// average value for corners
@@ -970,7 +972,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// memorize max values; required for normalization; at the same time like max cost
 	// are set
 	if (set_max_cost) {
-		this->voltageAssignment.max_values.power_saving = power_saving;
+		this->voltageAssignment.max_values.inv_power_saving = inv_power_saving;
 		this->voltageAssignment.max_values.corners_avg = corners_avg;
 		this->voltageAssignment.max_values.module_count = module_count;
 	}
@@ -978,7 +980,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// determine and memorize overall cost; weighted sum
 	//
 	cost.voltage_assignment =
-		(this->voltageAssignment.parameters.weight_power_saving) * (power_saving / this->voltageAssignment.max_values.power_saving) +
+		(this->voltageAssignment.parameters.weight_power_saving) * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving) +
 		(this->voltageAssignment.parameters.weight_corners) * (corners_avg / this->voltageAssignment.max_values.corners_avg) +
 		(this->voltageAssignment.parameters.weight_modules_count) * (module_count / static_cast<double>(this->voltageAssignment.max_values.module_count));
 
@@ -991,7 +993,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	cost.voltage_assignment /= this->max_cost_voltage_assignment;
 
 	// store actual values
-	cost.voltage_assignment_power_saving = power_saving;
+	cost.voltage_assignment_power_saving = 1.0 / inv_power_saving;
 	cost.voltage_assignment_corners_avg = corners_avg;
 	cost.voltage_assignment_modules_count = module_count;
 }
