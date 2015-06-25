@@ -87,26 +87,6 @@ class FloorPlanner {
 
 		} IC;
 
-		// multi-voltage domain parameters
-		struct MVD {
-
-			// voltages and related scaling factors for power consumption and
-			// module delays
-			std::vector<double> voltages;
-			std::vector<double> voltages_power_factors;
-			std::vector<double> voltages_delay_factors;
-
-			// theoretical maximal values for power saving and corners; to be
-			// filled by IO::parseBlocks()
-			double max_power_saving;
-			unsigned max_corners;
-
-			// internal weight, not related to overall SA weight terms; the
-			// weight shall be in [0..1] range, and the weight for minimizing
-			// corners is 1.0 minus this weight
-			double weight_power_saving;
-		} MVD;
-
 		// IO files and parameters
 		struct IO_conf {
 			std::string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
@@ -158,6 +138,7 @@ class FloorPlanner {
 			double thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
 		} weights;
 
+		// (TODO) refactor into own struct
 		// SA cost variables: max cost values
 		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment;
 		int max_cost_TSVs;
@@ -282,9 +263,11 @@ class FloorPlanner {
 		// thermal analyzer
 		ThermalAnalyzer thermalAnalyzer;
 
+		// (TODO) encapsulate in thermalAnalyzer
 		// thermal analyzer parameters; thermal mask parameters
 		ThermalAnalyzer::MaskParameters power_blurring_parameters;
 
+		// (TODO) encapsulate in thermalAnalyzer
 		// thermal analyzer; current results of thermal analysis
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
 
@@ -295,7 +278,7 @@ class FloorPlanner {
 		RoutingUtilization routingUtil;
 
 		// multi-voltage-domain handler
-		MultipleVoltages voltages;
+		MultipleVoltages voltageAssignment;
 
 		// contiguity-analysis handler
 		ContiguityAnalysis contigAnalyser;

@@ -640,6 +640,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.voltage_assignment) {
+				// TODO output all values
 				std::cout << "Corblivar> Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
 				this->IO_conf.results << "Voltage assignment (achieved power reduction [W]): " << cost.voltage_assignment_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
@@ -927,6 +928,10 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 // TODO applicable voltages; init such that all blocks may assume their highest and any
 // lower voltage but unused bits shall remain zero
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
+	double power_saving = 0.0;
+	double corners_avg = 0.0;
+	double module_count = 0.0;
+	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept
 	// as reduced contiguity list within blocks themselves, only encoding the actual
@@ -936,24 +941,54 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// voltage-volume assignment: bottom-up phase, i.e., determine set of compound
 	// modules with their assignable voltages and their (local) cost for power-domain
 	// routing; here, modules are stepwise arranged into compound modules
-	this->voltages.determineCompoundModules(this->IC.layers, this->blocks, this->contigAnalyser);
+	this->voltageAssignment.determineCompoundModules(this->IC.layers, this->blocks, this->contigAnalyser);
 
 	// voltage-volume assignment: top-down phase, i.e., determine optimal selection of
 	// compound modules such that all blocks are assigned to a voltage and that both
 	// power and routing resources for power domains are minimized
 	//
-	this->voltages.selectCompoundModules(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving);
+	selected_modules = this->voltageAssignment.selectCompoundModules();
 
-	// memorize max cost; initial sampling
+	// evaluate assignment; determine absolute values for cost terms
+	//
+	for (auto* module : selected_modules) {
+
+		// for power saving, the sum is relevant
+		power_saving += module->power_saving();
+		// for corners, the avg number is relevant
+		corners_avg += module->corners_powerring_max();
+	}
+	// modules count
+	module_count = selected_modules.size();
+	// average value for corners
+	corners_avg /= static_cast<double>(module_count);
+
+	// memorize max values; required for normalization; at the same time like max cost
+	// are set
 	if (set_max_cost) {
-		this->max_cost_voltage_assignment = this->voltages.cost(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving);
+		this->voltageAssignment.max_values.power_saving = power_saving;
+		this->voltageAssignment.max_values.corners_avg = corners_avg;
+		this->voltageAssignment.max_values.module_count = module_count;
 	}
 
-	// store normalized assignment cost
-	cost.voltage_assignment = this->voltages.cost(this->MVD.max_power_saving, this->MVD.max_corners, this->MVD.weight_power_saving) / this->max_cost_voltage_assignment;
+	// determine and memorize overall cost; weighted sum
+	//
+	cost.voltage_assignment =
+		(this->voltageAssignment.parameters.weight_power_saving) * (power_saving / this->voltageAssignment.max_values.power_saving) +
+		(this->voltageAssignment.parameters.weight_corners) * (corners_avg / this->voltageAssignment.max_values.corners_avg) +
+		(this->voltageAssignment.parameters.weight_modules_count) * (module_count / static_cast<double>(this->voltageAssignment.max_values.module_count));
+
+	// memorize max cost
+	if (set_max_cost) {
+		this->max_cost_voltage_assignment = cost.voltage_assignment;
+	}
+
+	// apply cost normalization
+	cost.voltage_assignment /= this->max_cost_voltage_assignment;
+
 	// store actual value, i.e., total and absolute power reduction achieved by
 	// current assignment
-	cost.voltage_assignment_actual_value = this->voltages.power_saving();
+	cost.voltage_assignment_actual_value = power_saving;
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

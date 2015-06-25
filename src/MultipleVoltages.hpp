@@ -45,6 +45,34 @@ class MultipleVoltages {
 		// represents the upper bound for globally available voltages
 		static constexpr int MAX_VOLTAGES = 4;
 
+	// public POD, to be declared early on
+	public:
+		struct Parameters {
+
+			// voltages and related scaling factors for power consumption and
+			// module delays
+			std::vector<double> voltages;
+			std::vector<double> voltages_power_factors;
+			std::vector<double> voltages_delay_factors;
+
+			// theoretical maximal values for power saving and corners; to be
+			// filled by IO::parseBlocks()
+			double max_power_saving;
+			unsigned max_corners;
+
+			// internal weights, used for internal cost terms
+			double weight_power_saving;
+			double weight_corners;
+			double weight_modules_count;
+		} parameters;
+
+		// max evaluation values have to memorized as well, in order to enable
+		// comparison during different SA iterations
+		struct max_values {
+			double power_saving, corners_avg;
+			unsigned module_count;
+		} max_values;
+
 	// inner class, to be declared early on
 	class CompoundModule {
 
@@ -129,18 +157,18 @@ class MultipleVoltages {
 				return MAX_VOLTAGES;
 			}
 
-			// helper to estimate max number of corners in power rings
-			// (separate for each die)
+			// helper to estimate max number of corners (in power rings) over
+			// all affected dies
 			//
-			inline unsigned corners_outline_max() const;
+			unsigned corners_powerring_max() const;
 
 			// helpers to estimate gain in power reduction
 			//
-			inline double power_saving() const;
+			double power_saving() const;
 
 			// global cost, required during top-down selection
 			//
-			inline double cost(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving) const;
+			inline double cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const;
 	};
 
 	// private data, functions
@@ -184,24 +212,13 @@ class MultipleVoltages {
 		// vector of selected modules, filled by selectCompoundModules()
 		std::vector<CompoundModule*> selected_modules;
 
-		// parameters required for normalization of global cost
-		//
-		double max_power_saving;
-		unsigned max_corners;
-
 	// constructors, destructors, if any non-implicit
 	public:
 
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
-		void selectCompoundModules(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving);
-
-		// helpers to evaluate results, thus to be called after
-		// selectCompoundModules()
-		//
-		double cost(double const& max_power_saving, unsigned const& max_corners, double const& weight_power_saving) const;
-		double power_saving() const;
+		std::vector<CompoundModule*> const& selectCompoundModules();
 
 	// private helper data, functions
 	private:
