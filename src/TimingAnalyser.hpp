@@ -34,12 +34,26 @@ class TimingAnalyser {
 		static constexpr bool DBG = false;
 
 	// private constants
-	public:
-		// factor beta for base delay [Lin10], [ns/um], supposedly based on 90nm
-		// technology simulations; base delay = beta times (width + height) for
+	private:
+		// factor for modules' base delay [Lin10], [ns/um], supposedly based on
+		// 90nm technology simulations; delay = factor times (width + height) for
 		// any module
 		//
-		static constexpr double beta = 1.0/2000;
+		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000;
+	
+		// delay factors for TSVs and wires, taken from [Lin10] and [Ahmed14];
+		// [Lin10] is for 90nm technology, with 0.9um metal thickness and 1um
+		// metal width; [Ahmed14] TSV delays applies for 5um diameter, 10um pitch,
+		// and 50um length TSVs
+		//
+		// [Ahmed14]; given in [ns]
+		static constexpr double DELAY_FACTOR_TSV = 
+			// R_TSV [mOhm] * C_TSV [fF]
+			42.8e-03 * 28.664e-15
+			// scale up to ns
+			* 1.0e09;
+		// [Lin10]; given in [ns/um], i.e., no squared WL is required
+		static constexpr double DELAY_FACTOR_WIRE = 1.27e-08;
 
 	// public POD, to be declared early on
 	public:
@@ -54,7 +68,7 @@ class TimingAnalyser {
 	public:
 		// h and w shall be given in um; returned delay is in ns
 		inline static double BaseDelay(double h, double w) {
-			return TimingAnalyser::beta * (h + w);
+			return TimingAnalyser::DELAY_FACTOR_MODULE * (h + w);
 		}
 
 	// private helper data, functions
