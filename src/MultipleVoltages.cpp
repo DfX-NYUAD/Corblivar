@@ -53,31 +53,19 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			module.contiguous_neighbours.insert({neighbour.block->id, &neighbour});
 		}
 
-		// init die-wise data
+		// init outline
 		module.outline.reserve(layers);
-		module.blocks_area.reserve(layers);
-		module.outline_cost_die.reserve(layers);
 
 		for (int l = 0; l < layers; l++) {
 
 			// empty bb
 			module.outline.emplace_back(std::vector<Rect>());
 
-			// neutral cost element
-			module.outline_cost_die.emplace_back(0.0);
-
 			if (start.layer == l) {
-				module.blocks_area.emplace_back(start.bb.area);
 				module.outline[l].emplace_back(start.bb);
 			}
-			else {
-				module.blocks_area.emplace_back(0.0);
-				// note that outline[l] shall remain empty in this case
-			}
+			// note that outline[l] shall remain empty otherwise
 		}
-
-		// init overall outline cost
-		module.outline_cost = 0.0;
 
 		// stepwise, recursive consideration of all blocks for merging into
 		// compound module
@@ -521,10 +509,8 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// insert now additionally considered neighbour
 		inserted_new_module.blocks.insert({neighbour->block->id, neighbour->block});
 
-		// init bounding boxes, blocks area and cost from the previous module
+		// init outline from the previous module
 		inserted_new_module.outline = module.outline;
-		inserted_new_module.blocks_area = module.blocks_area;
-		inserted_new_module.outline_cost_die = module.outline_cost_die;
 
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
@@ -581,8 +567,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 // also, extended bbs with minimized number of corners for power-ring synthesis are
 // generated hered
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
-	double overall_cost = 0.0;
-	double dies_to_consider = 0;
+	double cost = 0.0;
 	Rect ext_bb;
 	Rect neighbour_ext_bb;
 	Rect prev_bb_ext;
@@ -592,14 +577,12 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 
 	int n_l = neighbour->block->layer;
 
-	// these data structures are used to calculate the changes resulting from adding
-	// ContiguousNeighbour* block to the module; they are eventually only applied if
-	// apply_update == true
+	// the local outline data structure is used to calculate the changes resulting
+	// from adding ContiguousNeighbour* block to the module; it is eventually only
+	// applied if apply_update == true
 	//
-	// init them from the module's current state
-	std::vector<double> outline_cost_die = this->outline_cost_die;
+	// init it from the module's current state
 	std::vector< std::vector<Rect> > outline = this->outline;
-	std::vector<double> blocks_area = this->blocks_area;
 
 
 	if (MultipleVoltages::DBG) {
@@ -613,14 +596,11 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	}
 
 	// update bounding boxes on (by added block) affected die; note that the added
-	// block may be the first on its related die which is assigned to this module
+	// block may be the first on its related die which is assigned to this module;
+	// then init new bb
 	if (outline[n_l].empty()) {
 
-		// init new bb
 		outline[n_l].emplace_back(neighbour->block->bb);
-
-		// init blocks area
-		blocks_area[n_l] = neighbour->block->bb.area;
 	}
 	// update existing bb; try to extend bb to cover previous blocks and the new
 	// neighbour block; check for intrusion by any other block
@@ -842,7 +822,7 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			outline[n_l].emplace_back(neighbour_ext_bb);
 		}
 
-		// update outline cost and blocks area in any case
+		// calculate cost (amount of intrusion); only required for non-zero cost
 		//
 		// note that only _current_ intrusion is considered, i.e. the amount of
 		// intrusion in any previous merging step is ignored; this is valid since
@@ -851,41 +831,19 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		// starting condition, before considering the neighbour, was a
 		// non-intruded module
 		//
-		outline_cost_die[n_l] = intrusion_area / ext_bb.area;
+		cost = intrusion_area / ext_bb.area;
 	}
-
-	// determine overall cost
-	//
-	for (unsigned l = 0; l < outline_cost_die.size(); l++) {
-
-		// sanity check for some block being assigned to the die
-		//
-		if (blocks_area[l] > 0.0) {
-
-			overall_cost += outline_cost_die[l];
-			dies_to_consider++;
-		}
-	}
-
-	// normalize cost to considered dies; note that div by zero cannot occur since
-	// each module has at least one block assigned, i.e., covers at least one die
-	overall_cost /= dies_to_consider;
 
 	// apply updates to module only if requested; this way, both the actual change for
 	// new modules and the potential change for candidate modules can be unified in
 	// this helper
 	//
-	// note that the whole data structures have to be moved, not only the values for
-	// the affected die; this is because CompoundModule& module is a new module
-	// instance
 	if (apply_update) {
 		this->outline = std::move(outline);
-		this->blocks_area = std::move(blocks_area);
-		this->outline_cost_die = std::move(outline_cost_die);
-		this->outline_cost = overall_cost;
+		this->outline_cost = cost;
 	}
 
-	return overall_cost;
+	return cost;
 }
 
 // helper to estimate max number of corners in power rings (separate for each die)

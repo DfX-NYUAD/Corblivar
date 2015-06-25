@@ -93,16 +93,10 @@ class MultipleVoltages {
 
 			// (local) cost term: outline cost is ratio of (by other blocks
 			// with non-compatible voltage) intruded area of the module's bb;
-			// the lower the better
+			// the lower the better; current cost value is calculated via
+			// updateOutlineCost
 			//
 			double outline_cost = -1.0;
-			//
-			// to save recalculations for not affected dies, we memorize the
-			// per-die cost terms individually
-			std::vector<double> outline_cost_die;
-
-			// die-wise sum of blocks' area; eases calculating cost as well
-			std::vector<double> blocks_area;
 
 			// feasible voltages for whole module; defined by intersection of
 			// all comprised blocks
