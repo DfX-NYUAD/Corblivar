@@ -55,11 +55,6 @@ class MultipleVoltages {
 			std::vector<double> voltages_power_factors;
 			std::vector<double> voltages_delay_factors;
 
-			// theoretical maximal values for power saving and corners; to be
-			// filled by IO::parseBlocks()
-			double max_power_saving;
-			unsigned max_corners;
-
 			// internal weights, used for internal cost terms
 			double weight_power_saving;
 			double weight_corners;
