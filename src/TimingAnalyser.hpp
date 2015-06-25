@@ -66,9 +66,19 @@ class TimingAnalyser {
 
 	// public data, functions
 	public:
-		// h and w shall be given in um; returned delay is in ns
+		// module h and w shall be given in um; returned delay is in ns
 		inline static double BaseDelay(double h, double w) {
 			return TimingAnalyser::DELAY_FACTOR_MODULE * (h + w);
+		}
+
+		// WL shall be given in um; returned delay is in ns
+		inline static double WireDelay(double WL) {
+			return TimingAnalyser::DELAY_FACTOR_WIRE * WL;
+		}
+
+		// returned delay is in ns
+		inline static double TSV_Delay() {
+			return TimingAnalyser::DELAY_FACTOR_TSV;
 		}
 
 	// private helper data, functions
