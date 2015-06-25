@@ -1394,7 +1394,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		new_block.voltages_delay_factors = fp.voltageAssignment.parameters.voltages_delay_factors;
 
 		// calculate the base delay; according to [Lin10]
-		new_block.base_delay = TimingAnalyser::BaseDelay(new_block.bb.h, new_block.bb.w, fp.IC.blocks_scale);
+		new_block.base_delay = TimingAnalyser::BaseDelay(new_block.bb.h, new_block.bb.w);
 
 		// track block power statistics
 		power += new_block.power();

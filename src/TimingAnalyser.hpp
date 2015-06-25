@@ -36,10 +36,10 @@ class TimingAnalyser {
 	// private constants
 	private:
 		// factor for modules' base delay [Lin10], [ns/um]; based on 90nm
-		// technology simulations, thus scaled down by factor 10 to roughly match
+		// technology simulations, thus scaled down by factor 2 to roughly match
 		// 45nm technology; delay = factor times (width + height) for any module
 		//
-		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000.0 / 10.0;
+		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000.0 / 2.0;
 	
 		// delay factors for TSVs and wires, taken from [Ahmed14]; wire delay
 		// applies for 0.14um width and 0.28um thickness, that is for 45nm
@@ -70,16 +70,14 @@ class TimingAnalyser {
 
 	// public data, functions
 	public:
-		// module h and w shall be given in um; returned delay is in ns; note that
-		// dimensions are scaled down according to block scaling factor
-		inline static double BaseDelay(double h, double w, double block_scaling_factor) {
-			return TimingAnalyser::DELAY_FACTOR_MODULE * (h + w) / block_scaling_factor;
+		// module h and w shall be given in um; returned delay is in ns
+		inline static double BaseDelay(double h, double w) {
+			return TimingAnalyser::DELAY_FACTOR_MODULE * (h + w);
 		}
 
-		// WL shall be given in um; returned delay is in ns; note that WL is
-		// scaled down according to the block scaling factor
-		inline static double ElmoreDelay(double WL, unsigned TSV, double block_scaling_factor) {
-			return 0.5 * TimingAnalyser::DELAY_FACTOR_WIRE * std::pow(WL / block_scaling_factor, 2.0) + 0.5 * TimingAnalyser::DELAY_FACTOR_TSV * std::pow(TSV, 2);
+		// WL shall be given in um; returned delay is in ns
+		inline static double ElmoreDelay(double WL, unsigned TSV) {
+			return 0.5 * TimingAnalyser::DELAY_FACTOR_WIRE * std::pow(WL, 2.0) + 0.5 * TimingAnalyser::DELAY_FACTOR_TSV * std::pow(TSV, 2);
 		}
 
 	// private helper data, functions
