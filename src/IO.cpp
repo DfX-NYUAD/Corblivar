@@ -34,6 +34,7 @@
 #include "Clustering.hpp"
 #include "Block.hpp"
 #include "MultipleVoltages.hpp"
+#include "TimingAnalyser.hpp"
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
@@ -1388,6 +1389,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// dynamic calculation of power_density() and delay()
 		new_block.voltages_power_factors = fp.voltageAssignment.parameters.voltages_power_factors;
 		new_block.voltages_delay_factors = fp.voltageAssignment.parameters.voltages_delay_factors;
+
+		// calculate the base delay; according to [Lin10]
+		new_block.base_delay = TimingAnalyser::BaseDelay(new_block.bb.h, new_block.bb.w);
 
 		// track block power statistics
 		power += new_block.power();

@@ -43,11 +43,14 @@ class Block {
 
 		// these values are required for multi-voltage domains; the
 		// power_density_unscaled is read in from the benchmarks, while the
-		// factors are read in from the Technology.conf; the power_density() and
+		// factors are read in from the Technology.conf, base_delay is calculated
+		// according to [Lin10] during block parsing; the power_density() and
 		// delay() are calculated accordingly to these factors and the current
 		// assigned voltage, given in assigned_voltage_index
+		//
 		double power_density_unscaled;
 		std::vector<double> voltages_power_factors;
+		double base_delay;
 		std::vector<double> voltages_delay_factors;
 
 	// enum class for alignment status; has to be defined first
@@ -63,7 +66,7 @@ class Block {
 		Block(std::string const& id) {
 			this->id = id;
 			this->layer = -1;
-			this->power_density_unscaled = 0.0;
+			this->power_density_unscaled = this->base_delay = 0.0;
 			this->AR.min = AR.max = 1.0;
 			this->placed = false;
 			this->soft = false;
@@ -92,12 +95,15 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
 		}
 
-		// TODO calculate similar to power_density; also consider calculation for
-		// base delay as proposed in [Lin10]
 		// related TODO: introduce scaling parameter for delay threshold, related
 		// to max delay for initially fitting solution (transition to phase II)
 		// loosely related TODO: calculate delays on wires and across TSVs
-		double delay;
+		//
+		// delay in [ns]; relates to currently assigned voltage; based on base
+		// delay as proposed in [Lin10]
+		inline double delay() const {
+			return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
+		}
 
 		// bit-wise flags for applicable voltages, where feasible_voltages[k]
 		// encodes the highest voltage V_k, and remaining bits encode the lower
