@@ -931,15 +931,45 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 // TODO encapsulate similar as done in
 // FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
 // TODO both timing_value and timing_actual_value, similar like FloorPlanner::evaluateThermalDistr()
+//
+// related TODO: introduce scaling parameter for delay threshold, related to max delay for
+// initially fitting solution (transition to phase II) loosely related TODO: calculate
+// delays on wires and across TSVs
+//
+//
+// determine the delays for driving/source blocks; they shall fulfill a max delay below
+// a given threshold; all other (non-driving) blocks are assumed having a zero delay
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
+	unsigned count;
 
-	// TODO reset net delays
+	// reset previous net delays
+	for (Net& cur_net : this->nets) {
+		cur_net.resetSourceMaxDelay();
+	}
 
-				// TODO sum up related delay for net
+	// assign max delays to all nets' driving/source blocks; note that some source
+	// blocks may drive several nets, i.e., the overall max value is finally assigned
+	// to all driving blocks
+	for (Net& cur_net : this->nets) {
+		cur_net.assignSourceMaxDelay();
+	}
 
-				// TODO sum up related delay for net
-				// TODO also consider TSV-related delays, for each passed
-				// layer (cur_net.layer_top - cur_net.layer_bottom)
+	// evaluate delay of all nets; compare to delay threshold
+	count = 0;
+	for (Net& cur_net : this->nets) {
+
+		// sanity check; input nets are ignored since they have no driving block
+		if (cur_net.inputNet) {
+			continue;
+		}
+
+		if (Net::DBG) {
+			std::cout << "DBG_NET> Final max delay for net " << cur_net.id << std::endl;
+			std::cout << "DBG_NET>  Delay: " << cur_net.sourceMaxDelay() << std::endl;
+		}
+
+		// TODO compare to threshold; cost term
+	}
 }
 
 // TODO derive applicable voltages for each block based on timing slacks

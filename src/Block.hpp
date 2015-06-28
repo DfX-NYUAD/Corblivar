@@ -73,6 +73,7 @@ class Block {
 			this->floorplacement = false;
 			this->alignment = AlignmentStatus::UNDEF;
 			this->rotatable = true;
+			this->net_delay_max = 0.0;
 		};
 
 	// public data, functions
@@ -95,15 +96,28 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
 		}
 
-		// related TODO: introduce scaling parameter for delay threshold, related
-		// to max delay for initially fitting solution (transition to phase II)
-		// loosely related TODO: calculate delays on wires and across TSVs
-		//
-		// delay in [ns]; relates to currently assigned voltage; based on base
-		// delay as proposed in [Lin10]
+		// delay in [ns]; relates to net delay and currently assigned voltage
 		inline double delay() const {
-			return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
+			return
+				// the module delay resulting from current voltage
+				// assignment
+				this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index]
+				// the net delay, greater zero for any driving block
+				+ this->net_delay_max;
 		}
+
+		inline double delay(unsigned voltage_index) const {
+			return
+				// the (theoretical) module delay assuming a given voltage
+				// assignment
+				this->base_delay * this->voltages_delay_factors[voltage_index]
+				// the net delay, greater zero for any driving block
+				+ this->net_delay_max;
+		}
+
+		// this delay value is the max value for any net where this block is the
+		// source/driving block
+		mutable double net_delay_max;
 
 		// bit-wise flags for applicable voltages, where feasible_voltages[k]
 		// encodes the highest voltage V_k, and remaining bits encode the lower
