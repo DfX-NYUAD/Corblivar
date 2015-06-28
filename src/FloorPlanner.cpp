@@ -34,6 +34,9 @@
 #include "ContiguityAnalysis.hpp"
 #include "MultipleVoltages.hpp"
 
+// memory allocation
+constexpr int Pin::LAYER;
+
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i, ii;

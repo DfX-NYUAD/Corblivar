@@ -254,7 +254,11 @@ class Pin : public Block {
 	// constructors, destructors, if any non-implicit
 	//
 	public:
+		// terminal pins are by definition to be placed onto lowermost die 0
+		static constexpr int LAYER = 0;
+
 		Pin (std::string const& id) : Block(id) {
+			this->layer = LAYER;
 		};
 
 		// search pins

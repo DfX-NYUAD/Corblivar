@@ -80,11 +80,11 @@ class Net {
 					this->layer_top = std::max(this->layer_top, b->layer);
 				}
 
-				// terminals have to be routed through die 0, that means
-				// when terminals exist for this net, the lowermost die is
-				// die 0
+				// terminals are fixed onto a specific die; consider this
+				// die if pins are given
 				if (!this->terminals.empty()) {
-					this->layer_bottom = 0;
+					this->layer_bottom = std::min(this->layer_bottom, Pin::LAYER);
+					this->layer_top = std::max(this->layer_top, Pin::LAYER);
 				}
 			}
 		};
@@ -121,7 +121,9 @@ class Net {
 
 				// TSVs
 				if (t->layer == layer) {
+
 					blocks_to_consider.push_back(&t->bb);
+
 					TSV_in_layer = true;
 
 					if (Net::DBG) {
@@ -130,11 +132,10 @@ class Net {
 				}
 			}
 
-			// also consider terminal pins; only on lowest die of stack since
-			// connections b/w terminal pins and blocks on upper dies are
-			// routed through the TSV in that lowermost die
-			if (layer == 0) {
+			// also consider terminal pins; on fixed layer
+			if (layer == Pin::LAYER) {
 				for (Pin const* pin :  this->terminals) {
+
 					blocks_to_consider.push_back(&pin->bb);
 
 					if (Net::DBG) {
