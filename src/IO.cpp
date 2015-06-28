@@ -1365,6 +1365,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
+		// copy the global power and delay scaling factors; they are required for
+		// dynamic calculation of power_density() and delay()
+		new_block.voltages_power_factors = fp.voltageAssignment.parameters.voltages_power_factors;
+		new_block.voltages_delay_factors = fp.voltageAssignment.parameters.voltages_delay_factors;
+
 		// init feasible voltages with highest possible voltage
 		new_block.resetVoltageAssignment();
 
@@ -1380,11 +1385,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// reduced with the voltage
 			new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
 		}
-
-		// copy the global power and delay scaling factors; they are required for
-		// dynamic calculation of power_density() and delay()
-		new_block.voltages_power_factors = fp.voltageAssignment.parameters.voltages_power_factors;
-		new_block.voltages_delay_factors = fp.voltageAssignment.parameters.voltages_delay_factors;
 
 		// calculate the base delay; according to [Lin10]
 		new_block.base_delay = TimingAnalyser::BaseDelay(new_block.bb.h, new_block.bb.w);
