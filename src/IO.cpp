@@ -1365,12 +1365,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
-		// init feasible voltages; only the highest possible voltage shall be
-		// considered initially; this enables all the related functions to return
-		// correct values even if no assignment is performed and/or only one
-		// voltage is globally available
-		new_block.feasible_voltages[fp.voltageAssignment.parameters.voltages.size() - 1] = 1;
-		new_block.assigned_voltage_index = fp.voltageAssignment.parameters.voltages.size() - 1;
+		// init feasible voltages with highest possible voltage
+		new_block.resetVoltageAssignment();
 
 		// TODO drop; to be determined via FloorPlanner::evaluateTiming
 		//

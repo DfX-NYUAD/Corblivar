@@ -131,6 +131,16 @@ class Block {
 		// will also be used for proper delay and power calculations
 		mutable unsigned assigned_voltage_index;
 
+		// reset feasible voltages and voltage assignment; the highest possible
+		// voltage shall be considered as set; this enables all the related
+		// functions to return correct values even if no assignment is performed
+		// and/or only one voltage is globally available
+		inline void resetVoltageAssignment() {
+			this->feasible_voltages.reset();
+			this->feasible_voltages[this->voltages_power_factors.size() - 1] = 1;
+			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
+		}
+
 		// vector of contiguous neighbours, required for voltage assignment
 		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
 
