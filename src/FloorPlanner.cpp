@@ -637,8 +637,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.timing) {
-				std::cout << "Corblivar> Timing (estimated total slack): " << cost.timing_actual_value << std::endl;
-				this->IO_conf.results << "Timing (estimated total slack): " << cost.timing_actual_value << std::endl;
+				std::cout << "Corblivar> Timing (sum of exceeding delays [ns]): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << "Timing (sum of exceeding delays [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
@@ -832,6 +832,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// no optimization considered, reset cost to zero
 		else {
 			cost.timing = cost.timing_actual_value = 0.0;
+			// TODO fix to actual variables
 			cost.voltage_assignment = 0.0;
 		}
 
@@ -926,50 +927,53 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	return cost;
 }
 
-// TODO evaluate timing from current layout; provide timing slacks for all paths within
-// dedicated data structure
-// TODO encapsulate similar as done in
-// FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
-// TODO both timing_value and timing_actual_value, similar like FloorPlanner::evaluateThermalDistr()
-//
-// related TODO: introduce scaling parameter for delay threshold, related to max delay for
-// initially fitting solution (transition to phase II) loosely related TODO: calculate
-// delays on wires and across TSVs
-//
-//
-// determine the delays for driving/source blocks; they shall fulfill a max delay below
-// a given threshold; all other (non-driving) blocks are assumed having a zero delay
+// determine the delays for all blocks; they shall fulfill a max delay below a given
+// threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
-	unsigned count;
+	double exceeding_delays_sum;
+	double cur_exceeding_delay;
+
+	// TODO only when required
+	// reset previous voltage assignments; they impact the module delay
 
 	// reset previous net delays
 	for (Net& cur_net : this->nets) {
 		cur_net.resetSourceMaxDelay();
 	}
 
-	// assign max delays to all nets' driving/source blocks; note that some source
+	// assign max net delays to all nets' driving/source blocks; note that some source
 	// blocks may drive several nets, i.e., the overall max value is finally assigned
-	// to all driving blocks
 	for (Net& cur_net : this->nets) {
 		cur_net.assignSourceMaxDelay();
 	}
 
-	// evaluate delay of all nets; compare to delay threshold
-	count = 0;
-	for (Net& cur_net : this->nets) {
+	// TODO technology parameter
+	double THRESHOLD = 1.0;
 
-		// sanity check; input nets are ignored since they have no driving block
-		if (cur_net.inputNet) {
-			continue;
+	// evaluate exceeding delays over all blocks, drivers and non-driving blocks;
+	// covers both net delay and actual block delays; compare to delay threshold
+	//
+	exceeding_delays_sum = 0.0;
+	for (Block const& block : this->blocks) {
+
+		// consider only exceeding delays
+		cur_exceeding_delay = block.delay() - THRESHOLD;
+
+		if (cur_exceeding_delay > 0.0) {
+			exceeding_delays_sum += cur_exceeding_delay;
 		}
-
-		if (Net::DBG) {
-			std::cout << "DBG_NET> Final max delay for net " << cur_net.id << std::endl;
-			std::cout << "DBG_NET>  Delay: " << cur_net.sourceMaxDelay() << std::endl;
-		}
-
-		// TODO compare to threshold; cost term
 	}
+
+	// memorize max cost
+	if (set_max_cost) {
+		this->max_cost_timing = exceeding_delays_sum;
+	}
+
+	// apply cost normalization
+	cost.timing = exceeding_delays_sum / this->max_cost_timing;
+
+	// store actual value
+	cost.timing_actual_value = exceeding_delays_sum;
 }
 
 // TODO derive applicable voltages for each block based on timing slacks
@@ -1041,6 +1045,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	cost.voltage_assignment_power_saving = 1.0 / inv_power_saving;
 	cost.voltage_assignment_corners_avg = corners_avg;
 	cost.voltage_assignment_modules_count = module_count;
+
+	// TODO update delay values; delay cost after voltage assignment
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
