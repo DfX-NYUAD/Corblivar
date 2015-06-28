@@ -1513,6 +1513,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	int id;
 	bool block_not_found, pin_not_found;
 	unsigned to_parse_nets;
+	unsigned count_input, count_output, count_degree;
 
 	if (fp.logMed()) {
 		std::cout << "IO> ";
@@ -1534,6 +1535,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	in >> to_parse_nets;
 
 	// parse nets file
+	count_input = count_output = count_degree = 0;
 	id = 0;
 	while (!in.eof()) {
 		Net new_net = Net(id);
@@ -1548,6 +1550,8 @@ void IO::parseNets(FloorPlanner& fp) {
 		in >> tmpstr;
 		// parse net degree
 		in >> net_degree;
+
+		count_degree += net_degree;
 
 		// due to some empty lines at the end, we may have reached eof just now
 		if (in.eof()) {
@@ -1564,13 +1568,28 @@ void IO::parseNets(FloorPlanner& fp) {
 
 			// try to interpret as terminal pin
 			pin = Pin::findPin(net_block, fp.terminals);
+
 			if (pin != nullptr) {
+
 				// mark net as net w/ external pin
 				new_net.hasExternalPin = true;
 				// store terminal
 				new_net.terminals.push_back(std::move(pin));
 				// pin found
 				pin_not_found = false;
+
+				// also mark net as input net if this pin is the first
+				// element of the net
+				if (i == 0) {
+					new_net.inputNet = true;
+					count_input++;
+				}
+				// if the pin is any later element, consider the net as
+				// output net
+				else {
+					new_net.outputNet = true;
+					count_output++;
+				}
 			}
 			else {
 				// pin not found
@@ -1579,12 +1598,20 @@ void IO::parseNets(FloorPlanner& fp) {
 
 			// try to interpret as regular block 
 			if (pin_not_found) {
+
 				block = Block::findBlock(net_block, fp.blocks);
+
 				if (block != nullptr) {
+
 					// store block
 					new_net.blocks.push_back(std::move(block));
 					// block found
 					block_not_found = false;
+
+					// memorize the first element/block as source
+					if (i == 0) {
+						new_net.source = new_net.blocks.back();
+					}
 				}
 				else {
 					// block not found
@@ -1643,8 +1670,10 @@ void IO::parseNets(FloorPlanner& fp) {
 	}
 
 	if (fp.logMed()) {
-		std::cout << "IO> ";
-		std::cout << "Done; " << fp.nets.size() << " nets read in" << std::endl << std::endl;
+		std::cout << "IO> Done; " << fp.nets.size() << " nets read in" << std::endl;
+		std::cout << "IO>  Avg net degree: " << static_cast<double>(count_degree) / fp.nets.size() << std::endl;
+		std::cout << "IO>  Input nets: " << count_input << "; output nets: " << count_output << std::endl;
+		std::cout << std::endl;
 	}
 
 }

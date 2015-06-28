@@ -46,6 +46,8 @@ class Net {
 			this->layer_bottom = -1;
 			this->layer_top = -1;
 			this->clustered = false;
+			this->inputNet = this->outputNet = false;
+			this->source = nullptr;
 		};
 
 	// public data, functions
@@ -57,6 +59,13 @@ class Net {
 		std::vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
+
+		// the first block of a net is considered the source, the remaining blocks
+		// and terminals are sinks
+		Block const* source;
+		// this implies, for nets with a terminal as first/later element, that
+		// nets may be input/output nets
+		bool inputNet, outputNet;
 
 		inline void setLayerBoundaries() const {
 
