@@ -835,16 +835,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.weights.WL << std::endl;
 		std::cout << "IO>  SA -- Cost factor for routing utilization: " << fp.weights.routing_util << std::endl;
 		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.weights.TSVs << std::endl;
-		if (!fp.opt_flags.interconnects && (fp.opt_flags.voltage_assignment || fp.opt_flags.timing)) {
-			std::cout << "IO>     Note: Interconnects are analysed anyway (but not optimized) since timing optimization and/or voltage assignment is activated" << std::endl;
-		}
 		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.weights.alignment << std::endl;
 		if (!fp.IO_conf.alignments_file_avail) {
 			std::cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for timing optimization: " << fp.weights.timing << std::endl;
 		if (!fp.opt_flags.timing && fp.opt_flags.voltage_assignment) {
-			std::cout << "IO>     Note: Timing analysis (not optimization) is conducted anyway since voltage assignment is activated" << std::endl;
+			std::cout << "IO>     Note: timing analysis (not optimization) is conducted since voltage assignment is activated" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
 		std::cout << "IO>  Voltage assignment -- Cost factor for power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;

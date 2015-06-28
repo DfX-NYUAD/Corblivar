@@ -807,8 +807,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// for finalize calls, we need to initialize the max_cost
 		if (finalize && this->opt_flags.voltage_assignment) {
 
-			// for timing analysis, we require interconnects analysis anyway
-			this->evaluateInterconnects(cost, alignments, true);
 			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, true);
 
@@ -819,8 +817,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		}
 		else if (this->opt_flags.voltage_assignment) {
 
-			// for timing analysis, we require interconnects analysis anyway
-			this->evaluateInterconnects(cost, alignments, set_max_cost);
 			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, set_max_cost);
 
@@ -933,6 +929,14 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 // FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost)
 // TODO both timing_value and timing_actual_value, similar like FloorPlanner::evaluateThermalDistr()
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
+
+	// TODO reset net delays
+
+				// TODO sum up related delay for net
+
+				// TODO sum up related delay for net
+				// TODO also consider TSV-related delays, for each passed
+				// layer (cur_net.layer_top - cur_net.layer_bottom)
 }
 
 // TODO derive applicable voltages for each block based on timing slacks
@@ -1144,8 +1148,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// reset routing-utilization estimation
 	this->routingUtil.resetUtilMaps(this->IC.layers);
 
-	// TODO reset net delays
-
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
@@ -1225,8 +1227,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				bb = cur_net.determBoundingBox(i);
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
-
-				// TODO sum up related delay for net
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
@@ -1347,10 +1347,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				cost.HPWL += bb.w;
 				cost.HPWL += bb.h;
 
-				// TODO sum up related delay for net
-				// TODO also consider TSV-related delays, for each passed
-				// layer (cur_net.layer_top - cur_net.layer_bottom)
-
 				// update related routing-utilization map; each single net
 				// has default weight of 1.0
 				this->routingUtil.adaptUtilMap(i, bb, 1.0);
@@ -1367,14 +1363,12 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// evaluateAlignments(); also note that this rough estimate is only required if
 	// alignments are not directly optimized, otherwise the HPWL and utilization
 	// estimation in evaluateAlignments() is more precise
-	// TODO consider related delays
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 
 	// also consider lengths of (regular signal) TSVs in HPWL; each TSV has to pass
 	// the whole Si layer and the bonding layer
-	// TODO consider related delays
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
 		cost.HPWL += cost.TSVs * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
@@ -1388,7 +1382,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	cost.routing_util_actual_value = util.max_util;
 
 	// memorize max cost; initial sampling
-	// TODO consider delays
 	if (set_max_cost) {
 		this->max_cost_WL = cost.HPWL;
 		this->max_cost_TSVs = cost.TSVs;
@@ -1396,13 +1389,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	}
 
 	// store actual values
-	// TODO consider delays
 	cost.HPWL_actual_value = cost.HPWL;
 	cost.TSVs_actual_value = cost.TSVs;
 
 	// normalized values; max value refers to initial sampling, thus sanity check for
 	// zero cost is not required
-	// TODO consider delays
 	cost.HPWL /= this->max_cost_WL;
 	cost.routing_util /= this->max_cost_routing_util;
 
