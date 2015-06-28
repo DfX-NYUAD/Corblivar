@@ -84,7 +84,7 @@ class Net {
 			}
 
 			if (Net::DBG) {
-				std::cout << "DBG_NET> Update delay for net " << this->id << std::endl;
+				std::cout << "DBG_NET> Update _net_ delay for net " << this->id << std::endl;
 				std::cout << "DBG_NET>  Driving block: " << this->source->id << std::endl;
 			}
 
@@ -124,25 +124,6 @@ class Net {
 			}
 
 			this->source->net_delay_max = 0.0;
-		};
-
-		// covers both module and net delay
-		//
-		inline double sourceMaxDelay(int voltage_index = -1) const {
-
-			// sanity check; input nets are ignored since they have no driving block
-			if (this->inputNet) {
-				return 0.0;
-			}
-
-			// return delay for current voltage assignment
-			if (voltage_index == -1) {
-				return this->source->delay();
-			}
-			// return delay for given voltage assignment
-			else {
-				return this->source->delay(voltage_index);
-			}
 		};
 
 		inline void setLayerBoundaries() const {
