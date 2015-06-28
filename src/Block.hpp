@@ -106,12 +106,11 @@ class Block {
 				+ this->net_delay_max;
 		}
 
+		// delay in [ns]; relates to net delay and currently assigned voltage;
+		// theoretical value to be obtained for given voltage index
 		inline double delay(unsigned voltage_index) const {
 			return
-				// the (theoretical) module delay assuming a given voltage
-				// assignment
 				this->base_delay * this->voltages_delay_factors[voltage_index]
-				// the net delay, greater zero for any driving block
 				+ this->net_delay_max;
 		}
 
