@@ -1373,19 +1373,6 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// init feasible voltages with highest possible voltage
 		new_block.resetVoltageAssignment();
 
-		// TODO drop; to be determined via FloorPlanner::evaluateTiming
-		//
-		for (int v = fp.voltageAssignment.parameters.voltages.size() - 2; v >= 0; v--) {
-
-			// TODO drop 
-			// dummy data, randomly assign voltages
-			//
-			// any lower, i.e., not trivially always considered highest
-			// voltage shall be randomly considered; the probabilities are
-			// reduced with the voltage
-			new_block.feasible_voltages[v] = new_block.feasible_voltages[v + 1] && Math::randB();
-		}
-
 		// calculate the base delay; according to [Lin10]
 		new_block.base_delay = TimingAnalyser::BaseDelay(new_block.bb.h, new_block.bb.w);
 

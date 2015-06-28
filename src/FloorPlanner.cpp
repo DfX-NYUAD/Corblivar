@@ -981,14 +981,19 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	cost.timing_actual_value = exceeding_delays_sum;
 }
 
-// TODO derive applicable voltages for each block based on timing slacks
-// TODO applicable voltages; init such that all blocks may assume their highest and any
-// lower voltage but unused bits shall remain zero
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
 	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
+
+	// derive applicable voltages for each block; lower voltages are applicable as
+	// long as the delay threshold would not be violated by doing so
+	//
+	for (Block& block : this->blocks) {
+		// TODO technology parameter
+		block.setFeasibleVoltages(1.0);
+	}
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept
 	// as reduced contiguity list within blocks themselves, only encoding the actual
@@ -1051,7 +1056,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	cost.voltage_assignment_corners_avg = corners_avg;
 	cost.voltage_assignment_modules_count = module_count;
 
-	// TODO update delay values; delay cost after voltage assignment
+	// note that the delay cost is not required to be updated / not changed after
+	// voltage assignment, since the delay cost is only capturing excessive delays,
+	// which will not arise after conservative voltage assignment which considers only
+	// lower voltages not violating the delay threshold
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {

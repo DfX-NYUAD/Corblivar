@@ -53,6 +53,14 @@ class Block {
 		double base_delay;
 		std::vector<double> voltages_delay_factors;
 
+		// delay in [ns]; relates to net delay and currently assigned voltage;
+		// theoretical value to be obtained for given voltage index
+		inline double delay(unsigned voltage_index) const {
+			return
+				this->base_delay * this->voltages_delay_factors[voltage_index]
+				+ this->net_delay_max;
+		}
+
 	// enum class for alignment status; has to be defined first
 	public:
 		// flags to indicate whether the block is associated with some alignment
@@ -106,14 +114,6 @@ class Block {
 				+ this->net_delay_max;
 		}
 
-		// delay in [ns]; relates to net delay and currently assigned voltage;
-		// theoretical value to be obtained for given voltage index
-		inline double delay(unsigned voltage_index) const {
-			return
-				this->base_delay * this->voltages_delay_factors[voltage_index]
-				+ this->net_delay_max;
-		}
-
 		// this delay value is the max value for any net where this block is the
 		// source/driving block
 		mutable double net_delay_max;
@@ -138,6 +138,29 @@ class Block {
 			this->feasible_voltages.reset();
 			this->feasible_voltages[this->voltages_power_factors.size() - 1] = 1;
 			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
+		}
+
+		// helper to set/update feasible voltages; considers a delay threshold; a
+		// voltage is considered feasible as long as setting it will not violate
+		// the delay threshold (by increasing the module delay too much)
+		//
+		inline void setFeasibleVoltages(double delay_threshold) {
+			unsigned index;
+
+			// the first index, i.e., the index for the highest applicable
+			// voltage; this voltage is set per definition
+			index = this->voltages_power_factors.size() - 1;
+
+			// try to consider the next-lower index / voltage as long as the
+			// resulting delay is not violating the threshold; also consider
+			// lower limit for index
+			//
+			while (index > 0 && this->delay(index - 1) <= delay_threshold) {
+
+				// consider this voltage as feasible; memorize it
+				index--;
+				this->feasible_voltages[index] = 1;
+			}
 		}
 
 		// vector of contiguous neighbours, required for voltage assignment
