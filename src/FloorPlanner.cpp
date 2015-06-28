@@ -832,8 +832,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// no optimization considered, reset cost to zero
 		else {
 			cost.timing = cost.timing_actual_value = 0.0;
-			// TODO fix to actual variables
 			cost.voltage_assignment = 0.0;
+			cost.voltage_assignment_power_saving = cost.voltage_assignment_corners_avg = cost.voltage_assignment_modules_count = 0;
 		}
 
 		// temperature-distribution cost and profile
