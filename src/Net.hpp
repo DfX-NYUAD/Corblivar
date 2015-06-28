@@ -69,12 +69,11 @@ class Net {
 		bool inputNet, outputNet;
 
 		// the delay value is calculated as max value from source to any sink;
-		// consider only bbs and number of TSVs, no precise location of previously
-		// placed TSVs since we don't require TSVs to be placed at this point;
-		// assign max value to source block
+		// consider only net delay and for this only bbs and number of TSVs, no
+		// precise location of previously placed TSVs since we don't require TSVs
+		// to be placed at this point; assign max value to source block
 		//
 		inline void assignSourceMaxDelay() const {
-			double delay_max;
 			Rect source_sink_bb;
 
 			// sanity check; input nets will have no block assigned as source;
@@ -88,31 +87,29 @@ class Net {
 				std::cout << "DBG_NET>  Driving block: " << this->source->id << std::endl;
 			}
 
-			// consider current max delay of source block
-			delay_max = this->source->net_delay_max;
-
 			// determine net delay for all possible block-pair relations:
 			// analyse bb covering source block to any sink block/terminal
 			for (auto const* sink_block : this->blocks) {
 
 				source_sink_bb = Rect::determBoundingBox(this->source->bb, sink_block->bb);
-				// consider HPWL of bb connecting source to sink, also
-				// consider number of required TSVs; memorize only max
-				// value
-				delay_max = std::max(delay_max, TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
+
+				this->source->net_delay_max = std::max(this->source->net_delay_max,
+						// consider HPWL of bb connecting source
+						// to sink, also consider number of
+						// required TSVs; memorize only max value
+						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
 			}
 			// also consider terminal sinks
 			for (auto const* sink_terminal : this->terminals) {
 
 				source_sink_bb = Rect::determBoundingBox(this->source->bb, sink_terminal->bb);
-				delay_max = std::max(delay_max, TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
+
+				this->source->net_delay_max = std::max(this->source->net_delay_max,
+						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
 			}
 
-			// assign max delay to source block
-			this->source->net_delay_max = delay_max;
-
 			if (Net::DBG) {
-				std::cout << "DBG_NET>  Current max delay: " << delay_max << std::endl;
+				std::cout << "DBG_NET>  Current max delay: " << this->source->net_delay_max << std::endl;
 			}
 		};
 
