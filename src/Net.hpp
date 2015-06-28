@@ -117,12 +117,23 @@ class Net {
 		};
 
 		inline void resetSourceMaxDelay() {
+
+			// sanity check; input nets are ignored since they have no driving block
+			if (this->inputNet) {
+				return;
+			}
+
 			this->source->net_delay_max = 0.0;
 		};
 
 		// covers both module and net delay
 		//
 		inline double sourceMaxDelay(int voltage_index = -1) const {
+
+			// sanity check; input nets are ignored since they have no driving block
+			if (this->inputNet) {
+				return 0.0;
+			}
 
 			// return delay for current voltage assignment
 			if (voltage_index == -1) {
