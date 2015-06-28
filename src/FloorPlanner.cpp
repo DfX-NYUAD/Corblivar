@@ -933,8 +933,13 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	double exceeding_delays_sum;
 	double cur_exceeding_delay;
 
-	// TODO only when required
-	// reset previous voltage assignments; they impact the module delay
+	// reset previous voltage assignments if required; they impact the module delay
+	if (this->opt_flags.voltage_assignment) {
+
+		for (Block& block : this->blocks) {
+			block.resetVoltageAssignment();
+		}
+	}
 
 	// reset previous net delays
 	for (Net& cur_net : this->nets) {
