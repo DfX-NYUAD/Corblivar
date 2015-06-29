@@ -741,6 +741,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 	}
 
+	// delay threshold
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.delay_threshold;
+
+	// sanity check for appropriate, i.e., positive non-zero threshold
+	if (fp.IC.delay_threshold <= 0.0) {
+		std::cout << "IO> Check the provided delay threshold, it should be positive and non-zero!" << std::endl;
+		exit(1);
+	}
+
 	in.close();
 
 	if (fp.logMin()) {
@@ -807,6 +819,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			}
 		}
 		std::cout << std::endl;
+
+		std::cout << "IO>  Technology -- Global delay threshold (covering module and net delay, in [ns]): " << fp.IC.delay_threshold << std::endl;
 
 		// layout generation options
 		std::cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << std::endl;

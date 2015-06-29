@@ -71,6 +71,7 @@ class FloorPlanner {
 			double blocks_area;
 			double stack_area, stack_deadspace;
 
+			// (TODO) refactor into own struct
 			// technology parameters
 			//
 			double die_thickness;;
@@ -84,6 +85,9 @@ class FloorPlanner {
 			double TSV_group_Cu_Si_ratio;
 			// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
+
+			// global delay threshold
+			double delay_threshold;
 
 		} IC;
 

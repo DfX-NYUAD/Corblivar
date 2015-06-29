@@ -952,9 +952,6 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 		cur_net.assignSourceMaxDelay();
 	}
 
-	// TODO technology parameter
-	double THRESHOLD = 1.0;
-
 	// evaluate exceeding delays over all blocks, drivers and non-driving blocks;
 	// covers both net delay and actual block delays; compare to delay threshold
 	//
@@ -962,7 +959,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	for (Block const& block : this->blocks) {
 
 		// consider only exceeding delays
-		cur_exceeding_delay = block.delay() - THRESHOLD;
+		cur_exceeding_delay = block.delay() - this->IC.delay_threshold;
 
 		if (cur_exceeding_delay > 0.0) {
 			exceeding_delays_sum += cur_exceeding_delay;
@@ -991,8 +988,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// long as the delay threshold would not be violated by doing so
 	//
 	for (Block& block : this->blocks) {
-		// TODO technology parameter
-		block.setFeasibleVoltages(1.0);
+		block.setFeasibleVoltages(this->IC.delay_threshold);
 	}
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept
