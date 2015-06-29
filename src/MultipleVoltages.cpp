@@ -367,7 +367,12 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		// only one voltage was applicable, i.e., handle a trivial compound
 		// module; consider only for merging with another trivial block/neighbour;
 		// this way, largest possible islands for the trivial voltage can be
-		// obtained; same candidate principle as for other cases with unchanged
+		// obtained; in order to limit the search space, branching is not allowed
+		// here, i.e., modules are stepwise added as long as some contiguous and
+		// trivial modules are available, but once such a module is selected for
+		// merging, no further modules on this branching level are considered
+		//
+		// same candidate principle as for other cases with unchanged
 		// set of voltages applies here, in order to limit the search space
 		else if (module.feasible_voltages.count() == 1 && neighbour->block->feasible_voltages.count() == 1) {
 
@@ -376,7 +381,19 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				std::cout << " consider neighbour block as candidate" << std::endl;
 			}
 
-			candidates.push_back(neighbour);
+			// previous neighbours shall not be considered, in order to limit
+			// the search space such that only ``forward merging'' of new
+			// contiguous trivial modules is considered
+			this->insertCompoundModuleHelper(module, neighbour, false, feasible_voltages, hint, cont);
+
+			// this break is the ``trick'' for disabling branching: once a
+			// contiguous trivial module is extended by this relevant
+			// neighbour and once the recursive calls (for building up
+			// resulting larger modules) return to this point, no further
+			// neighbours are considered; the resulting stepwise merging of
+			// only one trivial neighbour is sufficient to capture
+			// largest-possible contiguous trivial modules
+			break;
 		}
 		// more than one voltage is applicable, and the set of voltages has
 		// changed; such a module should be considered without notice of cost,
