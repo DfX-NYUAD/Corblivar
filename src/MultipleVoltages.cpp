@@ -944,10 +944,15 @@ double MultipleVoltages::CompoundModule::power_saving() const {
 // smaller the cost the better
 //
 inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
+	static constexpr double epsilon = 1.0e-10;
 
 	// for the normalization, the min values are fixed: zero for power-saving (for
 	// trivial modules w/ only highest voltage applicable) and four for corners of
-	// trivially-shaped(rectangular) modules
+	// trivially-shaped(rectangular) modules; add small epsilon to both min values in
+	// order to avoid division by zero
+	//
+	static constexpr double min_corners = 4 + epsilon;
+	static constexpr double min_power_saving = epsilon;
 	//
 	// the max values are derived from all candidate modules; this enables proper
 	// judgment of quality of any module in terms of weighted sum of cost terms;
@@ -956,11 +961,6 @@ inline double MultipleVoltages::CompoundModule::cost(double const& max_power_sav
 	// FloorPlanner::evaluateVoltageAssignment where cost are normalized to initial
 	// values, similar like WL or thermal management cost terms
 	//
-	// instead of zero power saving, a very small value is assumed in order to avoid
-	// division by zero
-	//
-	static constexpr double min_power_saving = 1.0e-100;
-	static constexpr double min_corners = 4;
 
 	// this term models the normalized inverse power reduction, with 0 representing
 	// max power reduction and 1 representing min power reduction, i.e., smaller cost
