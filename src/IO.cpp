@@ -2311,17 +2311,31 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 
 			bool label_put = false;
 
-			// walk all partial boxes of the voltage island
+			// derive boost rects from module's bbs
+			//
+			BoostPolygonSet outline;
+			std::vector<BoostRect> voltage_island_rects;
+
 			for (auto& bb : module->outline[cur_layer]) {
 
 				if (bb.area == 0) {
 					continue;
 				}
 
+				outline += BoostRect(bb.ll.x, bb.ll.y, bb.ur.x, bb.ur.y);
+			}
+
+			// get rectangles from outline polygonset, put them into
+			// voltage_island_rects
+			outline.get(voltage_island_rects);
+
+			// walk all partial rects of the voltage island
+			for (auto& rect : voltage_island_rects) {
+
 				// box outline
 				gp_out << "set obj rect";
-				gp_out << " from " << bb.ll.x << "," << bb.ll.y;
-				gp_out << " to " << bb.ur.x << "," << bb.ur.y;
+				gp_out << " from " << bp::xl(rect) << "," << bp::yl(rect);
+				gp_out << " to " << bp::xh(rect) << "," << bp::yh(rect);
 				gp_out << " fillstyle transparent solid 0.5 border";
 				// color depending on voltage, whereas to color range goes from
 				// #11ff00 (green) to #ff6600 (orange); only R and G values are scaled
@@ -2341,8 +2355,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				// put label once label; to module assigned blocks and their shared voltage
 				if (!label_put) {
 					gp_out << "set label \"" << module->id() << "\\n" << fp.voltageAssignment.parameters.voltages[module->min_voltage_index()] << " V\"";
-					gp_out << " at " << bb.ll.x + 0.01 * fp.IC.outline_x;
-					gp_out << "," << bb.ur.y - 0.01 * fp.IC.outline_y;
+					gp_out << " at " << bp::xl(rect) + 0.01 * fp.IC.outline_x;
+					gp_out << "," << bp::yh(rect) - 0.01 * fp.IC.outline_y;
 					gp_out << " font \"Gill Sans,2\"";
 					// prevents generating subscripts for underscore in labels
 					gp_out << " noenhanced" << std::endl;

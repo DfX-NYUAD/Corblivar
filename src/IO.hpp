@@ -25,11 +25,19 @@
 
 // library includes
 #include "Corblivar.incl.hpp"
+#include <boost/polygon/polygon.hpp>
 // Corblivar includes, if any
 // forward declarations, if any
 class FloorPlanner;
 class CorblivarCore;
 class CorblivarAlignmentReq;
+
+// boost namespaces
+//
+namespace bp = boost::polygon;
+using namespace bp::operators;
+typedef bp::rectangle_data<double> BoostRect;
+typedef bp::polygon_90_set_data<double> BoostPolygonSet;
 
 class IO {
 	// debugging code switch (private)

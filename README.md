@@ -31,7 +31,8 @@ cite our papers:
 Compile & Run
 =============
 **To compile and run Corblivar, you need the following tool**
-- clang++ (at least v 3.1 is required; compiling w/ version 3.2 was tested)
+- C++ compiler (clang++ was used; for clang++ at least version 3.1 is required)
+- libboost
 - gnuplot
 - octave
 - perl
