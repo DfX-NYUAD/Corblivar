@@ -143,7 +143,7 @@ class MultipleVoltages {
 					}
 				}
 
-				return MAX_VOLTAGES;
+				return MAX_VOLTAGES - 1;
 			}
 
 			// helper to estimate max number of corners (in power rings) over
