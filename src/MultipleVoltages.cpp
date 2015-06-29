@@ -67,13 +67,35 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			// note that outline[l] shall remain empty otherwise
 		}
 
-		// stepwise, recursive consideration of all blocks for merging into
-		// compound module
-		this->buildCompoundModulesHelper(module, this->modules.begin(), cont);
+		// store trivial compound module
+		this->modules.insert({module.block_ids, module});
+	}
 
-		// store trivial compound module; the module can be moved now, it will be
-		// accessed from the map later on
-		this->modules.insert({module.block_ids, std::move(module)});
+	// sanity check for any different set of applicable voltages; if all trivial
+	// modules have the same set of voltages, the solution-space exploration is not
+	// practical anymore, then we have to assume the trivial modules as determined set
+	//
+	bool different_voltage_set = false;
+	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
+
+		// compare current and next module, if some next module exits
+		if (std::next(it) != this->modules.end()) {
+			different_voltage_set = (it->second.min_voltage_index() != std::next(it)->second.min_voltage_index());
+		}
+
+		// some different voltage set exists, break check
+		if (different_voltage_set) {
+			break;
+		}
+	}
+
+	// if the above sanity check succeeds, perform stepwise and recursive merging of
+	// blocks into larger compound modules
+	if (different_voltage_set) {
+
+		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
+			this->buildCompoundModulesHelper(it->second, it, cont);
+		}
 	}
 
 	if (MultipleVoltages::DBG) {
