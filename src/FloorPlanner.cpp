@@ -1011,8 +1011,9 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	//
 	for (auto* module : selected_modules) {
 
-		// for power saving, the sum is relevant
-		inv_power_saving += module->power_saving();
+		// for power saving, the absolute sum is relevant, i.e., we ignore the
+		// ``wasted saving'' here
+		inv_power_saving += module->power_saving(false);
 		// for corners, the avg number (of max across all die-wise rings for
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();

@@ -153,7 +153,7 @@ class MultipleVoltages {
 
 			// helpers to estimate gain in power reduction
 			//
-			double power_saving() const;
+			double power_saving(bool subtract_wasted_saving = true) const;
 
 			// global cost, required during top-down selection
 			//
