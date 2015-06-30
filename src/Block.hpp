@@ -99,9 +99,16 @@ class Block {
 		// pointers to alignments representing vertical bus, if any
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
-		// density in [uW/(um^2)]; relates to currently assigned voltages
-		inline double power_density() const {
-			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
+		// density in [uW/(um^2)]; relates to given voltage index or currently
+		// assigned voltage
+		inline double power_density(int index = -1) const {
+
+			if (index == -1) {
+				return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
+			}
+			else {
+				return this->power_density_unscaled * this->voltages_power_factors[index];
+			}
 		}
 
 		// delay in [ns]; relates to net delay and currently assigned voltage
@@ -233,25 +240,37 @@ class Block {
 			}
 		};
 
-		// power in [W]
-		inline double power() const {
-			// power density is given in uW/um^2, area is given in um^2, thus
-			// we have to convert uW to W
-			return this->power_density() * this->bb.area * 1.0e-6;
+		// power in [W]; voltage_index == -1 returns power according to currently
+		// assigned voltage
+		inline double power(int voltage_index = -1) const {
+
+			return this->power_density(voltage_index)
+				// power density is given in uW/um^2, area is given in
+				// um^2, thus we have to convert uW to W
+				* this->bb.area	* 1.0e-6;
 		}
 
-		// the theoretical max power, for highest applicable voltage
+		// the theoretical max power, for highest applicable voltage; note that
+		// this value is static, i.e., does not depend on current set of feasible
+		// voltages derived from voltage assignment
 		inline double power_max() const {
 
-			return this->power_density_unscaled * this->voltages_power_factors.back() * this->bb.area * 1.0e-6;
+			return this->power(this->voltages_power_factors.size() - 1);
 		}
 
-		// the theoretical min power, for lowest applicable voltage; ignoring
-		// current timing and set of feasible voltages but only reflects best
-		// achievable value 
+		// the theoretical min power, for lowest applicable voltage; considers
+		// current set of feasible voltages which, in turn, will be affected by
+		// the current delay values
 		inline double power_min() const {
 
-			return this->power_density_unscaled * this->voltages_power_factors.front() * this->bb.area * 1.0e-6;
+			for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
+
+				if (this->feasible_voltages[v]) {
+					return this->power(v);
+				}
+			}
+
+			return power_max();
 		}
 
 		// search blocks
