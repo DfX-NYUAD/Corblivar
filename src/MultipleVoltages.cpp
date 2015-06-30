@@ -904,21 +904,29 @@ unsigned MultipleVoltages::CompoundModule::corners_powerring_max() const {
 
 	unsigned estimate_vert, estimate_hor;
 	unsigned estimate = 0;
-	std::set<double> vert_boundaries;
-	std::set<double> hor_boundaries;
+	std::vector<double> vert_boundaries;
+	std::vector<double> hor_boundaries;
 
 	for (auto& die_outline: this->outline) {
 
 		vert_boundaries.clear();
 		hor_boundaries.clear();
-		estimate_vert = estimate_hor = 0;
 
+		// for improved efficiency, put first all elements into regular vector and
+		// then sort and perform unique operation on this vector instead of using
+		// std::set
+		//
 		for (auto& outline_rect : die_outline) {
-			vert_boundaries.insert(outline_rect.ll.x);
-			vert_boundaries.insert(outline_rect.ur.x);
-			hor_boundaries.insert(outline_rect.ll.y);
-			hor_boundaries.insert(outline_rect.ur.y);
+			vert_boundaries.push_back(outline_rect.ll.x);
+			vert_boundaries.push_back(outline_rect.ur.x);
+			hor_boundaries.push_back(outline_rect.ll.y);
+			hor_boundaries.push_back(outline_rect.ur.y);
 		}
+
+		std::sort(vert_boundaries.begin(), vert_boundaries.end(), std::less<double>());
+		std::unique(vert_boundaries.begin(), vert_boundaries.end());
+		std::sort(hor_boundaries.begin(), hor_boundaries.end(), std::less<double>());
+		std::unique(hor_boundaries.begin(), hor_boundaries.end());
 
 		estimate_vert = 2 * vert_boundaries.size();
 		estimate_hor = 2 * hor_boundaries.size();
