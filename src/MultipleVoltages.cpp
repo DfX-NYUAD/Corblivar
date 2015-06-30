@@ -125,6 +125,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	double max_power_saving;
 	unsigned max_corners;
 
+	unsigned min_voltage_index;
+
 	// comparator for multiset of compound modules; multiset since cost may be equal
 	// for some modules, especially for trivial modules comprising one block; the
 	// comparator also takes parameters required for normalization of cost terms
@@ -219,9 +221,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		// assign (index of) lowest applicable voltage to all blocks comprised in
 		// this module
 		//
+		min_voltage_index = cur_selected_module->min_voltage_index();
 		for (auto it = cur_selected_module->blocks.begin(); it != cur_selected_module->blocks.end(); ++it) {
 
-			it->second->assigned_voltage_index = cur_selected_module->min_voltage_index();
+			it->second->assigned_voltage_index = min_voltage_index;
 		}
 
 		if (MultipleVoltages::DBG_VERBOSE) {
@@ -230,7 +233,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << cur_selected_module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << cur_selected_module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << cur_selected_module->feasible_voltages << std::endl;
-			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << cur_selected_module->min_voltage_index() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << min_voltage_index << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost(max_power_saving, max_corners, parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << cur_selected_module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_powerring_max() << std::endl;
