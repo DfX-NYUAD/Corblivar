@@ -2306,10 +2306,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			}
 		}
 
-		BoostPolygonSet outline_all_modules;
-
 		// output voltage volumes; die-wise as islands comprised of several boxes
-		for (auto const* module : fp.voltageAssignment.selected_modules) {
+		for (unsigned m = 0; m < fp.voltageAssignment.selected_modules.size(); m++) {
+
+			MultipleVoltages::CompoundModule* module = fp.voltageAssignment.selected_modules[m];
 
 			bool label_put = false;
 
@@ -2330,21 +2330,31 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				outline += BoostRect(bb.ll.x, bb.ll.y, bb.ur.x, bb.ur.y);
 			}
 
-			// subtract all by other modules previously covered areas
+			// subtract all by other modules covered areas; only consider yet
+			// unplotted modules; this avoids subtracting overlaps anytime for
+			// all intersecting modules which would, in turn, disables
+			// properly closed voltage islands
 			//
-			outline_all_modules.get(voltage_island_rects);
-			for (auto& rect : voltage_island_rects) {
+			for (unsigned m2 = m + 1; m2 < fp.voltageAssignment.selected_modules.size(); m2++) {
 
-				outline -= rect;
+				MultipleVoltages::CompoundModule* other_module = fp.voltageAssignment.selected_modules[m2];
+
+				if (other_module->id() == module->id()) {
+					continue;
+				}
+
+				for (auto& other_bb : other_module->outline[cur_layer]) {
+
+					if (other_bb.area == 0) {
+						continue;
+					}
+
+					outline -= BoostRect(other_bb.ll.x, other_bb.ll.y, other_bb.ur.x, other_bb.ur.y);
+				}
 			}
-
-			// memorize these module's rects as well in the common
-			// data structure; required for overlap subtraction
-			outline_all_modules += outline;
 
 			// get rectangles from outline BoostPolygonSet, put them into
 			// voltage_island_rects
-			voltage_island_rects.clear();
 			outline.get(voltage_island_rects);
 
 			// walk all partial rects of the voltage island
