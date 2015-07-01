@@ -43,6 +43,10 @@ class Math {
 
 	// public data, functions
 	public:
+		// small epsilon value, usually to be considered in order to avoid
+		// division by zero
+		static constexpr double epsilon = 1.0e-10;
+
 		// random-number functions
 		// note: range is [min, max)
 		inline static int randI(int const& min, int const& max) {

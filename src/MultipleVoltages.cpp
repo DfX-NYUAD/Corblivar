@@ -987,15 +987,13 @@ double MultipleVoltages::CompoundModule::power_saving(bool subtract_wasted_savin
 // smaller the cost the better
 //
 inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
-	static constexpr double epsilon = 1.0e-10;
-
 	// for the normalization, the min values are fixed: zero for power-saving (for
 	// trivial modules w/ only highest voltage applicable) and four for corners of
 	// trivially-shaped(rectangular) modules; add small epsilon to both min values in
 	// order to avoid division by zero
 	//
-	static constexpr double min_corners = 4 + epsilon;
-	static constexpr double min_power_saving = epsilon;
+	static constexpr double min_corners = 4 + Math::epsilon;
+	static constexpr double min_power_saving = Math::epsilon;
 	//
 	// the max values are derived from all candidate modules; this enables proper
 	// judgment of quality of any module in terms of weighted sum of cost terms;

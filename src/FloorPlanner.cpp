@@ -966,6 +966,9 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 		}
 	}
 
+	// add small epsilon value in order to avoid potential division by zero
+	exceeding_delays_sum += Math::epsilon;
+
 	// memorize max cost
 	if (set_max_cost) {
 		this->max_cost_timing = exceeding_delays_sum;
