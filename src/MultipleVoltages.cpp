@@ -53,13 +53,18 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			module.contiguous_neighbours.insert({neighbour.block->id, &neighbour});
 		}
 
-		// init outline
+		// init outline and corners for power rings
 		module.outline.reserve(layers);
+		module.corners_powerring.reserve(layers);
 
 		for (int l = 0; l < layers; l++) {
 
 			// empty bb
 			module.outline.emplace_back(std::vector<Rect>());
+
+			// any layer, also not affected layers, may be initialized with
+			// the trivial min number of corners, i.e., 4
+			module.corners_powerring.emplace_back(4);
 
 			if (start.layer == l) {
 				module.outline[l].emplace_back(start.bb);
@@ -557,6 +562,9 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// init outline from the previous module
 		inserted_new_module.outline = module.outline;
 
+		// init corners from the previous module
+		inserted_new_module.corners_powerring = module.corners_powerring;
+
 		// update bounding box, blocks area, and recalculate outline cost; all
 		// w.r.t. added (neighbour) block
 		inserted_new_module.updateOutlineCost(neighbour, cont);
@@ -610,7 +618,8 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 // local tree-pruning decisions during bottom-up phase
 //
 // also, extended bbs with minimized number of corners for power-ring synthesis are
-// generated hered
+// generated here; note that the die-wise container for power-ring corners is updated here
+// as well
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
 	double cost = 0.0;
 	Rect ext_bb;
@@ -628,14 +637,16 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	//
 	// init it from the module's current state
 	std::vector< std::vector<Rect> > outline = this->outline;
+	// similar handling for corners data structure
+	std::vector<unsigned> corners_powerring = this->corners_powerring;
 
 
 	if (MultipleVoltages::DBG) {
 		if (apply_update) {
-			std::cout << "DBG_VOLTAGES>  Update outline cost; module " << this->id() << ";";
+			std::cout << "DBG_VOLTAGES>  Update outline cost and power-ring corners; module " << this->id() << ";";
 		}
 		else {
-			std::cout << "DBG_VOLTAGES>  Determine (but don't update) outline cost; module " << this->id() << ";";
+			std::cout << "DBG_VOLTAGES>  Determine (but don't update) outline cost and power-ring corners; module " << this->id() << ";";
 		}
 		std::cout << " neighbour block " << neighbour->block->id << "; affected die " << n_l << std::endl;
 	}
@@ -646,6 +657,9 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	if (outline[n_l].empty()) {
 
 		outline[n_l].emplace_back(neighbour->block->bb);
+
+		// this will not impact the previous max value (4) since only one
+		// rectangular block is added
 	}
 	// update existing bb; try to extend bb to cover previous blocks and the new
 	// neighbour block; check for intrusion by any other block
@@ -758,9 +772,14 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			if (MultipleVoltages::DBG) {
 				std::cout << "DBG_VOLTAGES>   Extended bb is not intruded by any block; memorize this extended bb" << std::endl;
 			}
+
+			// note that no increase in corners for the power rings occurs in
+			// such cases
 		}
 		// in case any intrusion would occur, memorize only the separate,
 		// non-intruded boxes
+		//
+		// also update the estimated number of corners in the power rings
 		//
 		else {
 			// add the neighbours (extended) bb and extend the previous bb;
@@ -865,6 +884,36 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			// element, i.e., reassignment is effective for writing back
 			prev_bb = prev_bb_ext;
 			outline[n_l].emplace_back(neighbour_ext_bb);
+
+			// also update the number of corners; whenever the extended bbs
+			// have different coordinates in the extended dimension (due to
+			// intruding blocks considered above), two new corners will be
+			// introduced
+			//
+			// prev bb and neighbour are vertically intersecting, thus the
+			// vertical dimensions were extended
+			if (Rect::rectsIntersectVertical(neighbour->block->bb, prev_bb)) {
+
+				// check both boundaries separately
+				if (!Math::doubleComp(neighbour_ext_bb.ll.y, prev_bb_ext.ll.y)) {
+					corners_powerring[n_l] += 2;
+				}
+				if (!Math::doubleComp(neighbour_ext_bb.ur.y, prev_bb_ext.ur.y)) {
+					corners_powerring[n_l] += 2;
+				}
+			}
+			// prev bb and neighbour are horizontally intersecting, thus the
+			// horizontal dimensions were extended
+			else if (Rect::rectsIntersectHorizontal(neighbour->block->bb, prev_bb)) {
+
+				// check both boundaries separately
+				if (!Math::doubleComp(neighbour_ext_bb.ll.x, prev_bb_ext.ll.x)) {
+					corners_powerring[n_l] += 2;
+				}
+				if (!Math::doubleComp(neighbour_ext_bb.ur.x, prev_bb_ext.ur.x)) {
+					corners_powerring[n_l] += 2;
+				}
+			}
 		}
 
 		// calculate cost (amount of intrusion); only required for non-zero cost
@@ -886,59 +935,10 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	if (apply_update) {
 		this->outline = std::move(outline);
 		this->outline_cost = cost;
+		this->corners_powerring = corners_powerring;
 	}
 
 	return cost;
-}
-
-// helper to estimate max number of corners in power rings (separate for each die)
-//
-// each rectangle / partial bb of the die outline will introduce four corners; however, if
-// for example two rectangles are sharing a boundary then only six corners are found for
-// these two rectangles; thus, we only consider the unique boundaries and estimate that
-// each unique boundary introduces two corners; a shared boundary may arise in vertical or
-// horizontal direction, the actual number of corners will be given by the maximum of both
-// estimates
-//
-unsigned MultipleVoltages::CompoundModule::corners_powerring_max() const {
-
-	unsigned estimate_vert, estimate_hor;
-	unsigned estimate = 0;
-	std::vector<double> vert_boundaries;
-	std::vector<double> hor_boundaries;
-
-	for (auto& die_outline: this->outline) {
-
-		vert_boundaries.clear();
-		hor_boundaries.clear();
-
-		// for improved efficiency, put first all elements into regular vector and
-		// then sort and perform unique operation on this vector instead of using
-		// std::set
-		//
-		for (auto& outline_rect : die_outline) {
-			vert_boundaries.push_back(outline_rect.ll.x);
-			vert_boundaries.push_back(outline_rect.ur.x);
-			hor_boundaries.push_back(outline_rect.ll.y);
-			hor_boundaries.push_back(outline_rect.ur.y);
-		}
-
-		std::sort(vert_boundaries.begin(), vert_boundaries.end(), std::less<double>());
-		std::unique(vert_boundaries.begin(), vert_boundaries.end());
-		std::sort(hor_boundaries.begin(), hor_boundaries.end(), std::less<double>());
-		std::unique(hor_boundaries.begin(), hor_boundaries.end());
-
-		estimate_vert = 2 * vert_boundaries.size();
-		estimate_hor = 2 * hor_boundaries.size();
-
-		// recall that the estimates for vertical and
-		// horizontal estimates may differ, consider only
-		// the max of both; also memorize only the max
-		// estimate across all dies
-		estimate = std::max(estimate, std::max(estimate_vert, estimate_hor));
-	}
-
-	return estimate;
 }
 
 // helper to estimate gain in power reduction

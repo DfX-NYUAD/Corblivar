@@ -98,6 +98,19 @@ class MultipleVoltages {
 			//
 			double outline_cost = -1.0;
 
+			// container for estimated max number of corners in power rings
+			// per die
+			//
+			// each rectangle / partial bb of the die outline will introduce
+			// four corners; however, if for example two rectangles are
+			// sharing a boundary then only six corners are found for these
+			// two rectangles; thus, we only consider the unique boundaries
+			// and estimate that each unique boundary introduces two corners;
+			// a shared boundary may arise in vertical or horizontal
+			// direction, the actual number of corners will be given by the
+			// maximum of both estimates
+			std::vector<unsigned> corners_powerring;
+
 			// feasible voltages for whole module; defined by intersection of
 			// all comprised blocks
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
@@ -146,14 +159,21 @@ class MultipleVoltages {
 				return MAX_VOLTAGES - 1;
 			}
 
-			// helper to estimate max number of corners (in power rings) over
-			// all affected dies
-			//
-			unsigned corners_powerring_max() const;
-
-			// helpers to estimate gain in power reduction
+			// helper to estimate gain in power reduction
 			//
 			double power_saving(bool subtract_wasted_saving = true) const;
+
+			// helper to obtain overall (over all dies) max number of corners
+			// in power rings
+			unsigned corners_powerring_max() const {
+				unsigned ret = this->corners_powerring[0];
+
+				for (unsigned i = 1; i < this->corners_powerring.size(); i++) {
+					ret = std::max(ret, this->corners_powerring[i]);
+				}
+
+				return ret;
+			}
 
 			// global cost, required during top-down selection
 			//
