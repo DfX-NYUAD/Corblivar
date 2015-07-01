@@ -99,7 +99,10 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	if (different_voltage_set) {
 
 		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
-			this->buildCompoundModulesHelper(it->second, it, cont);
+			// also consider an upper limit on modules to generate; to abort
+			// further (combinatorial) exploration of an practically too large
+			// solution space; an practical limit is n^2 for n blocks
+			this->buildCompoundModulesHelper(it->second, it, cont, std::pow(blocks.size(), 2));
 		}
 	}
 
@@ -326,12 +329,18 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 // also note that a breadth-first search is applied to determine which is the best block
 // to be merged such that total cost (sum of local cost, where the sum differs for
 // different starting blocks) cost remain low
-void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint, ContiguityAnalysis& cont) {
+void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint, ContiguityAnalysis& cont, unsigned modules_limit) {
 	std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
 	std::vector<ContiguityAnalysis::ContiguousNeighbour*> candidates;
 	double best_candidate_cost;
 	std::vector<double> candidates_cost;
+
+	// sanity check for modules-count limit
+	//
+	if (this->modules.size() > modules_limit) {
+		return;
+	}
 
 	// walk all current neighbours; perform breadth-first search for each next-level
 	// compound module with same set of applicable voltages
@@ -395,7 +404,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// previous neighbours shall not be considered, in order to limit
 			// the search space such that only ``forward merging'' of new
 			// contiguous trivial modules is considered
-			this->insertCompoundModuleHelper(module, neighbour, false, feasible_voltages, hint, cont);
+			this->insertCompoundModuleHelper(module, neighbour, false, feasible_voltages, hint, cont, modules_limit);
 
 			// this break is the ``trick'' for disabling branching: once a
 			// contiguous trivial module is extended by this relevant
@@ -420,7 +429,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// previous neighbours shall be considered, since the related new
 			// module has a different set of voltages, i.e., no tie-braking
 			// was considered among some candidate neighbours
-			this->insertCompoundModuleHelper(module, neighbour, true, feasible_voltages, hint, cont);
+			this->insertCompoundModuleHelper(module, neighbour, true, feasible_voltages, hint, cont, modules_limit);
 		}
 		// any other case, i.e., only one (trivially the highest possible) voltage
 		// applicable for the new module; to be ignored
@@ -501,13 +510,13 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 				// note that in practice some blocks will still be
 				// (rightfully) considered since they are also contiguous
 				// neighbours with the now considered best-cost candidate
-				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint, cont);
+				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint, cont, modules_limit);
 			}
 		}
 	}
 }
 
-inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES>& feasible_voltages, MultipleVoltages::modules_type::iterator& hint, ContiguityAnalysis& cont) {
+inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES>& feasible_voltages, MultipleVoltages::modules_type::iterator& hint, ContiguityAnalysis& cont, unsigned modules_limit) {
 	MultipleVoltages::modules_type::iterator inserted;
 	unsigned modules_before, modules_after;
 
@@ -600,7 +609,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// recursive call; provide iterator to just inserted module as hint for
 		// next insertion
-		this->buildCompoundModulesHelper(inserted_new_module, inserted, cont);
+		this->buildCompoundModulesHelper(inserted_new_module, inserted, cont, modules_limit);
 	}
 	else if (MultipleVoltages::DBG) {
 		std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
