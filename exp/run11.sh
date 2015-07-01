@@ -3,10 +3,12 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="regular"
+exp="voltage_assignment"
+#exp="regular"
+benches=$2
+#benches="n100 n200 n300"
 #benches="ami33 xerox"
-benches="n100 n200 n300"
-runs=20
+runs=10
 
 #for die_count in 2 3
 for die_count in $1
