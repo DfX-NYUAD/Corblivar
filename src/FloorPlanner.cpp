@@ -991,8 +991,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	//
 	if (cost.timing_actual_value > (2.0 * Math::epsilon)) {
 
-		// consider a large normalized dummy, i.e., no improvement
-		cost.voltage_assignment = 10.0;
+		// consider a normalized dummy cost for no improvement
+		cost.voltage_assignment = 1.0;
 
 		// consider also zero modules and no power saving in such cases
 		cost.voltage_assignment_power_saving = 0.0;
