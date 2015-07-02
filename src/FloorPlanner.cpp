@@ -985,6 +985,23 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
+	// sanity check for delay violations; if violations occur, conducting voltage
+	// assignment is not reasonable since this will not reduce delays but rather seeks
+	// to increase them (in order to reduce power)
+	//
+	if (cost.timing_actual_value > (2.0 * Math::epsilon)) {
+
+		// consider a large normalized dummy, i.e., no improvement
+		cost.voltage_assignment = 10.0;
+
+		// consider also zero modules and no power saving in such cases
+		cost.voltage_assignment_power_saving = 0.0;
+		cost.voltage_assignment_corners_avg = 4.0;
+		cost.voltage_assignment_modules_count = 0.0;
+
+		return;
+	}
+
 	// derive applicable voltages for each block; lower voltages are applicable as
 	// long as the delay threshold would not be violated by doing so
 	//
