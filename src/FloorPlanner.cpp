@@ -637,8 +637,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.timing) {
-				std::cout << "Corblivar> Timing (sum of exceeding delays [ns]): " << cost.timing_actual_value << std::endl;
-				this->IO_conf.results << "Timing (sum of exceeding delays [ns]): " << cost.timing_actual_value << std::endl;
+				std::cout << "Corblivar> Timing (max delay violation [ns]): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << "Timing (max delay violation [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
@@ -930,8 +930,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 // determine the delays for all blocks; they shall fulfill a max delay below a given
 // threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
-	double exceeding_delays_sum;
-	double cur_exceeding_delay;
+	double max_delay_violation;
+	double cur_delay_violation;
 
 	// reset previous voltage assignments if required; they impact the module delay
 	if (this->opt_flags.voltage_assignment) {
@@ -955,30 +955,28 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	// evaluate exceeding delays over all blocks, drivers and non-driving blocks;
 	// covers both net delay and actual block delays; compare to delay threshold
 	//
-	exceeding_delays_sum = 0.0;
+	max_delay_violation = 0.0;
 	for (Block const& block : this->blocks) {
 
-		// consider only exceeding delays
-		cur_exceeding_delay = block.delay() - this->IC.delay_threshold;
+		// consider only max over all (exceeding) delays
+		cur_delay_violation = block.delay() - this->IC.delay_threshold;
 
-		if (cur_exceeding_delay > 0.0) {
-			exceeding_delays_sum += cur_exceeding_delay;
-		}
+		std::max(max_delay_violation, cur_delay_violation);
 	}
 
 	// add small epsilon value in order to avoid potential division by zero
-	exceeding_delays_sum += Math::epsilon;
+	max_delay_violation += Math::epsilon;
 
 	// memorize max cost
 	if (set_max_cost) {
-		this->max_cost_timing = exceeding_delays_sum;
+		this->max_cost_timing = max_delay_violation;
 	}
 
 	// apply cost normalization
-	cost.timing = exceeding_delays_sum / this->max_cost_timing;
+	cost.timing = max_delay_violation / this->max_cost_timing;
 
 	// store actual value
-	cost.timing_actual_value = exceeding_delays_sum;
+	cost.timing_actual_value = max_delay_violation;
 }
 
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
