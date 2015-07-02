@@ -101,8 +101,8 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 			// also consider an upper limit on modules to generate; to abort
 			// further (combinatorial) exploration of an practically too large
-			// solution space; an practical limit is n^2 for n blocks
-			this->buildCompoundModulesHelper(it->second, it, cont, std::pow(blocks.size(), 2));
+			// solution space; an practical limit is n^(1.5) for n blocks
+			this->buildCompoundModulesHelper(it->second, it, cont, pow(blocks.size(), 1.5));
 		}
 	}
 
