@@ -1192,7 +1192,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	double prev_TSVs;
 	double net_weight;
 	RoutingUtilization::UtilResult util;
-	TSV_Island* island;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
@@ -1348,9 +1347,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					if (i < cur_net.layer_top) {
 
 						// define new trivial island, with one TSV
-						island = new TSV_Island(
+						this->TSVs.emplace_back(TSV_Island(
 								// net id and layer
-								"net_" + std::to_string(cur_net.id) + "_" + std::to_string(i),
+								std::string("net_" + std::to_string(cur_net.id) + "_" + std::to_string(i)),
 								// one TSV count
 								1,
 								// TSV pitch; required for proper scaling
@@ -1361,13 +1360,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 								bb,
 								// layer assignment
 								i
-							);
+							));
 
 						// here, greedy shifting is ignored for simplicity and runtime
 						//
-
-						// memorize TSV in global container
-						this->TSVs.push_back(*island);
 					}
 				}
 			}
@@ -1482,7 +1478,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
 	CorblivarAlignmentReq::Evaluate eval;
-	TSV_Island* island;
 	bool shift;
 	RoutingUtilization::UtilResult util;
 
@@ -1552,9 +1547,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 				for (layer = min_layer; layer < max_layer; layer++) {
 
 					// define new island
-					island = new TSV_Island(
+					this->TSVs.emplace_back(TSV_Island(
 							// bus id
-							"bus_" + req.s_i->id + "_" + req.s_j->id,
+							std::string("bus_" + req.s_i->id + "_" + req.s_j->id),
 							// signal / TSV count
 							req.signals,
 							// TSV pitch; required for proper scaling
@@ -1570,32 +1565,31 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							// specific width according to
 							// alignment requirement
 							req.vertical_bus() ? req.alignment_x : -1.0
-						);
+						));
 
 					// perform greedy shifting in case new island
 					// overlaps with any previous one
 					//
+					TSV_Island& island = this->TSVs.back();
 					shift = true;
+
 					while (shift) {
 
 						shift = false;
 
 						for (TSV_Island const& prev_island : this->TSVs) {
 
-							if (prev_island.layer != island->layer) {
+							if (prev_island.layer != island.layer) {
 								continue;
 							}
 
-							if (Rect::rectsIntersect(prev_island.bb, island->bb)) {
+							if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
 
-								Rect::greedyShiftingRemoveIntersection(prev_island.bb, island->bb);
+								Rect::greedyShiftingRemoveIntersection(prev_island.bb, island.bb);
 								shift = true;
 							}
 						}
 					}
-
-					// memorize TSV in global container
-					this->TSVs.push_back(*island);
 
 					// determine the HPWL components and routing
 					// utilization; net segments are to be considered
@@ -1607,10 +1601,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						// the TSV island and the block on the
 						// layer of interest
 						if (layer == req.s_i->layer) {
-							routing_bb = Rect::determBoundingBox(island->bb, req.s_i->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb);
 						}
 						else {
-							routing_bb = Rect::determBoundingBox(island->bb, req.s_j->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb);
 						}
 
 						// add HPWL of bb to cost
@@ -1632,10 +1626,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						// the TSV island and the block on the
 						// layer of interest
 						if (layer + 1 == req.s_i->layer) {
-							routing_bb = Rect::determBoundingBox(island->bb, req.s_i->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb);
 						}
 						else {
-							routing_bb = Rect::determBoundingBox(island->bb, req.s_j->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb);
 						}
 
 						// add HPWL of bb to cost
