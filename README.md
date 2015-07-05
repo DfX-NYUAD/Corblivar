@@ -97,21 +97,25 @@ given default parameters should be applicable for most GSRC-benchmarks-based exp
 
 To run the Octave scripts, either change directory to thermal_analysis_octave/ and start
 scripts from there (octave optimization.m BENCH CORBLIVAR.CONF), or copy the scripts from
-thermal_analysis_octave/ to separate working directories; see below and/or exp/run9.sh
-for further details.
+thermal_analysis_octave/ to separate working directories; see below and/or exp/run9.sh for
+further details.
 
-The Octave scripts work roughly like this: first, generate an initial floorplan solution, used as a baseline reference; second, run
-HotSpot on this solution (note that specific values for heterogeneous TSV densities are already considered here);
-third, match the power-blurring temperature map to the HotSpot map via a local search;
-fourth, output the related power-blurring parameters for the best match, which describes
-the HotSpot estimate most closely. For further details, see documentation_Octave.pdf.
+It's important to note that parallel runs of different of the Octave scripts have to be
+avoided; they will result in runtime errors and undermine parametrization!
 
-Note that Corblivar can model the thermal impact of both regular signal TSVs and vertical
-buses, i.e., large TSV groups. Regular signal TSVs are, however, only considered when the
-layout-generation option "Clustering of signal TSVs" is activated.
-Vertical buses are assumed to have tightest possible
-packing of multiple TSVs (100% TSV density) for the whole bus region, even if fewer TSVs
-would suffice for signal transmission.
+The Octave scripts work roughly like this: first, generate an initial floorplan solution,
+used as a baseline reference; second, run HotSpot on this solution (note that specific
+values for heterogeneous TSV densities are already considered here); third, match the
+power-blurring temperature map to the HotSpot map via a local search; fourth, output the
+related power-blurring parameters for the best match, which describes the HotSpot estimate
+most closely. For further details, see documentation_Octave.pdf.
+
+Note that Corblivar models the thermal impact of both regular signal TSVs and vertical
+buses, i.e., large TSV groups. Regular signal TSVs may be clustered into vertical buses as
+well, when the layout-generation option "Clustering of signal TSVs" is activated.
+Vertical buses are assumed to have tightest possible packing of multiple TSVs (100% TSV
+density) for the whole bus region, even if fewer TSVs would suffice for signal
+transmission.
 
 4) Running Corblivar
 --------------------
