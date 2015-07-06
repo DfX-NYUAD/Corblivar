@@ -137,6 +137,9 @@ class Block {
 		// will also be used for proper delay and power calculations
 		mutable unsigned assigned_voltage_index;
 
+		// this is the module where the block is finally assigned to
+		mutable MultipleVoltages::CompoundModule* assigned_module;
+
 		// reset feasible voltages and voltage assignment; the highest possible
 		// voltage shall be considered as set; this enables all the related
 		// functions to return correct values even if no assignment is performed

@@ -227,13 +227,14 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		// memorize this module as selected
 		this->selected_modules.push_back(cur_selected_module);
 
-		// assign (index of) lowest applicable voltage to all blocks comprised in
-		// this module
+		// assign related values to all blocks comprised in this module: (index
+		// of) lowest applicable voltage, and pointer to module itself
 		//
 		min_voltage_index = cur_selected_module->min_voltage_index();
 		for (auto it = cur_selected_module->blocks.begin(); it != cur_selected_module->blocks.end(); ++it) {
 
 			it->second->assigned_voltage_index = min_voltage_index;
+			it->second->assigned_module = cur_selected_module;
 		}
 
 		if (MultipleVoltages::DBG_VERBOSE) {
@@ -293,6 +294,113 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		if (MultipleVoltages::DBG_VERBOSE) {
 			std::cout << "DBG_VOLTAGES>     Deleted modules count: " << count << std::endl;
 		}
+	}
+
+	// fourth, merge selected modules whenever possible, i.e., when some of the
+	// modules' blocks are contiguous to another module sharing the same voltage
+	//
+
+	if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES>  Start merging modules" << std::endl;
+	}
+
+	// for-loop instead of iterator, since we edit this very data structure
+	//
+	for (unsigned m = 0; m < this->selected_modules.size(); m++) {
+
+		MultipleVoltages::CompoundModule* module = this->selected_modules[m];
+
+		// walk all contiguous blocks of current module
+		//
+		for (auto it = module->contiguous_neighbours.begin(); it != module->contiguous_neighbours.end(); ++it) {
+
+			MultipleVoltages::CompoundModule* n_module = it->second->block->assigned_module;
+
+			// if the related module of the contiguous block has the same
+			// voltage index as this module, they can be merged; merging means
+			// to extend the current module with the blocks from the
+			// contiguous block's module
+			//
+			if (n_module->min_voltage_index() == module->min_voltage_index()) {
+
+				// sanity check; avoid merging with itself
+				if (n_module->id() == module->id()) {
+					continue;
+				}
+
+				if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES>   Merging modules;" << std::endl;
+					std::cout << "DBG_VOLTAGES>    " << module->id() << std::endl;
+					std::cout << "DBG_VOLTAGES>    " << n_module->id() << std::endl;
+				}
+
+				// update the block ids, simply add the ids from other
+				// module to be merged with
+				for (auto id : n_module->block_ids) {
+					module->block_ids.insert(std::move(id));
+				}
+
+				// update the actual blocks
+				for (auto it = n_module->blocks.begin(); it != n_module->blocks.end(); ++it) {
+
+					module->blocks.insert({it->first, it->second});
+
+					// also update the module pointer for merged
+					// module's blocks
+					it->second->assigned_module = module;
+				}
+
+				// add the outline rects from the module to be merged
+				for (unsigned l = 0; l < module->outline.size(); l++) {
+
+					for (auto& rect : n_module->outline[l]) {
+						module->outline[l].push_back(std::move(rect));
+					}
+
+					// also sum up the power-ring corners, but
+					// subtract two under the assumption that the
+					// previous module's outline can be extended
+					// without further corners; this is an somewhat
+					// optimistic but simple estimation
+					module->corners_powerring[l] += n_module->corners_powerring[l] - 2;
+				}
+
+				// add (pointers to) now additionally considered
+				// contiguous neighbours; note that only yet not
+				// considered neighbours are effectively added to the map
+				for (auto& n : n_module->contiguous_neighbours) {
+
+					// ignore any neighbour which is already comprised in the module
+					if (module->block_ids.find(n.first) != module->block_ids.end()) {
+						continue;
+					}
+
+					module->contiguous_neighbours.insert({n.first, n.second});
+				}
+
+				// erase the just merged module
+				//
+				for (auto it = this->selected_modules.begin(); it != this->selected_modules.end(); ++it) {
+
+					if ((*it)->id() == n_module->id()) {
+						this->selected_modules.erase(it);
+						break;
+					}
+				}
+
+				// finally, reset the iterator for contiguous blocks as
+				// well; required to capture transitive merges and,
+				// furthermore, iterator it is invalid after the above
+				// insertions
+				//
+				it = module->contiguous_neighbours.begin();
+			}
+		}
+	}
+
+	if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES>  Done merging modules" << std::endl;
+		std::cout << std::endl;
 	}
 
 	if (MultipleVoltages::DBG) {
