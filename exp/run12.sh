@@ -3,10 +3,11 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="alignment"
+exp="regular"
+benches=$2
+#benches="n100 n200 n300"
 #benches="ami33 xerox"
-benches="n100 n200 n300"
-runs=20
+runs=25
 
 #for die_count in 2 3
 for die_count in $1
@@ -86,7 +87,7 @@ do
 
 			# run individual aux scripts, if required
 			#
-			./HotSpot.sh $bench $die_count
+#./HotSpot.sh $bench $die_count
 		done
 
 		# run experiments-folder aux scripts

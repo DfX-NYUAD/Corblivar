@@ -30,7 +30,7 @@ cite our papers:
 
 Compile & Run
 =============
-**To compile and run Corblivar, you need the following tool**
+**To compile and run Corblivar, you need the following**
 - C++ compiler (clang++ was used; for clang++ at least version 3.1 is required)
 - libboost
 - gnuplot
@@ -133,7 +133,7 @@ in the related working directory.
 
 Comments
 ========
-**The further comments below are for better understanding of the Corblivar tool and its structure**
+**The further comments elaborate on the folders and scripts of Corblivar**
 
 Various experiments can be started using exp/run*.sh; these scripts are not a complete
 set for running all experiments but rather a guideline for different setups.
@@ -151,14 +151,12 @@ mixed up data. See for example exp/run9.sh
 The script exp/gp.sh delegates to gnuplot for generating various output plots, e.g.,
 thermal map and floorplan, after running Corbilvar.
 
-The script HotSpot.sh calls a (slightly modified) version of BU's 3D HotSpot program; the
-related code should be provided along with Corblivar.
+The script exp/HotSpot.sh calls a (slightly modified) version of BU's 3D HotSpot program; the
+related code should be provided along with Corblivar. Note that the script contains a path
+to the HotSpot binary which has to be adapted for your local setup.
 
 The file exp/Corblivar.conf is a template for the config file required by Corblivar,
 further examples can be found in exp/configs/.
-
-Settings in some scripts may rely on the folder ~/code ; putting ~/code/Corblivar along
-with ~/code/HotSpot is the default setup which should be working in any case.
 
 Changelog
 =========

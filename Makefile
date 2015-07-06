@@ -34,7 +34,7 @@ OPT := $(OPT) -std=c++11
 # debug symbols
 OPT := $(OPT) -g
 # Runtime Optimization
-OPT := $(OPT) -O2
+OPT := $(OPT) -O3
 # native tuning, since gcc 4.2
 OPT := $(OPT) -march=native
 
