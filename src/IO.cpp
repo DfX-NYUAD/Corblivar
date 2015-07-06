@@ -2408,13 +2408,15 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			gp_out << " fillcolor rgb \"#704a30\" fillstyle solid";
 			gp_out << std::endl;
 
-			// label
-			gp_out << "set label \"" << TSV_group.id << "\"";
-			gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.IC.outline_x;
-			gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.IC.outline_y;
-			gp_out << " font \"Gill Sans,2\"";
-			// prevents generating subscripts for underscore in labels
-			gp_out << " noenhanced" << std::endl;
+			// label, only for larger islands not for single TSVs
+			if (TSV_group.TSVs_count > 1) {
+				gp_out << "set label \"" << TSV_group.id << "\"";
+				gp_out << " at " << TSV_group.bb.ll.x + 0.01 * fp.IC.outline_x;
+				gp_out << "," << TSV_group.bb.ll.y + 0.01 * fp.IC.outline_y;
+				gp_out << " font \"Gill Sans,2\"";
+				// prevents generating subscripts for underscore in labels
+				gp_out << " noenhanced" << std::endl;
+			}
 		}
 
 		// check alignment fulfillment; draw accordingly colored rectangles around
