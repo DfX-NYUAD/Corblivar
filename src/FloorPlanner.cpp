@@ -1191,6 +1191,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	Rect bb, prev_bb;
 	double prev_TSVs;
 	double net_weight;
+	bool shift;
 	RoutingUtilization::UtilResult util;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1364,6 +1365,36 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 						// here, greedy shifting is ignored for simplicity and runtime
 						//
+
+						// perform greedy shifting in case new island
+						// overlaps with any previous one
+						//
+						TSV_Island& island = this->TSVs.back();
+						shift = true;
+
+						while (shift) {
+
+							shift = false;
+
+							for (TSV_Island const& prev_island : this->TSVs) {
+
+								if (prev_island.layer != island.layer) {
+									continue;
+								}
+								if (prev_island.id == island.id) {
+									continue;
+								}
+
+								if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
+
+									// shift only the
+									// new TSV
+									Rect::greedyShiftingRemoveIntersection(island.bb, prev_island.bb, true);
+
+									shift = true;
+								}
+							}
+						}
 					}
 				}
 			}
