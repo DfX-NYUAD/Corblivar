@@ -161,6 +161,20 @@ further examples can be found in exp/configs/.
 Changelog
 =========
 
+1.4.0
+-----
+*July 2015, commit 3cecd66182758b190dac0481fc3ed30f35270dad*
+**new feature: delay-aware voltage assignment, minor other updates and fixes**
+- added determination of delays, using Elmore delay for net and TSV delay, and module
+delays based on voltage assignment
+- added voltage-assignment handler: determines possible arrangments of voltage domains and
+selects the best-cost solutions
+- added related contiguity analysis for modules/blocks
+- related update floorplanning flow
+- related update Technology.conf and Corblivar.conf; added new experiments and config scripts
+- fix memory leakage related to greedy shifting of TSV islands
+- div refactoring and cleanups
+
 1.3.1
 -----
 *May 2015, commit f770ba1d2e56f9df6f3f0dab0d9e2b020e111928*
