@@ -1013,6 +1013,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		return;
 	}
 
+	if (FloorPlanner::DBG_CALLS_SA) {
+		std::cout << "-> FloorPlanner::evaluateVoltageAssignment()" << std::endl;
+	}
+
 	// derive applicable voltages for each block; lower voltages are applicable as
 	// long as the delay threshold would not be violated by doing so
 	//
@@ -1086,6 +1090,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// voltage assignment, since the delay cost is only capturing excessive delays,
 	// which will not arise after conservative voltage assignment which considers only
 	// lower voltages not violating the delay threshold
+
+	if (FloorPlanner::DBG_CALLS_SA) {
+		std::cout << "<- FloorPlanner::evaluateVoltageAssignment()" << std::endl;
+	}
 }
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
