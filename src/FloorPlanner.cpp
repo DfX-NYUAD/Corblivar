@@ -637,8 +637,24 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			}
 
 			if (this->opt_flags.timing) {
-				std::cout << "Corblivar> Timing (max delay violation [ns]): " << cost.timing_actual_value << std::endl;
-				this->IO_conf.results << "Timing (max delay violation [ns]): " << cost.timing_actual_value << std::endl;
+
+				std::cout << "Corblivar> Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
+				this->IO_conf.results << "Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
+
+				if (cost.timing_actual_value > this->IC.delay_threshold) {
+					std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
+					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+					std::cout << " / ";
+					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+					std::cout << std::endl;
+
+					this->IO_conf.results << " Timing violation ([ns] / [%]): ";
+					this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
+					this->IO_conf.results << " / ";
+					this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+					this->IO_conf.results << std::endl;
+				}
+
 				this->IO_conf.results << std::endl;
 			}
 
@@ -930,8 +946,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 // determine the delays for all blocks; they shall fulfill a max delay below a given
 // threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
-	double max_delay_violation;
-	double cur_delay_violation;
+	double max_delay;
 
 	// reset previous voltage assignments if required; they impact the module delay
 	if (this->opt_flags.voltage_assignment) {
@@ -952,31 +967,25 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 		cur_net.assignSourceMaxDelay();
 	}
 
-	// evaluate exceeding delays over all blocks, drivers and non-driving blocks;
-	// covers both net delay and actual block delays; compare to delay threshold
+	// evaluate max delay over all blocks, drivers and non-driving blocks; covers both
+	// net delay and actual block delays
 	//
-	max_delay_violation = 0.0;
+	max_delay = 0.0;
 	for (Block const& block : this->blocks) {
 
-		// consider only max over all (exceeding) delays
-		cur_delay_violation = block.delay() - this->IC.delay_threshold;
-
-		max_delay_violation = std::max(max_delay_violation, cur_delay_violation);
+		max_delay = std::max(max_delay, block.delay());
 	}
 
-	// add small epsilon value in order to avoid potential division by zero
-	max_delay_violation += Math::epsilon;
-
-	// memorize max cost
+	// memorize max cost; consider given delay threshold
 	if (set_max_cost) {
-		this->max_cost_timing = max_delay_violation;
+		this->max_cost_timing = this->IC.delay_threshold;
 	}
 
 	// apply cost normalization
-	cost.timing = max_delay_violation / this->max_cost_timing;
+	cost.timing = max_delay / this->max_cost_timing;
 
-	// store actual value, i.e., subtract epsilon again
-	cost.timing_actual_value = max_delay_violation - Math::epsilon;
+	// store actual max delay value
+	cost.timing_actual_value = max_delay;
 }
 
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
@@ -989,18 +998,14 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// assignment is not reasonable since this will not reduce delays but rather seeks
 	// to increase them (in order to reduce power)
 	//
-	// note that small epsilon value is considered despite it not being included in
-	// actual value; however, very small violation may result from rounding errors and
-	// shall thus be neglected
-	//
-	if (cost.timing_actual_value > Math::epsilon) {
+	if (cost.timing_actual_value > this->IC.delay_threshold) {
 
-		// consider a normalized dummy cost for no improvement
-		cost.voltage_assignment = 1.0;
+		// cost according to cost above, i.e., delay over threshold
+		cost.voltage_assignment = cost.timing_actual_value / this->IC.delay_threshold;
 
 		// consider also zero modules and no power saving in such cases
 		cost.voltage_assignment_power_saving = 0.0;
-		cost.voltage_assignment_corners_avg = 4.0;
+		cost.voltage_assignment_corners_avg = 0.0;
 		cost.voltage_assignment_modules_count = 0.0;
 
 		return;
