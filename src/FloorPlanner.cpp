@@ -975,8 +975,8 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	// apply cost normalization
 	cost.timing = max_delay_violation / this->max_cost_timing;
 
-	// store actual value
-	cost.timing_actual_value = max_delay_violation;
+	// store actual value, i.e., subtract epsilon again
+	cost.timing_actual_value = max_delay_violation - Math::epsilon;
 }
 
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
@@ -989,7 +989,11 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cos
 	// assignment is not reasonable since this will not reduce delays but rather seeks
 	// to increase them (in order to reduce power)
 	//
-	if (cost.timing_actual_value > (2.0 * Math::epsilon)) {
+	// note that small epsilon value is considered despite it not being included in
+	// actual value; however, very small violation may result from rounding errors and
+	// shall thus be neglected
+	//
+	if (cost.timing_actual_value > Math::epsilon) {
 
 		// consider a normalized dummy cost for no improvement
 		cost.voltage_assignment = 1.0;
