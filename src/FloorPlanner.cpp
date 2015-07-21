@@ -658,7 +658,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << std::endl;
 			}
 
-			if (this->opt_flags.voltage_assignment) {
+			if (this->opt_flags.voltage_assignment && cost.timing_actual_value < this->IC.delay_threshold) {
 				std::cout << "Corblivar> Voltage assignment: " << std::endl;
 				std::cout << "Corblivar>  Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
@@ -667,6 +667,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << " Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
+				this->IO_conf.results << std::endl;
+			}
+			else if (this->opt_flags.voltage_assignment) {
+				std::cout << "Corblivar> Voltage assignment: failed, due to timing violation" << std::endl;
+				this->IO_conf.results << "Voltage assignment: failed, due to timing violation" << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 		}
