@@ -35,7 +35,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	// consider each block as starting point for a compound module
 	for (Block const& start : blocks) {
 
-		// init the trivial compound module, containing only the block itself
+		// init the base compound module, containing only the block itself
 		MultipleVoltages::CompoundModule module;
 
 		// copy feasible voltages
@@ -72,38 +72,12 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			// note that outline[l] shall remain empty otherwise
 		}
 
-		// store trivial compound module
-		this->modules.insert({module.block_ids, module});
-	}
+		// store base compound module
+		auto inserted_it = this->modules.insert(this->modules.begin(), {module.block_ids, module});
 
-	// sanity check for any different set of applicable voltages; if all trivial
-	// modules have the same set of voltages, the solution-space exploration is not
-	// practical anymore, then we have to assume the trivial modules as determined set
-	//
-	bool different_voltage_set = false;
-	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
-
-		// compare current and next module, if some next module exits
-		if (std::next(it) != this->modules.end()) {
-			different_voltage_set = (it->second.min_voltage_index() != std::next(it)->second.min_voltage_index());
-		}
-
-		// some different voltage set exists, break check
-		if (different_voltage_set) {
-			break;
-		}
-	}
-
-	// if the above sanity check succeeds, perform stepwise and recursive merging of
-	// blocks into larger compound modules
-	if (different_voltage_set) {
-
-		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
-			// also consider an upper limit on modules to generate; to abort
-			// further (combinatorial) exploration of an practically too large
-			// solution space; an practical limit is n^(1.5) for n blocks
-			this->buildCompoundModulesHelper(it->second, it, cont, pow(blocks.size(), 1.5));
-		}
+		// perform stepwise and recursive merging of base module into larger
+		// compound modules
+		this->buildCompoundModulesHelper(module, inserted_it, cont, pow(blocks.size(), 1.5));
 	}
 
 	if (MultipleVoltages::DBG) {
