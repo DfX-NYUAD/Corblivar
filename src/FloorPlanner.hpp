@@ -209,6 +209,7 @@ class FloorPlanner {
 		void evaluateTiming(Cost& cost,
 				bool const& set_max_cost = false);
 		void evaluateVoltageAssignment(Cost& cost,
+				double const& fitting_layouts_ratio,
 				bool const& set_max_cost = false);
 
 		// SA: parameters for cost functions

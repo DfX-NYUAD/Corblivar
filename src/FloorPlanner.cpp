@@ -829,7 +829,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, true);
 
-			this->evaluateVoltageAssignment(cost, true);
+			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true);
 		}
 		else if (finalize && this->opt_flags.timing) {
 			this->evaluateTiming(cost, true);
@@ -839,7 +839,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, set_max_cost);
 
-			this->evaluateVoltageAssignment(cost, set_max_cost);
+			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, set_max_cost);
 		}
 		// only consider timing
 		else if (this->opt_flags.timing) {
@@ -988,19 +988,21 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 	cost.timing_actual_value = max_delay;
 }
 
-void FloorPlanner::evaluateVoltageAssignment(Cost& cost, bool const& set_max_cost) {
+void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost) {
 	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
-	// sanity check for delay violations; if violations occur, conducting voltage
-	// assignment is not reasonable since this will not reduce delays but rather seeks
-	// to increase them (in order to reduce power)
+	// sanity checks; if delay violations occur (with some small tolerance margin),
+	// conducting voltage assignment is not reasonable since this will not reduce
+	// delays but rather seeks to increase them (in order to reduce power); also, in
+	// case no fitting layouts are available, voltage assignment may also be skipped
+	// since it is not deemed required for invalid layouts
 	//
-	if (cost.timing_actual_value > this->IC.delay_threshold) {
+	if (cost.timing_actual_value > 1.02 * this->IC.delay_threshold || Math::doubleComp(fitting_layouts_ratio, 0.0)) {
 
-		// cost according to cost above, i.e., delay over threshold
+		// dummy cost according to timing cost above, i.e., delay over threshold
 		cost.voltage_assignment = cost.timing_actual_value / this->IC.delay_threshold;
 
 		// consider also zero modules and no power saving in such cases
