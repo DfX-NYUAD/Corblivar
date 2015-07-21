@@ -961,7 +961,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
 		// consider only max over all (exceeding) delays
 		cur_delay_violation = block.delay() - this->IC.delay_threshold;
 
-		std::max(max_delay_violation, cur_delay_violation);
+		max_delay_violation = std::max(max_delay_violation, cur_delay_violation);
 	}
 
 	// add small epsilon value in order to avoid potential division by zero
