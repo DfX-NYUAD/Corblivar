@@ -999,18 +999,23 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
-	// sanity checks; if delay violations occur (with some small tolerance margin),
-	// conducting voltage assignment is not reasonable since this will not reduce
-	// delays but rather seeks to increase them (in order to reduce power); also, in
-	// case no fitting layouts are available, voltage assignment may also be skipped
-	// since it is not deemed required for invalid layouts
+	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
-	if (cost.timing_actual_value > 1.02 * this->IC.delay_threshold || Math::doubleComp(fitting_layouts_ratio, 0.0)) {
+	// if delay violations occur (with some small tolerance margin), conducting
+	// voltage assignment is not reasonable since this will not reduce delays but
+	// rather seeks to increase them (in order to reduce power); also, in case no
+	// fitting layouts are available, voltage assignment may also be skipped since it
+	// is not deemed required for invalid layouts
+	//
+	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::doubleComp(fitting_layouts_ratio, 0.0))) {
 
-		// dummy cost according to timing cost above, i.e., delay over threshold
-		cost.voltage_assignment = cost.timing_actual_value / this->IC.delay_threshold;
+		// TODO shall simply have no impact, i.e., weight shall be zero and other
+		// weights accordingly increased
+		//
+		// dummy cost according to squared timing cost above, i.e., delay over threshold
+		cost.voltage_assignment = pow(cost.timing_actual_value / this->IC.delay_threshold, 2.0);
 
-		// consider also zero modules and no power saving in such cases
+		// consider dummy voltage assignment: zero modules etc
 		cost.voltage_assignment_power_saving = 0.0;
 		cost.voltage_assignment_corners_avg = 0.0;
 		cost.voltage_assignment_modules_count = 0.0;
@@ -1056,12 +1061,19 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();
 	}
-	// for minimization purposes, consider the inverse of power saving
-	inv_power_saving = 1.0 / inv_power_saving;
 	// modules count
 	module_count = selected_modules.size();
 	// average value for corners
 	corners_avg /= static_cast<double>(module_count);
+
+	// store actual values
+	cost.voltage_assignment_power_saving = inv_power_saving;
+	cost.voltage_assignment_corners_avg = corners_avg;
+	cost.voltage_assignment_modules_count = module_count;
+
+	// for minimization purposes, consider the inverse of power saving; consider small
+	// epsilon to avoid division by zero
+	inv_power_saving = 1.0 / (inv_power_saving + Math::epsilon);
 
 	// memorize max values; required for normalization; at the same time like max cost
 	// are set
@@ -1086,11 +1098,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// apply cost normalization
 	cost.voltage_assignment /= this->max_cost_voltage_assignment;
 
-	// store actual values
-	cost.voltage_assignment_power_saving = 1.0 / inv_power_saving;
-	cost.voltage_assignment_corners_avg = corners_avg;
-	cost.voltage_assignment_modules_count = module_count;
-
+	// TODO update
 	// note that the delay cost is not required to be updated / not changed after
 	// voltage assignment, since the delay cost is only capturing excessive delays,
 	// which will not arise after conservative voltage assignment which considers only
