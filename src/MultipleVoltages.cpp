@@ -441,8 +441,8 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 	std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
 	std::vector<ContiguityAnalysis::ContiguousNeighbour*> candidates;
-	double best_candidate_cost;
-	std::vector<double> candidates_cost;
+	double best_candidate_cost, cur_candidate_cost;
+	ContiguityAnalysis::ContiguousNeighbour* best_candidate;
 
 	// sanity check for modules-count limit
 	//
@@ -557,11 +557,10 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 	// some neighbours may be added such that there is no change in the set of
 	// applicable voltages; out of the related candidates, proceed only with the
-	// lowest-cost candidate (w.r.t. outline_cost); this way, the solution space is
-	// notably reduced, and the top-down process would select partial solutions
-	// (compound modules) of lowest cost anyway, thus this decision can already be
-	// applied here
-	//
+	// lowest-cost candidate (w.r.t. local outline_cost); this way, the solution space
+	// is notably reduced, and the top-down process would select compound modules of
+	// lowest cost (global cost, somewhat related to this local cost) anyway, thus
+	// this decision can already be applied here
 	//
 	if (!candidates.empty()) {
 
@@ -573,54 +572,41 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 		// 1.0); min cost is to be determined
 		best_candidate_cost = 1.0;
 
-		// 1) determine all cost and min cost
-		candidates_cost.reserve(candidates.size());
-		for (auto& candidate : candidates) {
+		// determine best candidate
+		for (auto* candidate : candidates) {
 
 			// apply_update = false; i.e., only calculate cost of potentially
 			// adding the candidate block, don't add block yet
 			//
-			// memorize cost since more than one module may show best cost
-			//
-			candidates_cost.push_back(module.updateOutlineCost(candidate, cont, false));
+			cur_candidate_cost = module.updateOutlineCost(candidate, cont, false);
 
 			if (MultipleVoltages::DBG) {
-				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << candidates_cost.back() << std::endl;
+				std::cout << "DBG_VOLTAGES>  Candidate block " << candidate->block->id <<"; cost: " << cur_candidate_cost << std::endl;
 			}
 
-			// determine min cost
-			if (candidates_cost.back() < best_candidate_cost) {
-				best_candidate_cost = candidates_cost.back();
-			}
-		}
-
-		// consider all candidates w/ best cost
-		//
-		for (unsigned c = 0; c < candidates.size(); c++) {
-
-			if (Math::doubleComp(candidates_cost[c], best_candidate_cost)) {
-
-				ContiguityAnalysis::ContiguousNeighbour* best_candidate = candidates[c];
-
-				// redetermine intersection of feasible voltages
-				feasible_voltages = module.feasible_voltages & best_candidate->block->feasible_voltages;
-
-				if (MultipleVoltages::DBG) {
-					std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "),(" << module.feasible_voltages << ");";
-					std::cout << " best candidate block " << best_candidate->block->id;
-					std::cout << "; cost: " << best_candidate_cost << "; try insertion of related new module" << std::endl;
-				}
-
-				// insert the candidate with the best cost; continue
-				// recursively with this new module; other neighbours
-				// shall not be considered anymore, otherwise the
-				// selection of best-cost candidate would be undermined;
-				// note that in practice some blocks will still be
-				// (rightfully) considered since they are also contiguous
-				// neighbours with the now considered best-cost candidate
-				this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint, cont, modules_limit);
+			// determine min cost and related best candidate
+			if (cur_candidate_cost < best_candidate_cost) {
+				best_candidate_cost = cur_candidate_cost;
+				best_candidate = candidate;
 			}
 		}
+
+		// redetermine intersection of feasible voltages for best-cost candidate
+		feasible_voltages = module.feasible_voltages & best_candidate->block->feasible_voltages;
+
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES> Current module (" << module.id() << "),(" << module.feasible_voltages << ");";
+			std::cout << " best candidate block " << best_candidate->block->id;
+			std::cout << "; cost: " << best_candidate_cost << "; try insertion of related new module" << std::endl;
+		}
+
+		// merge only the best-cost candidate into the module; continue
+		// recursively with this new module; other neighbours shall not be
+		// considered anymore, otherwise the selection of best-cost candidate
+		// would be undermined; note that in practice some blocks will still be
+		// (rightfully) considered since they are also contiguous neighbours with
+		// the now considered best-cost candidate
+		this->insertCompoundModuleHelper(module, best_candidate, false, feasible_voltages, hint, cont, modules_limit);
 	}
 }
 
