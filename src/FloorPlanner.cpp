@@ -942,7 +942,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		std::cout << "<- FloorPlanner::evaluateLayout : " << cost << std::endl;
+		std::cout << "<- FloorPlanner::evaluateLayout : " << cost << ", set_max_cost=" << set_max_cost << std::endl;
 	}
 
 	return cost;
