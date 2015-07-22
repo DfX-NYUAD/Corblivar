@@ -94,9 +94,9 @@ class MultipleVoltages {
 			// (local) cost term: outline cost is ratio of (by other blocks
 			// with non-compatible voltage) intruded area of the module's bb;
 			// the lower the better; current cost value is calculated via
-			// updateOutlineCost
+			// updateOutlineCost()
 			//
-			double outline_cost = -1.0;
+			double outline_cost = 0.0;
 
 			// container for estimated max number of corners in power rings
 			// per die
