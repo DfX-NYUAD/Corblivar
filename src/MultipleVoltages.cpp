@@ -484,6 +484,7 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// contiguous trivial modules is considered
 			this->insertCompoundModuleHelper(module, neighbour, false, feasible_voltages, hint, cont);
 
+			// TODO drop
 			// this break is the ``trick'' for disabling branching: once a
 			// contiguous trivial module is extended by this relevant
 			// neighbour and once the recursive calls (for building up
@@ -582,102 +583,104 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 
 inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::CompoundModule& module, ContiguityAnalysis::ContiguousNeighbour* neighbour, bool consider_prev_neighbours, std::bitset<MultipleVoltages::MAX_VOLTAGES>& feasible_voltages, MultipleVoltages::modules_type::iterator& hint, ContiguityAnalysis& cont) {
 	MultipleVoltages::modules_type::iterator inserted;
-	unsigned modules_before, modules_after;
 
-	// first, we have to check whether this compound module was already considered
-	// previously, i.e., during consideration of another starting block; only if the
-	// compound module is a new one, we continue
+	// first, we have to check whether this potential compound module was already
+	// considered previously, i.e., during consideration of another starting module;
+	// only if the compound module is really a new one, we continue
 	//
-	// to check if the module already exits, we could a) search for it first, and if
-	// not found insert it (2x constant or worst case linear time), or b) try to
-	// insert it and only proceed if insertion was successful (1x constant or linear
-	// time)
+	// to check if the potential module already exits, we ``leverage'' the previous
+	// module, by inserting the now-to-consider neighbour's id into the previous
+	// module's set of considered blocks; thus we avoid copying the whole set of block
+	// ids just for checking the potential module's existence
 	//
-	// init the potential compound module which, if considered, comprises the previous
-	// module and the current neighbour
-	MultipleVoltages::CompoundModule potential_new_module;
+	auto inserted_id = module.block_ids.insert(neighbour->block->id);
 
-	// initially, to try insertion, we have to build up at least the sorted set of
-	// block ids; init sorted set of block ids with copy from previous compound module
-	potential_new_module.block_ids = module.block_ids;
-	// add id of now additionally considered block
-	potential_new_module.block_ids.insert(neighbour->block->id);
+	// now, perform the actual check
+	if (this->modules.find(module.id()) != this->modules.end()) {
 
-	// store new compound module; note that it is only inserted if not existing
-	// before; this avoids storage of redundant modules for commutative orders of
-	// blocks, which will arise from different start points / initial modules; e.g., a
-	// compound module of "sb1,sb2" is the same as "sb2,sb1", and by 1) sorting the
-	// block ids and 2) inserting compound modules into a map, "sb2,sb1" is
-	// effectively ignored
-	//
-	// hint provided is the iterator to the previously inserted module; given that
-	// modules are ordered in ascending size, this new module should follow (with some
-	// offset, depending on actual string ids) the hint
-	modules_before = this->modules.size();
-	inserted = this->modules.insert(hint, {potential_new_module.id(), std::move(potential_new_module)});
-	modules_after = this->modules.size();
-
-	// only if this compound module was successfully inserted, i.e., not already
-	// previously inserted, we proceed with proper initialization of remaining
-	// members/data of the compound module
-	if (modules_after > modules_before) {
-
-		MultipleVoltages::CompoundModule& inserted_new_module = (*inserted).second;
-
-		// assign feasible voltages
-		inserted_new_module.feasible_voltages = std::move(feasible_voltages);
-
-		// init block pointers from previous module
-		inserted_new_module.blocks = module.blocks;
-		// insert now additionally considered neighbour
-		inserted_new_module.blocks.insert({neighbour->block->id, neighbour->block});
-
-		// init outline from the previous module
-		inserted_new_module.outline = module.outline;
-
-		// init corners from the previous module
-		inserted_new_module.corners_powerring = module.corners_powerring;
-
-		// update bounding box, blocks area, and recalculate outline cost; all
-		// w.r.t. added (neighbour) block
-		inserted_new_module.updateOutlineCost(neighbour, cont);
-
-		// if previous neighbours shall be considered, init the related pointers
-		// as copy from the previous module
-		if (consider_prev_neighbours) {
-
-			inserted_new_module.contiguous_neighbours = module.contiguous_neighbours;
-
-			// ignore the just considered neighbour (inserted_new_module);
-			// deleting afterwards is computationally less expansive than
-			// checking each neighbor's id during copying
-			inserted_new_module.contiguous_neighbours.erase(neighbour->block->id);
-		}
-
-		// add (pointers to) neighbours of the now additionally considered block;
-		// note that only yet not considered neighbours are effectively added to
-		// the map
-		for (auto& n : neighbour->block->contiguous_neighbours) {
-
-			// ignore any neighbour which is already comprised in the module
-			if (module.block_ids.find(n.block->id) != module.block_ids.end()) {
-				continue;
-			}
-
-			inserted_new_module.contiguous_neighbours.insert({n.block->id, &n});
-		}
+		// the potential module does already exit; remove the just inserted
+		// neighbour's id from the previous module again; and return
+		module.block_ids.erase(inserted_id.first);
 
 		if (MultipleVoltages::DBG) {
-			std::cout << "DBG_VOLTAGES> Insertion successful; continue recursively with this module" << std::endl;
+			std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
 		}
 
-		// recursive call; provide iterator to just inserted module as hint for
-		// next insertion
-		this->buildCompoundModulesHelper(inserted_new_module, inserted, cont);
+		return;
 	}
-	else if (MultipleVoltages::DBG) {
-		std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
+
+	// the new compound module; it comprises the previous module and the neighbour
+	MultipleVoltages::CompoundModule new_module;
+
+	// TODO drop block_ids, replace with container "blocks"
+	//
+	// the sorted set of blocks ids is contained in the previous module, since the
+	// neighbour's id was already inserted; simply copy this set
+	new_module.block_ids = module.block_ids;
+
+	// only now we shall remove again the neighbour's id from the previous module
+	module.block_ids.erase(inserted_id.first);
+
+	// assign feasible voltages, may be moved since they were generated only for this
+	// callee and will not be reused in the caller
+	new_module.feasible_voltages = std::move(feasible_voltages);
+
+	// copy block pointers from previous module
+	new_module.blocks = module.blocks;
+	// insert now additionally considered neighbour
+	new_module.blocks.insert({neighbour->block->id, neighbour->block});
+
+	// copy outline from the previous module
+	new_module.outline = module.outline;
+
+	// copy corners from the previous module
+	new_module.corners_powerring = module.corners_powerring;
+
+	// update bounding box, blocks area, and recalculate outline cost; all w.r.t.
+	// added (neighbour) block
+	new_module.updateOutlineCost(neighbour, cont);
+
+	// if previous neighbours shall be considered, copy the related pointers from the
+	// previous module
+	if (consider_prev_neighbours) {
+
+		new_module.contiguous_neighbours = module.contiguous_neighbours;
+
+		// we have to ignore the just considered neighbour; deleting afterwards is
+		// computationally less expansive than checking each neighbor's id during
+		// copying
+		new_module.contiguous_neighbours.erase(neighbour->block->id);
 	}
+
+	// TODO copy first, then remove
+	//
+	// add (pointers to) neighbours of the now additionally considered block; note
+	// that only yet not considered neighbours are effectively added
+	//
+	for (auto& n : neighbour->block->contiguous_neighbours) {
+
+		// we have to ignore any neighbour which is already comprised in the
+		// module itself
+		if (module.block_ids.find(n.block->id) != module.block_ids.end()) {
+			continue;
+		}
+
+		new_module.contiguous_neighbours.insert({n.block->id, &n});
+	}
+
+
+	// perform actual insertion; hint provided is the iterator to the previously
+	// inserted module
+	//
+	inserted = this->modules.insert(hint, {new_module.id(), new_module});
+
+	if (MultipleVoltages::DBG) {
+		std::cout << "DBG_VOLTAGES> Insertion successful; continue recursively with this module" << std::endl;
+	}
+
+	// recursive call; provide iterator to just inserted new module as hint for next
+	// insertion
+	this->buildCompoundModulesHelper(new_module, inserted, cont);
 }
 
 // local cost, used during bottom-up merging
