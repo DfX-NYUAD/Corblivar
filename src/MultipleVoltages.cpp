@@ -692,25 +692,8 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 // generated here; note that the die-wise container for power-ring corners is updated here
 // as well
 inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
-	double cost = 0.0;
-	Rect ext_bb;
-	Rect neighbour_ext_bb;
-	Rect prev_bb_ext;
-	double intrusion_area = 0.0;
-	std::unordered_map<std::string, Block const*> intruding_blocks;
-	bool checked_boundaries = false;
-
+	double cost;
 	int n_l = neighbour->block->layer;
-
-	// the local outline data structure is used to calculate the changes resulting
-	// from adding ContiguousNeighbour* block to the module; it is eventually only
-	// applied if apply_update == true
-	//
-	// init it from the module's current state
-	std::vector< std::vector<Rect> > outline = this->outline;
-	// similar handling for corners data structure
-	std::vector<unsigned> corners_powerring = this->corners_powerring;
-
 
 	if (MultipleVoltages::DBG) {
 		if (apply_update) {
@@ -725,21 +708,38 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 	// update bounding boxes on (by added block) affected die; note that the added
 	// block may be the first on its related die which is assigned to this module;
 	// then init new bb
-	if (outline[n_l].empty()) {
+	//
+	if (this->outline[n_l].empty()) {
 
-		outline[n_l].emplace_back(neighbour->block->bb);
+		// apply update only when required
+		if (apply_update) {
+			this->outline[n_l].emplace_back(neighbour->block->bb);
+		}
 
-		// this will not impact the previous max value (4) since only one
-		// rectangular block is added
+		// power-ring corners can safely be ignored; adding one rectangular block
+		// will not increase the previous max value for power-ring corners
+
+		// the first module's bb will not be intruded per se
+		cost = 0.0;
 	}
 	// update existing bb; try to extend bb to cover previous blocks and the new
 	// neighbour block; check for intrusion by any other block
+	//
 	else {
-		// consider the by the neighbour extend bb; the relevant bb to be extended
-		// is the last one of the vector (by this just introduced definition)
+		double intrusion_area = 0.0;
+		std::unordered_map<std::string, Block const*> intruding_blocks;
+		bool checked_boundaries = false;
+
+		// consider the previous bb to be extended by the neighbour; the relevant
+		// bb is the last one of the vector (by this just introduced definition);
+		// consider local copy and only store in case update shall be applied
 		//
-		Rect& prev_bb = outline[n_l].back();
-		ext_bb = Rect::determBoundingBox(prev_bb, neighbour->block->bb);
+		Rect prev_bb = this->outline[n_l].back();
+		// local copy of extended bb
+		Rect ext_bb = Rect::determBoundingBox(prev_bb, neighbour->block->bb);
+		// other local bbs
+		Rect neighbour_ext_bb;
+		Rect prev_bb_ext;
 
 		if (MultipleVoltages::DBG) {
 			std::cout << "DBG_VOLTAGES>   Currently considered extended bb ";
@@ -835,22 +835,24 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 			}
 		}
 	
-		// in case no intrusion would occur, memorize the extended bb
+		// in case no intrusion would occur, consider the extended bb
 		if (intruding_blocks.empty()) {
 
-			outline[n_l].back() = ext_bb;
+			if (apply_update) {
+				this->outline[n_l].back() = ext_bb;
+			}
 
 			if (MultipleVoltages::DBG) {
-				std::cout << "DBG_VOLTAGES>   Extended bb is not intruded by any block; memorize this extended bb" << std::endl;
+				std::cout << "DBG_VOLTAGES>   Extended bb is not intruded by any block; consider this extended bb as is" << std::endl;
 			}
 
 			// note that no increase in corners for the power rings occurs in
-			// such cases
+			// such cases; thus they are ignored
 		}
-		// in case any intrusion would occur, memorize only the separate,
+		// in case any intrusion would occur, consider only the separate,
 		// non-intruded boxes
 		//
-		// also update the estimated number of corners in the power rings
+		// also handle the estimated number of corners in the power rings
 		//
 		else {
 			// add the neighbours (extended) bb and extend the previous bb;
@@ -949,45 +951,52 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 				}
 			}
 
-			// memorize the extended bbs
+			// memorize the extended bbs if required
 			//
-			// note that prev_bb is a reference to the related outline[n_l]
-			// element, i.e., reassignment is effective for writing back
-			prev_bb = prev_bb_ext;
-			outline[n_l].emplace_back(neighbour_ext_bb);
+			if (apply_update) {
 
-			// also update the number of corners; whenever the extended bbs
-			// have different coordinates in the extended dimension (due to
-			// intruding blocks considered above), two new corners will be
-			// introduced
-			//
-			// prev bb and neighbour are vertically intersecting, thus the
-			// vertical dimensions were extended
-			if (Rect::rectsIntersectVertical(neighbour->block->bb, prev_bb)) {
+				// recall that prev_bb refers to the previous bb in the
+				// outline[n_l] by definition
+				this->outline[n_l].back() = prev_bb_ext;
 
-				// check both boundaries separately
-				if (!Math::doubleComp(neighbour_ext_bb.ll.y, prev_bb_ext.ll.y)) {
-					corners_powerring[n_l] += 2;
-				}
-				if (!Math::doubleComp(neighbour_ext_bb.ur.y, prev_bb_ext.ur.y)) {
-					corners_powerring[n_l] += 2;
-				}
+				this->outline[n_l].emplace_back(neighbour_ext_bb);
 			}
-			// prev bb and neighbour are horizontally intersecting, thus the
-			// horizontal dimensions were extended
-			else if (Rect::rectsIntersectHorizontal(neighbour->block->bb, prev_bb)) {
 
-				// check both boundaries separately
-				if (!Math::doubleComp(neighbour_ext_bb.ll.x, prev_bb_ext.ll.x)) {
-					corners_powerring[n_l] += 2;
+			// also update the number of corners if required
+			//
+			if (apply_update) {
+				// whenever the extended bbs have different coordinates in
+				// the extended dimension (due to intruding blocks
+				// considered above), two new corners will be introduced
+				//
+				// prev bb and neighbour are vertically intersecting, thus
+				// the vertical dimensions were extended
+				if (Rect::rectsIntersectVertical(neighbour->block->bb, prev_bb)) {
+
+					// check both boundaries separately
+					if (!Math::doubleComp(neighbour_ext_bb.ll.y, prev_bb_ext.ll.y)) {
+						this->corners_powerring[n_l] += 2;
+					}
+					if (!Math::doubleComp(neighbour_ext_bb.ur.y, prev_bb_ext.ur.y)) {
+						this->corners_powerring[n_l] += 2;
+					}
 				}
-				if (!Math::doubleComp(neighbour_ext_bb.ur.x, prev_bb_ext.ur.x)) {
-					corners_powerring[n_l] += 2;
+				// prev bb and neighbour are horizontally intersecting,
+				// thus the horizontal dimensions were extended
+				else if (Rect::rectsIntersectHorizontal(neighbour->block->bb, prev_bb)) {
+
+					// check both boundaries separately
+					if (!Math::doubleComp(neighbour_ext_bb.ll.x, prev_bb_ext.ll.x)) {
+						this->corners_powerring[n_l] += 2;
+					}
+					if (!Math::doubleComp(neighbour_ext_bb.ur.x, prev_bb_ext.ur.x)) {
+						this->corners_powerring[n_l] += 2;
+					}
 				}
 			}
 		}
 
-		// calculate cost (amount of intrusion); only required for non-zero cost
+		// calculate cost (amount of intrusion); only required for adapted bbs
 		//
 		// note that only _current_ intrusion is considered, i.e. the amount of
 		// intrusion in any previous merging step is ignored; this is valid since
@@ -999,14 +1008,9 @@ inline double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnal
 		cost = intrusion_area / ext_bb.area;
 	}
 
-	// apply updates to module only if requested; this way, both the actual change for
-	// new modules and the potential change for candidate modules can be unified in
-	// this helper
-	//
+	// update cost if required
 	if (apply_update) {
-		this->outline = std::move(outline);
 		this->outline_cost = cost;
-		this->corners_powerring = corners_powerring;
 	}
 
 	return cost;
