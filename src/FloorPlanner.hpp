@@ -150,7 +150,8 @@ class FloorPlanner {
 		// SA cost parameters: global weights, enforce that area and outline
 		// violation is constantly considered; related weight should be >= 0.5 in
 		// order to enforce guiding into outline during whole optimization run
-		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.5;
+		// TODO dynamically, should be 1/n for n objectives
+		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.1;
 		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA cost; POD declaration
