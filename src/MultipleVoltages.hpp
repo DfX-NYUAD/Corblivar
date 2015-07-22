@@ -184,38 +184,9 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		// note that the comparator has to be implemented as type, for proper map
-		// template handling
-		//
-		// also note that the less-than order is important for providing hints
-		// (iterators) during stepwise insertion, where elements to insert will
-		// always be larger, thus to be added after the hinting iterator
-		class modules_comp {
-
-			public:
-				bool operator() (std::set<std::string> const& s1, std::set<std::string> const& s2) const {
-
-					return (
-						// size of the sets is the first
-						// criterion; this also facilitates
-						// stepwise insertion of modules, since
-						// based on the set's size (i.e., the
-						// number of blocks in the module), a hint
-						// for insertion can be given which
-						// reduces complexity for actual insertion
-						(s1.size() < s2.size())
-						// if they have the same size, perform
-						// regular (lexicographical) comparison
-						|| (s1.size() == s2.size() && s1 < s2)
-				       );
-				}
-		};
-
-		// map of unique compound modules; the respective keys are the (sorted)
-		// ids of all comprised blocks; required for determineCompoundModules();
-		// not that a map is required in order to alter inserted elements; a set
-		// may contain only const elements
-		typedef std::map< std::set<std::string>, CompoundModule, modules_comp> modules_type;
+		// unordered map of unique compound modules; map for efficient key access,
+		// and unordered to avoid sorting overhead
+		typedef std::unordered_map<std::string, CompoundModule> modules_type;
 		modules_type modules;
 
 		// vector of selected modules, filled by selectCompoundModules()

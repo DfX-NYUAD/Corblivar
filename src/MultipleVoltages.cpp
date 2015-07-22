@@ -73,7 +73,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		}
 
 		// store base compound module
-		auto inserted_it = this->modules.insert(this->modules.begin(), {module.block_ids, module});
+		auto inserted_it = this->modules.insert(this->modules.begin(), {module.id(), module});
 
 		// perform stepwise and recursive merging of base module into larger
 		// compound modules
@@ -82,16 +82,18 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 
 	if (MultipleVoltages::DBG) {
 
-		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "); view ordered by number of comprised blocks:" << std::endl;
+		std::cout << "DBG_VOLTAGES> Compound modules (in total " << this->modules.size() << "):" << std::endl;
 
 		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 
+			CompoundModule& module = it->second;
+
 			std::cout << "DBG_VOLTAGES>  Module;" << std::endl;
-			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << it->first.size() << std::endl;
-			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << it->second.id() << std::endl;
-			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << it->second.feasible_voltages << std::endl;
-			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << it->second.min_voltage_index() << std::endl;
-			std::cout << "DBG_VOLTAGES>   Module (local) cost: " << it->second.outline_cost << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module.blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module.id() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module.feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module.min_voltage_index() << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (local) cost: " << module.outline_cost << std::endl;
 		}
 		std::cout << "DBG_VOLTAGES>" << std::endl;
 	}
@@ -109,9 +111,9 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 	unsigned min_voltage_index;
 
-	// comparator for multiset of compound modules; multiset since cost may be equal
-	// for some modules, especially for trivial modules comprising one block; the
-	// comparator also takes parameters required for normalization of cost terms
+	// comparator for local multiset of selected compound modules; multiset since cost
+	// may be equal for some modules, especially for trivial modules comprising one
+	// block; the comparator can be parametrized for proper cost normalization
 	//
 	class modules_cost_comp {
 
@@ -155,11 +157,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		max_corners = std::max(max_corners, it->second.corners_powerring_max());
 	}
 	
-	// now, init the actual multiset with the proper comparator parameters
+	// now, a multiset can be initialized with the proper comparator parameters
 	//
 	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost (modules_cost_comp(max_power_saving, max_corners, this->parameters));
 	
-	// second, insert all modules into (by cost sorted) set
+	// second, insert all modules' pointers into this multiset
 	//
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 		modules_w_cost.insert(&(it->second));
@@ -612,7 +614,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	// modules are ordered in ascending size, this new module should follow (with some
 	// offset, depending on actual string ids) the hint
 	modules_before = this->modules.size();
-	inserted = this->modules.insert(hint, {potential_new_module.block_ids, std::move(potential_new_module)});
+	inserted = this->modules.insert(hint, {potential_new_module.id(), std::move(potential_new_module)});
 	modules_after = this->modules.size();
 
 	// only if this compound module was successfully inserted, i.e., not already
