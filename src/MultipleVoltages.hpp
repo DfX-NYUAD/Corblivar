@@ -85,6 +85,7 @@ class MultipleVoltages {
 			class blocks_comp {
 
 				public:
+					// ascending order of ids
 					bool operator() (Block const* b1, Block const* b2) const;
 			};
 
@@ -133,8 +134,8 @@ class MultipleVoltages {
 			//
 			std::unordered_map<std::string, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
 
-		// public functions
-		public:
+		// private functions
+		private:
 			// local cost; required during bottom-up construction
 			double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
 
@@ -156,6 +157,12 @@ class MultipleVoltages {
 				return MAX_VOLTAGES - 1;
 			}
 
+			// global cost, required during top-down selection
+			//
+			inline double cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const;
+
+		// public functions
+		public:
 			// helper to estimate gain in power reduction
 			//
 			double power_saving(bool subtract_wasted_saving = true) const;
@@ -171,10 +178,6 @@ class MultipleVoltages {
 
 				return ret;
 			}
-
-			// global cost, required during top-down selection
-			//
-			inline double cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const;
 	};
 
 	// private data, functions
