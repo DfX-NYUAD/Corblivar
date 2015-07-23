@@ -101,14 +101,14 @@ class Block {
 
 		// density in [uW/(um^2)]; relates to given voltage index or currently
 		// assigned voltage
-		inline double power_density(int index = -1) const {
-
-			if (index == -1) {
-				return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
-			}
-			else {
-				return this->power_density_unscaled * this->voltages_power_factors[index];
-			}
+		inline double power_density(unsigned index) const {
+			return this->power_density_unscaled * this->voltages_power_factors[index];
+		}
+		inline double power_density() const {
+			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
+		}
+		inline double power_density_max() const {
+			return this->power_density_unscaled * this->voltages_power_factors.back();
 		}
 
 		// delay in [ns]; relates to net delay and currently assigned voltage
@@ -243,9 +243,16 @@ class Block {
 			}
 		};
 
-		// power in [W]; voltage_index == -1 returns power according to currently
-		// assigned voltage
-		inline double power(int voltage_index = -1) const {
+		// power in [W]; returns power according to currently assigned voltage
+		inline double power() const {
+
+			return this->power_density()
+				// power density is given in uW/um^2, area is given in
+				// um^2, thus we have to convert uW to W
+				* this->bb.area	* 1.0e-6;
+		}
+		// power in [W]; returns power according to given voltage index
+		inline double power(unsigned voltage_index) const {
 
 			return this->power_density(voltage_index)
 				// power density is given in uW/um^2, area is given in
@@ -258,7 +265,10 @@ class Block {
 		// voltages derived from voltage assignment
 		inline double power_max() const {
 
-			return this->power(this->voltages_power_factors.size() - 1);
+			return this->power_density_max()
+				// power density is given in uW/um^2, area is given in
+				// um^2, thus we have to convert uW to W
+				* this->bb.area	* 1.0e-6;
 		}
 
 		// the theoretical min power, for lowest applicable voltage; considers
@@ -273,7 +283,7 @@ class Block {
 				}
 			}
 
-			return power_max();
+			return this->power_max();
 		}
 
 		// search blocks
