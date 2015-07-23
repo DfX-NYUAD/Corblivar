@@ -1188,6 +1188,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	std::string id;
 	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
 	bool floorplacement;
+	unsigned numerical_id;
 
 	if (fp.logMed()) {
 		std::cout << "IO> ";
@@ -1238,6 +1239,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	// memorize how many terminal pins to be parsed
 	blocks_in >> to_parse_terminals;
 
+	// first block id shall be distinct from the dummy id
+	numerical_id = Block::DUMMY_NUM_ID;
+	numerical_id++;
+
 	// parse blocks and pins
 	while (!blocks_in.eof()) {
 
@@ -1250,7 +1255,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		blocks_in >> id;
 
 		// init block / pin
-		Block new_block = Block(id);
+		Block new_block = Block(id, numerical_id);
 		Pin new_pin = Pin(id);
 
 		// parse block type
@@ -1315,6 +1320,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 			// calculate block area
 			new_block.bb.area = new_block.bb.w * new_block.bb.h;
+
+			// also increment numerical id for next block
+			numerical_id++;
 		}
 		// soft blocks: parse area and AR range
 		else if (tmpstr == "softrectangular") {
@@ -1334,6 +1342,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 			// memorize soft blocks count
 			soft_blocks++;
+
+			// also increment numerical id for next block
+			numerical_id++;
 		}
 		// due to some blank lines at the end, we may have reached eof just now
 		else if (blocks_in.eof()) {

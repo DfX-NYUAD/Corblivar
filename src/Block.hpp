@@ -71,8 +71,13 @@ class Block {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Block(std::string const& id) {
+		// for any block or derived element which does not specify a regular
+		// numerical id, consider this dummy one
+		static constexpr unsigned DUMMY_NUM_ID = 0;
+
+		Block(std::string const& id, unsigned numerical_id = DUMMY_NUM_ID) {
 			this->id = id;
+			this->numerical_id = numerical_id;
 			this->layer = -1;
 			this->power_density_unscaled = this->base_delay = 0.0;
 			this->AR.min = AR.max = 1.0;
@@ -87,6 +92,7 @@ class Block {
 	// public data, functions
 	public:
 		std::string id;
+		unsigned numerical_id;
 		mutable int layer;
 
 		// flag to monitor placement; also required for alignment handling

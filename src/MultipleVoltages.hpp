@@ -76,27 +76,15 @@ class MultipleVoltages {
 			friend class MultipleVoltages;
 			friend class IO;
 
-			// note that the comparator has to be implemented as dedicated
-			// class, for proper template instantiation; also note that the
-			// actual implementation for operator() is in
-			// MultipleVoltages.cpp, to avoid circular dependencies between
-			// MultipleVoltages.hpp and Block.hpp
-			//
-			class blocks_comp {
-
-				public:
-					// ascending order of ids
-					bool operator() (Block const* b1, Block const* b2) const;
-			};
-
-			// by id sorted set of comprised blocks
+			// set of comprised blocks; sorted by the blocks' numerical id
+			// (which is probably more efficient than using the string ids)
 			//
 			// since the order of adding blocks doesn't impact the final order
 			// of this set, which defines the compound module's id, each
 			// compound module is unique in terms of blocks considered , i.e.,
 			// different merging steps will results in the same compound
 			// module as long as the same set of blocks is underlying
-			std::set<Block const*, blocks_comp> blocks;
+			std::map<unsigned, Block const*> blocks;
 
 			// die-wise bounding boxes for whole module; only the set/vector of
 			// by other blocks not covered partial boxes are memorized; thus,
@@ -127,12 +115,12 @@ class MultipleVoltages {
 			// all comprised blocks
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
 
-			// key: neighbour block id
+			// key: neighbour's numerical block id
 			//
 			// with an unsorted_map, redundant neighbours which may arise
 			// during stepwise build-up of compound modules are ignored
 			//
-			std::unordered_map<std::string, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
+			std::unordered_map<unsigned, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
 
 		// private functions
 		private:
@@ -169,7 +157,7 @@ class MultipleVoltages {
 
 			// helper to obtain overall (over all dies) max number of corners
 			// in power rings
-			unsigned corners_powerring_max() const {
+			inline unsigned corners_powerring_max() const {
 				unsigned ret = this->corners_powerring[0];
 
 				for (unsigned i = 1; i < this->corners_powerring.size(); i++) {
@@ -184,9 +172,10 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		// unordered map of unique compound modules; map for efficient key access,
-		// and unordered to avoid sorting overhead
-		typedef std::unordered_map<std::string, CompoundModule> modules_type;
+		// map of unique compound modules; keys are the comprised blocks (a map
+		// itself, this will simplify searching the modules' map by using the
+		// comprised blocks' numerical ids)
+		typedef std::map< std::map<unsigned, Block const*>, CompoundModule > modules_type;
 		modules_type modules;
 
 		// vector of selected modules, filled by selectCompoundModules()
