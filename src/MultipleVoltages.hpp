@@ -76,15 +76,26 @@ class MultipleVoltages {
 			friend class MultipleVoltages;
 			friend class IO;
 
-			// pointers to comprised blocks, key is block id
-			std::unordered_map<std::string, Block const*> blocks;
+			// note that the comparator has to be implemented as dedicated
+			// class, for proper template instantiation; also note that the
+			// actual implementation for operator() is in
+			// MultipleVoltages.cpp, to avoid circular dependencies between
+			// MultipleVoltages.hpp and Block.hpp
+			//
+			class blocks_comp {
 
-			// used to identify compound modules; since the ids are in a
-			// sorted set, the order of blocks added doesn't matter, each
+				public:
+					bool operator() (Block const* b1, Block const* b2) const;
+			};
+
+			// by id sorted set of comprised blocks
+			//
+			// since the order of adding blocks doesn't impact the final order
+			// of this set, which defines the compound module's id, each
 			// compound module is unique in terms of blocks considered , i.e.,
 			// different merging steps will results in the same compound
 			// module as long as the same set of blocks is underlying
-			std::set<std::string> block_ids;
+			std::set<Block const*, blocks_comp> blocks;
 
 			// die-wise bounding boxes for whole module; only the set/vector of
 			// by other blocks not covered partial boxes are memorized; thus,
@@ -125,24 +136,10 @@ class MultipleVoltages {
 		// public functions
 		public:
 			// local cost; required during bottom-up construction
-			inline double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
+			double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
 
 			// helper function to return string comprising all (sorted) block ids
-			inline std::string id() const {
-				std::string ret;
-
-				for (auto& id : this->block_ids) {
-					// the last id shall not be followed by a comma
-					if (id == *std::prev(this->block_ids.end())) {
-						ret += id;
-					}
-					else {
-						ret += id + ", ";
-					}
-				}
-
-				return ret;
-			};
+			std::string id() const;
 
 			// helper to return index of minimal assignable voltage, note that
 			// this is not necessarily the globally minimal index but rather
