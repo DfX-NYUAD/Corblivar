@@ -76,15 +76,13 @@ class MultipleVoltages {
 			friend class MultipleVoltages;
 			friend class IO;
 
-			// set of comprised blocks; sorted by the blocks' numerical id
-			// (which is probably more efficient than using the string ids)
-			//
-			// since the order of adding blocks doesn't impact the final order
-			// of this set, which defines the compound module's id, each
-			// compound module is unique in terms of blocks considered , i.e.,
-			// different merging steps will results in the same compound
-			// module as long as the same set of blocks is underlying
-			std::map<unsigned, Block const*> blocks;
+			// comprised blocks
+			std::vector<Block const*> blocks;
+
+			// sorted blocks' numerical ids; stored separately for simplified
+			// searching and handling of compound modules; numerical ids are
+			// probably more efficient than using the string ids
+			std::set<unsigned> blocks_ids;
 
 			// die-wise bounding boxes for whole module; only the set/vector of
 			// by other blocks not covered partial boxes are memorized; thus,
@@ -117,8 +115,9 @@ class MultipleVoltages {
 
 			// key: neighbour's numerical block id
 			//
-			// with an unsorted_map, redundant neighbours which may arise
-			// during stepwise build-up of compound modules are ignored
+			// with an map, redundant neighbours which may arise during
+			// stepwise build-up of compound modules are ignored; order not
+			// required and thus related computations be can avoided
 			//
 			std::unordered_map<unsigned, ContiguityAnalysis::ContiguousNeighbour*> contiguous_neighbours;
 
@@ -172,10 +171,9 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		// map of unique compound modules; keys are the comprised blocks (a map
-		// itself, this will simplify searching the modules' map by using the
-		// comprised blocks' numerical ids)
-		typedef std::map< std::map<unsigned, Block const*>, CompoundModule > modules_type;
+		// map of unique compound modules; keys are the comprised blocks'
+		// numerical ids
+		typedef std::map< std::set<unsigned>, CompoundModule > modules_type;
 		modules_type modules;
 
 		// vector of selected modules, filled by selectCompoundModules()
