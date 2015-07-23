@@ -25,8 +25,6 @@
 #include "MultipleVoltages.hpp"
 // required Corblivar headers
 #include "Block.hpp"
-#include "Rect.hpp"
-#include "ContiguityAnalysis.hpp"
 
 void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
 

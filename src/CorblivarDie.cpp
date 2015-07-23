@@ -25,6 +25,8 @@
 // own Corblivar header
 #include "CorblivarDie.hpp"
 // required Corblivar headers
+#include "Coordinate.hpp"
+#include "Direction.hpp"
 #include "Math.hpp"
 #include "CorblivarAlignmentReq.hpp"
 

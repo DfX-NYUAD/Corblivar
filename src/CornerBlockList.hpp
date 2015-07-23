@@ -26,9 +26,9 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-#include "Direction.hpp"
 #include "Block.hpp"
 // forward declarations, if any
+enum class Direction : unsigned;
 
 class CornerBlockList {
 	// debugging code switch (private)

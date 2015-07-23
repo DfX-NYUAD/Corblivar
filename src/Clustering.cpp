@@ -24,9 +24,7 @@
 // own Corblivar header
 #include "Clustering.hpp"
 // required Corblivar headers
-#include "ThermalAnalyzer.hpp"
 #include "Net.hpp"
-#include "Math.hpp"
 
 // For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal
 // analysis, but for clustering TSVs we require the result of the thermal analysis. Thus,

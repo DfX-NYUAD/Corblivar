@@ -28,10 +28,10 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "CornerBlockList.hpp"
-#include "CorblivarAlignmentReq.hpp"
 #include "Coordinate.hpp"
 // forward declarations, if any
 class Block;
+class CorblivarAlignmentReq;
 
 class CorblivarDie {
 	// debugging code switch (private)

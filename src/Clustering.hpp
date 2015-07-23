@@ -27,7 +27,6 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "ThermalAnalyzer.hpp"
-#include "Block.hpp"
 // forward declarations, if any
 
 class Clustering {

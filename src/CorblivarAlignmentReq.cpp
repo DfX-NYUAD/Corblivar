@@ -24,7 +24,6 @@
 // own Corblivar header
 #include "CorblivarAlignmentReq.hpp"
 // required Corblivar headers
-#include "Block.hpp"
 #include "Math.hpp"
 
 CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {

@@ -24,10 +24,8 @@
 // own Corblivar header
 #include "ContiguityAnalysis.hpp"
 // required Corblivar headers
-#include "Point.hpp"
 #include "Block.hpp"
 #include "Math.hpp"
-
 
 // Extract blocks' boundaries, and order them by coordinates; this will reduce required
 // comparisons between (in principal all pairs of) blocks notably by considering only

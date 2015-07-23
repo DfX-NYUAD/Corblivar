@@ -26,13 +26,13 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-#include "Block.hpp"
 #include "Net.hpp"
-#include "ThermalAnalyzer.hpp"
 #include "LayoutOperations.hpp"
+#include "ThermalAnalyzer.hpp"
 #include "Clustering.hpp"
 #include "RoutingUtilization.hpp"
 // forward declarations, if any
+class Block;
 class CorblivarCore;
 class CorblivarAlignmentReq;
 

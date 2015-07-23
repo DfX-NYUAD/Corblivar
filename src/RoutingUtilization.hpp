@@ -26,9 +26,9 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-#include "Block.hpp"
 // forward declarations, if any
 class Point;
+class Rect;
 
 class RoutingUtilization {
 	// debugging code switch (private)

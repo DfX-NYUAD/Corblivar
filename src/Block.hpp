@@ -29,9 +29,9 @@
 #include "Rect.hpp"
 #include "Math.hpp"
 #include "MultipleVoltages.hpp"
-#include "ContiguityAnalysis.hpp"
 // forward declarations, if any
 class CorblivarAlignmentReq;
+class ContiguityAnalysis;
 
 class Block {
 	// debugging code switch (private)

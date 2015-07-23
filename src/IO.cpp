@@ -25,16 +25,7 @@
 #include "IO.hpp"
 // required Corblivar headers
 #include "FloorPlanner.hpp"
-#include "ThermalAnalyzer.hpp"
-#include "CornerBlockList.hpp"
 #include "CorblivarCore.hpp"
-#include "CorblivarAlignmentReq.hpp"
-#include "Net.hpp"
-#include "Math.hpp"
-#include "Clustering.hpp"
-#include "Block.hpp"
-#include "MultipleVoltages.hpp"
-#include "TimingAnalyser.hpp"
 
 // parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {

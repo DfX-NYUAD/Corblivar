@@ -26,6 +26,7 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Direction.hpp"
 #include "CorblivarDie.hpp"
 #include "CorblivarAlignmentReq.hpp"
 // forward declarations, if any
