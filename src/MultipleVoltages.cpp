@@ -637,8 +637,6 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		new_module.contiguous_neighbours.erase(neighbour->block->id);
 	}
 
-	// TODO copy first, then remove
-	//
 	// add (pointers to) neighbours of the now additionally considered block; note
 	// that only yet not considered neighbours are effectively added
 	//
@@ -717,7 +715,6 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 	//
 	else {
 		double intrusion_area = 0.0;
-		// TODO refactor, vector will probably suffice
 		std::unordered_map<std::string, Block const*> intruding_blocks;
 		bool checked_boundaries = false;
 
