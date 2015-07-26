@@ -79,10 +79,10 @@ class MultipleVoltages {
 			// comprised blocks
 			std::vector<Block const*> blocks;
 
-			// sorted blocks' numerical ids; stored separately for simplified
-			// searching and handling of compound modules; numerical ids are
-			// probably more efficient than using the string ids
-			std::set<unsigned> blocks_ids;
+			// flags to encode assigned blocks: each block encoded by its
+			// numerical id will result in a `true' flag at the index related
+			// to its numerical id
+			std::vector<bool> block_ids;
 
 			// die-wise bounding boxes for whole module; only the set/vector of
 			// by other blocks not covered partial boxes are memorized; thus,
@@ -171,9 +171,11 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		// map of unique compound modules; keys are the comprised blocks'
-		// numerical ids
-		typedef std::map< std::set<unsigned>, CompoundModule > modules_type;
+		// map of unique compound modules; keys are a vector<bool>, with each
+		// index representing a numerical block id, and each index' position set
+		// true when the related block is comprised in the module; unordered map
+		// is more efficient in accessing individual elements
+		typedef std::unordered_map< std::vector<bool>, CompoundModule > modules_type;
 		modules_type modules;
 
 		// vector of selected modules, filled by selectCompoundModules()
