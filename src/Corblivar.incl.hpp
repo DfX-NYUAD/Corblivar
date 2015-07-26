@@ -33,6 +33,7 @@
 #include <map>
 #include <unordered_map>
 #include <set>
+#include <unordered_set>
 #include <list>
 #include <bitset>
 #include <utility>

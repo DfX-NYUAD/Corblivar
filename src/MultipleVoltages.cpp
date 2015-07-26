@@ -40,10 +40,10 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		module.feasible_voltages = start.feasible_voltages;
 
 		// init pointers to blocks
-		module.blocks.push_back(&start);
+		module.blocks.insert(&start);
 
 		// init block ids
-		module.blocks_ids.insert(start.numerical_id);
+		module.block_ids.insert(start.numerical_id);
 
 		// init neighbours; pointers to block's neighbour is sufficient
 		for (auto& neighbour : start.contiguous_neighbours) {
@@ -69,8 +69,8 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			// note that outline[l] shall remain empty otherwise
 		}
 
-		// store base compound module
-		auto inserted_it = this->modules.insert(this->modules.begin(), {module.blocks_ids, std::move(module)});
+		// store base compound module; use simplified string id for efficiency
+		auto inserted_it = this->modules.insert(this->modules.begin(), {module.id(true), std::move(module)});
 
 		// perform stepwise and recursive merging of base module into larger
 		// compound modules
@@ -241,7 +241,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				// the module to check contains a block which is assigned
 				// in the current module; thus, we drop the module
 				//
-				if (module_to_check->blocks_ids.find(assigned_block->numerical_id) != module_to_check->blocks_ids.end()) {
+				if (module_to_check->block_ids.find(assigned_block->numerical_id) != module_to_check->block_ids.end()) {
 
 					if (MultipleVoltages::DBG_VERBOSE) {
 
@@ -312,8 +312,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				// update the actual blocks
 				for (Block const* b : n_module->blocks) {
 
-					module->blocks.push_back(b);
-					module->blocks_ids.insert(b->numerical_id);
+					module->blocks.insert(b);
+					module->block_ids.insert(b->numerical_id);
 
 					// also update the module pointer for merged
 					// module's blocks
@@ -341,7 +341,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				for (auto n : n_module->contiguous_neighbours) {
 
 					// ignore any neighbour which is already comprised in the module
-					if (module->blocks_ids.find(n.first) != module->blocks_ids.end()) {
+					if (module->block_ids.find(n.first) != module->block_ids.end()) {
 						continue;
 					}
 
@@ -589,14 +589,14 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	// module's set of considered blocks; thus we avoid copying the whole set of
 	// blocks just for checking the potential module's existence
 	//
-	auto inserted_id = module.blocks_ids.insert(neighbour->block->numerical_id);
+	auto inserted_id = module.blocks.insert(neighbour->block);
 
-	// now, perform the actual check
-	if (this->modules.find(module.blocks_ids) != this->modules.end()) {
+	// now, perform the actual check; lookup based on simplified id
+	if (this->modules.find(module.id(true)) != this->modules.end()) {
 
 		// the potential module does already exit; remove the just inserted
 		// neighbour from the previous module again; and return
-		module.blocks_ids.erase(inserted_id.first);
+		module.blocks.erase(inserted_id.first);
 
 		if (MultipleVoltages::DBG) {
 			std::cout << "DBG_VOLTAGES> Insertion not successful; module was already inserted previously" << std::endl;
@@ -608,17 +608,17 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	// the new compound module; it comprises the previous module and the neighbour
 	MultipleVoltages::CompoundModule new_module;
 
-	// the sorted set of block ids is contained in the previous module, since the
+	// the sorted set of blocks is contained in the previous module, since the
 	// neighbour's block was already inserted; simply copy this set
-	new_module.blocks_ids = module.blocks_ids;
+	new_module.blocks = module.blocks;
 
 	// only now we shall remove again the neighbour's block from the previous module
-	module.blocks_ids.erase(inserted_id.first);
+	module.blocks.erase(inserted_id.first);
 
-	// copy block pointers from previous module
-	new_module.blocks = module.blocks;
-	// insert neighbour block into new module
-	new_module.blocks.push_back(neighbour->block);
+	// copy block ids from previous module
+	new_module.block_ids = module.block_ids;
+	// consider neighbour's block id for new module as well
+	new_module.block_ids.insert(neighbour->block->numerical_id);
 
 	// assign feasible voltages, may be moved since they were generated only for this
 	// callee and will not be reused in the caller
@@ -653,7 +653,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 
 		// we have to ignore any neighbour which is already comprised in the
 		// module itself
-		if (module.blocks_ids.find(n.block->numerical_id) != module.blocks_ids.end()) {
+		if (module.block_ids.find(n.block->numerical_id) != module.block_ids.end()) {
 			continue;
 		}
 
@@ -664,7 +664,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	// perform actual insertion; hint provided is the iterator to the previously
 	// inserted module
 	//
-	inserted = this->modules.insert(hint, {new_module.blocks_ids, std::move(new_module)});
+	inserted = this->modules.insert(hint, {new_module.id(true), std::move(new_module)});
 
 	if (MultipleVoltages::DBG) {
 		std::cout << "DBG_VOLTAGES> Insertion successful; continue recursively with this module" << std::endl;
@@ -787,7 +787,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
 
 					// now check against a)
-					if (this->blocks_ids.find(b2.block->numerical_id) != this->blocks_ids.end()) {
+					if (this->block_ids.find(b2.block->numerical_id) != this->block_ids.end()) {
 						continue;
 					}
 					if (b2.block->id == neighbour->block->id) {
@@ -1084,15 +1084,34 @@ inline double MultipleVoltages::CompoundModule::cost(double const& max_power_sav
 	return (parameters.weight_power_saving * power_saving_term) + (parameters.weight_corners * corners_term);
 }
 
-std::string MultipleVoltages::CompoundModule::id() const {
+std::string MultipleVoltages::CompoundModule::id(bool numerical_ids) const {
 	std::string ret;
 
-	for (unsigned b = 0; b < this->blocks.size() - 1; b++) {
-		ret += this->blocks[b]->id + ", ";
-	}
+	if (numerical_ids) {
 
-	// the last id shall not be followed by a comma
-	ret += this->blocks.back()->id;
+		for (auto it = this->blocks.begin(); it != std::prev(this->blocks.end()); ++it) {
+			ret += std::to_string((*it)->numerical_id) + ", ";
+		}
+
+		// the last numerical_id shall not be followed by a comma
+		ret += std::to_string((*std::prev(this->blocks.end()))->numerical_id);
+	}
+	else {
+
+		for (auto it = this->blocks.begin(); it != std::prev(this->blocks.end()); ++it) {
+			ret += (*it)->id + ", ";
+		}
+
+		// the last id shall not be followed by a comma
+		ret += (*std::prev(this->blocks.end()))->id;
+	}
 
 	return ret;
 };
+
+bool MultipleVoltages::CompoundModule::blocks_comp::operator() (Block const* b1, Block const* b2) const {
+
+	// comparing the numerical ids is equal to comparing the string ids but probably
+	// more efficient
+	return (b1->numerical_id < b2->numerical_id);
+}
