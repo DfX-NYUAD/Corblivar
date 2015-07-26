@@ -304,9 +304,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			//
 			if (n_module->min_voltage_index() == module->min_voltage_index()) {
 
-				// sanity check; avoid merging with itself; compare unique
-				// set of comprised blocks
-				if (n_module->blocks == module->blocks) {
+				// sanity check; avoid merging with itself
+				if (n_module->block_ids == module->block_ids) {
 					continue;
 				}
 
@@ -355,12 +354,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					module->contiguous_neighbours.insert(n);
 				}
 
-				// TODO refactor, use unordered_map
 				// erase the just merged module
 				//
 				for (auto it = this->selected_modules.begin(); it != this->selected_modules.end(); ++it) {
 
-					if ((*it)->id() == n_module->id()) {
+					if ((*it)->block_ids == n_module->block_ids) {
 						this->selected_modules.erase(it);
 						break;
 					}
