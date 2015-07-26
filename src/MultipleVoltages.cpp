@@ -746,7 +746,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 
 		// walking vertical boundaries, provided by ContiguityAnalysis; the
 		// boundaries of the relevant die will be checked whether they intrude the
-		// extended bb, and if so to what degree note that walking the vertical
+		// extended bb, and if so to what degree; note that walking the vertical
 		// boundaries is sufficient for determining overlaps in x- and
 		// y-dimension; also see ContiguityAnalysis::analyseBlocks
 		for (auto i1 = cont.boundaries_vert[n_l].begin(); i1 != cont.boundaries_vert[n_l].end(); ++i1) {
@@ -899,9 +899,10 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				}
 				// if the intruding block is above the neighbour, consider
 				// to limit the upper boundary of the extended bb
-				if (Rect::rectA_below_rectB(neighbour->block->bb, cur_intruding_bb, false)) {
+				else if (Rect::rectA_below_rectB(neighbour->block->bb, cur_intruding_bb, false)) {
 					neighbour_ext_bb.ur.y = std::min(cur_intruding_bb.ll.y, neighbour_ext_bb.ur.y);
 				}
+
 				// if the intruding block is left of the neighbour,
 				// consider to limit the left boundary of the extended bb
 				if (Rect::rectA_leftOf_rectB(cur_intruding_bb, neighbour->block->bb, false)) {
@@ -909,7 +910,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				}
 				// if the intruding block is right of the neighbour,
 				// consider to limit the right boundary of the extended bb
-				if (Rect::rectA_leftOf_rectB(neighbour->block->bb, cur_intruding_bb, false)) {
+				else if (Rect::rectA_leftOf_rectB(neighbour->block->bb, cur_intruding_bb, false)) {
 					neighbour_ext_bb.ur.x = std::min(cur_intruding_bb.ll.x, neighbour_ext_bb.ur.x);
 				}
 
@@ -922,9 +923,10 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				}
 				// if the intruding block is above the prev bb, consider
 				// to limit the upper boundary of the extended bb
-				if (Rect::rectA_below_rectB(prev_bb, cur_intruding_bb, false)) {
+				else if (Rect::rectA_below_rectB(prev_bb, cur_intruding_bb, false)) {
 					prev_bb_ext.ur.y = std::min(cur_intruding_bb.ll.y, prev_bb.ur.y);
 				}
+
 				// if the intruding block is left of the prev bb,
 				// consider to limit the left boundary of the extended bb
 				if (Rect::rectA_leftOf_rectB(cur_intruding_bb, prev_bb, false)) {
@@ -932,7 +934,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				}
 				// if the intruding block is right of the prev bb,
 				// consider to limit the right boundary of the extended bb
-				if (Rect::rectA_leftOf_rectB(prev_bb, cur_intruding_bb, false)) {
+				else if (Rect::rectA_leftOf_rectB(prev_bb, cur_intruding_bb, false)) {
 					prev_bb_ext.ur.x = std::min(cur_intruding_bb.ll.x, prev_bb.ur.x);
 				}
 
