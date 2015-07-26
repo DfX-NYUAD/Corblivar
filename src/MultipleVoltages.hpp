@@ -76,26 +76,13 @@ class MultipleVoltages {
 			friend class MultipleVoltages;
 			friend class IO;
 
-			// note that the comparator has to be implemented as dedicated
-			// class, for proper template instantiation; also note that the
-			// actual implementation for operator() is in
-			// MultipleVoltages.cpp, to avoid circular dependencies between
-			// MultipleVoltages.hpp and Block.hpp
-			//
-			class blocks_comp {
+			// comprised blocks
+			std::vector<Block const*> blocks;
 
-				public:
-					bool operator() (Block const* b1, Block const* b2) const;
-			};
-
-			// sorted set of comprised blocks; the compound module's id will
-			// be derived from this sorted set
-			std::set<Block const*, blocks_comp> blocks;
-
-			// blocks' numerical ids; stored separately for simplified
-			// handling of compound modules; also, numerical ids are probably
-			// more efficient than using the string ids
-			std::unordered_set<unsigned> block_ids;
+			// sorted blocks' numerical ids; stored separately for simplified
+			// searching and handling of compound modules; numerical ids are
+			// probably more efficient than using the string ids
+			std::set<unsigned> blocks_ids;
 
 			// die-wise bounding boxes for whole module; only the set/vector of
 			// by other blocks not covered partial boxes are memorized; thus,
@@ -139,10 +126,8 @@ class MultipleVoltages {
 			// local cost; required during bottom-up construction
 			double updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update = true);
 
-			// helper to return id comprising all (sorted) block ids;
-			// numerical_ids = true provides a simplified string comprising
-			// only numerical block ids instead of actual string ids
-			std::string id(bool numerical_ids = false) const;
+			// helper function to return string comprising all (sorted) block ids
+			std::string id() const;
 
 			// helper to return index of minimal assignable voltage, note that
 			// this is not necessarily the globally minimal index but rather
@@ -186,9 +171,9 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		// map of unique compound modules; keys are the compound modules' string
-		// id; unordered map is more efficient in accessing individual elements
-		typedef std::unordered_map< std::string, CompoundModule > modules_type;
+		// map of unique compound modules; keys are the comprised blocks'
+		// numerical ids
+		typedef std::map< std::set<unsigned>, CompoundModule > modules_type;
 		modules_type modules;
 
 		// vector of selected modules, filled by selectCompoundModules()
