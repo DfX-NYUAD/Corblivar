@@ -717,11 +717,11 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 	double cost;
 	int n_l = neighbour->block->layer;
 	double intrusion_area = 0.0;
-	std::unordered_map<unsigned, Block const*> intruding_blocks;
 	bool checked_boundaries = false;
 	Rect ext_bb;
 	Rect neighbour_ext_bb;
 	Rect prev_bb_ext;
+	std::vector<Block const*> intruding_blocks;
 
 	if (MultipleVoltages::DBG) {
 		if (apply_update) {
@@ -773,7 +773,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 		// y-dimension; also see ContiguityAnalysis::analyseBlocks
 		for (auto i1 = cont.boundaries_vert[n_l].begin(); i1 != cont.boundaries_vert[n_l].end(); ++i1) {
 
-			ContiguityAnalysis::Boundary& b1 = (*i1);
+			ContiguityAnalysis::Boundary const& b1 = (*i1);
 
 			// the boundary b2, to be compared to b1, should be within the
 			// x-range of the extended bb; thus we initially search for the
@@ -788,7 +788,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			// boundaries/blocks
 			for (auto i2 = i1; i2 != cont.boundaries_vert[n_l].end(); ++i2) {
 
-				ContiguityAnalysis::Boundary& b2 = (*i2);
+				ContiguityAnalysis::Boundary const& b2 = (*i2);
 
 				// break condition; if b2 is just touching (or later on
 				// outside to) the right of extended bb, no intersection
@@ -799,20 +799,17 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 
 					break;
 				}
-
-				// otherwise, some intersection _may_ exist, but only a)
-				// for blocks not covered in the module yet or not being
+				// otherwise, some intersection _may_ exist, but only for
+				// a) blocks not covered in the module yet or not being
 				// the neighbour and b) if there is some overlap in
-				// y-direction; check for b) first since it's easier to
-				// compute
+				// y-direction
 				//
-				if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
-
-					// now check against a)
-					if (this->block_ids[b2.block->numerical_id] == true || b2.block->numerical_id == neighbour->block->numerical_id) {
-
-						continue;
-					}
+				// negation of a), ignore such block
+				else if (this->block_ids[b2.block->numerical_id] == true || b2.block->numerical_id == neighbour->block->numerical_id) {
+					continue;
+				}
+				// b)
+				else if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
 
 					// at this point, we know that b2 is intersecting
 					// with extended bb to some degree in _both_
@@ -841,7 +838,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 					// where trivial neighbours are merged into
 					//
 					if (this->feasible_voltages != b2.block->feasible_voltages) {
-						intruding_blocks.insert({b2.block->numerical_id, b2.block});
+						intruding_blocks.push_back(b2.block);
 					}
 				}
 			}
@@ -872,6 +869,28 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 		// also handle the estimated number of corners in the power rings
 		//
 		else {
+			// consider each intruding block only once, i.e., sort and make
+			// vector unique; for efficiency, a vector which is later on
+			// sorted and made unique is usually still better than using a
+			// sorted set or a hashed map
+			//
+			std::sort(intruding_blocks.begin(), intruding_blocks.end(),
+				// lambda expression for sorting
+				[&](Block const* b1, Block const* b2) {
+					return b1->numerical_id < b2->numerical_id;
+				}
+			);
+			auto it_last = std::unique(intruding_blocks.begin(), intruding_blocks.end(),
+				// lambda expression for equality
+				[&](Block const* b1, Block const* b2) {
+					return b1->numerical_id == b2->numerical_id;
+				}
+			);
+			// note that the vector must be resized, otherwise its range is
+			// not valid in the sense that it may still refer to some
+			// redundant entries
+			intruding_blocks.resize(std::distance(intruding_blocks.begin(), it_last));
+
 			// add the neighbours (extended) bb and extend the previous bb
 			// separately; the extension shall be applied such that number of
 			// corners will be minimized, i.e., the bbs should be sized to
@@ -905,9 +924,9 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			// determine the amount of intersection/intrusion; and ``cut''
 			// parts of extended bbs which are intruded
 			//
-			for (auto it = intruding_blocks.begin(); it != intruding_blocks.end(); ++it) {
+			for (Block const* intruding_block : intruding_blocks) {
 
-				Rect const& cur_intruding_bb = it->second->bb;
+				Rect const& cur_intruding_bb = intruding_block->bb;
 
 				// if the intruding block is below the neighbour, consider
 				// to limit the lower boundary of the extended bb
@@ -965,7 +984,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				intrusion_area += Rect::determineIntersection(ext_bb, cur_intruding_bb).area;
 
 				if (MultipleVoltages::DBG) {
-					std::cout << "DBG_VOLTAGES>   Extended bb is intruded by block " << it->second->id;
+					std::cout << "DBG_VOLTAGES>   Extended bb is intruded by block " << intruding_block->id;
 					std::cout << "; block bb (" << cur_intruding_bb.ll.x << "," << cur_intruding_bb.ll.y << ")";
 					std::cout << "(" << cur_intruding_bb.ur.x << "," << cur_intruding_bb.ur.y << ")";
 					std::cout << "; amount of intrusion / area of intersection: " << Rect::determineIntersection(ext_bb, cur_intruding_bb).area << std::endl;
