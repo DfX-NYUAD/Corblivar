@@ -42,6 +42,11 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		// init pointers to blocks
 		module.blocks.push_back(&start);
 
+		// init power saving, based on feasible voltages and current block; note
+		// that previous values are not defined, thus the regular case to reset
+		// and recalculate power saving over all (here one) blocks is applied
+		module.update_power_saving();
+
 		// init block ids such that they may encode all blocks' numerical ids;
 		// also account for the offset of one, introduced by Block::DUMMY_NUM_ID
 		module.block_ids.reserve(blocks.size() + 1);
@@ -325,6 +330,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					// module's blocks
 					b->assigned_module = module;
 				}
+
+				// sum up the power saving values
+				module->power_saving_ += n_module->power_saving_;
+				module->power_saving_wasted_ += n_module->power_saving_wasted_;
 
 				// add the outline rects from the module to be merged
 				for (unsigned l = 0; l < module->outline.size(); l++) {
@@ -620,6 +629,25 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	// assign feasible voltages, may be moved since they were generated only for this
 	// callee and will not be reused in the caller
 	new_module.feasible_voltages = std::move(feasible_voltages);
+
+	// recalculate the power saving for all comprised modules if required, i.e.,
+	// whenever the set of applicable voltages changes
+	//
+	if (new_module.feasible_voltages != module.feasible_voltages) {
+
+		new_module.update_power_saving();
+	}
+	// otherwise, copy previous values and update only according to the specific new
+	// block to be considered
+	//
+	else {
+		// copy previous values
+		new_module.power_saving_ = module.power_saving_;
+		new_module.power_saving_wasted_ = module.power_saving_wasted_;
+
+		// update copied values to consider new block
+		new_module.update_power_saving(neighbour->block);
+	}
 
 	// copy outline from the previous module
 	new_module.outline = module.outline;
@@ -1014,32 +1042,42 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 // helper to estimate gain in power reduction
 //
 // this is done by comparing lowest applicable to highest (trivial solution) voltage /
-// power for all comprised blocks; look-ahead determination, evaluates and memorizes cost,
-// impacting the blocks' voltage assignment, even if this module will not be selected
-// later on; this intermediate assignments are not troublesome since the actual module
-// selection will take care of the final voltage assignment
+// power for all (or one specific) comprised blocks; the flag subtract_wasted_saving flag
+// required for cost calculation, the flag update is used to perform actual evaluation
+// only when required, and the Block pointer may be used to update power saving only
+// w.r.t. one specific block
 //
-double MultipleVoltages::CompoundModule::power_saving(bool subtract_wasted_saving) const {
-
-	double ret = 0.0;
+inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* block_to_consider) {
 	unsigned min_voltage_index = this->min_voltage_index();
 
-	for (Block const* b : this->blocks) {
+	// all blocks shall be considered
+	//
+	if (block_to_consider == nullptr) {
 
-		// for each block, its power saving is given by the theoretical max power
-		// consumption minus the power consumption achieved within this module
-		ret += (b->power_max() - b->power(min_voltage_index));
+		// reset previous values
+		this->power_saving_ = this->power_saving_wasted_ = 0.0;
 
-		// if required, subtract the ``wasted saving'', that is the difference in
-		// power saving which is not achievable anymore since each block has been
-		// assigned to this module which is potentially not the best-case /
-		// lowest-voltage / lowest-power module
-		if (subtract_wasted_saving) {
-			ret -= (b->power(min_voltage_index) - b->power_min());
+		for (Block const* b : this->blocks) {
+
+			// for each block, its power saving is given by the theoretical
+			// max power consumption minus the power consumption achieved
+			// within this module
+			this->power_saving_ += (b->power_max() - b->power(min_voltage_index));
+
+			// consider also the ``wasted saving'', that is the difference in
+			// power saving which is not achievable anymore since each block
+			// has been assigned to this module which is potentially not the
+			// best-case / lowest-voltage / lowest-power module
+			this->power_saving_wasted_ += (b->power(min_voltage_index) - b->power_min());
 		}
 	}
-
-	return ret;
+	// only one specific block shall be considered; update values only, no complete
+	// recalculation
+	//
+	else {
+		this->power_saving_ += (block_to_consider->power_max() - block_to_consider->power(min_voltage_index));
+		this->power_saving_wasted_ += (block_to_consider->power(min_voltage_index) - block_to_consider->power_min());
+	}
 }
 
 // global cost, required during top-down selection

@@ -113,6 +113,13 @@ class MultipleVoltages {
 			// all comprised blocks
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
 
+			// power savings will be memorized locally; to avoid redundant
+			// recalculations, these values will only be updated whenever the
+			// set of feasible_voltages changes
+			//
+			double power_saving_;
+			double power_saving_wasted_;
+
 			// key: neighbour's numerical block id
 			//
 			// with an map, redundant neighbours which may arise during
@@ -152,7 +159,16 @@ class MultipleVoltages {
 		public:
 			// helper to estimate gain in power reduction
 			//
-			double power_saving(bool subtract_wasted_saving = true) const;
+			inline void update_power_saving(Block const* block_to_consider = nullptr);
+			inline double power_saving(bool subtract_wasted_saving = true) const {
+
+				if (subtract_wasted_saving) {
+					return (this->power_saving_ - this->power_saving_wasted_);
+				}
+				else {
+					return this->power_saving_;
+				}
+			};
 
 			// helper to obtain overall (over all dies) max number of corners
 			// in power rings
