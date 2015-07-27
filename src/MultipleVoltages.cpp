@@ -483,17 +483,6 @@ void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModu
 			// the search space such that only ``forward merging'' of new
 			// contiguous trivial modules is considered
 			this->insertCompoundModuleHelper(module, neighbour, false, feasible_voltages, hint, cont);
-
-			// TODO drop?
-			//
-			// this break is the ``trick'' for disabling branching: once a
-			// contiguous trivial module is extended by this relevant
-			// neighbour and once the recursive calls (for building up
-			// resulting larger modules) return to this point, no further
-			// neighbours are considered; the resulting stepwise merging of
-			// only one trivial neighbour is sufficient to capture
-			// largest-possible contiguous trivial modules
-			break;
 		}
 		// more than one voltage is applicable, and the set of voltages has
 		// changed; such a module should be considered without notice of cost,
