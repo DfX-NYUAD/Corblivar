@@ -699,6 +699,12 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
 	double cost;
 	int n_l = neighbour->block->layer;
+	double intrusion_area = 0.0;
+	std::unordered_map<unsigned, Block const*> intruding_blocks;
+	bool checked_boundaries = false;
+	Rect ext_bb;
+	Rect neighbour_ext_bb;
+	Rect prev_bb_ext;
 
 	if (MultipleVoltages::DBG) {
 		if (apply_update) {
@@ -731,20 +737,11 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 	// neighbour block; check for intrusion by any other block
 	//
 	else {
-		double intrusion_area = 0.0;
-		std::unordered_map<unsigned, Block const*> intruding_blocks;
-		bool checked_boundaries = false;
-
 		// consider the previous bb to be extended by the neighbour; the relevant
 		// bb is the last one of the vector (by this just introduced definition);
 		// consider local copy and only store in case update shall be applied
 		//
-		Rect prev_bb = this->outline[n_l].back();
-		// local copy of extended bb
-		Rect ext_bb = Rect::determBoundingBox(prev_bb, neighbour->block->bb);
-		// other local bbs
-		Rect neighbour_ext_bb;
-		Rect prev_bb_ext;
+		ext_bb = Rect::determBoundingBox(this->outline[n_l].back(), neighbour->block->bb);
 
 		if (MultipleVoltages::DBG) {
 			std::cout << "DBG_VOLTAGES>   Currently considered extended bb ";
@@ -858,16 +855,18 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 		// also handle the estimated number of corners in the power rings
 		//
 		else {
-			// add the neighbours (extended) bb and extend the previous bb;
-			// the extension shall be applied such that number of corners will
-			// be minimized, i.e., the bbs should be sized to match the
-			// overall bb (enclosing previous bb and neighbour) as close as
-			// possible but still considering intruding blocks
+			// add the neighbours (extended) bb and extend the previous bb
+			// separately; the extension shall be applied such that number of
+			// corners will be minimized, i.e., the bbs should be sized to
+			// match the overall bb (enclosing previous bb and neighbour) as
+			// close as possible but still considering intruding blocks
 			//
-
-			// init extended neighbour bb with actual neighbour bb
+			// init copy for extended neighbour bb with actual neighbour bb
 			neighbour_ext_bb = neighbour->block->bb;
-			// init extended prev bb with actual prev bb
+			// hold reference to actual prev bb; the last in the container by
+			// definition
+			Rect const& prev_bb = this->outline[n_l].back();
+			// init copy for extended prev bb with actual prev bb
 			prev_bb_ext = prev_bb;
 
 			// extent both bbs to meet boundaries of overall bb; to do so,
@@ -961,9 +960,11 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			if (apply_update) {
 
 				// recall that prev_bb refers to the previous bb in the
-				// outline[n_l] by definition
+				// outline[n_l] by definition; thus, the extended prev bb
+				// shall replace this very previous bb
 				this->outline[n_l].back() = prev_bb_ext;
 
+				// store the new, extended bb for the neighbour
 				this->outline[n_l].emplace_back(neighbour_ext_bb);
 			}
 
