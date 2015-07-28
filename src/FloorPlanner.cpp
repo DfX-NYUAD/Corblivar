@@ -1016,11 +1016,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	//
 	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::doubleComp(fitting_layouts_ratio, 0.0))) {
 
-		// TODO shall simply have no impact, i.e., weight shall be zero and other
-		// weights accordingly increased
-		//
-		// dummy cost according to squared timing cost above, i.e., delay over threshold
-		cost.voltage_assignment = pow(cost.timing_actual_value / this->IC.delay_threshold, 2.0);
+		// dummy cost, equals max normalized cost
+		cost.voltage_assignment = 1.0;
 
 		// consider dummy voltage assignment: zero modules etc
 		cost.voltage_assignment_power_saving = 0.0;
