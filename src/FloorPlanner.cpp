@@ -829,8 +829,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			cost.alignments = cost.alignments_actual_value = 0.0;
 		}
 
-		// determine voltage-assignment cost; also determines initially the timing
-		// information and later on the actual optimized voltage volumes
+		// determine voltage-assignment and/or timing cost; initially determine
+		// the timing information anyway and later on apply the actual optimized
+		// voltage volumes if required
 		//
 		// for finalize calls, we need to initialize the max_cost
 		if (finalize && this->opt_flags.voltage_assignment) {
@@ -950,26 +951,32 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 // determine the delays for all blocks; they shall fulfill a max delay below a given
 // threshold
-void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost) {
+void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool reevaluation) {
 	double max_delay;
 
-	// reset previous voltage assignments if required; they impact the module delay
-	if (this->opt_flags.voltage_assignment) {
+	// for reevaluation, after voltage assignment, don't reset voltage-assignment
+	// values and avoid redundant recalculation of net delays
+	//
+	if (!reevaluation) {
 
-		for (Block& block : this->blocks) {
-			block.resetVoltageAssignment();
+		// reset previous voltage assignments if required; they impact the module delay
+		if (this->opt_flags.voltage_assignment) {
+
+			for (Block& block : this->blocks) {
+				block.resetVoltageAssignment();
+			}
 		}
-	}
 
-	// reset previous net delays
-	for (Net& cur_net : this->nets) {
-		cur_net.resetSourceMaxDelay();
-	}
+		// reset previous net delays
+		for (Net& cur_net : this->nets) {
+			cur_net.resetSourceMaxDelay();
+		}
 
-	// assign max net delays to all nets' driving/source blocks; note that some source
-	// blocks may drive several nets, i.e., the overall max value is finally assigned
-	for (Net& cur_net : this->nets) {
-		cur_net.assignSourceMaxDelay();
+		// assign max net delays to all nets' driving/source blocks; note that some source
+		// blocks may drive several nets, i.e., the overall max value is finally assigned
+		for (Net& cur_net : this->nets) {
+			cur_net.assignSourceMaxDelay();
+		}
 	}
 
 	// evaluate max delay over all blocks, drivers and non-driving blocks; covers both
@@ -1098,11 +1105,11 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// apply cost normalization
 	cost.voltage_assignment /= this->max_cost_voltage_assignment;
 
-	// TODO update
-	// note that the delay cost is not required to be updated / not changed after
-	// voltage assignment, since the delay cost is only capturing excessive delays,
-	// which will not arise after conservative voltage assignment which considers only
-	// lower voltages not violating the delay threshold
+	// note that the delay cost shall be updated after voltage assignment, since the
+	// delay cost is modelling max delay over delay threshold, i.e., larger max delays
+	// due to voltage assignment will increase delay cost
+	//
+	this->evaluateTiming(cost, set_max_cost, true);
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateVoltageAssignment()" << std::endl;

@@ -201,7 +201,8 @@ class FloorPlanner {
 				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& set_max_cost = false);
 		void evaluateTiming(Cost& cost,
-				bool const& set_max_cost = false);
+				bool const& set_max_cost = false,
+				bool reevaluation = false);
 		void evaluateVoltageAssignment(Cost& cost,
 				double const& fitting_layouts_ratio,
 				bool const& set_max_cost = false);
