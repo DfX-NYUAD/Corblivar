@@ -782,8 +782,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 		// determine total cost
 		//
-		// invert weight of area and outline cost since it's the only cost term
-		cost.total_cost = (1.0 / FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE) * cost.area_outline;
+		// invert weight of area and outline cost since it's the only cost term to
+		// be considered during phase one
+		cost.total_cost = cost.area_outline / this->weights.area_outline;
 	}
 	// phase two: consider further cost factors
 	else {
@@ -905,36 +906,32 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		}
 
 		// determine total cost; weight and sum up cost terms
-		cost.total_cost =
-			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->weights.WL * cost.HPWL
-					+ this->weights.routing_util * cost.routing_util
-					+ this->weights.TSVs * cost.TSVs
-					+ this->weights.alignment * cost.alignments
-					+ this->weights.thermal * cost.thermal
-					+ this->weights.voltage_assignment * cost.voltage_assignment
-					+ this->weights.timing * cost.timing
-				)
+		cost.total_cost = this->weights.WL * cost.HPWL
+			+ this->weights.routing_util * cost.routing_util
+			+ this->weights.TSVs * cost.TSVs
+			+ this->weights.alignment * cost.alignments
+			+ this->weights.thermal * cost.thermal
+			+ this->weights.voltage_assignment * cost.voltage_assignment
+			+ this->weights.timing * cost.timing
 			// area, outline cost is already weighted
 			+ cost.area_outline;
 
 		// determine total cost assuming a fitting ratio of 1.0
-		cost.total_cost_fitting =
-			FloorPlanner::SA_COST_WEIGHT_OTHERS * (
-					this->weights.WL * cost.HPWL
-					+ this->weights.routing_util * cost.routing_util
-					+ this->weights.TSVs * cost.TSVs
-					+ this->weights.alignment * cost.alignments
-					+ this->weights.thermal * cost.thermal
-					+ this->weights.voltage_assignment * cost.voltage_assignment
-					+ this->weights.timing * cost.timing
-				)
-			// consider only area term for ratio 1.0, see evaluateAreaOutline
-			+ cost.area_actual_value * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE;
+		cost.total_cost_fitting = this->weights.WL * cost.HPWL
+			+ this->weights.routing_util * cost.routing_util
+			+ this->weights.TSVs * cost.TSVs
+			+ this->weights.alignment * cost.alignments
+			+ this->weights.thermal * cost.thermal
+			+ this->weights.voltage_assignment * cost.voltage_assignment
+			+ this->weights.timing * cost.timing
+			// consider only area term for fitting ratio 1.0, see evaluateAreaOutline
+			+ cost.area_actual_value * this->weights.area_outline;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "DBG_LAYOUT> Total cost: " << cost.total_cost << std::endl;
+		// log non-weighted cost terms, revert weighing for area and outline
+		std::cout << "DBG_LAYOUT>  Area and fixed-outline cost: " << (cost.area_outline / this->weights.area_outline) << std::endl;
 		std::cout << "DBG_LAYOUT>  HPWL cost: " << cost.HPWL << std::endl;
 		std::cout << "DBG_LAYOUT>  Routing-utilization cost: " << cost.routing_util << std::endl;
 		std::cout << "DBG_LAYOUT>  TSVs cost: " << cost.TSVs << std::endl;
@@ -1198,7 +1195,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// store actual value
 	cost.outline_actual_value = cost_outline;
 	// determine cost function value
-	cost_outline *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 - fitting_layouts_ratio);
+	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
 
 	// cost for area, considering max value of (blocks-outline area) / (die-outline
 	// area) guides towards balanced die occupation and area minimization
@@ -1209,7 +1206,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// store actual value
 	cost.area_actual_value = cost_area;
 	// determine cost function value
-	cost_area *= 0.5 * FloorPlanner::SA_COST_WEIGHT_AREA_OUTLINE * (1.0 + fitting_layouts_ratio);
+	cost_area *= 0.5 * this->weights.area_outline * (1.0 + fitting_layouts_ratio);
 
 	cost.area_outline = cost_outline + cost_area;
 	cost.fits_fixed_outline = layout_fits_in_fixed_outline;

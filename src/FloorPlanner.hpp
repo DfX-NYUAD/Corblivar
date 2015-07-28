@@ -139,20 +139,13 @@ class FloorPlanner {
 
 		// SA parameters: cost factors/weights
 		struct weights {
-			double thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
+			double area_outline, thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
 		} weights;
 
 		// (TODO) refactor into own struct
 		// SA cost variables: max cost values
 		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment;
 		int max_cost_TSVs;
-
-		// SA cost parameters: global weights, enforce that area and outline
-		// violation is constantly considered; related weight should be >= 0.5 in
-		// order to enforce guiding into outline during whole optimization run
-		// TODO dynamically, should be 1/n for n objectives
-		static constexpr double SA_COST_WEIGHT_AREA_OUTLINE = 0.1;
-		static constexpr double SA_COST_WEIGHT_OTHERS = 1.0 - SA_COST_WEIGHT_AREA_OUTLINE;
 
 		// SA cost; POD declaration
 		struct Cost {

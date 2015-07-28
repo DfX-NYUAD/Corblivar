@@ -334,6 +334,19 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.weights.area_outline;
+
+	// sanity check for non-zero cost factor; optimization shall be always guided
+	// towards area and fixed-outline fitting since the latter relates to the SA
+	// optimization flow
+	if (fp.weights.area_outline <= 0.0) {
+		std::cout << "IO> Provide positive, non-zero cost factor for area and fixed-outline fitting!" << std::endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.weights.thermal;
 
 	// memorize if thermal optimization should be performed
@@ -400,6 +413,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// sanity check for sum of cost factors
 	if (std::abs(
+			fp.weights.area_outline +
 			fp.weights.thermal +
 			fp.weights.WL +
 			fp.weights.routing_util +
@@ -833,6 +847,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Temperature-scaling factor for phase 3 (brief reheating, escaping local minima) : " << fp.schedule.temp_factor_phase3 << std::endl;
 
 		// SA cost factors
+		std::cout << "IO>  SA -- Cost factor for are and fixed-outline fitting: " << fp.weights.area_outline << std::endl;
 		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.weights.thermal << std::endl;
 		if (!fp.IO_conf.power_density_file_avail) {
 			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
