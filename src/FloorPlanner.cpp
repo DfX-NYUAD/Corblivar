@@ -636,7 +636,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << std::endl;
 			}
 
-			if (this->opt_flags.timing) {
+			if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
 
 				std::cout << "Corblivar> Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << "Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
