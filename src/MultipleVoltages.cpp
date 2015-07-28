@@ -385,7 +385,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 	if (MultipleVoltages::DBG) {
 		std::cout << "DBG_VOLTAGES>  Done merging modules" << std::endl;
-		std::cout << std::endl;
+		std::cout << "DBG_VOLTAGES>" << std::endl;
 	}
 
 	if (MultipleVoltages::DBG) {
