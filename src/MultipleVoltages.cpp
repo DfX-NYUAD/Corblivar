@@ -108,7 +108,7 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	}
 }
 
-std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules() {
+std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(bool const& merge_selected_modules) {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 
@@ -285,107 +285,118 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	// fourth, merge selected modules whenever possible, i.e., when some of the
 	// modules' blocks are contiguous to another module sharing the same voltage
 	//
-
-	if (MultipleVoltages::DBG) {
-		std::cout << "DBG_VOLTAGES>  Start merging modules" << std::endl;
-	}
-
-	// for-loop instead of iterator, since we edit this very data structure
+	// note that such merging will a) impact the corners and b) undermine the cost
+	// normalization and thus the actual top-down selection. For a), it most likely
+	// increases the estimated max number of corners to an unreasonably high value
+	// since most merges will not increase the numbers of corners, especially not when
+	// many modules nearby (with same voltages) are merged. For b), the actual cost of
+	// merged modules shall be different and may be inferior than other cost,
+	// suggesting that the merge is not beneficial
 	//
-	for (unsigned m = 0; m < this->selected_modules.size(); m++) {
+	// thus, it shall only be applied when requested, e.g., for final logging
+	if (merge_selected_modules) {
 
-		MultipleVoltages::CompoundModule* module = this->selected_modules[m];
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES>  Start merging modules" << std::endl;
+		}
 
-		// walk all contiguous blocks of current module
+		// for-loop instead of iterator, since we edit this very data structure
 		//
-		for (auto it = module->contiguous_neighbours.begin(); it != module->contiguous_neighbours.end(); ++it) {
+		for (unsigned m = 0; m < this->selected_modules.size(); m++) {
 
-			MultipleVoltages::CompoundModule* n_module = it->second->block->assigned_module;
+			MultipleVoltages::CompoundModule* module = this->selected_modules[m];
 
-			// if the related module of the contiguous block has the same
-			// voltage index as this module, they can be merged; merging means
-			// to extend the current module with the blocks from the
-			// contiguous block's module
+			// walk all contiguous blocks of current module
 			//
-			if (n_module->min_voltage_index() == module->min_voltage_index()) {
+			for (auto it = module->contiguous_neighbours.begin(); it != module->contiguous_neighbours.end(); ++it) {
 
-				// sanity check; avoid merging with itself
-				if (n_module->block_ids == module->block_ids) {
-					continue;
-				}
+				MultipleVoltages::CompoundModule* n_module = it->second->block->assigned_module;
 
-				if (MultipleVoltages::DBG) {
-					std::cout << "DBG_VOLTAGES>   Merging modules;" << std::endl;
-					std::cout << "DBG_VOLTAGES>    " << module->id() << std::endl;
-					std::cout << "DBG_VOLTAGES>    " << n_module->id() << std::endl;
-				}
+				// if the related module of the contiguous block has the same
+				// voltage index as this module, they can be merged; merging means
+				// to extend the current module with the blocks from the
+				// contiguous block's module
+				//
+				if (n_module->min_voltage_index() == module->min_voltage_index()) {
 
-				// update the actual blocks
-				for (Block const* b : n_module->blocks) {
-
-					module->blocks.push_back(b);
-					module->block_ids[b->numerical_id] = true;
-
-					// also update the module pointer for merged
-					// module's blocks
-					b->assigned_module = module;
-				}
-
-				// sum up the power saving values
-				module->power_saving_ += n_module->power_saving_;
-				module->power_saving_wasted_ += n_module->power_saving_wasted_;
-
-				// add the outline rects from the module to be merged
-				for (unsigned l = 0; l < module->outline.size(); l++) {
-
-					for (auto& rect : n_module->outline[l]) {
-						module->outline[l].push_back(std::move(rect));
-					}
-
-					// also sum up the power-ring corners, but
-					// subtract two under the assumption that the
-					// previous module's outline can be extended
-					// without further corners; this is an somewhat
-					// optimistic but simple estimation
-					module->corners_powerring[l] += n_module->corners_powerring[l] - 2;
-				}
-
-				// add (pointers to) now additionally considered
-				// contiguous neighbours; note that only yet not
-				// considered neighbours are effectively added
-				for (auto n : n_module->contiguous_neighbours) {
-
-					// ignore any neighbour which is already comprised in the module
-					if (module->block_ids[n.first] == true) {
+					// sanity check; avoid merging with itself
+					if (n_module->block_ids == module->block_ids) {
 						continue;
 					}
 
-					module->contiguous_neighbours.insert(n);
-				}
-
-				// erase the just merged module
-				//
-				for (auto it = this->selected_modules.begin(); it != this->selected_modules.end(); ++it) {
-
-					if ((*it)->block_ids == n_module->block_ids) {
-						this->selected_modules.erase(it);
-						break;
+					if (MultipleVoltages::DBG) {
+						std::cout << "DBG_VOLTAGES>   Merging modules;" << std::endl;
+						std::cout << "DBG_VOLTAGES>    " << module->id() << std::endl;
+						std::cout << "DBG_VOLTAGES>    " << n_module->id() << std::endl;
 					}
-				}
 
-				// finally, reset the iterator for contiguous blocks as
-				// well; required to capture transitive merges and,
-				// furthermore, iterator it is invalid after the above
-				// insertions
-				//
-				it = module->contiguous_neighbours.begin();
+					// update the actual blocks
+					for (Block const* b : n_module->blocks) {
+
+						module->blocks.push_back(b);
+						module->block_ids[b->numerical_id] = true;
+
+						// also update the module pointer for merged
+						// module's blocks
+						b->assigned_module = module;
+					}
+
+					// sum up the power saving values
+					module->power_saving_ += n_module->power_saving_;
+					module->power_saving_wasted_ += n_module->power_saving_wasted_;
+
+					// add the outline rects from the module to be merged
+					for (unsigned l = 0; l < module->outline.size(); l++) {
+
+						for (auto& rect : n_module->outline[l]) {
+							module->outline[l].push_back(std::move(rect));
+						}
+
+						// also sum up the power-ring corners, but
+						// subtract two under the assumption that the
+						// previous module's outline can be extended
+						// without further corners; this is an somewhat
+						// optimistic but simple estimation
+						module->corners_powerring[l] += n_module->corners_powerring[l] - 2;
+					}
+
+					// add (pointers to) now additionally considered
+					// contiguous neighbours; note that only yet not
+					// considered neighbours are effectively added
+					for (auto n : n_module->contiguous_neighbours) {
+
+						// ignore any neighbour which is already comprised in the module
+						if (module->block_ids[n.first] == true) {
+							continue;
+						}
+
+						module->contiguous_neighbours.insert(n);
+					}
+
+					// erase the just merged module
+					//
+					for (auto it = this->selected_modules.begin(); it != this->selected_modules.end(); ++it) {
+
+						if ((*it)->block_ids == n_module->block_ids) {
+							this->selected_modules.erase(it);
+							break;
+						}
+					}
+
+					// finally, reset the iterator for contiguous blocks as
+					// well; required to capture transitive merges and,
+					// furthermore, iterator it is invalid after the above
+					// insertions
+					//
+					it = module->contiguous_neighbours.begin();
+				}
 			}
 		}
-	}
 
-	if (MultipleVoltages::DBG) {
-		std::cout << "DBG_VOLTAGES>  Done merging modules" << std::endl;
-		std::cout << "DBG_VOLTAGES>" << std::endl;
+		if (MultipleVoltages::DBG) {
+			std::cout << "DBG_VOLTAGES>  Done merging modules" << std::endl;
+			std::cout << "DBG_VOLTAGES>" << std::endl;
+		}
 	}
 
 	if (MultipleVoltages::DBG) {

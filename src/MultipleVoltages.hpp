@@ -203,7 +203,7 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		void determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
-		std::vector<CompoundModule*> const& selectCompoundModules();
+		std::vector<CompoundModule*> const& selectCompoundModules(bool const& merge_selected_modules = false);
 
 	// private helper data, functions
 	private:

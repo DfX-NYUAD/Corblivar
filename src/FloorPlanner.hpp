@@ -173,6 +173,8 @@ class FloorPlanner {
 			double voltage_assignment_power_saving;
 			double voltage_assignment_corners_avg;
 			unsigned voltage_assignment_modules_count;
+			double voltage_assignment_corners_avg__merged;
+			unsigned voltage_assignment_modules_count__merged;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
 			friend std::ostream& operator<< (std::ostream& out, Cost const& cost) {
@@ -205,7 +207,8 @@ class FloorPlanner {
 				bool reevaluation = false);
 		void evaluateVoltageAssignment(Cost& cost,
 				double const& fitting_layouts_ratio,
-				bool const& set_max_cost = false);
+				bool const& set_max_cost = false,
+				bool const& finalize = false);
 
 		// SA: parameters for cost functions
 		//

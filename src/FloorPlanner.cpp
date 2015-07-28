@@ -671,10 +671,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 				std::cout << "Corblivar>  Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
+				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << " Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				this->IO_conf.results << "  Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
+				this->IO_conf.results << "  Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 		}
@@ -839,7 +843,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			// for voltage assignment, we require timing analysis anyway
 			this->evaluateTiming(cost, true);
 
-			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true);
+			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true, true);
 		}
 		else if (finalize && this->opt_flags.timing) {
 			this->evaluateTiming(cost, true);
@@ -1000,7 +1004,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool ree
 	cost.timing_actual_value = max_delay;
 }
 
-void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost) {
+void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost, bool const& finalize) {
 	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
 	double module_count = 0.0;
@@ -1107,6 +1111,28 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// due to voltage assignment will increase delay cost
 	//
 	this->evaluateTiming(cost, set_max_cost, true);
+
+	// for finalize runs, determine and log also the avg corners and modules count for
+	// merging adjacent compound modules
+	//
+	if (finalize) {
+		std::vector<MultipleVoltages::CompoundModule*> merged_selected_modules = this->voltageAssignment.selectCompoundModules(true);
+
+		corners_avg = 0.0;
+
+		for (auto* module : merged_selected_modules) {
+
+			corners_avg += module->corners_powerring_max();
+		}
+		// modules count
+		module_count = merged_selected_modules.size();
+		// average value for corners
+		corners_avg /= static_cast<double>(module_count);
+
+		// store actual values
+		cost.voltage_assignment_corners_avg__merged = corners_avg;
+		cost.voltage_assignment_modules_count__merged = module_count;
+	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateVoltageAssignment()" << std::endl;
