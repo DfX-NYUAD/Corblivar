@@ -804,23 +804,26 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				// break condition; if b2 is just touching (or later on
 				// outside to) the right of extended bb, no intersection
 				// if feasible anymore
-				if (Math::doubleComp(b2.low.x, ext_bb.ur.x)) {
+				if (b2.low.x >= ext_bb.ur.x) {
 
 					checked_boundaries = true;
-
 					break;
 				}
-				// otherwise, some intersection _may_ exist, but only for
-				// a) blocks not covered in the module yet or not being
-				// the neighbour and b) if there is some overlap in
+
+				// some intersection _may_ exist, but only for a) blocks
+				// not covered in the module yet or not being the
+				// neighbour and b) if there is some overlap in
 				// y-direction
 				//
 				// negation of a), ignore such block
-				else if (this->block_ids[b2.block->numerical_id] == true || b2.block->numerical_id == neighbour->block->numerical_id) {
+				if (b2.block->numerical_id == neighbour->block->numerical_id) {
+					continue;
+				}
+				if (this->block_ids[b2.block->numerical_id] == true) {
 					continue;
 				}
 				// b)
-				else if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
+				if (ext_bb.ll.y < b2.high.y && b2.low.y < ext_bb.ur.y) {
 
 					// at this point, we know that b2 is intersecting
 					// with extended bb to some degree in _both_
