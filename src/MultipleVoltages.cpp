@@ -922,9 +922,9 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			//
 			// init copy for extended neighbour bb with actual neighbour bb
 			neighbour_ext_bb = neighbour->block->bb;
-			// hold reference to actual prev bb; the last in the container by
+			// hold copy of actual prev bb; the last in the container by
 			// definition
-			Rect const& prev_bb = this->outline[n_l].back();
+			Rect prev_bb = this->outline[n_l].back();
 			// init copy for extended prev bb with actual prev bb
 			prev_bb_ext = prev_bb;
 
