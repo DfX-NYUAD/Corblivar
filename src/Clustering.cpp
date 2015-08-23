@@ -43,7 +43,6 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 	bool shift;
 	std::map<double, Hotspot, std::greater<double>>::iterator it_hotspot;
 	std::list<Cluster>::iterator it_cluster;
-	TSV_Island* TSVi;
 
 	if (Clustering::DBG) {
 		std::cout << "-> Clustering::clusterSignalTSVs(" << &nets << ", " << &nets_segments << ", " << &thermal_analysis << ")" << std::endl;
@@ -255,7 +254,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 		//
 		for (it_cluster = this->clusters[i].begin(); it_cluster != this->clusters[i].end(); ++it_cluster) {
 
-			TSVi = new TSV_Island(
+			TSV_Island TSVi = TSV_Island(
 					// cluster id
 					"net_cluster_" + std::to_string((*it_cluster).nets.size()),
 					// signal / TSV count
@@ -283,22 +282,28 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 
 				for (TSV_Island const& prev_island : TSVs) {
 
-					if (prev_island.layer != TSVi->layer) {
+					if (prev_island.layer != TSVi.layer) {
 						continue;
 					}
 
-					if (Rect::rectsIntersect(prev_island.bb, TSVi->bb)) {
+					if (Rect::rectsIntersect(prev_island.bb, TSVi.bb)) {
 
-						Rect::greedyShiftingRemoveIntersection(prev_island.bb, TSVi->bb);
+						Rect::greedyShiftingRemoveIntersection(prev_island.bb, TSVi.bb);
 						shift = true;
 					}
 				}
 			}
 
 			// store in global TSVs container
-			TSVs.push_back(*TSVi);
+			TSVs.push_back(TSVi);
 
 			// link TSV block to each associated net
+			//
+			// since the container "TSVs" will be reallocated subsequently, we
+			// cannot use pointers to its elements; for simplicity (to avoid
+			// later on traversal and search of matching TSV islands for nets)
+			// we simply copy TSVs islands into nets
+			//
 			for (it_net = (*it_cluster).nets.begin(); it_net != (*it_cluster).nets.end(); ++it_net) {
 				(*it_net)->TSVs.push_back(TSVi);
 			}

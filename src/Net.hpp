@@ -56,7 +56,7 @@ class Net {
 		int id;
 		bool hasExternalPin;
 		std::vector<Block const*> blocks;
-		std::vector<TSV_Island const*> TSVs;
+		std::vector<TSV_Island> TSVs;
 		std::vector<Pin const*> terminals;
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
@@ -173,17 +173,17 @@ class Net {
 
 			// TSV for cur_net on this layer
 			TSV_in_layer = false;
-			for (TSV_Island const* t : this->TSVs) {
+			for (TSV_Island const& t : this->TSVs) {
 
 				// TSVs
-				if (t->layer == layer) {
+				if (t.layer == layer) {
 
-					blocks_to_consider.push_back(&t->bb);
+					blocks_to_consider.push_back(&t.bb);
 
 					TSV_in_layer = true;
 
 					if (Net::DBG) {
-						std::cout << "DBG_NET> 	Consider TSV island " << t->id << " on layer " << layer << std::endl;
+						std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer << std::endl;
 					}
 				}
 			}
@@ -243,13 +243,13 @@ class Net {
 			// also consider TSV from layer below; required to estimated routing to the respective landing pad
 			if (layer > 0) {
 
-				for (TSV_Island const* t : this->TSVs) {
+				for (TSV_Island const& t : this->TSVs) {
 
-					if (t->layer == layer - 1) {
-						blocks_to_consider.push_back(&t->bb);
+					if (t.layer == layer - 1) {
+						blocks_to_consider.push_back(&t.bb);
 
 						if (Net::DBG) {
-							std::cout << "DBG_NET> 	Consider TSV island " << t->id << " on layer " << layer - 1 << std::endl;
+							std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer - 1 << std::endl;
 						}
 					}
 				}
