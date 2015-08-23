@@ -425,7 +425,7 @@ class TSV_Island : public Block {
 			new_bb.ur.y = new_bb.ll.y + new_bb.h;
 
 			// replace bb w/ new bb
-			this->bb = new_bb;
+			this->bb = std::move(new_bb);
 
 			// dbg logging for TSV scaling
 			if (TSV_Island::DBG) {
