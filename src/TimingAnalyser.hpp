@@ -41,10 +41,9 @@ class TimingAnalyser {
 		//
 		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000.0 / 2.0;
 	
-		// delay factors for TSVs and wires, taken from [Ahmed14]; wire delay
-		// applies for 0.14um width and 0.28um thickness, that is for 45nm
-		// technology TSV delays applies for 5um diameter, 10um pitch, and 50um
-		// length TSVs
+		// delay factors for TSVs and wires, taken from [Ahmed14] which models
+		// 45nm technology; wire delays are for M7-M8 layers, TSV are assumed to
+		// have 5um diameter, 10um pitch, and 50um length
 		//
 		// given in [ns]
 		static constexpr double DELAY_FACTOR_TSV = 
@@ -55,7 +54,7 @@ class TimingAnalyser {
 		// given in [ns/um^2]
 		static constexpr double DELAY_FACTOR_WIRE =
 			// R_wire [mOhm/um] * C_wire [fF/um]
-			428.0e-03 * 0.171e-15
+			52.5e-03 * 0.823e-15
 			// scale up to ns
 			* 1.0e09;
 
