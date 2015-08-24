@@ -161,6 +161,24 @@ further examples can be found in exp/configs/.
 Changelog
 =========
 
+1.4.1
+-----
+*August 2015, commit 6273e1c66705c905f72ab2409045a4677ad7d05a*
+**major updates and fixes for voltage assignment, mainly related to memory/runtime efforts**
+- voltage assignment: consider only one best-cost candidate, notably reduces memory
+consumption but maintains proper solution-space exploration
+- voltage assignment: perform only for solutions without delay violations, reduces runtime
+notably
+- voltage assignment: drop non-essential copy operations
+- introduce numerical block id, along the previous string id; notably reduces
+computational efforts for voltage assignment
+- iterative updates of power saving and corners for compound modules; improves
+computational effort for voltage assignment notably
+- updates cost handling for floorplanner
+- fix memory leakage related to TSV islands
+- updates technology and Corblviar config files for different experiments
+- div refactoring and cleanups
+
 1.4.0
 -----
 *July 2015, commit 3cecd66182758b190dac0481fc3ed30f35270dad*
