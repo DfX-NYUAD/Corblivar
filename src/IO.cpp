@@ -612,6 +612,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.IC.power_scale;
+
+	// sanity check for power scaling factor
+	if (fp.IC.power_scale <= 0.0) {
+		std::cout << "IO> Provide a positive, non-zero power scaling factor!" << std::endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.IC.outline_shrink;
 
 	in >> tmpstr;
@@ -774,6 +785,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << std::endl;
 
 		// technology parameters
+		std::cout << "IO>  Technology -- Power scaling factor: " << fp.IC.power_scale << std::endl;
 		std::cout << "IO>  Technology -- Die thickness [um]: " << fp.IC.die_thickness << std::endl;
 		std::cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.IC.Si_active_thickness << std::endl;
 		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.IC.Si_passive_thickness << std::endl;
@@ -1381,13 +1393,8 @@ void IO::parseBlocks(FloorPlanner& fp) {
 				// density can be obtained via power_density()
 				power_in >> new_block.power_density_unscaled;
 
-				// GSRC benchmarks provide power density in 10^5 W/m^2
-				// which equals 10^-1 uW/um^2; scale by factor 10 in order
-				// to obtain uW/um^2
-				//
-				// (TODO) scaling up ignored in order to limit
-				// power-density to reasonable values
-				//new_block.power_density_unscaled *= 10.0;
+				// however, apply general power-scaling factor
+				new_block.power_density_unscaled *= fp.IC.power_scale;
 			}
 			else {
 				if (fp.logMin()) {

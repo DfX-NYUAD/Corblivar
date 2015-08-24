@@ -74,6 +74,7 @@ class FloorPlanner {
 			// (TODO) refactor into own struct
 			// technology parameters
 			//
+			double power_scale;
 			double die_thickness;;
 			double Si_active_thickness;
 			double Si_passive_thickness;
