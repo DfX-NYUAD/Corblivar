@@ -1515,6 +1515,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 		// blocks area
 		std::cout << "IO>  Summed blocks area [cm^2]: " << fp.IC.blocks_area * 1.0e-8;
+		std::cout << "; single die area [cm^2]: " << fp.IC.die_area * 1.0e-8;
 		std::cout << "; summed blocks area / summed dies area: " << blocks_outline_ratio << std::endl;
 		std::cout << std::endl;
 	}

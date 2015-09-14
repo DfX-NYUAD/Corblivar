@@ -555,11 +555,13 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << std::endl;
-			std::cout << "Corblivar>  x = " << x << std::endl;
-			std::cout << "Corblivar>  y = " << y << std::endl;
+			std::cout << "Corblivar>  w [um] = " << x << std::endl;
+			std::cout << "Corblivar>  h [um] = " << y << std::endl;
+			std::cout << "Corblivar>  A [cm^2] = " << x * y * 1.0e-8 << std::endl;
 			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << std::endl;
-			this->IO_conf.results << " x = " << x << std::endl;
-			this->IO_conf.results << " y = " << y << std::endl;
+			this->IO_conf.results << " w [um] = " << x << std::endl;
+			this->IO_conf.results << " h [um] = " << y << std::endl;
+			this->IO_conf.results << " A [cm^2] = " << x * y * 1.0e-8 << std::endl;
 			this->IO_conf.results << std::endl;
 
 			if (this->opt_flags.alignment) {
