@@ -3,210 +3,210 @@ UCSC blocks 1.0
 # User         : huaizhi@shawnee
 # Platform     : SunOS 5.8 sparc
 
-NumSoftRectangularBlocks : 0
-NumHardRectilinearBlocks : 200
+NumSoftRectangularBlocks : 200
+NumHardRectilinearBlocks : 0
 NumTerminals : 564
 
-sb0 hardrectilinear 4 (0, 0) (0, 16) (36, 16) (36, 0)
-sb1 hardrectilinear 4 (0, 0) (0, 39) (19, 39) (19, 0)
-sb2 hardrectilinear 4 (0, 0) (0, 35) (41, 35) (41, 0)
-sb3 hardrectilinear 4 (0, 0) (0, 47) (18, 47) (18, 0)
-sb4 hardrectilinear 4 (0, 0) (0, 32) (26, 32) (26, 0)
-sb5 hardrectilinear 4 (0, 0) (0, 31) (35, 31) (35, 0)
-sb6 hardrectilinear 4 (0, 0) (0, 13) (29, 13) (29, 0)
-sb7 hardrectilinear 4 (0, 0) (0, 21) (28, 21) (28, 0)
-sb8 hardrectilinear 4 (0, 0) (0, 15) (32, 15) (32, 0)
-sb9 hardrectilinear 4 (0, 0) (0, 34) (46, 34) (46, 0)
-sb10 hardrectilinear 4 (0, 0) (0, 32) (45, 32) (45, 0)
-sb11 hardrectilinear 4 (0, 0) (0, 36) (14, 36) (14, 0)
-sb12 hardrectilinear 4 (0, 0) (0, 42) (36, 42) (36, 0)
-sb13 hardrectilinear 4 (0, 0) (0, 45) (48, 45) (48, 0)
-sb14 hardrectilinear 4 (0, 0) (0, 25) (15, 25) (15, 0)
-sb15 hardrectilinear 4 (0, 0) (0, 46) (45, 46) (45, 0)
-sb16 hardrectilinear 4 (0, 0) (0, 22) (18, 22) (18, 0)
-sb17 hardrectilinear 4 (0, 0) (0, 26) (33, 26) (33, 0)
-sb18 hardrectilinear 4 (0, 0) (0, 19) (34, 19) (34, 0)
-sb19 hardrectilinear 4 (0, 0) (0, 12) (30, 12) (30, 0)
-sb20 hardrectilinear 4 (0, 0) (0, 33) (28, 33) (28, 0)
-sb21 hardrectilinear 4 (0, 0) (0, 39) (44, 39) (44, 0)
-sb22 hardrectilinear 4 (0, 0) (0, 39) (26, 39) (26, 0)
-sb23 hardrectilinear 4 (0, 0) (0, 25) (40, 25) (40, 0)
-sb24 hardrectilinear 4 (0, 0) (0, 15) (25, 15) (25, 0)
-sb25 hardrectilinear 4 (0, 0) (0, 36) (36, 36) (36, 0)
-sb26 hardrectilinear 4 (0, 0) (0, 25) (43, 25) (43, 0)
-sb27 hardrectilinear 4 (0, 0) (0, 15) (34, 15) (34, 0)
-sb28 hardrectilinear 4 (0, 0) (0, 38) (46, 38) (46, 0)
-sb29 hardrectilinear 4 (0, 0) (0, 37) (12, 37) (12, 0)
-sb30 hardrectilinear 4 (0, 0) (0, 27) (17, 27) (17, 0)
-sb31 hardrectilinear 4 (0, 0) (0, 16) (37, 16) (37, 0)
-sb32 hardrectilinear 4 (0, 0) (0, 32) (23, 32) (23, 0)
-sb33 hardrectilinear 4 (0, 0) (0, 36) (18, 36) (18, 0)
-sb34 hardrectilinear 4 (0, 0) (0, 38) (19, 38) (19, 0)
-sb35 hardrectilinear 4 (0, 0) (0, 33) (15, 33) (15, 0)
-sb36 hardrectilinear 4 (0, 0) (0, 12) (28, 12) (28, 0)
-sb37 hardrectilinear 4 (0, 0) (0, 21) (16, 21) (16, 0)
-sb38 hardrectilinear 4 (0, 0) (0, 26) (33, 26) (33, 0)
-sb39 hardrectilinear 4 (0, 0) (0, 42) (30, 42) (30, 0)
-sb40 hardrectilinear 4 (0, 0) (0, 41) (28, 41) (28, 0)
-sb41 hardrectilinear 4 (0, 0) (0, 16) (16, 16) (16, 0)
-sb42 hardrectilinear 4 (0, 0) (0, 44) (19, 44) (19, 0)
-sb43 hardrectilinear 4 (0, 0) (0, 34) (40, 34) (40, 0)
-sb44 hardrectilinear 4 (0, 0) (0, 16) (27, 16) (27, 0)
-sb45 hardrectilinear 4 (0, 0) (0, 37) (14, 37) (14, 0)
-sb46 hardrectilinear 4 (0, 0) (0, 15) (48, 15) (48, 0)
-sb47 hardrectilinear 4 (0, 0) (0, 14) (23, 14) (23, 0)
-sb48 hardrectilinear 4 (0, 0) (0, 26) (24, 26) (24, 0)
-sb49 hardrectilinear 4 (0, 0) (0, 31) (40, 31) (40, 0)
-sb50 hardrectilinear 4 (0, 0) (0, 42) (33, 42) (33, 0)
-sb51 hardrectilinear 4 (0, 0) (0, 48) (27, 48) (27, 0)
-sb52 hardrectilinear 4 (0, 0) (0, 37) (27, 37) (27, 0)
-sb53 hardrectilinear 4 (0, 0) (0, 18) (17, 18) (17, 0)
-sb54 hardrectilinear 4 (0, 0) (0, 16) (43, 16) (43, 0)
-sb55 hardrectilinear 4 (0, 0) (0, 46) (13, 46) (13, 0)
-sb56 hardrectilinear 4 (0, 0) (0, 25) (22, 25) (22, 0)
-sb57 hardrectilinear 4 (0, 0) (0, 48) (19, 48) (19, 0)
-sb58 hardrectilinear 4 (0, 0) (0, 41) (19, 41) (19, 0)
-sb59 hardrectilinear 4 (0, 0) (0, 46) (46, 46) (46, 0)
-sb60 hardrectilinear 4 (0, 0) (0, 35) (30, 35) (30, 0)
-sb61 hardrectilinear 4 (0, 0) (0, 34) (33, 34) (33, 0)
-sb62 hardrectilinear 4 (0, 0) (0, 45) (37, 45) (37, 0)
-sb63 hardrectilinear 4 (0, 0) (0, 35) (15, 35) (15, 0)
-sb64 hardrectilinear 4 (0, 0) (0, 48) (47, 48) (47, 0)
-sb65 hardrectilinear 4 (0, 0) (0, 33) (30, 33) (30, 0)
-sb66 hardrectilinear 4 (0, 0) (0, 31) (31, 31) (31, 0)
-sb67 hardrectilinear 4 (0, 0) (0, 37) (44, 37) (44, 0)
-sb68 hardrectilinear 4 (0, 0) (0, 24) (35, 24) (35, 0)
-sb69 hardrectilinear 4 (0, 0) (0, 38) (19, 38) (19, 0)
-sb70 hardrectilinear 4 (0, 0) (0, 14) (36, 14) (36, 0)
-sb71 hardrectilinear 4 (0, 0) (0, 34) (42, 34) (42, 0)
-sb72 hardrectilinear 4 (0, 0) (0, 33) (34, 33) (34, 0)
-sb73 hardrectilinear 4 (0, 0) (0, 38) (18, 38) (18, 0)
-sb74 hardrectilinear 4 (0, 0) (0, 18) (29, 18) (29, 0)
-sb75 hardrectilinear 4 (0, 0) (0, 27) (23, 27) (23, 0)
-sb76 hardrectilinear 4 (0, 0) (0, 12) (14, 12) (14, 0)
-sb77 hardrectilinear 4 (0, 0) (0, 16) (24, 16) (24, 0)
-sb78 hardrectilinear 4 (0, 0) (0, 43) (26, 43) (26, 0)
-sb79 hardrectilinear 4 (0, 0) (0, 37) (19, 37) (19, 0)
-sb80 hardrectilinear 4 (0, 0) (0, 15) (14, 15) (14, 0)
-sb81 hardrectilinear 4 (0, 0) (0, 20) (32, 20) (32, 0)
-sb82 hardrectilinear 4 (0, 0) (0, 33) (32, 33) (32, 0)
-sb83 hardrectilinear 4 (0, 0) (0, 37) (19, 37) (19, 0)
-sb84 hardrectilinear 4 (0, 0) (0, 37) (43, 37) (43, 0)
-sb85 hardrectilinear 4 (0, 0) (0, 37) (48, 37) (48, 0)
-sb86 hardrectilinear 4 (0, 0) (0, 24) (24, 24) (24, 0)
-sb87 hardrectilinear 4 (0, 0) (0, 19) (45, 19) (45, 0)
-sb88 hardrectilinear 4 (0, 0) (0, 43) (28, 43) (28, 0)
-sb89 hardrectilinear 4 (0, 0) (0, 35) (12, 35) (12, 0)
-sb90 hardrectilinear 4 (0, 0) (0, 24) (45, 24) (45, 0)
-sb91 hardrectilinear 4 (0, 0) (0, 28) (44, 28) (44, 0)
-sb92 hardrectilinear 4 (0, 0) (0, 24) (42, 24) (42, 0)
-sb93 hardrectilinear 4 (0, 0) (0, 21) (43, 21) (43, 0)
-sb94 hardrectilinear 4 (0, 0) (0, 16) (15, 16) (15, 0)
-sb95 hardrectilinear 4 (0, 0) (0, 25) (36, 25) (36, 0)
-sb96 hardrectilinear 4 (0, 0) (0, 45) (25, 45) (25, 0)
-sb97 hardrectilinear 4 (0, 0) (0, 28) (25, 28) (25, 0)
-sb98 hardrectilinear 4 (0, 0) (0, 26) (16, 26) (16, 0)
-sb99 hardrectilinear 4 (0, 0) (0, 20) (37, 20) (37, 0)
-sb100 hardrectilinear 4 (0, 0) (0, 25) (27, 25) (27, 0)
-sb101 hardrectilinear 4 (0, 0) (0, 48) (40, 48) (40, 0)
-sb102 hardrectilinear 4 (0, 0) (0, 38) (25, 38) (25, 0)
-sb103 hardrectilinear 4 (0, 0) (0, 32) (32, 32) (32, 0)
-sb104 hardrectilinear 4 (0, 0) (0, 25) (36, 25) (36, 0)
-sb105 hardrectilinear 4 (0, 0) (0, 31) (42, 31) (42, 0)
-sb106 hardrectilinear 4 (0, 0) (0, 39) (34, 39) (34, 0)
-sb107 hardrectilinear 4 (0, 0) (0, 16) (45, 16) (45, 0)
-sb108 hardrectilinear 4 (0, 0) (0, 12) (33, 12) (33, 0)
-sb109 hardrectilinear 4 (0, 0) (0, 22) (12, 22) (12, 0)
-sb110 hardrectilinear 4 (0, 0) (0, 23) (44, 23) (44, 0)
-sb111 hardrectilinear 4 (0, 0) (0, 13) (18, 13) (18, 0)
-sb112 hardrectilinear 4 (0, 0) (0, 46) (18, 46) (18, 0)
-sb113 hardrectilinear 4 (0, 0) (0, 28) (43, 28) (43, 0)
-sb114 hardrectilinear 4 (0, 0) (0, 19) (39, 19) (39, 0)
-sb115 hardrectilinear 4 (0, 0) (0, 30) (37, 30) (37, 0)
-sb116 hardrectilinear 4 (0, 0) (0, 42) (37, 42) (37, 0)
-sb117 hardrectilinear 4 (0, 0) (0, 37) (24, 37) (24, 0)
-sb118 hardrectilinear 4 (0, 0) (0, 35) (39, 35) (39, 0)
-sb119 hardrectilinear 4 (0, 0) (0, 36) (24, 36) (24, 0)
-sb120 hardrectilinear 4 (0, 0) (0, 45) (15, 45) (15, 0)
-sb121 hardrectilinear 4 (0, 0) (0, 45) (32, 45) (32, 0)
-sb122 hardrectilinear 4 (0, 0) (0, 30) (43, 30) (43, 0)
-sb123 hardrectilinear 4 (0, 0) (0, 35) (13, 35) (13, 0)
-sb124 hardrectilinear 4 (0, 0) (0, 39) (13, 39) (13, 0)
-sb125 hardrectilinear 4 (0, 0) (0, 28) (18, 28) (18, 0)
-sb126 hardrectilinear 4 (0, 0) (0, 28) (38, 28) (38, 0)
-sb127 hardrectilinear 4 (0, 0) (0, 22) (24, 22) (24, 0)
-sb128 hardrectilinear 4 (0, 0) (0, 25) (36, 25) (36, 0)
-sb129 hardrectilinear 4 (0, 0) (0, 46) (44, 46) (44, 0)
-sb130 hardrectilinear 4 (0, 0) (0, 45) (44, 45) (44, 0)
-sb131 hardrectilinear 4 (0, 0) (0, 20) (36, 20) (36, 0)
-sb132 hardrectilinear 4 (0, 0) (0, 16) (38, 16) (38, 0)
-sb133 hardrectilinear 4 (0, 0) (0, 12) (14, 12) (14, 0)
-sb134 hardrectilinear 4 (0, 0) (0, 16) (29, 16) (29, 0)
-sb135 hardrectilinear 4 (0, 0) (0, 37) (15, 37) (15, 0)
-sb136 hardrectilinear 4 (0, 0) (0, 19) (24, 19) (24, 0)
-sb137 hardrectilinear 4 (0, 0) (0, 18) (22, 18) (22, 0)
-sb138 hardrectilinear 4 (0, 0) (0, 22) (30, 22) (30, 0)
-sb139 hardrectilinear 4 (0, 0) (0, 31) (33, 31) (33, 0)
-sb140 hardrectilinear 4 (0, 0) (0, 16) (12, 16) (12, 0)
-sb141 hardrectilinear 4 (0, 0) (0, 34) (25, 34) (25, 0)
-sb142 hardrectilinear 4 (0, 0) (0, 46) (27, 46) (27, 0)
-sb143 hardrectilinear 4 (0, 0) (0, 44) (46, 44) (46, 0)
-sb144 hardrectilinear 4 (0, 0) (0, 29) (25, 29) (25, 0)
-sb145 hardrectilinear 4 (0, 0) (0, 34) (45, 34) (45, 0)
-sb146 hardrectilinear 4 (0, 0) (0, 34) (33, 34) (33, 0)
-sb147 hardrectilinear 4 (0, 0) (0, 31) (12, 31) (12, 0)
-sb148 hardrectilinear 4 (0, 0) (0, 25) (17, 25) (17, 0)
-sb149 hardrectilinear 4 (0, 0) (0, 22) (22, 22) (22, 0)
-sb150 hardrectilinear 4 (0, 0) (0, 30) (13, 30) (13, 0)
-sb151 hardrectilinear 4 (0, 0) (0, 27) (16, 27) (16, 0)
-sb152 hardrectilinear 4 (0, 0) (0, 33) (33, 33) (33, 0)
-sb153 hardrectilinear 4 (0, 0) (0, 12) (40, 12) (40, 0)
-sb154 hardrectilinear 4 (0, 0) (0, 44) (42, 44) (42, 0)
-sb155 hardrectilinear 4 (0, 0) (0, 13) (12, 13) (12, 0)
-sb156 hardrectilinear 4 (0, 0) (0, 42) (19, 42) (19, 0)
-sb157 hardrectilinear 4 (0, 0) (0, 12) (42, 12) (42, 0)
-sb158 hardrectilinear 4 (0, 0) (0, 17) (28, 17) (28, 0)
-sb159 hardrectilinear 4 (0, 0) (0, 36) (24, 36) (24, 0)
-sb160 hardrectilinear 4 (0, 0) (0, 36) (12, 36) (12, 0)
-sb161 hardrectilinear 4 (0, 0) (0, 31) (19, 31) (19, 0)
-sb162 hardrectilinear 4 (0, 0) (0, 12) (30, 12) (30, 0)
-sb163 hardrectilinear 4 (0, 0) (0, 47) (46, 47) (46, 0)
-sb164 hardrectilinear 4 (0, 0) (0, 27) (32, 27) (32, 0)
-sb165 hardrectilinear 4 (0, 0) (0, 33) (41, 33) (41, 0)
-sb166 hardrectilinear 4 (0, 0) (0, 12) (36, 12) (36, 0)
-sb167 hardrectilinear 4 (0, 0) (0, 14) (47, 14) (47, 0)
-sb168 hardrectilinear 4 (0, 0) (0, 25) (37, 25) (37, 0)
-sb169 hardrectilinear 4 (0, 0) (0, 28) (46, 28) (46, 0)
-sb170 hardrectilinear 4 (0, 0) (0, 45) (22, 45) (22, 0)
-sb171 hardrectilinear 4 (0, 0) (0, 34) (35, 34) (35, 0)
-sb172 hardrectilinear 4 (0, 0) (0, 25) (31, 25) (31, 0)
-sb173 hardrectilinear 4 (0, 0) (0, 22) (42, 22) (42, 0)
-sb174 hardrectilinear 4 (0, 0) (0, 20) (25, 20) (25, 0)
-sb175 hardrectilinear 4 (0, 0) (0, 12) (34, 12) (34, 0)
-sb176 hardrectilinear 4 (0, 0) (0, 16) (20, 16) (20, 0)
-sb177 hardrectilinear 4 (0, 0) (0, 31) (21, 31) (21, 0)
-sb178 hardrectilinear 4 (0, 0) (0, 16) (20, 16) (20, 0)
-sb179 hardrectilinear 4 (0, 0) (0, 41) (45, 41) (45, 0)
-sb180 hardrectilinear 4 (0, 0) (0, 21) (19, 21) (19, 0)
-sb181 hardrectilinear 4 (0, 0) (0, 42) (15, 42) (15, 0)
-sb182 hardrectilinear 4 (0, 0) (0, 12) (33, 12) (33, 0)
-sb183 hardrectilinear 4 (0, 0) (0, 16) (37, 16) (37, 0)
-sb184 hardrectilinear 4 (0, 0) (0, 19) (20, 19) (20, 0)
-sb185 hardrectilinear 4 (0, 0) (0, 44) (13, 44) (13, 0)
-sb186 hardrectilinear 4 (0, 0) (0, 48) (13, 48) (13, 0)
-sb187 hardrectilinear 4 (0, 0) (0, 24) (22, 24) (22, 0)
-sb188 hardrectilinear 4 (0, 0) (0, 40) (24, 40) (24, 0)
-sb189 hardrectilinear 4 (0, 0) (0, 20) (31, 20) (31, 0)
-sb190 hardrectilinear 4 (0, 0) (0, 34) (37, 34) (37, 0)
-sb191 hardrectilinear 4 (0, 0) (0, 37) (42, 37) (42, 0)
-sb192 hardrectilinear 4 (0, 0) (0, 28) (22, 28) (22, 0)
-sb193 hardrectilinear 4 (0, 0) (0, 43) (42, 43) (42, 0)
-sb194 hardrectilinear 4 (0, 0) (0, 43) (42, 43) (42, 0)
-sb195 hardrectilinear 4 (0, 0) (0, 36) (25, 36) (25, 0)
-sb196 hardrectilinear 4 (0, 0) (0, 16) (39, 16) (39, 0)
-sb197 hardrectilinear 4 (0, 0) (0, 35) (47, 35) (47, 0)
-sb198 hardrectilinear 4 (0, 0) (0, 40) (22, 40) (22, 0)
-sb199 hardrectilinear 4 (0, 0) (0, 40) (34, 40) (34, 0)
+sb0 softrectangular 576 0.33 3.0
+sb1 softrectangular 741 0.33 3.0
+sb2 softrectangular 1435 0.33 3.0
+sb3 softrectangular 846 0.33 3.0
+sb4 softrectangular 832 0.33 3.0
+sb5 softrectangular 1085 0.33 3.0
+sb6 softrectangular 377 0.33 3.0
+sb7 softrectangular 588 0.33 3.0
+sb8 softrectangular 480 0.33 3.0
+sb9 softrectangular 1564 0.33 3.0
+sb10 softrectangular 1440 0.33 3.0
+sb11 softrectangular 504 0.33 3.0
+sb12 softrectangular 1512 0.33 3.0
+sb13 softrectangular 2160 0.33 3.0
+sb14 softrectangular 375 0.33 3.0
+sb15 softrectangular 2070 0.33 3.0
+sb16 softrectangular 396 0.33 3.0
+sb17 softrectangular 858 0.33 3.0
+sb18 softrectangular 646 0.33 3.0
+sb19 softrectangular 360 0.33 3.0
+sb20 softrectangular 924 0.33 3.0
+sb21 softrectangular 1716 0.33 3.0
+sb22 softrectangular 1014 0.33 3.0
+sb23 softrectangular 1000 0.33 3.0
+sb24 softrectangular 375 0.33 3.0
+sb25 softrectangular 1296 0.33 3.0
+sb26 softrectangular 1075 0.33 3.0
+sb27 softrectangular 510 0.33 3.0
+sb28 softrectangular 1748 0.33 3.0
+sb29 softrectangular 444 0.33 3.0
+sb30 softrectangular 459 0.33 3.0
+sb31 softrectangular 592 0.33 3.0
+sb32 softrectangular 736 0.33 3.0
+sb33 softrectangular 648 0.33 3.0
+sb34 softrectangular 722 0.33 3.0
+sb35 softrectangular 495 0.33 3.0
+sb36 softrectangular 336 0.33 3.0
+sb37 softrectangular 336 0.33 3.0
+sb38 softrectangular 858 0.33 3.0
+sb39 softrectangular 1260 0.33 3.0
+sb40 softrectangular 1148 0.33 3.0
+sb41 softrectangular 256 0.33 3.0
+sb42 softrectangular 836 0.33 3.0
+sb43 softrectangular 1360 0.33 3.0
+sb44 softrectangular 432 0.33 3.0
+sb45 softrectangular 518 0.33 3.0
+sb46 softrectangular 720 0.33 3.0
+sb47 softrectangular 322 0.33 3.0
+sb48 softrectangular 624 0.33 3.0
+sb49 softrectangular 1240 0.33 3.0
+sb50 softrectangular 1386 0.33 3.0
+sb51 softrectangular 1296 0.33 3.0
+sb52 softrectangular 999 0.33 3.0
+sb53 softrectangular 306 0.33 3.0
+sb54 softrectangular 688 0.33 3.0
+sb55 softrectangular 598 0.33 3.0
+sb56 softrectangular 550 0.33 3.0
+sb57 softrectangular 912 0.33 3.0
+sb58 softrectangular 779 0.33 3.0
+sb59 softrectangular 2116 0.33 3.0
+sb60 softrectangular 1050 0.33 3.0
+sb61 softrectangular 1122 0.33 3.0
+sb62 softrectangular 1665 0.33 3.0
+sb63 softrectangular 525 0.33 3.0
+sb64 softrectangular 2256 0.33 3.0
+sb65 softrectangular 990 0.33 3.0
+sb66 softrectangular 961 0.33 3.0
+sb67 softrectangular 1628 0.33 3.0
+sb68 softrectangular 840 0.33 3.0
+sb69 softrectangular 722 0.33 3.0
+sb70 softrectangular 504 0.33 3.0
+sb71 softrectangular 1428 0.33 3.0
+sb72 softrectangular 1122 0.33 3.0
+sb73 softrectangular 684 0.33 3.0
+sb74 softrectangular 522 0.33 3.0
+sb75 softrectangular 621 0.33 3.0
+sb76 softrectangular 168 0.33 3.0
+sb77 softrectangular 384 0.33 3.0
+sb78 softrectangular 1118 0.33 3.0
+sb79 softrectangular 703 0.33 3.0
+sb80 softrectangular 210 0.33 3.0
+sb81 softrectangular 640 0.33 3.0
+sb82 softrectangular 1056 0.33 3.0
+sb83 softrectangular 703 0.33 3.0
+sb84 softrectangular 1591 0.33 3.0
+sb85 softrectangular 1776 0.33 3.0
+sb86 softrectangular 576 0.33 3.0
+sb87 softrectangular 855 0.33 3.0
+sb88 softrectangular 1204 0.33 3.0
+sb89 softrectangular 420 0.33 3.0
+sb90 softrectangular 1080 0.33 3.0
+sb91 softrectangular 1232 0.33 3.0
+sb92 softrectangular 1008 0.33 3.0
+sb93 softrectangular 903 0.33 3.0
+sb94 softrectangular 240 0.33 3.0
+sb95 softrectangular 900 0.33 3.0
+sb96 softrectangular 1125 0.33 3.0
+sb97 softrectangular 700 0.33 3.0
+sb98 softrectangular 416 0.33 3.0
+sb99 softrectangular 740 0.33 3.0
+sb100 softrectangular 675 0.33 3.0
+sb101 softrectangular 1920 0.33 3.0
+sb102 softrectangular 950 0.33 3.0
+sb103 softrectangular 1024 0.33 3.0
+sb104 softrectangular 900 0.33 3.0
+sb105 softrectangular 1302 0.33 3.0
+sb106 softrectangular 1326 0.33 3.0
+sb107 softrectangular 720 0.33 3.0
+sb108 softrectangular 396 0.33 3.0
+sb109 softrectangular 264 0.33 3.0
+sb110 softrectangular 1012 0.33 3.0
+sb111 softrectangular 234 0.33 3.0
+sb112 softrectangular 828 0.33 3.0
+sb113 softrectangular 1204 0.33 3.0
+sb114 softrectangular 741 0.33 3.0
+sb115 softrectangular 1110 0.33 3.0
+sb116 softrectangular 1554 0.33 3.0
+sb117 softrectangular 888 0.33 3.0
+sb118 softrectangular 1365 0.33 3.0
+sb119 softrectangular 864 0.33 3.0
+sb120 softrectangular 675 0.33 3.0
+sb121 softrectangular 1440 0.33 3.0
+sb122 softrectangular 1290 0.33 3.0
+sb123 softrectangular 455 0.33 3.0
+sb124 softrectangular 507 0.33 3.0
+sb125 softrectangular 504 0.33 3.0
+sb126 softrectangular 1064 0.33 3.0
+sb127 softrectangular 528 0.33 3.0
+sb128 softrectangular 900 0.33 3.0
+sb129 softrectangular 2024 0.33 3.0
+sb130 softrectangular 1980 0.33 3.0
+sb131 softrectangular 720 0.33 3.0
+sb132 softrectangular 608 0.33 3.0
+sb133 softrectangular 168 0.33 3.0
+sb134 softrectangular 464 0.33 3.0
+sb135 softrectangular 555 0.33 3.0
+sb136 softrectangular 456 0.33 3.0
+sb137 softrectangular 396 0.33 3.0
+sb138 softrectangular 660 0.33 3.0
+sb139 softrectangular 1023 0.33 3.0
+sb140 softrectangular 192 0.33 3.0
+sb141 softrectangular 850 0.33 3.0
+sb142 softrectangular 1242 0.33 3.0
+sb143 softrectangular 2024 0.33 3.0
+sb144 softrectangular 725 0.33 3.0
+sb145 softrectangular 1530 0.33 3.0
+sb146 softrectangular 1122 0.33 3.0
+sb147 softrectangular 372 0.33 3.0
+sb148 softrectangular 425 0.33 3.0
+sb149 softrectangular 484 0.33 3.0
+sb150 softrectangular 390 0.33 3.0
+sb151 softrectangular 432 0.33 3.0
+sb152 softrectangular 1089 0.33 3.0
+sb153 softrectangular 480 0.33 3.0
+sb154 softrectangular 1848 0.33 3.0
+sb155 softrectangular 156 0.33 3.0
+sb156 softrectangular 798 0.33 3.0
+sb157 softrectangular 504 0.33 3.0
+sb158 softrectangular 476 0.33 3.0
+sb159 softrectangular 864 0.33 3.0
+sb160 softrectangular 432 0.33 3.0
+sb161 softrectangular 589 0.33 3.0
+sb162 softrectangular 360 0.33 3.0
+sb163 softrectangular 2162 0.33 3.0
+sb164 softrectangular 864 0.33 3.0
+sb165 softrectangular 1353 0.33 3.0
+sb166 softrectangular 432 0.33 3.0
+sb167 softrectangular 658 0.33 3.0
+sb168 softrectangular 925 0.33 3.0
+sb169 softrectangular 1288 0.33 3.0
+sb170 softrectangular 990 0.33 3.0
+sb171 softrectangular 1190 0.33 3.0
+sb172 softrectangular 775 0.33 3.0
+sb173 softrectangular 924 0.33 3.0
+sb174 softrectangular 500 0.33 3.0
+sb175 softrectangular 408 0.33 3.0
+sb176 softrectangular 320 0.33 3.0
+sb177 softrectangular 651 0.33 3.0
+sb178 softrectangular 320 0.33 3.0
+sb179 softrectangular 1845 0.33 3.0
+sb180 softrectangular 399 0.33 3.0
+sb181 softrectangular 630 0.33 3.0
+sb182 softrectangular 396 0.33 3.0
+sb183 softrectangular 592 0.33 3.0
+sb184 softrectangular 380 0.33 3.0
+sb185 softrectangular 572 0.33 3.0
+sb186 softrectangular 624 0.33 3.0
+sb187 softrectangular 528 0.33 3.0
+sb188 softrectangular 960 0.33 3.0
+sb189 softrectangular 620 0.33 3.0
+sb190 softrectangular 1258 0.33 3.0
+sb191 softrectangular 1554 0.33 3.0
+sb192 softrectangular 616 0.33 3.0
+sb193 softrectangular 1806 0.33 3.0
+sb194 softrectangular 1806 0.33 3.0
+sb195 softrectangular 900 0.33 3.0
+sb196 softrectangular 624 0.33 3.0
+sb197 softrectangular 1645 0.33 3.0
+sb198 softrectangular 880 0.33 3.0
+sb199 softrectangular 1360 0.33 3.0
 
 p1 terminal
 p2 terminal
