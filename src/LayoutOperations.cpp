@@ -947,15 +947,13 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 				return false;
 			}
-			// if the higher-power block is in the upper layer d2, only swaps
-			// should be prohibited but moving the lower-power block from d1
-			// up to die2 is fine
-			else if (die1 < die2
-					&& (corb.getDie(die2).getBlock(tuple2)->power_density() > corb.getDie(die1).getBlock(tuple1)->power_density())
-					// note that by blocking only OP_SWAP_BLOCKS, both
-					// OP_MOVE_TUPLE and OP_SWAP_BLOCKS_ENFORCE are
-					// allowed
-					&& mode == LayoutOperations::OP_SWAP_BLOCKS) {
+			// if the higher-power block is in the upper layer d2, the same
+			// applies
+			else if (die2 > die1 && (corb.getDie(die2).getBlock(tuple2)->power_density() > corb.getDie(die1).getBlock(tuple1)->power_density())
+					// but for OP_SWAP_BLOCKS_ENFORCE (which is used
+					// for handling failed alignments) they should be
+					// considered
+					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
 					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
