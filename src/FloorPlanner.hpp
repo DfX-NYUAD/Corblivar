@@ -89,6 +89,9 @@ class FloorPlanner {
 
 			// global delay threshold
 			double delay_threshold;
+			// the achievable frequency is derived from this delay
+			// threshold/constraint: f = 1.0 / delay
+			double frequency;
 
 		} IC;
 
@@ -154,6 +157,11 @@ class FloorPlanner {
 			double total_cost_fitting;
 			double HPWL;
 			double HPWL_actual_value;
+			double power_wires;
+			double power_TSVs;
+			double max_power_wires;
+			double max_power_TSVs;
+			double power_blocks;
 			double routing_util;
 			double routing_util_actual_value;
 			// requires double since it contains normalized values
@@ -200,7 +208,7 @@ class FloorPlanner {
 		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments);
 		void evaluateAreaOutline(Cost& cost,
 				double const& fitting_layouts_ratio = 0.0) const;
-		void evaluateInterconnects(Cost& cost,
+		void evaluateInterconnects(Cost& cost, double const& frequency,
 				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& set_max_cost = false);
 		void evaluateTiming(Cost& cost,

@@ -53,6 +53,9 @@ class Block {
 		double base_delay;
 		std::vector<double> voltages_delay_factors;
 
+		// the actual voltage(s) are also required
+		std::vector<double> voltages;
+
 		// delay in [ns]; relates to net delay and currently assigned voltage;
 		// theoretical value to be obtained for given voltage index
 		inline double delay(unsigned voltage_index) const {
@@ -125,6 +128,14 @@ class Block {
 				this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index]
 				// the net delay, greater zero for any driving block
 				+ this->net_delay_max;
+		}
+
+		inline double voltage() const {
+			return this->voltages[this->assigned_voltage_index];
+		}
+
+		inline double voltage_max() const {
+			return this->voltages.back();
 		}
 
 		// this delay value is the max value for any net where this block is the

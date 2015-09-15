@@ -769,6 +769,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
+	// the achievable frequency is derived from this delay threshold/constraint:
+	// f = 1.0 / delay; delay is given in ns, scale to seconds for f in [Hz]
+	fp.IC.frequency = 1.0 / (fp.IC.delay_threshold * 1.0e-09);
+
 	in.close();
 
 	if (fp.logMin()) {
@@ -1403,10 +1407,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			}
 		}
 
-		// copy the global power and delay scaling factors; they are required for
-		// dynamic calculation of power_density() and delay()
+		// copy the global power and delay scaling factors along with the
+		// voltages; they are required for dynamic calculation of power_density(),
+		// delay() and voltage()
 		new_block.voltages_power_factors = fp.voltageAssignment.parameters.voltages_power_factors;
 		new_block.voltages_delay_factors = fp.voltageAssignment.parameters.voltages_delay_factors;
+		new_block.voltages = fp.voltageAssignment.parameters.voltages;
 
 		// init feasible voltages with highest possible voltage
 		new_block.resetVoltageAssignment();
