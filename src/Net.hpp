@@ -28,7 +28,7 @@
 // Corblivar includes, if any
 #include "Block.hpp"
 #include "Rect.hpp"
-#include "TimingAnalyser.hpp"
+#include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 
 class Net {
@@ -97,7 +97,7 @@ class Net {
 						// consider HPWL of bb connecting source
 						// to sink, also consider number of
 						// required TSVs; memorize only max value
-						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
+						TimingPowerAnalyser::elmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
 			}
 			// also consider terminal sinks
 			for (auto const* sink_terminal : this->terminals) {
@@ -105,7 +105,7 @@ class Net {
 				source_sink_bb = Rect::determBoundingBox(this->source->bb, sink_terminal->bb);
 
 				this->source->net_delay_max = std::max(this->source->net_delay_max,
-						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
+						TimingPowerAnalyser::elmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
 			}
 
 			if (Net::DBG) {
