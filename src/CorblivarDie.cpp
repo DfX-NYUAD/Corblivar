@@ -921,9 +921,9 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 }
 
 // note that packing may undermine alignment requests; to avoid this, we call
-// FloorPlanner::determCostAlignment before packing but after layout generation
-// (FloorPlanner::determCostAlignment does annotate alignment success / failure to the
-// blocks themselves)
+// FloorPlanner::evaluateAlignments before packing but after layout generation
+// (FloorPlanner::evaluateAlignments does annotate alignment success / failure to the
+// blocks themselves, via call to CorblivarAlignmentReq::evaluate)
 void CorblivarDie::performPacking(Direction const& dir) {
 	std::vector<Block const*> blocks;
 	std::vector<Block const*>::iterator i1;
