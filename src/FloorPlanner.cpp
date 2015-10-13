@@ -828,7 +828,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// note that interconnects will be always evaluated, even if they are not
 		// optimized; they are a key criterion to be reported
 		if (finalize) {
-			this->evaluateInterconnects(cost, this->IC.frequency, alignments, true);
+			this->evaluateInterconnects(cost, this->IC.frequency, alignments, true, true);
 		}
 		else if (this->opt_flags.interconnects) {
 			this->evaluateInterconnects(cost, this->IC.frequency, alignments, set_max_cost);
@@ -919,7 +919,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// TSV clustering
 		if (finalize) {
 
-			this->evaluateInterconnects(cost, this->IC.frequency, alignments);
+			this->evaluateInterconnects(cost, this->IC.frequency, alignments, false, true);
 
 			if (this->opt_flags.alignment) {
 				this->evaluateAlignments(cost, alignments, true, false, true);
@@ -1273,7 +1273,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
-void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const& frequency, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost) {
+void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const& frequency, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& finalize) {
 	int i;
 	std::vector<Rect const*> blocks_to_consider;
 	std::vector< std::vector<Clustering::Segments> > nets_segments;
@@ -1284,7 +1284,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	RoutingUtilization::UtilResult util;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << frequency << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
+		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << frequency << ", " << &alignments << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
 	}
 
 	// reset cost terms
@@ -1483,35 +1483,40 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 								i
 							));
 
-						// here, greedy shifting is ignored for simplicity and runtime
+						// perform greedy shifting in case new
+						// island overlaps with any previous one;
 						//
-
-						// perform greedy shifting in case new island
-						// overlaps with any previous one
+						// shifting is only applied for finalize
+						// calls; to obtain valid layouts; during
+						// SA iterations, ignoring shifting
+						// ``only'' results in some estimation
+						// errors for connecting to TSVs
 						//
-						TSV_Island& island = this->TSVs.back();
-						shift = true;
+						if (finalize) {
+							TSV_Island& island = this->TSVs.back();
+							shift = true;
 
-						while (shift) {
+							while (shift) {
 
-							shift = false;
+								shift = false;
 
-							for (TSV_Island const& prev_island : this->TSVs) {
+								for (TSV_Island const& prev_island : this->TSVs) {
 
-								if (prev_island.layer != island.layer) {
-									continue;
-								}
-								if (prev_island.id == island.id) {
-									continue;
-								}
+									if (prev_island.layer != island.layer) {
+										continue;
+									}
+									if (prev_island.id == island.id) {
+										continue;
+									}
 
-								if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
+									if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
 
-									// shift only the
-									// new TSV
-									Rect::greedyShiftingRemoveIntersection(island.bb, prev_island.bb, true);
+										// shift only the
+										// new TSV
+										Rect::greedyShiftingRemoveIntersection(island.bb, prev_island.bb, true);
 
-									shift = true;
+										shift = true;
+									}
 								}
 							}
 						}

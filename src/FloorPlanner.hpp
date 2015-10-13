@@ -210,7 +210,8 @@ class FloorPlanner {
 				double const& fitting_layouts_ratio = 0.0) const;
 		void evaluateInterconnects(Cost& cost, double const& frequency,
 				std::vector<CorblivarAlignmentReq> const& alignments,
-				bool const& set_max_cost = false);
+				bool const& set_max_cost = false,
+				bool const& finalize = false);
 		void evaluateTiming(Cost& cost,
 				bool const& set_max_cost = false,
 				bool reevaluation = false);
