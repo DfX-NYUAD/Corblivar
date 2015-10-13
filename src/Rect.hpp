@@ -167,7 +167,7 @@ class Rect {
 			return ret;
 		};
 
-		inline static void greedyShiftingRemoveIntersection(Rect& a, Rect& b, bool shift_only_a = false) {
+		inline static void greedyShiftingRemoveIntersection(Rect& a, Rect& b, bool shift_only_a = true) {
 			Rect intersect;
 
 			intersect = Rect::determineIntersection(a, b);

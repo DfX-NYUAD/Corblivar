@@ -447,6 +447,34 @@ class TSV_Island : public Block {
 				std::cout << "(" << this->bb.ur.x << "," << this->bb.ur.y << ")" << std::endl;
 			}
 		}
+
+		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs) {
+			bool shift = true;
+
+			while (shift) {
+
+				shift = false;
+
+				for (TSV_Island const& prev_island : TSVs) {
+
+					if (prev_island.layer != new_island_to_be_shifted.layer) {
+						continue;
+					}
+					if (prev_island.id == new_island_to_be_shifted.id) {
+						continue;
+					}
+
+					if (Rect::rectsIntersect(prev_island.bb, new_island_to_be_shifted.bb)) {
+
+						// shift only the new TSV
+						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb);
+
+						shift = true;
+						break;
+					}
+				}
+			}
+		}
 };
 
 // derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets

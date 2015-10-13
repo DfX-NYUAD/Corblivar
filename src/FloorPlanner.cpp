@@ -1280,7 +1280,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	Rect bb, prev_bb;
 	double prev_TSVs;
 	double net_weight;
-	bool shift;
 	RoutingUtilization::UtilResult util;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1493,32 +1492,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 						// errors for connecting to TSVs
 						//
 						if (finalize) {
-							TSV_Island& island = this->TSVs.back();
-							shift = true;
-
-							while (shift) {
-
-								shift = false;
-
-								for (TSV_Island const& prev_island : this->TSVs) {
-
-									if (prev_island.layer != island.layer) {
-										continue;
-									}
-									if (prev_island.id == island.id) {
-										continue;
-									}
-
-									if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
-
-										// shift only the
-										// new TSV
-										Rect::greedyShiftingRemoveIntersection(island.bb, prev_island.bb, true);
-
-										shift = true;
-									}
-								}
-							}
+							TSV_Island::greedyShifting(this->TSVs.back(), this->TSVs);
 						}
 					}
 				}
@@ -1661,7 +1635,6 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
 	CorblivarAlignmentReq::Evaluate eval;
-	bool shift;
 	RoutingUtilization::UtilResult util;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1751,30 +1724,12 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							// alignment requirement
 							req.vertical_bus() ? req.alignment_x : -1.0
 						));
+					TSV_Island& island = this->TSVs.back();
 
 					// perform greedy shifting in case new island
 					// overlaps with any previous one
 					//
-					TSV_Island& island = this->TSVs.back();
-					shift = true;
-
-					while (shift) {
-
-						shift = false;
-
-						for (TSV_Island const& prev_island : this->TSVs) {
-
-							if (prev_island.layer != island.layer) {
-								continue;
-							}
-
-							if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
-
-								Rect::greedyShiftingRemoveIntersection(prev_island.bb, island.bb);
-								shift = true;
-							}
-						}
-					}
+					TSV_Island::greedyShifting(island, this->TSVs);
 
 					// determine the HPWL components and routing
 					// utilization; net segments are to be considered
