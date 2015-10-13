@@ -583,9 +583,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << " Power for HPWL [W]: " << cost.power_wires << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Max routing utilization: " << cost.routing_util_actual_value << std::endl;
-			this->IO_conf.results << "Max routing utilization: " << cost.routing_util_actual_value << std::endl;
-			this->IO_conf.results << std::endl;
+			if (this->opt_flags.routing_util) {
+				std::cout << "Corblivar> Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+				this->IO_conf.results << "Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
 			std::cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << std::endl;
 			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << std::endl;
@@ -1302,7 +1304,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	}
 
 	// reset routing-utilization estimation
-	this->routingUtil.resetUtilMaps(this->IC.layers);
+	if (this->opt_flags.routing_util) {
+		this->routingUtil.resetUtilMaps(this->IC.layers);
+	}
 
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
@@ -1320,7 +1324,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 		// determine net weight, for routing-utilization estimation across
 		// multiple layers
-		net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
+		if (this->opt_flags.routing_util) {
+			net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
+		}
 
 		if (Net::DBG) {
 			std::cout << "DBG_NET> Determine interconnects for net " << cur_net.id << std::endl;
@@ -1365,7 +1371,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
-					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					if (this->opt_flags.routing_util) {
+						this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					}
 
 					// also update TSV power values accordingly, only
 					// for driver nets, i.e., no input nets
@@ -1450,7 +1458,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					// for ignored clustering, the net shall impact
 					// the routing utilization on all affected layers
 					// but with accordingly down-scaled weight
-					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					if (this->opt_flags.routing_util) {
+						this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					}
 
 					// place dummy TSVs in all but uppermost affected
 					// layer; required for proper thermal simulation
@@ -1564,7 +1574,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 				// update related routing-utilization map; each single net
 				// has default weight of 1.0
-				this->routingUtil.adaptUtilMap(i, bb, 1.0);
+				if (this->opt_flags.routing_util) {
+					this->routingUtil.adaptUtilMap(i, bb, 1.0);
+				}
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
@@ -1594,9 +1606,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// determine routing utilization
-	util = this->routingUtil.determCost();
-	cost.routing_util = util.cost;
-	cost.routing_util_actual_value = util.max_util;
+	if (this->opt_flags.routing_util) {
+		util = this->routingUtil.determCost();
+		cost.routing_util = util.cost;
+		cost.routing_util_actual_value = util.max_util;
+	}
 
 	// determine blocks' power consumption
 	cost.power_blocks = 0.0;
@@ -1618,12 +1632,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// normalized values; max value refers to initial sampling, thus sanity check for
 	// zero cost is not required
 	cost.HPWL /= this->max_cost_WL;
-	cost.routing_util /= this->max_cost_routing_util;
 
 	// sanity check for normalizing TSVs cost; zero max cost applies to 2D
 	// floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs /= this->max_cost_TSVs;
+	}
+	// sanity check for normalizing routing util cost; zero max cost may arise when
+	// routing util is not evaluated
+	if (this->max_cost_routing_util != 0) {
+		cost.routing_util /= this->max_cost_routing_util;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1668,7 +1686,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 			// update related routing-utilization map; weight according to
 			// signals' count
-			this->routingUtil.adaptUtilMap(req.s_i->layer, routing_bb, req.signals);
+			if (this->opt_flags.routing_util) {
+				this->routingUtil.adaptUtilMap(req.s_i->layer, routing_bb, req.signals);
+			}
 		}
 
 		// derive TSVs for vertical buses if desired or for finalize runs
@@ -1773,7 +1793,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-utilization map;
 						// weight according to signals' count
-						this->routingUtil.adaptUtilMap(layer, routing_bb, req.signals);
+						if (this->opt_flags.routing_util) {
+							this->routingUtil.adaptUtilMap(layer, routing_bb, req.signals);
+						}
 					}
 					// the TSV itself is not placed on the topmost
 					// layer, but rather the one below; the routing
@@ -1798,7 +1820,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-utilization map;
 						// weight according to signals' count
-						this->routingUtil.adaptUtilMap(layer + 1, routing_bb, req.signals);
+						if (this->opt_flags.routing_util) {
+							this->routingUtil.adaptUtilMap(layer + 1, routing_bb, req.signals);
+						}
 					}
 
 					// also update global TSV counter accordingly
@@ -1820,9 +1844,11 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// update routing utilization
-	util = this->routingUtil.determCost();
-	cost.routing_util = util.cost;
-	cost.routing_util_actual_value = util.max_util;
+	if (this->opt_flags.routing_util) {
+		util = this->routingUtil.determCost();
+		cost.routing_util = util.cost;
+		cost.routing_util_actual_value = util.max_util;
+	}
 
 	// consider lengths of additional TSVs in HPWL; each TSV has to pass the
 	// whole Si layer and the bonding layer
@@ -1843,7 +1869,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// update normalized routing utilization
-	cost.routing_util /= this->max_cost_routing_util;
+	if (this->max_cost_routing_util != 0) {
+		cost.routing_util /= this->max_cost_routing_util;
+	}
 
 	// update normalized TSV cost; sanity check for zero TSVs cost; applies to
 	// 2D floorplanning
@@ -1898,18 +1926,20 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 		//bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
 
-		// consider rough estimate for routing utilization: spread across all
-		// affected layers
-		min_layer = std::min(req.s_i->layer, req.s_j->layer);
-		max_layer = std::max(req.s_i->layer, req.s_j->layer);
-		// determine net weight, for routing-utilization estimation across
-		// multiple layers
-		net_weight = 1.0 / (max_layer + 1 - min_layer);
+		if (this->opt_flags.routing_util) {
+			// consider rough estimate for routing utilization: spread across all
+			// affected layers
+			min_layer = std::min(req.s_i->layer, req.s_j->layer);
+			max_layer = std::max(req.s_i->layer, req.s_j->layer);
+			// determine net weight, for routing-utilization estimation across
+			// multiple layers
+			net_weight = 1.0 / (max_layer + 1 - min_layer);
 
-		for (int layer = min_layer; layer <= max_layer; layer++) {
-			// update routing-utilization map; consider both (by layer count
-			// down-scaled) net weight and signal count
-			this->routingUtil.adaptUtilMap(layer, bb, net_weight * req.signals);
+			for (int layer = min_layer; layer <= max_layer; layer++) {
+				// update routing-utilization map; consider both (by layer count
+				// down-scaled) net weight and signal count
+				this->routingUtil.adaptUtilMap(layer, bb, net_weight * req.signals);
+			}
 		}
 
 		// determine by signal count weighted HPWL

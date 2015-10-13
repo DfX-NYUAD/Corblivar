@@ -370,6 +370,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// memorize if interconnects optimization should be performed
 	fp.opt_flags.interconnects = (fp.weights.WL > 0.0 || fp.weights.routing_util > 0.0 || fp.weights.TSVs > 0.0);
 
+	// memorize if routing utilization should be performed; may be separated from
+	// interconnects optimization
+	fp.opt_flags.routing_util = (fp.weights.routing_util > 0.0);
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -1709,7 +1713,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
-	enum FLAGS : int {POWER = 0, THERMAL = 1, ROUTING = 2, TSV_DENSITY = 3};
+	enum FLAGS : int {POWER = 0, THERMAL = 1, TSV_DENSITY = 2, ROUTING = 3};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
 	int id;
@@ -1725,8 +1729,11 @@ void IO::writeMaps(FloorPlanner& fp) {
 		if (fp.thermal_analyser_run) {
 			std::cout << "Generating thermal map ..." << std::endl;
 		}
-		else {
+		else if (fp.opt_flags.routing_util) {
 			std::cout << "Generating power maps, routing-utilization maps, TSV-density maps, and thermal map ..." << std::endl;
+		}
+		else {
+			std::cout << "Generating power maps, TSV-density maps, and thermal map ..." << std::endl;
 		}
 	}
 
@@ -1734,14 +1741,18 @@ void IO::writeMaps(FloorPlanner& fp) {
 	//
 	// flag=0: generate power maps
 	// flag=1: generate thermal map
-	// flag=2: generate routing-utilization map
-	// flag=3: generate TSV-density map
+	// flag=2: generate TSV-density map
+	// flag=3: generate routing-utilization map
 	//
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
 	flag_start = flag_stop = -1;
 	if (fp.thermal_analyser_run) {
 		flag_start = flag_stop = FLAGS::THERMAL;
+	}
+	else if (fp.opt_flags.routing_util) {
+		flag_start = FLAGS::POWER;
+		flag_stop = FLAGS::ROUTING;
 	}
 	else {
 		flag_start = FLAGS::POWER;
