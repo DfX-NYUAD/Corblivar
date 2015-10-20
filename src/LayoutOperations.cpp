@@ -300,6 +300,12 @@ void LayoutOperations::preselectBlockFromLargestNet(CorblivarCore const& corb, i
 	// randomly select one block from the largest net
 	Block const* block = this->parameters.largest_net->blocks[Math::randI(0, this->parameters.largest_net->blocks.size())];
 
+	if (LayoutOperations::DBG) {
+		std::cout << "DBG_LAYOUT> LayoutOperations::preselectBlockFromLargestNet" << std::endl;
+		std::cout << "DBG_LAYOUT>  Net ID: " << this->parameters.largest_net->id << std::endl;
+		std::cout << "DBG_LAYOUT>  (Randomly) selected block to be altered: " << block->id << " on die " << block-> layer << std::endl;
+	}
+
 	// assign the die according to the selected block
 	die1 = block->layer;
 
@@ -802,7 +808,7 @@ bool LayoutOperations::performOpSwitchTupleJunctions(bool const& revert, Corbliv
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << "; juncts: " << new_juncts << std::endl;
 		}
 
@@ -810,7 +816,7 @@ bool LayoutOperations::performOpSwitchTupleJunctions(bool const& revert, Corbliv
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << "; juncts: " << this->last_op_juncts << std::endl;
 		}
 
@@ -840,7 +846,7 @@ bool LayoutOperations::performOpSwitchInsertionDirection(bool const& revert, Cor
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << std::endl;
 		}
 
@@ -848,7 +854,7 @@ bool LayoutOperations::performOpSwitchInsertionDirection(bool const& revert, Cor
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << std::endl;
 		}
 
@@ -910,13 +916,13 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		// dbg output for operation
 		if (LayoutOperations::DBG) {
 			if (mode == LayoutOperations::OP_MOVE_TUPLE) {
-				std::cout << "   LayoutOperations::OP_MOVE_TUPLE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_MOVE_TUPLE;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
 			}
 
 			std::cout << " revert: 0;";
@@ -943,8 +949,8 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 				if (die2 == b2->layer) {
 
 					if (LayoutOperations::DBG) {
-						std::cout << "    Alignment-aware block handling; operation not allowed" << std::endl;
-						std::cout << "     Related alignment: " << req->tupleString() << std::endl;
+						std::cout << "DBG_LAYOUT>  Alignment-aware block handling; operation not allowed" << std::endl;
+						std::cout << "DBG_LAYOUT>   Related alignment: " << req->tupleString() << std::endl;
 					}
 
 					return false;
@@ -966,8 +972,8 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
-					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
-					std::cout << "     b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() <<
+					std::cout << "DBG_LAYOUT>  Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "DBG_LAYOUT>   b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() <<
 						"; b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() << std::endl;
 				}
 
@@ -982,8 +988,8 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
-					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
-					std::cout << "     b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() <<
+					std::cout << "DBG_LAYOUT>  Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "DBG_LAYOUT>   b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() <<
 						"; b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() << std::endl;
 				}
 
@@ -1041,13 +1047,13 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		// dbg output for operation
 		if (LayoutOperations::DBG) {
 			if (mode == LayoutOperations::OP_MOVE_TUPLE) {
-				std::cout << "   LayoutOperations::OP_MOVE_TUPLE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_MOVE_TUPLE;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
 			}
 
 			std::cout << " revert: 1;";
@@ -1089,7 +1095,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << std::endl;
 		}
 
@@ -1128,7 +1134,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 	// revert last rotation
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << std::endl;
 		}
 
@@ -1178,7 +1184,7 @@ bool LayoutOperations::performOpSwapAlignmentCoordinates(bool const& revert, Cor
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
 				"; tuple: " << tuple1 << std::endl;
 		}
 
@@ -1186,7 +1192,7 @@ bool LayoutOperations::performOpSwapAlignmentCoordinates(bool const& revert, Cor
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
 				"; tuple: " << this->last_op_tuple1 << std::endl;
 		}
 
