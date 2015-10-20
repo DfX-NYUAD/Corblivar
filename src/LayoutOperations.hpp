@@ -29,6 +29,7 @@
 // forward declarations, if any
 class CorblivarCore;
 class Block;
+class Net;
 
 class LayoutOperations {
 	// debugging code switch
@@ -63,6 +64,12 @@ class LayoutOperations {
 			bool enhanced_hard_block_rotation, enhanced_soft_block_shaping;
 			bool power_aware_block_handling, floorplacement, signal_TSV_clustering;
 			int packing_iterations;
+
+			// block-selection guidance; the currently largest individual net;
+			// this net and the related modules are of particular interest to
+			// be rearranged; this parameter is updated during
+			// FloorPlanner::evaluateInterconnects
+			Net const* largest_net;
 		} parameters;
 
 	// private data, functions

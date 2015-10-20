@@ -1281,6 +1281,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	double prev_TSVs;
 	double net_weight;
 	RoutingUtilization::UtilResult util;
+	double WL_largest_net;
+	double WL_cur_net;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << frequency << ", " << &alignments << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
@@ -1314,7 +1316,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		nets_segments.emplace_back(std::vector<Clustering::Segments>());
 	}
 
+	WL_largest_net = WL_cur_net = 0.0;
+
 	// determine HPWL and TSVs for each net
+	//
 	for (Net& cur_net : this->nets) {
 
 		// set layer boundaries, i.e., determine lowest and uppermost layer of
@@ -1351,7 +1356,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			// determine HPWL of related blocks using their bounding box;
 			// consider center points of blocks instead their whole outline
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
-			cost.HPWL += (bb.w + bb.h);
+			WL_cur_net = (bb.w + bb.h);
+
+			cost.HPWL += WL_cur_net;
+
+			// also memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
 
 			// update power values accordingly, only for driver nets, i.e., no
 			// input nets
@@ -1396,12 +1410,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			// a non-empty bb can be constructed
 
 			// determine HPWL on each related layer separately
+			WL_cur_net = 0.0;
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine HPWL using the net's bounding box on the
 				// current layer
 				bb = cur_net.determBoundingBox(i);
-				cost.HPWL += (bb.w + bb.h);
+				WL_cur_net += (bb.w + bb.h);
 
 				// update power values accordingly, only for driver nets,
 				// i.e., no input nets
@@ -1420,7 +1435,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				// namely for nets w/o blocks on the currently considered
 				// layer. Then, we need to consider the non-empty box from
 				// one of the layers below in order to provide a
-				// reasonable net's bb
+				// reasonable net's bb; note that this bb is only required
+				// for clustering and routing-utilization estimation
+				// below, not the actual HWPL calculation
+				//
 				if (bb.area == 0.0) {
 					bb = prev_bb;
 				}
@@ -1497,21 +1515,38 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					}
 				}
 			}
+
+			// also consider lengths of (regular signal) TSVs in HPWL; each
+			// TSV has to pass the whole Si layer and the bonding layer
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+			// memorize cost/HPWL for this net
+			cost.HPWL += WL_cur_net;
+
+			// also memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
+
+			if (Net::DBG) {
+				std::cout << "DBG_NET>  Largest net (before clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
+			}
 		}
 
+		// determine TSV count in any case, since this value is not related to
+		// the HPWL estimate
 		if (Net::DBG) {
 			prev_TSVs = cost.TSVs;
 		}
-
-		// determine TSV count
 		cost.TSVs += cur_net.layer_top - cur_net.layer_bottom;
-
 		if (Net::DBG) {
 			std::cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << std::endl;
 		}
 	}
 
-	// perform clustering of regular signal TSVs into TSV islands
+	// perform clustering of regular signal TSVs into TSV islands, if activated
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 
 		// actual clustering
@@ -1522,6 +1557,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		//
 		// reset previous HPWL
 		cost.HPWL = 0.0;
+		WL_largest_net = 0.0;
 		// reset previous power
 		cost.power_wires = cost.power_TSVs = 0.0;
 		cost.max_power_wires = cost.max_power_TSVs = 0.0;
@@ -1534,13 +1570,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			}
 
 			// determine HPWL on each related layer separately
+			//
+			WL_cur_net = 0.0;
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine the net's bounding box on the current layer
 				bb = cur_net.determBoundingBox(i);
-
-				// add HPWL of bb to cost
-				cost.HPWL += (bb.w + bb.h);
+				WL_cur_net += (bb.w + bb.h);
 
 				// update power values accordingly, only for driver nets,
 				// i.e., no input nets
@@ -1561,6 +1597,24 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
 				}
 			}
+
+			// also consider lengths of (regular signal) TSVs in HPWL; each
+			// TSV has to pass the whole Si layer and the bonding layer
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+			// add HPWL of net to cost
+			cost.HPWL += WL_cur_net;
+
+			// also memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
+		}
+
+		if (Net::DBG) {
+			std::cout << "DBG_NET>  Largest net (after clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
 		}
 	}
 	
@@ -1571,14 +1625,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// estimation in evaluateAlignments() is more precise
 	//
 	// (TODO) account for power consumption in these wires and resulting TSVs
+	// TODO config flag whether this WL should be considered at all
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
-	}
-
-	// also consider lengths of (regular signal) TSVs in HPWL; each TSV has to pass
-	// the whole Si layer and the bonding layer
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-		cost.HPWL += cost.TSVs * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
 
 	// determine by TSVs occupied deadspace amount
