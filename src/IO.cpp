@@ -2476,7 +2476,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				// related intersection/offset to illustrate block alignment
 				for (CorblivarAlignmentReq const& req :  alignment) {
 
-					if (req.s_i->id == cur_block.id || req.s_j->id == cur_block.id) {
+					if (req.s_i->numerical_id == cur_block.numerical_id || req.s_j->numerical_id == cur_block.numerical_id) {
 
 						// init alignment flags; -1 equals undefined
 						req_x_fulfilled = req_y_fulfilled = -1;

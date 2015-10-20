@@ -76,7 +76,7 @@ class Block {
 	public:
 		// for any block or derived element which does not specify a regular
 		// numerical id, consider this dummy one
-		static constexpr unsigned DUMMY_NUM_ID = 0;
+		static constexpr int DUMMY_NUM_ID = -1;
 
 		Block(std::string const& id, unsigned numerical_id = DUMMY_NUM_ID) {
 			this->id = id;
@@ -95,7 +95,7 @@ class Block {
 	// public data, functions
 	public:
 		std::string id;
-		unsigned numerical_id;
+		int numerical_id;
 		mutable int layer;
 
 		// flag to monitor placement; also required for alignment handling
@@ -482,13 +482,14 @@ class RBOD : public Block {
 	// public data, functions
 	public:
 		static constexpr const char* ID = "RBOD";
+		static constexpr int NUMERICAL_ID = Block::DUMMY_NUM_ID - 1;
 
 	// constructors, destructors, if any non-implicit
 	//
 	// inherits properties of block and defines coordinates as 0,0, i.e., the
 	// lower-left corner of the die
 	public:
-		RBOD () : Block(ID) {
+		RBOD () : Block(ID, NUMERICAL_ID) {
 
 			this->bb.ll.x = 0.0;
 			this->bb.ll.y = 0.0;

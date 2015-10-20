@@ -1686,7 +1686,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 				// however, block alignments with respect to RBOD (since
 				// RBOD layer is -1 and RBOD.bb is zero, they will be
 				// triggered here) should be ignored as well
-				if (req.s_i->id != RBOD::ID && req.s_j->id != RBOD::ID) {
+				if (req.s_i->numerical_id != RBOD::NUMERICAL_ID && req.s_j->numerical_id != RBOD::NUMERICAL_ID) {
 
 					// here, we consider the blocks' bounding box for
 					// guiding placement of the required TSV island

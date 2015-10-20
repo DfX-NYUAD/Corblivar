@@ -308,12 +308,12 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		// blocks; avoid the dummy reference block if required
 		if (
 			// randomly select s_i if it's not the RBOD
-			(failed_req->s_i->id != RBOD::ID && Math::randB()) ||
+			(failed_req->s_i->numerical_id != RBOD::NUMERICAL_ID && Math::randB()) ||
 			// also consider s_i if s_j is the RBOD
-			failed_req->s_j->id == RBOD::ID
+			failed_req->s_j->numerical_id == RBOD::NUMERICAL_ID
 		   ) {
 			// sanity check for both s_i and s_j being RBOD
-			if (failed_req->s_i->id == RBOD::ID) {
+			if (failed_req->s_i->numerical_id == RBOD::NUMERICAL_ID) {
 				return false;
 			}
 
@@ -335,7 +335,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		tuple1 = corb.getDie(die1).getTuple(b1);
 		// for RBOD being the partner, we assume the same die as for the block to
 		// be changed
-		if (b1_partner->id == RBOD::ID) {
+		if (b1_partner->numerical_id == RBOD::NUMERICAL_ID) {
 			die2 = die1;
 		}
 		else {
@@ -397,7 +397,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 					// block
 					if (Rect::rectsIntersect(bb, b2->bb) &&
 						// avoid swapping with b1 itself
-						b1->id != b2->id &&
+						b1->numerical_id != b2->numerical_id &&
 						// also check that blocks are not partner blocks
 						// of the alignment request; otherwise,
 						// consecutively circular swap might occur which
@@ -905,7 +905,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 			for (CorblivarAlignmentReq const* req : corb.getDie(die1).getBlock(tuple1)->alignments_vertical_bus) {
 
-				if (req->s_i->id == corb.getDie(die1).getBlock(tuple1)->id) {
+				if (req->s_i->numerical_id == corb.getDie(die1).getBlock(tuple1)->numerical_id) {
 					b2 = req->s_j;
 				}
 				else {
