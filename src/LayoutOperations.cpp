@@ -126,9 +126,7 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 
 			// randomly select one block from currently largest net w/ highest
 			// individual impact on WL
-			if (Math::randB()) {
-				this->preselectBlockFromLargestNet(corb, die1, tuple1);
-			}
+			this->preselectBlockFromLargestNet(corb, die1, tuple1);
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
