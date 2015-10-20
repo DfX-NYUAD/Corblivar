@@ -69,7 +69,7 @@ class LayoutOperations {
 			// this net and the related modules are of particular interest to
 			// be rearranged; this parameter is updated during
 			// FloorPlanner::evaluateInterconnects
-			Net const* largest_net;
+			Net const* largest_net = nullptr;
 		} parameters;
 
 	// private data, functions
@@ -105,6 +105,7 @@ class LayoutOperations {
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpSwapAlignmentCoordinates(bool const& revert, CorblivarCore& corb, int& tuple1) const;
 		inline void prepareHandlingOutlineCriticalBlock(CorblivarCore const& corb, int& die1, int& tuple1) const;
+		inline void preselectBlockFromLargestNet(CorblivarCore const& corb, int& die1, int& tuple1) const;
 };
 
 #endif

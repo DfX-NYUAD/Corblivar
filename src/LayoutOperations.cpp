@@ -28,6 +28,7 @@
 #include "CorblivarCore.hpp"
 #include "CorblivarAlignmentReq.hpp"
 #include "Block.hpp"
+#include "Net.hpp"
 
 // memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
@@ -122,6 +123,12 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 		// performed or if they still require random operations, define a random
 		// operation next
 		if (random) {
+
+			// randomly select one block from currently largest net w/ highest
+			// individual impact on WL
+			if (Math::randB()) {
+				this->preselectBlockFromLargestNet(corb, die1, tuple1);
+			}
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
@@ -281,6 +288,25 @@ void LayoutOperations::prepareHandlingOutlineCriticalBlock(CorblivarCore const& 
 			}
 		}
 	}
+}
+
+void LayoutOperations::preselectBlockFromLargestNet(CorblivarCore const& corb, int& die1, int& tuple1) const {
+
+	// sanity check for largest net
+	if (this->parameters.largest_net == nullptr) {
+		return;
+	}
+
+	// randomly select one block from the largest net
+	Block const* block = this->parameters.largest_net->blocks[Math::randI(0, this->parameters.largest_net->blocks.size())];
+
+	// assign the die according to the selected block
+	die1 = block->layer;
+
+	// also determine the related tuple for the selected block
+	tuple1 = corb.getDie(die1).getTuple(block);
+
+	return;
 }
 
 bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
