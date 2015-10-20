@@ -247,7 +247,7 @@ class FloorPlanner {
 
 		// SA: reheating parameters, for SA phase 3
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
-		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-3;
+		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-4;
 
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment = false);
