@@ -96,13 +96,23 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 		// another scenario, in case no valid layout was found at all in the
 		// previous iteration: randomly select one block which currently exceeds
 		// the fixed outline
-		else if (layout_fit_counter == 0) {
+		else if (!SA_phase_two && layout_fit_counter == 0) {
 
 			if (Math::randB()) {
 				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
 
 				// perform any random 
 				this->last_op = op = Math::randI(1, 6);
+			}
+		}
+		// in case no valid layout was found recently (but previously already a
+		// valid layout was found), randomly select to reshape a block exceeding
+		// the outline
+		else if (SA_phase_two && layout_fit_counter == 0) {
+
+			if (Math::randB()) {
+				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
+				this->last_op = op = LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK;
 			}
 		}
 
