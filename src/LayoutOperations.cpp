@@ -98,7 +98,6 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 		// the fixed outline
 		else if (layout_fit_counter == 0) {
 
-
 			if (Math::randB()) {
 				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
 

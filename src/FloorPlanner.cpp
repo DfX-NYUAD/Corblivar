@@ -321,7 +321,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			}
 			// always log the current state for fitting the blocks into the
 			// fixed outline
-			std::cout << "SA>    Blocks-die-outline ratio: " << cost.area_actual_value << std::endl;
+			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
+			std::cout << "SA>    Current max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
 
 			if (this->opt_flags.alignment) {
 				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
@@ -617,8 +618,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << std::endl;
 			}
 
-			std::cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
-			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
+			std::cout << "Corblivar> Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
+			this->IO_conf.results << "Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
 			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
@@ -1324,8 +1325,8 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// determine cost function value
 	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
 
-	// cost for area, considering max value of (blocks-outline area) / (die-outline
-	// area) guides towards balanced die occupation and area minimization
+	// cost for area, considering max value of blocks-area die-area ratio; guides
+	// towards balanced die occupation and area minimization
 	cost_area = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
 		cost_area = std::max(cost_area, dies_area[i]);
