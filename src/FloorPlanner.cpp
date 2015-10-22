@@ -566,7 +566,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	struct timeb end;
 	std::stringstream runtime;
 	bool valid_solution;
-	double x, y;
 	Cost cost;
 	unsigned i;
 	int clustered_TSVs;
@@ -588,18 +587,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	// determine final cost, also for non-Corblivar calls
 	if (!handle_corblivar || valid_solution) {
 
-		// determine overall blocks outline; reasonable die outline for whole
-		// 3D-IC stack
-		x = y = 0.0;
-		for (Block const& b : this->blocks) {
-			x = std::max(x, b.bb.ur.x);
-			y = std::max(y, b.bb.ur.y);
-		}
-
 		// shrink fixed outline considering the final layout
 		if (this->IC.outline_shrink) {
-
-			this->resetDieProperties(x, y);
+			this->shrinkDieOutlines();
 		}
 
 		// determine cost terms and overall cost
@@ -626,14 +616,14 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << std::endl;
-			std::cout << "Corblivar>  w [um] = " << x << std::endl;
-			std::cout << "Corblivar>  h [um] = " << y << std::endl;
-			std::cout << "Corblivar>  A [cm^2] = " << x * y * 1.0e-8 << std::endl;
-			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << std::endl;
-			this->IO_conf.results << " w [um] = " << x << std::endl;
-			this->IO_conf.results << " h [um] = " << y << std::endl;
-			this->IO_conf.results << " A [cm^2] = " << x * y * 1.0e-8 << std::endl;
+			std::cout << "Corblivar> Overall blocks outline (final die outline):" << std::endl;
+			std::cout << "Corblivar>  w [um] = " << this->IC.outline_x << std::endl;
+			std::cout << "Corblivar>  h [um] = " << this->IC.outline_y << std::endl;
+			std::cout << "Corblivar>  A [cm^2] = " << this->IC.die_area * 1.0e-8 << std::endl;
+			this->IO_conf.results << "Overall blocks outline (final die outline):" << std::endl;
+			this->IO_conf.results << " w [um] = " << this->IC.outline_x << std::endl;
+			this->IO_conf.results << " h [um] = " << this->IC.outline_y << std::endl;
+			this->IO_conf.results << " A [cm^2] = " << this->IC.die_area * 1.0e-8 << std::endl;
 			this->IO_conf.results << std::endl;
 
 			if (this->opt_flags.alignment) {

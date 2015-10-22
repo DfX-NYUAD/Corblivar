@@ -370,26 +370,42 @@ class FloorPlanner {
 
 		// additional helper
 		//
-		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
+		inline void shrinkDieOutlines() {
+			double x, y;
 
-			// reset outline
-			this->IC.outline_x = outline_x;
-			this->IC.outline_y = outline_y;
+			// determine blocks outline across; reasonable common die outline
+			// for whole 3D-IC stack
+			x = y = 0.0;
+			for (Block const& b : this->blocks) {
+				x = std::max(x, b.bb.ur.x);
+				y = std::max(y, b.bb.ur.y);
+			}
 
-			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
+			// now, shrink fixed outline considering both reasonable die
+			// outline and given AR; only in case current blocks-outline is
+			// smaller than previous outline
+			if (x < this->IC.outline_x && y < this->IC.outline_y) {
 
-			// and the routing-estimation maps have to be reset as well
-			this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
+				this->IC.outline_x = this->IC.die_AR * y;
+				this->IC.outline_y = y;
 
-			// reset related die properties
-			this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
-			this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
-			this->IC.stack_area = this->IC.layers * this->IC.die_area;
-			this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
+				// also reset the power maps setting
+				this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
-			// rescale terminal pins' locations
-			this->scaleTerminalPins();
+				// and the routing-estimation maps have to be reset as well
+				this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
+
+				// reset related die properties
+				//
+				// note that AR remains as is
+				//this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
+				this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
+				this->IC.stack_area = this->IC.layers * this->IC.die_area;
+				this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
+
+				// rescale terminal pins' locations
+				this->scaleTerminalPins();
+			}
 		}
 
 		inline void scaleTerminalPins() {
