@@ -294,11 +294,81 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		if (this->logMax()) {
 			std::cout << "SA> Step done:" << std::endl;
-			std::cout << "SA>  new best solution found: " << best_sol_found << std::endl;
-			std::cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << std::endl;
-			std::cout << "SA>  valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
-			std::cout << "SA>  avg cost: " << avg_cost << std::endl;
-			std::cout << "SA>  temp: " << cur_temp << std::endl;
+			std::cout << "SA>  New best solution found: " << best_sol_found << std::endl;
+
+			// log details for current best solution; first, backup current
+			// (most likely not that particular best new solution)
+			corb.backupCBLs();
+
+			// apply best new solution, no logging in case no best solution is
+			// found yet
+			corb.applyBestCBLs(false);
+			this->generateLayout(corb, this->opt_flags.alignment);
+
+			// determine cost terms and overall cost for new best solution;
+			// assume fitting ratio of 1.0 for better comparability of
+			// different solutions and their cost
+			cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two);
+
+			// finally, restore previous layout
+			corb.restoreCBLs();
+
+			if (SA_phase_two) {
+				std::cout << "SA>   Current best solution; overall cost: " << cost.total_cost << std::endl;
+			}
+			else {
+				std::cout << "SA>   Current solution, not fitting yet into the outline; overall cost: " << cost.total_cost << std::endl;
+			}
+			// always log the current state for fitting the blocks into the
+			// fixed outline
+			std::cout << "SA>    Blocks-die-outline ratio: " << cost.area_actual_value << std::endl;
+
+			if (this->opt_flags.alignment) {
+				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+			}
+
+			if (SA_phase_two) {
+				std::cout << "SA>    Total power for blocks, wires and TSVs [W]: " << cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+				std::cout << "SA>    HPWL: " << cost.HPWL_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.routing_util) {
+				std::cout << "SA>    Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.thermal) {
+				std::cout << "SA>    Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
+
+				std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
+
+				if (cost.timing_actual_value > this->IC.delay_threshold) {
+					std::cout << "SA>     Timing violation ([ns] / [%]): ";
+					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+					std::cout << " / ";
+					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+					std::cout << std::endl;
+				}
+			}
+
+			if (this->opt_flags.voltage_assignment) {
+
+				if (cost.timing_actual_value < this->IC.delay_threshold) {
+					std::cout << "SA>    Voltage assignment successful: " << std::endl;
+				}
+				else {
+					std::cout << "SA>    Voltage assignment successful (but suffers from general timing violation): " << std::endl;
+				}
+
+				std::cout << "SA>     Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+			}
+
+			std::cout << "SA>  Accept-ops ratio: " << accepted_ops_ratio << std::endl;
+			std::cout << "SA>  Valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
+			std::cout << "SA>  Avg cost: " << avg_cost << std::endl;
+			std::cout << "SA>  SA temp: " << cur_temp << std::endl;
 		}
 
 		// log temperature step
