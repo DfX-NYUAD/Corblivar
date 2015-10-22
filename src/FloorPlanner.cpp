@@ -1308,7 +1308,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_outline = std::max(cost_outline, std::pow(dies_AR[i] - this->IC.die_AR, 2.0));
+		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
