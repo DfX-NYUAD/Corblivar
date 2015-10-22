@@ -26,6 +26,7 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Point.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class Block;
@@ -59,6 +60,10 @@ class LayoutOperations {
 			// layer count; parsed along w/ FloorPlanner::IC in
 			// IO::parseParametersFiles
 			int layers;
+
+			// outline; parsed along w/ FloorPlanner::IC in
+			// IO::parseParametersFiles
+			Point outline;
 
 			// layout generation options; parsed in IO::parseParametersFiles
 			bool enhanced_hard_block_rotation, enhanced_soft_block_shaping;

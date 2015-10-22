@@ -585,11 +585,15 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.IC.outline_x;
+	// also memorize for layout operations
+	fp.layoutOp.parameters.outline.x = fp.IC.outline_x;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.IC.outline_y;
+	// also memorize for layout operations
+	fp.layoutOp.parameters.outline.y = fp.IC.outline_y;
 
 	// sanity check for positive, non-zero dimensions
 	if (fp.IC.outline_x <= 0.0 || fp.IC.outline_y <= 0.0) {

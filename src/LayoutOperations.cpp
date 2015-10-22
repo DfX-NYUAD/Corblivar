@@ -38,20 +38,19 @@ constexpr int LayoutOperations::OP_MOVE_TUPLE;
 bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
 	int die1, tuple1, die2, tuple2, juncts;
-	bool ret, random;
+	bool ret;
 
 	if (LayoutOperations::DBG) {
 		std::cout << "-> LayoutOperations::performLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
 	}
 
 	// init layout operation variables
+	op = -1;
 	die1 = tuple1 = die2 = tuple2 = juncts = -1;
-	random = true;
 
 	// revert last op
 	if (revertLastOp) {
 		op = this->last_op;
-		random = false;
 	}
 	// perform new op
 	else {
@@ -82,8 +81,6 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 					// also fulfilled when the option power-aware
 					// block assignment is activated
 					this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
-
-					random = false;
 				}
 			}
 			// other order of trying operations
@@ -93,40 +90,34 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 				if (this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1)) {
 
 					this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
-
-					random = false;
 				}
 			}
 		}
-		// another special scenario:
-		//
-		// if no fitting layout at all was determined so far (during the current
-		// annealing step), search for the outermost block (in randomly x- or
-		// y-dimension) and then perform some operation on a (randomly selected)
-		// block within the same (perpendicular y- or x-dimension) range of this
-		// outermost' block outline; these blocks are probably on the ``critical
-		// path'' violating the outline, and altering any of these blocks has a
-		// better probability of reducing the outline violation than selecting
-		// other blocks
+		// another scenario, in case no valid layout was found at all in the
+		// previous iteration: randomly select one block which currently exceeds
+		// the fixed outline
 		else if (layout_fit_counter == 0) {
 
-			this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
 
-			// for such blocks on the critical path, we consider all but
-			// swapping operations
-			this->last_op = op = Math::randI(2, 6);
+			if (Math::randB()) {
+				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
 
-			random = false;
+				// perform any random 
+				this->last_op = op = Math::randI(1, 6);
+			}
 		}
-		//
+
 		// for other (regular) cases or if special scenarios above cannot be
 		// performed or if they still require random operations, define a random
 		// operation next
-		if (random) {
+		//
+		if (op == -1) {
 
 			// randomly select one block from currently largest net w/ highest
 			// individual impact on WL
-			this->preselectBlockFromLargestNet(corb, die1, tuple1);
+			if (Math::randB()) {
+				this->preselectBlockFromLargestNet(corb, die1, tuple1);
+			}
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
@@ -197,92 +188,60 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 }
 
 void LayoutOperations::prepareHandlingOutlineCriticalBlock(CorblivarCore const& corb, int& die1, int& tuple1) const {
-	Block const* outermost_block;
-	Block const* cur_block;
+	int random_tuple;
 
-	// init outermost block w/ first block from non-empty die
-	for (int l = 0; l < this->parameters.layers; l++) {
+	tuple1 = -1;
 
-		if (!corb.getDie(l).getBlocks().empty()) {
-			outermost_block = corb.getDie(l).getBlock(0);
-			break;
-		}
-	}
-
-	// randomly decide whether to work on the x- or y-dimension
+	// randomly decide whether to work on the x- or y-dimension; this part is
+	// for x-direction
 	if (Math::randB()) {
 
-		// search among all blocks, consider x-dimension
+		// search for one critical block among all dies
 		for (int l = 0; l < this->parameters.layers; l++) {
 
 			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
 
-				// current block further right?
-				if (corb.getDie(l).getBlock(b)->bb.ur.x > outermost_block->bb.ur.x) {
-					outermost_block = corb.getDie(l).getBlock(b);
+				// randomly consider any block on the current die;
+				// when it's exceeding the outline it's to be
+				// altered
+				random_tuple = Math::randI(0, corb.getDie(l).getBlocks().size());
+
+				// current block exceeding die width?
+				if (corb.getDie(l).getBlock(random_tuple)->bb.ur.x > this->parameters.outline.x) {
 					die1 = l;
-				}
-			}
-		}
-
-		// now that we found some block furthest right, we randomly search for any
-		// block within the same y-dimensional range; these blocks are likely on
-		// the ``critical path'' for pushing the furthest block so far right and,
-		// thus, adapting any of these blocks likely decreases the longest
-		// extension in x-dimension
-		if (die1 != -1) {
-			while (true) {
-
-				// randomly consider any block on relevant die die1
-				tuple1 = Math::randI(0, corb.getDie(die1).getBlocks().size());
-
-				cur_block = corb.getDie(die1).getBlock(tuple1);
-
-				// consider any block within the same y-range as critical block
-				if (Rect::rectsIntersectVertical(cur_block->bb, outermost_block->bb)) {
-					// at this point, die1 and tuple1 are assigned
-					// accordingly to critical_block, and we break the
-					// while-loop
+					tuple1 = random_tuple;
 					break;
 				}
+			}
+
+			if (tuple1 != -1) {
+				break;
 			}
 		}
 	}
+	// randomly decide whether to work on the x- or y-dimension; this part is for
+	// y-direction
 	else {
-		// search among all blocks, consider y-dimension
+		// search for one critical block among all dies
 		for (int l = 0; l < this->parameters.layers; l++) {
 
 			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
 
-				// current block further above?
-				if (corb.getDie(l).getBlock(b)->bb.ur.y > outermost_block->bb.ur.y) {
-					outermost_block = corb.getDie(l).getBlock(b);
+				// randomly consider any block on the current die;
+				// when it's exceeding the outline it's to be
+				// altered
+				random_tuple = Math::randI(0, corb.getDie(l).getBlocks().size());
+
+				// current block exceeding die height?
+				if (corb.getDie(l).getBlock(random_tuple)->bb.ur.y > this->parameters.outline.y) {
 					die1 = l;
-					tuple1 = b;
-				}
-			}
-		}
-
-		// now that we found some block furthest atop, we randomly search for any
-		// block within the same x-dimensional range; these blocks are likely on
-		// the ``critical path'' for pushing the furthest block so far atop and,
-		// thus, adapting any of these blocks likely decreases the longest
-		// extension in y-dimension
-		if (die1 != -1) {
-			while (true) {
-
-				// randomly consider any block on relevant die die1
-				tuple1 = Math::randI(0, corb.getDie(die1).getBlocks().size());
-
-				cur_block = corb.getDie(die1).getBlock(tuple1);
-
-				// consider any block within the same x-range as critical block
-				if (Rect::rectsIntersectHorizontal(cur_block->bb, outermost_block->bb)) {
-					// at this point, die1 and tuple1 are assigned
-					// accordingly to critical_block, and we break the
-					// while-loop
+					tuple1 = random_tuple;
 					break;
 				}
+			}
+
+			if (tuple1 != -1) {
+				break;
 			}
 		}
 	}
