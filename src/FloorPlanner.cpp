@@ -258,6 +258,27 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							best_cost = fitting_cost;
 							corb.storeBestCBLs();
 							valid_layout_found = best_sol_found = true;
+
+							// also, shrink die outline
+							// whenever possible; this way,
+							// both the WL estimate becomes
+							// more accurate (since terminal
+							// pins are scaled to new,
+							// shrinked outline as well) and
+							// the chances for reducing die
+							// outlines are better as well
+							//
+							// note that this will result in
+							// fluctuation of fitting layouts:
+							// whenever the die is shrinked,
+							// initially less fitting layouts
+							// will be triggered; this,
+							// however, will emphasize the AR
+							// mismatch term in the cost
+							// function again, which helps to
+							// fit the shrinked outline
+							// eventually
+							this->shrinkDieOutlines();
 						}
 					}
 				}

@@ -1474,7 +1474,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.power_stats.range = fp.power_stats.max - fp.power_stats.min;
 
 	// scale terminal pins
-	fp.scaleTerminalPins();
+	fp.scaleTerminalPins(Point(fp.IC.outline_x, fp.IC.outline_y));
 
 	// sanity check of fixed outline
 	blocks_outline_ratio = fp.IC.blocks_area / fp.IC.stack_area;

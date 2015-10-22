@@ -370,24 +370,22 @@ class FloorPlanner {
 
 		// additional helper
 		//
-		inline void shrinkDieOutlines() {
-			double x, y;
+		inline Point shrinkDieOutlines() {
+			Point outline;
 
 			// determine blocks outline across; reasonable common die outline
 			// for whole 3D-IC stack
-			x = y = 0.0;
 			for (Block const& b : this->blocks) {
-				x = std::max(x, b.bb.ur.x);
-				y = std::max(y, b.bb.ur.y);
+				outline.x = std::max(outline.x, b.bb.ur.x);
+				outline.y = std::max(outline.y, b.bb.ur.y);
 			}
 
-			// now, shrink fixed outline considering both reasonable die
-			// outline and given AR; only in case current blocks-outline is
-			// smaller than previous outline
-			if (x < this->IC.outline_x && y < this->IC.outline_y) {
+			// now, shrink fixed outline considering reasonable die outline;
+			// only if current blocks-outline is smaller than previous outline
+			if (outline.x < this->IC.outline_x && outline.y < this->IC.outline_y) {
 
-				this->IC.outline_x = this->IC.die_AR * y;
-				this->IC.outline_y = y;
+				this->IC.outline_x = outline.x;
+				this->IC.outline_y = outline.y;
 
 				// also reset the power maps setting
 				this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
@@ -396,19 +394,19 @@ class FloorPlanner {
 				this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
 
 				// reset related die properties
-				//
-				// note that AR remains as is
-				//this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
+				this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
 				this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
 				this->IC.stack_area = this->IC.layers * this->IC.die_area;
 				this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
 
 				// rescale terminal pins' locations
-				this->scaleTerminalPins();
+				this->scaleTerminalPins(outline);
 			}
+
+			return outline;
 		}
 
-		inline void scaleTerminalPins() {
+		inline void scaleTerminalPins(Point outline) {
 			double pins_scale_x, pins_scale_y;
 
 			// scale terminal pins; first determine original pins outline
@@ -417,9 +415,9 @@ class FloorPlanner {
 				pins_scale_x = std::max(pins_scale_x, pin.bb.ll.x);
 				pins_scale_y = std::max(pins_scale_y, pin.bb.ll.y);
 			}
-			// scale terminal pins; scale pin coordinates according to die outline
-			pins_scale_x = this->IC.outline_x / pins_scale_x;
-			pins_scale_y = this->IC.outline_y / pins_scale_y;
+			// scale terminal pins; scale pin coordinates according to given outline
+			pins_scale_x = outline.x / pins_scale_x;
+			pins_scale_y = outline.y / pins_scale_y;
 			for (Pin& pin : this->terminals) {
 				pin.bb.ll.x *= pins_scale_x;
 				pin.bb.ll.y *= pins_scale_y;
