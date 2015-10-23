@@ -275,6 +275,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.opt_flags.alignment_WL_estimate;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.schedule.loop_factor;
 
 	in >> tmpstr;
@@ -383,6 +388,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	fp.opt_flags.alignment = (fp.weights.alignment > 0.0 && fp.IO_conf.alignments_file_avail);
 	// also memorize in layout-operations handler
 	fp.layoutOp.parameters.opt_alignment = fp.opt_flags.alignment;
+
+	// update flag for rough estimate of WL of massive interconnects; only to be
+	// applied when block-alignment is _not_optimized, otherwise the actual alignment
+	// provides a more accurate estimate
+	fp.opt_flags.alignment_WL_estimate = (fp.opt_flags.alignment_WL_estimate && !fp.opt_flags.alignment);
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
@@ -858,6 +868,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Layout generation; power-aware block handling: " << fp.layoutOp.parameters.power_aware_block_handling << std::endl;
 		std::cout << "IO>  SA -- Layout generation; floorplacement handling: " << fp.layoutOp.parameters.floorplacement << std::endl;
 		std::cout << "IO>  SA -- Layout generation; signal-TSV clustering: " << fp.layoutOp.parameters.signal_TSV_clustering << std::endl;
+		std::cout << "IO>  SA -- Layout generation; rough estimate of WL for massive interconnects (w/o block-alignment optimization): " << fp.opt_flags.alignment_WL_estimate << std::endl;
 
 		// SA loop setup
 		std::cout << "IO>  SA -- Inner-loop operation-factor a (ops = N^a for N blocks): " << fp.schedule.loop_factor << std::endl;

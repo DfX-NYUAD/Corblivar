@@ -1705,10 +1705,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// evaluateAlignments(); also note that this rough estimate is only required if
 	// alignments are not directly optimized, otherwise the HPWL and utilization
 	// estimation in evaluateAlignments() is more precise
-	//
-	// (TODO) account for power consumption in these wires and resulting TSVs
-	// TODO config flag whether this WL should be considered at all
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment_WL_estimate) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 
@@ -1761,6 +1758,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
+//
+// (TODO) account for power consumption in these wires and resulting TSVs
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb, routing_bb;
 	int prev_TSVs;
@@ -1985,6 +1984,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 // separate determination of alignments' HPWL which is called from evaluateInterconnects;
 // this way, the HPWL components of alignments are always (for active WL optimization)
 // considered
+//
+// (TODO) account for power consumption in these wires and resulting TSVs
 double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;
 	double HPWL = 0.0;

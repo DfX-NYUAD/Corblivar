@@ -138,7 +138,7 @@ class FloorPlanner {
 
 		// SA parameters: optimization flags
 		struct opt_flags {
-			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing;
+			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing, alignment_WL_estimate;
 		} opt_flags;
 
 		// SA parameters: cost factors/weights

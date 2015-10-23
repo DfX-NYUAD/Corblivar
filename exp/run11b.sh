@@ -3,12 +3,12 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="regular"
-benches=$2
+exp="voltage_assignment"
+benches="n200_soft"
 runs=20
 
-#for die_count in 2 3
-for die_count in $1
+for die_count in 2
+#for die_count in $1
 do
 	dies=$die_count"dies"
 
@@ -31,26 +31,26 @@ do
 	# init experiments, if required
 	#
 
-#	# HotSpot, thermal fitting related
-#	cp -r $root/$fitting .
-#	cp $base/HotSpot.sh .
-#	ln -s $base/benches .
-#	cp $base/gp.sh .
+	# HotSpot, thermal fitting related
+	cp -r $root/$fitting .
+	cp $base/HotSpot.sh .
+	ln -s $base/benches .
+	cp $base/gp.sh .
 
 	# local copy of config files
 	for bench in $benches
 	do
-		cp $base/configs/$dies/$exp/*.conf .
+		cp $base/configs/$dies/$exp/*.conf* .
 	done
 
-#	cd $fitting
-#
-#	for bench in $benches
-#	do
-#		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
-#	done
-#
-#	cd $base/$dies/$exp
+	cd $fitting
+
+	for bench in $benches
+	do
+		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
+	done
+
+	cd $base/$dies/$exp
 
 	# init experiments done
 	#
@@ -71,7 +71,7 @@ do
 		# copy aux scripts
 		cp $base/gp.sh .
 		cp $base/clean.sh .
-#		cp $base/HotSpot.sh .
+		cp $base/HotSpot.sh .
 
 		# perform experiments; run Corblivar for each benchmark
 		for bench in $benches
@@ -85,7 +85,7 @@ do
 
 			# run individual aux scripts, if required
 			#
-#			./HotSpot.sh $bench $die_count
+			./HotSpot.sh $bench $die_count
 		done
 
 		# run experiments-folder aux scripts
