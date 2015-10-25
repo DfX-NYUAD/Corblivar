@@ -1728,7 +1728,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
-	enum FLAGS : int {POWER = 0, THERMAL = 1, TSV_DENSITY = 2, ROUTING = 3};
+	enum FLAGS : int {POWER = 0, THERMAL = 1, THERMAL_HOTSPOT = 2, TSV_DENSITY = 3, ROUTING = 4};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
 	int id;
@@ -1754,10 +1754,11 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 	// generate set of maps; integer encoding
 	//
-	// flag=0: generate power maps
-	// flag=1: generate thermal map
-	// flag=2: generate TSV-density map
-	// flag=3: generate routing-utilization map
+	// flag == 0: generate power maps
+	// flag == 1: generate thermal map
+	// flag == 2: generate thermal map using HotSpot results
+	// flag == 3: generate TSV-density map
+	// flag == 4: generate routing-utilization map
 	//
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
@@ -1777,11 +1778,11 @@ void IO::writeMaps(FloorPlanner& fp) {
 	// actual map generation	
 	for (flag = flag_start; flag <= flag_stop; flag++) {
 
-		// thermal map only for layer 0
+		// thermal map (power blurring) only for layer 0
 		if (flag == FLAGS::THERMAL) {
 			layer_limit = 1;
 		}
-		// power, routing-utilization and TSV-density maps for all layers
+		// power, thermal (HotSpot), routing-utilization and TSV-density maps for all layers
 		else {
 			layer_limit = fp.IC.layers;
 		}
@@ -1798,6 +1799,18 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.data";
 			}
+			else if (flag == FLAGS::THERMAL_HOTSPOT) {
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_HotSpot.gp";
+
+				// note that this file is not written here, but actually
+				// to be generated separately by HotSpot; it is only
+				// required here to be referenced in the gp script
+				//
+				// also note that layer ids must match with active Si
+				// layers, where the order is defined in the lcf file in
+				// writeHotSpotFiles
+				data_out_name << fp.benchmark << "_HotSpot.steady.grid.gp_data.layer_" << (1 + 4 * cur_layer);
+			}
 			else if (flag == FLAGS::TSV_DENSITY) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.data";
@@ -1809,8 +1822,11 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			// init file stream for gnuplot script
 			gp_out.open(gp_out_name.str().c_str());
-			// init file stream for data file
-			data_out.open(data_out_name.str().c_str());
+			// init file stream for data file;
+			// don't open (overwrite) for HotSpot data
+			if (flag != FLAGS::THERMAL_HOTSPOT) {
+				data_out.open(data_out_name.str().c_str());
+			}
 
 			// file header for data file
 			if (flag == FLAGS::POWER) {
@@ -1896,7 +1912,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 				}
 			}
 			// output grid values for routing-utilization maps
-			if (flag == FLAGS::ROUTING) {
+			else if (flag == FLAGS::ROUTING) {
 
 				for (x = 0; x < RoutingUtilization::UTIL_MAPS_DIM; x++) {
 					for (y = 0; y < RoutingUtilization::UTIL_MAPS_DIM; y++) {
@@ -1918,13 +1934,15 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 
 			// close file stream for data file
-			data_out.close();
+			if (flag != FLAGS::THERMAL_HOTSPOT) {
+				data_out.close();
+			}
 
 			// file header for gnuplot script
 			if (flag == FLAGS::POWER) {
 				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
-			else if (flag == FLAGS::THERMAL) {
+			else if (flag == FLAGS::THERMAL || flag == FLAGS::THERMAL_HOTSPOT) {
 				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 			else if (flag == FLAGS::TSV_DENSITY) {
@@ -1945,7 +1963,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 			}
-			else if (flag == FLAGS::THERMAL	|| flag == FLAGS::TSV_DENSITY) {
+			else if (flag == FLAGS::THERMAL	|| flag == FLAGS::THERMAL_HOTSPOT || flag == FLAGS::TSV_DENSITY) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
@@ -1959,12 +1977,17 @@ void IO::writeMaps(FloorPlanner& fp) {
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << std::endl;
 			}
-			// thermal maps
+			// thermal maps (power blurring)
 			else if (flag == FLAGS::THERMAL) {
 				// fixed scale to avoid remapping to extended range
 				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << std::endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << std::endl;
+			}
+			// thermal maps (HotSpot)
+			else if (flag == FLAGS::THERMAL_HOTSPOT) {
+				// label for HotSpot results
+				gp_out << "set cblabel \"Temperature [K], from HotSpot\"" << std::endl;
 			}
 			// TSV-density maps
 			else if (flag == FLAGS::TSV_DENSITY) {
@@ -2017,8 +2040,8 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << std::endl;
 			}
 
-			// for thermal maps: draw rectangles for hotspot regions
-			if (flag == FLAGS::THERMAL) {
+			// for thermal maps (power blurring): draw rectangles for hotspot regions
+			else if (flag == FLAGS::THERMAL) {
 
 				id = 1;
 
@@ -2059,6 +2082,30 @@ void IO::writeMaps(FloorPlanner& fp) {
 							id++;
 						}
 					}
+				}
+			}
+
+			// for thermal maps (HotSpot): draw rectangles for floorplan
+			// blocks, which have to scaled to grid dimensions
+			else if (flag == FLAGS::THERMAL_HOTSPOT) {
+
+				double scaling_factor_x = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_x;
+				double scaling_factor_y = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_y;
+
+				// output blocks
+				for (Block const& cur_block : fp.blocks) {
+
+					if (cur_block.layer != cur_layer) {
+						continue;
+					}
+
+					// block rectangles, only white boundary;
+					// down-scaled to grid dimension
+					gp_out << "set obj rect front";
+					gp_out << " from " << cur_block.bb.ll.x * scaling_factor_x << "," << cur_block.bb.ll.y * scaling_factor_y;
+					gp_out << " to " << cur_block.bb.ur.x * scaling_factor_x << "," << cur_block.bb.ur.y * scaling_factor_y;
+					gp_out << " fillstyle empty border rgb \"white\"";
+					gp_out << std::endl;
 				}
 			}
 
