@@ -2384,7 +2384,13 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 			gp_out << "set obj rect";
 			gp_out << " from " << cur_block.bb.ll.x << "," << cur_block.bb.ll.y;
 			gp_out << " to " << cur_block.bb.ur.x << "," << cur_block.bb.ur.y;
-			gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
+			// soft and hard blocks shall have different colors
+			if (cur_block.soft) {
+				gp_out << " fillcolor rgb \"#ac9d93\" fillstyle solid";
+			}
+			else {
+				gp_out << " fillcolor rgb \"#91A1AB\" fillstyle solid";
+			}
 			gp_out << std::endl;
 
 			// label
