@@ -1466,32 +1466,24 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				cost.max_power_TSVs += (cur_net.layer_top - cur_net.layer_bottom) * TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
 			}
 
-			// consider impact on routing-utilization; only in case clustering
-			// is not applied (otherwise this is only done after clustering)
-			//
-			// before TSVs are placed, the net shall impact the routing
-			// utilization on all affected layers but with accordingly
-			// down-scaled weight
-			if (!this->layoutOp.parameters.signal_TSV_clustering) {
+			// consider impact on routing-utilization; before TSVs are placed,
+			// the net shall impact the routing utilization on all affected
+			// layers but with accordingly down-scaled weight
+			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
-				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+				if (this->opt_flags.routing_util) {
+					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+				}
+				// the power maps have to be adapted similarly; this way,
+				// the wires' power is tracked (but not for input nets)
+				if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-					if (this->opt_flags.routing_util) {
-						this->routingUtil.adaptUtilMap(i, bb, net_weight);
-					}
-					// the power maps have to be adapted similarly;
-					// this way, the wires' power is tracked (but not
-					// for input nets)
-					if (this->opt_flags.thermal && !cur_net.inputNet) {
-
-						this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
-								// the wire's power, to be
-								// reflected in layer i,
-								// is scaled according the
-								// net_weight
-								TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
-							);
-					}
+					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+							// the wire's power, to be
+							// reflected in layer i, is scaled
+							// according the net_weight
+							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+						);
 				}
 			}
 
@@ -1657,7 +1649,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		}
 	}
 
-	// perform clustering of regular signal TSVs into TSV islands, if activated
+	// perform clustering of regular signal TSVs into TSV islands, if activated; also
+	// not be performed for trivial HPWL estimates
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 
 		// actual clustering
