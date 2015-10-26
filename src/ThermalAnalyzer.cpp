@@ -449,7 +449,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 	}
 }
 
-void ThermalAnalyzer::adaptPowerMaps(int const& layers, std::vector<TSV_Island> const& TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> const& TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
 	Rect bin, bin_intersect;
@@ -458,7 +458,7 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, std::vector<TSV_Island> 
 	Rect bb, prev_bb;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		std::cout << "-> ThermalAnalyzer::adaptPowerMaps(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsTSVs(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
 	}
 
 	// consider impact of vertical buses; map TSVs to power maps
@@ -559,7 +559,54 @@ void ThermalAnalyzer::adaptPowerMaps(int const& layers, std::vector<TSV_Island> 
 	}
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		std::cout << "<- ThermalAnalyzer::adaptPowerMaps" << std::endl;
+		std::cout << "<- ThermalAnalyzer::adaptPowerMapsTSVs" << std::endl;
+	}
+}
+
+void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double const& total_wire_power) {
+	double power_density;
+	int x, y;
+	int x_lower, x_upper, y_lower, y_upper;
+
+	if (ThermalAnalyzer::DBG_CALLS) {
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
+	}
+
+	// determine power density
+	power_density = total_wire_power / net_bb.area;
+
+	// offset bb, i.e., account for padded power maps and related offset in
+	// coordinates; note that net_bb is a copy
+	net_bb.ll.x += this->blocks_offset_x;
+	net_bb.ll.y += this->blocks_offset_y;
+	net_bb.ur.x += this->blocks_offset_x;
+	net_bb.ur.y += this->blocks_offset_y;
+
+	// determine index boundaries for offset intersection; based on boundary of bb and
+	// the covered bins; note that cast to int truncates toward zero, i.e., performs
+	// like floor for positive numbers
+	x_lower = static_cast<int>(net_bb.ll.x / this->power_maps_dim_x);
+	y_lower = static_cast<int>(net_bb.ll.y / this->power_maps_dim_y);
+	// +1 in order to efficiently emulate the result of ceil(); limit upper bound to
+	// power-maps dimensions
+	x_upper = std::min(static_cast<int>(net_bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+	y_upper = std::min(static_cast<int>(net_bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+
+	// walk power-map bins covering bb; adapt power densities
+	for (x = x_lower; x < x_upper; x++) {
+		for (y = y_lower; y < y_upper; y++) {
+
+			// adapt map on affected layer
+			//
+			// don't consider partial overlaps, any affected bin is considered
+			// as fully affected; the loss in accuracy is expected to be
+			// rather low
+			this->power_maps[layer][x][y].power_density += power_density;
+		}
+	}
+
+	if (ThermalAnalyzer::DBG_CALLS) {
+		std::cout << "<- ThermalAnalyzer::adaptPowerMapsWires" << std::endl;
 	}
 }
 

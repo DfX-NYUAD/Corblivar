@@ -1250,14 +1250,16 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 
-	// generate power maps based on layout and blocks' power densities
-	this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
-			this->getOutline(), this->power_blurring_parameters);
+	// generate power maps based on layout and blocks' power densities; only required
+	// here if interconnects are not evaluated, otherwise this is already done in
+	// evaluateInterconnects()
+	if (!this->opt_flags.interconnects) {
+		this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
+				this->getOutline(), this->power_blurring_parameters);
+	}
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
-
-	// TODO update PD maps to account for power in wires
+	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
@@ -1388,6 +1390,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		this->routingUtil.resetUtilMaps(this->IC.layers);
 	}
 
+	// generate power maps based on layout and blocks' power densities; already
+	// required at this point in order to track power consumption in wires
+	if (this->opt_flags.thermal) {
+		this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
+				this->getOutline(), this->power_blurring_parameters);
+	}
+
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
 	// allocate vector for nets' segments
@@ -1407,11 +1416,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		// reset set layer boundaries, i.e., determine lowest and uppermost layer
 		cur_net.resetLayerBoundaries();
 
-		// determine net weight, for routing-utilization estimation across
-		// multiple layers
-		if (this->opt_flags.routing_util) {
-			net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
-		}
+		// determine net weight, for routing-utilization and wire-power estimation
+		// across multiple layers
+		net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
 
 		if (Net::DBG) {
 			std::cout << "DBG_NET> Determine interconnects for net " << cur_net.id << std::endl;
@@ -1471,6 +1478,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 					if (this->opt_flags.routing_util) {
 						this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					}
+					// the power maps have to be adapted similarly;
+					// this way, the wires' power is tracked (but not
+					// for input nets)
+					if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+						this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+								// the wire's power, to be
+								// reflected in layer i,
+								// is scaled according the
+								// net_weight
+								TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+							);
 					}
 				}
 			}
@@ -1556,6 +1576,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					if (this->opt_flags.routing_util) {
 						this->routingUtil.adaptUtilMap(i, bb, net_weight);
 					}
+					// the power maps have to be adapted similarly;
+					// this way, the wires' power is tracked (but not
+					// for input nets)
+					if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+						this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+								// the wire's power, to be
+								// reflected in layer i,
+								// is scaled according the
+								// net_weight
+								TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+							);
+					}
 
 					// place dummy TSVs in all but uppermost affected
 					// layer; required for proper thermal simulation
@@ -1639,6 +1672,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		// reset previous power
 		cost.power_wires = cost.power_TSVs = 0.0;
 		cost.max_power_wires = cost.max_power_TSVs = 0.0;
+		// note that previous routing util and power for wires doesn't require
+		// resets, since they are only affected now, during clustering itself
 
 		// determine HPWL for each net
 		for (Net& cur_net : this->nets) {
@@ -1669,6 +1704,14 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				// has default weight of 1.0
 				if (this->opt_flags.routing_util) {
 					this->routingUtil.adaptUtilMap(i, bb, 1.0);
+				}
+				// the power maps have to be adapted similarly; this way,
+				// the wires' power is tracked (but not for input nets)
+				if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency)
+						);
 				}
 
 				if (Net::DBG) {
