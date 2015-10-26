@@ -449,6 +449,9 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 	}
 }
 
+// note that this function only accounts for (via by TSVs improved heat conduction) lower
+// local power consumption, not the (much smaller) increase of power consumption due to
+// resistivity of TSVs
 void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
@@ -563,6 +566,9 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 	}
 }
 
+// note that the power consumption of wires is only output for power blurring, but
+// (currently) not for the HotSpot input data; the power consumption in wires is much
+// smaller than that of actual blocks, which makes this omission reasonable
 void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double const& total_wire_power) {
 	double power_density;
 	int x, y;
