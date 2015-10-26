@@ -1257,6 +1257,8 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	// adapt power maps to account for TSVs' impact
 	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
+	// TODO update PD maps to account for power in wires
+
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
 			this->power_blurring_parameters);
@@ -1452,8 +1454,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			// update power values accordingly, only for driver nets, i.e., no
 			// input nets
 			if (!cur_net.inputNet) {
+
 				cost.power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency);
 				cost.max_power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage_max(), frequency);
+
+				// also update TSV power values accordingly to TSV count
+				cost.power_TSVs += (cur_net.layer_top - cur_net.layer_bottom) * TimingPowerAnalyser::powerTSV(cur_net.source->voltage(), frequency);
+				cost.max_power_TSVs += (cur_net.layer_top - cur_net.layer_bottom) * TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
 			}
 
 			// consider impact on routing-utilization; only in case clustering
@@ -1468,13 +1475,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 					if (this->opt_flags.routing_util) {
 						this->routingUtil.adaptUtilMap(i, bb, net_weight);
-					}
-
-					// also update TSV power values accordingly, only
-					// for driver nets, i.e., no input nets
-					if (!cur_net.inputNet) {
-						cost.power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage(), frequency);
-						cost.max_power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
 					}
 				}
 			}
