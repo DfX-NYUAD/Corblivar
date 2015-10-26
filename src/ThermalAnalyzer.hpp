@@ -225,7 +225,7 @@ class ThermalAnalyzer {
 		void initThermalMap(Point const& die_outline);
 		void initPowerMaps(int const& layers, Point const& die_outline);
 		void generatePowerMaps(int const& layers, std::vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
-		void adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> const& TSVs, std::vector<Net> const& nets, MaskParameters const& parameters);
+		void adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<Net> const& nets, MaskParameters const& parameters);
 		void adaptPowerMapsWires(int const& layer, Rect net_bb, double const& total_wire_power);
 		// thermal-analyzer routine based on power blurring,
 		// i.e., convolution of thermals masks and power maps
