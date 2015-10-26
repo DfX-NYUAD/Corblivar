@@ -1383,11 +1383,6 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// reset TSVs
 	this->TSVs.clear();
 
-	// reset TSVs also from nets
-	for (Net& cur_net : this->nets) {
-		cur_net.TSVs.clear();
-	}
-
 	// reset routing-utilization estimation
 	if (this->opt_flags.routing_util) {
 		this->routingUtil.resetUtilMaps(this->IC.layers);
@@ -1406,9 +1401,11 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	//
 	for (Net& cur_net : this->nets) {
 
-		// set layer boundaries, i.e., determine lowest and uppermost layer of
-		// net's blocks
-		cur_net.setLayerBoundaries();
+		// reset TSVs also from nets
+		cur_net.TSVs.clear();
+
+		// reset set layer boundaries, i.e., determine lowest and uppermost layer
+		cur_net.resetLayerBoundaries();
 
 		// determine net weight, for routing-utilization estimation across
 		// multiple layers
@@ -1432,7 +1429,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				blocks_to_consider.push_back(&b->bb);
 			}
 
-			// also consider routes to terminal pins
+			// consider routes to terminal pins
 			for (Pin const* pin :  cur_net.terminals) {
 				blocks_to_consider.push_back(&pin->bb);
 			}
@@ -1441,10 +1438,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			// consider center points of blocks instead their whole outline
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
 			WL_cur_net = (bb.w + bb.h);
-
 			cost.HPWL += WL_cur_net;
 
-			// also memorize largest individual net, to be used for guided
+			// memorize largest individual net, to be used for guided
 			// layout operations
 			if (WL_cur_net > WL_largest_net) {
 				WL_largest_net = WL_cur_net;

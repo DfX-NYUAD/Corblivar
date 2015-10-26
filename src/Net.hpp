@@ -123,7 +123,7 @@ class Net {
 			this->source->net_delay_max = 0.0;
 		};
 
-		inline void setLayerBoundaries() const {
+		inline void resetLayerBoundaries() const {
 
 			if (this->blocks.empty()) {
 				return;
