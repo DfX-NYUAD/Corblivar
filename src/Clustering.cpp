@@ -532,11 +532,12 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		// using the base temp, determine gradient
 		cur_hotspot->temp_gradient = cur_hotspot->peak_temp - cur_hotspot->base_temp;
 
-		// determine hotspot score; the score is defined by its peak temp, temp
-		// gradient, and bin count, i.e., measures how ``critical'' the local
-		// maxima is
-		cur_hotspot->score = cur_hotspot->temp_gradient * std::pow(cur_hotspot->peak_temp, 2.0) * cur_hotspot->bins.size() /
-			Clustering::SCORE_NORMALIZATION;
+		// determine hotspot score; the score is defined by its peak temp and temp
+		// gradient, i.e., measures how ``critical'' the local thermal maxima is
+		cur_hotspot->score = cur_hotspot->temp_gradient * std::pow(cur_hotspot->peak_temp, 2.0);
+		// apply normalization such that scores are roughly in the range of
+		// [0..10]
+		cur_hotspot->score /= Clustering::SCORE_NORMALIZATION;
 
 		// determine the (all bins enclosing) bb; this is used to simplify checks
 		// of nets overlapping hotspot regions, but also reduces spatial accuracy
