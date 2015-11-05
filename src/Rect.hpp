@@ -27,6 +27,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Point.hpp"
+#include "Math.hpp"
 // forward declarations, if any
 
 class Rect {
@@ -172,9 +173,13 @@ class Rect {
 
 			intersect = Rect::determineIntersection(a, b);
 
-			// the intersection is larger in x-dimension; thus shift in the
-			// y-dimension to minimize shifting
-			if (intersect.w > intersect.h) {
+			// the intersection is larger in y-dimension, shift in the
+			// y-dimension; although that's counterintuitive and should imply
+			// shifting in x-dimension, the latter results in ``elongated
+			// rows'' of shifted blocks in case many are initially nearby and
+			// are stepwise shifted
+			//
+			if (intersect.h > intersect.w) {
 
 				// A is below B and shifting B is allowed; shift B to the top
 				if (Rect::rectA_below_rectB(a, b, false) && !shift_only_a) {
@@ -188,8 +193,8 @@ class Rect {
 					a.ur.y += intersect.h;
 				}
 			}
-			// the intersection is larger in y-dimension; thus shift in the
-			// x-dimension to minimize shifting
+			// the intersection is larger in x-dimension, shift in the
+			// x-dimension
 			else {
 				// A is left of B and shifting B is allowed; shift B to the right
 				if (Rect::rectA_leftOf_rectB(a, b, false) && !shift_only_a) {
