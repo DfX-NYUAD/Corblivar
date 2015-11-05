@@ -181,31 +181,75 @@ class Rect {
 			//
 			if (intersect.h > intersect.w) {
 
-				// A is below B and shifting B is allowed; shift B to the top
-				if (Rect::rectA_below_rectB(a, b, false) && !shift_only_a) {
+				// A is below B
+				if (Rect::rectA_below_rectB(a, b, false)) {
 
-					b.ll.y += intersect.h;
-					b.ur.y += intersect.h;
+					// shifting B is allowed; shift B to the top
+					if (!shift_only_a) {
+						b.ll.y += intersect.h;
+						b.ur.y += intersect.h;
+					}
+					// shifting B is not allowed; consider shifting A to the bottom
+					else if (a.ll.y - intersect.h > 0.0) {
+						a.ll.y -= intersect.h;
+						a.ur.y -= intersect.h;
+					}
+					// shifting B is not allowed; shifting A to the
+					// bottom violates outline; shift A to the top
+					else {
+						a.ll.y = b.ur.y;
+						a.ur.y = a.ll.y + a.h;
+					}
 				}
-				// B is below A and/or shifting B is not allowed; shift A to the top
+				// B is below A
 				else {
-					a.ll.y += intersect.h;
-					a.ur.y += intersect.h;
+					// shifting B is allowed; consider shifting B to the bottom
+					if (!shift_only_a && b.ll.y - intersect.h > 0.0) {
+						b.ll.y -= intersect.h;
+						b.ur.y -= intersect.h;
+					}
+					// shifting B is not allowed or not feasible; shift A to the top
+					else {
+						a.ll.y += intersect.h;
+						a.ur.y += intersect.h;
+					}
 				}
 			}
 			// the intersection is larger in x-dimension, shift in the
 			// x-dimension
 			else {
-				// A is left of B and shifting B is allowed; shift B to the right
-				if (Rect::rectA_leftOf_rectB(a, b, false) && !shift_only_a) {
+				// A is left of B
+				if (Rect::rectA_below_rectB(a, b, false)) {
 
-					b.ll.x += intersect.w;
-					b.ur.x += intersect.w;
+					// shifting B is allowed; shift B to the right
+					if (!shift_only_a) {
+						b.ll.x += intersect.w;
+						b.ur.x += intersect.w;
+					}
+					// shifting B is not allowed; consider shifting A to the left
+					else if (a.ll.x - intersect.w > 0.0) {
+						a.ll.x -= intersect.w;
+						a.ur.x -= intersect.w;
+					}
+					// shifting B is not allowed; shifting A to the
+					// left violates outline; shift A to the right
+					else {
+						a.ll.x = b.ur.x;
+						a.ur.x = a.ll.x + a.w;
+					}
 				}
-				// B is left of A and/or shifting B is not allowed; shift A to the right
+				// B is left of A
 				else {
-					a.ll.x += intersect.w;
-					a.ur.x += intersect.w;
+					// shifting B is allowed; consider shifting B to the left
+					if (!shift_only_a && b.ll.x - intersect.w > 0.0) {
+						b.ll.x -= intersect.w;
+						b.ur.x -= intersect.w;
+					}
+					// shifting B is not allowed or not feasible; shift A to the right
+					else {
+						a.ll.x += intersect.w;
+						a.ur.x += intersect.w;
+					}
 				}
 			}
 		};
