@@ -460,9 +460,6 @@ class TSV_Island : public Block {
 					if (prev_island.layer != new_island_to_be_shifted.layer) {
 						continue;
 					}
-					if (prev_island.id == new_island_to_be_shifted.id) {
-						continue;
-					}
 
 					if (Rect::rectsIntersect(prev_island.bb, new_island_to_be_shifted.bb)) {
 
