@@ -548,6 +548,16 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 			cur_hotspot->bb = Rect::determBoundingBox(cur_hotspot->bb, (*it1)->bb);
 		}
 
+		// enlarge final bb by 2x, which should increase chances for the
+		// subsequent clustering to match net bounding box with these cluster bbs
+		cur_hotspot->bb.ll.x -= cur_hotspot->bb.w / 2.0;
+		cur_hotspot->bb.ur.x += cur_hotspot->bb.w / 2.0;
+		cur_hotspot->bb.ll.y -= cur_hotspot->bb.h / 2.0;
+		cur_hotspot->bb.ur.y += cur_hotspot->bb.h / 2.0;
+		cur_hotspot->bb.w = cur_hotspot->bb.ur.x - cur_hotspot->bb.ll.x;
+		cur_hotspot->bb.h = cur_hotspot->bb.ur.y - cur_hotspot->bb.ll.y;
+		cur_hotspot->bb.area = cur_hotspot->bb.w * cur_hotspot->bb.h;
+
 		// put hotspot into (temporary) map, which is sorted by the hotspot scores
 		// and later replaces the global map
 		hotspots.insert( std::pair<double, Hotspot>(
