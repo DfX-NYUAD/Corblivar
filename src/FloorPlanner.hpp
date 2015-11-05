@@ -82,6 +82,7 @@ class FloorPlanner {
 			double bond_thickness;
 			double TSV_dimension;
 			double TSV_pitch;
+			int TSV_per_cluster_limit;
 			// Cu-Si area ratio for TSV groups
 			double TSV_group_Cu_Si_ratio;
 			// Cu area fraction for TSV groups

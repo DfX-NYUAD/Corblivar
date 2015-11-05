@@ -1654,7 +1654,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 
 		// actual clustering
-		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->IC.TSV_per_cluster_limit, this->thermal_analysis);
 
 		// after clustering, we can obtain a more accurate wirelength and
 		// routing-utilization estimation by considering TSVs' positions as well

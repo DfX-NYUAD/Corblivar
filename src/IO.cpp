@@ -676,6 +676,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.IC.TSV_pitch;
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.IC.TSV_per_cluster_limit;
+
 	// determine Cu-Si area ratio for TSV groups
 	fp.IC.TSV_group_Cu_Si_ratio = (fp.IC.TSV_dimension * fp.IC.TSV_dimension) /
 		((fp.IC.TSV_pitch * fp.IC.TSV_pitch) - (fp.IC.TSV_dimension * fp.IC.TSV_dimension));
@@ -815,8 +820,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << std::endl;
 		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << std::endl;
 		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << std::endl;
-		std::cout << "IO>  Technology -- TSV groups; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << std::endl;
-		std::cout << "IO>  Technology -- TSV groups; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
+		std::cout << "IO>  Technology -- TSV islands; upper limit for TSV per island: " << fp.IC.TSV_per_cluster_limit << std::endl;
+		std::cout << "IO>  Technology -- TSV islands; Cu-Si area ratio: " << fp.IC.TSV_group_Cu_Si_ratio << std::endl;
+		std::cout << "IO>  Technology -- TSV islands; Cu area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
 
 		// technology parameters for multi-voltage domains
 		//

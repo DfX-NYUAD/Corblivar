@@ -34,7 +34,7 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
-void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::vector<Segments>::iterator it_seg;
 	std::list<Net*>::iterator it_net;
@@ -172,8 +172,10 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 						}
 					}
 					// cluster is already initialized; try to merge
-					// (further) segments into current cluster
-					else {
+					// (further) segments into current cluster; only
+					// until upper limit of TSVs per cluster is not
+					// reached yet
+					else if (this->clusters[i].back().nets.size() < upper_limit_TSVs) {
 
 						// determine intersection of cluster w/
 						// current segment
