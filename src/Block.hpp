@@ -391,6 +391,10 @@ class TSV_Island : public Block {
 	public:
 		int TSVs_count;
 
+		// limits for AR of TSV island
+		static constexpr double AR_MIN = 0.5;
+		static constexpr double AR_MAX = 2.0;
+
 		// reset TSV group's outline according to area required for given TSVs
 		//
 		// note that the following code does _not_ consider a sanity check where
@@ -399,6 +403,7 @@ class TSV_Island : public Block {
 		// of area is not critical
 		void resetOutline(double TSV_pitch, double width) {
 			double TSV_rows, TSV_cols;
+			double bb_AR;
 			Rect new_bb;
 
 			// if width is given, orient the island's dimension based on that
@@ -406,12 +411,21 @@ class TSV_Island : public Block {
 				new_bb.w = width;
 				new_bb.h = this->TSVs_count * pow(TSV_pitch, 2.0) / width;
 			}
-			// else plan for square island
+			// else account for AR of assigned (reference) bb and the number
+			// of TSVs to cover
 			else {
 				// determine number of TSV rows and cols from number of
-				// required TSVs; define a square TSV island
+				// required TSVs; resembles a square TSV island
 				TSV_rows = std::sqrt(this->TSVs_count);
 				TSV_cols = std::sqrt(this->TSVs_count);
+
+				// account for AR of given bb
+				bb_AR = this->bb.w / this->bb.h;
+				// however, consider only ``reasonable'' AR limits
+				bb_AR = std::max(bb_AR, TSV_Island::AR_MIN);
+				bb_AR = std::min(bb_AR, TSV_Island::AR_MAX);
+				TSV_rows *= bb_AR;
+				TSV_cols /= bb_AR;
 
 				// round up rows and cols, spare TSVs are not as ``bad''
 				// as missing TSVs for signal routing; this way it's also

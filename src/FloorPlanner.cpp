@@ -37,6 +37,8 @@
 // memory allocation
 constexpr int Pin::LAYER;
 constexpr double TimingPowerAnalyser::ACTIVITY_FACTOR;
+constexpr double TSV_Island::AR_MIN;
+constexpr double TSV_Island::AR_MAX;
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
