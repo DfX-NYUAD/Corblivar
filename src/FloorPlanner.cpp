@@ -368,25 +368,20 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 				std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 
-				if (cost.timing_actual_value > this->IC.delay_threshold) {
+				if (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon)) {
 					std::cout << "SA>     Timing violation ([ns] / [%]): ";
 					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
 					std::cout << " / ";
 					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
 					std::cout << std::endl;
+					// is adapted dynamically for voltage assignment
+					std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
 				}
 			}
 
 			if (this->opt_flags.voltage_assignment) {
 
-				if (cost.timing_actual_value < this->IC.delay_threshold) {
-					std::cout << "SA>    Voltage assignment successful: " << std::endl;
-				}
-				else {
-					std::cout << "SA>    Voltage assignment successful (but suffers from general timing violation): " << std::endl;
-				}
-
-				std::cout << "SA>     Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
 			}
 
 			std::cout << "SA>  Accept-ops ratio: " << accepted_ops_ratio << std::endl;
@@ -742,18 +737,22 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar> Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << "Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 
-				if (cost.timing_actual_value > this->IC.delay_threshold) {
+				if (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon)) {
 					std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
 					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
 					std::cout << " / ";
 					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
 					std::cout << std::endl;
+					// is adapted dynamically for voltage assignment
+					std::cout << "Corblivar>   Current timing threshold: " << this->IC.delay_threshold << std::endl;
 
 					this->IO_conf.results << " Timing violation ([ns] / [%]): ";
 					this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
 					this->IO_conf.results << " / ";
 					this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
 					this->IO_conf.results << std::endl;
+					// is adapted dynamically for voltage assignment
+					this->IO_conf.results << "  Current timing threshold: " << this->IC.delay_threshold << std::endl;
 				}
 
 				this->IO_conf.results << std::endl;
@@ -761,15 +760,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			if (this->opt_flags.voltage_assignment) {
 
-				if (cost.timing_actual_value < this->IC.delay_threshold) {
-					std::cout << "Corblivar> Voltage assignment successful: " << std::endl;
-					this->IO_conf.results << "Voltage assignment successful: " << std::endl;
-				}
-				else {
-					std::cout << "Corblivar> Voltage assignment successful (but suffers from general timing violation): " << std::endl;
-					this->IO_conf.results << "Voltage assignment successful (but suffers from general timing violation): " << std::endl;
-				}
-
+				std::cout << "Corblivar> Voltage assignment: " << std::endl;
 				std::cout << "Corblivar>  Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				std::cout << "Corblivar>   Total power (blocks, wires, TSVs) after power reduction [W]: "
 					<< cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
@@ -779,6 +770,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
+				this->IO_conf.results << "Voltage assignment: " << std::endl;
 				this->IO_conf.results << " Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				this->IO_conf.results << "  Total power (blocks, wires, TSVs) after power reduction [W]: "
 					<< cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
