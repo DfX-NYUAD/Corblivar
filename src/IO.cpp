@@ -1628,14 +1628,12 @@ void IO::parseNets(FloorPlanner& fp) {
 				// pin found
 				pin_not_found = false;
 
-				// also mark net as input net if this pin is the first
-				// element of the net
-				if (i == 0) {
+				// mark every second net w/ pin as input net and every
+				// other second net as output net
+				if ((id % 2) == 0) {
 					new_net.inputNet = true;
 					count_input++;
 				}
-				// if the pin is any later element, consider the net as
-				// output net
 				else {
 					new_net.outputNet = true;
 					count_output++;
@@ -1658,8 +1656,17 @@ void IO::parseNets(FloorPlanner& fp) {
 					// block found
 					block_not_found = false;
 
-					// memorize the first element/block as source
+					// memorize the first element/block as source;
+					// only applies to regular nets, being neither
+					// input nor output
+					//
 					if (i == 0) {
+						new_net.source = new_net.blocks.back();
+					}
+					// for output nets, the first actual block is the
+					// source/driver, not the terminal pin
+					//
+					else if (new_net.outputNet && i == 1) {
 						new_net.source = new_net.blocks.back();
 					}
 				}
