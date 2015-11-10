@@ -1146,6 +1146,16 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		std::cout << "-> FloorPlanner::evaluateVoltageAssignment()" << std::endl;
 	}
 
+	// iteratively reduce the timing constraint stepwise if possible; this way,
+	// chances for actually meeting the timing constraints during further SA
+	// iterations will reduce which, in turn, will reduce the required
+	// iterations/computation for voltage assignment since it's skipped in case timing
+	// is violated
+	//
+	if (cost.timing_actual_value < this->IC.delay_threshold) {
+		this->IC.delay_threshold = cost.timing_actual_value;
+	}
+
 	// derive applicable voltages for each block; lower voltages are applicable as
 	// long as the delay threshold would not be violated by doing so
 	//
