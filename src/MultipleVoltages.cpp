@@ -701,6 +701,18 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		if (module.block_ids[n.block->numerical_id] == true) {
 			continue;
 		}
+		// also, for reasons of reducing computational complexity, no transitively
+		// contiguous neighbours across more than two adjacent dies are considered
+		//
+		// note that all possible inter-die contiguous neighbours between any pair
+		// of adjacent dies were previously determined during
+		// ContiguityAnalysis::analyseBlocks, and by allowing new neighbours to be
+		// within the same die, all possible combinations of transitively
+		// contiguous modules among adjacent dies are still captured, i.e., final
+		// modules may still span more than two dies
+		if (n.block->layer != neighbour->block->layer) {
+			continue;
+		}
 
 		new_module.contiguous_neighbours.insert({n.block->numerical_id, &n});
 	}
