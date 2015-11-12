@@ -1144,7 +1144,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// iterations/computation for voltage assignment since it's skipped in case timing
 	// is violated
 	//
-	if (cost.fits_fixed_outline && cost.timing_actual_value < this->IC.delay_threshold) {
+	if (!finalize && cost.fits_fixed_outline && cost.timing_actual_value < this->IC.delay_threshold) {
 		this->IC.delay_threshold = cost.timing_actual_value;
 	}
 
