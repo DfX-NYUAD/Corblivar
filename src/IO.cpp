@@ -1001,6 +1001,9 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			// reshape block accordingly
 			tuple.S->shapeByWidthHeight(width, height);
 
+			// recalculate the base delay, which relies on the dimensions
+			tuple.S->base_delay = TimingPowerAnalyser::baseDelay(height, width);
+
 			// drop ");"
 			fp.IO_conf.solution_in >> tmpstr;
 

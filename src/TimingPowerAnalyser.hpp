@@ -29,8 +29,8 @@
 // forward declarations, if any
 
 class TimingPowerAnalyser {
-	// debugging code switch (private)
-	private:
+	// debugging code switch
+	public:
 		static constexpr bool DBG = false;
 
 	// private constants
