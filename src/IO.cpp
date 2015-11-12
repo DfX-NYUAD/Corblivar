@@ -929,6 +929,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	int cur_layer;
 	std::string block_id;
 	unsigned dir;
+	double width, height;
 
 	if (fp.logMed()) {
 		std::cout << "IO> ";
@@ -992,10 +993,13 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 			fp.IO_conf.solution_in >> tuple.T;
 
 			// block width
-			fp.IO_conf.solution_in >> tuple.S->bb.w;
+			fp.IO_conf.solution_in >> width;
 
 			// block height
-			fp.IO_conf.solution_in >> tuple.S->bb.h;
+			fp.IO_conf.solution_in >> height;
+
+			// reshape block accordingly
+			tuple.S->shapeByWidthHeight(width, height);
 
 			// drop ");"
 			fp.IO_conf.solution_in >> tmpstr;
