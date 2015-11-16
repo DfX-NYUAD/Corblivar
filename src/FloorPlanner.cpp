@@ -367,16 +367,15 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
 
 				std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
-
-				if (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon)) {
-					std::cout << "SA>     Timing violation ([ns] / [%]): ";
-					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
-					std::cout << " / ";
-					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-					std::cout << std::endl;
-					// is adapted dynamically for voltage assignment
-					std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
-				}
+				// always display violation, also when it's negative
+				// (i.e., timing better than constraint)
+				std::cout << "SA>     Timing violation ([ns] / [%]): ";
+				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+				std::cout << " / ";
+				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				std::cout << std::endl;
+				// is adapted dynamically for voltage assignment
+				std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
 			}
 
 			if (this->opt_flags.voltage_assignment) {
@@ -625,6 +624,10 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << std::endl;
 				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << std::endl;
 			}
+			else {
+				std::cout << "Corblivar> Final (adapted) cost: N/A" << std::endl;
+				this->IO_conf.results << "Final (adapted) cost: N/A" << std::endl;
+			}
 
 			std::cout << "Corblivar> Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
 			this->IO_conf.results << "Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
@@ -737,24 +740,23 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar> Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << "Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 
-				if (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon)) {
-					std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
-					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
-					std::cout << " / ";
-					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-					std::cout << std::endl;
-					// is adapted dynamically for voltage assignment
-					std::cout << "Corblivar>   Current timing threshold: " << this->IC.delay_threshold << std::endl;
+				// always display violation, also when it's negative
+				// (i.e., timing better than constraint)
+				std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
+				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+				std::cout << " / ";
+				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				std::cout << std::endl;
+				// is adapted dynamically for voltage assignment
+				std::cout << "Corblivar>   Current timing threshold: " << this->IC.delay_threshold << std::endl;
 
-					this->IO_conf.results << " Timing violation ([ns] / [%]): ";
-					this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
-					this->IO_conf.results << " / ";
-					this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-					this->IO_conf.results << std::endl;
-					// is adapted dynamically for voltage assignment
-					this->IO_conf.results << "  Current timing threshold: " << this->IC.delay_threshold << std::endl;
-				}
-
+				this->IO_conf.results << " Timing violation ([ns] / [%]): ";
+				this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
+				this->IO_conf.results << " / ";
+				this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				this->IO_conf.results << std::endl;
+				// is adapted dynamically for voltage assignment
+				this->IO_conf.results << "  Current timing threshold: " << this->IC.delay_threshold << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
