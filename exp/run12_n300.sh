@@ -6,7 +6,7 @@ fitting=thermal_analysis_octave
 exp="VA_LP"
 #benches=$1
 #benches=$2
-benches="n100_soft n200_soft"
+benches="n300_soft"
 #benches="ami33 xerox"
 runs=20
 
