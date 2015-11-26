@@ -155,11 +155,41 @@ The script exp/HotSpot.sh calls a (slightly modified) version of BU's 3D HotSpot
 related code should be provided along with Corblivar. Note that the script contains a path
 to the HotSpot binary which has to be adapted for your local setup.
 
+The script exp/extract_numeric_results.sh and the spreadsheet exp/evaluate_via_charts.ods
+can be used to evaluate experimental batches, generated via some run script in exp/run*.sh
+
 The file exp/Corblivar.conf is a template for the config file required by Corblivar,
 further examples can be found in exp/configs/.
 
 Changelog
 =========
+
+1.4.2
+-----
+*November 2015, commit 8d104fee63fc1b1a340d317a2193381435f03b5b*
+**updates and fixes for layout operations / floorplanner and voltage assignment; further
+general updates/fixes**
+- benchmarks: GSRC benchmarks now also available with soft blocks, e.g., n100_soft; added
+power densities for (randomly) selected IBM-HB+ benchmarks
+- layout operations / floorplanner: fix thermal-aware block moving, to avoid excessive deadspace; consider blocks with
+largest net preferably for minimizing timing and WL; consider blocks which exceed outline
+preferably to improve chances for fixed-outline-fitting solutions; fix area-outline cost;
+shrink die outlines whenever possible, which improves deadspace and runtime
+- voltage assignment: reduce timing threshold/constraint whenever a better solution is
+found; this way, notable runtime can be saved since voltage assignment is only conducted
+in case timing is not violated; quality is also improved this way; also, ignore compound
+modules spreading more than two dies, to limit solution space
+- power evaluation: dynamic power consumption of interconnects, i.e., TSVs and wires, is
+captured now as well
+- HotSpot thermal data is now prepared such that it will be plotted directly from HotSpot
+data using gnuplot, not via (buggy) perl script from HotSpot
+- clustering: size of thermal hotspots not considered anymore; this was misleading in case
+very small but very hot hotspots are found along with very large but very ``cool''
+hotspots
+- updates/fixes greedy shifting of TSV islands
+- fix read-in of Corblivar solutions; dimensions of soft blocks were previously ignored
+- div updates/fixes for improving performance and refactoring classes
+- updates config scripts and helper scripts
 
 1.4.1
 -----
@@ -185,7 +215,7 @@ computational effort for voltage assignment notably
 **new feature: delay-aware voltage assignment, minor other updates and fixes**
 - added determination of delays, using Elmore delay for net and TSV delay, and module
 delays based on voltage assignment
-- added voltage-assignment handler: determines possible arrangments of voltage domains and
+- added voltage-assignment handler: determines possible arrangements of voltage domains and
 selects the best-cost solutions
 - added related contiguity analysis for modules/blocks
 - related update floorplanning flow
@@ -197,7 +227,7 @@ selects the best-cost solutions
 -----
 *May 2015, commit f770ba1d2e56f9df6f3f0dab0d9e2b020e111928*
 **minor updates and fixes**
-- fixes related to handling aligmnet with RBOD, i.e., alignments for pre-fixed blocks
+- fixes related to handling alignment with RBOD, i.e., alignments for pre-fixed blocks
 - updates for TSV handling; put single TSVs (in net's bounding boxes' center) in case
 clustering is not applied
 
@@ -209,13 +239,13 @@ HotSpot data, etc), new feature: routing-congestion estimation**
 - added estimation of routing congestion; considering all wires, also connecting to TSVs
 - various fixes regarding clustering and related interconnects handling
 - improved accuracy for determination of interconnects; for TSVs, regular wires and
-massive busses
+massive buses
 - improved layout packing; added dedicated handling for outer blocks
 - improved handling TSV islands, greedy shifting to avoid overlaps
-- various fixes regarding gridding of HotSpot input-data; HotSpot errors due to conversion
+- various fixes regarding griding of HotSpot input-data; HotSpot errors due to conversion
 errors are now settled
 - updates and fixes handling of strictly aligned massive interconnects
-- updates and fixes for handling for intermediately failed alignmentsA
+- updates and fixes for handling for intermediately failed alignments
 - updates and fixes layout operations
 - various updates and cleanups for logging
 - various updates and cleanups for benchmarks and experimental setups
