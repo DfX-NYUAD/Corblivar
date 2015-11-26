@@ -1,6 +1,6 @@
 # Technology file version                                                                                                                          
 value                                                                                                                                          
-5
+6
 ## General geometric chip parameters
 # Layers for 3D IC (>= 2)                                                                                                                      
 value                                                                                                                                          
@@ -40,24 +40,21 @@ value
 # TSV pitch [um]; /value/ from [Ahmed14]
 value
 10
+# Upper limit of TSVs per TSV island; relates to clustering of TSV into TSV islands; own /value/
+value
+1024
 # Number of voltage levels
 value
-3
+1
 # Voltages; from lowest to highest
 values
-0.8
 1.0
-1.2
 # To voltages related power-scaling factors
 values
-0.817
 1.0
-1.496
 # To voltages related delay-scaling factors
 values
-1.56
 1.0
-0.83
 # Global delay threshold; covers module and net delay; given in [ns]
 value
 1.0
