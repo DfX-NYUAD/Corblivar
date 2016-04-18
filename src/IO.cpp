@@ -42,13 +42,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	std::string tmpstr;
 	ThermalAnalyzer::MaskParameters mask_parameters;
 
+	std::stringstream GT_fp_file;
+	// (TODO) handle individual pins for each block
+	//std::stringstream GT_pins_file;
+	std::stringstream GT_power_file;
+
 	// print command-line parameters
 	if (argc < 4) {
 		std::cout << "IO> Usage: " << argv[0] << " benchmark_name config_file benchmarks_dir [solution_file] [TSV_density]" << std::endl;
 		std::cout << "IO> " << std::endl;
-		std::cout << "IO> Mandatory parameter ``benchmark_name'': any name, should refer to GSRC-Bookshelf benchmark" << std::endl;
+		std::cout << "IO> Mandatory parameter ``benchmark_name'': any name, should be same as benchmark's files names" << std::endl;
 		std::cout << "IO> Mandatory parameter ``config_file'' format: see provided Corblivar.conf" << std::endl;
-		std::cout << "IO> Mandatory parameter ``benchmarks_dir'': folder containing actual benchmark files in GSRC Bookshelf format" << std::endl;
+		std::cout << "IO> Mandatory parameter ``benchmarks_dir'': folder containing actual benchmark files" << std::endl;
 		std::cout << "IO> Optional parameter ``solution_file'': re-evaluate w/ given Corblivar solution" << std::endl;
 		std::cout << "IO> Optional parameter ``TSV density'': average TSV density to be considered across all dies, to be given in \%" << std::endl;
 
@@ -63,6 +68,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	else {
 		fp.thermal_analyser_run = false;
 	}
+
+	// initially assume benchmark not to be in GATech format/syntax
+	fp.IO_conf.GT_benchmark = false;
 
 	// read in mandatory parameters
 	fp.benchmark = argv[1];
@@ -87,6 +95,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	results_file << fp.benchmark << ".results";
 	fp.IO_conf.results.open(results_file.str().c_str());
 
+	GT_fp_file << argv[3] << fp.benchmark << ".fpi";
+	fp.IO_conf.GT_fp_file = GT_fp_file.str();
+
+	// (TODO) handle individual pins for each block
+	//GT_pins_file << argv[3] << fp.benchmark << ".plf";
+	//fp.IO_conf.GT_pins_file = GT_pins_file.str();
+
+	GT_power_file << argv[3] << fp.benchmark << ".pow";
+	fp.IO_conf.GT_power_file = GT_power_file.str();
+
 	// determine path of technology file; same as config file per definition
 	last_slash = config_file.find_last_of('/');
 	if (last_slash == std::string::npos) {
@@ -110,12 +128,24 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 	in.close();
 
-	// blocks file
+	// blocks file; determine whether benchmark is GSRC or GATech type
 	in.open(fp.IO_conf.blocks_file.c_str());
 	if (!in.good()) {
-		std::cout << "IO> ";
-		std::cout << "Blocks file missing: " << fp.IO_conf.blocks_file << std::endl;
-		exit(1);
+		std::cout << "IO> GSRC-style blocks file missing: " << fp.IO_conf.blocks_file << std::endl;
+
+		// if (GSRC) blocks file not found, check for unified GATech floorplan file
+		//
+		std::cout << "IO> Checking for GATech floorplan file: " << fp.IO_conf.GT_fp_file << std::endl;
+		in.close();
+		in.open(fp.IO_conf.GT_fp_file.c_str());
+		if (!in.good()) {
+			std::cout << "IO>  Failure; GATech floorplan file missing: " << fp.IO_conf.GT_fp_file << std::endl;
+			exit(1);
+		}
+		else {
+			fp.IO_conf.GT_benchmark = true;
+			std::cout << "IO>  Success; GATech floorplan file available" << std::endl;
+		}
 	}
 	in.close();
 
@@ -133,22 +163,42 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in.close();
 
 	// pins file
-	in.open(fp.IO_conf.pins_file.c_str());
-	if (!in.good()) {
-		std::cout << "IO> ";
-		std::cout << "Pins file missing: " << fp.IO_conf.pins_file << std::endl;
-		exit(1);
+	//
+	if (fp.IO_conf.GT_benchmark) {
+		// (TODO) handle individual pins for each block
+		//in.open(fp.IO_conf.GT_pins_file.c_str());
+		//if (!in.good()) {
+		//	std::cout << "IO> Pins file missing: " << fp.IO_conf.GT_pins_file << std::endl;
+		//	exit(1);
+		//}
+	}
+	else {
+		in.open(fp.IO_conf.pins_file.c_str());
+		if (!in.good()) {
+			std::cout << "IO> Pins file missing: " << fp.IO_conf.pins_file << std::endl;
+			exit(1);
+		}
 	}
 	in.close();
 
 	// power file
-	in.open(fp.IO_conf.power_density_file.c_str());
+	if (fp.IO_conf.GT_benchmark) {
+		in.open(fp.IO_conf.GT_power_file.c_str());
+	}
+	else {
+		in.open(fp.IO_conf.power_density_file.c_str());
+	}
 	// memorize file availability
 	fp.IO_conf.power_density_file_avail = in.good();
 
 	if (!in.good()) {
 		std::cout << "IO> ";
-		std::cout << "Note: power density file missing : " << fp.IO_conf.power_density_file << std::endl;
+		if (fp.IO_conf.GT_benchmark) {
+			std::cout << "Note: GATech power file missing : " << fp.IO_conf.GT_power_file << std::endl;
+		}
+		else {
+			std::cout << "Note: power density file missing : " << fp.IO_conf.power_density_file << std::endl;
+		}
 		std::cout << "IO> Thermal analysis and optimization cannot be performed; is deactivated." << std::endl;
 		std::cout << std::endl;
 
@@ -159,14 +209,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 	in.close();
 
-	// nets file
-	in.open(fp.IO_conf.nets_file.c_str());
-	if (!in.good()) {
-		std::cout << "IO> ";
-		std::cout << "Nets file missing: " << fp.IO_conf.nets_file << std::endl;
-		exit(1);
+	// nets file; separate only for GSRC, encapsulated in GATech floorplan file
+	if (!fp.IO_conf.GT_benchmark) {
+		in.open(fp.IO_conf.nets_file.c_str());
+		if (!in.good()) {
+			std::cout << "IO> ";
+			std::cout << "Nets file missing: " << fp.IO_conf.nets_file << std::endl;
+			exit(1);
+		}
+		in.close();
 	}
-	in.close();
 
 	// additional command-line parameters
 	//
@@ -1249,19 +1301,31 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	int soft_blocks = 0;
 	double blocks_outline_ratio;
 	std::string id;
-	unsigned to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
+	int to_parse_soft_blocks, to_parse_hard_blocks, to_parse_terminals;
 	bool floorplacement;
 	unsigned numerical_id;
+	double GT_fp_height, GT_fp_width;
+	bool GT_soft_blocks;
+	bool GT_terminals;
 
 	if (fp.logMed()) {
 		std::cout << "IO> ";
 		std::cout << "Parsing blocks..." << std::endl;
 	}
 
-	// open files
-	blocks_in.open(fp.IO_conf.blocks_file.c_str());
-	pins_in.open(fp.IO_conf.pins_file.c_str());
-	power_in.open(fp.IO_conf.power_density_file.c_str());
+	// open GT benchmark files
+	if (fp.IO_conf.GT_benchmark) {
+		blocks_in.open(fp.IO_conf.GT_fp_file.c_str());
+		// (TODO) handle individual pins for each block
+		//pins_in.open(fp.IO_conf.GT_pins_file.c_str());
+		power_in.open(fp.IO_conf.GT_power_file.c_str());
+	}
+	// open GSRC benchmark files
+	else {
+		blocks_in.open(fp.IO_conf.blocks_file.c_str());
+		pins_in.open(fp.IO_conf.pins_file.c_str());
+		power_in.open(fp.IO_conf.power_density_file.c_str());
+	}
 
 	// drop power density file header line
 	if (fp.IO_conf.power_density_file_avail) {
@@ -1284,35 +1348,68 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	fp.power_stats.max = fp.power_stats.range = fp.power_stats.avg = 0.0;
 	fp.power_stats.min = -1;
 
-	// drop block files header
-	while (tmpstr != "NumSoftRectangularBlocks" && !blocks_in.eof())
-		blocks_in >> tmpstr;
-	// drop ":"
-	blocks_in >> tmpstr;
-	// memorize how many soft blocks to be parsed
-	blocks_in >> to_parse_soft_blocks;
-	// drop "NumHardRectilinearBlocks" and ":"
-	blocks_in >> tmpstr;
-	blocks_in >> tmpstr;
-	// memorize how many hard blocks to be parsed
-	blocks_in >> to_parse_hard_blocks;
-	// drop "NumTerminals" and ":"
-	blocks_in >> tmpstr;
-	blocks_in >> tmpstr;
-	// memorize how many terminal pins to be parsed
-	blocks_in >> to_parse_terminals;
-
 	// first block id shall be distinct from the dummy id
 	numerical_id = Block::DUMMY_NUM_ID;
 	numerical_id++;
 
+	// initial parsing for GSRC benchmarks
+	//
+	if (!fp.IO_conf.GT_benchmark) {
+
+		// drop block files header
+		while (tmpstr != "NumSoftRectangularBlocks" && !blocks_in.eof())
+			blocks_in >> tmpstr;
+		// drop ":"
+		blocks_in >> tmpstr;
+		// memorize how many soft blocks to be parsed
+		blocks_in >> to_parse_soft_blocks;
+		// drop "NumHardRectilinearBlocks" and ":"
+		blocks_in >> tmpstr;
+		blocks_in >> tmpstr;
+		// memorize how many hard blocks to be parsed
+		blocks_in >> to_parse_hard_blocks;
+		// drop "NumTerminals" and ":"
+		blocks_in >> tmpstr;
+		blocks_in >> tmpstr;
+		// memorize how many terminal pins to be parsed
+		blocks_in >> to_parse_terminals;
+	}
+	// initial parsing for GATech benchmarks
+	//
+	else {
+		// number of blocks and terminal (to be parsed) not given in the files
+		to_parse_soft_blocks = to_parse_hard_blocks = to_parse_terminals = -1;
+
+		// drop header lines until floorplan  section to be parsed
+		GT_soft_blocks = false;
+		while (tmpstr != "*FLOORPLAN" && !blocks_in.eof())
+			blocks_in >> tmpstr;
+		// parse floorplan width
+		blocks_in >> GT_fp_width;
+		// parse floorplan height
+		blocks_in >> GT_fp_height;
+		// drop "*END"
+		blocks_in >> tmpstr;
+		
+		// apply non-zero outlines
+		if (GT_fp_width != 0 && GT_fp_height != 0) {
+
+			fp.layoutOp.parameters.outline.x = fp.IC.outline_x = GT_fp_width;
+			fp.layoutOp.parameters.outline.y = fp.IC.outline_y = GT_fp_height;
+
+			// update aspect ratio and area
+			fp.IC.die_AR = fp.IC.outline_x / fp.IC.outline_y;
+			fp.IC.die_area = fp.IC.outline_x * fp.IC.outline_y;
+			fp.IC.stack_area = fp.IC.die_area * fp.IC.layers;
+
+			std::cout << "IO> Chip outline updated from GATech floorplan file:" << std::endl;
+			std::cout << "IO>  Chip -- Fixed die outline (width, x-dimension) [um]: " << fp.IC.outline_x << std::endl;
+			std::cout << "IO>  Chip -- Fixed die outline (height, y-dimension) [um]: " << fp.IC.outline_y << std::endl;
+		}
+	}
+
 	// parse blocks and pins
 	while (!blocks_in.eof()) {
-
-		// each line contains a block, two examples are below
-		// bk1 hardrectilinear 4 (0, 0) (0, 133) (336, 133) (336, 0)
-		// BLOCK_7 softrectangular 2464 0.33 3.0
-		// VSS terminal
 
 		// parse block identifier
 		blocks_in >> id;
@@ -1321,11 +1418,75 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		Block new_block = Block(id, numerical_id);
 		Pin new_pin = Pin(id);
 
-		// parse block type
-		blocks_in >> tmpstr;
+		// GSRC: each line contains a block or terminal pin, two examples are below
+		//
+		// bk1 hardrectilinear 4 (0, 0) (0, 133) (336, 133) (336, 0)
+		// BLOCK_7 softrectangular 2464 0.33 3.0
+		// VSS terminal
+		//
+		//
+		// GATech: each line contains a soft/hard block, examples given below
+		//
+		//*HARDBLOCKS
+		//<block_name> <block_width> <block_height>
+		//*END
+		//
+		//*SOFTBLOCKS
+		//<block_name> <block_area> <min_aspect_ratio> <max_aspect_ratio>
+		//*END
+		//
+		// m0 9.000000 9.000000
+		// m0 81 0.33 3
 
-		// terminal pins: store separately
-		if (tmpstr == "terminal") {
+		// parse block type; only for GSRC format
+		if (!fp.IO_conf.GT_benchmark)
+			blocks_in >> tmpstr;
+
+		// check for begin/end of different sections; only for GATech format
+		//
+		if (fp.IO_conf.GT_benchmark && id == "*HARDBLOCKS") {
+
+			// continue w/ parsing of hard blocks
+			GT_soft_blocks = false;
+			GT_terminals = false;
+
+			// parse first block's actual identifier
+			blocks_in >> id;
+			new_block.id = id;
+		}
+		else if (fp.IO_conf.GT_benchmark && id == "*SOFTBLOCKS") {
+
+			// continue w/ parsing of soft blocks
+			GT_soft_blocks = true;
+			GT_terminals = false;
+
+			// parse first block's actual identifier
+			blocks_in >> id;
+			new_block.id = id;
+		}
+		else if (fp.IO_conf.GT_benchmark && id == "*TERMINALS") {
+
+			// continue w/ parsing of terminal pins
+			GT_terminals = true;
+
+			// parse first pin's actual identifier
+			blocks_in >> id;
+			new_pin.id = id;
+		}
+		else if (fp.IO_conf.GT_benchmark && id == "*NETS") {
+
+			// nets are parsed separately, abort parsing
+			break;
+		}
+		else if (fp.IO_conf.GT_benchmark && id == "*END") {
+
+			// current section done, continue parsing from beginning, in order
+			// to search for other new section or eof
+			continue;
+		}
+
+		// GSRC terminal pins: stored separately, parse from pins file
+		if (!fp.IO_conf.GT_benchmark && tmpstr == "terminal") {
 
 			// parse pins file for related coordinates
 			while (tmpstr != id && !pins_in.eof()) {
@@ -1353,29 +1514,52 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// skip further block related handling
 			continue;
 		}
-		// hard blocks: parse dimensions
-		else if (tmpstr == "hardrectilinear") {
+		// GATech terminal pins: stored within floorplan file (stream blocks_in),
+		// syntax similar to hardblocks
+		else if (fp.IO_conf.GT_benchmark && GT_terminals) {
 
-			// drop "4"
-			blocks_in >> tmpstr;
-			// drop "(0,"
-			blocks_in >> tmpstr;
-			// drop "0)"
-			blocks_in >> tmpstr;
-			// drop "(0,"
-			blocks_in >> tmpstr;
-			// drop "Y)"
-			blocks_in >> tmpstr;
-			// parse "(X,"
-			blocks_in >> tmpstr;
-			new_block.bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
-			// parse "Y)"
-			blocks_in >> tmpstr;
-			new_block.bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
-			// drop "(X,"
-			blocks_in >> tmpstr;
-			// drop "0)"
-			blocks_in >> tmpstr;
+			blocks_in >> new_pin.bb.ll.x;
+			blocks_in >> new_pin.bb.ll.y;
+
+			// store pin now
+			fp.terminals.push_back(new_pin);
+
+			// skip further block related handling
+			continue;
+		}
+		// GSRC/GATech hard blocks: parse dimensions
+		else if ((!fp.IO_conf.GT_benchmark && tmpstr == "hardrectilinear") ||
+				(fp.IO_conf.GT_benchmark && !GT_soft_blocks)) {
+
+			// GSRC parsing
+			//
+			if (!fp.IO_conf.GT_benchmark) {
+				// drop "4"
+				blocks_in >> tmpstr;
+				// drop "(0,"
+				blocks_in >> tmpstr;
+				// drop "0)"
+				blocks_in >> tmpstr;
+				// drop "(0,"
+				blocks_in >> tmpstr;
+				// drop "Y)"
+				blocks_in >> tmpstr;
+				// parse "(X,"
+				blocks_in >> tmpstr;
+				new_block.bb.w = atof(tmpstr.substr(1, tmpstr.size() - 2).c_str());
+				// parse "Y)"
+				blocks_in >> tmpstr;
+				new_block.bb.h = atof(tmpstr.substr(0, tmpstr.size() - 1).c_str());
+				// drop "(X,"
+				blocks_in >> tmpstr;
+				// drop "0)"
+				blocks_in >> tmpstr;
+			}
+			// GATech parsing
+			else {
+				blocks_in >> new_block.bb.w;
+				blocks_in >> new_block.bb.h;
+			}
 
 			// scale up dimensions
 			new_block.bb.w *= fp.IC.blocks_scale;
@@ -1387,8 +1571,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// also increment numerical id for next block
 			numerical_id++;
 		}
-		// soft blocks: parse area and AR range
-		else if (tmpstr == "softrectangular") {
+		// GSRC/GATech soft blocks: parse area and AR range
+		else if ((!fp.IO_conf.GT_benchmark && tmpstr == "softrectangular") ||
+				(fp.IO_conf.GT_benchmark && GT_soft_blocks)) {
 
 			// parse area, min AR, max AR
 			blocks_in >> new_block.bb.area;
@@ -1416,26 +1601,65 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		// unknown block type
 		else {
 			std::cout << "IO>  Unknown block type: " << tmpstr << std::endl;
-			std::cout << "IO>  Consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+			std::cout << "IO>  Consider checking the benchmark syntax!" << std::endl;
 			exit(1);
 		}
 
 		// determine power density
 		if (fp.IO_conf.power_density_file_avail) {
 
-			if (!power_in.eof()) {
+			// GSRC handling: values are expected to be listed in the very
+			// same order the parsed-in blocks
+			//
+			if (!fp.IO_conf.GT_benchmark) {
+				if (!power_in.eof()) {
 
-				// unscaled value; due to different voltage levels scaled
-				// density can be obtained via power_density()
-				power_in >> new_block.power_density_unscaled;
+					// unscaled value; due to different voltage levels scaled
+					// density can be obtained via power_density()
+					power_in >> new_block.power_density_unscaled;
 
-				// however, apply general power-scaling factor
-				new_block.power_density_unscaled *= fp.IC.power_scale;
-			}
-			else {
-				if (fp.logMin()) {
-					std::cout << "IO>  Some blocks have no power value assigned, consider checking the power density file!" << std::endl;
+					// however, apply general power-scaling factor
+					new_block.power_density_unscaled *= fp.IC.power_scale;
 				}
+				else {
+					if (fp.logMin()) {
+						std::cout << "IO>  Some blocks have no power value assigned, consider checking the power density file!" << std::endl;
+					}
+				}
+			}
+			// GATech handling: _power_ (not power density) values are given by indexed lines, e.g.,
+			// m0 5.40256466490364e-05
+			else {
+
+				// parse power file for related block id
+				while (tmpstr != id && !power_in.eof()) {
+					power_in >> tmpstr;
+				}
+
+				// related line cannot be found; log
+				if (power_in.eof() && fp.logMin()) {
+					std::cout << "IO>  Power value for block \"" << id << "\" cannot be retrieved, consider checking the power file!" << std::endl;
+				}
+				// related line found, parse power value
+				else {
+
+					// raw, unscaled value
+					power_in >> new_block.power_density_unscaled;
+					// read-in value is absolute power; normalize to
+					// density via area;
+					new_block.power_density_unscaled /= new_block.bb.area;
+					// note that density is assumed to be in uW/um^2;
+					// area is given already in um^2 but just read-in
+					// power was/is in W; scale up to uW
+					new_block.power_density_unscaled *= 1.0e6;
+
+					// finally, apply general power-scaling factor
+					new_block.power_density_unscaled *= fp.IC.power_scale;
+				}
+
+				// reset power file stream for next search
+				power_in.clear() ;
+				power_in.seekg(0, power_in.beg);
 			}
 		}
 
@@ -1515,17 +1739,21 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 
 	// sanity check for parsed blocks
-	if (fp.blocks.size() != (to_parse_soft_blocks + to_parse_hard_blocks)) {
-		std::cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
-		std::cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << std::endl;
-		exit(1);
+	if (to_parse_soft_blocks != -1 && to_parse_hard_blocks != -1) {
+		if (fp.blocks.size() != static_cast<unsigned>(to_parse_soft_blocks + to_parse_hard_blocks)) {
+			std::cout << "IO>  Not all given blocks could be parsed; consider checking the benchmark syntax!" << std::endl;
+			std::cout << "IO>   Parsed hard blocks: " << fp.blocks.size() - soft_blocks << ", expected hard blocks count: " << to_parse_hard_blocks << std::endl;
+			exit(1);
+		}
 	}
 
 	// sanity check for parsed terminals
-	if (fp.terminals.size() != to_parse_terminals) {
-		std::cout << "IO>  Not all given terminals could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
-		std::cout << "IO>   Parsed pins: " << fp.terminals.size() << ", expected pins count: " << to_parse_terminals << std::endl;
-		exit(1);
+	if (to_parse_terminals != -1) {
+		if (fp.terminals.size() != static_cast<unsigned>(to_parse_terminals)) {
+			std::cout << "IO>  Not all given terminals could be parsed; consider checking the benchmark syntax!" << std::endl;
+			std::cout << "IO>   Parsed pins: " << fp.terminals.size() << ", expected pins count: " << to_parse_terminals << std::endl;
+			exit(1);
+		}
 	}
 
 	// logging
@@ -1728,7 +1956,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 	// sanity check for parsed nets
 	if (fp.nets.size() != to_parse_nets) {
-		std::cout << "IO>  Not all given nets could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+		std::cout << "IO>  Not all given nets could be parsed; consider checking the benchmark syntax!" << std::endl;
 		std::cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << std::endl;
 		exit(1);
 	}

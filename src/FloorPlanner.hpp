@@ -98,7 +98,7 @@ class FloorPlanner {
 
 		// IO files and parameters
 		struct IO_conf {
-			std::string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
+			std::string blocks_file, GT_fp_file, alignments_file, pins_file, GT_pins_file, power_density_file, GT_power_file, nets_file, solution_file;
 			std::ofstream results, solution_out;
 			std::ifstream solution_in;
 			// flag whether power density file is available / was handled /
@@ -107,6 +107,8 @@ class FloorPlanner {
 			bool power_density_file_avail;
 			// similar flags for other files
 			bool alignments_file_avail;
+			// flag whether benchmark is in GATech syntax/format or not
+			bool GT_benchmark;
 		} IO_conf;
 
 		// benchmark name
