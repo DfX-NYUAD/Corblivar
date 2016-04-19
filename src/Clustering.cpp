@@ -126,9 +126,11 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 								// init enclosing bb with
 								// this initial net
 								(*it_seg).bb,
-								// init hotspot id w/
-								// initial net
-								(*it_seg).net->id
+								// dummy hotspot id, since
+								// cluster is not
+								// associated with any
+								// hotspot yet
+								-1
 							});
 
 						// memorize initial cluster

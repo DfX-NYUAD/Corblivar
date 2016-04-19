@@ -41,7 +41,7 @@ class Net {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Net(int const& id) {
+		Net(std::string const& id) {
 			this->id = id;
 			this->hasExternalPin = false;
 			this->layer_bottom = -1;
@@ -53,7 +53,7 @@ class Net {
 
 	// public data, functions
 	public:
-		int id;
+		std::string id;
 		bool hasExternalPin;
 		std::vector<Block const*> blocks;
 		std::vector<TSV_Island> TSVs;
@@ -61,11 +61,11 @@ class Net {
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
 
-		// the first block of a net is considered the source, the remaining blocks
-		// and terminals are sinks
+		// the first block of a net is considered the source/driver, the remaining
+		// blocks/terminals are sinks
 		Block const* source;
-		// this implies, for nets with a terminal as first/later element, that
-		// nets may be input/output nets
+		// flag whether nets are global input/output nets, being connected to some
+		// terminal pin
 		bool inputNet, outputNet;
 
 		// the delay value is calculated as max value from source to any sink;

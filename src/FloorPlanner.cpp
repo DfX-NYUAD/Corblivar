@@ -1596,7 +1596,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 						// define new trivial island, with one TSV
 						this->TSVs.emplace_back(TSV_Island(
 								// net id and layer
-								std::string("net_" + std::to_string(cur_net.id) + "_" + std::to_string(i)),
+								std::string("net_" + cur_net.id + "_" + std::to_string(i)),
 								// one TSV count
 								1,
 								// TSV pitch; required for proper scaling

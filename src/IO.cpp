@@ -1515,7 +1515,12 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			continue;
 		}
 		// GATech terminal pins: stored within floorplan file (stream blocks_in),
-		// syntax similar to hardblocks
+		// syntax similar to hardblocks:
+		//
+		// "*TERMINALS"
+		// "<pin_name> <pin_x_coordinate> <pin_y_coordinate>"
+		// "*END"
+		//
 		else if (fp.IO_conf.GT_benchmark && GT_terminals) {
 
 			blocks_in >> new_pin.bb.ll.x;
@@ -1808,130 +1813,280 @@ void IO::parseNets(FloorPlanner& fp) {
 	// reset nets
 	fp.nets.clear();
 
-	// open nets file
-	in.open(fp.IO_conf.nets_file.c_str());
+	// GSRC benchmark handling
+	//
+	if (!fp.IO_conf.GT_benchmark) {
 
-	// drop nets file header
-	while (tmpstr != "NumNets" && !in.eof())
-		in >> tmpstr;
-	// drop ":"
-	in >> tmpstr;
-	// memorize how many nets to be parsed
-	in >> to_parse_nets;
+		// open nets file
+		in.open(fp.IO_conf.nets_file.c_str());
 
-	// parse nets file
-	count_input = count_output = count_degree = 0;
-	id = 0;
-	while (!in.eof()) {
-		Net new_net = Net(id);
-
-		// parse net degree
-		//// NetDegree : 2
-		while (tmpstr != "NetDegree" && !in.eof()) {
+		// drop nets file header
+		while (tmpstr != "NumNets" && !in.eof())
 			in >> tmpstr;
-		}
-
 		// drop ":"
 		in >> tmpstr;
-		// parse net degree
-		in >> net_degree;
+		// memorize how many nets to be parsed
+		in >> to_parse_nets;
 
-		count_degree += net_degree;
+		// parse nets file
+		count_input = count_output = count_degree = 0;
+		id = 0;
+		while (!in.eof()) {
+			Net new_net = Net(std::to_string(id));
 
-		// due to some empty lines at the end, we may have reached eof just now
-		if (in.eof()) {
-			break;
+			// parse net degree
+			//// NetDegree : 2
+			while (tmpstr != "NetDegree" && !in.eof()) {
+				in >> tmpstr;
+			}
+
+			// drop ":"
+			in >> tmpstr;
+			// parse net degree
+			in >> net_degree;
+
+			count_degree += net_degree;
+
+			// due to some empty lines at the end, we may have reached eof just now
+			if (in.eof()) {
+				break;
+			}
+
+			// read in blocks and terminals of net
+			new_net.blocks.clear();
+			new_net.terminals.clear();
+			for (i = 0; i < net_degree; i++) {
+
+				// parse block / pin id
+				in >> net_block;
+
+				// try to interpret as terminal pin
+				pin = Pin::findPin(net_block, fp.terminals);
+
+				if (pin != nullptr) {
+
+					// mark net as net w/ external pin
+					new_net.hasExternalPin = true;
+					// store terminal
+					new_net.terminals.push_back(std::move(pin));
+					// pin found
+					pin_not_found = false;
+
+					// TODO fix: each net with pin as first element is
+					// an input net, each net with as 2nd or later
+					// element is an output net
+					//
+					// mark every second net w/ pin as input net and every
+					// other second net as output net
+					if ((id % 2) == 0) {
+						new_net.inputNet = true;
+						count_input++;
+					}
+					else {
+						new_net.outputNet = true;
+						count_output++;
+					}
+				}
+				else {
+					// pin not found
+					pin_not_found = true;
+				}
+
+				// try to interpret as regular block 
+				if (pin_not_found) {
+
+					block = Block::findBlock(net_block, fp.blocks);
+
+					if (block != nullptr) {
+
+						// store block
+						new_net.blocks.push_back(std::move(block));
+						// block found
+						block_not_found = false;
+
+						// TODO move out, after parsing all
+						// blocks/pins
+						//
+						// memorize the first element/block as source;
+						// only applies to regular nets, being neither
+						// input nor output
+						//
+						if (i == 0) {
+							new_net.source = new_net.blocks.back();
+						}
+						// for output nets, the first actual block is the
+						// source/driver, not the terminal pin
+						//
+						else if (new_net.outputNet && i == 1) {
+							new_net.source = new_net.blocks.back();
+						}
+					}
+					else {
+						// block not found
+						block_not_found = true;
+					}
+				}
+
+				// drop "B"
+				in >> tmpstr;
+
+				// log pin parsing failure
+				if (fp.logMin()) {
+					if (block_not_found && !pin_not_found) {
+						std::cout << "IO>  Net " << id << "'s block \"" << net_block << "\"";
+						std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+					}
+					else if (block_not_found && pin_not_found) {
+						std::cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
+						std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+					}
+				}
+			}
+
+			// store net
+			fp.nets.push_back(std::move(new_net));
+
+			// consider next net id
+			id++;
 		}
+	}
+	//
+	// GATech benchmark handling
+	//
+	// syntax:
+	// "*NETS"
+	// "- <net_name1> <no_of_connections>"
+	// "<block_name> <input(I) or output(O) pin> <block_pin_name>"
+	// "<pin_name> <input(I) or output (O)>"
+	// "*END"
+	//
+	else {
 
-		// read in blocks and terminals of net
-		new_net.blocks.clear();
-		new_net.terminals.clear();
-		for (i = 0; i < net_degree; i++) {
+		// open floorplan file which also contains the nets
+		in.open(fp.IO_conf.GT_fp_file.c_str());
 
-			// parse block / pin id
-			in >> net_block;
-
-			// try to interpret as terminal pin
-			pin = Pin::findPin(net_block, fp.terminals);
-
-			if (pin != nullptr) {
-
-				// mark net as net w/ external pin
-				new_net.hasExternalPin = true;
-				// store terminal
-				new_net.terminals.push_back(std::move(pin));
-				// pin found
-				pin_not_found = false;
-
-				// mark every second net w/ pin as input net and every
-				// other second net as output net
-				if ((id % 2) == 0) {
-					new_net.inputNet = true;
-					count_input++;
-				}
-				else {
-					new_net.outputNet = true;
-					count_output++;
-				}
-			}
-			else {
-				// pin not found
-				pin_not_found = true;
-			}
-
-			// try to interpret as regular block 
-			if (pin_not_found) {
-
-				block = Block::findBlock(net_block, fp.blocks);
-
-				if (block != nullptr) {
-
-					// store block
-					new_net.blocks.push_back(std::move(block));
-					// block found
-					block_not_found = false;
-
-					// memorize the first element/block as source;
-					// only applies to regular nets, being neither
-					// input nor output
-					//
-					if (i == 0) {
-						new_net.source = new_net.blocks.back();
-					}
-					// for output nets, the first actual block is the
-					// source/driver, not the terminal pin
-					//
-					else if (new_net.outputNet && i == 1) {
-						new_net.source = new_net.blocks.back();
-					}
-				}
-				else {
-					// block not found
-					block_not_found = true;
-				}
-			}
-
-			// drop "B"
+		// drop other parts, until nets section is reached
+		while (tmpstr != "*NETS" && !in.eof())
 			in >> tmpstr;
 
-			// log pin parsing failure
-			if (fp.logMin()) {
-				if (block_not_found && !pin_not_found) {
-					std::cout << "IO>  Net " << id << "'s block \"" << net_block << "\"";
-					std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+		// parse nets file
+		count_input = count_output = count_degree = 0;
+
+		while (!in.eof()) {
+
+			// drop "-"
+			in >> tmpstr;
+			// still, check whether end of nets section has been reached
+			if (tmpstr == "*END")
+				break;
+
+			// parse net id
+			in >> tmpstr;
+			// init new net
+			Net new_net = Net(tmpstr);
+
+			// parse net degree
+			in >> net_degree;
+
+			count_degree += net_degree;
+
+			// due to some empty lines at the end, we may have reached eof just now
+			if (in.eof()) {
+				break;
+			}
+
+			// read in blocks and terminals of net
+			new_net.blocks.clear();
+			new_net.terminals.clear();
+			for (i = 0; i < net_degree; i++) {
+
+				// first, parse block / pin id
+				// 
+				// "<block_name> <input(I) or output(O) pin> <block_pin_name>"
+				// "<pin_name> <input(I) or output (O)>"
+				//
+				in >> net_block;
+
+				// try to interpret as terminal pin
+				pin = Pin::findPin(net_block, fp.terminals);
+
+				if (pin != nullptr) {
+
+					// mark net as net w/ external pin
+					new_net.hasExternalPin = true;
+					// store terminal
+					new_net.terminals.push_back(std::move(pin));
+					// pin found
+					pin_not_found = false;
+
+					// determine whether pin/net is input or output
+					// type
+					in >> tmpstr;
+
+					if (tmpstr == "I") {
+						new_net.inputNet = true;
+						count_input++;
+					}
+					else if (tmpstr == "O") {
+						new_net.outputNet = true;
+						count_output++;
+					}
 				}
-				else if (block_not_found && pin_not_found) {
-					std::cout << "IO>  Net " << id << "'s terminal pin \"" << net_block << "\"";
-					std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+				else {
+					// pin not found
+					pin_not_found = true;
+				}
+
+				// try to interpret as regular block 
+				if (pin_not_found) {
+
+					block = Block::findBlock(net_block, fp.blocks);
+
+					if (block != nullptr) {
+
+						// store block
+						new_net.blocks.push_back(std::move(block));
+						// block found
+						block_not_found = false;
+
+						// "<block_name> <input(I) or output(O) pin> <block_pin_name>"
+						//
+						// drop I/O flag
+						in >> tmpstr;
+						// (TODO) handle individual pins for each block
+						// drop pin name
+						in >> tmpstr;
+					}
+					else {
+						// block not found
+						block_not_found = true;
+					}
+				}
+
+				// log pin parsing failure
+				if (fp.logMin()) {
+					if (block_not_found && !pin_not_found) {
+						std::cout << "IO>  Net " << new_net.id << "'s block \"" << net_block << "\"";
+						std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+					}
+					else if (block_not_found && pin_not_found) {
+						std::cout << "IO>  Net " << new_net.id << "'s terminal pin \"" << net_block << "\"";
+						std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
+					}
 				}
 			}
+
+			// memorize the first block as source/driver; applies to regular
+			// internal nets or global output nets, i.e., doesn't apply to
+			// global input nets
+			//
+			if (!new_net.inputNet) {
+				new_net.source = new_net.blocks.front();
+			}
+
+			// store net
+			fp.nets.push_back(std::move(new_net));
 		}
-
-		// store net
-		fp.nets.push_back(std::move(new_net));
-
-		// consider next net id
-		id++;
 	}
 
 	// close nets file
@@ -1952,13 +2107,6 @@ void IO::parseNets(FloorPlanner& fp) {
 				std::cout << " pin " << pin->id << std::endl;
 			}
 		}
-	}
-
-	// sanity check for parsed nets
-	if (fp.nets.size() != to_parse_nets) {
-		std::cout << "IO>  Not all given nets could be parsed; consider checking the benchmark syntax!" << std::endl;
-		std::cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << std::endl;
-		exit(1);
 	}
 
 	if (fp.logMed()) {
