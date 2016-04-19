@@ -1483,17 +1483,20 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				if (this->opt_flags.routing_util) {
 					this->routingUtil.adaptUtilMap(i, bb, net_weight);
 				}
-				// the power maps have to be adapted similarly; this way,
-				// the wires' power is tracked (but not for input nets)
-				if (this->opt_flags.thermal && !cur_net.inputNet) {
+				// (TODO) revise; lead to inf power-density values;
+				// deactivated for now since not essential
+				//
+				//// the power maps have to be adapted similarly; this way,
+				//// the wires' power is tracked (but not for input nets)
+				//if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
-							// the wire's power, to be
-							// reflected in layer i, is scaled
-							// according the net_weight
-							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
-						);
-				}
+				//	this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+				//			// the wire's power, to be
+				//			// reflected in layer i, is scaled
+				//			// according the net_weight
+				//			TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+				//		);
+				//}
 			}
 
 			if (Net::DBG) {
