@@ -1872,14 +1872,16 @@ void IO::parseNets(FloorPlanner& fp) {
 					// pin found
 					pin_not_found = false;
 
-					// mark each net with a pin as first element as
-					// input net
-					if (i == 0) {
+					// TODO fix: each net with pin as first element is
+					// an input net, each net with as 2nd or later
+					// element is an output net
+					//
+					// mark every second net w/ pin as input net and every
+					// other second net as output net
+					if ((id % 2) == 0) {
 						new_net.inputNet = true;
 						count_input++;
 					}
-					// mark each net with a pin as 2nd or later
-					// element as output net
 					else {
 						new_net.outputNet = true;
 						count_output++;
@@ -1901,6 +1903,23 @@ void IO::parseNets(FloorPlanner& fp) {
 						new_net.blocks.push_back(std::move(block));
 						// block found
 						block_not_found = false;
+
+						// TODO move out, after parsing all
+						// blocks/pins
+						//
+						// memorize the first element/block as source;
+						// only applies to regular nets, being neither
+						// input nor output
+						//
+						if (i == 0) {
+							new_net.source = new_net.blocks.back();
+						}
+						// for output nets, the first actual block is the
+						// source/driver, not the terminal pin
+						//
+						else if (new_net.outputNet && i == 1) {
+							new_net.source = new_net.blocks.back();
+						}
 					}
 					else {
 						// block not found
@@ -1922,14 +1941,6 @@ void IO::parseNets(FloorPlanner& fp) {
 						std::cout << " cannot be retrieved; consider checking net / blocks file" << std::endl;
 					}
 				}
-			}
-
-			// memorize the first block as source/driver; applies to regular
-			// internal nets or global output nets, i.e., doesn't apply to
-			// global input nets
-			//
-			if (!new_net.inputNet) {
-				new_net.source = new_net.blocks.front();
 			}
 
 			// store net
