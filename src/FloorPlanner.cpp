@@ -1435,7 +1435,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
-		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+		if (this->layoutOp.parameters.trivial_HPWL) {
 
 			// resets blocks to be considered for each cur_net
 			blocks_to_consider.clear();
@@ -1660,7 +1660,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// perform clustering of regular signal TSVs into TSV islands, if activated; also
 	// not be performed for trivial HPWL estimates
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
+	if (this->layoutOp.parameters.signal_TSV_clustering && !this->layoutOp.parameters.trivial_HPWL) {
 
 		// actual clustering
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->IC.TSV_per_cluster_limit, this->thermal_analysis);
@@ -1746,7 +1746,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// evaluateAlignments(); also note that this rough estimate is only required if
 	// alignments are not directly optimized, otherwise the HPWL and utilization
 	// estimation in evaluateAlignments() is more precise
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment_WL_estimate) {
+	if (!this->layoutOp.parameters.trivial_HPWL && !this->opt_flags.alignment_WL_estimate) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 

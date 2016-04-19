@@ -223,13 +223,6 @@ class FloorPlanner {
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
 
-		// SA: parameters for cost functions
-		//
-		// trivial HPWL refers to one global bounding box for each net;
-		// non-trivial (i.e., setting the flag to false) considers the bounding
-		// boxes on each layer separately
-		static constexpr bool SA_COST_INTERCONNECTS_TRIVIAL_HPWL = false;
-
 		// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;
 
