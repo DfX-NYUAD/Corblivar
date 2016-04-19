@@ -26,9 +26,11 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
+#include "Point.hpp"
 // forward declarations, if any
 class CorblivarCore;
 class Block;
+class Net;
 
 class LayoutOperations {
 	// debugging code switch
@@ -59,10 +61,20 @@ class LayoutOperations {
 			// IO::parseParametersFiles
 			int layers;
 
+			// outline; parsed along w/ FloorPlanner::IC in
+			// IO::parseParametersFiles
+			Point outline;
+
 			// layout generation options; parsed in IO::parseParametersFiles
 			bool enhanced_hard_block_rotation, enhanced_soft_block_shaping;
 			bool power_aware_block_handling, floorplacement, signal_TSV_clustering;
 			int packing_iterations;
+
+			// block-selection guidance; the currently largest individual net;
+			// this net and the related modules are of particular interest to
+			// be rearranged; this parameter is updated during
+			// FloorPlanner::evaluateInterconnects
+			Net const* largest_net = nullptr;
 		} parameters;
 
 	// private data, functions
@@ -98,6 +110,7 @@ class LayoutOperations {
 		inline bool performOpEnhancedSoftBlockShaping(CorblivarCore const& corb, Block const* shape_block) const;
 		inline bool performOpSwapAlignmentCoordinates(bool const& revert, CorblivarCore& corb, int& tuple1) const;
 		inline void prepareHandlingOutlineCriticalBlock(CorblivarCore const& corb, int& die1, int& tuple1) const;
+		inline void preselectBlockFromLargestNet(CorblivarCore const& corb, int& die1, int& tuple1) const;
 };
 
 #endif

@@ -28,6 +28,7 @@
 #include "CorblivarCore.hpp"
 #include "CorblivarAlignmentReq.hpp"
 #include "Block.hpp"
+#include "Net.hpp"
 
 // memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
@@ -37,20 +38,19 @@ constexpr int LayoutOperations::OP_MOVE_TUPLE;
 bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
 	int op;
 	int die1, tuple1, die2, tuple2, juncts;
-	bool ret, random;
+	bool ret;
 
 	if (LayoutOperations::DBG) {
 		std::cout << "-> LayoutOperations::performLayoutOp(" << &corb << ", " << layout_fit_counter << ", " << SA_phase_two << ", " << revertLastOp << ", " << cooling_phase_three << ")" << std::endl;
 	}
 
 	// init layout operation variables
+	op = -1;
 	die1 = tuple1 = die2 = tuple2 = juncts = -1;
-	random = true;
 
 	// revert last op
 	if (revertLastOp) {
 		op = this->last_op;
-		random = false;
 	}
 	// perform new op
 	else {
@@ -81,8 +81,6 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 					// also fulfilled when the option power-aware
 					// block assignment is activated
 					this->last_op = op = LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
-
-					random = false;
 				}
 			}
 			// other order of trying operations
@@ -92,36 +90,43 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 				if (this->prepareSwappingCoordinatesFailedAlignment(corb, tuple1)) {
 
 					this->last_op = op = LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES;
-
-					random = false;
 				}
 			}
 		}
-		// another special scenario:
-		//
-		// if no fitting layout at all was determined so far (during the current
-		// annealing step), search for the outermost block (in randomly x- or
-		// y-dimension) and then perform some operation on a (randomly selected)
-		// block within the same (perpendicular y- or x-dimension) range of this
-		// outermost' block outline; these blocks are probably on the ``critical
-		// path'' violating the outline, and altering any of these blocks has a
-		// better probability of reducing the outline violation than selecting
-		// other blocks
-		else if (layout_fit_counter == 0) {
+		// another scenario, in case no valid layout was found at all in the
+		// previous iteration: randomly select one block which currently exceeds
+		// the fixed outline
+		else if (!SA_phase_two && layout_fit_counter == 0) {
 
-			this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
+			if (Math::randB()) {
+				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
 
-			// for such blocks on the critical path, we consider all but
-			// swapping operations
-			this->last_op = op = Math::randI(2, 6);
-
-			random = false;
+				// perform any random 
+				this->last_op = op = Math::randI(1, 6);
+			}
 		}
-		//
+		// in case no valid layout was found recently (but previously already a
+		// valid layout was found), randomly select to reshape a block exceeding
+		// the outline
+		else if (SA_phase_two && layout_fit_counter == 0) {
+
+			if (Math::randB()) {
+				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);
+				this->last_op = op = LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK;
+			}
+		}
+
 		// for other (regular) cases or if special scenarios above cannot be
 		// performed or if they still require random operations, define a random
 		// operation next
-		if (random) {
+		//
+		if (op == -1) {
+
+			// randomly select one block from currently largest net w/ highest
+			// individual impact on WL
+			if (Math::randB()) {
+				this->preselectBlockFromLargestNet(corb, die1, tuple1);
+			}
 
 			// see defined op-codes to set random-number ranges; recall that
 			// randI(x,y) is [x,y)
@@ -192,95 +197,88 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 }
 
 void LayoutOperations::prepareHandlingOutlineCriticalBlock(CorblivarCore const& corb, int& die1, int& tuple1) const {
-	Block const* outermost_block;
-	Block const* cur_block;
+	int random_tuple;
 
-	// init outermost block w/ first block from non-empty die
-	for (int l = 0; l < this->parameters.layers; l++) {
+	tuple1 = -1;
 
-		if (!corb.getDie(l).getBlocks().empty()) {
-			outermost_block = corb.getDie(l).getBlock(0);
-			break;
-		}
-	}
-
-	// randomly decide whether to work on the x- or y-dimension
+	// randomly decide whether to work on the x- or y-dimension; this part is
+	// for x-direction
 	if (Math::randB()) {
 
-		// search among all blocks, consider x-dimension
+		// search for one critical block among all dies
 		for (int l = 0; l < this->parameters.layers; l++) {
 
 			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
 
-				// current block further right?
-				if (corb.getDie(l).getBlock(b)->bb.ur.x > outermost_block->bb.ur.x) {
-					outermost_block = corb.getDie(l).getBlock(b);
+				// randomly consider any block on the current die;
+				// when it's exceeding the outline it's to be
+				// altered
+				random_tuple = Math::randI(0, corb.getDie(l).getBlocks().size());
+
+				// current block exceeding die width?
+				if (corb.getDie(l).getBlock(random_tuple)->bb.ur.x > this->parameters.outline.x) {
 					die1 = l;
-				}
-			}
-		}
-
-		// now that we found some block furthest right, we randomly search for any
-		// block within the same y-dimensional range; these blocks are likely on
-		// the ``critical path'' for pushing the furthest block so far right and,
-		// thus, adapting any of these blocks likely decreases the longest
-		// extension in x-dimension
-		if (die1 != -1) {
-			while (true) {
-
-				// randomly consider any block on relevant die die1
-				tuple1 = Math::randI(0, corb.getDie(die1).getBlocks().size());
-
-				cur_block = corb.getDie(die1).getBlock(tuple1);
-
-				// consider any block within the same y-range as critical block
-				if (Rect::rectsIntersectVertical(cur_block->bb, outermost_block->bb)) {
-					// at this point, die1 and tuple1 are assigned
-					// accordingly to critical_block, and we break the
-					// while-loop
+					tuple1 = random_tuple;
 					break;
 				}
 			}
+
+			if (tuple1 != -1) {
+				break;
+			}
 		}
 	}
+	// randomly decide whether to work on the x- or y-dimension; this part is for
+	// y-direction
 	else {
-		// search among all blocks, consider y-dimension
+		// search for one critical block among all dies
 		for (int l = 0; l < this->parameters.layers; l++) {
 
 			for (unsigned b = 0; b < corb.getDie(l).getBlocks().size(); b++) {
 
-				// current block further above?
-				if (corb.getDie(l).getBlock(b)->bb.ur.y > outermost_block->bb.ur.y) {
-					outermost_block = corb.getDie(l).getBlock(b);
+				// randomly consider any block on the current die;
+				// when it's exceeding the outline it's to be
+				// altered
+				random_tuple = Math::randI(0, corb.getDie(l).getBlocks().size());
+
+				// current block exceeding die height?
+				if (corb.getDie(l).getBlock(random_tuple)->bb.ur.y > this->parameters.outline.y) {
 					die1 = l;
-					tuple1 = b;
-				}
-			}
-		}
-
-		// now that we found some block furthest atop, we randomly search for any
-		// block within the same x-dimensional range; these blocks are likely on
-		// the ``critical path'' for pushing the furthest block so far atop and,
-		// thus, adapting any of these blocks likely decreases the longest
-		// extension in y-dimension
-		if (die1 != -1) {
-			while (true) {
-
-				// randomly consider any block on relevant die die1
-				tuple1 = Math::randI(0, corb.getDie(die1).getBlocks().size());
-
-				cur_block = corb.getDie(die1).getBlock(tuple1);
-
-				// consider any block within the same x-range as critical block
-				if (Rect::rectsIntersectHorizontal(cur_block->bb, outermost_block->bb)) {
-					// at this point, die1 and tuple1 are assigned
-					// accordingly to critical_block, and we break the
-					// while-loop
+					tuple1 = random_tuple;
 					break;
 				}
 			}
+
+			if (tuple1 != -1) {
+				break;
+			}
 		}
 	}
+}
+
+void LayoutOperations::preselectBlockFromLargestNet(CorblivarCore const& corb, int& die1, int& tuple1) const {
+
+	// sanity check for largest net
+	if (this->parameters.largest_net == nullptr) {
+		return;
+	}
+
+	// randomly select one block from the largest net
+	Block const* block = this->parameters.largest_net->blocks[Math::randI(0, this->parameters.largest_net->blocks.size())];
+
+	if (LayoutOperations::DBG) {
+		std::cout << "DBG_LAYOUT> LayoutOperations::preselectBlockFromLargestNet" << std::endl;
+		std::cout << "DBG_LAYOUT>  Net ID: " << this->parameters.largest_net->id << std::endl;
+		std::cout << "DBG_LAYOUT>  (Randomly) selected block to be altered: " << block->id << " on die " << block-> layer << std::endl;
+	}
+
+	// assign the die according to the selected block
+	die1 = block->layer;
+
+	// also determine the related tuple for the selected block
+	tuple1 = corb.getDie(die1).getTuple(block);
+
+	return;
 }
 
 bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& corb, int& die1, int& tuple1, int& die2, int& tuple2) {
@@ -308,12 +306,12 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		// blocks; avoid the dummy reference block if required
 		if (
 			// randomly select s_i if it's not the RBOD
-			(failed_req->s_i->id != RBOD::ID && Math::randB()) ||
+			(failed_req->s_i->numerical_id != RBOD::NUMERICAL_ID && Math::randB()) ||
 			// also consider s_i if s_j is the RBOD
-			failed_req->s_j->id == RBOD::ID
+			failed_req->s_j->numerical_id == RBOD::NUMERICAL_ID
 		   ) {
 			// sanity check for both s_i and s_j being RBOD
-			if (failed_req->s_i->id == RBOD::ID) {
+			if (failed_req->s_i->numerical_id == RBOD::NUMERICAL_ID) {
 				return false;
 			}
 
@@ -335,7 +333,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 		tuple1 = corb.getDie(die1).getTuple(b1);
 		// for RBOD being the partner, we assume the same die as for the block to
 		// be changed
-		if (b1_partner->id == RBOD::ID) {
+		if (b1_partner->numerical_id == RBOD::NUMERICAL_ID) {
 			die2 = die1;
 		}
 		else {
@@ -397,7 +395,7 @@ bool LayoutOperations::prepareBlockSwappingFailedAlignment(CorblivarCore const& 
 					// block
 					if (Rect::rectsIntersect(bb, b2->bb) &&
 						// avoid swapping with b1 itself
-						b1->id != b2->id &&
+						b1->numerical_id != b2->numerical_id &&
 						// also check that blocks are not partner blocks
 						// of the alignment request; otherwise,
 						// consecutively circular swap might occur which
@@ -776,7 +774,7 @@ bool LayoutOperations::performOpSwitchTupleJunctions(bool const& revert, Corbliv
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << "; juncts: " << new_juncts << std::endl;
 		}
 
@@ -784,7 +782,7 @@ bool LayoutOperations::performOpSwitchTupleJunctions(bool const& revert, Corbliv
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_TUPLE_JUNCTS; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << "; juncts: " << this->last_op_juncts << std::endl;
 		}
 
@@ -814,7 +812,7 @@ bool LayoutOperations::performOpSwitchInsertionDirection(bool const& revert, Cor
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << std::endl;
 		}
 
@@ -822,7 +820,7 @@ bool LayoutOperations::performOpSwitchInsertionDirection(bool const& revert, Cor
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWITCH_INSERTION_DIR; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << std::endl;
 		}
 
@@ -884,13 +882,13 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		// dbg output for operation
 		if (LayoutOperations::DBG) {
 			if (mode == LayoutOperations::OP_MOVE_TUPLE) {
-				std::cout << "   LayoutOperations::OP_MOVE_TUPLE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_MOVE_TUPLE;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
 			}
 
 			std::cout << " revert: 0;";
@@ -905,7 +903,7 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 
 			for (CorblivarAlignmentReq const* req : corb.getDie(die1).getBlock(tuple1)->alignments_vertical_bus) {
 
-				if (req->s_i->id == corb.getDie(die1).getBlock(tuple1)->id) {
+				if (req->s_i->numerical_id == corb.getDie(die1).getBlock(tuple1)->numerical_id) {
 					b2 = req->s_j;
 				}
 				else {
@@ -917,8 +915,8 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 				if (die2 == b2->layer) {
 
 					if (LayoutOperations::DBG) {
-						std::cout << "    Alignment-aware block handling; operation not allowed" << std::endl;
-						std::cout << "     Related alignment: " << req->tupleString() << std::endl;
+						std::cout << "DBG_LAYOUT>  Alignment-aware block handling; operation not allowed" << std::endl;
+						std::cout << "DBG_LAYOUT>   Related alignment: " << req->tupleString() << std::endl;
 					}
 
 					return false;
@@ -940,26 +938,24 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
-					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
-					std::cout << "     b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() <<
+					std::cout << "DBG_LAYOUT>  Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "DBG_LAYOUT>   b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() <<
 						"; b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() << std::endl;
 				}
 
 				return false;
 			}
-			// if the higher-power block is in the upper layer d2, only swaps
-			// should be prohibited but moving the lower-power block from d1
-			// up to die2 is fine
-			else if (die1 < die2
-					&& (corb.getDie(die2).getBlock(tuple2)->power_density() > corb.getDie(die1).getBlock(tuple1)->power_density())
-					// note that by blocking only OP_SWAP_BLOCKS, both
-					// OP_MOVE_TUPLE and OP_SWAP_BLOCKS_ENFORCE are
-					// allowed
-					&& mode == LayoutOperations::OP_SWAP_BLOCKS) {
+			// if the higher-power block is in the upper layer d2, the same
+			// applies
+			else if (die2 > die1 && (corb.getDie(die2).getBlock(tuple2)->power_density() > corb.getDie(die1).getBlock(tuple1)->power_density())
+					// but for OP_SWAP_BLOCKS_ENFORCE (which is used
+					// for handling failed alignments) they should be
+					// considered
+					&& mode != LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
 
 				if (LayoutOperations::DBG) {
-					std::cout << "    Power-aware block handling; operation not allowed" << std::endl;
-					std::cout << "     b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() <<
+					std::cout << "DBG_LAYOUT>  Power-aware block handling; operation not allowed" << std::endl;
+					std::cout << "DBG_LAYOUT>   b2: " << corb.getDie(die2).getBlock(tuple2)->power_density() <<
 						"; b1: " << corb.getDie(die1).getBlock(tuple1)->power_density() << std::endl;
 				}
 
@@ -1017,13 +1013,13 @@ bool LayoutOperations::performOpMoveOrSwapBlocks(int const& mode, bool const& re
 		// dbg output for operation
 		if (LayoutOperations::DBG) {
 			if (mode == LayoutOperations::OP_MOVE_TUPLE) {
-				std::cout << "   LayoutOperations::OP_MOVE_TUPLE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_MOVE_TUPLE;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS;";
 			}
 			else if (mode == LayoutOperations::OP_SWAP_BLOCKS_ENFORCE) {
-				std::cout << "   LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
+				std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;";
 			}
 
 			std::cout << " revert: 1;";
@@ -1065,7 +1061,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
 				"; die1: " << die1 << "; tuple1: " << tuple1 << std::endl;
 		}
 
@@ -1104,7 +1100,7 @@ bool LayoutOperations::performOpShapeBlock(bool const& revert, CorblivarCore& co
 	// revert last rotation
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_ROTATE_BLOCK__SHAPE_BLOCK; revert: " << revert <<
 				"; die1: " << this->last_op_die1 << "; tuple1: " << this->last_op_tuple1 << std::endl;
 		}
 
@@ -1154,7 +1150,7 @@ bool LayoutOperations::performOpSwapAlignmentCoordinates(bool const& revert, Cor
 		}
 
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
 				"; tuple: " << tuple1 << std::endl;
 		}
 
@@ -1162,7 +1158,7 @@ bool LayoutOperations::performOpSwapAlignmentCoordinates(bool const& revert, Cor
 	}
 	else {
 		if (LayoutOperations::DBG) {
-			std::cout << "   LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
+			std::cout << "DBG_LAYOUT> LayoutOperations::OP_SWAP_ALIGNMENT_COORDINATES; revert: " << revert <<
 				"; tuple: " << this->last_op_tuple1 << std::endl;
 		}
 

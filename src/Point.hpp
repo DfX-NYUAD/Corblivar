@@ -42,6 +42,11 @@ class Point {
 			this->y = Point::UNDEF;
 		};
 
+		Point(double x, double y) {
+			this->x = x;
+			this->y = y;
+		}
+
 	// public data, functions
 	public:
 		static constexpr int UNDEF = -1;

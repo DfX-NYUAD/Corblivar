@@ -39,7 +39,7 @@ class MultipleVoltages {
 
 	// public constants
 	public:
-		static constexpr bool DBG_FLOORPLAN = true;
+		static constexpr bool DBG_FLOORPLAN = false;
 
 		// dimension for feasible voltages;
 		// represents the upper bound for globally available voltages

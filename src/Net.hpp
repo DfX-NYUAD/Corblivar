@@ -28,7 +28,7 @@
 // Corblivar includes, if any
 #include "Block.hpp"
 #include "Rect.hpp"
-#include "TimingAnalyser.hpp"
+#include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 
 class Net {
@@ -41,7 +41,7 @@ class Net {
 
 	// constructors, destructors, if any non-implicit
 	public:
-		Net(int const& id) {
+		Net(std::string const& id) {
 			this->id = id;
 			this->hasExternalPin = false;
 			this->layer_bottom = -1;
@@ -53,7 +53,7 @@ class Net {
 
 	// public data, functions
 	public:
-		int id;
+		std::string id;
 		bool hasExternalPin;
 		std::vector<Block const*> blocks;
 		std::vector<TSV_Island> TSVs;
@@ -61,11 +61,11 @@ class Net {
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
 
-		// the first block of a net is considered the source, the remaining blocks
-		// and terminals are sinks
+		// the first block of a net is considered the source/driver, the remaining
+		// blocks/terminals are sinks
 		Block const* source;
-		// this implies, for nets with a terminal as first/later element, that
-		// nets may be input/output nets
+		// flag whether nets are global input/output nets, being connected to some
+		// terminal pin
 		bool inputNet, outputNet;
 
 		// the delay value is calculated as max value from source to any sink;
@@ -97,7 +97,7 @@ class Net {
 						// consider HPWL of bb connecting source
 						// to sink, also consider number of
 						// required TSVs; memorize only max value
-						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
+						TimingPowerAnalyser::elmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - sink_block->layer)));
 			}
 			// also consider terminal sinks
 			for (auto const* sink_terminal : this->terminals) {
@@ -105,7 +105,7 @@ class Net {
 				source_sink_bb = Rect::determBoundingBox(this->source->bb, sink_terminal->bb);
 
 				this->source->net_delay_max = std::max(this->source->net_delay_max,
-						TimingAnalyser::ElmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
+						TimingPowerAnalyser::elmoreDelay(source_sink_bb.w + source_sink_bb.h, std::abs(this->source->layer - Pin::LAYER)));
 			}
 
 			if (Net::DBG) {
@@ -123,7 +123,7 @@ class Net {
 			this->source->net_delay_max = 0.0;
 		};
 
-		inline void setLayerBoundaries() const {
+		inline void resetLayerBoundaries() const {
 
 			if (this->blocks.empty()) {
 				return;

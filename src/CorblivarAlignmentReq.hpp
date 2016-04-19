@@ -162,8 +162,8 @@ class CorblivarAlignmentReq {
 
 		inline bool partner_blocks(Block const* b1, Block const* b2) const {
 			return (
-				(b1->id == this->s_i->id && b2->id == this->s_j->id) ||
-				(b1->id == this->s_j->id && b2->id == this->s_i->id)
+				(b1->numerical_id == this->s_i->numerical_id && b2->numerical_id == this->s_j->numerical_id) ||
+				(b1->numerical_id == this->s_j->numerical_id && b2->numerical_id == this->s_i->numerical_id)
 			       );
 		}
 

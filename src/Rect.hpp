@@ -167,41 +167,33 @@ class Rect {
 			return ret;
 		};
 
-		inline static void greedyShiftingRemoveIntersection(Rect& a, Rect& b, bool shift_only_a = false) {
+		// note that any conditional shifting, e.g., to check for violating the
+		// outline, to apply only shifting in the direction of the lowest shift
+		// required etc may (and will) result in circular moves between different
+		// bbs; for example, when shifting considers the lowest shift and a new bb
+		// has to be shifted between two abutting bbs, the new bb will be shifted
+		// back and forth; thus, greedy shifting has to follow a strict shifting
+		// direction, i.e., upwards
+		//
+		inline static void greedyShiftingRemoveIntersection(Rect& to_shift, Rect& fixed) {
 			Rect intersect;
 
-			intersect = Rect::determineIntersection(a, b);
+			intersect = Rect::determineIntersection(to_shift, fixed);
 
 			// the intersection is larger in x-dimension; thus shift in the
 			// y-dimension to minimize shifting
 			if (intersect.w > intersect.h) {
 
-				// A is below B and shifting B is allowed; shift B to the top
-				if (Rect::rectA_below_rectB(a, b, false) && !shift_only_a) {
-
-					b.ll.y += intersect.h;
-					b.ur.y += intersect.h;
-				}
-				// B is below A and/or shifting B is not allowed; shift A to the top
-				else {
-					a.ll.y += intersect.h;
-					a.ur.y += intersect.h;
-				}
+				// shift to the top
+				to_shift.ll.y = fixed.ur.y;
+				to_shift.ur.y = to_shift.ll.y + to_shift.h;
 			}
 			// the intersection is larger in y-dimension; thus shift in the
 			// x-dimension to minimize shifting
 			else {
-				// A is left of B and shifting B is allowed; shift B to the right
-				if (Rect::rectA_leftOf_rectB(a, b, false) && !shift_only_a) {
-
-					b.ll.x += intersect.w;
-					b.ur.x += intersect.w;
-				}
-				// B is left of A and/or shifting B is not allowed; shift A to the right
-				else {
-					a.ll.x += intersect.w;
-					a.ur.x += intersect.w;
-				}
+				// shift to the right
+				to_shift.ll.x = fixed.ur.x;
+				to_shift.ur.x = to_shift.ll.x + to_shift.w;
 			}
 		};
 

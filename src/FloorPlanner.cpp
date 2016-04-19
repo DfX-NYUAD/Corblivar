@@ -36,6 +36,9 @@
 
 // memory allocation
 constexpr int Pin::LAYER;
+constexpr double TimingPowerAnalyser::ACTIVITY_FACTOR;
+constexpr double TSV_Island::AR_MIN;
+constexpr double TSV_Island::AR_MAX;
 
 // main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
@@ -257,6 +260,27 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							best_cost = fitting_cost;
 							corb.storeBestCBLs();
 							valid_layout_found = best_sol_found = true;
+
+							// also, shrink die outline
+							// whenever possible; this way,
+							// both the WL estimate becomes
+							// more accurate (since terminal
+							// pins are scaled to new,
+							// shrinked outline as well) and
+							// the chances for reducing die
+							// outlines are better as well
+							//
+							// note that this will result in
+							// fluctuation of fitting layouts:
+							// whenever the die is shrinked,
+							// initially less fitting layouts
+							// will be triggered; this,
+							// however, will emphasize the AR
+							// mismatch term in the cost
+							// function again, which helps to
+							// fit the shrinked outline
+							// eventually
+							this->shrinkDieOutlines();
 						}
 					}
 				}
@@ -293,11 +317,76 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 		if (this->logMax()) {
 			std::cout << "SA> Step done:" << std::endl;
-			std::cout << "SA>  new best solution found: " << best_sol_found << std::endl;
-			std::cout << "SA>  accept-ops ratio: " << accepted_ops_ratio << std::endl;
-			std::cout << "SA>  valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
-			std::cout << "SA>  avg cost: " << avg_cost << std::endl;
-			std::cout << "SA>  temp: " << cur_temp << std::endl;
+			std::cout << "SA>  New best solution found: " << best_sol_found << std::endl;
+
+			// log details for current best solution; first, backup current
+			// (most likely not that particular best new solution)
+			corb.backupCBLs();
+
+			// apply best new solution, no logging in case no best solution is
+			// found yet
+			corb.applyBestCBLs(false);
+			this->generateLayout(corb, this->opt_flags.alignment);
+
+			// determine cost terms and overall cost for new best solution;
+			// assume fitting ratio of 1.0 for better comparability of
+			// different solutions and their cost
+			cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two);
+
+			// finally, restore previous layout
+			corb.restoreCBLs();
+
+			if (SA_phase_two) {
+				std::cout << "SA>   Current best solution; overall cost: " << cost.total_cost << std::endl;
+			}
+			else {
+				std::cout << "SA>   Current solution, not fitting yet into the outline; overall cost: " << cost.total_cost << std::endl;
+			}
+			// always log the current state for fitting the blocks into the
+			// fixed outline
+			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
+			std::cout << "SA>    Current max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
+
+			if (this->opt_flags.alignment) {
+				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+			}
+
+			if (SA_phase_two) {
+				std::cout << "SA>    Total power for blocks, wires and TSVs [W]: " << cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+				std::cout << "SA>    HPWL: " << cost.HPWL_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.routing_util) {
+				std::cout << "SA>    Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.thermal) {
+				std::cout << "SA>    Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+			}
+
+			if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
+
+				std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
+				// always display violation, also when it's negative
+				// (i.e., timing better than constraint)
+				std::cout << "SA>     Timing violation ([ns] / [%]): ";
+				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+				std::cout << " / ";
+				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				std::cout << std::endl;
+				// is adapted dynamically for voltage assignment
+				std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
+			}
+
+			if (this->opt_flags.voltage_assignment) {
+
+				std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+			}
+
+			std::cout << "SA>  Accept-ops ratio: " << accepted_ops_ratio << std::endl;
+			std::cout << "SA>  Valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
+			std::cout << "SA>  Avg cost: " << avg_cost << std::endl;
+			std::cout << "SA>  SA temp: " << cur_temp << std::endl;
 		}
 
 		// log temperature step
@@ -494,7 +583,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	struct timeb end;
 	std::stringstream runtime;
 	bool valid_solution;
-	double x, y;
 	Cost cost;
 	unsigned i;
 	int clustered_TSVs;
@@ -516,18 +604,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	// determine final cost, also for non-Corblivar calls
 	if (!handle_corblivar || valid_solution) {
 
-		// determine overall blocks outline; reasonable die outline for whole
-		// 3D-IC stack
-		x = y = 0.0;
-		for (Block const& b : this->blocks) {
-			x = std::max(x, b.bb.ur.x);
-			y = std::max(y, b.bb.ur.y);
-		}
-
 		// shrink fixed outline considering the final layout
 		if (this->IC.outline_shrink) {
-
-			this->resetDieProperties(x, y);
+			this->shrinkDieOutlines();
 		}
 
 		// determine cost terms and overall cost
@@ -545,21 +624,27 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar> Final (adapted) cost: " << cost.total_cost << std::endl;
 				this->IO_conf.results << "Final (adapted) cost: " << cost.total_cost << std::endl;
 			}
+			else {
+				std::cout << "Corblivar> Final (adapted) cost: N/A" << std::endl;
+				this->IO_conf.results << "Final (adapted) cost: N/A" << std::endl;
+			}
 
-			std::cout << "Corblivar> Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
-			this->IO_conf.results << "Max blocks-outline / die-outline ratio: " << cost.area_actual_value << std::endl;
+			std::cout << "Corblivar> Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
+			this->IO_conf.results << "Max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
 			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
 			this->IO_conf.results << "Overall deadspace [%]: " << 100.0 * (this->IC.stack_deadspace / this->IC.stack_area) << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Overall blocks outline (reasonable stack outline):" << std::endl;
-			std::cout << "Corblivar>  x = " << x << std::endl;
-			std::cout << "Corblivar>  y = " << y << std::endl;
-			this->IO_conf.results << "Overall blocks outline (reasonable stack outline):" << std::endl;
-			this->IO_conf.results << " x = " << x << std::endl;
-			this->IO_conf.results << " y = " << y << std::endl;
+			std::cout << "Corblivar> Overall blocks outline (final die outline):" << std::endl;
+			std::cout << "Corblivar>  w [um] = " << this->IC.outline_x << std::endl;
+			std::cout << "Corblivar>  h [um] = " << this->IC.outline_y << std::endl;
+			std::cout << "Corblivar>  A [cm^2] = " << this->IC.die_area * 1.0e-8 << std::endl;
+			this->IO_conf.results << "Overall blocks outline (final die outline):" << std::endl;
+			this->IO_conf.results << " w [um] = " << this->IC.outline_x << std::endl;
+			this->IO_conf.results << " h [um] = " << this->IC.outline_y << std::endl;
+			this->IO_conf.results << " A [cm^2] = " << this->IC.die_area * 1.0e-8 << std::endl;
 			this->IO_conf.results << std::endl;
 
 			if (this->opt_flags.alignment) {
@@ -568,16 +653,30 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << std::endl;
 			}
 
+			std::cout << "Corblivar> Total power for blocks, wires and TSVs [W]: " << cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+			this->IO_conf.results << "Total power for blocks, wires and TSVs [W]: " << cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+			this->IO_conf.results << std::endl;
+
 			std::cout << "Corblivar> HPWL: " << cost.HPWL_actual_value << std::endl;
 			this->IO_conf.results << "HPWL: " << cost.HPWL_actual_value << std::endl;
 			this->IO_conf.results << std::endl;
 
-			std::cout << "Corblivar> Max routing utilization: " << cost.routing_util_actual_value << std::endl;
-			this->IO_conf.results << "Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+			std::cout << "Corblivar>  Power for HPWL [W]: " << cost.power_wires << std::endl;
+			this->IO_conf.results << " Power for HPWL [W]: " << cost.power_wires << std::endl;
 			this->IO_conf.results << std::endl;
+
+			if (this->opt_flags.routing_util) {
+				std::cout << "Corblivar> Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+				this->IO_conf.results << "Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+				this->IO_conf.results << std::endl;
+			}
 
 			std::cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << std::endl;
 			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << std::endl;
+
+			std::cout << "Corblivar>  Power for TSVs [W]: " << cost.power_TSVs << std::endl;
+			this->IO_conf.results << " Power for TSVs [W]: " << cost.power_TSVs << std::endl;
+			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar>  TSV islands: " << this->TSVs.size() << std::endl;
 			this->IO_conf.results << " TSV islands: " << this->TSVs.size() << std::endl;
@@ -641,40 +740,44 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar> Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 				this->IO_conf.results << "Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
 
-				if (cost.timing_actual_value > this->IC.delay_threshold) {
-					std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
-					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
-					std::cout << " / ";
-					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-					std::cout << std::endl;
+				// always display violation, also when it's negative
+				// (i.e., timing better than constraint)
+				std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
+				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+				std::cout << " / ";
+				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				std::cout << std::endl;
+				// is adapted dynamically for voltage assignment
+				std::cout << "Corblivar>   Current timing threshold: " << this->IC.delay_threshold << std::endl;
 
-					this->IO_conf.results << " Timing violation ([ns] / [%]): ";
-					this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
-					this->IO_conf.results << " / ";
-					this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-					this->IO_conf.results << std::endl;
-				}
-
+				this->IO_conf.results << " Timing violation ([ns] / [%]): ";
+				this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
+				this->IO_conf.results << " / ";
+				this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				this->IO_conf.results << std::endl;
+				// is adapted dynamically for voltage assignment
+				this->IO_conf.results << "  Current timing threshold: " << this->IC.delay_threshold << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
 			if (this->opt_flags.voltage_assignment) {
 
-				if (cost.timing_actual_value < this->IC.delay_threshold) {
-					std::cout << "Corblivar> Voltage assignment successful: " << std::endl;
-					this->IO_conf.results << "Voltage assignment successful: " << std::endl;
-				}
-				else {
-					std::cout << "Corblivar> Voltage assignment successful (but suffers from general timing violation): " << std::endl;
-					this->IO_conf.results << "Voltage assignment successful (but suffers from general timing violation): " << std::endl;
-				}
-
-				std::cout << "Corblivar>  Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				std::cout << "Corblivar> Voltage assignment: " << std::endl;
+				std::cout << "Corblivar>  Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				std::cout << "Corblivar>   Total power (blocks, wires, TSVs) after power reduction [W]: "
+					<< cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+				std::cout << "Corblivar>   Total power (blocks, wires, TSVs) before power reduction [W]: "
+					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
 				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
-				this->IO_conf.results << " Power reduction [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				this->IO_conf.results << "Voltage assignment: " << std::endl;
+				this->IO_conf.results << " Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				this->IO_conf.results << "  Total power (blocks, wires, TSVs) after power reduction [W]: "
+					<< cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
+				this->IO_conf.results << "  Total power (blocks, wires, TSVs) before power reduction [W]: "
+					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
 				this->IO_conf.results << "  Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
@@ -803,14 +906,16 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// note that interconnects will be always evaluated, even if they are not
 		// optimized; they are a key criterion to be reported
 		if (finalize) {
-			this->evaluateInterconnects(cost, alignments, true);
+			this->evaluateInterconnects(cost, this->IC.frequency, alignments, true, true);
 		}
 		else if (this->opt_flags.interconnects) {
-			this->evaluateInterconnects(cost, alignments, set_max_cost);
+			this->evaluateInterconnects(cost, this->IC.frequency, alignments, set_max_cost);
 		}
 		// no optimization considered, reset cost to zero
 		else {
 			cost.HPWL = cost.HPWL_actual_value = 0.0;
+			cost.power_wires = cost.power_TSVs = cost.power_blocks = 0.0;
+			cost.max_power_wires = cost.max_power_TSVs = 0.0;
 			cost.routing_util = cost.routing_util_actual_value = 0.0;
 			cost.TSVs = cost.TSVs_actual_value = 0;
 			cost.TSVs_area_deadspace_ratio = 0.0;
@@ -892,7 +997,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// TSV clustering
 		if (finalize) {
 
-			this->evaluateInterconnects(cost, alignments);
+			this->evaluateInterconnects(cost, this->IC.frequency, alignments, false, true);
 
 			if (this->opt_flags.alignment) {
 				this->evaluateAlignments(cost, alignments, true, false, true);
@@ -1035,6 +1140,16 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		std::cout << "-> FloorPlanner::evaluateVoltageAssignment()" << std::endl;
 	}
 
+	// iteratively reduce the timing constraint stepwise if possible; this way,
+	// chances for actually meeting the timing constraints during further SA
+	// iterations will reduce which, in turn, will reduce the required
+	// iterations/computation for voltage assignment since it's skipped in case timing
+	// is violated
+	//
+	if (!finalize && cost.fits_fixed_outline && cost.timing_actual_value < this->IC.delay_threshold) {
+		this->IC.delay_threshold = cost.timing_actual_value;
+	}
+
 	// derive applicable voltages for each block; lower voltages are applicable as
 	// long as the delay threshold would not be violated by doing so
 	//
@@ -1141,12 +1256,16 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 
-	// generate power maps based on layout and blocks' power densities
-	this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
-			this->getOutline(), this->power_blurring_parameters);
+	// generate power maps based on layout and blocks' power densities; only required
+	// here if interconnects are not evaluated, otherwise this is already done in
+	// evaluateInterconnects()
+	if (!this->opt_flags.interconnects) {
+		this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
+				this->getOutline(), this->power_blurring_parameters);
+	}
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMaps(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
@@ -1220,15 +1339,15 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	// cost for AR mismatch, considering max violation guides towards fixed outline
 	cost_outline = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_outline = std::max(cost_outline, std::pow(dies_AR[i] - this->IC.die_AR, 2.0));
+		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
 	// determine cost function value
 	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
 
-	// cost for area, considering max value of (blocks-outline area) / (die-outline
-	// area) guides towards balanced die occupation and area minimization
+	// cost for area, considering max value of blocks-area die-area ratio; guides
+	// towards balanced die occupation and area minimization
 	cost_area = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
 		cost_area = std::max(cost_area, dies_area[i]);
@@ -1246,22 +1365,25 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	}
 }
 
-void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost) {
+void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const& frequency, std::vector<CorblivarAlignmentReq> const& alignments, bool const& set_max_cost, bool const& finalize) {
 	int i;
 	std::vector<Rect const*> blocks_to_consider;
 	std::vector< std::vector<Clustering::Segments> > nets_segments;
 	Rect bb, prev_bb;
 	double prev_TSVs;
 	double net_weight;
-	bool shift;
 	RoutingUtilization::UtilResult util;
+	double WL_largest_net;
+	double WL_cur_net;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
-		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << &alignments << ", " << set_max_cost << ")" << std::endl;
+		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << frequency << ", " << &alignments << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
 	}
 
 	// reset cost terms
 	cost.HPWL = cost.HPWL_actual_value = 0.0;
+	cost.power_wires = cost.power_TSVs = cost.power_blocks = 0.0;
+	cost.max_power_wires = cost.max_power_TSVs = 0.0;
 	cost.routing_util = cost.routing_util_actual_value = 0.0;
 	cost.TSVs = cost.TSVs_actual_value = 0;
 	cost.TSVs_area_deadspace_ratio = 0.0;
@@ -1269,13 +1391,17 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// reset TSVs
 	this->TSVs.clear();
 
-	// reset TSVs also from nets
-	for (Net& cur_net : this->nets) {
-		cur_net.TSVs.clear();
+	// reset routing-utilization estimation
+	if (this->opt_flags.routing_util) {
+		this->routingUtil.resetUtilMaps(this->IC.layers);
 	}
 
-	// reset routing-utilization estimation
-	this->routingUtil.resetUtilMaps(this->IC.layers);
+	// generate power maps based on layout and blocks' power densities; already
+	// required at this point in order to track power consumption in wires
+	if (this->opt_flags.thermal) {
+		this->thermalAnalyzer.generatePowerMaps(this->IC.layers, this->blocks,
+				this->getOutline(), this->power_blurring_parameters);
+	}
 
 	// allocate vector for blocks to be considered
 	blocks_to_consider.reserve(this->blocks.size());
@@ -1284,15 +1410,20 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 		nets_segments.emplace_back(std::vector<Clustering::Segments>());
 	}
 
+	WL_largest_net = WL_cur_net = 0.0;
+
 	// determine HPWL and TSVs for each net
+	//
 	for (Net& cur_net : this->nets) {
 
-		// set layer boundaries, i.e., determine lowest and uppermost layer of
-		// net's blocks
-		cur_net.setLayerBoundaries();
+		// reset TSVs also from nets
+		cur_net.TSVs.clear();
 
-		// determine net weight, for routing-utilization estimation across
-		// multiple layers
+		// reset set layer boundaries, i.e., determine lowest and uppermost layer
+		cur_net.resetLayerBoundaries();
+
+		// determine net weight, for routing-utilization and wire-power estimation
+		// across multiple layers
 		net_weight = 1.0 / (cur_net.layer_top + 1 - cur_net.layer_bottom);
 
 		if (Net::DBG) {
@@ -1311,7 +1442,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				blocks_to_consider.push_back(&b->bb);
 			}
 
-			// also consider routes to terminal pins
+			// consider routes to terminal pins
 			for (Pin const* pin :  cur_net.terminals) {
 				blocks_to_consider.push_back(&pin->bb);
 			}
@@ -1319,20 +1450,46 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			// determine HPWL of related blocks using their bounding box;
 			// consider center points of blocks instead their whole outline
 			bb = Rect::determBoundingBox(blocks_to_consider, true);
-			cost.HPWL += bb.w;
-			cost.HPWL += bb.h;
+			WL_cur_net = (bb.w + bb.h);
+			cost.HPWL += WL_cur_net;
 
-			// consider impact on routing-utilization; only in case clustering
-			// is not applied (otherwise this is only done after clustering)
-			//
-			// before TSVs are placed, the net shall impact the routing
-			// utilization on all affected layers but with accordingly
-			// down-scaled weight
-			if (!this->layoutOp.parameters.signal_TSV_clustering) {
+			// memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
 
-				for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+			// update power values accordingly, only for driver nets, i.e., no
+			// input nets
+			if (!cur_net.inputNet) {
 
+				cost.power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency);
+				cost.max_power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage_max(), frequency);
+
+				// also update TSV power values accordingly to TSV count
+				cost.power_TSVs += (cur_net.layer_top - cur_net.layer_bottom) * TimingPowerAnalyser::powerTSV(cur_net.source->voltage(), frequency);
+				cost.max_power_TSVs += (cur_net.layer_top - cur_net.layer_bottom) * TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
+			}
+
+			// consider impact on routing-utilization; before TSVs are placed,
+			// the net shall impact the routing utilization on all affected
+			// layers but with accordingly down-scaled weight
+			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
+
+				if (this->opt_flags.routing_util) {
 					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+				}
+				// the power maps have to be adapted similarly; this way,
+				// the wires' power is tracked (but not for input nets)
+				if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+							// the wire's power, to be
+							// reflected in layer i, is scaled
+							// according the net_weight
+							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+						);
 				}
 			}
 
@@ -1349,13 +1506,22 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			// a non-empty bb can be constructed
 
 			// determine HPWL on each related layer separately
+			WL_cur_net = 0.0;
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine HPWL using the net's bounding box on the
 				// current layer
 				bb = cur_net.determBoundingBox(i);
-				cost.HPWL += bb.w;
-				cost.HPWL += bb.h;
+				WL_cur_net += (bb.w + bb.h);
+
+				// update power values accordingly, only for driver nets,
+				// i.e., no input nets
+				if (!cur_net.inputNet) {
+					cost.power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency);
+					cost.max_power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage_max(), frequency);
+					cost.power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage(), frequency);
+					cost.max_power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
+				}
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL of bounding box of blocks (in current and possibly upper layers) to consider: " << (bb.w + bb. h) << std::endl;
@@ -1365,7 +1531,10 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 				// namely for nets w/o blocks on the currently considered
 				// layer. Then, we need to consider the non-empty box from
 				// one of the layers below in order to provide a
-				// reasonable net's bb
+				// reasonable net's bb; note that this bb is only required
+				// for clustering and routing-utilization estimation
+				// below, not the actual HWPL calculation
+				//
 				if (bb.area == 0.0) {
 					bb = prev_bb;
 				}
@@ -1402,7 +1571,22 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 					// for ignored clustering, the net shall impact
 					// the routing utilization on all affected layers
 					// but with accordingly down-scaled weight
-					this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					if (this->opt_flags.routing_util) {
+						this->routingUtil.adaptUtilMap(i, bb, net_weight);
+					}
+					// the power maps have to be adapted similarly;
+					// this way, the wires' power is tracked (but not
+					// for input nets)
+					if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+						this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+								// the wire's power, to be
+								// reflected in layer i,
+								// is scaled according the
+								// net_weight
+								TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+							);
+					}
 
 					// place dummy TSVs in all but uppermost affected
 					// layer; required for proper thermal simulation
@@ -1412,7 +1596,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 						// define new trivial island, with one TSV
 						this->TSVs.emplace_back(TSV_Island(
 								// net id and layer
-								std::string("net_" + std::to_string(cur_net.id) + "_" + std::to_string(i)),
+								std::string("net_" + cur_net.id + "_" + std::to_string(i)),
 								// one TSV count
 								1,
 								// TSV pitch; required for proper scaling
@@ -1425,66 +1609,70 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 								i
 							));
 
-						// here, greedy shifting is ignored for simplicity and runtime
+						// perform greedy shifting in case new
+						// island overlaps with any previous one;
 						//
-
-						// perform greedy shifting in case new island
-						// overlaps with any previous one
+						// shifting is only applied for finalize
+						// calls; to obtain valid layouts; during
+						// SA iterations, ignoring shifting
+						// ``only'' results in some estimation
+						// errors for connecting to TSVs
 						//
-						TSV_Island& island = this->TSVs.back();
-						shift = true;
-
-						while (shift) {
-
-							shift = false;
-
-							for (TSV_Island const& prev_island : this->TSVs) {
-
-								if (prev_island.layer != island.layer) {
-									continue;
-								}
-								if (prev_island.id == island.id) {
-									continue;
-								}
-
-								if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
-
-									// shift only the
-									// new TSV
-									Rect::greedyShiftingRemoveIntersection(island.bb, prev_island.bb, true);
-
-									shift = true;
-								}
-							}
+						if (finalize) {
+							TSV_Island::greedyShifting(this->TSVs.back(), this->TSVs);
 						}
 					}
 				}
 			}
+
+			// also consider lengths of (regular signal) TSVs in HPWL; each
+			// TSV has to pass the whole Si layer and the bonding layer
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+			// memorize cost/HPWL for this net
+			cost.HPWL += WL_cur_net;
+
+			// also memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
+
+			if (Net::DBG) {
+				std::cout << "DBG_NET>  Largest net (before clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
+			}
 		}
 
+		// determine TSV count in any case, since this value is not related to
+		// the HPWL estimate
 		if (Net::DBG) {
 			prev_TSVs = cost.TSVs;
 		}
-
-		// determine TSV count
 		cost.TSVs += cur_net.layer_top - cur_net.layer_bottom;
-
 		if (Net::DBG) {
 			std::cout << "DBG_NET>  TSVs required: " << cost.TSVs - prev_TSVs << std::endl;
 		}
 	}
 
-	// perform clustering of regular signal TSVs into TSV islands
+	// perform clustering of regular signal TSVs into TSV islands, if activated; also
+	// not be performed for trivial HPWL estimates
 	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
 
 		// actual clustering
-		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->IC.TSV_per_cluster_limit, this->thermal_analysis);
 
 		// after clustering, we can obtain a more accurate wirelength and
 		// routing-utilization estimation by considering TSVs' positions as well
 		//
 		// reset previous HPWL
 		cost.HPWL = 0.0;
+		WL_largest_net = 0.0;
+		// reset previous power
+		cost.power_wires = cost.power_TSVs = 0.0;
+		cost.max_power_wires = cost.max_power_TSVs = 0.0;
+		// note that previous routing util and power for wires doesn't require
+		// resets, since they are only affected now, during clustering itself
 
 		// determine HPWL for each net
 		for (Net& cur_net : this->nets) {
@@ -1494,23 +1682,59 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 			}
 
 			// determine HPWL on each related layer separately
+			//
+			WL_cur_net = 0.0;
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine the net's bounding box on the current layer
 				bb = cur_net.determBoundingBox(i);
+				WL_cur_net += (bb.w + bb.h);
 
-				// add HPWL of bb to cost
-				cost.HPWL += bb.w;
-				cost.HPWL += bb.h;
+				// update power values accordingly, only for driver nets,
+				// i.e., no input nets
+				if (!cur_net.inputNet) {
+					cost.power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency);
+					cost.max_power_wires += TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage_max(), frequency);
+					cost.power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage(), frequency);
+					cost.max_power_TSVs += TimingPowerAnalyser::powerTSV(cur_net.source->voltage_max(), frequency);
+				}
 
 				// update related routing-utilization map; each single net
 				// has default weight of 1.0
-				this->routingUtil.adaptUtilMap(i, bb, 1.0);
+				if (this->opt_flags.routing_util) {
+					this->routingUtil.adaptUtilMap(i, bb, 1.0);
+				}
+				// the power maps have to be adapted similarly; this way,
+				// the wires' power is tracked (but not for input nets)
+				if (this->opt_flags.thermal && !cur_net.inputNet) {
+
+					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency)
+						);
+				}
 
 				if (Net::DBG) {
 					std::cout << "DBG_NET> 		HPWL to consider: " << (bb.w + bb. h) << std::endl;
 				}
 			}
+
+			// also consider lengths of (regular signal) TSVs in HPWL; each
+			// TSV has to pass the whole Si layer and the bonding layer
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+
+			// add HPWL of net to cost
+			cost.HPWL += WL_cur_net;
+
+			// also memorize largest individual net, to be used for guided
+			// layout operations
+			if (WL_cur_net > WL_largest_net) {
+				WL_largest_net = WL_cur_net;
+				this->layoutOp.parameters.largest_net = &cur_net;
+			}
+		}
+
+		if (Net::DBG) {
+			std::cout << "DBG_NET>  Largest net (after clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
 		}
 	}
 	
@@ -1519,23 +1743,25 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// evaluateAlignments(); also note that this rough estimate is only required if
 	// alignments are not directly optimized, otherwise the HPWL and utilization
 	// estimation in evaluateAlignments() is more precise
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment) {
+	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment_WL_estimate) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
-	}
-
-	// also consider lengths of (regular signal) TSVs in HPWL; each TSV has to pass
-	// the whole Si layer and the bonding layer
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
-		cost.HPWL += cost.TSVs * (this->IC.die_thickness + this->IC.bond_thickness);
 	}
 
 	// determine by TSVs occupied deadspace amount
 	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// determine routing utilization
-	util = this->routingUtil.determCost();
-	cost.routing_util = util.cost;
-	cost.routing_util_actual_value = util.max_util;
+	if (this->opt_flags.routing_util) {
+		util = this->routingUtil.determCost();
+		cost.routing_util = util.cost;
+		cost.routing_util_actual_value = util.max_util;
+	}
+
+	// determine blocks' power consumption
+	cost.power_blocks = 0.0;
+	for (Block const& b : this->blocks) {
+		cost.power_blocks += b.power();
+	}
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
@@ -1551,12 +1777,16 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 	// normalized values; max value refers to initial sampling, thus sanity check for
 	// zero cost is not required
 	cost.HPWL /= this->max_cost_WL;
-	cost.routing_util /= this->max_cost_routing_util;
 
 	// sanity check for normalizing TSVs cost; zero max cost applies to 2D
 	// floorplanning
 	if (this->max_cost_TSVs != 0) {
 		cost.TSVs /= this->max_cost_TSVs;
+	}
+	// sanity check for normalizing routing util cost; zero max cost may arise when
+	// routing util is not evaluated
+	if (this->max_cost_routing_util != 0) {
+		cost.routing_util /= this->max_cost_routing_util;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1566,12 +1796,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, std::vector<C
 
 // costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
 // note that this function also marks requests as failed or successful
+//
+// (TODO) account for power consumption in these wires and resulting TSVs
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb, routing_bb;
 	int prev_TSVs;
 	int layer, min_layer, max_layer;
 	CorblivarAlignmentReq::Evaluate eval;
-	bool shift;
 	RoutingUtilization::UtilResult util;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1601,7 +1832,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 			// update related routing-utilization map; weight according to
 			// signals' count
-			this->routingUtil.adaptUtilMap(req.s_i->layer, routing_bb, req.signals);
+			if (this->opt_flags.routing_util) {
+				this->routingUtil.adaptUtilMap(req.s_i->layer, routing_bb, req.signals);
+			}
 		}
 
 		// derive TSVs for vertical buses if desired or for finalize runs
@@ -1621,7 +1854,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 				// however, block alignments with respect to RBOD (since
 				// RBOD layer is -1 and RBOD.bb is zero, they will be
 				// triggered here) should be ignored as well
-				if (req.s_i->id != RBOD::ID && req.s_j->id != RBOD::ID) {
+				if (req.s_i->numerical_id != RBOD::NUMERICAL_ID && req.s_j->numerical_id != RBOD::NUMERICAL_ID) {
 
 					// here, we consider the blocks' bounding box for
 					// guiding placement of the required TSV island
@@ -1659,30 +1892,12 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							// alignment requirement
 							req.vertical_bus() ? req.alignment_x : -1.0
 						));
+					TSV_Island& island = this->TSVs.back();
 
 					// perform greedy shifting in case new island
 					// overlaps with any previous one
 					//
-					TSV_Island& island = this->TSVs.back();
-					shift = true;
-
-					while (shift) {
-
-						shift = false;
-
-						for (TSV_Island const& prev_island : this->TSVs) {
-
-							if (prev_island.layer != island.layer) {
-								continue;
-							}
-
-							if (Rect::rectsIntersect(prev_island.bb, island.bb)) {
-
-								Rect::greedyShiftingRemoveIntersection(prev_island.bb, island.bb);
-								shift = true;
-							}
-						}
-					}
+					TSV_Island::greedyShifting(island, this->TSVs);
 
 					// determine the HPWL components and routing
 					// utilization; net segments are to be considered
@@ -1706,7 +1921,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-utilization map;
 						// weight according to signals' count
-						this->routingUtil.adaptUtilMap(layer, routing_bb, req.signals);
+						if (this->opt_flags.routing_util) {
+							this->routingUtil.adaptUtilMap(layer, routing_bb, req.signals);
+						}
 					}
 					// the TSV itself is not placed on the topmost
 					// layer, but rather the one below; the routing
@@ -1731,7 +1948,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 						// update related routing-utilization map;
 						// weight according to signals' count
-						this->routingUtil.adaptUtilMap(layer + 1, routing_bb, req.signals);
+						if (this->opt_flags.routing_util) {
+							this->routingUtil.adaptUtilMap(layer + 1, routing_bb, req.signals);
+						}
 					}
 
 					// also update global TSV counter accordingly
@@ -1753,9 +1972,11 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// update routing utilization
-	util = this->routingUtil.determCost();
-	cost.routing_util = util.cost;
-	cost.routing_util_actual_value = util.max_util;
+	if (this->opt_flags.routing_util) {
+		util = this->routingUtil.determCost();
+		cost.routing_util = util.cost;
+		cost.routing_util_actual_value = util.max_util;
+	}
 
 	// consider lengths of additional TSVs in HPWL; each TSV has to pass the
 	// whole Si layer and the bonding layer
@@ -1776,7 +1997,9 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// update normalized routing utilization
-	cost.routing_util /= this->max_cost_routing_util;
+	if (this->max_cost_routing_util != 0) {
+		cost.routing_util /= this->max_cost_routing_util;
+	}
 
 	// update normalized TSV cost; sanity check for zero TSVs cost; applies to
 	// 2D floorplanning
@@ -1799,6 +2022,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 // separate determination of alignments' HPWL which is called from evaluateInterconnects;
 // this way, the HPWL components of alignments are always (for active WL optimization)
 // considered
+//
+// (TODO) account for power consumption in these wires and resulting TSVs
 double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;
 	double HPWL = 0.0;
@@ -1831,18 +2056,20 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 		//bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
 
-		// consider rough estimate for routing utilization: spread across all
-		// affected layers
-		min_layer = std::min(req.s_i->layer, req.s_j->layer);
-		max_layer = std::max(req.s_i->layer, req.s_j->layer);
-		// determine net weight, for routing-utilization estimation across
-		// multiple layers
-		net_weight = 1.0 / (max_layer + 1 - min_layer);
+		if (this->opt_flags.routing_util) {
+			// consider rough estimate for routing utilization: spread across all
+			// affected layers
+			min_layer = std::min(req.s_i->layer, req.s_j->layer);
+			max_layer = std::max(req.s_i->layer, req.s_j->layer);
+			// determine net weight, for routing-utilization estimation across
+			// multiple layers
+			net_weight = 1.0 / (max_layer + 1 - min_layer);
 
-		for (int layer = min_layer; layer <= max_layer; layer++) {
-			// update routing-utilization map; consider both (by layer count
-			// down-scaled) net weight and signal count
-			this->routingUtil.adaptUtilMap(layer, bb, net_weight * req.signals);
+			for (int layer = min_layer; layer <= max_layer; layer++) {
+				// update routing-utilization map; consider both (by layer count
+				// down-scaled) net weight and signal count
+				this->routingUtil.adaptUtilMap(layer, bb, net_weight * req.signals);
+			}
 		}
 
 		// determine by signal count weighted HPWL

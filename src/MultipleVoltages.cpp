@@ -108,6 +108,9 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	}
 }
 
+// (TODO) final selection, even for merge_selected_modules applied, contains some enclosed
+// or nearby/contiguous modules which could be easily and without additional cost be
+// merged into other, larger modules
 std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(bool const& merge_selected_modules) {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
@@ -699,6 +702,18 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// we have to ignore any neighbour which is already comprised in the
 		// module itself
 		if (module.block_ids[n.block->numerical_id] == true) {
+			continue;
+		}
+		// also, for reasons of reducing computational complexity, no transitively
+		// contiguous neighbours across more than two adjacent dies are considered
+		//
+		// note that all possible inter-die contiguous neighbours between any pair
+		// of adjacent dies were previously determined during
+		// ContiguityAnalysis::analyseBlocks, and by allowing new neighbours to be
+		// within the same die, all possible combinations of transitively
+		// contiguous modules among adjacent dies are still captured, i.e., final
+		// modules may still span more than two dies
+		if (n.block->layer != neighbour->block->layer) {
 			continue;
 		}
 

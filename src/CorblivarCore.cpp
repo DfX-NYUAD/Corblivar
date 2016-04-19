@@ -226,7 +226,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 						}
 
 						// determine other block of request
-						if (cur_req->s_i->id == cur_block->id) {
+						if (cur_req->s_i->numerical_id == cur_block->numerical_id) {
 							other_block = cur_req->s_j;
 						}
 						else {
@@ -281,7 +281,7 @@ bool CorblivarCore::generateLayout(bool const& perform_alignment) {
 							// request; only applicable for
 							// regular blocks, i.e., for RBOD,
 							// continue on current die
-							if (other_block->id != RBOD::ID) {
+							if (other_block->numerical_id != RBOD::NUMERICAL_ID) {
 								this->p = &this->dies[other_block->layer];
 							}
 
@@ -575,7 +575,7 @@ bool CorblivarCore::alignBlocks(CorblivarAlignmentReq const* req) {
 		// sanity check for diff b/w current CBL tuple and current block; that's
 		// happening when the block to be shifted is not the current block, i.e.,
 		// a block to be processed later on; thus, we skip the alignment for now
-		if (b1->id != die_b1->getCurrentBlock()->id) {
+		if (b1->numerical_id != die_b1->getCurrentBlock()->numerical_id) {
 
 			if (CorblivarAlignmentReq::DBG_LAYOUT_GENERATION) {
 				std::cout << "DBG_ALIGNMENT>     Shift block is not current block; abort alignment" << std::endl;
@@ -753,7 +753,7 @@ std::vector<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block
 	// determine requests covering the given block
 	for (CorblivarAlignmentReq const& req : this->A) {
 
-		if (req.s_i->id == b->id || req.s_j->id == b->id) {
+		if (req.s_i->numerical_id == b->numerical_id || req.s_j->numerical_id == b->numerical_id) {
 
 			// only consider request which are still in
 			// process, i.e., not both blocks are placed yet

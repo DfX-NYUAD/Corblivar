@@ -82,6 +82,7 @@ class FloorPlanner {
 			double bond_thickness;
 			double TSV_dimension;
 			double TSV_pitch;
+			int TSV_per_cluster_limit;
 			// Cu-Si area ratio for TSV groups
 			double TSV_group_Cu_Si_ratio;
 			// Cu area fraction for TSV groups
@@ -89,12 +90,15 @@ class FloorPlanner {
 
 			// global delay threshold
 			double delay_threshold;
+			// the achievable frequency is derived from this delay
+			// threshold/constraint: f = 1.0 / delay
+			double frequency;
 
 		} IC;
 
 		// IO files and parameters
 		struct IO_conf {
-			std::string blocks_file, alignments_file, pins_file, power_density_file, nets_file, solution_file;
+			std::string blocks_file, GT_fp_file, alignments_file, pins_file, GT_pins_file, power_density_file, GT_power_file, nets_file, solution_file;
 			std::ofstream results, solution_out;
 			std::ifstream solution_in;
 			// flag whether power density file is available / was handled /
@@ -103,6 +107,8 @@ class FloorPlanner {
 			bool power_density_file_avail;
 			// similar flags for other files
 			bool alignments_file_avail;
+			// flag whether benchmark is in GATech syntax/format or not
+			bool GT_benchmark;
 		} IO_conf;
 
 		// benchmark name
@@ -135,7 +141,7 @@ class FloorPlanner {
 
 		// SA parameters: optimization flags
 		struct opt_flags {
-			bool thermal, interconnects, alignment, voltage_assignment, timing;
+			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing, alignment_WL_estimate;
 		} opt_flags;
 
 		// SA parameters: cost factors/weights
@@ -154,6 +160,11 @@ class FloorPlanner {
 			double total_cost_fitting;
 			double HPWL;
 			double HPWL_actual_value;
+			double power_wires;
+			double power_TSVs;
+			double max_power_wires;
+			double max_power_TSVs;
+			double power_blocks;
 			double routing_util;
 			double routing_util_actual_value;
 			// requires double since it contains normalized values
@@ -200,9 +211,10 @@ class FloorPlanner {
 		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments);
 		void evaluateAreaOutline(Cost& cost,
 				double const& fitting_layouts_ratio = 0.0) const;
-		void evaluateInterconnects(Cost& cost,
+		void evaluateInterconnects(Cost& cost, double const& frequency,
 				std::vector<CorblivarAlignmentReq> const& alignments,
-				bool const& set_max_cost = false);
+				bool const& set_max_cost = false,
+				bool const& finalize = false);
 		void evaluateTiming(Cost& cost,
 				bool const& set_max_cost = false,
 				bool reevaluation = false);
@@ -238,7 +250,7 @@ class FloorPlanner {
 
 		// SA: reheating parameters, for SA phase 3
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
-		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-3;
+		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-4;
 
 		// layout-generation handler
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment = false);
@@ -361,29 +373,43 @@ class FloorPlanner {
 
 		// additional helper
 		//
-		inline void resetDieProperties(double const& outline_x, double const& outline_y) {
+		inline Point shrinkDieOutlines() {
+			Point outline;
 
-			// reset outline
-			this->IC.outline_x = outline_x;
-			this->IC.outline_y = outline_y;
+			// determine blocks outline across; reasonable common die outline
+			// for whole 3D-IC stack
+			for (Block const& b : this->blocks) {
+				outline.x = std::max(outline.x, b.bb.ur.x);
+				outline.y = std::max(outline.y, b.bb.ur.y);
+			}
 
-			// this also requires to reset the power maps setting
-			this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
+			// now, shrink fixed outline considering reasonable die outline;
+			// only if current blocks-outline is smaller than previous outline
+			if (outline.x < this->IC.outline_x && outline.y < this->IC.outline_y) {
 
-			// and the routing-estimation maps have to be reset as well
-			this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
+				this->IC.outline_x = outline.x;
+				this->IC.outline_y = outline.y;
 
-			// reset related die properties
-			this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
-			this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
-			this->IC.stack_area = this->IC.layers * this->IC.die_area;
-			this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
+				// also reset the power maps setting
+				this->thermalAnalyzer.initPowerMaps(this->IC.layers, this->getOutline());
 
-			// rescale terminal pins' locations
-			this->scaleTerminalPins();
+				// and the routing-estimation maps have to be reset as well
+				this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
+
+				// reset related die properties
+				this->IC.die_AR = this->IC.outline_x / this->IC.outline_y;
+				this->IC.die_area = this->IC.outline_x * this->IC.outline_y;
+				this->IC.stack_area = this->IC.layers * this->IC.die_area;
+				this->IC.stack_deadspace = this->IC.stack_area - this->IC.blocks_area;
+
+				// rescale terminal pins' locations
+				this->scaleTerminalPins(outline);
+			}
+
+			return outline;
 		}
 
-		inline void scaleTerminalPins() {
+		inline void scaleTerminalPins(Point outline) {
 			double pins_scale_x, pins_scale_y;
 
 			// scale terminal pins; first determine original pins outline
@@ -392,9 +418,9 @@ class FloorPlanner {
 				pins_scale_x = std::max(pins_scale_x, pin.bb.ll.x);
 				pins_scale_y = std::max(pins_scale_y, pin.bb.ll.y);
 			}
-			// scale terminal pins; scale pin coordinates according to die outline
-			pins_scale_x = this->IC.outline_x / pins_scale_x;
-			pins_scale_y = this->IC.outline_y / pins_scale_y;
+			// scale terminal pins; scale pin coordinates according to given outline
+			pins_scale_x = outline.x / pins_scale_x;
+			pins_scale_y = outline.y / pins_scale_y;
 			for (Pin& pin : this->terminals) {
 				pin.bb.ll.x *= pins_scale_x;
 				pin.bb.ll.y *= pins_scale_y;

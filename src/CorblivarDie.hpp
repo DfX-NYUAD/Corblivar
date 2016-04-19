@@ -144,7 +144,7 @@ class CorblivarDie {
 
 			for (index = 0; index < this->CBL.S.size(); index++) {
 
-				if (block->id == this->CBL.S[index]->id) {
+				if (block->numerical_id == this->CBL.S[index]->numerical_id) {
 					return index;
 				}
 			}

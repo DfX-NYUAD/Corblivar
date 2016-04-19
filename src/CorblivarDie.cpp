@@ -125,7 +125,7 @@ bool CorblivarDie::debugLayout() const {
 
 			// ignore in outer loop checked blocks; start inner loop
 			// after current block is self-checked
-			if (a->id == b->id) {
+			if (a->numerical_id == b->numerical_id) {
 				flag_inner = true;
 				continue;
 			}
@@ -190,7 +190,7 @@ void CorblivarDie::updatePlacementStacks(std::list<Block const*>& relev_blocks_s
 
 		std::cout << "; relevant blocks: ";
 		for (Block const* b : relev_blocks_stack) {
-			if (b->id != relev_blocks_stack.back()->id) {
+			if (b->numerical_id != relev_blocks_stack.back()->numerical_id) {
 				std::cout << b->id << ", ";
 			}
 			else {
@@ -296,7 +296,7 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 
 		std::cout << "; relevant blocks: ";
 		for (Block const* b : relev_blocks_stack) {
-			if (b->id != relev_blocks_stack.back()->id) {
+			if (b->numerical_id != relev_blocks_stack.back()->numerical_id) {
 				std::cout << b->id << ", ";
 			}
 			else {
@@ -691,7 +691,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 	shifted = false;
 
 	// first, determine reference block
-	if (shift_block->id == req->s_i->id) {
+	if (shift_block->numerical_id == req->s_i->numerical_id) {
 		reference_block = req->s_j;
 	}
 	else {
@@ -744,7 +744,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// walk all blocks (implicitly ordered such that placed blocks are first)
 			for (unsigned b = 0; b < this->getCBL().size(); b++) {
 
-				if (this->getBlock(b)->id == shift_block->id) {
+				if (this->getBlock(b)->numerical_id == shift_block->numerical_id) {
 					break;
 				}
 				else {
@@ -852,7 +852,7 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 			// walk all blocks (implicitly ordered such that placed blocks are first)
 			for (unsigned b = 0; b < this->getCBL().size(); b++) {
 
-				if (this->getBlock(b)->id == shift_block->id) {
+				if (this->getBlock(b)->numerical_id == shift_block->numerical_id) {
 					break;
 				}
 				else {
@@ -921,9 +921,9 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 }
 
 // note that packing may undermine alignment requests; to avoid this, we call
-// FloorPlanner::determCostAlignment before packing but after layout generation
-// (FloorPlanner::determCostAlignment does annotate alignment success / failure to the
-// blocks themselves)
+// FloorPlanner::evaluateAlignments before packing but after layout generation
+// (FloorPlanner::evaluateAlignments does annotate alignment success / failure to the
+// blocks themselves, via call to CorblivarAlignmentReq::evaluate)
 void CorblivarDie::performPacking(Direction const& dir) {
 	std::vector<Block const*> blocks;
 	std::vector<Block const*>::iterator i1;

@@ -34,13 +34,12 @@
 // compromise. (The most precise, however time-consuming, approach would be to 1) perform
 // the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 // results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
-void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::vector<Segments>::iterator it_seg;
 	std::list<Net*>::iterator it_net;
 	Rect intersection, cluster;
 	bool all_clustered;
-	bool shift;
 	std::map<double, Hotspot, std::greater<double>>::iterator it_hotspot;
 	std::list<Cluster>::iterator it_cluster;
 
@@ -127,9 +126,11 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 								// init enclosing bb with
 								// this initial net
 								(*it_seg).bb,
-								// init hotspot id w/
-								// initial net
-								(*it_seg).net->id
+								// dummy hotspot id, since
+								// cluster is not
+								// associated with any
+								// hotspot yet
+								-1
 							});
 
 						// memorize initial cluster
@@ -173,8 +174,10 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 						}
 					}
 					// cluster is already initialized; try to merge
-					// (further) segments into current cluster
-					else {
+					// (further) segments into current cluster; only
+					// until upper limit of TSVs per cluster is not
+					// reached yet
+					else if (this->clusters[i].back().nets.size() < upper_limit_TSVs) {
 
 						// determine intersection of cluster w/
 						// current segment
@@ -275,24 +278,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 			// perform greedy shifting in case new island overlaps with any
 			// previous one
 			//
-			shift = true;
-			while (shift) {
-
-				shift = false;
-
-				for (TSV_Island const& prev_island : TSVs) {
-
-					if (prev_island.layer != TSVi.layer) {
-						continue;
-					}
-
-					if (Rect::rectsIntersect(prev_island.bb, TSVi.bb)) {
-
-						Rect::greedyShiftingRemoveIntersection(prev_island.bb, TSVi.bb);
-						shift = true;
-					}
-				}
-			}
+			TSV_Island::greedyShifting(TSVi, TSVs);
 
 			// store in global TSVs container
 			TSVs.push_back(TSVi);
@@ -550,11 +536,12 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		// using the base temp, determine gradient
 		cur_hotspot->temp_gradient = cur_hotspot->peak_temp - cur_hotspot->base_temp;
 
-		// determine hotspot score; the score is defined by its peak temp, temp
-		// gradient, and bin count, i.e., measures how ``critical'' the local
-		// maxima is
-		cur_hotspot->score = cur_hotspot->temp_gradient * std::pow(cur_hotspot->peak_temp, 2.0) * cur_hotspot->bins.size() /
-			Clustering::SCORE_NORMALIZATION;
+		// determine hotspot score; the score is defined by its peak temp and temp
+		// gradient, i.e., measures how ``critical'' the local thermal maxima is
+		cur_hotspot->score = cur_hotspot->temp_gradient * std::pow(cur_hotspot->peak_temp, 2.0);
+		// apply normalization such that scores are roughly in the range of
+		// [0..10]
+		cur_hotspot->score /= Clustering::SCORE_NORMALIZATION;
 
 		// determine the (all bins enclosing) bb; this is used to simplify checks
 		// of nets overlapping hotspot regions, but also reduces spatial accuracy
@@ -562,6 +549,16 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 			cur_hotspot->bb = Rect::determBoundingBox(cur_hotspot->bb, (*it1)->bb);
 		}
+
+		// enlarge final bb by 2x, which should increase chances for the
+		// subsequent clustering to match net bounding box with these cluster bbs
+		cur_hotspot->bb.ll.x -= cur_hotspot->bb.w / 2.0;
+		cur_hotspot->bb.ur.x += cur_hotspot->bb.w / 2.0;
+		cur_hotspot->bb.ll.y -= cur_hotspot->bb.h / 2.0;
+		cur_hotspot->bb.ur.y += cur_hotspot->bb.h / 2.0;
+		cur_hotspot->bb.w = cur_hotspot->bb.ur.x - cur_hotspot->bb.ll.x;
+		cur_hotspot->bb.h = cur_hotspot->bb.ur.y - cur_hotspot->bb.ll.y;
+		cur_hotspot->bb.area = cur_hotspot->bb.w * cur_hotspot->bb.h;
 
 		// put hotspot into (temporary) map, which is sorted by the hotspot scores
 		// and later replaces the global map

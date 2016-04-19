@@ -29,6 +29,7 @@
 #include "Rect.hpp"
 #include "Math.hpp"
 #include "MultipleVoltages.hpp"
+#include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 class CorblivarAlignmentReq;
 class ContiguityAnalysis;
@@ -50,8 +51,11 @@ class Block {
 		//
 		double power_density_unscaled;
 		std::vector<double> voltages_power_factors;
-		double base_delay;
+		mutable double base_delay;
 		std::vector<double> voltages_delay_factors;
+
+		// the actual voltage(s) are also required
+		std::vector<double> voltages;
 
 		// delay in [ns]; relates to net delay and currently assigned voltage;
 		// theoretical value to be obtained for given voltage index
@@ -73,7 +77,7 @@ class Block {
 	public:
 		// for any block or derived element which does not specify a regular
 		// numerical id, consider this dummy one
-		static constexpr unsigned DUMMY_NUM_ID = 0;
+		static constexpr int DUMMY_NUM_ID = -1;
 
 		Block(std::string const& id, unsigned numerical_id = DUMMY_NUM_ID) {
 			this->id = id;
@@ -92,7 +96,7 @@ class Block {
 	// public data, functions
 	public:
 		std::string id;
-		unsigned numerical_id;
+		int numerical_id;
 		mutable int layer;
 
 		// flag to monitor placement; also required for alignment handling
@@ -119,12 +123,40 @@ class Block {
 
 		// delay in [ns]; relates to net delay and currently assigned voltage
 		inline double delay() const {
+
+			if (TimingPowerAnalyser::DBG) {
+				std::cout << "DBG_TIMING> Block " << this->id << std::endl;
+				std::cout << "DBG_TIMING>  Net delay: " << this->net_delay_max << std::endl;
+				std::cout << "DBG_TIMING>  Module delay: " << this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index] << std::endl;
+				std::cout << "DBG_TIMING>   Base delay: " << this->base_delay << std::endl;
+				std::cout << "DBG_TIMING>   Voltage delay factors: ";
+				for (unsigned v = 0; v < this->voltages_delay_factors.size(); v++) {
+
+					// last value shall have no tailing comma
+					if (v == this->voltages_delay_factors.size() - 1) {
+						std::cout << this->voltages_delay_factors[v] << std::endl;
+					}
+					else {
+						std::cout << this->voltages_delay_factors[v] << ", ";
+					}
+				}
+				std::cout << "DBG_TIMING>  Assigned voltage (index): " << this->assigned_voltage_index << std::endl;
+			}
+
 			return
 				// the module delay resulting from current voltage
 				// assignment
 				this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index]
 				// the net delay, greater zero for any driving block
 				+ this->net_delay_max;
+		}
+
+		inline double voltage() const {
+			return this->voltages[this->assigned_voltage_index];
+		}
+
+		inline double voltage_max() const {
+			return this->voltages.back();
 		}
 
 		// this delay value is the max value for any net where this block is the
@@ -380,6 +412,10 @@ class TSV_Island : public Block {
 	public:
 		int TSVs_count;
 
+		// limits for AR of TSV island
+		static constexpr double AR_MIN = 0.5;
+		static constexpr double AR_MAX = 2.0;
+
 		// reset TSV group's outline according to area required for given TSVs
 		//
 		// note that the following code does _not_ consider a sanity check where
@@ -388,6 +424,7 @@ class TSV_Island : public Block {
 		// of area is not critical
 		void resetOutline(double TSV_pitch, double width) {
 			double TSV_rows, TSV_cols;
+			double bb_AR;
 			Rect new_bb;
 
 			// if width is given, orient the island's dimension based on that
@@ -395,12 +432,21 @@ class TSV_Island : public Block {
 				new_bb.w = width;
 				new_bb.h = this->TSVs_count * pow(TSV_pitch, 2.0) / width;
 			}
-			// else plan for square island
+			// else account for AR of assigned (reference) bb and the number
+			// of TSVs to cover
 			else {
 				// determine number of TSV rows and cols from number of
-				// required TSVs; define a square TSV island
+				// required TSVs; resembles a square TSV island
 				TSV_rows = std::sqrt(this->TSVs_count);
 				TSV_cols = std::sqrt(this->TSVs_count);
+
+				// account for AR of given bb
+				bb_AR = this->bb.w / this->bb.h;
+				// however, consider only ``reasonable'' AR limits
+				bb_AR = std::max(bb_AR, TSV_Island::AR_MIN);
+				bb_AR = std::min(bb_AR, TSV_Island::AR_MAX);
+				TSV_rows *= bb_AR;
+				TSV_cols /= bb_AR;
 
 				// round up rows and cols, spare TSVs are not as ``bad''
 				// as missing TSVs for signal routing; this way it's also
@@ -436,6 +482,31 @@ class TSV_Island : public Block {
 				std::cout << "(" << this->bb.ur.x << "," << this->bb.ur.y << ")" << std::endl;
 			}
 		}
+
+		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs) {
+			bool shift = true;
+
+			while (shift) {
+
+				shift = false;
+
+				for (TSV_Island const& prev_island : TSVs) {
+
+					if (prev_island.layer != new_island_to_be_shifted.layer) {
+						continue;
+					}
+
+					if (Rect::rectsIntersect(prev_island.bb, new_island_to_be_shifted.bb)) {
+
+						// shift only the new TSV
+						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb);
+
+						shift = true;
+						break;
+					}
+				}
+			}
+		}
 };
 
 // derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets
@@ -443,13 +514,14 @@ class RBOD : public Block {
 	// public data, functions
 	public:
 		static constexpr const char* ID = "RBOD";
+		static constexpr int NUMERICAL_ID = Block::DUMMY_NUM_ID - 1;
 
 	// constructors, destructors, if any non-implicit
 	//
 	// inherits properties of block and defines coordinates as 0,0, i.e., the
 	// lower-left corner of the die
 	public:
-		RBOD () : Block(ID) {
+		RBOD () : Block(ID, NUMERICAL_ID) {
 
 			this->bb.ll.x = 0.0;
 			this->bb.ll.y = 0.0;
