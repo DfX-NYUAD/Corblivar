@@ -1803,7 +1803,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	int id_num;
 	std::string id;
 	bool block_not_found, pin_not_found;
-	unsigned to_parse_nets;
+	int to_parse_nets;
 	unsigned count_input, count_output, count_degree;
 
 	if (fp.logMed()) {
@@ -1850,6 +1850,7 @@ void IO::parseNets(FloorPlanner& fp) {
 	}
 	// GATech, info not given
 	else {
+		to_parse_nets = -1;
 	}
 
 	// init counter
@@ -2055,6 +2056,16 @@ void IO::parseNets(FloorPlanner& fp) {
 				std::cout << "DBG_IO> ";
 				std::cout << " pin " << pin->id << std::endl;
 			}
+		}
+	}
+
+	// GSRC, sanity check for parsed nets
+	//
+	if (to_parse_nets != -1) {
+		if (fp.nets.size() != static_cast<unsigned>(to_parse_nets)) {
+			std::cout << "IO>  Not all given nets could be parsed; consider checking the benchmark format, should comply w/ GSRC Bookshelf" << std::endl;
+			std::cout << "IO>   Parsed nets: " << fp.nets.size() << ", expected nets count: " << to_parse_nets << std::endl;
+			exit(1);
 		}
 	}
 
