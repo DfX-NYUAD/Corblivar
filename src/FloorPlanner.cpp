@@ -262,7 +262,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							valid_layout_found = best_sol_found = true;
 
 							// also, shrink die outline
-							// whenever possible; this way,
+							// whenever possible (and if
+							// configured for); this way,
 							// both the WL estimate becomes
 							// more accurate (since terminal
 							// pins are scaled to new,
@@ -280,7 +281,9 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							// function again, which helps to
 							// fit the shrinked outline
 							// eventually
-							this->shrinkDieOutlines();
+							if (this->layoutOp.parameters.shrink_die) {
+								this->shrinkDieOutlines();
+							}
 						}
 					}
 				}

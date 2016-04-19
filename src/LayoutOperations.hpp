@@ -67,7 +67,7 @@ class LayoutOperations {
 
 			// layout generation options; parsed in IO::parseParametersFiles
 			bool enhanced_hard_block_rotation, enhanced_soft_block_shaping;
-			bool power_aware_block_handling, floorplacement, signal_TSV_clustering;
+			bool power_aware_block_handling, floorplacement, shrink_die, signal_TSV_clustering;
 			int packing_iterations;
 
 			// block-selection guidance; the currently largest individual net;
