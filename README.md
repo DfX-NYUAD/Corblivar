@@ -32,7 +32,7 @@ Compile & Run
 =============
 **To compile and run Corblivar, you need the following**
 - C++ compiler (clang++ was used; for clang++ at least version 3.1 is required)
-- libboost
+- libboost-dev
 - gnuplot
 - octave
 - perl
