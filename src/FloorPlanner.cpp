@@ -267,22 +267,37 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							// both the WL estimate becomes
 							// more accurate (since terminal
 							// pins are scaled to new,
-							// shrinked outline as well) and
+							// shrunk outline as well) and
 							// the chances for reducing die
 							// outlines are better as well
 							//
 							// note that this will result in
 							// fluctuation of fitting layouts:
-							// whenever the die is shrinked,
+							// whenever the die is shrunk,
 							// initially less fitting layouts
 							// will be triggered; this,
 							// however, will emphasize the AR
 							// mismatch term in the cost
 							// function again, which helps to
-							// fit the shrinked outline
+							// fit the shrunk outline
 							// eventually
 							if (this->layoutOp.parameters.shrink_die) {
 								this->shrinkDieOutlines();
+							}
+							// otherwise, scale at least
+							// terminal pins accordingly, in
+							// order to have more accurate WL
+							// estimates for global I/O nets
+							// connecting to those pins
+							else {
+								Point outline;
+
+								for (Block const& b : this->blocks) {
+									outline.x = std::max(outline.x, b.bb.ur.x);
+									outline.y = std::max(outline.y, b.bb.ur.y);
+								}
+
+								this->scaleTerminalPins(outline);
 							}
 						}
 					}
