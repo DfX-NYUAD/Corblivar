@@ -71,6 +71,10 @@ class FloorPlanner {
 			double blocks_area;
 			double stack_area, stack_deadspace;
 
+			// fixed reference outline; required e.g., for parsed-in terminal
+			// pins and their coordinates in GATech benchmarks
+			Point fixed_ref_outline;
+
 			// (TODO) refactor into own struct
 			// technology parameters
 			//
@@ -93,7 +97,6 @@ class FloorPlanner {
 			// the achievable frequency is derived from this delay
 			// threshold/constraint: f = 1.0 / delay
 			double frequency;
-
 		} IC;
 
 		// IO files and parameters
@@ -405,18 +408,29 @@ class FloorPlanner {
 		inline void scaleTerminalPins(Point outline) {
 			double pins_scale_x, pins_scale_y;
 
-			// scale terminal pins; first determine original pins outline
-			pins_scale_x = pins_scale_y = 0.0;
-			for (Pin const& pin : this->terminals) {
-				pins_scale_x = std::max(pins_scale_x, pin.bb.ll.x);
-				pins_scale_y = std::max(pins_scale_y, pin.bb.ll.y);
+			// first, determine scaling factor;
+			// consider fixed reference outline, if given
+			if (this->IC.fixed_ref_outline.x != Point::UNDEF) {
+				pins_scale_x = this->IC.fixed_ref_outline.x;
+				pins_scale_y = this->IC.fixed_ref_outline.y;
 			}
-			// scale terminal pins; scale pin coordinates according to given outline
+			// otherwise, determine original pins outline
+			else {
+				pins_scale_x = pins_scale_y = 0.0;
+				for (Pin const& pin : this->terminals) {
+					pins_scale_x = std::max(pins_scale_x, pin.bb_backup.ll.x);
+					pins_scale_y = std::max(pins_scale_y, pin.bb_backup.ll.y);
+				}
+			}
+			
+			// scale terminal pins; scale pin coordinates according to current outline
 			pins_scale_x = outline.x / pins_scale_x;
 			pins_scale_y = outline.y / pins_scale_y;
 			for (Pin& pin : this->terminals) {
-				pin.bb.ll.x *= pins_scale_x;
-				pin.bb.ll.y *= pins_scale_y;
+				// derive coordinates from original read-in (unscaled)
+				// coordinates
+				pin.bb.ll.x = pin.bb_backup.ll.x * pins_scale_x;
+				pin.bb.ll.y = pin.bb_backup.ll.y * pins_scale_y;
 				// also set upper right to same coordinates, thus pins are ``point''
 				// blocks w/ zero area
 				pin.bb.ur.x = pin.bb.ll.x;

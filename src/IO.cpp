@@ -144,6 +144,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 		else {
 			fp.IO_conf.GT_benchmark = true;
+			// also set the values for the fixed reference outline for
+			// terminal pins, which is by definition (10,000 x 10,000)
+			fp.IC.fixed_ref_outline.x = fp.IC.fixed_ref_outline.y = 10000;
+
 			std::cout << "IO>  Success; GATech floorplan file available" << std::endl;
 		}
 	}
@@ -1516,10 +1520,11 @@ void IO::parseBlocks(FloorPlanner& fp) {
 				std::cout << "IO>  Coordinates for pin \"" << id << "\" cannot be retrieved, consider checking the pins file!" << std::endl;
 			}
 			// initially, parse coordinates of found pin; they will be scaled
-			// after parsing whole blocks file
+			// after parsing whole blocks file; note that unscaled, original
+			// coordinates are maintained in bb_backup
 			else {
-				pins_in >> new_pin.bb.ll.x;
-				pins_in >> new_pin.bb.ll.y;
+				pins_in >> new_pin.bb_backup.ll.x;
+				pins_in >> new_pin.bb_backup.ll.y;
 			}
 
 			// store pin
@@ -1541,8 +1546,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 		//
 		else if (fp.IO_conf.GT_benchmark && GT_terminals) {
 
-			blocks_in >> new_pin.bb.ll.x;
-			blocks_in >> new_pin.bb.ll.y;
+			// note that unscaled, original coordinates are maintained in
+			// bb_backup
+			blocks_in >> new_pin.bb_backup.ll.x;
+			blocks_in >> new_pin.bb_backup.ll.y;
 
 			// store pin now
 			fp.terminals.push_back(new_pin);
