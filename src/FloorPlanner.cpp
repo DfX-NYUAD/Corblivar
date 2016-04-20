@@ -262,25 +262,43 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 							valid_layout_found = best_sol_found = true;
 
 							// also, shrink die outline
-							// whenever possible; this way,
+							// whenever possible (and if
+							// configured for); this way,
 							// both the WL estimate becomes
 							// more accurate (since terminal
 							// pins are scaled to new,
-							// shrinked outline as well) and
+							// shrunk outline as well) and
 							// the chances for reducing die
 							// outlines are better as well
 							//
 							// note that this will result in
 							// fluctuation of fitting layouts:
-							// whenever the die is shrinked,
+							// whenever the die is shrunk,
 							// initially less fitting layouts
 							// will be triggered; this,
 							// however, will emphasize the AR
 							// mismatch term in the cost
 							// function again, which helps to
-							// fit the shrinked outline
+							// fit the shrunk outline
 							// eventually
-							this->shrinkDieOutlines();
+							if (this->layoutOp.parameters.shrink_die) {
+								this->shrinkDieOutlines();
+							}
+							// otherwise, scale at least
+							// terminal pins accordingly, in
+							// order to have more accurate WL
+							// estimates for global I/O nets
+							// connecting to those pins
+							else {
+								Point outline;
+
+								for (Block const& b : this->blocks) {
+									outline.x = std::max(outline.x, b.bb.ur.x);
+									outline.y = std::max(outline.y, b.bb.ur.y);
+								}
+
+								this->scaleTerminalPins(outline);
+							}
 						}
 					}
 				}
@@ -1432,7 +1450,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 		// trivial HPWL estimation, considering one global bounding box; required
 		// to compare w/ other 3D floorplanning tools
-		if (FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL) {
+		if (this->layoutOp.parameters.trivial_HPWL) {
 
 			// resets blocks to be considered for each cur_net
 			blocks_to_consider.clear();
@@ -1454,8 +1472,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
@@ -1480,17 +1499,20 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				if (this->opt_flags.routing_util) {
 					this->routingUtil.adaptUtilMap(i, bb, net_weight);
 				}
-				// the power maps have to be adapted similarly; this way,
-				// the wires' power is tracked (but not for input nets)
-				if (this->opt_flags.thermal && !cur_net.inputNet) {
+				// (TODO) revise; lead to inf power-density values;
+				// deactivated for now since not essential
+				//
+				//// the power maps have to be adapted similarly; this way,
+				//// the wires' power is tracked (but not for input nets)
+				//if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
-							// the wire's power, to be
-							// reflected in layer i, is scaled
-							// according the net_weight
-							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
-						);
-				}
+				//	this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+				//			// the wire's power, to be
+				//			// reflected in layer i, is scaled
+				//			// according the net_weight
+				//			TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency) * net_weight
+				//		);
+				//}
 			}
 
 			if (Net::DBG) {
@@ -1633,8 +1655,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// also memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
@@ -1657,7 +1680,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// perform clustering of regular signal TSVs into TSV islands, if activated; also
 	// not be performed for trivial HPWL estimates
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && this->layoutOp.parameters.signal_TSV_clustering) {
+	if (this->layoutOp.parameters.signal_TSV_clustering && !this->layoutOp.parameters.trivial_HPWL) {
 
 		// actual clustering
 		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->IC.TSV_per_cluster_limit, this->thermal_analysis);
@@ -1726,8 +1749,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// also memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
@@ -1743,7 +1767,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// evaluateAlignments(); also note that this rough estimate is only required if
 	// alignments are not directly optimized, otherwise the HPWL and utilization
 	// estimation in evaluateAlignments() is more precise
-	if (!FloorPlanner::SA_COST_INTERCONNECTS_TRIVIAL_HPWL && !this->opt_flags.alignment_WL_estimate) {
+	if (!this->layoutOp.parameters.trivial_HPWL && !this->opt_flags.alignment_WL_estimate) {
 		cost.HPWL += this->evaluateAlignmentsHPWL(alignments);
 	}
 
