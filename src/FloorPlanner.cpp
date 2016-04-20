@@ -1472,8 +1472,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
@@ -1654,8 +1655,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// also memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
@@ -1747,8 +1749,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			cost.HPWL += WL_cur_net;
 
 			// also memorize largest individual net, to be used for guided
-			// layout operations
-			if (WL_cur_net > WL_largest_net) {
+			// layout operations; ignore large input nets, may be clock nets
+			// which is futile to try to make smaller
+			if (WL_cur_net > WL_largest_net && !cur_net.inputNet) {
 				WL_largest_net = WL_cur_net;
 				this->layoutOp.parameters.largest_net = &cur_net;
 			}
