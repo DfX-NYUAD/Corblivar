@@ -1133,6 +1133,13 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
+	// for finalize runs, reset timing constraint to original constraint in order to
+	// evaluate final result w.r.t. the user-given constraint, not an possibly
+	// down-scaled constraint (see below)
+	if (finalize) {
+		this->IC.delay_threshold = this->IC.delay_threshold_initial;
+	}
+
 	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
 	// if delay violations occur (with some small tolerance margin), conducting

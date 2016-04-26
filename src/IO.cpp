@@ -850,6 +850,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
 	in >> fp.IC.delay_threshold;
+	// memorize initially parsed threshold separately
+	fp.IC.delay_threshold_initial = fp.IC.delay_threshold;
 
 	// sanity check for appropriate, i.e., positive non-zero threshold
 	if (fp.IC.delay_threshold <= 0.0) {

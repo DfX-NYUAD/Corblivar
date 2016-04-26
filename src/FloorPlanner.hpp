@@ -90,6 +90,7 @@ class FloorPlanner {
 
 			// global delay threshold
 			double delay_threshold;
+			double delay_threshold_initial;
 			// the achievable frequency is derived from this delay
 			// threshold/constraint: f = 1.0 / delay
 			double frequency;
