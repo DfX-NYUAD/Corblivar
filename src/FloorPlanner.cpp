@@ -257,18 +257,14 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
 
-							best_cost = fitting_cost;
-							corb.storeBestCBLs();
-							valid_layout_found = best_sol_found = true;
-
 							// also, shrink die outline
 							// whenever possible (and if
-							// configured for); this way,
-							// both the WL estimate becomes
-							// more accurate (since terminal
-							// pins are scaled to new,
-							// shrunk outline as well) and
-							// the chances for reducing die
+							// configured for); this way, both
+							// the WL estimate becomes more
+							// accurate (since terminal pins
+							// are scaled to new, shrunk
+							// outline as well) and the
+							// chances for reducing die
 							// outlines are better as well
 							//
 							// note that this will result in
@@ -299,6 +295,17 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 								this->scaleTerminalPins(outline);
 							}
+
+							// re-evaluate cost after
+							// shrinking die outline and/or
+							// scaling terminal pins
+							fitting_cost =
+								this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two).total_cost;
+
+							best_cost = fitting_cost;
+							corb.storeBestCBLs();
+
+							valid_layout_found = best_sol_found = true;
 						}
 					}
 				}
@@ -1132,6 +1139,13 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double corners_avg = 0.0;
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
+
+	// for finalize runs, reset timing constraint to original constraint in order to
+	// evaluate final result w.r.t. the user-given constraint, not an possibly
+	// down-scaled constraint (see below)
+	if (finalize) {
+		this->IC.delay_threshold = this->IC.delay_threshold_initial;
+	}
 
 	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
