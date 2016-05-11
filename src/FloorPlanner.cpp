@@ -370,7 +370,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			// always log the current state for fitting the blocks into the
 			// fixed outline
 			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
-			std::cout << "SA>    Current blocks-packing overhead (ideal value is 0.0): " << cost.area_actual_value << std::endl;
+			std::cout << "SA>    Current max packing overhead (ideal value is 0.0): " << cost.area_actual_value << std::endl;
 
 			if (this->opt_flags.alignment) {
 				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
@@ -1328,7 +1328,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	int i;
 	std::vector<double> dies_AR;
 	std::vector<double> dies_area;
-	std::vector<double> dies_packing_density;
+	double max_outline_all;
 	bool layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1339,6 +1339,7 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	dies_area.reserve(this->IC.layers);
 
 	layout_fits_in_fixed_outline = true;
+	max_outline_all = 0.0;
 	// determine outline and area
 	for (i = 0; i < this->IC.layers; i++) {
 
@@ -1357,20 +1358,21 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 			}
 		}
 
-		// die area, represented by blocks' outline
-		dies_area.push_back(max_outline_x * max_outline_y);
+		// area
+		dies_area.push_back(blocks_area);
 
-		// packing density
-		dies_packing_density.push_back(blocks_area / dies_area.back());
+		// track max outline
+		if ((max_outline_x * max_outline_y) > max_outline_all) {
+			max_outline_all = max_outline_x * max_outline_y;
+		}
 
 		// aspect ratio; used to guide optimization towards fixed outline
 		if (max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
 		}
-		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
-		// not impact cost function
+		// dummy value for empty dies
 		else {
-			dies_AR.push_back(this->IC.die_AR);
+			dies_AR.push_back(-1);
 		}
 
 		// memorize whether layout fits into outline
@@ -1379,37 +1381,35 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// cost for area, considering max blocks-outline compared to ideal packing; guides
-	// towards balanced die occupation and area minimization
+	// cost for area, considering packing density
 	cost_area = 0.0;
 	packing_density_max = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_area = std::max(cost_area, dies_area[i]);
+
+		// penalize low packing density via high cost: 1.0 - density
+		cost_area = std::max(cost_area, 1.0 - (dies_area[i] / max_outline_all));
 
 		// also determine AR for die w/ highest packing density; required for AR
 		// mismatch calculation below
-		if (dies_packing_density[i] > packing_density_max) {
+		if ((dies_area[i] / max_outline_all) > packing_density_max) {
 
-			packing_density_max = dies_packing_density[i];
+			packing_density_max = dies_area[i] / max_outline_all;
 			target_AR = dies_AR[i];
 		}
 	}
-	// assume worst outline/area for all dies; determine ratio w.r.t. this worst
-	// outline in contrast to ideal packing, i.e., w/o deadspace at all
-	cost_area = (cost_area * this->IC.layers) / this->IC.blocks_area;
-	// ideal value shall be 0.0; only account for overhead
-	cost_area -= 1.0;
 	// store actual value
 	cost.area_actual_value = cost_area;
 	// determine cost function value
 	cost_area *= 0.5 * this->weights.area_outline * (1.0 + fitting_layouts_ratio);
 
-	// cost for AR mismatch (w.r.t. die with highest packing density), considering max
-	// violation guides towards fixed outline
+	// cost for AR mismatch, w.r.t. die with highest packing density which is most
+	// desirable to replicate/mimic
 	cost_outline = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-//		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
-		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - target_AR));
+
+		if (dies_AR[i] != -1) {
+			cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - target_AR));
+		}
 	}
 	// store actual value
 	cost.outline_actual_value = cost_outline;
