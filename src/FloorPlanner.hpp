@@ -90,6 +90,7 @@ class FloorPlanner {
 
 			// global delay threshold
 			double delay_threshold;
+			double delay_threshold_initial;
 			// the achievable frequency is derived from this delay
 			// threshold/constraint: f = 1.0 / delay
 			double frequency;
@@ -376,9 +377,13 @@ class FloorPlanner {
 				outline.y = std::max(outline.y, b.bb.ur.y);
 			}
 
-			// now, shrink fixed outline considering reasonable die outline;
-			// only if current blocks-outline is smaller than previous outline
-			if (outline.x < this->IC.outline_x && outline.y < this->IC.outline_y) {
+			// now, shrink fixed outline if any dimension is smaller than
+			// previous outline
+			if (
+					(outline.x < this->IC.outline_x || outline.y < this->IC.outline_y) &&
+					// only if current blocks-outline is smaller than previous outline
+					(outline.x * outline.y) < (this->IC.die_area)
+			   ) {
 
 				this->IC.outline_x = outline.x;
 				this->IC.outline_y = outline.y;
