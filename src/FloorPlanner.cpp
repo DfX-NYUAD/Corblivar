@@ -370,7 +370,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			// always log the current state for fitting the blocks into the
 			// fixed outline
 			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
-			std::cout << "SA>    Current max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
+			std::cout << "SA>    Current blocks-packing overhead (ideal value is 0.0): " << cost.area_actual_value << std::endl;
 
 			if (this->opt_flags.alignment) {
 				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
@@ -1349,8 +1349,8 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 			}
 		}
 
-		// area, represented by blocks' outline; normalized to die area
-		dies_area.push_back((max_outline_x * max_outline_y) / (this->IC.die_area));
+		// die area, represented by blocks' outline
+		dies_area.push_back(max_outline_x * max_outline_y);
 
 		// aspect ratio; used to guide optimization towards fixed outline
 		if (max_outline_y > 0.0) {
@@ -1373,17 +1373,24 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	for (i = 0; i < this->IC.layers; i++) {
 		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
 	}
+
 	// store actual value
 	cost.outline_actual_value = cost_outline;
 	// determine cost function value
 	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
 
-	// cost for area, considering max value of blocks-area die-area ratio; guides
+	// cost for area, considering max blocks-outline compared to ideal packing; guides
 	// towards balanced die occupation and area minimization
 	cost_area = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
 		cost_area = std::max(cost_area, dies_area[i]);
 	}
+	// assume worst outline/area for all dies; determine ratio w.r.t. of this worst
+	// outline in contrast to ideal packing, i.e., w/o deadspace at all
+	cost_area = (cost_area * this->IC.layers) / this->IC.blocks_area;
+	// ideal value shall be 0.0; only account for overhead
+	cost_area -= 1.0;
+
 	// store actual value
 	cost.area_actual_value = cost_area;
 	// determine cost function value
