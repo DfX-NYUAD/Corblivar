@@ -3,14 +3,10 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="clustering"
+exp="regular"
 benches=$1
-#benches=$2
-#benches="n100 n200 n300"
-#benches="ami33 xerox"
 runs=20
 
-#for die_count in 2 3
 for die_count in $2
 do
 	dies=$die_count"dies"

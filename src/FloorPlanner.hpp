@@ -211,7 +211,8 @@ class FloorPlanner {
 				bool const& finalize = false);
 		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments);
 		void evaluateAreaOutline(Cost& cost,
-				double const& fitting_layouts_ratio = 0.0) const;
+				double const& fitting_layouts_ratio = 0.0,
+				bool const& SA_phase_two = false) const;
 		void evaluateInterconnects(Cost& cost, double const& frequency,
 				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& set_max_cost = false,
