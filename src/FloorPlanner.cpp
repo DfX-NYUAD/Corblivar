@@ -921,7 +921,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	// phase two: consider further cost factors
 	else {
 		// area and outline cost, already weighted w/ global weight factor
-		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
+		this->evaluateAreaOutline(cost, fitting_layouts_ratio, true);
 
 		// determine interconnects cost; also determines hotspot regions and
 		// clusters signal TSVs accordingly
@@ -1317,7 +1317,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 // adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 // of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
 // ``Modern floorplanning based on B*-Tree and fast simulated annealing''
-void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio) const {
+void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio, bool const& SA_phase_two) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
@@ -1408,7 +1408,16 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	for (i = 0; i < this->IC.layers; i++) {
 
 		if (dies_AR[i] != -1) {
-			cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - target_AR));
+
+			if (SA_phase_two) {
+				cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - target_AR));
+			}
+			// however, if we are still in phase one, i.e., no layout fitting
+			// the given fixed outline was found yet, we shall consider this
+			// given outline's AR
+			else {
+				cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
+			}
 		}
 	}
 	// store actual value
