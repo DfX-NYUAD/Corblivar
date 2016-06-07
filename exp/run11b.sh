@@ -3,7 +3,7 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="voltage_assignment"
+exp="VA_HP"
 benches=$1
 runs=20
 
