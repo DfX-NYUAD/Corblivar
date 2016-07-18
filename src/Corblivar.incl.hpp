@@ -37,13 +37,13 @@
 #include <bitset>
 #include <utility>
 #include <algorithm>
-#include <math.h>
 // (TODO) replace w/ chrono
 #include <sys/timeb.h>
 
 // C libaries
 // (TODO) replace w/ STL where possible
 #include <ctime>
+#include <cmath>
 #include <cstdlib>
 
 #endif

@@ -34,6 +34,7 @@
 #include "ContiguityAnalysis.hpp"
 #include "MultipleVoltages.hpp"
 
+
 // memory allocation
 constexpr int Pin::LAYER;
 constexpr double TimingPowerAnalyser::ACTIVITY_FACTOR;
@@ -1036,7 +1037,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		}
 
 		// sanity check for reasonable thermal cost
-		if (isinf(cost.thermal)) {
+		if (std::isinf(cost.thermal)) {
 			cost.thermal = 0.0;
 		}
 
