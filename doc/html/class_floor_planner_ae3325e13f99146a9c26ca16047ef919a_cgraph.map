@@ -1,0 +1,7 @@
+<map id="FloorPlanner::initThermalAnalyzer" name="FloorPlanner::initThermalAnalyzer">
+<area shape="rect" id="node2" href="$class_thermal_analyzer.html#ada75f7b9d88bd60229a0fd194b842bd6" title="thermal modeling: handlers " alt="" coords="233,5,425,47"/>
+<area shape="rect" id="node4" href="$class_thermal_analyzer.html#ae5ef65dc654c0129ba7e0a0d703a3203" title="thermal modeling: handlers " alt="" coords="221,71,436,98"/>
+<area shape="rect" id="node5" href="$class_thermal_analyzer.html#a7ba79b7ed773969e57194a658bb7c67e" title="thermal modeling: handlers " alt="" coords="220,122,437,149"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a9f8f848a5c88228efc823cacfa188cca" title="getter " alt="" coords="247,173,410,199"/>
+<area shape="rect" id="node3" href="$class_math.html#ac93e36b9bce92650edaeb895a1d45e2f" title="Math::gauss1D" alt="" coords="485,13,596,39"/>
+</map>

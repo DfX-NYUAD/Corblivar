@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar design block
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -34,6 +34,7 @@
 class CorblivarAlignmentReq;
 class ContiguityAnalysis;
 
+/// Corblivar design block
 class Block {
 	// debugging code switch (private)
 	private:
@@ -42,23 +43,26 @@ class Block {
 	private:
 		friend class IO;
 
-		// these values are required for multi-voltage domains; the
-		// power_density_unscaled is read in from the benchmarks, while the
-		// factors are read in from the Technology.conf, base_delay is calculated
-		// according to [Lin10] during block parsing; the power_density() and
-		// delay() are calculated accordingly to these factors and the current
-		// assigned voltage, given in assigned_voltage_index
-		//
+		/// These values are required for multi-voltage domains; the
+		/// power_density_unscaled is read in from the benchmarks, while the
+		/// factors are read in from the Technology.conf.
 		double power_density_unscaled;
+		/// These values are required for multi-voltage domains; the
+		/// factors are read in from the Technology.conf.
 		std::vector<double> voltages_power_factors;
+		/// Base_delay is calculated according to [Lin10] during block parsing; the
+		/// power_density() and delay() are calculated accordingly to these factors
+		/// and the current assigned voltage, given in assigned_voltage_index.
 		mutable double base_delay;
+		/// These values are required for multi-voltage domains; the
+		/// factors are read in from the Technology.conf.
 		std::vector<double> voltages_delay_factors;
 
-		// the actual voltage(s) are also required
+		/// the actual voltage(s) are also required
 		std::vector<double> voltages;
 
-		// delay in [ns]; relates to net delay and currently assigned voltage;
-		// theoretical value to be obtained for given voltage index
+		/// delay in [ns]; relates to net delay and currently assigned voltage;
+		/// theoretical value to be obtained for given voltage index
 		inline double delay(unsigned voltage_index) const {
 			return
 				this->base_delay * this->voltages_delay_factors[voltage_index]
@@ -67,18 +71,19 @@ class Block {
 
 	// enum class for alignment status; has to be defined first
 	public:
-		// flags to indicate whether the block is associated with some alignment
-		// and also if this alignment is successful or the block is too far of in
-		// a particular direction; note that only one (failing) direction at one
-		// time is considered
+		/// flags to indicate whether the block is associated with some alignment
+		/// and also if this alignment is successful or the block is too far of in
+		/// a particular direction; note that only one (failing) direction at one
+		/// time is considered
 		enum class AlignmentStatus : unsigned {UNDEF, SUCCESS, FAIL_HOR_TOO_LEFT, FAIL_HOR_TOO_RIGHT, FAIL_VERT_TOO_LOW, FAIL_VERT_TOO_HIGH};
 
 	// constructors, destructors, if any non-implicit
 	public:
-		// for any block or derived element which does not specify a regular
-		// numerical id, consider this dummy one
+		/// for any block or derived element which does not specify a regular
+		/// numerical id, consider this dummy one
 		static constexpr int DUMMY_NUM_ID = -1;
 
+		/// default constructor
 		Block(std::string const& id, unsigned numerical_id = DUMMY_NUM_ID) {
 			this->id = id;
 			this->numerical_id = numerical_id;
@@ -99,29 +104,31 @@ class Block {
 		int numerical_id;
 		mutable int layer;
 
-		// flag to monitor placement; also required for alignment handling
+		/// flag to monitor placement; also required for alignment handling
 		mutable bool placed;
 
-		// flag to monitor block alignment; only considers status of most recently
-		// evaluated request but not all associated request
+		/// flag to monitor block alignment; only considers status of most recently
+		/// evaluated request but not all associated request
 		mutable AlignmentStatus alignment;
 
-		// pointers to alignments representing vertical bus, if any
+		/// pointers to alignments representing vertical bus, if any
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
 
-		// density in [uW/(um^2)]; relates to given voltage index or currently
-		// assigned voltage
+		/// density in [uW/(um^2)]; relates to given voltage index
 		inline double power_density(unsigned index) const {
 			return this->power_density_unscaled * this->voltages_power_factors[index];
 		}
+		/// density in [uW/(um^2)]; relates to currently
+		/// assigned voltage
 		inline double power_density() const {
 			return this->power_density_unscaled * this->voltages_power_factors[this->assigned_voltage_index];
 		}
+		/// density in [uW/(um^2)]; relates to maximal value for highest voltage
 		inline double power_density_max() const {
 			return this->power_density_unscaled * this->voltages_power_factors.back();
 		}
 
-		// delay in [ns]; relates to net delay and currently assigned voltage
+		/// delay in [ns]; relates to net delay and currently assigned voltage
 		inline double delay() const {
 
 			if (TimingPowerAnalyser::DBG) {
@@ -151,6 +158,7 @@ class Block {
 				+ this->net_delay_max;
 		}
 
+		/// currently assigned voltage
 		inline double voltage() const {
 			return this->voltages[this->assigned_voltage_index];
 		}
@@ -159,39 +167,39 @@ class Block {
 			return this->voltages.back();
 		}
 
-		// this delay value is the max value for any net where this block is the
-		// source/driving block
+		/// this delay value is the max value for any net where this block is the
+		/// source/driving block
 		mutable double net_delay_max;
 
-		// bit-wise flags for applicable voltages, where feasible_voltages[k]
-		// encodes the highest voltage V_k, and remaining bits encode the lower
-		// voltages in descending order; note that if less than
-		// MultipleVoltages::MAX_VOLTAGES are globally available, the non-required
-		// bits are left as is, i.e., zero by constructor definition
+		/// bit-wise flags for applicable voltages, where feasible_voltages[k]
+		/// encodes the highest voltage V_k, and remaining bits encode the lower
+		/// voltages in descending order; note that if less than
+		/// MultipleVoltages::MAX_VOLTAGES are globally available, the non-required
+		/// bits are left as is, i.e., zero by constructor definition
 		mutable std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 
-		// current voltage assignment; this index refers to the lowest applicable
-		// voltage, according the lowest set bit of feasible_voltages; this index
-		// will also be used for proper delay and power calculations
+		/// current voltage assignment; this index refers to the lowest applicable
+		/// voltage, according the lowest set bit of feasible_voltages; this index
+		/// will also be used for proper delay and power calculations
 		mutable unsigned assigned_voltage_index;
 
-		// this is the module where the block is finally assigned to
+		/// this is the module where the block is finally assigned to
 		mutable MultipleVoltages::CompoundModule* assigned_module;
 
-		// reset feasible voltages and voltage assignment; the highest possible
-		// voltage shall be considered as set; this enables all the related
-		// functions to return correct values even if no assignment is performed
-		// and/or only one voltage is globally available
+		/// reset feasible voltages and voltage assignment; the highest possible
+		/// voltage shall be considered as set; this enables all the related
+		/// functions to return correct values even if no assignment is performed
+		/// and/or only one voltage is globally available
 		inline void resetVoltageAssignment() {
 			this->feasible_voltages.reset();
 			this->feasible_voltages[this->voltages_power_factors.size() - 1] = 1;
 			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
 		}
 
-		// helper to set/update feasible voltages; considers a delay threshold; a
-		// voltage is considered feasible as long as setting it will not violate
-		// the delay threshold (by increasing the module delay too much)
-		//
+		/// helper to set/update feasible voltages; considers a delay threshold; a
+		/// voltage is considered feasible as long as setting it will not violate
+		/// the delay threshold (by increasing the module delay too much)
+		///
 		inline void setFeasibleVoltages(double delay_threshold) {
 			unsigned index;
 
@@ -211,29 +219,31 @@ class Block {
 			}
 		}
 
-		// vector of contiguous neighbours, required for voltage assignment
+		/// vector of contiguous neighbours, required for voltage assignment
 		mutable std::vector<ContiguityAnalysis::ContiguousNeighbour> contiguous_neighbours;
 
-		// rectangle, represents block geometry and placement
+		/// rectangle, represents block geometry and placement
 		mutable Rect bb, bb_backup, bb_best;
 
-		// aspect ratio AR, relates to blocks' dimensions by x / y
+		/// aspect ratio AR, relates to blocks' dimensions by x / y; only relevant
+		/// for soft blocks
 		struct AR {
 			double min;
 			double max;
-		} AR;
-		// AR is only relevant for soft blocks
+		}
+		AR;
+
 		bool soft;
 
-		// large macro, flag for floorplacement handling
+		/// large macro, flag for floorplacement handling
 		bool floorplacement;
 
-		// blocks related to STRICT alignment requests will not be rotatable
+		/// blocks related to STRICT alignment requests will not be rotatable
 		mutable bool rotatable;
 
-		// layout-generation related helper; perform operations on mutable bb,
-		// thus marked const
-		//
+		/// layout-generation related helper; perform operations on mutable bb,
+		/// thus marked const
+		///
 		inline bool rotate() const {
 
 			if (this->rotatable) {
@@ -244,6 +254,9 @@ class Block {
 				return false;
 			}
 		};
+		/// layout-generation related helper; perform operations on mutable bb,
+		/// thus marked const
+		///
 		inline bool shapeRandomlyByAR() const {
 
 			if (this->rotatable) {
@@ -259,6 +272,9 @@ class Block {
 				return false;
 			}
 		};
+		/// layout-generation related helper; perform operations on mutable bb,
+		/// thus marked const
+		///
 		inline bool shapeByWidthHeight(double const& width, double const& height) const {
 			double AR;
 
@@ -281,7 +297,7 @@ class Block {
 			}
 		};
 
-		// power in [W]; returns power according to currently assigned voltage
+		/// power in [W]; returns power according to currently assigned voltage
 		inline double power() const {
 
 			return this->power_density()
@@ -289,7 +305,7 @@ class Block {
 				// um^2, thus we have to convert uW to W
 				* this->bb.area	* 1.0e-6;
 		}
-		// power in [W]; returns power according to given voltage index
+		/// power in [W]; returns power according to given voltage index
 		inline double power(unsigned voltage_index) const {
 
 			return this->power_density(voltage_index)
@@ -298,9 +314,9 @@ class Block {
 				* this->bb.area	* 1.0e-6;
 		}
 
-		// the theoretical max power, for highest applicable voltage; note that
-		// this value is static, i.e., does not depend on current set of feasible
-		// voltages derived from voltage assignment
+		/// the theoretical max power, for highest applicable voltage; note that
+		/// this value is static, i.e., does not depend on current set of feasible
+		/// voltages derived from voltage assignment
 		inline double power_max() const {
 
 			return this->power_density_max()
@@ -309,9 +325,9 @@ class Block {
 				* this->bb.area	* 1.0e-6;
 		}
 
-		// the theoretical min power, for lowest applicable voltage; considers
-		// current set of feasible voltages which, in turn, will be affected by
-		// the current delay values
+		/// the theoretical min power, for lowest applicable voltage; considers
+		/// current set of feasible voltages which, in turn, will be affected by
+		/// the current delay values
 		inline double power_min() const {
 
 			for (unsigned v = 0; v < MultipleVoltages::MAX_VOLTAGES; v++) {
@@ -324,7 +340,7 @@ class Block {
 			return this->power_max();
 		}
 
-		// search blocks
+		/// search blocks
 		inline static Block const* findBlock(std::string const& id, std::vector<Block> const& container) {
 
 			for (Block const& b : container) {
@@ -364,20 +380,21 @@ class Block {
 		}
 };
 
-// derived pin class
+/// derived pin class
 class Pin : public Block {
 
 	// constructors, destructors, if any non-implicit
 	//
 	public:
-		// terminal pins are by definition to be placed onto lowermost die 0
+		/// terminal pins are by definition to be placed onto lowermost die 0
 		static constexpr int LAYER = 0;
 
+		/// default constructor
 		Pin (std::string const& id) : Block(id) {
 			this->layer = LAYER;
 		};
 
-		// search pins
+		/// search pins
 		inline static Pin const* findPin(std::string const& id, std::vector<Pin> const& container) {
 
 			for (Pin const& b : container) {
@@ -390,15 +407,16 @@ class Pin : public Block {
 		};
 };
 
-// derived TSVs class; encapsulates TSV island / bundle of TSVs
+/// derived TSVs class; encapsulates TSV island / bundle of TSVs
 class TSV_Island : public Block {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 
 	// constructors, destructors, if any non-implicit
 	//
 	public:
+		/// default constructor
 		TSV_Island (std::string const& id, int const& TSVs_count, double const& TSV_pitch, Rect const& bb, int const& layer, double width = -1.0) : Block(id) {
 
 			this->TSVs_count = TSVs_count;
@@ -412,16 +430,17 @@ class TSV_Island : public Block {
 	public:
 		int TSVs_count;
 
-		// limits for AR of TSV island
+		/// limits for AR of TSV island
 		static constexpr double AR_MIN = 0.5;
+		/// limits for AR of TSV island
 		static constexpr double AR_MAX = 2.0;
 
-		// reset TSV group's outline according to area required for given TSVs
-		//
-		// note that the following code does _not_ consider a sanity check where
-		// the required area for TSVs is larger than the provided bb; since TSVs
-		// are assumed to be embedded into blocks later on anyway, such over-usage
-		// of area is not critical
+		/// reset TSV group's outline according to area required for given TSVs
+		///
+		/// note that the following code does _not_ consider a sanity check where
+		/// the required area for TSVs is larger than the provided bb; since TSVs
+		/// are assumed to be embedded into blocks later on anyway, such over-usage
+		/// of area is not critical
 		void resetOutline(double TSV_pitch, double width) {
 			double TSV_rows, TSV_cols;
 			double bb_AR;
@@ -483,6 +502,8 @@ class TSV_Island : public Block {
 			}
 		}
 
+		/// greedy shifting of new TSV island such that they don't overlap any
+		/// existing island
 		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs) {
 			bool shift = true;
 
@@ -509,7 +530,7 @@ class TSV_Island : public Block {
 		}
 };
 
-// derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets
+/// derived dummy block "RBOD" as ``Reference Block On Die'' for fixed offsets
 class RBOD : public Block {
 	// public data, functions
 	public:
@@ -517,10 +538,11 @@ class RBOD : public Block {
 		static constexpr int NUMERICAL_ID = Block::DUMMY_NUM_ID - 1;
 
 	// constructors, destructors, if any non-implicit
-	//
-	// inherits properties of block and defines coordinates as 0,0, i.e., the
-	// lower-left corner of the die
 	public:
+		/// default constructor
+		///
+		/// inherits properties of block and defines coordinates as 0,0, i.e., the
+		/// lower-left corner of the die
 		RBOD () : Block(ID, NUMERICAL_ID) {
 
 			this->bb.ll.x = 0.0;

@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar signal-TSV clustering
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -29,14 +29,20 @@
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
 
+/// Corblivar signal-TSV clustering
 class Clustering {
-	// debugging code switches
 	private:
+		/// debugging code switches
 		static constexpr bool DBG = false;
+		/// debugging code switches
 		static constexpr bool DBG_HOTSPOT = false;
+		/// debugging code switches
 		static constexpr bool DBG_CLUSTERING = false;
+		/// debugging code switches
 		static constexpr bool DBG_CLUSTERING_FINAL= false;
+
 	public:
+		/// debugging code switches
 		static constexpr bool DBG_HOTSPOT_PLOT = false;
 
 	// constructors, destructors, if any non-implicit
@@ -44,18 +50,18 @@ class Clustering {
 
 	// public data, functions
 	public:
-		// POD wrapping nets' segments
+		/// POD wrapping nets' segments
 		struct Segments {
 			Net* net;
 			Rect bb;
 		};
-		// POD wrapping net clusters
+		/// POD wrapping net clusters
 		struct Cluster {
 			std::list<Net*> nets;
 			Rect bb;
 			int hotspot_id;
 		};
-		// POD wrapping hotspot regions
+		/// POD wrapping hotspot regions
 		struct Hotspot {
 			double peak_temp;
 			double base_temp;
@@ -67,10 +73,10 @@ class Clustering {
 			Rect bb;
 		};
 
-		// hotspots container
+		/// Hotspots container
 		std::map<double, Hotspot, std::greater<double>> hotspots;
 
-		// clustering helper
+		/// Clustering helper
 		void clusterSignalTSVs(std::vector<Net> &nets,
 				std::vector< std::vector<Segments> > &nets_segments,
 				std::vector<TSV_Island> &TSVs,
@@ -81,13 +87,13 @@ class Clustering {
 	// private data, functions
 	private:
 
-		// hotspot determination
+		/// Hotspot determination
 		void determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
 
-		// normalization scale for hotspot score
+		/// Normalization scale for hotspot score
 		static constexpr double SCORE_NORMALIZATION = 1.0e6;
 
-		// cluster container
+		/// Cluster container
 		std::vector< std::list<Cluster> > clusters;
 };
 

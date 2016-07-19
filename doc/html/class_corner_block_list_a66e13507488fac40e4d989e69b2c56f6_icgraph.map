@@ -1,0 +1,17 @@
+<map id="CornerBlockList::empty" name="CornerBlockList::empty">
+<area shape="rect" id="node2" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="212,119,411,145"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="459,169,651,196"/>
+<area shape="rect" id="node12" href="$class_layout_operations.html#a1adb13850660db2cfa17a275d15793c3" title="LayoutOperations::perform\lOpSwitchTupleJunctions" alt="" coords="223,351,399,393"/>
+<area shape="rect" id="node14" href="$class_layout_operations.html#ae1bf8a4e5eaa374b88f6c26eb9aee92f" title="LayoutOperations::perform\lOpSwitchInsertionDirection" alt="" coords="221,417,402,458"/>
+<area shape="rect" id="node15" href="$class_layout_operations.html#a660aa368e2a5b1cc385636ec463f0f7d" title="LayoutOperations::perform\lOpMoveOrSwapBlocks" alt="" coords="223,221,399,262"/>
+<area shape="rect" id="node16" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="223,286,399,327"/>
+<area shape="rect" id="node3" href="$class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc" title="default constructor " alt="" coords="459,119,650,145"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1581,184,1747,211"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1395,245,1533,272"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="699,93,843,120"/>
+<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2021,72,2072,99"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1795,65,1973,106"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="891,195,1108,221"/>
+<area shape="rect" id="node11" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1156,195,1347,221"/>
+<area shape="rect" id="node13" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="467,326,643,367"/>
+</map>

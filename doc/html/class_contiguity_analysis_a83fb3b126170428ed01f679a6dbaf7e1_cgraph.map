@@ -1,0 +1,6 @@
+<map id="ContiguityAnalysis::analyseBlocks" name="ContiguityAnalysis::analyseBlocks">
+<area shape="rect" id="node2" href="$class_contiguity_analysis.html#a808a02b21186bd94e8b2edc206644d68" title="helper to check horizontal boundaries " alt="" coords="197,5,354,47"/>
+<area shape="rect" id="node3" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="415,71,547,98"/>
+<area shape="rect" id="node4" href="$class_contiguity_analysis.html#a0fbc5d160753128781036ddc6b08f862" title="helper to check vertical boundaries " alt="" coords="195,123,356,164"/>
+<area shape="rect" id="node5" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="184,189,367,215"/>
+</map>

@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar handler for multiple voltages
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -431,11 +431,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	return this->selected_modules;
 }
 
-// stepwise consider adding single blocks into the compound module until all blocks are
-// considered; note that this implies recursive calls to determine transitive neighbours;
-// also note that a breadth-first search is applied to determine which is the best block
-// to be merged such that total cost (sum of local cost, where the sum differs for
-// different starting blocks) cost remain low
+/// stepwise consider adding single blocks into the compound module until all blocks are
+/// considered; note that this implies recursive calls to determine transitive neighbours;
+/// also note that a breadth-first search is applied to determine which is the best block
+/// to be merged such that total cost (sum of local cost, where the sum differs for
+/// different starting blocks) cost remain low
 void MultipleVoltages::buildCompoundModulesHelper(MultipleVoltages::CompoundModule& module, MultipleVoltages::modules_type::iterator hint, ContiguityAnalysis& cont) {
 	std::bitset<MultipleVoltages::MAX_VOLTAGES> feasible_voltages;
 	ContiguityAnalysis::ContiguousNeighbour* neighbour;
@@ -735,19 +735,19 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	this->buildCompoundModulesHelper(inserted->second, inserted, cont);
 }
 
-// local cost, used during bottom-up merging
-//
-// cost term: ratio of (by other blocks with non-compatible voltage) intruded area of the
-// module's bb; the lower the better
-//
-// note that the cost always considers the amount of _current_ intrusion (after adding
-// neighbour to module), despite the fact that only the non-intruded bb's are memorized;
-// this is required in order to model the amount of intrusion as local cost, required for
-// local tree-pruning decisions during bottom-up phase
-//
-// also, extended bbs with minimized number of corners for power-ring synthesis are
-// generated here; note that the die-wise container for power-ring corners is updated here
-// as well
+/// local cost, used during bottom-up merging
+///
+/// cost term: ratio of (by other blocks with non-compatible voltage) intruded area of the
+/// module's bb; the lower the better
+///
+/// note that the cost always considers the amount of _current_ intrusion (after adding
+/// neighbour to module), despite the fact that only the non-intruded bb's are memorized;
+/// this is required in order to model the amount of intrusion as local cost, required for
+/// local tree-pruning decisions during bottom-up phase
+///
+/// also, extended bbs with minimized number of corners for power-ring synthesis are
+/// generated here; note that the die-wise container for power-ring corners is updated here
+/// as well
 double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::ContiguousNeighbour* neighbour, ContiguityAnalysis& cont, bool apply_update) {
 	double cost;
 	int n_l = neighbour->block->layer;
@@ -1096,14 +1096,14 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 	return cost;
 }
 
-// helper to estimate gain in power reduction
-//
-// this is done by comparing lowest applicable to highest (trivial solution) voltage /
-// power for all (or one specific) comprised blocks; the flag subtract_wasted_saving flag
-// required for cost calculation, the flag update is used to perform actual evaluation
-// only when required, and the Block pointer may be used to update power saving only
-// w.r.t. one specific block
-//
+/// helper to estimate gain in power reduction
+///
+/// this is done by comparing lowest applicable to highest (trivial solution) voltage /
+/// power for all (or one specific) comprised blocks; the flag subtract_wasted_saving flag
+/// required for cost calculation, the flag update is used to perform actual evaluation
+/// only when required, and the Block pointer may be used to update power saving only
+/// w.r.t. one specific block
+///
 inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* block_to_consider) {
 	unsigned min_voltage_index = this->min_voltage_index();
 
@@ -1137,11 +1137,11 @@ inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* b
 	}
 }
 
-// global cost, required during top-down selection
-//
-// cost terms: normalized power reduction/saving and number of corners in power rings; the
-// smaller the cost the better
-//
+/// global cost, required during top-down selection
+///
+/// cost terms: normalized power reduction/saving and number of corners in power rings; the
+/// smaller the cost the better
+///
 inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
 	// for the normalization, the min values are fixed: zero for power-saving (for
 	// trivial modules w/ only highest voltage applicable) and four for corners of

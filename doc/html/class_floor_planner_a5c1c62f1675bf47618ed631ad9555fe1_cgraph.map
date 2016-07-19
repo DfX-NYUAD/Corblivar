@@ -1,0 +1,51 @@
+<map id="FloorPlanner::initSA" name="FloorPlanner::initSA">
+<area shape="rect" id="node2" href="$class_corblivar_core.html#a7f930f6b2c1a8297ffa6ae01ca4da604" title="CBL backup handler. " alt="" coords="195,427,381,453"/>
+<area shape="rect" id="node3" href="$class_floor_planner.html#a200d99169739eee20eef677289201bd1" title="logging " alt="" coords="215,477,361,504"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="192,756,384,783"/>
+<area shape="rect" id="node22" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="992,659,1183,685"/>
+<area shape="rect" id="node31" href="$class_corblivar_core.html#a26efb3cb4d32f7e7f9d4630961708f13" title="getter " alt="" coords="991,1173,1184,1200"/>
+<area shape="rect" id="node37" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="200,1263,376,1305"/>
+<area shape="rect" id="node49" href="$class_math.html#a9a7a99034f6d5e78424eca32a66bdb06" title="standard deviation of samples " alt="" coords="237,1329,339,1356"/>
+<area shape="rect" id="node50" href="$class_corblivar_core.html#a851aefcbb2b43a20cc22a535502bb534" title="CBL backup handler. " alt="" coords="197,1380,379,1407"/>
+<area shape="rect" id="node5" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="454,233,653,260"/>
+<area shape="rect" id="node6" href="$class_corblivar_die.html#a46c4d497eac2d346587d3b8534b7f52e" title="getter " alt="" coords="759,939,906,965"/>
+<area shape="rect" id="node7" href="$class_corner_block_list.html#a66e13507488fac40e4d989e69b2c56f6" title="getter " alt="" coords="753,1075,912,1101"/>
+<area shape="rect" id="node15" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="445,579,662,605"/>
+<area shape="rect" id="node32" href="$class_corblivar_core.html#ae54cf6942064187892abe51ab3713cc8" title="getter " alt="" coords="478,832,629,859"/>
+<area shape="rect" id="node33" href="$class_corblivar_die.html#a94d65b6dffc0912295bec1c6ac686655" title="layout generation: packing, to be performed as post&#45;placement operation " alt="" coords="457,731,650,757"/>
+<area shape="rect" id="node36" href="$class_corblivar_die.html#a3ffb000f173ba630260ddb8ca31f5788" title="CorblivarDie::debugLayout" alt="" coords="465,680,641,707"/>
+<area shape="rect" id="node8" href="$class_corblivar_core.html#af620c3d9df50c3ea3d696ed27545851a" title="die&#45;selection handler " alt="" coords="749,157,917,184"/>
+<area shape="rect" id="node9" href="$class_corner_block_list.html#a424ef7bebf01547cc15ac72c02f6d6e1" title="tuple string " alt="" coords="740,208,925,235"/>
+<area shape="rect" id="node10" href="$class_corblivar_die.html#a8d05e49681def2d45f63d34695e6befa" title="getter " alt="" coords="1266,49,1429,90"/>
+<area shape="rect" id="node11" href="$class_corblivar_die.html#a004afbdeaa44dc6e13c354290842ff56" title="layout generation; place current block " alt="" coords="999,107,1175,149"/>
+<area shape="rect" id="node12" href="$class_corblivar_die.html#a61ed0a0a6f0485d77997593f0867c5f2" title="handler for progress pointer, flag " alt="" coords="736,310,929,351"/>
+<area shape="rect" id="node13" href="$class_corblivar_core.html#a2425322f4f5368eaf446a224c3ff5c34" title="handler for block alignment " alt="" coords="723,259,943,285"/>
+<area shape="rect" id="node14" href="$class_corblivar_core.html#ae95c6cdd89086ea814e0691e4ec8e7d8" title="handler for block alignment " alt="" coords="999,5,1176,32"/>
+<area shape="rect" id="node16" href="$class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="1519,376,1693,403"/>
+<area shape="rect" id="node17" href="$class_routing_utilization.html#a085931a62a2b54c5531f7b4e9f9fe402" title="utilization analysis: handlers " alt="" coords="1543,609,1669,650"/>
+<area shape="rect" id="node18" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="741,731,924,757"/>
+<area shape="rect" id="node19" href="$class_t_s_v___island.html#a2a0c897dfd34251d246e22ca599ecbb4" title="TSV_Island::greedyShifting" alt="" coords="1515,427,1697,453"/>
+<area shape="rect" id="node21" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="761,680,905,707"/>
+<area shape="rect" id="node26" href="$class_routing_utilization.html#acf6054467c922f9841619cd1e58deadd" title="utilization analysis: handlers " alt="" coords="1543,478,1669,519"/>
+<area shape="rect" id="node20" href="$class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="1749,929,1888,956"/>
+<area shape="rect" id="node23" href="$class_floor_planner.html#addd945d082aeda06c57241ee2e747f98" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1258,695,1437,737"/>
+<area shape="rect" id="node24" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1232,528,1463,555"/>
+<area shape="rect" id="node27" href="$class_floor_planner.html#afd12899b86a27e8438b95ccd809023d1" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1511,791,1701,817"/>
+<area shape="rect" id="node28" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1249,813,1445,854"/>
+<area shape="rect" id="node30" href="$class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1248,630,1447,671"/>
+<area shape="rect" id="node25" href="$class_routing_utilization.html#a4dd6738016b93867ccd8250d2508b290" title="utilization analysis: handlers " alt="" coords="1543,543,1669,585"/>
+<area shape="rect" id="node29" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="1540,860,1672,887"/>
+<area shape="rect" id="node34" href="$class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="769,1141,897,1182"/>
+<area shape="rect" id="node35" href="$class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="749,1237,917,1264"/>
+<area shape="rect" id="node38" href="$class_math.html#a44bc995774823563ca845e370f2de741" title="random decision " alt="" coords="786,1543,879,1569"/>
+<area shape="rect" id="node39" href="$class_layout_operations.html#a76c938e4cb1dc40ba819c7b89cc698a7" title="LayoutOperations::prepare\lBlockSwappingFailedAlignment" alt="" coords="451,1479,656,1521"/>
+<area shape="rect" id="node40" href="$class_math.html#a2f3afda6dfe926c07b1bd3409ca754ed" title="Math::randI" alt="" coords="789,1304,877,1331"/>
+<area shape="rect" id="node41" href="$class_layout_operations.html#a8644b0b27592bf1ba1c2ce3ce167d18b" title="LayoutOperations::prepare\lSwappingCoordinatesFailedAlignment" alt="" coords="432,1414,675,1455"/>
+<area shape="rect" id="node42" href="$class_layout_operations.html#a1e814cefe17f4f8279c095560fc83f67" title="LayoutOperations::prepare\lHandlingOutlineCriticalBlock" alt="" coords="459,1545,647,1586"/>
+<area shape="rect" id="node43" href="$class_layout_operations.html#a51d0dd4485738a11d9ae1710c833d6c5" title="LayoutOperations::preselect\lBlockFromLargestNet" alt="" coords="461,1297,646,1338"/>
+<area shape="rect" id="node44" href="$class_layout_operations.html#a660aa368e2a5b1cc385636ec463f0f7d" title="LayoutOperations::perform\lOpMoveOrSwapBlocks" alt="" coords="465,1101,641,1142"/>
+<area shape="rect" id="node45" href="$class_layout_operations.html#ae1bf8a4e5eaa374b88f6c26eb9aee92f" title="LayoutOperations::perform\lOpSwitchInsertionDirection" alt="" coords="463,1166,644,1207"/>
+<area shape="rect" id="node46" href="$class_layout_operations.html#a1adb13850660db2cfa17a275d15793c3" title="LayoutOperations::perform\lOpSwitchTupleJunctions" alt="" coords="465,1231,641,1273"/>
+<area shape="rect" id="node47" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="465,1035,641,1077"/>
+<area shape="rect" id="node48" href="$class_layout_operations.html#a7742aab9203ae30432285ffce3be2a49" title="LayoutOperations::perform\lOpSwapAlignmentCoordinates" alt="" coords="733,1625,933,1666"/>
+</map>

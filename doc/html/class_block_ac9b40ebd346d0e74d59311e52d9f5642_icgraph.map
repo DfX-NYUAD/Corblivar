@@ -1,0 +1,17 @@
+<map id="Block::power_density_max" name="Block::power_density_max">
+<area shape="rect" id="node2" href="$class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="232,68,363,95"/>
+<area shape="rect" id="node3" href="$class_block.html#ac84515e45dfe29a7c16149a71c0387aa" title="Block::power_min" alt="" coords="411,93,537,120"/>
+<area shape="rect" id="node4" href="$class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="585,61,784,102"/>
+<area shape="rect" id="node5" href="$class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="1309,61,1492,102"/>
+<area shape="rect" id="node15" href="$class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="832,90,997,131"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1540,61,1736,102"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1784,68,1975,95"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="2907,113,3072,140"/>
+<area shape="rect" id="node11" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="2720,63,2859,89"/>
+<area shape="rect" id="node12" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="2023,144,2167,171"/>
+<area shape="rect" id="node9" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="3347,183,3397,209"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="3120,175,3299,217"/>
+<area shape="rect" id="node13" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="2215,93,2432,120"/>
+<area shape="rect" id="node14" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="2480,111,2672,137"/>
+<area shape="rect" id="node16" href="$class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="1045,90,1261,131"/>
+</map>

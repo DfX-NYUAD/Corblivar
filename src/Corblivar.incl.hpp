@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar libraries includes
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    

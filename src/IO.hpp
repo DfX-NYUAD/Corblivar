@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar IO handler
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -39,9 +39,10 @@ using namespace bp::operators;
 typedef bp::rectangle_data<double> BoostRect;
 typedef bp::polygon_90_set_data<double> BoostPolygonSet;
 
+/// Corblivar IO handler
 class IO {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 
 	// private data, functions
@@ -50,8 +51,8 @@ class IO {
 		static constexpr int TECHNOLOGY_VERSION = 6;
 
 	// constructors, destructors, if any non-implicit
-	// private in order to avoid instances of ``static'' class
 	private:
+		/// empty default constructor; private in order to avoid instances of ``static'' class
 		IO() {
 		}
 
@@ -64,7 +65,7 @@ class IO {
 		static void parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb);
 		static void writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& file_suffix = "");
 		static void writeHotSpotFiles(FloorPlanner const& fp);
-		// non-const reference due to map acces via []
+		/// non-const reference due to map acces via []
 		static void writeMaps(FloorPlanner& fp);
 		static void writeTempSchedule(FloorPlanner const& fp);
 };

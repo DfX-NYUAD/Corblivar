@@ -1,0 +1,11 @@
+<map id="Clustering::clusterSignalTSVs" name="Clustering::clusterSignalTSVs">
+<area shape="rect" id="node2" href="$class_clustering.html#a75dec773a773987e8ae32383396023ab" title="Hotspot determination. " alt="" coords="251,56,449,83"/>
+<area shape="rect" id="node5" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="743,125,926,152"/>
+<area shape="rect" id="node6" href="$class_t_s_v___island.html#a2a0c897dfd34251d246e22ca599ecbb4" title="TSV_Island::greedyShifting" alt="" coords="259,165,441,192"/>
+<area shape="rect" id="node3" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="527,5,659,32"/>
+<area shape="rect" id="node4" href="$class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="505,56,680,83"/>
+<area shape="rect" id="node7" href="$class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="523,224,662,251"/>
+<area shape="rect" id="node10" href="$class_rect.html#afa1518cf68e155b6064ccf70228c1e10" title="helper to shift and mitigate any intersection of two rectangles " alt="" coords="497,158,688,199"/>
+<area shape="rect" id="node8" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="743,195,926,221"/>
+<area shape="rect" id="node9" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="736,245,933,272"/>
+</map>

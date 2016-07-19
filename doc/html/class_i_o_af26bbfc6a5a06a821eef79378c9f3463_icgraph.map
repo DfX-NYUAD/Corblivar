@@ -1,0 +1,10 @@
+<map id="IO::writeHotSpotFiles" name="IO::writeHotSpotFiles">
+<area shape="rect" id="node2" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="201,93,345,120"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1525,68,1576,95"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="393,93,611,120"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1299,119,1477,161"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="659,56,851,83"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="659,132,850,159"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1085,93,1251,120"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="899,93,1037,120"/>
+</map>

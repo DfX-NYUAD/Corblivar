@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar contiguity analysis, required for multiple-voltages feature
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -30,9 +30,10 @@
 // forward declarations, if any
 class Block;
 
+/// Corblivar contiguity analysis, required for multiple-voltages feature
 class ContiguityAnalysis {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 
 	// public data
@@ -40,6 +41,7 @@ class ContiguityAnalysis {
 
 	// PODs, to be declared early on
 	public:
+		/// POD for neighbour relationship
 		struct ContiguousNeighbour {
 
 			Block const* block;
@@ -64,6 +66,7 @@ class ContiguityAnalysis {
 //			double common_boundary_inter_die_hor = 0.0;
 		};
 
+		/// POD for block boundaries
 		struct Boundary {
 
 			Block const* block;
@@ -72,11 +75,15 @@ class ContiguityAnalysis {
 			Point high;
 		};
 
-		// these data structures are used for intra-die contiguity analysis, as
-		// well as for checking MultipleVoltages::CompoundModules for intrusions
-		// of any block (implemented in
-		// MultipleVoltages::CompoundModule::updateOutlineCost); thus the data is public
+		/// these data structures are used for intra-die contiguity analysis, as
+		/// well as for checking MultipleVoltages::CompoundModules for intrusions
+		/// of any block (implemented in
+		/// MultipleVoltages::CompoundModule::updateOutlineCost); thus the data is public
 		std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_hor;
+		/// these data structures are used for intra-die contiguity analysis, as
+		/// well as for checking MultipleVoltages::CompoundModules for intrusions
+		/// of any block (implemented in
+		/// MultipleVoltages::CompoundModule::updateOutlineCost); thus the data is public
 		std::vector< std::vector<ContiguityAnalysis::Boundary> > boundaries_vert;
 
 	// private data, functions

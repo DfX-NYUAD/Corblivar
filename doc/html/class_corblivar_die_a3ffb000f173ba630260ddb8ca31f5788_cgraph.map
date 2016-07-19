@@ -1,0 +1,6 @@
+<map id="CorblivarDie::debugLayout" name="CorblivarDie::debugLayout">
+<area shape="rect" id="node2" href="$class_corblivar_die.html#a46c4d497eac2d346587d3b8534b7f52e" title="getter " alt="" coords="229,5,376,32"/>
+<area shape="rect" id="node3" href="$class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="233,56,372,83"/>
+<area shape="rect" id="node4" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="431,31,614,57"/>
+<area shape="rect" id="node5" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="424,81,621,108"/>
+</map>

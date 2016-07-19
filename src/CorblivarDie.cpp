@@ -4,7 +4,7 @@
  *    Description:  Corblivar 2.5D representation wrapper; also encapsulates layout
  *    generation functionality
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -920,10 +920,10 @@ bool CorblivarDie::shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq
 	return shifted;
 }
 
-// note that packing may undermine alignment requests; to avoid this, we call
-// FloorPlanner::evaluateAlignments before packing but after layout generation
-// (FloorPlanner::evaluateAlignments does annotate alignment success / failure to the
-// blocks themselves, via call to CorblivarAlignmentReq::evaluate)
+/// note that packing may undermine alignment requests; to avoid this, we call
+/// FloorPlanner::evaluateAlignments before packing but after layout generation
+/// (FloorPlanner::evaluateAlignments does annotate alignment success / failure to the
+/// blocks themselves, via call to CorblivarAlignmentReq::evaluate)
 void CorblivarDie::performPacking(Direction const& dir) {
 	std::vector<Block const*> blocks;
 	std::vector<Block const*>::iterator i1;

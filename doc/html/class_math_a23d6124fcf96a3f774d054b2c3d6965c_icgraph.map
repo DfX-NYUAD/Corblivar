@@ -1,0 +1,30 @@
+<map id="Math::doubleComp" name="Math::doubleComp">
+<area shape="rect" id="node2" href="$class_clustering.html#a75dec773a773987e8ae32383396023ab" title="Hotspot determination. " alt="" coords="185,65,384,91"/>
+<area shape="rect" id="node13" href="$class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="475,216,605,257"/>
+<area shape="rect" id="node14" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="944,275,1140,316"/>
+<area shape="rect" id="node15" href="$class_contiguity_analysis.html#a0fbc5d160753128781036ddc6b08f862" title="helper to check vertical boundaries " alt="" coords="204,167,365,208"/>
+<area shape="rect" id="node16" href="$class_contiguity_analysis.html#a808a02b21186bd94e8b2edc206644d68" title="helper to check horizontal boundaries " alt="" coords="206,232,363,273"/>
+<area shape="rect" id="node17" href="$class_corblivar_alignment_req.html#a06ae06d00663d2f8be2f29e5758fa301" title="evaluate alignment, whether it&#39;s fulfilled or not; and if not, why it&#39;s failing " alt="" coords="1224,545,1380,587"/>
+<area shape="rect" id="node21" href="$class_corblivar_die.html#a94d65b6dffc0912295bec1c6ac686655" title="layout generation: packing, to be performed as post&#45;placement operation " alt="" coords="1205,399,1399,426"/>
+<area shape="rect" id="node24" href="$class_i_o.html#a63107d073f1709afa54fc16fd25f2684" title="generate gnuplot for floorplans " alt="" coords="1230,30,1374,57"/>
+<area shape="rect" id="node25" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="707,333,868,375"/>
+<area shape="rect" id="node26" href="$class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom&#45;up construction " alt="" coords="190,451,379,492"/>
+<area shape="rect" id="node3" href="$class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="441,65,639,91"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="927,143,1157,170"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1207,265,1397,291"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="2343,233,2508,259"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="2156,283,2295,310"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1453,157,1597,183"/>
+<area shape="rect" id="node7" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2783,147,2833,174"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2556,140,2735,181"/>
+<area shape="rect" id="node11" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1651,233,1868,259"/>
+<area shape="rect" id="node12" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1916,233,2108,259"/>
+<area shape="rect" id="node18" href="$class_corblivar_alignment_req.html#a710905afd20f9e424bf291ace5b31ad4" title="alignment evaluation helper " alt="" coords="1447,545,1603,587"/>
+<area shape="rect" id="node19" href="$class_layout_operations.html#a76c938e4cb1dc40ba819c7b89cc698a7" title="LayoutOperations::prepare\lBlockSwappingFailedAlignment" alt="" coords="1657,501,1862,543"/>
+<area shape="rect" id="node20" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="1924,411,2100,452"/>
+<area shape="rect" id="node22" href="$class_corblivar_die.html#a94ca5adc1da14e7f5e70d3169931c09f" title="getter " alt="" coords="1449,443,1601,470"/>
+<area shape="rect" id="node23" href="$class_layout_operations.html#a51d0dd4485738a11d9ae1710c833d6c5" title="LayoutOperations::preselect\lBlockFromLargestNet" alt="" coords="1667,436,1852,477"/>
+<area shape="rect" id="node27" href="$class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="432,505,648,547"/>
+<area shape="rect" id="node29" href="$class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="705,451,870,492"/>
+<area shape="rect" id="node28" href="$class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="696,516,879,557"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Block::power_min" name="Block::power_min">
+<area shape="rect" id="node2" href="$class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="196,5,295,32"/>
+<area shape="rect" id="node4" href="$class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="180,56,311,83"/>
+<area shape="rect" id="node3" href="$class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="375,5,521,32"/>
+<area shape="rect" id="node5" href="$class_block.html#ac9b40ebd346d0e74d59311e52d9f5642" title="density in [uW/(um^2)]; relates to maximal value for highest voltage " alt="" coords="359,56,537,83"/>
+</map>

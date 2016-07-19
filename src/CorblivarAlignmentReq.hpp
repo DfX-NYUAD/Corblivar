@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar alignment requests data
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -29,20 +29,26 @@
 #include "Block.hpp"
 // forward declarations, if any
 
+/// Corblivar alignment requests data
 class CorblivarAlignmentReq {
-	// debugging code switch
 	public:
+		/// debugging code switch
 		static constexpr bool DBG_HANDLE_FAILED = false;
+		/// debugging code switch
 		static constexpr bool DBG_EVALUATE = false;
+		/// debugging code switch
 		static constexpr bool DBG_LAYOUT_GENERATION = false;
 
 	// enum classes; have to be defined first
 	public:
+		/// alignment types
 		enum class Type : int {OFFSET = 0, MIN = 1, MAX = 2, UNDEF = -1};
+		/// required handling of alignment
 		enum class Handling : int {STRICT = 0, FLEXIBLE = 1};
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		CorblivarAlignmentReq(int const& id,
 				Handling const& handling,
 				int const& signals,
@@ -136,30 +142,35 @@ class CorblivarAlignmentReq {
 			return out;
 		}
 
-		// alignment-type getter
+		/// alignment-type getter
 		inline bool range_x() const {
 			return (this->type_x == Type::MIN && this->alignment_x != 0.0);
 		}
+		/// alignment-type getter
 		inline bool range_y() const {
 			return (this->type_y == Type::MIN && this->alignment_y != 0.0);
 		}
+		/// alignment-type getter
 		inline bool range_max_x() const {
 			return (this->type_x == Type::MAX && this->alignment_x != 0.0);
 		}
+		/// alignment-type getter
 		inline bool range_max_y() const {
 			return (this->type_y == Type::MAX && this->alignment_y != 0.0);
 		}
+		/// alignment-type getter
 		inline bool offset_x() const {
 			return (this->type_x == Type::OFFSET);
 		}
+		/// alignment-type getter
 		inline bool offset_y() const {
 			return (this->type_y == Type::OFFSET);
 		}
 
-		// alignment evaluation helper
-		//
+		/// alignment evaluation helper
 		bool vertical_bus() const;
 
+		/// alignment evaluation helper: check for blocks' relationship
 		inline bool partner_blocks(Block const* b1, Block const* b2) const {
 			return (
 				(b1->numerical_id == this->s_i->numerical_id && b2->numerical_id == this->s_j->numerical_id) ||
@@ -167,6 +178,7 @@ class CorblivarAlignmentReq {
 			       );
 		}
 
+		/// alignment evaluation helper
 		inline std::string tupleString() const {
 			std::stringstream ret;
 

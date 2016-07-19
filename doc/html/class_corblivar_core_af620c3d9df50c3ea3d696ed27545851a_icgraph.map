@@ -1,0 +1,12 @@
+<map id="CorblivarCore::switchDie" name="CorblivarCore::switchDie">
+<area shape="rect" id="node2" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="221,43,420,69"/>
+<area shape="rect" id="node3" href="$class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc" title="default constructor " alt="" coords="469,17,659,44"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="468,68,660,95"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1591,113,1756,140"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1404,63,1543,89"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="708,144,852,171"/>
+<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2031,183,2081,209"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1804,175,1983,217"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="900,93,1117,120"/>
+<area shape="rect" id="node11" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1165,111,1356,137"/>
+</map>

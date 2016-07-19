@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar routing-utilization analyzer
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -30,23 +30,27 @@
 class Point;
 class Rect;
 
+/// Corblivar routing-utilization analyzer
 class RoutingUtilization {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
+		/// debugging code switch (private)
 		static constexpr bool DBG_CALLS = false;
 
 	// public data
 	public:
 
-		// dimensions for routing-utilization map
+		/// dimensions for routing-utilization map
 		static constexpr int UTIL_MAPS_DIM = 64;
 
 	// PODs, to be declared early on
 	public:
+		/// POD for bin
 		struct UtilBin {
 			double utilization;
 		};
+		/// POD for overall result
 		struct UtilResult {
 			double cost;
 			double avg_util;
@@ -56,12 +60,14 @@ class RoutingUtilization {
 	// private data, functions
 	private:
 
-		// utilization maps [i][x][y] whereas i relates to the layer
+		/// utilization maps [i][x][y] whereas i relates to the layer
 		std::vector< std::array< std::array<UtilBin, UTIL_MAPS_DIM>, UTIL_MAPS_DIM> > util_maps;
 
-		// parameters for generating utilization maps
+		/// parameters for generating utilization maps
 		double util_maps_dim_x, util_maps_dim_y;
+		/// parameters for generating utilization maps
 		double util_maps_bin_area;
+		/// helper variables for generating utilization maps
 		std::array<double, UTIL_MAPS_DIM + 1> util_maps_bins_ll_x, util_maps_bins_ll_y;
 
 
@@ -72,10 +78,13 @@ class RoutingUtilization {
 	public:
 		friend class IO;
 
-		// utilization analysis: handlers
+		/// utilization analysis: handlers
 		void initUtilMaps(int const& layers, Point const& die_outline);
+		/// utilization analysis: handlers
 		void resetUtilMaps(int const& layers);
+		/// utilization analysis: handlers
 		void adaptUtilMap(int const& layer, Rect const& net_bb, double const& net_weight = 1.0);
+		/// utilization analysis: handlers
 		UtilResult determCost() const;
 };
 

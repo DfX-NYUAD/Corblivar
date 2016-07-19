@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar design net
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -31,9 +31,10 @@
 #include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 
+/// Corblivar design net
 class Net {
-	// debugging code switch (public; access e.g. from class FloorPlanner)
 	public:
+		/// debugging code switch (public; access e.g. from class FloorPlanner)
 		static constexpr bool DBG = false;
 
 	// private data, functions
@@ -41,6 +42,7 @@ class Net {
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		Net(std::string const& id) {
 			this->id = id;
 			this->hasExternalPin = false;
@@ -61,18 +63,18 @@ class Net {
 		mutable int layer_bottom, layer_top;
 		mutable bool clustered;
 
-		// the first block of a net is considered the source/driver, the remaining
-		// blocks/terminals are sinks
+		/// the first block of a net is considered the source/driver, the remaining
+		/// blocks/terminals are sinks
 		Block const* source;
-		// flag whether nets are global input/output nets, being connected to some
-		// terminal pin
+		/// flag whether nets are global input/output nets, being connected to some
+		/// terminal pin
 		bool inputNet, outputNet;
 
-		// the delay value is calculated as max value from source to any sink;
-		// consider only net delay and for this only bbs and number of TSVs, no
-		// precise location of previously placed TSVs since we don't require TSVs
-		// to be placed at this point; assign max value to source block
-		//
+		/// the delay value is calculated as max value from source to any sink;
+		/// consider only net delay and for this only bbs and number of TSVs, no
+		/// precise location of previously placed TSVs since we don't require TSVs
+		/// to be placed at this point; assign max value to source block
+		///
 		inline void assignSourceMaxDelay() const {
 			Rect source_sink_bb;
 
@@ -113,6 +115,7 @@ class Net {
 			}
 		};
 
+		/// reset helper
 		inline void resetSourceMaxDelay() {
 
 			// sanity check; input nets are ignored since they have no driving block
@@ -123,6 +126,7 @@ class Net {
 			this->source->net_delay_max = 0.0;
 		};
 
+		/// reset helper
 		inline void resetLayerBoundaries() const {
 
 			if (this->blocks.empty()) {
@@ -146,6 +150,8 @@ class Net {
 		};
 
 
+		/// helper to determine net's bb accurately, with consideration of TSVs
+		/// and terminal pins
 		inline Rect determBoundingBox(int const& layer, bool const& consider_center = false) const {
 			int i;
 			std::vector<Rect const*> blocks_to_consider;

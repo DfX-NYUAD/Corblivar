@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar layout point
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -28,6 +28,7 @@
 // Corblivar includes, if any
 // forward declarations, if any
 
+/// Corblivar layout point
 class Point {
 	// debugging code switch (private)
 	private:
@@ -37,11 +38,13 @@ class Point {
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		Point() {
 			this->x = Point::UNDEF;
 			this->y = Point::UNDEF;
 		};
 
+		/// default constructor
 		Point(double x, double y) {
 			this->x = x;
 			this->y = y;
@@ -53,6 +56,7 @@ class Point {
 
 		double x, y;
 
+		/// Euclidian distance between two points
 		inline static double dist(Point const& a, Point const& b) {
 			return std::sqrt(std::pow(std::abs(a.x - b.x), 2) + std::pow(std::abs(a.y - b.y), 2));
 		};

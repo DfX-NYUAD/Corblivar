@@ -1,0 +1,11 @@
+<map id="CorblivarCore::editDie" name="CorblivarCore::editDie">
+<area shape="rect" id="node2" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="204,93,396,120"/>
+<area shape="rect" id="node10" href="$class_i_o.html#ad23c22df3fbdd5938e7e94307a737868" title="parse Corblivar solution file, to rerun Corbliar w/ previous data " alt="" coords="444,259,593,285"/>
+<area shape="rect" id="node3" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1332,116,1497,143"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1145,65,1284,92"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="447,144,591,171"/>
+<area shape="rect" id="node4" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1772,216,1823,243"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1545,179,1724,221"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="641,93,859,120"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="907,111,1097,137"/>
+</map>

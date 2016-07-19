@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar IO handler
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -27,7 +27,7 @@
 #include "FloorPlanner.hpp"
 #include "CorblivarCore.hpp"
 
-// parse program parameter, config file, and further files
+/// parse program parameter, config file, and further files
 void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	int file_version;
 	size_t last_slash;
@@ -994,6 +994,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	}
 }
 
+/// parse Corblivar solution file, to rerun Corbliar w/ previous data
 void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	std::string tmpstr;
 	CornerBlockList::Tuple tuple;
@@ -1103,7 +1104,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 	}
 }
 
-// parse alignment-requests file
+/// parse alignment-requests file
 void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignmentReq>& alignments) {
 	std::ifstream al_in;
 	std::string tmpstr;
@@ -1312,7 +1313,7 @@ void IO::parseAlignmentRequests(FloorPlanner& fp, std::vector<CorblivarAlignment
 	}
 }
 
-// parse blocks file
+/// parse blocks file
 void IO::parseBlocks(FloorPlanner& fp) {
 	std::ifstream blocks_in, pins_in, power_in;
 	std::string tmpstr;
@@ -1812,7 +1813,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 	}
 }
 
-// parse nets file
+/// parse nets file
 void IO::parseNets(FloorPlanner& fp) {
 	std::ifstream in;
 	std::string tmpstr;
@@ -2098,6 +2099,7 @@ void IO::parseNets(FloorPlanner& fp) {
 
 }
 
+/// output gnuplot maps
 void IO::writeMaps(FloorPlanner& fp) {
 	std::ofstream gp_out;
 	std::ofstream data_out;
@@ -2498,6 +2500,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 	}
 }
 
+/// output gnuplot for SA annealing schedule
 void IO::writeTempSchedule(FloorPlanner const& fp) {
 	std::ofstream gp_out;
 	std::ofstream data_out;
@@ -2686,7 +2689,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	}
 }
 
-// generate GP plots of FP
+/// generate gnuplot for floorplans
 void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& file_suffix) {
 	std::ofstream gp_out;
 	int cur_layer;
@@ -3289,7 +3292,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 	}
 }
 
-// generate files for HotSpot steady-state thermal simulation
+/// generate files for HotSpot steady-state thermal simulation
 void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	std::ofstream file, file_bond;
 	int cur_layer;

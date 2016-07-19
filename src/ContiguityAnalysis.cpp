@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar contiguity analysis, required for multiple-voltages feature
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -27,11 +27,11 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
-// Extract blocks' boundaries, and order them by coordinates; this will reduce required
-// comparisons between (in principal all pairs of) blocks notably by considering only
-// relevant blocks. For intra-die contiguity, these are abutting boundaries, and for
-// inter-die contiguity, these are boundaries within a block's outline.
-//
+/// Extract blocks' boundaries, and order them by coordinates; this will reduce required
+/// comparisons between (in principal all pairs of) blocks notably by considering only
+/// relevant blocks. For intra-die contiguity, these are abutting boundaries, and for
+/// inter-die contiguity, these are boundaries within a block's outline.
+///
 void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blocks) {
 
 	ContiguityAnalysis::Boundary cur_boundary;
@@ -486,6 +486,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 	}
 }
 
+/// helper to check vertical boundaries
 inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	return (
 			// x-coordinates are the first criterion; note
@@ -504,6 +505,7 @@ inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundar
 	       );
 };
 
+/// helper to check horizontal boundaries
 inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	return (
 			// y-coordinates are the first criterion; note

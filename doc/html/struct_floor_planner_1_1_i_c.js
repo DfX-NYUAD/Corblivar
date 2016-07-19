@@ -1,0 +1,27 @@
+var struct_floor_planner_1_1_i_c =
+[
+    [ "BEOL_thickness", "struct_floor_planner_1_1_i_c.html#a6bd7a8f375fe70bfe74d74e5548bd178", null ],
+    [ "blocks_area", "struct_floor_planner_1_1_i_c.html#ae31e1399f49b9dc8aeea259b467d9bd2", null ],
+    [ "blocks_scale", "struct_floor_planner_1_1_i_c.html#a3cec28cccb824a754f6e1f9d7f10ee67", null ],
+    [ "bond_thickness", "struct_floor_planner_1_1_i_c.html#a3f42f8278bdb06bf15ddb93ee340bc7d", null ],
+    [ "delay_threshold", "struct_floor_planner_1_1_i_c.html#aa1184ee86197384876088b333b52de7f", null ],
+    [ "delay_threshold_initial", "struct_floor_planner_1_1_i_c.html#a2226269c87c60ce7d5c4b6eea9ae23c7", null ],
+    [ "die_AR", "struct_floor_planner_1_1_i_c.html#adfa19789ed5eed1e480ddbaf16f0dd7d", null ],
+    [ "die_area", "struct_floor_planner_1_1_i_c.html#aebd80e8f035f7208d3891f700128545a", null ],
+    [ "die_thickness", "struct_floor_planner_1_1_i_c.html#a2d46599a85ff7b776ffd9eb3bc686f1c", null ],
+    [ "frequency", "struct_floor_planner_1_1_i_c.html#a040042374db249aaf19f0cfb537f953e", null ],
+    [ "layers", "struct_floor_planner_1_1_i_c.html#adde4a91b0396df6986f4c5f08a94f116", null ],
+    [ "outline_shrink", "struct_floor_planner_1_1_i_c.html#a672aa42ae4c29f7302b480e7421a835c", null ],
+    [ "outline_x", "struct_floor_planner_1_1_i_c.html#a087073680bbb3c2f5e4f127c0e90c3a2", null ],
+    [ "outline_y", "struct_floor_planner_1_1_i_c.html#aa4f3a0ca83ec3eb0dc2328c8422a1a75", null ],
+    [ "power_scale", "struct_floor_planner_1_1_i_c.html#aee3cdaa373a5e0bb8f1c617b939fa852", null ],
+    [ "Si_active_thickness", "struct_floor_planner_1_1_i_c.html#a6935fe0e8f96243a2e031a76e50f41e6", null ],
+    [ "Si_passive_thickness", "struct_floor_planner_1_1_i_c.html#aa72644a1dc52659a815bbccadf047eca", null ],
+    [ "stack_area", "struct_floor_planner_1_1_i_c.html#a1ceec045c9e7f2199ca10c0d5e7a9d3e", null ],
+    [ "stack_deadspace", "struct_floor_planner_1_1_i_c.html#a657f7245c745d2bef953a7514c53c37d", null ],
+    [ "TSV_dimension", "struct_floor_planner_1_1_i_c.html#acae58f635f3a6ebd030f3a548e884174", null ],
+    [ "TSV_group_Cu_area_ratio", "struct_floor_planner_1_1_i_c.html#aeb910c55f1177184a9e4faf4a7f9b1f7", null ],
+    [ "TSV_group_Cu_Si_ratio", "struct_floor_planner_1_1_i_c.html#ae701df51a81120804536ab5e3a14c3b0", null ],
+    [ "TSV_per_cluster_limit", "struct_floor_planner_1_1_i_c.html#a174e4533fdc8649bb56b6c8446e58c5d", null ],
+    [ "TSV_pitch", "struct_floor_planner_1_1_i_c.html#a833dc8c6f291b66298a95e86280103b1", null ]
+];

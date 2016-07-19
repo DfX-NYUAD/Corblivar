@@ -1,0 +1,7 @@
+<map id="MultipleVoltages::CompoundModule::update_power_saving" name="MultipleVoltages::CompoundModule::update_power_saving">
+<area shape="rect" id="node2" href="$class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="427,5,557,32"/>
+<area shape="rect" id="node4" href="$class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="443,68,541,95"/>
+<area shape="rect" id="node6" href="$class_block.html#ac84515e45dfe29a7c16149a71c0387aa" title="Block::power_min" alt="" coords="252,31,379,57"/>
+<area shape="rect" id="node3" href="$class_block.html#ac9b40ebd346d0e74d59311e52d9f5642" title="density in [uW/(um^2)]; relates to maximal value for highest voltage " alt="" coords="605,5,784,32"/>
+<area shape="rect" id="node5" href="$class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="621,68,768,95"/>
+</map>

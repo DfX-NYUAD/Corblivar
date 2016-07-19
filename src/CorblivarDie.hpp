@@ -1,10 +1,10 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar 2.5D representation wrapper; also encapsulates layout
  *    generation functionality
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -33,31 +33,33 @@
 class Block;
 class CorblivarAlignmentReq;
 
+/// Corblivar 2.5D representation wrapper; also encapsulates layout generation functionality
 class CorblivarDie {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG_STACKS = false;
 
 	// private data, functions
 	private:
 		int id;
-		// progress flags
+		/// progress flags
 		bool stalled;
+		/// progress flags
 		bool done;
 
-		// progress pointer, CBL vector index
+		/// progress pointer, CBL vector index
 		unsigned pi;
 
-		// placement stacks; for efficiency implemented as list
+		/// placement stacks; for efficiency implemented as list
 		std::list<Block const*> Hi, Vi;
 
-		// main CBL sequence
+		/// main CBL sequence
 		CornerBlockList CBL;
 
-		// backup CBL sequences
+		/// backup CBL sequences
 		CornerBlockList CBLbackup, CBLbest;
 
-		// reset handler
+		/// reset handler
 		inline void reset() {
 
 			// reset progress pointer
@@ -76,7 +78,7 @@ class CorblivarDie {
 			}
 		};
 
-		// handler for progress pointer, flag
+		/// handler for progress pointer, flag
 		inline void updateProgressPointerFlag() {
 			if (this->pi == (this->CBL.size() - 1)) {
 				this->done = true;
@@ -86,25 +88,26 @@ class CorblivarDie {
 			}
 		}
 
-		// layout generation; place current block
+		/// layout generation; place current block
 		void placeCurrentBlock(bool const& alignment_enabled);
-		// layout generation: block shifting
+		/// layout generation: block shifting
 		bool shiftCurrentBlock(Direction const& dir, CorblivarAlignmentReq const* req, bool const& dry_run = false);
 
-		// layout-generation helper: determine coordinates of block in process
+		/// layout-generation helper: determine coordinates of block in process
 		void determCurrentBlockCoords(Coordinate const& coord, std::list<Block const*> const& relev_blocks_stack, bool const& extended_check = false) const;
-		// layout-generation helper: pop relevant blocks to consider during
-		// placement from stacks
+		/// layout-generation helper: pop relevant blocks to consider during
+		/// placement from stacks
 		std::list<Block const*> popRelevantBlocks();
-		// layout-generation helper: update placement stack (after placement)
+		/// layout-generation helper: update placement stack (after placement)
 		void updatePlacementStacks(std::list<Block const*>& relev_blocks_stack);
-		// layout-generation helper: rebuild placement stack (after block shifting)
+		/// layout-generation helper: rebuild placement stack (after block shifting)
 		void rebuildPlacementStacks(std::list<Block const*>& relev_blocks_stack);
-		// layout-generation helper: placement stacks debugging
+		/// layout-generation helper: placement stacks debugging
 		void debugStacks();
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		CorblivarDie(int const& id) {
 			this->stalled = false;
 			this->done = false;
@@ -115,30 +118,36 @@ class CorblivarDie {
 	public:
 		friend class CorblivarCore;
 
-		// setter
+		/// setter
 		inline CornerBlockList& editCBL() {
 			return this->CBL;
 		};
 
-		// getter
+		/// getter
 		inline CornerBlockList const& getCBL() const {
 			return this->CBL;
 		};
+		/// getter
 		inline std::vector<Block const*> const& getBlocks() const {
 			return this->CBL.S;
 		};
+		/// getter
 		inline Block const* getBlock(unsigned const& tuple) const {
 			return this->CBL.S[tuple];
 		};
+		/// getter
 		inline Block const* getCurrentBlock() const {
 			return this->CBL.S[this->pi];
 		};
+		/// getter
 		inline Direction const& getCurrentDirection() const {
 			return this->CBL.L[this->pi];
 		};
+		/// getter
 		inline unsigned const& getJunctions(unsigned const& tuple) const {
 			return this->CBL.T[tuple];
 		};
+		/// getter
 		inline int getTuple(Block const* block) const {
 			unsigned index;
 
@@ -152,11 +161,11 @@ class CorblivarDie {
 			return -1;
 		};
 
-		// layout generation: packing, to be performed as post-placement operation
+		/// layout generation: packing, to be performed as post-placement operation
 		void performPacking(Direction const& dir);
 
-		// layout-generation helper: sanity check and debugging for valid layout,
-		// i.e., overlap-free block arrangement
+		/// layout-generation helper: sanity check and debugging for valid layout,
+		/// i.e., overlap-free block arrangement
 		bool debugLayout() const;
 };
 

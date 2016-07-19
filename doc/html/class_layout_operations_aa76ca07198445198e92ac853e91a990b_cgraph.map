@@ -1,0 +1,8 @@
+<map id="LayoutOperations::performOpEnhancedSoftBlockShaping" name="LayoutOperations::performOpEnhancedSoftBlockShaping">
+<area shape="rect" id="node2" href="$class_math.html#a2f3afda6dfe926c07b1bd3409ca754ed" title="Math::randI" alt="" coords="307,5,395,32"/>
+<area shape="rect" id="node3" href="$class_corblivar_core.html#a7bba64be23ee157a51dbaa7cbeb519d4" title="getter " alt="" coords="277,56,425,83"/>
+<area shape="rect" id="node4" href="$class_corblivar_die.html#a6cbcb2443347786f47196a1c12a94b91" title="getter " alt="" coords="271,107,431,133"/>
+<area shape="rect" id="node5" href="$class_block.html#a82ba474052e92d6501c7918cd30a381b" title="Block::shapeByWidthHeight" alt="" coords="257,157,444,184"/>
+<area shape="rect" id="node6" href="$class_block.html#af3ce91e69e4941dd087f433c3dfde7f2" title="Block::shapeRandomlyByAR" alt="" coords="255,208,447,235"/>
+<area shape="rect" id="node7" href="$class_math.html#aacb796c19649cad3d7e187e8f63edb6b" title="Math::randF" alt="" coords="495,208,587,235"/>
+</map>

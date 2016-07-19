@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar floorplanner (SA operations and related handler)
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -35,13 +35,16 @@
 #include "MultipleVoltages.hpp"
 
 
-// memory allocation
+/// memory allocation
 constexpr int Pin::LAYER;
+/// memory allocation
 constexpr double TimingPowerAnalyser::ACTIVITY_FACTOR;
+/// memory allocation
 constexpr double TSV_Island::AR_MIN;
+/// memory allocation
 constexpr double TSV_Island::AR_MAX;
 
-// main handler
+/// main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
@@ -898,8 +901,8 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	return ret;
 }
 
-// adaptive cost model w/ two phases: first phase considers only cost for packing into
-// outline, second phase considers further factors like WL, thermal distr, etc.
+/// adaptive cost model w/ two phases: first phase considers only cost for packing into
+/// outline, second phase considers further factors like WL, thermal distr, etc.
 FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost, bool const& finalize) {
 	Cost cost;
 
@@ -1084,8 +1087,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	return cost;
 }
 
-// determine the delays for all blocks; they shall fulfill a max delay below a given
-// threshold
+/// determine the delays for all blocks; they shall fulfill a max delay below a given
+/// threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool reevaluation) {
 	double max_delay;
 
@@ -1315,9 +1318,9 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
 };
 
-// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
-// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
-// ``Modern floorplanning based on B*-Tree and fast simulated annealing''
+/// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
+/// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
+/// ``Modern floorplanning based on B*-Tree and fast simulated annealing''
 void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio, bool const& SA_phase_two) const {
 	double cost_area;
 	double cost_outline;
@@ -1870,9 +1873,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	}
 }
 
-// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
-// note that this function also marks requests as failed or successful
-//
+/// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
+/// note that this function also marks requests as failed or successful
+///
 // (TODO) account for power consumption in these wires and resulting TSVs
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb, routing_bb;
@@ -2095,10 +2098,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 }
 
-// separate determination of alignments' HPWL which is called from evaluateInterconnects;
-// this way, the HPWL components of alignments are always (for active WL optimization)
-// considered
-//
+/// separate determination of alignments' HPWL which is called from evaluateInterconnects;
+/// this way, the HPWL components of alignments are always (for active WL optimization)
+/// considered
+///
 // (TODO) account for power consumption in these wires and resulting TSVs
 double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;

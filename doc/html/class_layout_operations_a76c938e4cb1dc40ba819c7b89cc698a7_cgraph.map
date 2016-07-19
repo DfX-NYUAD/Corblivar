@@ -1,0 +1,29 @@
+<map id="LayoutOperations::prepareBlockSwappingFailedAlignment" name="LayoutOperations::prepareBlockSwappingFailedAlignment">
+<area shape="rect" id="node2" href="$class_corblivar_core.html#a26efb3cb4d32f7e7f9d4630961708f13" title="getter " alt="" coords="259,5,452,32"/>
+<area shape="rect" id="node3" href="$class_math.html#a2f3afda6dfe926c07b1bd3409ca754ed" title="Math::randI" alt="" coords="311,56,399,83"/>
+<area shape="rect" id="node4" href="$class_math.html#a44bc995774823563ca845e370f2de741" title="random decision " alt="" coords="309,107,402,133"/>
+<area shape="rect" id="node5" href="$class_corblivar_core.html#a7bba64be23ee157a51dbaa7cbeb519d4" title="getter " alt="" coords="281,157,429,184"/>
+<area shape="rect" id="node6" href="$class_corblivar_die.html#a94ca5adc1da14e7f5e70d3169931c09f" title="getter " alt="" coords="279,259,431,285"/>
+<area shape="rect" id="node10" href="$class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="769,294,897,335"/>
+<area shape="rect" id="node13" href="$class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="749,461,917,488"/>
+<area shape="rect" id="node16" href="$class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="763,192,902,219"/>
+<area shape="rect" id="node17" href="$class_corblivar_alignment_req.html#ab46b93ae4801ef79a93be48ec08eb46a" title="alignment evaluation helper " alt="" coords="519,794,675,835"/>
+<area shape="rect" id="node22" href="$class_corblivar_die.html#a6cbcb2443347786f47196a1c12a94b91" title="getter " alt="" coords="275,579,435,605"/>
+<area shape="rect" id="node23" href="$class_corblivar_alignment_req.html#abb5fd33c96605054c83bc8240d0411f4" title="alignment evaluation helper: check for blocks&#39; relationship " alt="" coords="277,630,433,671"/>
+<area shape="rect" id="node24" href="$class_corblivar_alignment_req.html#a710905afd20f9e424bf291ace5b31ad4" title="alignment evaluation helper " alt="" coords="277,462,433,503"/>
+<area shape="rect" id="node7" href="$class_corblivar_die.html#a94d65b6dffc0912295bec1c6ac686655" title="layout generation: packing, to be performed as post&#45;placement operation " alt="" coords="500,360,693,387"/>
+<area shape="rect" id="node15" href="$class_corblivar_die.html#a3ffb000f173ba630260ddb8ca31f5788" title="CorblivarDie::debugLayout" alt="" coords="509,259,685,285"/>
+<area shape="rect" id="node8" href="$class_corblivar_die.html#a46c4d497eac2d346587d3b8534b7f52e" title="getter " alt="" coords="759,243,906,269"/>
+<area shape="rect" id="node9" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="767,411,899,437"/>
+<area shape="rect" id="node12" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="741,360,924,387"/>
+<area shape="rect" id="node11" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="979,247,1162,273"/>
+<area shape="rect" id="node14" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="972,352,1169,379"/>
+<area shape="rect" id="node18" href="$class_corblivar_alignment_req.html#a74cb014b3ee7ebbc85b67ffe7d254372" title="alignment&#45;type getter " alt="" coords="755,695,911,737"/>
+<area shape="rect" id="node19" href="$class_corblivar_alignment_req.html#a510bbb8081513e8691a7463167d2a6cf" title="alignment&#45;type getter " alt="" coords="755,761,911,802"/>
+<area shape="rect" id="node20" href="$class_corblivar_alignment_req.html#aa533a26dfe0bf12e69c735f6092612a5" title="alignment&#45;type getter " alt="" coords="755,826,911,867"/>
+<area shape="rect" id="node21" href="$class_corblivar_alignment_req.html#a9de6ea8e138ced3204e63dbd7c194880" title="alignment&#45;type getter " alt="" coords="755,891,911,933"/>
+<area shape="rect" id="node25" href="$class_corblivar_alignment_req.html#a06ae06d00663d2f8be2f29e5758fa301" title="evaluate alignment, whether it&#39;s fulfilled or not; and if not, why it&#39;s failing " alt="" coords="519,513,675,554"/>
+<area shape="rect" id="node26" href="$class_corblivar_alignment_req.html#a6d488734571cab323e222d84ef101ebe" title="alignment&#45;type getter " alt="" coords="755,513,911,554"/>
+<area shape="rect" id="node27" href="$class_corblivar_alignment_req.html#ab50c5cd3b28812d5a2792ecbdb615b25" title="alignment&#45;type getter " alt="" coords="755,578,911,619"/>
+<area shape="rect" id="node28" href="$class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="745,644,920,671"/>
+</map>

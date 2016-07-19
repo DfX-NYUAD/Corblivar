@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar core (data structures, layout operations)
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -32,9 +32,10 @@
 // forward declarations, if any
 class Block;
 
+/// Corblivar core (data structures, layout operations)
 class CorblivarCore {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 
 	// debugging code switch (public)
@@ -42,14 +43,14 @@ class CorblivarCore {
 
 	// private data, functions
 	private:
-		// main data; encapsulated in CorblivarDie; Corblivar can thus be
-		// considered as 2.5D layout representation
+		/// main data; encapsulated in CorblivarDie; Corblivar can thus be
+		/// considered as 2.5D layout representation
 		std::vector<CorblivarDie> dies;
 
-		// current-die pointer
+		/// pointer to current die
 		CorblivarDie* p;
 
-		// die-selection handler
+		/// die-selection handler
 		inline bool switchDie() {
 
 			// try to continue on unfinished die
@@ -69,24 +70,27 @@ class CorblivarCore {
 			}
 		};
 
-		// sequence A; alignment requests
+		/// sequence A; alignment requests
 		std::vector<CorblivarAlignmentReq> A;
 
-		// alignments-in-process list
+		/// alignments-in-process list
 		std::list<CorblivarAlignmentReq const*> AL;
 
-		// handler for block alignment
+		/// handler for block alignment
 		bool alignBlocks(CorblivarAlignmentReq const* req);
+		/// handler for block alignment
 		static void sequentialShiftingHelper(
 				CorblivarDie* die_b1, CorblivarDie* die_b2,
 				CorblivarAlignmentReq const* req,
 				std::list<Block const*> b1_relev_blocks, std::list<Block const*> b2_relev_blocks,
 				Direction const& dir_b1,
 				bool& b1_shifted, bool& b2_shifted);
+		/// handler for block alignment
 		std::vector<CorblivarAlignmentReq const*> findAlignmentReqs(Block const* b) const;
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		CorblivarCore(int const& layers, unsigned const& blocks) {
 
 			// reserve mem for dies
@@ -105,26 +109,29 @@ class CorblivarCore {
 	// public data, functions
 	public:
 
-		// general operations
+		/// general operations; randomly setup data structure from input
 		void initCorblivarRandomly(bool const& log, int const& layers, std::vector<Block> const& blocks, bool const& power_aware_assignment);
+		/// general operations; generate layout from data structure
 		bool generateLayout(bool const& perform_alignment);
 
-		// getter
+		/// getter
 		inline CorblivarDie& editDie(unsigned const& die) {
 			return this->dies[die];
 		};
+		/// getter
 		inline CorblivarDie const& getDie(unsigned const& die) const {
 			return this->dies[die];
 		};
+		/// setter
 		inline std::vector<CorblivarAlignmentReq>& editAlignments() {
 			return this->A;
 		};
+		/// getter
 		inline std::vector<CorblivarAlignmentReq> const& getAlignments() const {
 			return this->A;
 		};
 
-		// abstract layout-modification operations
-		//
+		/// abstract layout-modification operation
 		inline void swapBlocks(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 
 			// pre-update layer assignments if swapping across dies
@@ -146,6 +153,7 @@ class CorblivarCore {
 			}
 		};
 
+		/// abstract layout-modification operation
 		inline void moveTuples(int const& die1, int const& die2, int const& tuple1, int const& tuple2) {
 			Block const* t1_S;
 			Direction t1_L;
@@ -210,6 +218,7 @@ class CorblivarCore {
 			}
 		};
 
+		/// abstract layout-modification operation
 		inline void switchInsertionDirection(int const& die, int const& tuple) {
 
 			if (this->dies[die].CBL.L[tuple] == Direction::VERTICAL) {
@@ -228,6 +237,7 @@ class CorblivarCore {
 			}
 		};
 
+		/// abstract layout-modification operation
 		inline void swapAlignmentCoordinates(int const& tuple) {
 
 			// swap alignment-request type
@@ -243,6 +253,7 @@ class CorblivarCore {
 			}
 		};
 
+		/// abstract layout-modification operation
 		inline void switchTupleJunctions(int const& die, int const& tuple, int const& juncts) {
 
 			this->dies[die].CBL.T[tuple] = juncts;
@@ -257,7 +268,7 @@ class CorblivarCore {
 			}
 		};
 
-		// CBL logging
+		/// CBL logging
 		inline std::string CBLsString() const {
 			std::stringstream ret;
 
@@ -272,11 +283,12 @@ class CorblivarCore {
 			return ret.str();
 		};
 
-		// CBL sorting handler
+		/// CBL sorting mode
 		static constexpr int SORT_CBLS_BY_BLOCKS_SIZE = 1;
+		/// CBL sorting handler
 		void sortCBLs(bool const& log, int const& mode);
 
-		// CBL backup handler
+		/// CBL backup handler
 		inline void backupCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
@@ -299,6 +311,7 @@ class CorblivarCore {
 				}
 			}
 		};
+		/// CBL backup handler
 		inline void restoreCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
@@ -324,7 +337,7 @@ class CorblivarCore {
 			}
 		};
 
-		// CBL best-solution handler
+		/// CBL best-solution handler
 		inline void storeBestCBLs() {
 
 			for (CorblivarDie& die : this->dies) {
@@ -347,8 +360,10 @@ class CorblivarCore {
 				}
 			}
 		};
-		// returns false only if all dies from CBLbest are empty, i.e., no best
-		// solution at all is available
+		/// CBL best-solution handler
+		///
+		/// returns false only if all dies from CBLbest are empty, i.e., no best
+		/// solution at all is available
 		inline bool applyBestCBLs(bool const& log) {
 			unsigned empty_dies = 0;
 			bool ret;

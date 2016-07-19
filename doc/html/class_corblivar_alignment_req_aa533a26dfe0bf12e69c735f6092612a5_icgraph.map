@@ -1,0 +1,23 @@
+<map id="CorblivarAlignmentReq::offset_x" name="CorblivarAlignmentReq::offset_x">
+<area shape="rect" id="node2" href="$class_corblivar_alignment_req.html#a06ae06d00663d2f8be2f29e5758fa301" title="evaluate alignment, whether it&#39;s fulfilled or not; and if not, why it&#39;s failing " alt="" coords="625,241,781,282"/>
+<area shape="rect" id="node10" href="$class_corblivar_alignment_req.html#ab46b93ae4801ef79a93be48ec08eb46a" title="alignment evaluation helper " alt="" coords="209,299,365,341"/>
+<area shape="rect" id="node12" href="$class_corblivar_alignment_req.html#ad86b6196c6479ccd97eb5efe3e2193ba" title="default constructor " alt="" coords="621,306,785,347"/>
+<area shape="rect" id="node13" href="$class_corblivar_die.html#a0925bfd0d216bcb51a954ecc53ba17c7" title="layout generation: block shifting " alt="" coords="617,175,788,217"/>
+<area shape="rect" id="node3" href="$class_corblivar_alignment_req.html#a710905afd20f9e424bf291ace5b31ad4" title="alignment evaluation helper " alt="" coords="843,267,999,309"/>
+<area shape="rect" id="node4" href="$class_layout_operations.html#a76c938e4cb1dc40ba819c7b89cc698a7" title="LayoutOperations::prepare\lBlockSwappingFailedAlignment" alt="" coords="1053,297,1259,338"/>
+<area shape="rect" id="node5" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="2258,297,2434,338"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="2676,184,2841,211"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="2489,245,2628,272"/>
+<area shape="rect" id="node7" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="3116,72,3167,99"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2889,65,3068,106"/>
+<area shape="rect" id="node11" href="$class_corblivar_alignment_req.html#a9de6ea8e138ced3204e63dbd7c194880" title="alignment&#45;type getter " alt="" coords="413,299,569,341"/>
+<area shape="rect" id="node14" href="$class_corblivar_core.html#ae95c6cdd89086ea814e0691e4ec8e7d8" title="handler for block alignment " alt="" coords="1067,157,1245,184"/>
+<area shape="rect" id="node21" href="$class_corblivar_core.html#a5f282feadc72c87b9cef37888ec7de46" title="handler for block alignment " alt="" coords="836,150,1005,191"/>
+<area shape="rect" id="node22" href="$class_corblivar_die.html#a61ed0a0a6f0485d77997593f0867c5f2" title="handler for progress pointer, flag " alt="" coords="1059,209,1253,250"/>
+<area shape="rect" id="node15" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="1307,204,1505,231"/>
+<area shape="rect" id="node16" href="$class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc" title="default constructor " alt="" coords="1554,207,1745,233"/>
+<area shape="rect" id="node17" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1553,156,1745,183"/>
+<area shape="rect" id="node18" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1793,93,1937,120"/>
+<area shape="rect" id="node19" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1985,144,2203,171"/>
+<area shape="rect" id="node20" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="2251,144,2441,171"/>
+</map>

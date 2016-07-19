@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar layout box
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -29,6 +29,7 @@
 #include "Point.hpp"
 // forward declarations, if any
 
+/// Corblivar layout box
 class Rect {
 	// debugging code switch (private)
 	private:
@@ -38,6 +39,7 @@ class Rect {
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		Rect() {
 			this->h = 0.0;
 			this->w = 0.0;
@@ -50,6 +52,7 @@ class Rect {
 		double h, w;
 		double area;
 
+		/// helper to determine the overall bounding box of multiple rectangles
 		inline static Rect determBoundingBox(std::vector<Rect const*> const& rects, bool const& consider_center = false) {
 			Rect ret;
 
@@ -97,6 +100,7 @@ class Rect {
 			return ret;
 		};
 
+		/// helper to determine the bounding box of two rectangles
 		inline static Rect determBoundingBox(Rect const& r1, Rect const& r2, bool const& consider_center = false) {
 			Rect ret;
 
@@ -123,6 +127,7 @@ class Rect {
 			return ret;
 		};
 
+		/// helper to determine the bounding box of the intersection of two rectangles
 		inline static Rect determineIntersection(Rect const& a, Rect const& b) {
 			Rect ret;
 
@@ -167,14 +172,16 @@ class Rect {
 			return ret;
 		};
 
-		// note that any conditional shifting, e.g., to check for violating the
-		// outline, to apply only shifting in the direction of the lowest shift
-		// required etc may (and will) result in circular moves between different
-		// bbs; for example, when shifting considers the lowest shift and a new bb
-		// has to be shifted between two abutting bbs, the new bb will be shifted
-		// back and forth; thus, greedy shifting has to follow a strict shifting
-		// direction, i.e., upwards
+		/// helper to shift and mitigate any intersection of two rectangles
 		//
+		/// note that any conditional shifting, e.g., to check for violating the
+		/// outline, to apply only shifting in the direction of the lowest shift
+		/// required etc may (and will) result in circular moves between different
+		/// bbs; for example, when shifting considers the lowest shift and a new bb
+		/// has to be shifted between two abutting bbs, the new bb will be shifted
+		/// back and forth; thus, greedy shifting has to follow a strict shifting
+		/// direction, i.e., upwards
+		///
 		inline static void greedyShiftingRemoveIntersection(Rect& to_shift, Rect& fixed) {
 			Rect intersect;
 
@@ -197,6 +204,8 @@ class Rect {
 			}
 		};
 
+		/// helper to check whether two rectangles have an intersection in the
+		/// vertical direction
 		inline static bool rectsIntersectVertical(Rect const& a, Rect const& b) {
 			return (
 					(a.ll.y <= b.ll.y && b.ll.y < a.ur.y) ||
@@ -204,6 +213,8 @@ class Rect {
 				);
 		};
 
+		/// helper to check whether two rectangles have an intersection in the
+		/// horizontal direction
 		inline static bool rectsIntersectHorizontal(Rect const& a, Rect const& b) {
 			return (
 					(a.ll.x <= b.ll.x && b.ll.x < a.ur.x) ||
@@ -211,14 +222,18 @@ class Rect {
 				);
 		};
 
+		/// helper to check whether two rectangles have an intersection in the
+		/// horizontal direction
 		inline static bool rectsIntersect(Rect const& a, Rect const& b) {
 			return rectsIntersectVertical(a, b) && rectsIntersectHorizontal(a, b);
 		};
 
+		/// helper to check whether one rectangle is left of the other
 		inline static bool rectA_leftOf_rectB(Rect const& a, Rect const& b, bool const& considerVerticalIntersect) {
 			return (a.ur.x <= b.ll.x) && (!considerVerticalIntersect || rectsIntersectVertical(a, b));
 		};
 
+		/// helper to check whether one rectangle is below the other
 		inline static bool rectA_below_rectB(Rect const& a, Rect const& b, bool const& considerHorizontalIntersect) {
 			return (a.ur.y <= b.ll.y) && (!considerHorizontalIntersect || rectsIntersectHorizontal(a, b));
 		};
