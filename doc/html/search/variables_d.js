@@ -5,7 +5,7 @@ var searchData=
   ['padding_5fright_5fboundary_5fblocks_5fdistance',['padding_right_boundary_blocks_distance',['../class_thermal_analyzer.html#a04b684fc62719a3cc3b6b6d08efbfab4',1,'ThermalAnalyzer']]],
   ['padding_5fupper_5fboundary_5fblocks_5fdistance',['padding_upper_boundary_blocks_distance',['../class_thermal_analyzer.html#ae22a69ca392decf938e1fbe3e8692e1c',1,'ThermalAnalyzer']]],
   ['padding_5fzone_5fblocks_5fdistance_5flimit',['PADDING_ZONE_BLOCKS_DISTANCE_LIMIT',['../class_thermal_analyzer.html#afaa7774a02020b6b5f94fd2fd069a741',1,'ThermalAnalyzer']]],
-  ['parameters',['parameters',['../class_layout_operations.html#a6de699badde57a08e139c310119e444f',1,'LayoutOperations::parameters()'],['../class_multiple_voltages.html#a12c080a9ac5c8c2c632c4933c195de03',1,'MultipleVoltages::parameters()']]],
+  ['parameters',['parameters',['../class_multiple_voltages.html#a12c080a9ac5c8c2c632c4933c195de03',1,'MultipleVoltages::parameters()'],['../class_layout_operations.html#a6de699badde57a08e139c310119e444f',1,'LayoutOperations::parameters()']]],
   ['peak_5ftemp',['peak_temp',['../struct_clustering_1_1_hotspot.html#ab5db80c34bf4359cbf34f7d2df26b6bb',1,'Clustering::Hotspot']]],
   ['pi',['pi',['../class_corblivar_die.html#a87973aab788451c95fa599f70daacfd7',1,'CorblivarDie']]],
   ['pins_5ffile',['pins_file',['../struct_floor_planner_1_1_i_o__conf.html#a608edec2ecf75923fc1912f906070437',1,'FloorPlanner::IO_conf']]],

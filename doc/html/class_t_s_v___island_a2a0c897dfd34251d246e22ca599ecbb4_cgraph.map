@@ -1,7 +1,0 @@
-<map id="TSV_Island::greedyShifting" name="TSV_Island::greedyShifting">
-<area shape="rect" id="node2" href="$class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="261,52,399,79"/>
-<area shape="rect" id="node5" href="$class_rect.html#afa1518cf68e155b6064ccf70228c1e10" title="helper to shift and mitigate any intersection of two rectangles " alt="" coords="235,103,425,145"/>
-<area shape="rect" id="node3" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="481,5,663,32"/>
-<area shape="rect" id="node4" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="473,56,671,83"/>
-<area shape="rect" id="node6" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="481,111,663,137"/>
-</map>

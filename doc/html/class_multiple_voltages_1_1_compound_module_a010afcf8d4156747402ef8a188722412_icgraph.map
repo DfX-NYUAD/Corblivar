@@ -1,12 +1,3 @@
 <map id="MultipleVoltages::CompoundModule::cost" name="MultipleVoltages::CompoundModule::cost">
-<area shape="rect" id="node2" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="243,61,404,102"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="452,61,648,102"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="696,68,887,95"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1819,113,1984,140"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1632,63,1771,89"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="935,144,1079,171"/>
-<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2259,183,2309,209"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2032,175,2211,217"/>
-<area shape="rect" id="node10" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1127,93,1344,120"/>
-<area shape="rect" id="node11" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1392,111,1584,137"/>
+<area shape="rect" id="node2" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="243,5,404,47"/>
 </map>

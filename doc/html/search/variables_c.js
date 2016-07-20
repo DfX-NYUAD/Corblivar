@@ -14,7 +14,7 @@ var searchData=
   ['op_5fswitch_5ftuple_5fjuncts',['OP_SWITCH_TUPLE_JUNCTS',['../class_layout_operations.html#aeb20459df2624efbb0a7ad026f82b499',1,'LayoutOperations']]],
   ['opt_5falignment',['opt_alignment',['../struct_layout_operations_1_1parameters.html#a967dc1bf0ca629e999ee27bc6047ea49',1,'LayoutOperations::parameters']]],
   ['opt_5fflags',['opt_flags',['../class_floor_planner.html#a7b90a9ce7c8136c569a27138effd019d',1,'FloorPlanner']]],
-  ['outline',['outline',['../struct_layout_operations_1_1parameters.html#af175e8b5ac4bf2cb6df6d61f1241a781',1,'LayoutOperations::parameters::outline()'],['../class_multiple_voltages_1_1_compound_module.html#a5190c1dd62a7fc7ff54a2408a38167cd',1,'MultipleVoltages::CompoundModule::outline()']]],
+  ['outline',['outline',['../class_multiple_voltages_1_1_compound_module.html#a5190c1dd62a7fc7ff54a2408a38167cd',1,'MultipleVoltages::CompoundModule::outline()'],['../struct_layout_operations_1_1parameters.html#af175e8b5ac4bf2cb6df6d61f1241a781',1,'LayoutOperations::parameters::outline()']]],
   ['outline_5factual_5fvalue',['outline_actual_value',['../struct_floor_planner_1_1_cost.html#a7e4e33552add3a92700a76edb4b4d500',1,'FloorPlanner::Cost']]],
   ['outline_5fcost',['outline_cost',['../class_multiple_voltages_1_1_compound_module.html#a0d2c8c89191c2c17d040ed98091b011b',1,'MultipleVoltages::CompoundModule']]],
   ['outline_5fshrink',['outline_shrink',['../struct_floor_planner_1_1_i_c.html#a672aa42ae4c29f7302b480e7421a835c',1,'FloorPlanner::IC']]],

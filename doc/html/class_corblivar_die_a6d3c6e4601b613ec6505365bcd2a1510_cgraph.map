@@ -1,8 +1,0 @@
-<map id="CorblivarDie::updatePlacementStacks" name="CorblivarDie::updatePlacementStacks">
-<area shape="rect" id="node2" href="$class_corblivar_die.html#a8d05e49681def2d45f63d34695e6befa" title="getter " alt="" coords="259,5,421,47"/>
-<area shape="rect" id="node3" href="$class_corblivar_die.html#a2d1d0ee16096688c6697b145e96dd2e8" title="getter " alt="" coords="259,71,421,112"/>
-<area shape="rect" id="node4" href="$class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="256,137,424,163"/>
-<area shape="rect" id="node6" href="$class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="276,188,404,229"/>
-<area shape="rect" id="node5" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="472,137,669,163"/>
-<area shape="rect" id="node7" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="479,195,662,222"/>
-</map>

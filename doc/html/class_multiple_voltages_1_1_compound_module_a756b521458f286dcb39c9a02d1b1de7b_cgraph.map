@@ -1,9 +1,0 @@
-<map id="MultipleVoltages::CompoundModule::updateOutlineCost" name="MultipleVoltages::CompoundModule::updateOutlineCost">
-<area shape="rect" id="node2" href="$class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="247,5,421,32"/>
-<area shape="rect" id="node3" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="481,85,663,112"/>
-<area shape="rect" id="node4" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="473,199,671,225"/>
-<area shape="rect" id="node5" href="$class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="250,224,418,251"/>
-<area shape="rect" id="node6" href="$class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="270,107,398,149"/>
-<area shape="rect" id="node7" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="243,275,425,301"/>
-<area shape="rect" id="node8" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="268,325,400,352"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="MultipleVoltages::selectCompoundModules" name="MultipleVoltages::selectCompoundModules">
-<area shape="rect" id="node2" href="$class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412" title="MultipleVoltages::Compound\lModule::cost" alt="" coords="225,5,415,47"/>
-<area shape="rect" id="node3" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="254,71,386,98"/>
-<area shape="rect" id="node4" href="$class_multiple_voltages_1_1_compound_module.html#a761ce6e71fd1addc406c97d4d1154c11" title="MultipleVoltages::Compound\lModule::min_voltage_index" alt="" coords="225,123,415,164"/>
-<area shape="rect" id="node5" href="$class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be" title="helper function to return string comprising all (sorted) block ids " alt="" coords="225,188,415,229"/>
-<area shape="rect" id="node6" href="$class_multiple_voltages_1_1_compound_module.html#a8426e3703efc392f453735350f539ce4" title="MultipleVoltages::Compound\lModule::power_saving" alt="" coords="225,253,415,295"/>
-<area shape="rect" id="node7" href="$class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938" title="MultipleVoltages::Compound\lModule::corners_powerring_max" alt="" coords="215,319,425,360"/>
-</map>

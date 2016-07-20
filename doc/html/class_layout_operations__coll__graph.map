@@ -1,9 +1,0 @@
-<map id="LayoutOperations" name="LayoutOperations">
-<area shape="rect" id="node2" href="$struct_layout_operations_1_1parameters.html" title="layout&#45;operation parameters " alt="" coords="5,421,203,448"/>
-<area shape="rect" id="node3" href="$class_net.html" title="Corblivar design net. " alt="" coords="128,332,171,359"/>
-<area shape="rect" id="node4" href="$class_block.html" title="Corblivar design block. " alt="" coords="171,243,226,269"/>
-<area shape="rect" id="node5" href="$class_multiple_voltages_1_1_compound_module.html" title="inner class of compound modules, to be declared early on " alt="" coords="295,109,484,151"/>
-<area shape="rect" id="node6" href="$class_rect.html" title="Corblivar layout box. " alt="" coords="112,117,163,143"/>
-<area shape="rect" id="node7" href="$class_point.html" title="Corblivar layout point. " alt="" coords="75,5,127,32"/>
-<area shape="rect" id="node8" href="$struct_block_1_1_a_r.html" title="Block::AR" alt="" coords="188,117,271,143"/>
-</map>

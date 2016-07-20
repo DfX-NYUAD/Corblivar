@@ -1,6 +1,0 @@
-<map id="CorblivarCore::initCorblivarRandomly" name="CorblivarCore::initCorblivarRandomly">
-<area shape="rect" id="node2" href="$class_block.html#ae6f4a6f20423e355bbdd9a1d9e023bc6" title="density in [uW/(um^2)]; relates to given voltage index " alt="" coords="232,5,379,32"/>
-<area shape="rect" id="node3" href="$class_block.html#a956346429caffcfee32a17ea3b0a6678" title="search blocks " alt="" coords="247,56,364,83"/>
-<area shape="rect" id="node4" href="$class_math.html#a2f3afda6dfe926c07b1bd3409ca754ed" title="Math::randI" alt="" coords="261,107,349,133"/>
-<area shape="rect" id="node5" href="$class_math.html#a44bc995774823563ca845e370f2de741" title="random decision " alt="" coords="259,157,352,184"/>
-</map>

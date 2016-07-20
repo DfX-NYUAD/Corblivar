@@ -1,10 +1,6 @@
 <map id="Block::shapeByWidthHeight" name="Block::shapeByWidthHeight">
-<area shape="rect" id="node2" href="$class_i_o.html#ad23c22df3fbdd5938e7e94307a737868" title="parse Corblivar solution file, to rerun Corbliar w/ previous data " alt="" coords="503,5,652,32"/>
+<area shape="rect" id="node2" href="$class_i_o.html#ad23c22df3fbdd5938e7e94307a737868" title="parse Corblivar solution file, to rerun Corbliar w/ previous data " alt="" coords="266,5,415,32"/>
 <area shape="rect" id="node4" href="$class_layout_operations.html#aa76ca07198445198e92ac853e91a990b" title="LayoutOperations::perform\lOpEnhancedSoftBlockShaping" alt="" coords="240,57,441,98"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1564,56,1615,83"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="552,5,603,32"/>
 <area shape="rect" id="node5" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="489,57,665,98"/>
-<area shape="rect" id="node6" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="713,57,889,98"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1124,111,1289,137"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="937,111,1076,137"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1337,107,1516,149"/>
 </map>

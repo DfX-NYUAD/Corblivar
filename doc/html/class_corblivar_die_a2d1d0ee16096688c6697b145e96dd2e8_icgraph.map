@@ -1,20 +1,13 @@
 <map id="CorblivarDie::getCurrentDirection" name="CorblivarDie::getCurrentDirection">
-<area shape="rect" id="node2" href="$class_corblivar_core.html#ae95c6cdd89086ea814e0691e4ec8e7d8" title="handler for block alignment " alt="" coords="725,301,903,328"/>
-<area shape="rect" id="node13" href="$class_corblivar_die.html#a004afbdeaa44dc6e13c354290842ff56" title="layout generation; place current block " alt="" coords="480,83,656,125"/>
-<area shape="rect" id="node15" href="$class_corblivar_die.html#ac09403c7b03f0ed829932bb5d27b9eb8" title="CorblivarDie::popRelevant\lBlocks" alt="" coords="230,30,405,71"/>
-<area shape="rect" id="node16" href="$class_corblivar_die.html#a6d3c6e4601b613ec6505365bcd2a1510" title="layout&#45;generation helper: update placement stack (after placement) " alt="" coords="216,174,419,215"/>
-<area shape="rect" id="node17" href="$class_corblivar_die.html#aa00e6c4e18e0df5389ccf70380ffc3bd" title="layout&#45;generation helper: rebuild placement stack (after block shifting) " alt="" coords="467,418,669,459"/>
-<area shape="rect" id="node18" href="$class_corblivar_die.html#ae66f81a5afcdf27c187ad906bfa2db5f" title="layout&#45;generation helper: determine coordinates of block in process " alt="" coords="225,243,410,285"/>
-<area shape="rect" id="node3" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="959,149,1157,176"/>
-<area shape="rect" id="node4" href="$class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc" title="default constructor " alt="" coords="1206,124,1397,151"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1205,175,1397,201"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="2328,235,2493,261"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="2141,200,2280,227"/>
-<area shape="rect" id="node10" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1445,251,1589,277"/>
-<area shape="rect" id="node7" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2768,293,2819,320"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2541,286,2720,327"/>
-<area shape="rect" id="node11" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1637,200,1855,227"/>
-<area shape="rect" id="node12" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1903,225,2093,252"/>
-<area shape="rect" id="node14" href="$class_corblivar_die.html#a61ed0a0a6f0485d77997593f0867c5f2" title="handler for progress pointer, flag " alt="" coords="717,142,911,183"/>
-<area shape="rect" id="node19" href="$class_corblivar_core.html#a5f282feadc72c87b9cef37888ec7de46" title="handler for block alignment " alt="" coords="483,353,653,394"/>
+<area shape="rect" id="node2" href="$class_corblivar_core.html#ae95c6cdd89086ea814e0691e4ec8e7d8" title="handler for block alignment " alt="" coords="467,41,644,68"/>
+<area shape="rect" id="node9" href="$class_corblivar_die.html#a6d3c6e4601b613ec6505365bcd2a1510" title="layout&#45;generation helper: update placement stack (after placement) " alt="" coords="216,96,419,138"/>
+<area shape="rect" id="node11" href="$class_corblivar_die.html#aa00e6c4e18e0df5389ccf70380ffc3bd" title="layout&#45;generation helper: rebuild placement stack (after block shifting) " alt="" coords="216,31,419,72"/>
+<area shape="rect" id="node12" href="$class_corblivar_die.html#ae66f81a5afcdf27c187ad906bfa2db5f" title="layout&#45;generation helper: determine coordinates of block in process " alt="" coords="225,162,410,203"/>
+<area shape="rect" id="node3" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="692,72,891,98"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="939,72,1131,98"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1365,72,1531,98"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1179,72,1317,98"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1376,122,1520,149"/>
+<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1579,97,1629,124"/>
+<area shape="rect" id="node10" href="$class_corblivar_die.html#a004afbdeaa44dc6e13c354290842ff56" title="layout generation; place current block " alt="" coords="467,95,643,136"/>
 </map>

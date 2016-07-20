@@ -1,9 +1,0 @@
-<map id="CorblivarDie::performPacking" name="CorblivarDie::performPacking">
-<area shape="rect" id="node2" href="$class_corblivar_die.html#a46c4d497eac2d346587d3b8534b7f52e" title="getter " alt="" coords="265,5,411,32"/>
-<area shape="rect" id="node3" href="$class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="272,56,404,83"/>
-<area shape="rect" id="node4" href="$class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="274,107,402,149"/>
-<area shape="rect" id="node6" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="247,173,429,200"/>
-<area shape="rect" id="node7" href="$class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="254,224,422,251"/>
-<area shape="rect" id="node5" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="485,115,667,141"/>
-<area shape="rect" id="node8" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="477,224,675,251"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="CorblivarCore::moveTuples" name="CorblivarCore::moveTuples">
-<area shape="rect" id="node2" href="$class_layout_operations.html#a660aa368e2a5b1cc385636ec463f0f7d" title="LayoutOperations::perform\lOpMoveOrSwapBlocks" alt="" coords="235,5,411,47"/>
-<area shape="rect" id="node3" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="459,5,635,47"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="869,13,1035,39"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="683,38,821,65"/>
-<area shape="rect" id="node5" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1309,13,1360,39"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1083,35,1261,76"/>
-</map>

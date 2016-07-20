@@ -1,6 +1,0 @@
-<map id="FloorPlanner::evaluateThermalDistr" name="FloorPlanner::evaluateThermalDistr">
-<area shape="rect" id="node2" href="$class_thermal_analyzer.html#a9325c9782c7fb230a77e7197a9b82062" title="thermal modeling: handlers " alt="" coords="261,5,440,47"/>
-<area shape="rect" id="node4" href="$class_thermal_analyzer.html#a44b16ac60c38e1ba8987960f8cdebba1" title="thermal modeling: handlers " alt="" coords="252,71,449,112"/>
-<area shape="rect" id="node5" href="$class_thermal_analyzer.html#a8b44dc0583b7fc9fc2fbb3d2300b9c80" title="ThermalAnalyzer::perform\lPowerBlurring" alt="" coords="265,136,437,177"/>
-<area shape="rect" id="node3" href="$class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="497,46,680,73"/>
-</map>

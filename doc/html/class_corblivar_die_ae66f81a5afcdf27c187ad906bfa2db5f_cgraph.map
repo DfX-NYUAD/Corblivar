@@ -1,9 +1,0 @@
-<map id="CorblivarDie::determCurrentBlockCoords" name="CorblivarDie::determCurrentBlockCoords">
-<area shape="rect" id="node2" href="$class_corblivar_die.html#a8d05e49681def2d45f63d34695e6befa" title="getter " alt="" coords="256,5,419,47"/>
-<area shape="rect" id="node3" href="$class_corblivar_die.html#a2d1d0ee16096688c6697b145e96dd2e8" title="getter " alt="" coords="256,71,419,112"/>
-<area shape="rect" id="node4" href="$class_corblivar_die.html#a46c4d497eac2d346587d3b8534b7f52e" title="getter " alt="" coords="264,137,411,163"/>
-<area shape="rect" id="node5" href="$class_corner_block_list.html#aa0c3f9347724fc7fa27ac14b8b1ffca4" title="getter " alt="" coords="264,187,411,214"/>
-<area shape="rect" id="node6" href="$class_corblivar_die.html#a4e6bab2f8b7c7cdc26bc6f630fe6241f" title="getter " alt="" coords="261,238,414,265"/>
-<area shape="rect" id="node7" href="$class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="246,289,429,315"/>
-<area shape="rect" id="node8" href="$class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="239,339,436,366"/>
-</map>

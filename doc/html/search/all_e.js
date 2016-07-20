@@ -11,6 +11,7 @@ var searchData=
   ['range_5fx',['range_x',['../class_corblivar_alignment_req.html#a74cb014b3ee7ebbc85b67ffe7d254372',1,'CorblivarAlignmentReq']]],
   ['range_5fy',['range_y',['../class_corblivar_alignment_req.html#a510bbb8081513e8691a7463167d2a6cf',1,'CorblivarAlignmentReq']]],
   ['rbod',['RBOD',['../class_r_b_o_d.html',1,'RBOD'],['../class_floor_planner.html#a82d6a7579b6033e66f31ee5112f36d84',1,'FloorPlanner::RBOD()'],['../class_r_b_o_d.html#a48d89a835c6ec5ea0d172afdb06d4c4e',1,'RBOD::RBOD()']]],
+  ['readme_2emd',['README.md',['../_r_e_a_d_m_e_8md.html',1,'']]],
   ['rebuildplacementstacks',['rebuildPlacementStacks',['../class_corblivar_die.html#aa00e6c4e18e0df5389ccf70380ffc3bd',1,'CorblivarDie']]],
   ['rect',['Rect',['../class_rect.html',1,'Rect'],['../class_rect.html#a911e531b86de33734dd7de3456722115',1,'Rect::Rect()']]],
   ['rect_2ehpp',['Rect.hpp',['../_rect_8hpp.html',1,'']]],

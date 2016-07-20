@@ -45,5 +45,6 @@ var searchData=
   ['cost',['Cost',['../struct_floor_planner_1_1_cost.html',1,'FloorPlanner']]],
   ['cost',['cost',['../struct_corblivar_alignment_req_1_1_evaluate.html#a952ef01d974c0ef8fa433afee8083338',1,'CorblivarAlignmentReq::Evaluate::cost()'],['../struct_routing_utilization_1_1_util_result.html#a3aed427c4660e2981ffa70d96abcd8e7',1,'RoutingUtilization::UtilResult::cost()'],['../class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412',1,'MultipleVoltages::CompoundModule::cost()']]],
   ['cost_5fbest_5fsol',['cost_best_sol',['../struct_floor_planner_1_1_temp_step.html#a8a1bb8ff292654727855789ed63c87db',1,'FloorPlanner::TempStep']]],
-  ['cost_5ftemp',['cost_temp',['../struct_thermal_analyzer_1_1_thermal_analysis_result.html#acc525d1b24ac287ac17748c255cc4f91',1,'ThermalAnalyzer::ThermalAnalysisResult']]]
+  ['cost_5ftemp',['cost_temp',['../struct_thermal_analyzer_1_1_thermal_analysis_result.html#acc525d1b24ac287ac17748c255cc4f91',1,'ThermalAnalyzer::ThermalAnalysisResult']]],
+  ['corblivar',['Corblivar',['../index.html',1,'']]]
 ];

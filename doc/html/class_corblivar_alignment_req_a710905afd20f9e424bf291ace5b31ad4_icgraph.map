@@ -1,9 +1,0 @@
-<map id="CorblivarAlignmentReq::tupleString" name="CorblivarAlignmentReq::tupleString">
-<area shape="rect" id="node2" href="$class_corblivar_alignment_req.html#a06ae06d00663d2f8be2f29e5758fa301" title="evaluate alignment, whether it&#39;s fulfilled or not; and if not, why it&#39;s failing " alt="" coords="234,5,390,47"/>
-<area shape="rect" id="node3" href="$class_layout_operations.html#a76c938e4cb1dc40ba819c7b89cc698a7" title="LayoutOperations::prepare\lBlockSwappingFailedAlignment" alt="" coords="209,71,415,112"/>
-<area shape="rect" id="node4" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="463,71,639,112"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="873,78,1039,105"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="687,103,825,130"/>
-<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1313,78,1364,105"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1087,100,1265,141"/>
-</map>

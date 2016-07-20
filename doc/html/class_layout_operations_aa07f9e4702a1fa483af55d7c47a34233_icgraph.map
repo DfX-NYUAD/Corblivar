@@ -1,6 +1,4 @@
 <map id="LayoutOperations::performLayoutOp" name="LayoutOperations::performLayoutOp">
-<area shape="rect" id="node2" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="416,13,581,39"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="229,38,368,65"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="856,13,907,39"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="629,35,808,76"/>
+<area shape="rect" id="node2" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="229,13,395,39"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="443,13,493,39"/>
 </map>

@@ -8,7 +8,7 @@ var searchData=
   ['last_5fop_5fjuncts',['last_op_juncts',['../class_layout_operations.html#a466f6d4342647e06e93e42479fca74a8',1,'LayoutOperations']]],
   ['last_5fop_5ftuple1',['last_op_tuple1',['../class_layout_operations.html#a4060c839f47618bebaa1cacd93a9c5d8',1,'LayoutOperations']]],
   ['last_5fop_5ftuple2',['last_op_tuple2',['../class_layout_operations.html#abc4087e684f98502156080dd367269f5',1,'LayoutOperations']]],
-  ['layer',['LAYER',['../class_pin.html#a40ca62a0ddfb2979d6dabb72e17e42d4',1,'Pin::LAYER()'],['../class_block.html#a70b7ce8c23a3f72089247d83e4dc6508',1,'Block::layer()']]],
+  ['layer',['layer',['../class_block.html#a70b7ce8c23a3f72089247d83e4dc6508',1,'Block::layer()'],['../class_pin.html#a40ca62a0ddfb2979d6dabb72e17e42d4',1,'Pin::LAYER()']]],
   ['layer_5fbottom',['layer_bottom',['../class_net.html#ab6eb9820c14d94a992b5b82ebce933ee',1,'Net']]],
   ['layer_5ftop',['layer_top',['../class_net.html#abc0f1e562169b564c534777c80a9b871',1,'Net']]],
   ['layers',['layers',['../struct_floor_planner_1_1_i_c.html#adde4a91b0396df6986f4c5f08a94f116',1,'FloorPlanner::IC::layers()'],['../struct_layout_operations_1_1parameters.html#a7b2f8aecae6f7d65c54b38885a74ba04',1,'LayoutOperations::parameters::layers()']]],

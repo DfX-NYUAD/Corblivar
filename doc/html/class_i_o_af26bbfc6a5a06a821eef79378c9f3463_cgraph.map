@@ -1,9 +1,0 @@
-<map id="IO::writeHotSpotFiles" name="IO::writeHotSpotFiles">
-<area shape="rect" id="node2" href="$class_floor_planner.html#a200d99169739eee20eef677289201bd1" title="logging " alt="" coords="236,5,381,32"/>
-<area shape="rect" id="node3" href="$class_thermal_analyzer.html#a53ac704b5cb7905f7fcdba7432ef38c2" title="ThermalAnalyzer::heatCapSi" alt="" coords="214,56,403,83"/>
-<area shape="rect" id="node4" href="$class_thermal_analyzer.html#a17b15ac89a7269c6e9040bc09d991dc2" title="ThermalAnalyzer::thermResSi" alt="" coords="210,107,407,133"/>
-<area shape="rect" id="node5" href="$class_thermal_analyzer.html#a8d940d490ea68849ef2de19d0b39e633" title="ThermalAnalyzer::heatCapBond" alt="" coords="205,157,412,184"/>
-<area shape="rect" id="node6" href="$class_thermal_analyzer.html#afe232861cdc55bcf81beb710408b5978" title="ThermalAnalyzer::thermResBond" alt="" coords="201,208,416,235"/>
-<area shape="rect" id="node7" href="$class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="259,259,358,285"/>
-<area shape="rect" id="node8" href="$class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="464,259,611,285"/>
-</map>

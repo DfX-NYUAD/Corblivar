@@ -1,13 +1,7 @@
 <map id="FloorPlanner::logMin" name="FloorPlanner::logMin">
-<area shape="rect" id="node2" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1519,237,1569,264"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="195,169,339,196"/>
-<area shape="rect" id="node10" href="$class_i_o.html#abb56f3216c40588b923ff69569a27d30" title="parse program parameter, config file, and further files " alt="" coords="410,296,581,323"/>
-<area shape="rect" id="node11" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="903,347,1019,373"/>
-<area shape="rect" id="node12" href="$class_i_o.html#acada5a50daab30c8c12487f8b9f175d6" title="parse nets file " alt="" coords="1109,397,1213,424"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="387,144,604,171"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1292,230,1471,271"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="652,107,844,133"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="653,183,843,209"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1079,179,1244,205"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="892,144,1031,171"/>
+<area shape="rect" id="node2" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="413,88,464,114"/>
+<area shape="rect" id="node3" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="208,37,352,64"/>
+<area shape="rect" id="node4" href="$class_i_o.html#abb56f3216c40588b923ff69569a27d30" title="parse program parameter, config file, and further files " alt="" coords="195,88,365,114"/>
+<area shape="rect" id="node5" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="222,138,338,165"/>
+<area shape="rect" id="node6" href="$class_i_o.html#acada5a50daab30c8c12487f8b9f175d6" title="parse nets file " alt="" coords="228,189,332,216"/>
 </map>

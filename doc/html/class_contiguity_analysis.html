@@ -120,7 +120,7 @@ $(document).ready(function(){initNavTree('class_contiguity_analysis.html','');})
 <p>Corblivar contiguity analysis, required for multiple-voltages feature.  
  <a href="class_contiguity_analysis.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a>&gt;</code></p>
+<p><code>#include &lt;ContiguityAnalysis.hpp&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -160,8 +160,6 @@ Static Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar contiguity analysis, required for multiple-voltages feature. </p>
-
-<p>Definition at line <a class="el" href="_contiguity_analysis_8hpp_source.html#l00034">34</a> of file <a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a83fb3b126170428ed01f679a6dbaf7e1"></a>
 <div class="memitem">
@@ -188,35 +186,17 @@ Static Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Extract blocks' boundaries, and order them by coordinates; this will reduce required comparisons between (in principal all pairs of) blocks notably by considering only relevant blocks. For intra-die contiguity, these are abutting boundaries, and for inter-die contiguity, these are boundaries within a block's outline. </p>
 
-<p>Definition at line <a class="el" href="_contiguity_analysis_8cpp_source.html#l00035">35</a> of file <a class="el" href="_contiguity_analysis_8cpp_source.html">ContiguityAnalysis.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_cgraph.png" border="0" usemap="#class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_cgraph" alt=""/></div>
-<map name="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_cgraph" id="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_cgraph">
-<area shape="rect" id="node2" href="class_contiguity_analysis.html#a808a02b21186bd94e8b2edc206644d68" title="helper to check horizontal boundaries " alt="" coords="197,5,354,47"/>
-<area shape="rect" id="node3" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="415,71,547,98"/>
-<area shape="rect" id="node4" href="class_contiguity_analysis.html#a0fbc5d160753128781036ddc6b08f862" title="helper to check vertical boundaries " alt="" coords="195,123,356,164"/>
-<area shape="rect" id="node5" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="184,189,367,215"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_icgraph.png" border="0" usemap="#class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_icgraph" alt=""/></div>
 <map name="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_icgraph" id="class_contiguity_analysis_a83fb3b126170428ed01f679a6dbaf7e1_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="184,61,380,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="428,68,619,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1551,113,1716,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1364,63,1503,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="667,144,811,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1991,183,2041,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1764,175,1943,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="859,93,1076,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1124,111,1316,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="184,14,380,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="428,22,619,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="853,22,1019,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="667,22,805,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="864,72,1008,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1067,47,1117,74"/>
 </map>
 </div>
 </p>
@@ -257,33 +237,18 @@ Here is the caller graph for this function:</div>
 
 <p>helper to check horizontal boundaries </p>
 
-<p>Definition at line <a class="el" href="_contiguity_analysis_8cpp_source.html#l00509">509</a> of file <a class="el" href="_contiguity_analysis_8cpp_source.html">ContiguityAnalysis.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_cgraph.png" border="0" usemap="#class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_cgraph" alt=""/></div>
-<map name="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_cgraph" id="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_cgraph">
-<area shape="rect" id="node2" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="211,13,343,39"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_icgraph.png" border="0" usemap="#class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_icgraph" alt=""/></div>
 <map name="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_icgraph" id="class_contiguity_analysis_a808a02b21186bd94e8b2edc206644d68_icgraph">
-<area shape="rect" id="node2" href="class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="211,61,341,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="389,61,585,102"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="633,68,824,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1756,113,1921,140"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1569,63,1708,89"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="872,144,1016,171"/>
-<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2196,183,2247,209"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1969,175,2148,217"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1064,93,1281,120"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1329,111,1521,137"/>
+<area shape="rect" id="node2" href="class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="211,14,341,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="389,14,585,56"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="633,22,824,48"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1059,22,1224,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="872,22,1011,48"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1069,72,1213,99"/>
+<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1272,47,1323,74"/>
 </map>
 </div>
 </p>
@@ -324,33 +289,18 @@ Here is the caller graph for this function:</div>
 
 <p>helper to check vertical boundaries </p>
 
-<p>Definition at line <a class="el" href="_contiguity_analysis_8cpp_source.html#l00490">490</a> of file <a class="el" href="_contiguity_analysis_8cpp_source.html">ContiguityAnalysis.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_cgraph.png" border="0" usemap="#class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_cgraph" alt=""/></div>
-<map name="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_cgraph" id="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_cgraph">
-<area shape="rect" id="node2" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="215,13,347,39"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_icgraph.png" border="0" usemap="#class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_icgraph" alt=""/></div>
 <map name="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_icgraph" id="class_contiguity_analysis_a0fbc5d160753128781036ddc6b08f862_icgraph">
-<area shape="rect" id="node2" href="class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="215,61,345,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="393,61,589,102"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="637,68,828,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1760,113,1925,140"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1573,63,1712,89"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="876,144,1020,171"/>
-<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2200,183,2251,209"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1973,175,2152,217"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1068,93,1285,120"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1333,111,1525,137"/>
+<area shape="rect" id="node2" href="class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="215,14,345,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="393,14,589,56"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="637,22,828,48"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1063,22,1228,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="876,22,1015,48"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1073,72,1217,99"/>
+<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1276,47,1327,74"/>
 </map>
 </div>
 </p>
@@ -369,8 +319,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>these data structures are used for intra-die contiguity analysis, as well as for checking MultipleVoltages::CompoundModules for intrusions of any block (implemented in <a class="el" href="class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom-up construction ">MultipleVoltages::CompoundModule::updateOutlineCost</a>); thus the data is public </p>
 
-<p>Definition at line <a class="el" href="_contiguity_analysis_8hpp_source.html#l00082">82</a> of file <a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="adf2ae285ac13d4da2e1fc1b0c555bd78"></a>
@@ -383,8 +331,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 <p>these data structures are used for intra-die contiguity analysis, as well as for checking MultipleVoltages::CompoundModules for intrusions of any block (implemented in <a class="el" href="class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom-up construction ">MultipleVoltages::CompoundModule::updateOutlineCost</a>); thus the data is public </p>
-
-<p>Definition at line <a class="el" href="_contiguity_analysis_8hpp_source.html#l00087">87</a> of file <a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a>.</p>
 
 </div>
 </div>
@@ -408,13 +354,11 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switch (private) </p>
 
-<p>Definition at line <a class="el" href="_contiguity_analysis_8hpp_source.html#l00037">37</a> of file <a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_contiguity_analysis_8hpp_source.html">ContiguityAnalysis.hpp</a></li>
-<li>src/<a class="el" href="_contiguity_analysis_8cpp_source.html">ContiguityAnalysis.cpp</a></li>
+<li>src/<a class="el" href="_contiguity_analysis_8hpp.html">ContiguityAnalysis.hpp</a></li>
+<li>src/<a class="el" href="_contiguity_analysis_8cpp.html">ContiguityAnalysis.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

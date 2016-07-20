@@ -124,16 +124,7 @@ $(document).ready(function(){initNavTree('class_multiple_voltages.html','');});
 <p>Corblivar handler for multiple voltages.  
  <a href="class_multiple_voltages.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>&gt;</code></p>
-<div class="dynheader">
-Collaboration diagram for MultipleVoltages:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages__coll__graph.png" border="0" usemap="#_multiple_voltages_coll__map" alt="Collaboration graph"/></div>
-<map name="_multiple_voltages_coll__map" id="_multiple_voltages_coll__map">
-<area shape="rect" id="node2" href="struct_multiple_voltages_1_1max__values.html" title="MultipleVoltages::max\l_values" alt="" coords="5,5,156,47"/>
-<area shape="rect" id="node3" href="struct_multiple_voltages_1_1_parameters.html" title="MultipleVoltages::Parameters" alt="" coords="180,13,373,39"/>
-</map>
-<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
+<p><code>#include &lt;MultipleVoltages.hpp&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -207,8 +198,6 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar handler for multiple voltages. </p>
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00035">35</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a class="anchor" id="ab76641d1d4eb29e07471cb6a17cb4ae6"></a>
 <div class="memitem">
@@ -228,8 +217,6 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>map of unique compound modules; keys are a vector&lt;bool&gt;, with each index representing a numerical block id, and each index' position set true when the related block is comprised in the module; unordered map is more efficient in accessing individual elements </p>
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00203">203</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
 
 </div>
 </div>
@@ -275,53 +262,6 @@ Friends</h2></td></tr>
 <p>internal helper to recursively build up compound modules </p>
 <p>stepwise consider adding single blocks into the compound module until all blocks are considered; note that this implies recursive calls to determine transitive neighbours; also note that a breadth-first search is applied to determine which is the best block to be merged such that total cost (sum of local cost, where the sum differs for different starting blocks) cost remain low </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8cpp_source.html#l00439">439</a> of file <a class="el" href="_multiple_voltages_8cpp_source.html">MultipleVoltages.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_cgraph.png" border="0" usemap="#class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_cgraph" alt=""/></div>
-<map name="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_cgraph" id="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_cgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be" title="helper function to return string comprising all (sorted) block ids " alt="" coords="269,151,459,193"/>
-<area shape="rect" id="node3" href="class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="281,217,447,258"/>
-<area shape="rect" id="node10" href="class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom&#45;up construction " alt="" coords="511,275,701,317"/>
-<area shape="rect" id="node4" href="class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="507,61,705,102"/>
-<area shape="rect" id="node5" href="class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="1017,5,1148,32"/>
-<area shape="rect" id="node7" href="class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="1033,81,1132,108"/>
-<area shape="rect" id="node9" href="class_block.html#ac84515e45dfe29a7c16149a71c0387aa" title="Block::power_min" alt="" coords="781,43,908,69"/>
-<area shape="rect" id="node6" href="class_block.html#ac9b40ebd346d0e74d59311e52d9f5642" title="density in [uW/(um^2)]; relates to maximal value for highest voltage " alt="" coords="1229,5,1408,32"/>
-<area shape="rect" id="node8" href="class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="1245,81,1392,108"/>
-<area shape="rect" id="node11" href="class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="757,144,932,171"/>
-<area shape="rect" id="node12" href="class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="991,224,1174,251"/>
-<area shape="rect" id="node13" href="class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="984,337,1181,364"/>
-<area shape="rect" id="node14" href="class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="761,363,929,389"/>
-<area shape="rect" id="node15" href="class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="781,246,909,287"/>
-<area shape="rect" id="node16" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="753,413,936,440"/>
-<area shape="rect" id="node17" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="779,464,911,491"/>
-</map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_icgraph.png" border="0" usemap="#class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_icgraph" id="class_multiple_voltages_a67b6a4767b2ef05b3d556c24dbd1d269_icgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="269,61,452,102"/>
-<area shape="rect" id="node12" href="class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="278,126,443,167"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="500,61,696,102"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="744,68,935,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1867,113,2032,140"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1680,63,1819,89"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="983,144,1127,171"/>
-<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2307,183,2357,209"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2080,175,2259,217"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1175,93,1392,120"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1440,111,1632,137"/>
-</map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a5f4274ccccd2fe5a7dd399573acecbab"></a>
@@ -355,53 +295,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>helper to determine all compound modules </p>
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8cpp_source.html#l00029">29</a> of file <a class="el" href="_multiple_voltages_8cpp_source.html">MultipleVoltages.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_cgraph.png" border="0" usemap="#class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_cgraph" alt=""/></div>
-<map name="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_cgraph" id="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_cgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="737,75,936,117"/>
-<area shape="rect" id="node8" href="class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="236,197,452,238"/>
-<area shape="rect" id="node9" href="class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be" title="helper function to return string comprising all (sorted) block ids " alt="" coords="500,134,689,175"/>
-<area shape="rect" id="node19" href="class_multiple_voltages_1_1_compound_module.html#a761ce6e71fd1addc406c97d4d1154c11" title="MultipleVoltages::Compound\lModule::min_voltage_index" alt="" coords="249,262,439,303"/>
-<area shape="rect" id="node3" href="class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="1248,5,1379,32"/>
-<area shape="rect" id="node5" href="class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="1264,81,1363,108"/>
-<area shape="rect" id="node7" href="class_block.html#ac84515e45dfe29a7c16149a71c0387aa" title="Block::power_min" alt="" coords="1012,43,1139,69"/>
-<area shape="rect" id="node4" href="class_block.html#ac9b40ebd346d0e74d59311e52d9f5642" title="density in [uW/(um^2)]; relates to maximal value for highest voltage " alt="" coords="1460,5,1639,32"/>
-<area shape="rect" id="node6" href="class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="1476,81,1623,108"/>
-<area shape="rect" id="node10" href="class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="512,199,677,241"/>
-<area shape="rect" id="node11" href="class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom&#45;up construction " alt="" coords="742,258,931,299"/>
-<area shape="rect" id="node12" href="class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="988,144,1163,171"/>
-<area shape="rect" id="node13" href="class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="1222,224,1405,251"/>
-<area shape="rect" id="node14" href="class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="1215,337,1412,364"/>
-<area shape="rect" id="node15" href="class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="991,363,1159,389"/>
-<area shape="rect" id="node16" href="class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="1011,246,1139,287"/>
-<area shape="rect" id="node17" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="984,413,1167,440"/>
-<area shape="rect" id="node18" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="1009,464,1141,491"/>
-</map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_icgraph.png" border="0" usemap="#class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_icgraph" id="class_multiple_voltages_a5f4274ccccd2fe5a7dd399573acecbab_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="236,61,432,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="480,68,671,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1603,113,1768,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1416,63,1555,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="719,144,863,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2043,183,2093,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1816,175,1995,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="911,93,1128,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1176,111,1368,137"/>
-</map>
-</div>
-</p>
 
 </div>
 </div>
@@ -463,53 +356,6 @@ Here is the caller graph for this function:</div>
 
 <p>internal helper to manage compound module in data structure </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8cpp_source.html#l00606">606</a> of file <a class="el" href="_multiple_voltages_8cpp_source.html">MultipleVoltages.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_cgraph.png" border="0" usemap="#class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_cgraph" alt=""/></div>
-<map name="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_cgraph" id="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_cgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="227,74,426,115"/>
-<area shape="rect" id="node8" href="class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b" title="local cost; required during bottom&#45;up construction " alt="" coords="483,238,672,279"/>
-<area shape="rect" id="node16" href="class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="219,267,435,309"/>
-<area shape="rect" id="node3" href="class_block.html#a0f6d4af67b432ef86f898c3326d55b3a" title="Block::power_max" alt="" coords="746,5,877,32"/>
-<area shape="rect" id="node5" href="class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="762,56,861,83"/>
-<area shape="rect" id="node7" href="class_block.html#ac84515e45dfe29a7c16149a71c0387aa" title="Block::power_min" alt="" coords="514,56,641,83"/>
-<area shape="rect" id="node4" href="class_block.html#ac9b40ebd346d0e74d59311e52d9f5642" title="density in [uW/(um^2)]; relates to maximal value for highest voltage " alt="" coords="960,5,1139,32"/>
-<area shape="rect" id="node6" href="class_block.html#a5ad2879932cc3c0b84e3e9d3a1392fc5" title="Block::power_density" alt="" coords="976,56,1123,83"/>
-<area shape="rect" id="node9" href="class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="724,107,899,133"/>
-<area shape="rect" id="node10" href="class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="958,187,1141,213"/>
-<area shape="rect" id="node11" href="class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="951,300,1148,327"/>
-<area shape="rect" id="node12" href="class_rect.html#a363d297d7d06a0eb04fc09a0aa04ec4f" title="helper to check whether one rectangle is below the other " alt="" coords="727,325,895,352"/>
-<area shape="rect" id="node13" href="class_rect.html#a208b65153cd20b453b7ade9a2dd13be5" title="helper to check whether one rectangle is left of the other " alt="" coords="747,209,875,250"/>
-<area shape="rect" id="node14" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="720,376,903,403"/>
-<area shape="rect" id="node15" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="745,427,877,453"/>
-<area shape="rect" id="node17" href="class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be" title="helper function to return string comprising all (sorted) block ids " alt="" coords="483,303,672,345"/>
-</map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_icgraph.png" border="0" usemap="#class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_icgraph" id="class_multiple_voltages_ac6dfdf08fbac9aca4cf46d08016a855d_icgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="219,61,435,102"/>
-<area shape="rect" id="node3" href="class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="483,61,665,102"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="713,61,909,102"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="957,68,1148,95"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="2080,113,2245,140"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1893,63,2032,89"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1196,144,1340,171"/>
-<area shape="rect" id="node7" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2520,183,2571,209"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2293,175,2472,217"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1388,93,1605,120"/>
-<area shape="rect" id="node12" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1653,111,1845,137"/>
-</map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a16352f47bd11dcdfe7b2155ecb6a54ad"></a>
@@ -527,41 +373,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>helper to perform top-down selection of compound modules </p>
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8cpp_source.html#l00114">114</a> of file <a class="el" href="_multiple_voltages_8cpp_source.html">MultipleVoltages.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_cgraph.png" border="0" usemap="#class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_cgraph" alt=""/></div>
-<map name="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_cgraph" id="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_cgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412" title="MultipleVoltages::Compound\lModule::cost" alt="" coords="225,5,415,47"/>
-<area shape="rect" id="node3" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="254,71,386,98"/>
-<area shape="rect" id="node4" href="class_multiple_voltages_1_1_compound_module.html#a761ce6e71fd1addc406c97d4d1154c11" title="MultipleVoltages::Compound\lModule::min_voltage_index" alt="" coords="225,123,415,164"/>
-<area shape="rect" id="node5" href="class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be" title="helper function to return string comprising all (sorted) block ids " alt="" coords="225,188,415,229"/>
-<area shape="rect" id="node6" href="class_multiple_voltages_1_1_compound_module.html#a8426e3703efc392f453735350f539ce4" title="MultipleVoltages::Compound\lModule::power_saving" alt="" coords="225,253,415,295"/>
-<area shape="rect" id="node7" href="class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938" title="MultipleVoltages::Compound\lModule::corners_powerring_max" alt="" coords="215,319,425,360"/>
-</map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_icgraph.png" border="0" usemap="#class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_icgraph" id="class_multiple_voltages_a16352f47bd11dcdfe7b2155ecb6a54ad_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="215,61,411,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="459,68,649,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1581,113,1747,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1395,63,1533,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="697,144,841,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2021,183,2072,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1795,175,1973,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="889,93,1107,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1155,111,1347,137"/>
-</map>
-</div>
-</p>
 
 </div>
 </div>
@@ -583,8 +394,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00197">197</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
 
 </div>
 </div>
@@ -609,8 +418,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switch (private) </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00038">38</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="afa202a7ac6b48deeff1c06b71e964640"></a>
@@ -633,8 +440,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switch (public) </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00045">45</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ae21ceca033b64b621a62d70465444959"></a>
@@ -656,8 +461,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>debugging code switch (private) </p>
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00040">40</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
 
 </div>
 </div>
@@ -692,8 +495,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>dimension for feasible voltages; represents the upper bound for globally available voltages </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00049">49</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a9b125061650b3c9fc3dc3968a5691b8d"></a>
@@ -713,8 +514,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00204">204</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
 
 </div>
 </div>
@@ -750,13 +549,11 @@ Here is the caller graph for this function:</div>
 
 <p>vector of selected modules, filled by <a class="el" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top-down selection of compound modules ">selectCompoundModules()</a> </p>
 
-<p>Definition at line <a class="el" href="_multiple_voltages_8hpp_source.html#l00207">207</a> of file <a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_multiple_voltages_8hpp_source.html">MultipleVoltages.hpp</a></li>
-<li>src/<a class="el" href="_multiple_voltages_8cpp_source.html">MultipleVoltages.cpp</a></li>
+<li>src/<a class="el" href="_multiple_voltages_8hpp.html">MultipleVoltages.hpp</a></li>
+<li>src/<a class="el" href="_multiple_voltages_8cpp.html">MultipleVoltages.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

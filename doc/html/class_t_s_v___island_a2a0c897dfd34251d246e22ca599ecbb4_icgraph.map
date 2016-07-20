@@ -1,12 +1,11 @@
 <map id="TSV_Island::greedyShifting" name="TSV_Island::greedyShifting">
-<area shape="rect" id="node2" href="$class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="235,93,432,120"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="480,68,711,95"/>
-<area shape="rect" id="node10" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1189,93,1407,120"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="759,68,949,95"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1881,113,2047,140"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1695,63,1833,89"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="997,195,1141,221"/>
-<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2321,183,2372,209"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2095,175,2273,217"/>
-<area shape="rect" id="node11" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1455,111,1647,137"/>
+<area shape="rect" id="node2" href="$class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="235,5,432,32"/>
+<area shape="rect" id="node3" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="480,56,711,83"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="487,107,704,133"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="759,56,950,83"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1191,56,1356,83"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1001,56,1140,83"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="999,107,1143,133"/>
+<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1404,81,1455,108"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="759,107,951,133"/>
 </map>

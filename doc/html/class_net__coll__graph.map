@@ -1,7 +1,0 @@
-<map id="Net" name="Net">
-<area shape="rect" id="node2" href="$class_block.html" title="Corblivar design block. " alt="" coords="214,243,269,269"/>
-<area shape="rect" id="node3" href="$class_multiple_voltages_1_1_compound_module.html" title="inner class of compound modules, to be declared early on " alt="" coords="5,109,195,151"/>
-<area shape="rect" id="node4" href="$class_rect.html" title="Corblivar layout box. " alt="" coords="219,117,269,143"/>
-<area shape="rect" id="node5" href="$class_point.html" title="Corblivar layout point. " alt="" coords="218,5,270,32"/>
-<area shape="rect" id="node6" href="$struct_block_1_1_a_r.html" title="Block::AR" alt="" coords="295,117,377,143"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="FloorPlanner::shrinkDieOutlines" name="FloorPlanner::shrinkDieOutlines">
-<area shape="rect" id="node2" href="$class_thermal_analyzer.html#ae5ef65dc654c0129ba7e0a0d703a3203" title="thermal modeling: handlers " alt="" coords="260,5,475,32"/>
-<area shape="rect" id="node3" href="$class_routing_utilization.html#a8f264c5cd61f2a9071bb45ee75ff91f9" title="utilization analysis: handlers " alt="" coords="305,57,430,98"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a7337cf560b0621463d247f7ddfc0be20" title="FloorPlanner::scaleTerminalPins" alt="" coords="262,123,473,149"/>
-<area shape="rect" id="node4" href="$class_routing_utilization.html#a4dd6738016b93867ccd8250d2508b290" title="utilization analysis: handlers " alt="" coords="523,57,648,98"/>
-</map>

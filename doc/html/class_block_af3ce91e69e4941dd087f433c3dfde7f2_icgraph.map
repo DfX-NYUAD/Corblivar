@@ -1,10 +1,5 @@
 <map id="Block::shapeRandomlyByAR" name="Block::shapeRandomlyByAR">
-<area shape="rect" id="node2" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="525,5,641,32"/>
-<area shape="rect" id="node4" href="$class_layout_operations.html#aa76ca07198445198e92ac853e91a990b" title="LayoutOperations::perform\lOpEnhancedSoftBlockShaping" alt="" coords="245,57,447,98"/>
-<area shape="rect" id="node5" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="495,97,671,138"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1569,56,1620,83"/>
-<area shape="rect" id="node6" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="719,97,895,138"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1129,104,1295,131"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="943,125,1081,152"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1343,107,1521,149"/>
+<area shape="rect" id="node2" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="275,5,391,32"/>
+<area shape="rect" id="node4" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="245,57,421,98"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="469,5,520,32"/>
 </map>

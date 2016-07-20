@@ -1,11 +1,7 @@
 <map id="Math::randF" name="Math::randF">
-<area shape="rect" id="node2" href="$class_block.html#af3ce91e69e4941dd087f433c3dfde7f2" title="Block::shapeRandomlyByAR" alt="" coords="145,92,337,119"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1269,120,1435,147"/>
-<area shape="rect" id="node3" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="665,5,781,32"/>
-<area shape="rect" id="node5" href="$class_layout_operations.html#aa76ca07198445198e92ac853e91a990b" title="LayoutOperations::perform\lOpEnhancedSoftBlockShaping" alt="" coords="385,55,587,97"/>
-<area shape="rect" id="node6" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="635,82,811,123"/>
-<area shape="rect" id="node4" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1709,61,1760,88"/>
-<area shape="rect" id="node7" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="859,82,1035,123"/>
-<area shape="rect" id="node10" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1083,120,1221,147"/>
-<area shape="rect" id="node9" href="$class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1483,113,1661,154"/>
+<area shape="rect" id="node2" href="$class_block.html#af3ce91e69e4941dd087f433c3dfde7f2" title="Block::shapeRandomlyByAR" alt="" coords="145,64,337,91"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="159,119,324,145"/>
+<area shape="rect" id="node3" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="415,5,531,32"/>
+<area shape="rect" id="node5" href="$class_layout_operations.html#a35afe433f01049b5b6d9b41f7df65c46" title="LayoutOperations::perform\lOpShapeBlock" alt="" coords="385,57,561,98"/>
+<area shape="rect" id="node4" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="609,64,660,91"/>
 </map>

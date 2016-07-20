@@ -122,7 +122,7 @@ $(document).ready(function(){initNavTree('class_clustering.html','');});
 <p>Corblivar signal-TSV clustering.  
  <a href="class_clustering.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>&gt;</code></p>
+<p><code>#include &lt;Clustering.hpp&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -193,9 +193,7 @@ Static Private Attributes</h2></td></tr>
 <p>Corblivar is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
 <p>Corblivar is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with Corblivar. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p><hr/>
- 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00033">33</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+ </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="adbc814d7ac1d5dcb3f2bc1ca6e5e419f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -247,40 +245,17 @@ Static Private Attributes</h2></td></tr>
 <p><a class="el" href="class_clustering.html" title="Corblivar signal-TSV clustering. ">Clustering</a> helper. </p>
 <p>For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal analysis, but for clustering TSVs we require the result of the thermal analysis. Thus, the determination of hotspots, which are the source for clustering TSVs into islands, are based on the previous thermal analysis run&mdash;with the assumption that one layout operation does not alter the thermal profile <em>significantly</em> this appears a valid compromise. (The most precise, however time-consuming, approach would be to 1) perform the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis results, and 3) perform the thermal analysis again, w/ consideration of TSVs.) </p>
 
-<p>Definition at line <a class="el" href="_clustering_8cpp_source.html#l00037">37</a> of file <a class="el" href="_clustering_8cpp_source.html">Clustering.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_cgraph.png" border="0" usemap="#class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_cgraph" alt=""/></div>
-<map name="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_cgraph" id="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_cgraph">
-<area shape="rect" id="node2" href="class_clustering.html#a75dec773a773987e8ae32383396023ab" title="Hotspot determination. " alt="" coords="251,56,449,83"/>
-<area shape="rect" id="node5" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="743,125,926,152"/>
-<area shape="rect" id="node6" href="class_t_s_v___island.html#a2a0c897dfd34251d246e22ca599ecbb4" title="TSV_Island::greedyShifting" alt="" coords="259,165,441,192"/>
-<area shape="rect" id="node3" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="527,5,659,32"/>
-<area shape="rect" id="node4" href="class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="505,56,680,83"/>
-<area shape="rect" id="node7" href="class_rect.html#aa0d48ffbec03ce400b389f07bd2e1edf" title="Rect::rectsIntersect" alt="" coords="523,224,662,251"/>
-<area shape="rect" id="node10" href="class_rect.html#afa1518cf68e155b6064ccf70228c1e10" title="helper to shift and mitigate any intersection of two rectangles " alt="" coords="497,158,688,199"/>
-<area shape="rect" id="node8" href="class_rect.html#a3820b0c990077c07838b3c004c13ff7b" title="Rect::rectsIntersectVertical" alt="" coords="743,195,926,221"/>
-<area shape="rect" id="node9" href="class_rect.html#aaead85db319a031a376bb1849e094308" title="Rect::rectsIntersectHorizontal" alt="" coords="736,245,933,272"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_icgraph.png" border="0" usemap="#class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_icgraph" alt=""/></div>
 <map name="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_icgraph" id="class_clustering_adbc814d7ac1d5dcb3f2bc1ca6e5e419f_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,68,481,95"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,68,720,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1652,113,1817,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1465,63,1604,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="768,144,912,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2092,183,2143,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1865,175,2044,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="960,93,1177,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1225,111,1417,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,22,481,48"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,22,720,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="955,22,1120,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="768,22,907,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="965,72,1109,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1168,47,1219,74"/>
 </map>
 </div>
 </p>
@@ -312,34 +287,18 @@ Here is the caller graph for this function:</div>
 <p><a class="el" href="struct_clustering_1_1_hotspot.html" title="POD wrapping hotspot regions. ">Hotspot</a> determination. </p>
 <p>Obtain hotspots (i.e., locally connected regions surrounding local maximum temperatures) from the thermal analysis run. The determination of hotspots/blobs is based on Lindeberg's grey-level blob detection algorithm. </p>
 
-<p>Definition at line <a class="el" href="_clustering_8cpp_source.html#l00307">307</a> of file <a class="el" href="_clustering_8cpp_source.html">Clustering.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_clustering_a75dec773a773987e8ae32383396023ab_cgraph.png" border="0" usemap="#class_clustering_a75dec773a773987e8ae32383396023ab_cgraph" alt=""/></div>
-<map name="class_clustering_a75dec773a773987e8ae32383396023ab_cgraph" id="class_clustering_a75dec773a773987e8ae32383396023ab_cgraph">
-<area shape="rect" id="node2" href="class_math.html#a23d6124fcf96a3f774d054b2c3d6965c" title="comparison of double values, allows minor deviation " alt="" coords="273,5,405,32"/>
-<area shape="rect" id="node3" href="class_rect.html#a47f0b68770f766f018039cd1b036f497" title="helper to determine the overall bounding box of multiple rectangles " alt="" coords="252,56,427,83"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_clustering_a75dec773a773987e8ae32383396023ab_icgraph.png" border="0" usemap="#class_clustering_a75dec773a773987e8ae32383396023ab_icgraph" alt=""/></div>
 <map name="class_clustering_a75dec773a773987e8ae32383396023ab_icgraph" id="class_clustering_a75dec773a773987e8ae32383396023ab_icgraph">
-<area shape="rect" id="node2" href="class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="252,68,449,95"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="497,68,728,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="776,68,967,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1899,113,2064,140"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1712,63,1851,89"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1015,144,1159,171"/>
-<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2339,183,2389,209"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="2112,175,2291,217"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1207,93,1424,120"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1472,111,1664,137"/>
+<area shape="rect" id="node2" href="class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="252,22,449,48"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="497,22,728,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="776,22,967,48"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1201,22,1367,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1015,22,1153,48"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1212,72,1356,99"/>
+<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1415,47,1465,74"/>
 </map>
 </div>
 </p>
@@ -367,8 +326,6 @@ Here is the caller graph for this function:</div>
 
 <p><a class="el" href="struct_clustering_1_1_cluster.html" title="POD wrapping net clusters. ">Cluster</a> container. </p>
 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00097">97</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ac09d0d57642dfc73264a605162eed099"></a>
@@ -390,8 +347,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>debugging code switches </p>
-
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00036">36</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
 
 </div>
 </div>
@@ -415,8 +370,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switches </p>
 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00040">40</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ad5aba1326a86df6eff8396b790a0dae8"></a>
@@ -438,8 +391,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>debugging code switches </p>
-
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00042">42</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
 
 </div>
 </div>
@@ -463,8 +414,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switches </p>
 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00038">38</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ad273a2937e79b745c0284092b85930e2"></a>
@@ -487,8 +436,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switches </p>
 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00046">46</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a75b45523a0104a5fe6d9380b8ca17bc3"></a>
@@ -502,8 +449,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>Hotspots container. </p>
-
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00077">77</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
 
 </div>
 </div>
@@ -527,13 +472,11 @@ Here is the caller graph for this function:</div>
 
 <p>Normalization scale for hotspot score. </p>
 
-<p>Definition at line <a class="el" href="_clustering_8hpp_source.html#l00094">94</a> of file <a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_clustering_8hpp_source.html">Clustering.hpp</a></li>
-<li>src/<a class="el" href="_clustering_8cpp_source.html">Clustering.cpp</a></li>
+<li>src/<a class="el" href="_clustering_8hpp.html">Clustering.hpp</a></li>
+<li>src/<a class="el" href="_clustering_8cpp.html">Clustering.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

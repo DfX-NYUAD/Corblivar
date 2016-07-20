@@ -122,7 +122,7 @@ $(document).ready(function(){initNavTree('class_thermal_analyzer.html','');});
 <p>Corblivar thermal analyzer, based on power blurring.  
  <a href="class_thermal_analyzer.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>&gt;</code></p>
+<p><code>#include &lt;ThermalAnalyzer.hpp&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -273,8 +273,6 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar thermal analyzer, based on power blurring. </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00036">36</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a44b16ac60c38e1ba8987960f8cdebba1"></a>
 <div class="memitem">
@@ -315,32 +313,17 @@ Friends</h2></td></tr>
 <p>thermal modeling: handlers </p>
 <p>note that this function only accounts for (via by TSVs improved heat conduction) lower local power consumption, not the (much smaller) increase of power consumption due to resistivity of TSVs </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00455">455</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_cgraph.png" border="0" usemap="#class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_cgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_cgraph" id="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_cgraph">
-<area shape="rect" id="node2" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="251,13,433,39"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph.png" border="0" usemap="#class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph" id="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,61,449,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="497,68,688,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1620,113,1785,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1433,63,1572,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="736,144,880,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2060,183,2111,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1833,175,2012,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="928,93,1145,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1193,111,1385,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,14,449,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="497,22,688,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="923,22,1088,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="736,22,875,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="933,72,1077,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1136,47,1187,74"/>
 </map>
 </div>
 </p>
@@ -380,22 +363,17 @@ Here is the caller graph for this function:</div>
 <p>thermal modeling: handlers </p>
 <p>note that the power consumption of wires is only output for power blurring, but (currently) not for the HotSpot input data; the power consumption in wires is much smaller than that of actual blocks, which makes this omission reasonable </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00572">572</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph.png" border="0" usemap="#class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph" id="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,68,481,95"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,68,720,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1652,113,1817,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1465,63,1604,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="768,144,912,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2092,183,2143,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1865,175,2044,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="960,93,1177,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1225,111,1417,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,22,481,48"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,22,720,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="955,22,1120,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="768,22,907,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="965,72,1109,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1168,47,1219,74"/>
 </map>
 </div>
 </p>
@@ -446,33 +424,18 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: handlers </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00303">303</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_cgraph.png" border="0" usemap="#class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_cgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_cgraph" id="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_cgraph">
-<area shape="rect" id="node2" href="class_rect.html#ac282d3e5dd108c995c9da2120cd4de68" title="helper to determine the bounding box of the intersection of two rectangles " alt="" coords="232,13,415,39"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_icgraph.png" border="0" usemap="#class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_icgraph" id="class_thermal_analyzer_a9325c9782c7fb230a77e7197a9b82062_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="248,31,447,73"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="232,97,463,124"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="511,68,701,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1633,113,1799,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1447,63,1585,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="749,144,893,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2073,183,2124,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1847,175,2025,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="941,93,1159,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1207,111,1399,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="248,5,447,47"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="232,71,463,98"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="511,42,701,69"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="936,42,1101,69"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="749,42,888,69"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="947,93,1091,119"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1149,67,1200,94"/>
 </map>
 </div>
 </p>
@@ -513,22 +476,14 @@ Here is the caller graph for this function:</div>
 <p>similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well</p>
 <p>note that TSV_density is to be passed as percent </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00187">187</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph.png" border="0" usemap="#class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph" id="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="260,93,408,120"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="456,93,600,120"/>
-<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1780,68,1831,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="648,93,865,120"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1553,119,1732,161"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="913,56,1105,83"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="914,132,1105,159"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1340,93,1505,120"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1153,93,1292,120"/>
+<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="260,5,408,32"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="456,5,600,32"/>
+<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="648,5,699,32"/>
 </map>
 </div>
 </p>
@@ -570,22 +525,14 @@ Here is the caller graph for this function:</div>
 <p>heat capacity of TSV-group-Si compound: mass-weighted mean; C_group = m_Cu / m_group * C_Cu + (1 - m_Cu / m_group) * C_Si = 1 / (1 + (p_Si * A_Si) / (p_Cu * A_Cu)) * C_Cu + 1 / (1 + (p_Cu * A_Cu) / (p_Si * A_Si))* C_si <a href="http://answers.yahoo.com/question/index?qid=20110804231514AApjFkc">http://answers.yahoo.com/question/index?qid=20110804231514AApjFkc</a> , <a href="http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g">http://www.google.de/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;ved=0CCwQFjAA&amp;url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&amp;ei=6JXuUfD-K9GKswaPzIGgDw&amp;usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&amp;sig2=Jd7U_ZTSDs_7KYWTmXaA7g</a></p>
 <p>note that TSV_density is to be passed as percent </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00174">174</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph.png" border="0" usemap="#class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph" id="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="243,93,391,120"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="439,93,583,120"/>
-<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1763,68,1813,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="631,93,848,120"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1536,119,1715,161"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="896,56,1088,83"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="897,132,1087,159"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1323,93,1488,120"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1136,93,1275,120"/>
+<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="243,5,391,32"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="439,5,583,32"/>
+<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="631,5,681,32"/>
 </map>
 </div>
 </p>
@@ -618,23 +565,16 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: handlers </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00158">158</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_ae5ef65dc654c0129ba7e0a0d703a3203_icgraph.png" border="0" usemap="#class_thermal_analyzer_ae5ef65dc654c0129ba7e0a0d703a3203_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_ae5ef65dc654c0129ba7e0a0d703a3203_icgraph" id="class_thermal_analyzer_ae5ef65dc654c0129ba7e0a0d703a3203_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#ae3325e13f99146a9c26ca16047ef919a" title="ThermalAnalyzer: handler. " alt="" coords="523,5,689,47"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#ae3325e13f99146a9c26ca16047ef919a" title="ThermalAnalyzer: handler. " alt="" coords="288,5,455,47"/>
 <area shape="rect" id="node4" href="class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7" title="FloorPlanner::shrinkDieOutlines" alt="" coords="268,71,475,98"/>
-<area shape="rect" id="node3" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1869,202,1920,229"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1429,173,1595,199"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="534,198,678,225"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1643,224,1821,265"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="737,173,955,199"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1003,147,1195,174"/>
-<area shape="rect" id="node11" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1003,223,1194,250"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1243,173,1381,199"/>
+<area shape="rect" id="node3" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="736,63,787,90"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="523,63,688,90"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="533,114,677,141"/>
 </map>
 </div>
 </p>
@@ -656,8 +596,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>thermal modeling: handlers </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00036">36</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
@@ -705,18 +643,6 @@ Here is the caller graph for this function:</div>
 <p>thermal modeling: handlers </p>
 <p>Determine masks for lowest layer, i.e., hottest layer. Based on a gaussian-like thermal impulse response fuction. Note that masks are centered, i.e., the value f(x=0) resides in the middle of the (uneven) array. Note that masks are 1D, sufficient for the separated convolution in <a class="el" href="class_thermal_analyzer.html#a8b44dc0583b7fc9fc2fbb3d2300b9c80">performPowerBlurring()</a> </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00219">219</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_ada75f7b9d88bd60229a0fd194b842bd6_cgraph.png" border="0" usemap="#class_thermal_analyzer_ada75f7b9d88bd60229a0fd194b842bd6_cgraph" alt=""/></div>
-<map name="class_thermal_analyzer_ada75f7b9d88bd60229a0fd194b842bd6_cgraph" id="class_thermal_analyzer_ada75f7b9d88bd60229a0fd194b842bd6_cgraph">
-<area shape="rect" id="node2" href="class_math.html#ac93e36b9bce92650edaeb895a1d45e2f" title="Math::gauss1D" alt="" coords="245,13,356,39"/>
-</map>
-</div>
-</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -763,22 +689,17 @@ Here is the caller graph for this function:</div>
 <p>Thermal-analyzer routine based on power blurring, i.e., convolution of thermals masks and power maps into thermal maps. Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss fct., see <a href="http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution">http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution</a> Returns thermal map of lowest layer, i.e., hottest layer </p>
 <p>perform 2D convolution by performing two separated 1D convolution iterations; note that no (kernel) flipping is required since the mask is symmetric </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8cpp_source.html#l00624">624</a> of file <a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a8b44dc0583b7fc9fc2fbb3d2300b9c80_icgraph.png" border="0" usemap="#class_thermal_analyzer_a8b44dc0583b7fc9fc2fbb3d2300b9c80_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a8b44dc0583b7fc9fc2fbb3d2300b9c80_icgraph" id="class_thermal_analyzer_a8b44dc0583b7fc9fc2fbb3d2300b9c80_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="225,61,424,102"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="472,68,663,95"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1595,113,1760,140"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1408,63,1547,89"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="711,144,855,171"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="2035,183,2085,209"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1808,175,1987,217"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="903,93,1120,120"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="1168,111,1360,137"/>
+<area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="225,14,424,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="472,22,663,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="897,22,1063,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="711,22,849,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="908,72,1052,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1111,47,1161,74"/>
 </map>
 </div>
 </p>
@@ -819,22 +740,14 @@ Here is the caller graph for this function:</div>
 <p>thermal resistivity of compounds, to be derived as parallel joint resistance of Bond, Cu where TSV density impacts the area fractions</p>
 <p>note that TSV_density is to be passed as percent </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00217">217</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph.png" border="0" usemap="#class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph" id="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="268,93,416,120"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="464,93,608,120"/>
-<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1788,68,1839,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="656,93,873,120"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1561,119,1740,161"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="921,56,1113,83"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="922,132,1113,159"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1348,93,1513,120"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1161,93,1300,120"/>
+<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="268,5,416,32"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="464,5,608,32"/>
+<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="656,5,707,32"/>
 </map>
 </div>
 </p>
@@ -875,22 +788,14 @@ Here is the caller graph for this function:</div>
 <p>thermal resistivity of compounds, to be derived as parallel joint resistance of Si, Cu where TSV density impacts the area fractions</p>
 <p>note that TSV_density is to be passed as percent </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00201">201</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph.png" border="0" usemap="#class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph" id="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="251,93,399,120"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="447,93,591,120"/>
-<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1771,68,1821,95"/>
-<area shape="rect" id="node5" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="639,93,856,120"/>
-<area shape="rect" id="node8" href="class_floor_planner.html#af18a82c646167d7bd1934e4ba157ed9f" title="FloorPlanner::inputSolution\lFileOpen" alt="" coords="1544,119,1723,161"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="904,56,1096,83"/>
-<area shape="rect" id="node10" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="905,132,1095,159"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1331,93,1496,120"/>
-<area shape="rect" id="node9" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1144,93,1283,120"/>
+<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="251,5,399,32"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="447,5,591,32"/>
+<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="639,5,689,32"/>
 </map>
 </div>
 </p>
@@ -916,8 +821,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00235">235</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -941,8 +844,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00122">122</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a3642edd429b7e0681994be2a4a23f1fa"></a>
@@ -962,8 +863,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00122">122</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -987,8 +886,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switch (private) </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00041">41</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a7857cad198947501e5217e3e55539b6a"></a>
@@ -1010,8 +907,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>debugging code switch (private) </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00039">39</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1035,8 +930,6 @@ Here is the caller graph for this function:</div>
 
 <p>debugging code switch (private) </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00043">43</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a6fcf5c93810f2c852966c686c75bebc8"></a>
@@ -1057,8 +950,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00158">158</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1081,8 +972,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00161">161</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a1c7a2aee628734af914e8ec6f6c5f37c"></a>
@@ -1103,8 +992,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00155">155</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1127,8 +1014,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Sridhar10]; derived considering a factor of appr. 1.35 for Si/BEOL heat capacity </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00137">137</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="aafcb184eb4f43a8d298fa2778e756c82"></a>
@@ -1149,8 +1034,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09]; BCB polymer </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00143">143</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1173,8 +1056,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00149">149</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ab179802f6c763f357f1aa51b360e682b"></a>
@@ -1195,8 +1076,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09]; derived from 700 J/(kg*K) to J/(m^3*K) considering Si density of 2330 kg/m^3 </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00131">131</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1220,8 +1099,6 @@ Here is the caller graph for this function:</div>
 
 <p>flags for hotspot detection </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00065">65</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a171b005bef203fe697eaca009cc17790"></a>
@@ -1243,8 +1120,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>flags for hotspot detection </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00067">67</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1268,8 +1143,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00124">124</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ae22a69ca392decf938e1fbe3e8692e1c"></a>
@@ -1289,8 +1162,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00124">124</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1314,8 +1185,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00128">128</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="af19e5e8323b1fcfeb07aec8307f781aa"></a>
@@ -1336,8 +1205,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>power_maps[i][x][y], whereas power_maps[0] relates to the map for layer 0 and so forth. </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00111">111</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1361,8 +1228,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00120">120</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ae326587d08e241cf8cc5cee5c56c232e"></a>
@@ -1385,8 +1250,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00126">126</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a6c9a1e7362b9f9540d34f02a57045798"></a>
@@ -1406,8 +1269,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00126">126</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1432,8 +1293,6 @@ Here is the caller graph for this function:</div>
 <p>memory allocation </p>
 <p>represents the power maps' dimension (note that maps are padded at the boundaries according to mask dim in order to handle boundary values for convolution) </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00062">62</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="af384dab322248f3fc6a3cc8ed2a010f4"></a>
@@ -1456,8 +1315,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating power maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00118">118</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="af490a4e8e782e7638d53669c36080055"></a>
@@ -1477,8 +1334,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00118">118</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1502,8 +1357,6 @@ Here is the caller graph for this function:</div>
 
 <p>represents the amount of padded bins at power maps' boundaries </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00058">58</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a3742a7534601c4fad5a4e58dac48a22f"></a>
@@ -1525,8 +1378,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>thermal map for layer 0 (lowest layer), i.e., hottest layer </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00113">113</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1550,8 +1401,6 @@ Here is the caller graph for this function:</div>
 
 <p>represents the thermal map's dimension </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00049">49</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ad6452a75e9a4d7e94f346b4ec34e1a7b"></a>
@@ -1574,8 +1423,6 @@ Here is the caller graph for this function:</div>
 
 <p>thermal modeling: parameters for generating thermal maps </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00116">116</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a5bf11c5032a0e150100a3b3dedac3770"></a>
@@ -1595,8 +1442,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00116">116</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1619,8 +1464,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>represents the center index of the center originated mask; int division discards remainder, i.e., is equal to floor() for positive int </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00056">56</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ac919f46065cc523ac2ca6f3694b9b69d"></a>
@@ -1641,8 +1484,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>represents the thermal mask's dimension (i.e., the 2D gauss function representing the thermal impulse response); note that value should be uneven! </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00053">53</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1665,8 +1506,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>thermal modeling: thermal masks and maps thermal_masks[i][x/y], whereas thermal_masks[0] relates to the mask for layer 0 obtained by considering heat source in layer 0, thermal_masks[1] relates to the mask for layer 0 obtained by considering heat source in layer 1 and so forth. Note that the masks are only 1D for the separated convolution. </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00108">108</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a261640be6f8fa3710a0128c469d4ef94"></a>
@@ -1687,8 +1526,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Sridhar10] </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00140">140</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1711,8 +1548,6 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09]; BCB polymer </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00146">146</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a4c35faf347ffde8b47c2986cc0564efe"></a>
@@ -1733,8 +1568,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
-
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00152">152</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
 
 </div>
 </div>
@@ -1757,13 +1590,11 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>material parameters for thermal 3D-IC simulation using HotSpot [Park09] </p>
 
-<p>Definition at line <a class="el" href="_thermal_analyzer_8hpp_source.html#l00134">134</a> of file <a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_thermal_analyzer_8hpp_source.html">ThermalAnalyzer.hpp</a></li>
-<li>src/<a class="el" href="_thermal_analyzer_8cpp_source.html">ThermalAnalyzer.cpp</a></li>
+<li>src/<a class="el" href="_thermal_analyzer_8hpp.html">ThermalAnalyzer.hpp</a></li>
+<li>src/<a class="el" href="_thermal_analyzer_8cpp.html">ThermalAnalyzer.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
