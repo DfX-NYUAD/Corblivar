@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar routing-utilization analyzer
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -29,7 +29,7 @@
 #include "Block.hpp"
 #include "Math.hpp"
 
-// memory allocation
+/// memory allocation
 constexpr int RoutingUtilization::UTIL_MAPS_DIM;
 
 void RoutingUtilization::resetUtilMaps(int const& layers) {

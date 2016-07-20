@@ -1,0 +1,9 @@
+<map id="ContiguityAnalysis::boundaries_hor_comp" name="ContiguityAnalysis::boundaries_hor_comp">
+<area shape="rect" id="node2" href="$class_contiguity_analysis.html#a83fb3b126170428ed01f679a6dbaf7e1" title="ContiguityAnalysis\l::analyseBlocks" alt="" coords="211,14,341,56"/>
+<area shape="rect" id="node3" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="389,14,585,56"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="633,22,824,48"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1059,22,1224,48"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="872,22,1011,48"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1069,72,1213,99"/>
+<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1272,47,1323,74"/>
+</map>

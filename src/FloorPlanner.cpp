@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar floorplanner (SA operations and related handler)
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -34,13 +34,17 @@
 #include "ContiguityAnalysis.hpp"
 #include "MultipleVoltages.hpp"
 
-// memory allocation
+
+/// memory allocation
 constexpr int Pin::LAYER;
+/// memory allocation
 constexpr double TimingPowerAnalyser::ACTIVITY_FACTOR;
+/// memory allocation
 constexpr double TSV_Island::AR_MIN;
+/// memory allocation
 constexpr double TSV_Island::AR_MAX;
 
-// main handler
+/// main handler
 bool FloorPlanner::performSA(CorblivarCore& corb) {
 	int i, ii;
 	int innerLoopMax;
@@ -257,18 +261,14 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						// memorize best solution which fits into outline
 						if (fitting_cost < best_cost) {
 
-							best_cost = fitting_cost;
-							corb.storeBestCBLs();
-							valid_layout_found = best_sol_found = true;
-
 							// also, shrink die outline
 							// whenever possible (and if
-							// configured for); this way,
-							// both the WL estimate becomes
-							// more accurate (since terminal
-							// pins are scaled to new,
-							// shrunk outline as well) and
-							// the chances for reducing die
+							// configured for); this way, both
+							// the WL estimate becomes more
+							// accurate (since terminal pins
+							// are scaled to new, shrunk
+							// outline as well) and the
+							// chances for reducing die
 							// outlines are better as well
 							//
 							// note that this will result in
@@ -299,6 +299,17 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 
 								this->scaleTerminalPins(outline);
 							}
+
+							// re-evaluate cost after
+							// shrinking die outline and/or
+							// scaling terminal pins
+							fitting_cost =
+								this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two).total_cost;
+
+							best_cost = fitting_cost;
+							corb.storeBestCBLs();
+
+							valid_layout_found = best_sol_found = true;
 						}
 					}
 				}
@@ -363,7 +374,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			// always log the current state for fitting the blocks into the
 			// fixed outline
 			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
-			std::cout << "SA>    Current max blocks-area die-area ratio: " << cost.area_actual_value << std::endl;
+			std::cout << "SA>    Current max packing overhead (ideal value is 0.0): " << cost.area_actual_value << std::endl;
 
 			if (this->opt_flags.alignment) {
 				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
@@ -890,8 +901,8 @@ bool FloorPlanner::generateLayout(CorblivarCore& corb, bool const& perform_align
 	return ret;
 }
 
-// adaptive cost model w/ two phases: first phase considers only cost for packing into
-// outline, second phase considers further factors like WL, thermal distr, etc.
+/// adaptive cost model w/ two phases: first phase considers only cost for packing into
+/// outline, second phase considers further factors like WL, thermal distr, etc.
 FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentReq> const& alignments, double const& fitting_layouts_ratio, bool const& SA_phase_two, bool const& set_max_cost, bool const& finalize) {
 	Cost cost;
 
@@ -914,7 +925,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	// phase two: consider further cost factors
 	else {
 		// area and outline cost, already weighted w/ global weight factor
-		this->evaluateAreaOutline(cost, fitting_layouts_ratio);
+		this->evaluateAreaOutline(cost, fitting_layouts_ratio, true);
 
 		// determine interconnects cost; also determines hotspot regions and
 		// clusters signal TSVs accordingly
@@ -1029,7 +1040,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		}
 
 		// sanity check for reasonable thermal cost
-		if (isinf(cost.thermal)) {
+		if (std::isinf(cost.thermal)) {
 			cost.thermal = 0.0;
 		}
 
@@ -1076,8 +1087,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 	return cost;
 }
 
-// determine the delays for all blocks; they shall fulfill a max delay below a given
-// threshold
+/// determine the delays for all blocks; they shall fulfill a max delay below a given
+/// threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool reevaluation) {
 	double max_delay;
 
@@ -1132,6 +1143,13 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double corners_avg = 0.0;
 	double module_count = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
+
+	// for finalize runs, reset timing constraint to original constraint in order to
+	// evaluate final result w.r.t. the user-given constraint, not an possibly
+	// down-scaled constraint (see below)
+	if (finalize) {
+		this->IC.delay_threshold = this->IC.delay_threshold_initial;
+	}
 
 	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
@@ -1300,17 +1318,21 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
 };
 
-// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
-// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
-// ``Modern floorplanning based on B*-Tree and fast simulated annealing''
-void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio) const {
+/// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
+/// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
+/// ``Modern floorplanning based on B*-Tree and fast simulated annealing''
+void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& fitting_layouts_ratio, bool const& SA_phase_two) const {
 	double cost_area;
 	double cost_outline;
 	double max_outline_x;
 	double max_outline_y;
+	double blocks_area;
+	double target_AR;
+	double packing_density_max;
 	int i;
 	std::vector<double> dies_AR;
 	std::vector<double> dies_area;
+	double max_outline_all;
 	bool layout_fits_in_fixed_outline;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1321,31 +1343,40 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 	dies_area.reserve(this->IC.layers);
 
 	layout_fits_in_fixed_outline = true;
+	max_outline_all = 0.0;
 	// determine outline and area
 	for (i = 0; i < this->IC.layers; i++) {
 
 		// determine outline for blocks on all dies separately
 		max_outline_x = max_outline_y = 0.0;
+		blocks_area = 0.0;
 		for (Block const& block : this->blocks) {
 
 			if (block.layer == i) {
+
+				blocks_area += block.bb.area;
+
 				// update max outline coords
 				max_outline_x = std::max(max_outline_x, block.bb.ur.x);
 				max_outline_y = std::max(max_outline_y, block.bb.ur.y);
 			}
 		}
 
-		// area, represented by blocks' outline; normalized to die area
-		dies_area.push_back((max_outline_x * max_outline_y) / (this->IC.die_area));
+		// area
+		dies_area.push_back(blocks_area);
+
+		// track max outline
+		if ((max_outline_x * max_outline_y) > max_outline_all) {
+			max_outline_all = max_outline_x * max_outline_y;
+		}
 
 		// aspect ratio; used to guide optimization towards fixed outline
 		if (max_outline_y > 0.0) {
 			dies_AR.push_back(max_outline_x / max_outline_y);
 		}
-		// dummy value for empty dies; implies cost of 0.0 for this die, i.e. does
-		// not impact cost function
+		// dummy value for empty dies
 		else {
-			dies_AR.push_back(this->IC.die_AR);
+			dies_AR.push_back(-1);
 		}
 
 		// memorize whether layout fits into outline
@@ -1354,27 +1385,51 @@ void FloorPlanner::evaluateAreaOutline(FloorPlanner::Cost& cost, double const& f
 		layout_fits_in_fixed_outline = layout_fits_in_fixed_outline && (max_outline_x <= 1.0 && max_outline_y <= 1.0);
 	}
 
-	// cost for AR mismatch, considering max violation guides towards fixed outline
-	cost_outline = 0.0;
-	for (i = 0; i < this->IC.layers; i++) {
-		cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
-	}
-	// store actual value
-	cost.outline_actual_value = cost_outline;
-	// determine cost function value
-	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
-
-	// cost for area, considering max value of blocks-area die-area ratio; guides
-	// towards balanced die occupation and area minimization
+	// cost for area, considering packing density
 	cost_area = 0.0;
+	packing_density_max = 0.0;
 	for (i = 0; i < this->IC.layers; i++) {
-		cost_area = std::max(cost_area, dies_area[i]);
+
+		// penalize low packing density via high cost: 1.0 - density
+		cost_area = std::max(cost_area, 1.0 - (dies_area[i] / max_outline_all));
+
+		// also determine AR for die w/ highest packing density; required for AR
+		// mismatch calculation below
+		if ((dies_area[i] / max_outline_all) > packing_density_max) {
+
+			packing_density_max = dies_area[i] / max_outline_all;
+			target_AR = dies_AR[i];
+		}
 	}
 	// store actual value
 	cost.area_actual_value = cost_area;
 	// determine cost function value
 	cost_area *= 0.5 * this->weights.area_outline * (1.0 + fitting_layouts_ratio);
 
+	// cost for AR mismatch, w.r.t. die with highest packing density which is most
+	// desirable to replicate/mimic
+	cost_outline = 0.0;
+	for (i = 0; i < this->IC.layers; i++) {
+
+		if (dies_AR[i] != -1) {
+
+			if (SA_phase_two) {
+				cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - target_AR));
+			}
+			// however, if we are still in phase one, i.e., no layout fitting
+			// the given fixed outline was found yet, we shall consider this
+			// given outline's AR
+			else {
+				cost_outline = std::max(cost_outline, std::abs(dies_AR[i] - this->IC.die_AR));
+			}
+		}
+	}
+	// store actual value
+	cost.outline_actual_value = cost_outline;
+	// determine cost function value
+	cost_outline *= 0.5 * this->weights.area_outline * (1.0 - fitting_layouts_ratio);
+
+	// determine overall cost
 	cost.area_outline = cost_outline + cost_area;
 	cost.fits_fixed_outline = layout_fits_in_fixed_outline;
 
@@ -1818,9 +1873,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	}
 }
 
-// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
-// note that this function also marks requests as failed or successful
-//
+/// costs are derived from spatial mismatch b/w blocks' alignment and intended alignment;
+/// note that this function also marks requests as failed or successful
+///
 // (TODO) account for power consumption in these wires and resulting TSVs
 void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignmentReq> const& alignments, bool const& derive_TSVs, bool const& set_max_cost, bool const& finalize) {
 	Rect intersect, bb, routing_bb;
@@ -2043,10 +2098,10 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 }
 
-// separate determination of alignments' HPWL which is called from evaluateInterconnects;
-// this way, the HPWL components of alignments are always (for active WL optimization)
-// considered
-//
+/// separate determination of alignments' HPWL which is called from evaluateInterconnects;
+/// this way, the HPWL components of alignments are always (for active WL optimization)
+/// considered
+///
 // (TODO) account for power consumption in these wires and resulting TSVs
 double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments) {
 	Rect bb;

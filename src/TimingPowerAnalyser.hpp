@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar handler for timing, delay and power analysis
  *
- *    Copyright (C) 2015 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2015-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -28,49 +28,50 @@
 // Corblivar includes, if any
 // forward declarations, if any
 
+/// Corblivar handler for timing, delay and power analysis
 class TimingPowerAnalyser {
-	// debugging code switch
 	public:
+		/// debugging code switch
 		static constexpr bool DBG = false;
 
 	// private constants
 	private:
-		// TSV/wire resistivity/capacitance values, taken from [Ahmed14] which
-		// models 45nm technology; wires are on M7-M8 layers, TSV are assumed to
-		// have 5um diameter, 10um pitch, and 50um length
-		//
-		// R_TSV [Ohm * 1e-3; mOhm]
+		/// TSV/wire resistivity/capacitance values, taken from [Ahmed14] which
+		/// models 45nm technology; wires are on M7-M8 layers, TSV are assumed to
+		/// have 5um diameter, 10um pitch, and 50um length
+		///
+		/// R_TSV [Ohm * 1e-3; mOhm]
 		static constexpr double R_TSV =	42.8e-03;
-		// C_TSV [F * 1e-15; fF]
+		/// C_TSV [F * 1e-15; fF]
 		static constexpr double C_TSV = 28.664e-15;
-		// R_wire [Ohm/um; mOhm/um]
+		/// R_wire [Ohm/um; mOhm/um]
 		static constexpr double R_WIRE = 52.5e-03;
-		// C_wire [F/um; fF/um]
+		/// C_wire [F/um; fF/um]
 		static constexpr double C_WIRE = 0.823e-15;
 
-		// factor for modules' base delay [Lin10], [ns/um]; based on 90nm
-		// technology simulations, thus scaled down by factor 2 to roughly match
-		// 45nm technology; delay = factor times (width + height) for any module
-		//
+		/// factor for modules' base delay [Lin10], [ns/um]; based on 90nm
+		/// technology simulations, thus scaled down by factor 2 to roughly match
+		/// 45nm technology; delay = factor times (width + height) for any module
+		///
 		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000.0 / 2.0;
 	
-		// delay factors for TSVs and wires, taken/resulting from [Ahmed14] which
-		// models 45nm technology
-		//
-		// TSVs' delay, given in [ns]
+		/// delay factors for TSVs and wires, taken/resulting from [Ahmed14] which
+		/// models 45nm technology
+		///
+		/// TSVs' delay, given in [ns]
 		static constexpr double DELAY_FACTOR_TSV = 
 			// R_TSV [mOhm] * C_TSV [fF]
 			R_TSV * C_TSV
 			// scale up to ns
 			* 1.0e09;
-		// wire delay, given in [ns/um^2]
+		/// wire delay, given in [ns/um^2]
 		static constexpr double DELAY_FACTOR_WIRE =
 			// R_wire [mOhm/um] * C_wire [fF/um]
 			R_WIRE * C_WIRE
 			// scale up to ns
 			* 1.0e09;
 
-		// activity factor, taken from [Ahmed14]
+		/// activity factor, taken from [Ahmed14]
 		static constexpr double ACTIVITY_FACTOR = 0.1;
 
 	// public POD, to be declared early on
@@ -84,17 +85,17 @@ class TimingPowerAnalyser {
 
 	// public data, functions
 	public:
-		// module h and w shall be given in um; returned delay is in ns
+		/// module h and w shall be given in um; returned delay is in ns
 		inline static double baseDelay(double const& h, double const& w) {
 			return TimingPowerAnalyser::DELAY_FACTOR_MODULE * (h + w);
 		}
 
-		// WL shall be given in um; returned delay is in ns
+		/// WL shall be given in um; returned delay is in ns
 		inline static double elmoreDelay(double const& WL, unsigned const& TSV) {
 			return 0.5 * TimingPowerAnalyser::DELAY_FACTOR_WIRE * std::pow(WL, 2.0) + 0.5 * TimingPowerAnalyser::DELAY_FACTOR_TSV * std::pow(TSV, 2);
 		}
 
-		// WL shall be given in um; returned power is in W
+		/// WL shall be given in um; returned power is in W
 		inline static double powerWire(double const& WL, double const& driver_voltage, double const& frequency, double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR) {
 
 			// P_wire = a * C_wire * WL * V_driver^2 * f

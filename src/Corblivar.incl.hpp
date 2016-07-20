@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar libraries includes
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -37,13 +37,13 @@
 #include <bitset>
 #include <utility>
 #include <algorithm>
-#include <math.h>
 // (TODO) replace w/ chrono
 #include <sys/timeb.h>
 
 // C libaries
 // (TODO) replace w/ STL where possible
 #include <ctime>
+#include <cmath>
 #include <cstdlib>
 
 #endif

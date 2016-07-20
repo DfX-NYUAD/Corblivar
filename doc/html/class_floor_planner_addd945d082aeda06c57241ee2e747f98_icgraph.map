@@ -1,0 +1,7 @@
+<map id="FloorPlanner::evaluateAreaOutline" name="FloorPlanner::evaluateAreaOutline">
+<area shape="rect" id="node2" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="657,51,823,78"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="232,63,423,90"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="871,83,921,110"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="471,89,609,115"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="668,114,812,141"/>
+</map>

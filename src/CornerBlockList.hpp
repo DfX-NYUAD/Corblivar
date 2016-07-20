@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar basic data structure: corner block list
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -30,16 +30,19 @@
 // forward declarations, if any
 enum class Direction : unsigned;
 
+/// Corblivar basic data structure: corner block list
 class CornerBlockList {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 
 	// private data, functions
 	private:
-		// CBL sequences
+		/// CBL sequence as in [Hong00]
 		std::vector<Block const*> S;
+		/// CBL sequence as in [Hong00]
 		std::vector<Direction> L;
+		/// CBL sequence as in [Hong00]
 		std::vector<unsigned> T;
 
 	// constructors, destructors, if any non-implicit
@@ -50,14 +53,14 @@ class CornerBlockList {
 		friend class CorblivarCore;
 		friend class CorblivarDie;
 
-		// POD; wrapper for tuples of separate sequences
+		/// POD; wrapper for tuples of separate sequences
 		struct Tuple {
 			Block const* S;
 			Direction L;
 			unsigned T;
 		};
 
-		// getter / setter
+		/// getter
 		inline unsigned size() const {
 
 			if (DBG) {
@@ -82,32 +85,38 @@ class CornerBlockList {
 			return this->S.size();
 		};
 
+		/// getter
 		inline unsigned capacity() const {
 			return this->S.capacity();
 		};
 
+		/// getter
 		inline bool empty() const {
 			return this->S.empty();
 		};
 
+		/// reset
 		inline void clear() {
 			this->S.clear();
 			this->L.clear();
 			this->T.clear();
 		};
 
+		/// allocate memory
 		inline void reserve(unsigned const& elements) {
 			this->S.reserve(elements);
 			this->L.reserve(elements);
 			this->T.reserve(elements);
 		};
 
+		/// insert tuple into CBL
 		inline void insert(Tuple&& tuple) {
 			this->S.push_back(tuple.S);
 			this->L.push_back(tuple.L);
 			this->T.push_back(tuple.T);
 		};
 
+		/// tuple string
 		inline std::string tupleString(unsigned const& tuple) const {
 			std::stringstream ret;
 
@@ -118,6 +127,7 @@ class CornerBlockList {
 			return ret.str();
 		};
 
+		/// string for whole CBL
 		inline std::string CBLString() const {
 			unsigned i;
 			std::stringstream ret;

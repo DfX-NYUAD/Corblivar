@@ -1,0 +1,5 @@
+<map id="MultipleVoltages::CompoundModule::min_voltage_index" name="MultipleVoltages::CompoundModule::min_voltage_index">
+<area shape="rect" id="node2" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="261,5,423,47"/>
+<area shape="rect" id="node3" href="$class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="243,71,441,112"/>
+<area shape="rect" id="node4" href="$class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="489,71,672,112"/>
+</map>

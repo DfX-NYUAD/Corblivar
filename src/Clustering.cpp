@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar signal-TSV clustering
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -26,14 +26,14 @@
 // required Corblivar headers
 #include "Net.hpp"
 
-// For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal
-// analysis, but for clustering TSVs we require the result of the thermal analysis. Thus,
-// the determination of hotspots, which are the source for clustering TSVs into islands,
-// are based on the previous thermal analysis run---with the assumption that one layout
-// operation does not alter the thermal profile _significantly_ this appears a valid
-// compromise. (The most precise, however time-consuming, approach would be to 1) perform
-// the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
-// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
+/// For clustering, a ``chicken-egg'' problem arises: the clustered TSVs impact the thermal
+/// analysis, but for clustering TSVs we require the result of the thermal analysis. Thus,
+/// the determination of hotspots, which are the source for clustering TSVs into islands,
+/// are based on the previous thermal analysis run---with the assumption that one layout
+/// operation does not alter the thermal profile _significantly_ this appears a valid
+/// compromise. (The most precise, however time-consuming, approach would be to 1) perform
+/// the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
+/// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
 void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::vector<Segments>::iterator it_seg;
@@ -301,9 +301,9 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 	}
 }
 
-// Obtain hotspots (i.e., locally connected regions surrounding local maximum
-// temperatures) from the thermal analysis run. The determination of hotspots/blobs is
-// based on Lindeberg's grey-level blob detection algorithm.
+/// Obtain hotspots (i.e., locally connected regions surrounding local maximum
+/// temperatures) from the thermal analysis run. The determination of hotspots/blobs is
+/// based on Lindeberg's grey-level blob detection algorithm.
 void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	int x, y;
 	std::vector<ThermalAnalyzer::ThermalMapBin*> thermal_map;

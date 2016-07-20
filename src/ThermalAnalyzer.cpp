@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar thermal analyzer, based on power blurring
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -30,7 +30,7 @@
 #include "Math.hpp"
 #include "CorblivarAlignmentReq.hpp"
 
-// memory allocation
+/// memory allocation
 constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
 
 void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
@@ -210,12 +210,12 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	}
 }
 
-// Determine masks for lowest layer, i.e., hottest layer.
-// Based on a gaussian-like thermal impulse response fuction.
-// Note that masks are centered, i.e., the value f(x=0) resides in the middle of the
-// (uneven) array.
-// Note that masks are 1D, sufficient for the separated convolution in
-// performPowerBlurring()
+/// Determine masks for lowest layer, i.e., hottest layer.
+/// Based on a gaussian-like thermal impulse response fuction.
+/// Note that masks are centered, i.e., the value f(x=0) resides in the middle of the
+/// (uneven) array.
+/// Note that masks are 1D, sufficient for the separated convolution in
+/// performPowerBlurring()
 void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters) {
 	int i, ii;
 	double scale;
@@ -449,9 +449,9 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 	}
 }
 
-// note that this function only accounts for (via by TSVs improved heat conduction) lower
-// local power consumption, not the (much smaller) increase of power consumption due to
-// resistivity of TSVs
+/// note that this function only accounts for (via by TSVs improved heat conduction) lower
+/// local power consumption, not the (much smaller) increase of power consumption due to
+/// resistivity of TSVs
 void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	Rect aligned_blocks_intersect;
@@ -566,9 +566,9 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 	}
 }
 
-// note that the power consumption of wires is only output for power blurring, but
-// (currently) not for the HotSpot input data; the power consumption in wires is much
-// smaller than that of actual blocks, which makes this omission reasonable
+/// note that the power consumption of wires is only output for power blurring, but
+/// (currently) not for the HotSpot input data; the power consumption in wires is much
+/// smaller than that of actual blocks, which makes this omission reasonable
 void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double const& total_wire_power) {
 	double power_density;
 	int x, y;
@@ -616,11 +616,11 @@ void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double 
 	}
 }
 
-// Thermal-analyzer routine based on power blurring,
-// i.e., convolution of thermals masks and power maps into thermal maps.
-// Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss
-// fct., see http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
-// Returns thermal map of lowest layer, i.e., hottest layer
+/// Thermal-analyzer routine based on power blurring,
+/// i.e., convolution of thermals masks and power maps into thermal maps.
+/// Based on a separated convolution using separated 2D gauss function, i.e., 1D gauss
+/// fct., see http://www.songho.ca/dsp/convolution/convolution.html#separable_convolution
+/// Returns thermal map of lowest layer, i.e., hottest layer
 void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters) {
 	int layer;
 	int x, y, i;

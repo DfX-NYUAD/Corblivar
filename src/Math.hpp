@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar mathematical stuff
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -28,6 +28,7 @@
 // Corblivar includes, if any
 // forward declarations, if any
 
+/// Corblivar mathematical stuff
 class Math {
 	// debugging code switch (private)
 	private:
@@ -36,19 +37,19 @@ class Math {
 	private:
 
 	// constructors, destructors, if any non-implicit
-	// private in order to avoid instances of ``static'' class
 	private:
+		/// empty default constructor; private in order to avoid instances of ``static'' class
 		Math() {
 		}
 
 	// public data, functions
 	public:
-		// small epsilon value, usually to be considered in order to avoid
-		// division by zero
+		/// small epsilon value, usually to be considered in order to avoid
+		/// division by zero
 		static constexpr double epsilon = 1.0e-10;
 
-		// random-number functions
-		// note: range is [min, max)
+		/// random-number functions
+		/// note: range is [min, max)
 		inline static int randI(int const& min, int const& max) {
 			if (max == min) {
 				return min;
@@ -57,16 +58,19 @@ class Math {
 				return min + (rand() % (max - min));
 			}
 		};
+		/// random decision
 		inline static bool randB() {
 			int const r = rand();
 			return (r < (RAND_MAX / 2));
 		};
+		/// random-number functions
+		/// note: range is [min, max)
 		inline static double randF(double const& min, double const& max) {
 			double const r = static_cast<double>(rand()) / RAND_MAX;
 			return r * (max - min) + min;
 		};
 
-		// standard deviation of samples
+		/// standard deviation of samples
 		inline static double stdDev(std::vector<double> const& samples) {
 			double avg, sq_diffs;
 
@@ -87,18 +91,18 @@ class Math {
 			return std::sqrt(sq_diffs / ((double) samples.size()));
 		};
 
-		// 1D gauss function; used for separated convolution w/ 2D gauss function,
-		// provides the impulse response function for power blurring
+		/// 1D gauss function; used for separated convolution w/ 2D gauss function,
+		/// provides the impulse response function for power blurring
 		inline static double gauss1D(double const& value, double const& factor, double const& spread) {
 			return factor * exp(-(1.0 / spread) * std::pow(value, 2.0));
 		};
 
-		// comparison of double values, allows minor deviation
+		/// comparison of double values, allows minor deviation
 		inline static bool doubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
 			return std::abs(d1 - d2) < precision;
 		};
 
-		// factor to scale um downto m;
+		/// factor to scale um downto m;
 		static constexpr double SCALE_UM_M = 1.0e-06;
 };
 

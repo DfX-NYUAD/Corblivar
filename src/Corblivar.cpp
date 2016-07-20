@@ -3,7 +3,7 @@
  *
  *    Description:  Entry (main) for Corblivar
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -32,7 +32,7 @@ int main (int argc, char** argv) {
 
 	std::cout << std::endl;
 	std::cout << "Corblivar: Corner Block List for Varied [Block] Alignment Requests" << std::endl;
-	std::cout << "----- 3D floorplanning tool v 1.4.2 ------------------------------" << std::endl << std::endl;
+	std::cout << "----- 3D floorplanning tool v 1.4.3 ------------------------------" << std::endl << std::endl;
 
 	// parse program parameter, config file, and further files
 	IO::parseParametersFiles(fp, argc, argv);

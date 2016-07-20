@@ -1,0 +1,12 @@
+<map id="FloorPlanner::getOutline" name="FloorPlanner::getOutline">
+<area shape="rect" id="node2" href="$class_floor_planner.html#ae3325e13f99146a9c26ca16047ef919a" title="ThermalAnalyzer: handler. " alt="" coords="941,5,1108,47"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#af338858f8e15998ec5d13fef5c0559ba" title="RoutingUtilization: handler. " alt="" coords="515,64,681,105"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7" title="FloorPlanner::shrinkDieOutlines" alt="" coords="495,235,701,262"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="232,169,431,211"/>
+<area shape="rect" id="node11" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="216,118,447,145"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1156,103,1207,130"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="942,135,1107,162"/>
+<area shape="rect" id="node7" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="749,223,893,250"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="503,173,693,199"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="752,173,891,199"/>
+</map>

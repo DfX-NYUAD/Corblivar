@@ -1,9 +1,9 @@
-/*
+/**
  * =====================================================================================
  *
  *    Description:  Corblivar floorplanner (SA operations and related handler)
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -36,128 +36,157 @@ class Block;
 class CorblivarCore;
 class CorblivarAlignmentReq;
 
+/// Corblivar floorplanner (SA operations and related handler)
 class FloorPlanner {
-	// debugging code switch (private)
 	private:
+		/// debugging code switch (private)
 		static constexpr bool DBG_SA = false;
+		/// debugging code switch (private)
 		static constexpr bool DBG_CALLS_SA = false;
+		/// debugging code switch (private)
 		static constexpr bool DBG_LAYOUT = false;
+		/// debugging code switch (private)
 		static constexpr bool DBG_TSVS = false;
 
 	// private data, functions
 	private:
-		// chip data
+		/// chip/floorplan data
 		std::vector<Block> blocks;
+		/// chip/floorplan data
 		std::vector<Pin> terminals;
+		/// chip/floorplan data
 		std::vector<Net> nets;
 
-		// groups of TSVs, will be defined from nets and vertical buses
+		/// groups of TSVs, will be defined from nets and vertical buses
 		std::vector<TSV_Island> TSVs;
 
-		// dummy reference block, represents lower-left corner of dies
+		/// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
 
-		// 3D IC parameters
+		/// POD for 3D IC parameters
 		struct IC {
 
 			int layers;
 
-			// general geometrical parameters
+			/// general geometrical parameters
 			double outline_x, outline_y;
+			/// general geometrical parameters
 			double blocks_scale;
+			/// general geometrical parameters
 			bool outline_shrink;
+			/// general geometrical parameters
 			double die_AR, die_area;
-			// note that the two parameters below cover all dies
+			/// general geometrical parameters
+			/// note that this parameter covers all dies
 			double blocks_area;
+			/// general geometrical parameters
+			/// note that these two parameters below cover all dies
 			double stack_area, stack_deadspace;
 
-			// fixed reference outline; required e.g., for parsed-in terminal
-			// pins and their coordinates in GATech benchmarks
+			/// fixed reference outline; required e.g., for parsed-in terminal
+			/// pins and their coordinates in GATech benchmarks
 			Point fixed_ref_outline;
 
-			// (TODO) refactor into own struct
 			// technology parameters
+			// (TODO) refactor into own struct
 			//
+			/// technology parameters
 			double power_scale;
+			/// technology parameters
 			double die_thickness;;
+			/// technology parameters
 			double Si_active_thickness;
+			/// technology parameters
 			double Si_passive_thickness;
+			/// technology parameters
 			double BEOL_thickness;
+			/// technology parameters
 			double bond_thickness;
+			/// technology parameters
 			double TSV_dimension;
+			/// technology parameters
 			double TSV_pitch;
+			/// technology parameters
 			int TSV_per_cluster_limit;
-			// Cu-Si area ratio for TSV groups
+			/// technology parameters
+			/// Cu-Si area ratio for TSV groups
 			double TSV_group_Cu_Si_ratio;
-			// Cu area fraction for TSV groups
+			/// technology parameters
+			/// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
 
-			// global delay threshold
+			/// global delay threshold
 			double delay_threshold;
-			// the achievable frequency is derived from this delay
-			// threshold/constraint: f = 1.0 / delay
+			/// global delay threshold
+			double delay_threshold_initial;
+			/// the achievable frequency is derived from this delay
+			/// threshold/constraint: f = 1.0 / delay
 			double frequency;
 		} IC;
 
-		// IO files and parameters
+		/// IO files and parameters
 		struct IO_conf {
 			std::string blocks_file, GT_fp_file, alignments_file, pins_file, GT_pins_file, power_density_file, GT_power_file, nets_file, solution_file;
 			std::ofstream results, solution_out;
 			std::ifstream solution_in;
-			// flag whether power density file is available / was handled /
-			// thermal analysis should be performed / thermal files should be
-			// generated
+			/// flag whether power density file is available / was handled /
+			/// thermal analysis should be performed / thermal files should be
+			/// generated
 			bool power_density_file_avail;
-			// similar flags for other files
+			/// similar flag for alignment file
 			bool alignments_file_avail;
-			// flag whether benchmark is in GATech syntax/format or not
+			/// flag whether benchmark is in GATech syntax/format or not
 			bool GT_benchmark;
 		} IO_conf;
 
-		// benchmark name
+		/// benchmark name
 		std::string benchmark;
 
-		// run mode; represents thermal analyser runs where TSV density is given
-		// as command-line parameter
+		/// run mode; represents thermal analyser runs where TSV density is given
+		/// as command-line parameter
 		bool thermal_analyser_run;
 
-		// time logging
+		/// time logging
 		struct timeb time_start;
 
-		// logging
+		/// logging
 		int log;
+		/// logging
 		static constexpr int LOG_MINIMAL = 1;
+		/// logging
 		static constexpr int LOG_MEDIUM = 2;
+		/// logging
 		static constexpr int LOG_MAXIMUM = 3;
 
-		// SA schedule parameters
+		/// SA schedule parameters
 		struct schedule {
-			// SA parameters: loop control
+			/// SA parameters: loop control
 			double loop_factor, loop_limit;
 
-			// SA parameter: scaling factor for initial temp
+			/// SA parameter: scaling factor for initial temp
 			double temp_init_factor;
 
-			// SA parameters: temperature-scaling factors
+			/// SA parameters: temperature-scaling factors
 			double temp_factor_phase1, temp_factor_phase1_limit, temp_factor_phase2, temp_factor_phase3;
 		} schedule;
 
-		// SA parameters: optimization flags
+		/// SA parameters: optimization flags
 		struct opt_flags {
 			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing, alignment_WL_estimate;
 		} opt_flags;
 
-		// SA parameters: cost factors/weights
+		/// SA parameters: cost factors/weights
 		struct weights {
 			double area_outline, thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
 		} weights;
 
+		/// SA cost variables: max cost values
+		///
 		// (TODO) refactor into own struct
-		// SA cost variables: max cost values
 		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment;
 		int max_cost_TSVs;
 
-		// SA cost; POD declaration
+		/// SA cost; POD declaration
 		struct Cost {
 			double total_cost;
 			double total_cost_fitting;
@@ -170,7 +199,7 @@ class FloorPlanner {
 			double power_blocks;
 			double routing_util;
 			double routing_util_actual_value;
-			// requires double since it contains normalized values
+			/// requires double since it contains normalized values
 			double TSVs;
 			int TSVs_actual_value;
 			double TSVs_area_deadspace_ratio;
@@ -198,38 +227,46 @@ class FloorPlanner {
 			}
 		};
 
-		// SA: cost functions, i.e., layout-evaluations
+		/// SA: cost functions, i.e., layout-evaluations
 		Cost evaluateLayout(std::vector<CorblivarAlignmentReq> const& alignments,
 				double const& fitting_layouts_ratio = 0.0,
 				bool const& SA_phase_two = false,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateThermalDistr(Cost& cost,
 				bool const& set_max_cost = false);
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateAlignments(Cost& cost,
 				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& derive_TSVs = true,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
+		/// SA: cost functions, i.e., layout-evaluations
 		double evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> const& alignments);
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateAreaOutline(Cost& cost,
-				double const& fitting_layouts_ratio = 0.0) const;
+				double const& fitting_layouts_ratio = 0.0,
+				bool const& SA_phase_two = false) const;
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateInterconnects(Cost& cost, double const& frequency,
 				std::vector<CorblivarAlignmentReq> const& alignments,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateTiming(Cost& cost,
 				bool const& set_max_cost = false,
 				bool reevaluation = false);
+		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateVoltageAssignment(Cost& cost,
 				double const& fitting_layouts_ratio,
 				bool const& set_max_cost = false,
 				bool const& finalize = false);
 
-		// SA parameter: scaling factor for loops during solution-space sampling
+		/// SA parameter: scaling factor for loops during solution-space sampling
 		static constexpr int SA_SAMPLING_LOOP_FACTOR = 1;
 
-		// SA-related temperature step; POD declaration
+		/// SA-related temperature step; POD declaration
 		struct TempStep {
 			int step;
 			double temp;
@@ -238,23 +275,24 @@ class FloorPlanner {
 			double cost_best_sol;
 		};
 
-		// SA-related temperature phase; POD declaration
+		/// SA-related temperature phase; POD declaration
 		enum TempPhase : unsigned {PHASE_1 = 1, PHASE_2 = 2, PHASE_3 = 3};
 
-		// SA: temperature-schedule log data
+		/// SA: temperature-schedule log data
 		std::vector<TempStep> tempSchedule;
 
-		// SA: reheating parameters, for SA phase 3
+		/// SA: reheating parameters, for SA phase 3
 		static constexpr int SA_REHEAT_COST_SAMPLES = 3;
+		/// SA: reheating parameters, for SA phase 3
 		static constexpr double SA_REHEAT_STD_DEV_COST_LIMIT = 1.0e-4;
 
-		// layout-generation handler
+		/// layout-generation helper
 		bool generateLayout(CorblivarCore& corb, bool const& perform_alignment = false);
 
-		// layout-operation handler
+		/// layout-operation handler
 		LayoutOperations layoutOp;
 
-		// auxiliary chip data, tracks major block power density parameters
+		/// auxiliary chip data, tracks major block power density parameters
 		struct power_stats {
 			double max;
 			double min;
@@ -262,43 +300,48 @@ class FloorPlanner {
 			double avg;
 		} power_stats;
 
-		// ``floorplacement'' parameters, i.e., there should be different
-		// processes for floorplanning and placement; here, we use this limit to
-		// detect if floorplanning of very large blocks w/ small (/medium) blocks
-		// is required
-		//
+		/// ``floorplacement'' parameters, i.e., there should be different
+		/// processes for floorplanning and placement; here, we use this limit to
+		/// detect if floorplanning of very large blocks w/ small (/medium) blocks
+		/// is required
+		///
 		static constexpr unsigned FP_AREA_RATIO_LIMIT = 50;
 
-		// SA: helper for main handler
-		// note that various parameters are return-by-reference
+		/// SA: init helper
+		/// note that various parameters are return-by-reference
 		void initSA(CorblivarCore& corb, std::vector<double>& cost_samples, int& innerLoopMax, double& init_temp);
+		/// SA: helper for annealing schedule
+		/// note that various parameters are return-by-reference
 		TempPhase updateTemp(double& cur_temp, int const& iteration, int const& iteration_first_valid_layout) const;
 
-		// thermal analyzer
+		/// thermal analyzer instance
 		ThermalAnalyzer thermalAnalyzer;
 
+		/// thermal analyzer parameters; thermal mask parameters
+		///
 		// (TODO) encapsulate in thermalAnalyzer
-		// thermal analyzer parameters; thermal mask parameters
 		ThermalAnalyzer::MaskParameters power_blurring_parameters;
 
+		/// thermal analyzer; current results of thermal analysis
+		///
 		// (TODO) encapsulate in thermalAnalyzer
-		// thermal analyzer; current results of thermal analysis
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
 
-		// clustering handler
+		/// clustering instance
 		Clustering clustering;
 
-		// routing-utilization analyzer
+		/// routing-utilization instance
 		RoutingUtilization routingUtil;
 
-		// multi-voltage-domain handler
+		/// instance for multi-voltage-domain handler
 		MultipleVoltages voltageAssignment;
 
-		// contiguity-analysis handler
+		/// instance for contiguity-analysis handler
 		ContiguityAnalysis contigAnalyser;
 
 	// constructors, destructors, if any non-implicit
 	public:
+		/// default constructor
 		FloorPlanner() {
 			// memorize start time
 			ftime(&(this->time_start));
@@ -311,18 +354,20 @@ class FloorPlanner {
 	public:
 		friend class IO;
 
-		// logging
+		/// logging
 		inline bool logMin() const {
 			return (this->log >= LOG_MINIMAL);
 		};
+		/// logging
 		inline bool logMed() const {
 			return (this->log >= LOG_MEDIUM);
 		};
+		/// logging
 		inline bool logMax() const {
 			return (this->log >= LOG_MAXIMUM);
 		};
 
-		// ThermalAnalyzer: handler
+		/// ThermalAnalyzer: handler
 		inline void initThermalAnalyzer() {
 
 			// init sets of thermal masks
@@ -336,16 +381,17 @@ class FloorPlanner {
 			this->thermalAnalyzer.initThermalMap(this->getOutline());
 		};
 
-		// RoutingUtilization: handler
+		/// RoutingUtilization: handler
 		inline void initRoutingUtilAnalyzer() {
 			this->routingUtil.initUtilMaps(this->IC.layers, this->getOutline());
 		}
 
-		// getter / setter
+		/// getter
 		inline int const& getLayers() const {
 			return this->IC.layers;
 		};
 
+		/// getter
 		inline Point getOutline() const {
 			Point ret;
 
@@ -355,20 +401,23 @@ class FloorPlanner {
 			return ret;
 		};
 
+		/// getter
 		inline bool const& powerAwareBlockHandling() {
 			return this->layoutOp.parameters.power_aware_block_handling;
 		};
 
+		/// getter
 		inline std::string const& getBenchmark() const {
 			return this->benchmark;
 		};
 
+		/// getter
 		inline std::vector<Block> const& getBlocks() const {
 			return this->blocks;
 		};
 
-		// additional helper
-		//
+		/// helper for die geometry
+		///
 		inline Point shrinkDieOutlines() {
 			Point outline;
 
@@ -379,9 +428,13 @@ class FloorPlanner {
 				outline.y = std::max(outline.y, b.bb.ur.y);
 			}
 
-			// now, shrink fixed outline considering reasonable die outline;
-			// only if current blocks-outline is smaller than previous outline
-			if (outline.x < this->IC.outline_x && outline.y < this->IC.outline_y) {
+			// now, shrink fixed outline if any dimension is smaller than
+			// previous outline
+			if (
+					(outline.x < this->IC.outline_x || outline.y < this->IC.outline_y) &&
+					// only if current blocks-outline is smaller than previous outline
+					(outline.x * outline.y) < (this->IC.die_area)
+			   ) {
 
 				this->IC.outline_x = outline.x;
 				this->IC.outline_y = outline.y;
@@ -405,6 +458,8 @@ class FloorPlanner {
 			return outline;
 		}
 
+		/// helper for die geometry
+		///
 		inline void scaleTerminalPins(Point outline) {
 			double pins_scale_x, pins_scale_y;
 
@@ -438,12 +493,15 @@ class FloorPlanner {
 			}
 		}
 
+		/// file helper
+		///
 		inline bool inputSolutionFileOpen() const {
 			return this->IO_conf.solution_in.is_open();
 		};
 
-		// SA: handler
+		/// SA: main handler
 		bool performSA(CorblivarCore& corb);
+		/// SA: finalize handler
 		void finalize(CorblivarCore& corb, bool const& determ_overall_cost = true, bool const& handle_corblivar = true);
 };
 

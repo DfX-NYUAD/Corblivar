@@ -3,12 +3,11 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="voltage_assignment"
-benches="n200_soft"
+exp="VA_HP"
+benches=$1
 runs=20
 
-for die_count in 2
-#for die_count in $1
+for die_count in $2
 do
 	dies=$die_count"dies"
 

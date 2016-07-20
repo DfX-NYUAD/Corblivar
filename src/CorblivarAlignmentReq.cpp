@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar alignment requests data
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -26,6 +26,7 @@
 // required Corblivar headers
 #include "Math.hpp"
 
+/// evaluate alignment, whether it's fulfilled or not; and if not, why it's failing
 CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	Rect blocks_bb;
 	Rect blocks_intersect;
@@ -363,6 +364,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	return ret;
 }
 
+/// helper to check whether alignment represent a vertical/3D bus
 bool CorblivarAlignmentReq::vertical_bus() const {
 	return (
 		// min overlap in both dimensions

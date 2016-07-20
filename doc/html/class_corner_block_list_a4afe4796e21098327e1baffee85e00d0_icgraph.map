@@ -1,0 +1,11 @@
+<map id="CornerBlockList::reserve" name="CornerBlockList::reserve">
+<area shape="rect" id="node2" href="$class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc" title="default constructor " alt="" coords="703,11,893,37"/>
+<area shape="rect" id="node4" href="$class_corblivar_core.html#a7f930f6b2c1a8297ffa6ae01ca4da604" title="CBL backup handler. " alt="" coords="220,61,405,88"/>
+<area shape="rect" id="node7" href="$class_corblivar_core.html#a851aefcbb2b43a20cc22a535502bb534" title="CBL backup handler. " alt="" coords="221,112,404,139"/>
+<area shape="rect" id="node8" href="$class_corblivar_core.html#a245ca356e6e49f41c4809b67413e51b5" title="CBL best&#45;solution handler. " alt="" coords="455,163,653,189"/>
+<area shape="rect" id="node9" href="$class_corblivar_core.html#a1779b7896666c48203a207f6243675e2" title="CorblivarCore::applyBestCBLs" alt="" coords="453,213,655,240"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="941,137,992,164"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="715,112,881,139"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="485,61,623,88"/>
+<area shape="rect" id="node10" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="726,213,870,240"/>
+</map>

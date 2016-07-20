@@ -3,7 +3,7 @@
  *
  *    Description:  Corblivar layout operations
  *
- *    Copyright (C) 2013 Johann Knechtel, johann.knechtel@ifte.de, www.ifte.de
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
  *
  *    This file is part of Corblivar.
  *    
@@ -30,9 +30,11 @@
 #include "Block.hpp"
 #include "Net.hpp"
 
-// memory allocation
+/// memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS;
+/// memory allocation
 constexpr int LayoutOperations::OP_SWAP_BLOCKS_ENFORCE;
+/// memory allocation
 constexpr int LayoutOperations::OP_MOVE_TUPLE;
 
 bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fit_counter, bool const& SA_phase_two, bool const& revertLastOp, bool const& cooling_phase_three) {
