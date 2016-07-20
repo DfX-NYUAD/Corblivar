@@ -1,4 +1,4 @@
-# Corblivar {#mainpage}
+# Corblivar			{#mainpage}
 
 Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
 emphasis on (a) structural planning of large-scale interconnects and (b) timing-driven
