@@ -18,7 +18,7 @@ GRID_LCF=$1_HotSpot.lcf
 STEADY_OUTPUT=$1_HotSpot.steady
 STEADY_GRID_OUTPUT=$1_HotSpot.steady.grid
 LOG=$1_HotSpot.txt
-CONFIG=hotspot.config
+CONFIG=hotspot_heatsink.config
 
 # perform HS call
 echo "Perform HotSpot run ..."
