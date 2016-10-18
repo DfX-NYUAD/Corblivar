@@ -1082,7 +1082,7 @@ void IO::parseCorblivarFile(FloorPlanner& fp, CorblivarCore& corb) {
 
 			// sanity check for same number of dies
 			if (cur_layer > fp.getLayers() - 1) {
-				std::cout << "IO> Parsing error: solution file contains " << cur_layer + 1 << " dies; config file is set for " << fp.getLayers() << " dies!" << std::endl;
+				std::cout << "IO> Parsing error: solution file contains at least " << cur_layer + 1 << " dies; config file is set for " << fp.getLayers() << " dies!" << std::endl;
 				exit(1);
 			}
 
