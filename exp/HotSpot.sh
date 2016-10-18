@@ -18,12 +18,12 @@ GRID_LCF=$1_HotSpot.lcf
 STEADY_OUTPUT=$1_HotSpot.steady
 STEADY_GRID_OUTPUT=$1_HotSpot.steady.grid
 LOG=$1_HotSpot.txt
-DIM=64
+CONFIG=hotspot.config
 
 # perform HS call
 echo "Perform HotSpot run ..."
-echo "$HS/hotspot -c $HS/hotspot.config -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -model_type grid -grid_map_mode max -detailed_3D on -grid_layer_file $GRID_LCF -grid_rows $DIM -grid_cols $DIM > $LOG"
-$HS/hotspot -c $HS/hotspot.config -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -model_type grid -grid_map_mode max -detailed_3D on -grid_layer_file $GRID_LCF -grid_rows $DIM -grid_cols $DIM > $LOG
+echo "$HS/hotspot -c $CONFIG -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -detailed_3D on -grid_layer_file $GRID_LCF > $LOG"
+time $HS/hotspot -c $CONFIG -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -detailed_3D on -grid_layer_file $GRID_LCF > $LOG
 STATUS=$?
 
 if [ "$STATUS" == "0" ]; then
