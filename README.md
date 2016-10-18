@@ -36,17 +36,19 @@ cite our papers:
 - octave
 - perl
 - cairosvg
-- a modified copy of the BU's HotSpot 3D-IC thermal analyzer; the code should be provided
+- a (slightly) modified copy of the HotSpot thermal analyzer; the code should be provided
 along with Corblivar or can be retrieved from https://github.com/jknechtel/HotSpot. Note
-that this code has to be compiled separately.
+that this code has to be compiled separately.  The provided and modified copy is currently
+based on HotSpot 6.0, and is compiled and tested with SuperLU 5.2.1
+(http://crd-legacy.lbl.gov/~xiaoye/SuperLU/#superlu)
 
 ## Usage
 **To use Corblivar, the following procedure should be followed**
 
 ### 1) Configuration of HotSpot
-**see ../HotSpot/hotspot.config**
+**see exp/hotspot*.config**
 
-Relevant are the specs for the heat sink and heat spreader; they should be adapted to
+Most relevant are the specs for the heat sink and heat spreader; they should be adapted to
 reflect largest chip dimensions under consideration.
 
 Also note that the helper script exp/HotSpot.sh relies on HotSpot being in ~/code/HotSpot;
@@ -155,6 +157,14 @@ The file exp/Corblivar.conf is a template for the config file required by Corbli
 further examples can be found in exp/configs/.
 
 # Changelog
+
+## 1.4.4
+*October 2016, commit 439cea06b70378da6027c6ed01c9084f5ab086cc*
+** updates related to HotSpot 6.0**
+- experimental config files: added hotspot*.config to exp/; previously kept separately in
+HotSpot directory/repository
+- update experimental setup (HotSpot): consider now also secondary path, only possible
+				       thanks to updated HotSpot 6.0
 
 ## 1.4.3
 *July 2016, commit 1b35f6317222ff4538273abde30ebc6c4abfb1fb*
