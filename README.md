@@ -160,7 +160,7 @@ further examples can be found in exp/configs/.
 
 ## 1.4.4
 *October 2016, commit 439cea06b70378da6027c6ed01c9084f5ab086cc*
-** updates related to HotSpot 6.0**
+**updates related to HotSpot 6.0**
 - experimental config files: added hotspot*.config to exp/; previously kept separately in
 HotSpot directory/repository
 - update experimental setup (HotSpot): consider now also secondary path, only possible
