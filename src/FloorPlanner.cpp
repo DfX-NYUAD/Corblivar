@@ -1464,6 +1464,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// reset TSVs
 	this->TSVs.clear();
 
+	// reset wires
+	this->wires.clear();
+	// init dummy blocks for wires, one for each layer
+	for (i = 0; i < this->IC.layers; i++) {
+
+		// generate dummy wire block
+		Block wire = Block(std::string("active_wires_" + std::to_string(i + 1)));
+		wire.layer = i;
+
+		// store new dummy block in wires container
+		this->wires.push_back(std::move(wire));
+	}
+
 	// reset routing-utilization estimation
 	if (this->opt_flags.routing_util) {
 		this->routingUtil.resetUtilMaps(this->IC.layers);
@@ -1561,7 +1574,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				//// the wires' power is tracked (but not for input nets)
 				//if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-				//	this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+				//	this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
 				//			// the wire's power, to be
 				//			// reflected in layer i, is scaled
 				//			// according the net_weight
@@ -1656,7 +1669,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					// for input nets)
 					if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-						this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+						this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
 								// the wire's power, to be
 								// reflected in layer i,
 								// is scaled according the
@@ -1786,7 +1799,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				// the wires' power is tracked (but not for input nets)
 				if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-					this->thermalAnalyzer.adaptPowerMapsWires(i, bb,
+					this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
 							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency)
 						);
 				}

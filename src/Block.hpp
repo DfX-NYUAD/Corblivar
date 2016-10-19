@@ -44,10 +44,6 @@ class Block {
 		friend class IO;
 
 		/// These values are required for multi-voltage domains; the
-		/// power_density_unscaled is read in from the benchmarks, while the
-		/// factors are read in from the Technology.conf.
-		double power_density_unscaled;
-		/// These values are required for multi-voltage domains; the
 		/// factors are read in from the Technology.conf.
 		std::vector<double> voltages_power_factors;
 		/// Base_delay is calculated according to [Lin10] during block parsing; the
@@ -113,6 +109,10 @@ class Block {
 
 		/// pointers to alignments representing vertical bus, if any
 		mutable std::list<CorblivarAlignmentReq*> alignments_vertical_bus;
+
+		/// The power_density_unscaled is read in from the benchmarks (where voltage
+		/// assignment was not considered), representing the baseline power
+		double power_density_unscaled;
 
 		/// density in [uW/(um^2)]; relates to given voltage index
 		inline double power_density(unsigned index) const {

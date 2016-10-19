@@ -566,20 +566,36 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 	}
 }
 
-/// note that the power consumption of wires is only output for power blurring, but
-/// (currently) not for the HotSpot input data; the power consumption in wires is much
-/// smaller than that of actual blocks, which makes this omission reasonable
-void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double const& total_wire_power) {
+/// note that the power consumption of wires is handled differently for power blurring and
+/// HotSpot; for power blurring, the power density maps are adapted, while for HotSpot data
+/// dummy blocks are generated to represent the wire with its bounding box and its power
+/// density
+void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires, int const& layer, Rect net_bb, double const& total_wire_power) {
 	double power_density;
 	int x, y;
 	int x_lower, x_upper, y_lower, y_upper;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << &wires << ", " << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
 	}
 
-	// determine power density
-	power_density = total_wire_power / net_bb.area;
+	// update dummy wires block
+	//
+
+	// extend bb such that this net is also covered
+	if (wires[layer].bb.area != 0.0) {
+		wires[layer].bb = Rect::determBoundingBox(wires[layer].bb, net_bb);
+	}
+	// init bb using this net in case no bb is stored yet
+	else {
+		wires[layer].bb = net_bb;
+	}
+	// sum up power of each net; encoded in power_density_unscaled only for these
+	// dummy blocks
+	wires[layer].power_density_unscaled += total_wire_power;
+
+	// now, adapt power maps for consideration of wires in power blurring
+	//
 
 	// offset bb, i.e., account for padded power maps and related offset in
 	// coordinates; note that net_bb is a copy
@@ -597,6 +613,9 @@ void ThermalAnalyzer::adaptPowerMapsWires(int const& layer, Rect net_bb, double 
 	// power-maps dimensions
 	x_upper = std::min(static_cast<int>(net_bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 	y_upper = std::min(static_cast<int>(net_bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+
+	// determine power density
+	power_density = total_wire_power / net_bb.area;
 
 	// walk power-map bins covering bb; adapt power densities
 	for (x = x_lower; x < x_upper; x++) {

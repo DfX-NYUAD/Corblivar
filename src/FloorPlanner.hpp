@@ -60,6 +60,10 @@ class FloorPlanner {
 		/// groups of TSVs, will be defined from nets and vertical buses
 		std::vector<TSV_Island> TSVs;
 
+		// dummy blocks, used to represent bounding boxes of wires along with
+		// their power consumption (to be considered in HotSpot)
+		std::vector<Block> wires;
+
 		/// dummy reference block, represents lower-left corner of dies
 		RBOD const RBOD;
 

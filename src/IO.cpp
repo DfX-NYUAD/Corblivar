@@ -3507,7 +3507,25 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "# comments and empty lines are ignored" << std::endl;
 		file << std::endl;
 
-		// dummy BEOL ``block''
+		// dummy blocks representing bb over all wires; related power consumption
+		// also modeled in ptrace file
+		for (Block const& cur_wire : fp.wires) {
+
+			if (cur_wire.layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_wire.id << " ";
+			file << "	" << cur_wire.bb.w * Math::SCALE_UM_M;
+			file << "	" << cur_wire.bb.h * Math::SCALE_UM_M;
+			file << "	" << cur_wire.bb.ll.x * Math::SCALE_UM_M;
+			file << "	" << cur_wire.bb.ll.y * Math::SCALE_UM_M;
+			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_BEOL;
+			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL;
+			file << std::endl;
+		}
+
+		// dummy BEOL outline ``block''
 		file << "BEOL_" << cur_layer + 1;;
 		file << "	" << fp.IC.outline_x * Math::SCALE_UM_M;
 		file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
@@ -3536,6 +3554,21 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	// output block labels in first line
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
+		// output dummy blocks representing wires first, since they are placed in
+		// the BEOL layer, coming before the active Si layer
+		for (Block const& cur_wire : fp.wires) {
+
+			if (cur_wire.layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_wire.id << " ";
+		}
+
+		// dummy BEOL outline block
+		file << "BEOL_" << cur_layer + 1 << " ";
+
+		// actual blocks
 		for (Block const& cur_block : fp.blocks) {
 
 			if (cur_block.layer != cur_layer) {
@@ -3552,6 +3585,21 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	// output block power in second line
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
+
+		// dummy blocks representing wires along with their power consumption
+		for (Block const& cur_wire : fp.wires) {
+
+			if (cur_wire.layer != cur_layer) {
+				continue;
+			}
+
+			// actual power encoded in power_density_unscaled, see
+			// ThermalAnalyzer::adaptPowerMapsWires
+			file << cur_wire.power_density_unscaled << " ";
+		}
+
+		// dummy BEOL outline block
+		file << "0.0 ";
 
 		for (Block const& cur_block : fp.blocks) {
 
@@ -3597,7 +3645,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "# BEOL (interconnects) layer " << cur_layer + 1 << std::endl;
 		file << 4 * cur_layer << std::endl;
 		file << "Y" << std::endl;
-		file << "N" << std::endl;
+		file << "Y" << std::endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << std::endl;
 		file << fp.IC.BEOL_thickness * Math::SCALE_UM_M << std::endl;
