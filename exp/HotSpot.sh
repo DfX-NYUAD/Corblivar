@@ -17,14 +17,24 @@ PTRACE=$1_HotSpot.ptrace
 GRID_LCF=$1_HotSpot.lcf
 STEADY_OUTPUT=$1_HotSpot.steady
 STEADY_GRID_OUTPUT=$1_HotSpot.steady.grid
+TTRACE=$1_HotSpot.ttrace
 LOG=$1_HotSpot.txt
 CONFIG=hotspot_heatsink.config
 
-# perform HS call
+# perform (steady-state) HS call
 echo "Perform HotSpot run ..."
 echo "$HS/hotspot -c $CONFIG -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -detailed_3D on -grid_layer_file $GRID_LCF > $LOG"
 time $HS/hotspot -c $CONFIG -f $DUMMY_FP -p $PTRACE -grid_steady_file $STEADY_GRID_OUTPUT -steady_file $STEADY_OUTPUT -detailed_3D on -grid_layer_file $GRID_LCF > $LOG
 STATUS=$?
+
+if [ "$3" == "transient" ]; then
+
+# perform transient HS call after steady-state run if asked for
+	echo "Perform HotSpot transient run ..."
+	echo "$HS/hotspot -c $CONFIG -init_file $STEADY_OUTPUT -f $DUMMY_FP -p $PTRACE -detailed_3D on -grid_layer_file $GRID_LCF -o $TTRACE > $LOG"
+	time $HS/hotspot -c $CONFIG -init_file $STEADY_OUTPUT -f $DUMMY_FP -p $PTRACE -detailed_3D on -grid_layer_file $GRID_LCF -o $TTRACE > $LOG
+	STATUS=$?
+fi
 
 if [ "$STATUS" == "0" ]; then
 
