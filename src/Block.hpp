@@ -283,7 +283,7 @@ class Block {
 			// apply new dimensions in case the resulting AR is allowed; also
 			// consider whether block should be allowed to rotated / reshaped
 			// at all
-			if (this->AR.min <= AR && AR <= this->AR.max && this->rotatable) {
+			if (this->AR.min <= AR && AR <= this->AR.max && this->rotatable && this->soft) {
 
 				this->bb.ur.x = this->bb.ll.x + width;
 				this->bb.ur.y = this->bb.ll.y + height;
