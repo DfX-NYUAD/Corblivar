@@ -517,7 +517,19 @@ class TSV_Island : public Block {
 						continue;
 					}
 
+					// sanity check, TSV islands considered for shifting shall be
+					// different ones
+					if (new_island_to_be_shifted.id == prev_island.id) {
+						continue;
+					}
+
 					if (Rect::rectsIntersect(prev_island.bb, new_island_to_be_shifted.bb)) {
+
+						// dbg logging for TSV island to be
+						// shifted
+						if (TSV_Island::DBG) {
+							std::cout << "DBG_TSVS> TSV island " << new_island_to_be_shifted.id << " to be shifted; overlaps with existing island " << prev_island.id << std::endl;
+						}
 
 						// shift only the new TSV
 						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb);
