@@ -32,6 +32,7 @@ do
 
 	# HotSpot, thermal fitting related
 	cp -r $root/$fitting .
+	cp $base/hotspot*.config $fitting/
 	cp $base/HotSpot.sh .
 	ln -s $base/benches .
 	cp $base/gp.sh .

@@ -29,7 +29,8 @@ do
 
 	# init experiments, if required
 	#
-#	cp -r $base/$fitting .
+#	cp -r $root/$fitting .
+#	cp $base/hotspot*.config $fitting/
 #	cp $base/gp.sh .
 #	cp $base/HotSpot.sh .
 #	ln -s $base/benches .
