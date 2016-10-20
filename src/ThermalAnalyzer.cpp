@@ -165,11 +165,15 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	}
 
 	this->power_maps.clear();
+	this->power_maps_orig.clear();
 
 	// allocate power-maps arrays
 	for (i = 0; i < layers; i++) {
 		this->power_maps.emplace_back(
 			std::array<std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::POWER_MAPS_DIM>, ThermalAnalyzer::POWER_MAPS_DIM>()
+		);
+		this->power_maps_orig.emplace_back(
+			std::array<std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM>()
 		);
 	}
 
@@ -177,6 +181,9 @@ void ThermalAnalyzer::initPowerMaps(int const& layers, Point const& die_outline)
 	init_bin.power_density = init_bin.TSV_density = 0.0;
 	for (i = 0; i < layers; i++) {
 		for (auto& partial_map : this->power_maps[i]) {
+			partial_map.fill(init_bin);
+		}
+		for (auto& partial_map : this->power_maps_orig[i]) {
 			partial_map.fill(init_bin);
 		}
 	}
@@ -323,6 +330,9 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 		for (auto& m : this->power_maps[i]) {
 			m.fill(init_bin);
 		}
+		for (auto& m : this->power_maps_orig[i]) {
+			m.fill(init_bin);
+		}
 
 		// consider each block on the related layer
 		for (Block const& block : blocks) {
@@ -444,6 +454,17 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 		}
 	}
 
+	// copy inner, unpadded frame of just generated basic power map to power_maps_orig
+	//
+	for (i = 0; i < layers; i++) {
+		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
+			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+				this->power_maps_orig[i][x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS][y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS].power_density +=
+					this->power_maps[i][x][y].power_density;
+			}
+		}
+	}
+	
 	if (ThermalAnalyzer::DBG_CALLS) {
 		std::cout << "<- ThermalAnalyzer::generatePowerMaps" << std::endl;
 	}

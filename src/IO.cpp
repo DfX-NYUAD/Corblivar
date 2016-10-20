@@ -2109,7 +2109,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
-	enum FLAGS : int {POWER = 0, THERMAL = 1, THERMAL_HOTSPOT = 2, TSV_DENSITY = 3, ROUTING = 4};
+	enum FLAGS : int {POWER = 0, THERMAL = 1, THERMAL_HOTSPOT = 2, TSV_DENSITY = 3, POWER_ORIG = 4, ROUTING = 5};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
 	int id;
@@ -2139,7 +2139,8 @@ void IO::writeMaps(FloorPlanner& fp) {
 	// flag == 1: generate thermal map
 	// flag == 2: generate thermal map using HotSpot results
 	// flag == 3: generate TSV-density map
-	// flag == 4: generate routing-utilization map
+	// flag == 4: generate original power maps (not padded, not adapted)
+	// flag == 5: generate routing-utilization map
 	//
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
@@ -2153,7 +2154,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 	}
 	else {
 		flag_start = FLAGS::POWER;
-		flag_stop = FLAGS::TSV_DENSITY;
+		flag_stop = FLAGS::POWER_ORIG;
 	}
 	//
 	// actual map generation	
@@ -2175,6 +2176,10 @@ void IO::writeMaps(FloorPlanner& fp) {
 			if (flag == FLAGS::POWER) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.gp";
 				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.data";
+			}
+			else if (flag == FLAGS::POWER_ORIG) {
+				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power_orig.gp";
+				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power_orig.data";
 			}
 			else if (flag == FLAGS::THERMAL) {
 				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.gp";
@@ -2210,7 +2215,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 
 			// file header for data file
-			if (flag == FLAGS::POWER) {
+			if (flag == FLAGS::POWER || flag == FLAGS::POWER_ORIG) {
 				data_out << "# X Y power" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL) {
@@ -2241,6 +2246,28 @@ void IO::writeMaps(FloorPlanner& fp) {
 				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
 				for (y = 0; y <= ThermalAnalyzer::POWER_MAPS_DIM; y++) {
 					data_out << ThermalAnalyzer::POWER_MAPS_DIM << "	" << y << "	" << "0.0" << std::endl;
+				}
+
+			}
+			// output grid values for original power maps
+			else if (flag == FLAGS::POWER_ORIG) {
+
+				// not padded, dimensions like thermal map
+				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+						data_out << x << "	" << y << "	" << fp.thermalAnalyzer.power_maps_orig[cur_layer][x][y].power_density << std::endl;
+					}
+
+					// add dummy data point, required since gnuplot option corners2color cuts last row and column of dataset
+					data_out << x << "	" << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << "0.0" << std::endl;
+
+					// blank line marks new row for gnuplot
+					data_out << std::endl;
+				}
+
+				// add dummy data row, required since gnuplot option corners2color cuts last row and column of dataset
+				for (y = 0; y <= ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+					data_out << ThermalAnalyzer::THERMAL_MAP_DIM << "	" << y << "	" << "0.0" << std::endl;
 				}
 
 			}
@@ -2321,7 +2348,10 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			// file header for gnuplot script
 			if (flag == FLAGS::POWER) {
-				gp_out << "set title \"Padded and Scaled Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+				gp_out << "set title \"Padded and Adapted Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			}
+			else if (flag == FLAGS::POWER_ORIG) {
+				gp_out << "set title \"Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 			else if (flag == FLAGS::THERMAL || flag == FLAGS::THERMAL_HOTSPOT) {
 				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
@@ -2344,6 +2374,11 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 			}
+			// other dimensions, not padded
+			else if (flag == FLAGS::POWER_ORIG) {
+				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
+				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
+			}
 			else if (flag == FLAGS::THERMAL	|| flag == FLAGS::THERMAL_HOTSPOT || flag == FLAGS::TSV_DENSITY) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
@@ -2354,7 +2389,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 
 			// power maps
-			if (flag == FLAGS::POWER) {
+			if (flag == FLAGS::POWER || flag == FLAGS::POWER_ORIG) {
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << std::endl;
 			}

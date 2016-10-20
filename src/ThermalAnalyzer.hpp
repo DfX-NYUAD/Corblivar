@@ -109,6 +109,10 @@ class ThermalAnalyzer {
 		/// power_maps[i][x][y], whereas power_maps[0] relates to the map for layer
 		/// 0 and so forth.
 		std::vector< std::array< std::array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > power_maps;
+		/// original (i.e., unpadded and not adapted) power_maps_orig[i][x][y],
+		/// whereas power_maps[0] relates to the map for layer / 0 and so forth;
+		/// same dimensions as thermal map
+		std::vector< std::array< std::array<PowerMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> > power_maps_orig;
 		/// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		std::array< std::array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
 
