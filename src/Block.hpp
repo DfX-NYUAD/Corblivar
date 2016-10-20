@@ -259,7 +259,7 @@ class Block {
 		///
 		inline bool shapeRandomlyByAR() const {
 
-			if (this->rotatable) {
+			if (this->soft) {
 				// reshape block randomly w/in AR range; note that x^2 = AR * A
 				this->bb.w = std::sqrt(Math::randF(this->AR.min, this->AR.max) * this->bb.area);
 				this->bb.h = this->bb.area / this->bb.w;

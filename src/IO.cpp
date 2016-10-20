@@ -1609,10 +1609,10 @@ void IO::parseBlocks(FloorPlanner& fp) {
 			// scale up blocks area
 			new_block.bb.area *= std::pow(fp.IC.blocks_scale, 2);
 
-			// init block dimensions randomly
-			new_block.shapeRandomlyByAR();
 			// mark block as soft
 			new_block.soft = true;
+			// init block dimensions randomly
+			new_block.shapeRandomlyByAR();
 
 			// memorize soft blocks count
 			soft_blocks++;
