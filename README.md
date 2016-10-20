@@ -159,12 +159,21 @@ further examples can be found in exp/configs/.
 # Changelog
 
 ## 1.4.4
-*October 2016, commit 439cea06b70378da6027c6ed01c9084f5ab086cc*
-**updates related to HotSpot 6.0**
+*October 2016, commit TODO*
+**updates related to HotSpot to 6.0; various other updates and fixes**
 - experimental config files: added hotspot*.config to exp/; previously kept separately in
 HotSpot directory/repository
 - update experimental setup (HotSpot): consider now also secondary path, only possible
 				       thanks to updated HotSpot 6.0
+- update HotSpot data generation: nets' power consumption is now also modeled, by
+dummy blocks covering all nets' bounding boxes in each respective BEOL layers, with evenly
+				       distributed sum of nets' power
+- fix greedy shifting TSV island: add sanity check for shifting current island itself
+- fix read in of solution file: parse rotated/shaped blocks correctly
+- update maps: also plot original (unpadded, unscaled) power density map
+- TODO fix power blurring and octave scripts: fixed layer handling from HotSpot steady
+files probably broken, also determine which die is actually the critical one, not fixed
+				       die 1
 
 ## 1.4.3
 *July 2016, commit 1b35f6317222ff4538273abde30ebc6c4abfb1fb*
