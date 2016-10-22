@@ -169,6 +169,8 @@ HotSpot directory/repository
 dummy blocks covering all nets' bounding boxes in each respective BEOL layers, with evenly
 				       distributed sum of nets' power
 - fix greedy shifting TSV island: add sanity check for shifting current island itself
+- fix scaling of single-TSV islands
+- fix calculation of heat capacities for TSV islands
 - fix read in of solution file: parse rotated/shaped blocks correctly
 - update maps: also plot original (unpadded, unscaled) power density map
 
