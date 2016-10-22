@@ -459,11 +459,19 @@ class TSV_Island : public Block {
 				TSV_rows = std::sqrt(this->TSVs_count);
 				TSV_cols = std::sqrt(this->TSVs_count);
 
-				// account for AR of given bb
-				bb_AR = this->bb.w / this->bb.h;
-				// however, consider only ``reasonable'' AR limits
-				bb_AR = std::max(bb_AR, TSV_Island::AR_MIN);
-				bb_AR = std::min(bb_AR, TSV_Island::AR_MAX);
+				// for only one TSV, assume fixed AR of 1.0
+				if (this->TSVs_count == 1) {
+					bb_AR = 1.0;
+				}
+				// for more than one TSV, shape TSV island according to
+				// given (net) bb
+				else {
+					// account for AR of given bb
+					bb_AR = this->bb.w / this->bb.h;
+					// however, consider only ``reasonable'' AR limits
+					bb_AR = std::max(bb_AR, TSV_Island::AR_MIN);
+					bb_AR = std::min(bb_AR, TSV_Island::AR_MAX);
+				}
 				TSV_rows *= bb_AR;
 				TSV_cols /= bb_AR;
 
