@@ -46,6 +46,7 @@ do
 		cp $base/gp.sh .
 		cp $base/clean.sh .
 		cp $base/HotSpot.sh .
+		cp $base/hotspot*.config .
 
 		# perform experiments; run 3DFP for each benchmark
 		for bench in $benches
