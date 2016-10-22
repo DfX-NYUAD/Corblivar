@@ -109,9 +109,6 @@ class FloorPlanner {
 			/// technology parameters
 			int TSV_per_cluster_limit;
 			/// technology parameters
-			/// Cu-Si area ratio for TSV groups
-			double TSV_group_Cu_Si_ratio;
-			/// technology parameters
 			/// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
 

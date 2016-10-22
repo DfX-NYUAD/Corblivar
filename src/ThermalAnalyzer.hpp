@@ -175,27 +175,27 @@ class ThermalAnalyzer {
 		/// http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g
 		///
 		/// note that TSV_density is to be passed as percent
-		inline static double heatCapSi(double const& TSV_group_Cu_Si_ratio, double const& TSV_density) {
+		inline static double heatCapSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_SI;
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) ) +
-					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) ) +
+					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) );
 			}
 		};
 		/// similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well
 		///
 		/// note that TSV_density is to be passed as percent
-		inline static double heatCapBond(double const& TSV_group_Cu_Si_ratio, double const& TSV_density) {
+		inline static double heatCapBond(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_BOND;
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) ) +
-					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * ((TSV_density * 0.01) * TSV_group_Cu_Si_ratio) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_BOND / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) ) +
+					HEAT_CAPACITY_BOND / (1.0 + ( (DENSITY_CU / DENSITY_BOND) * ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) );
 			}
 		}
 		/// thermal resistivity of compounds, to be derived as parallel joint
