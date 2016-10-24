@@ -744,6 +744,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
+	in >> fp.IC.TSV_frame_dim;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
 	in >> fp.IC.TSV_per_cluster_limit;
 
 	// determine Cu area fraction for TSV groups
@@ -2940,6 +2945,21 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 				// prevents generating subscripts for underscore in labels
 				gp_out << " noenhanced" << std::endl;
 			}
+		}
+
+		// output dummy TSVs
+		for (TSV_Island const& TSV_group : fp.dummy_TSVs) {
+
+			if (TSV_group.layer != cur_layer) {
+				continue;
+			}
+
+			// block rectangles
+			gp_out << "set obj rect";
+			gp_out << " from " << TSV_group.bb.ll.x << "," << TSV_group.bb.ll.y;
+			gp_out << " to " << TSV_group.bb.ur.x << "," << TSV_group.bb.ur.y;
+			gp_out << " fillcolor rgb \"#704a30\" fillstyle solid";
+			gp_out << std::endl;
 		}
 
 		// check alignment fulfillment; draw accordingly colored rectangles around

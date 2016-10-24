@@ -700,8 +700,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << std::endl;
 			}
 
-			std::cout << "Corblivar> TSVs: " << cost.TSVs_actual_value << std::endl;
-			this->IO_conf.results << "TSVs: " << cost.TSVs_actual_value << std::endl;
+			std::cout << "Corblivar> TSVs (w/o dummy TSVs): " << cost.TSVs_actual_value << std::endl;
+			this->IO_conf.results << "TSVs (w/o dummy TSVs): " << cost.TSVs_actual_value << std::endl;
 
 			std::cout << "Corblivar>  Power for TSVs [W]: " << cost.power_TSVs << std::endl;
 			this->IO_conf.results << " Power for TSVs [W]: " << cost.power_TSVs << std::endl;
@@ -724,6 +724,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 			std::cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << std::endl;
+
+			std::cout << "Corblivar> Dummy TSVs: " << this->dummy_TSVs.size() << std::endl;
+			this->IO_conf.results << "Dummy TSVs: " << this->dummy_TSVs.size() << std::endl;
 
 			if (!this->clustering.hotspots.empty()) {
 
@@ -1301,7 +1304,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	}
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->nets, this->power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->dummy_TSVs, this->nets, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
@@ -1448,6 +1451,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	RoutingUtilization::UtilResult util;
 	double WL_largest_net;
 	double WL_cur_net;
+	double x, y;
+	bool TSV_in_frame;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateInterconnects(" << &cost << ", " << frequency << ", " << &alignments << ", " << set_max_cost << ", " << finalize << ")" << std::endl;
@@ -1463,6 +1468,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// reset TSVs
 	this->TSVs.clear();
+	this->dummy_TSVs.clear();
 
 	// reset wires
 	this->wires.clear();
@@ -1827,6 +1833,61 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 		if (Net::DBG) {
 			std::cout << "DBG_NET>  Largest net (after clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
+		}
+	}
+
+	// insert dummy TSVs wherever required for manufacturing purposes; at least one
+	// TSV shall be placed in every (m x m) frame of the die, if not already some TSVs
+	// are placed within each frame; also consider to place on top-most die
+	//
+	for (i = 0; i < this->IC.layers; i++) {
+
+		// walk die outline in steps according to frame dimensions
+		for (x = 0; x < this->IC.outline_x; x += this->IC.TSV_frame_dim) {
+			for (y = 0; y < this->IC.outline_y; y += this->IC.TSV_frame_dim) {
+
+				// define frame as bb
+				bb.ll.x = x;
+				bb.ur.x = std::min(x + this->IC.TSV_frame_dim, this->IC.outline_x);
+				bb.ll.y = y;
+				bb.ur.y = std::min(y + this->IC.TSV_frame_dim, this->IC.outline_y);
+				bb.w = bb.ur.x - bb.ll.x;
+				bb.h = bb.ur.y - bb.ll.y;
+
+				// check all TSVs whether at least one overlaps with the current frame
+				TSV_in_frame = false;
+
+				for (TSV_Island const& cur_TSV : this->TSVs) {
+					if ((cur_TSV.layer == i) && Rect::rectsIntersect(cur_TSV.bb, bb)) {
+						TSV_in_frame = true;
+						break;
+					}
+				}
+
+				// no TSV at all found in the current frame; insert a dummy TSV in
+				// the center of the frame
+				if (!TSV_in_frame) {
+
+					// define new dummy TSV (trivial TSV island)
+					this->dummy_TSVs.emplace_back(TSV_Island(
+							// 
+							std::string("dummy_manuf_frame_"
+								+ std::to_string(x) + "_"
+								+ std::to_string(y) + "_"
+								+ std::to_string(i)),
+							// one TSV count
+							1,
+							// TSV pitch; required for proper scaling
+							// of TSV island
+							this->IC.TSV_pitch,
+							// reference point for placement
+							// of dummy TSV is frame bb
+							bb,
+							// layer assignment
+							i
+						));
+				}
+			}
 		}
 	}
 	

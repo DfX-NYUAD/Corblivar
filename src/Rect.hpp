@@ -222,8 +222,7 @@ class Rect {
 				);
 		};
 
-		/// helper to check whether two rectangles have an intersection in the
-		/// horizontal direction
+		/// helper to check whether two rectangles have an intersection
 		inline static bool rectsIntersect(Rect const& a, Rect const& b) {
 			return rectsIntersectVertical(a, b) && rectsIntersectHorizontal(a, b);
 		};

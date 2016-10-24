@@ -473,83 +473,21 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 /// note that this function only accounts for (via by TSVs improved heat conduction) lower
 /// local power consumption, not the (much smaller) increase of power consumption due to
 /// resistivity of TSVs
-void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
-	Rect aligned_blocks_intersect;
-	Rect bin, bin_intersect;
-	int x_lower, x_upper, y_lower, y_upper;
 	int i;
-	Rect bb, prev_bb;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		std::cout << "-> ThermalAnalyzer::adaptPowerMapsTSVs(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
 	}
 
-	// consider impact of vertical buses; map TSVs to power maps
+	// consider impact of all TSVs, real and dummy ones; map TSV densities to power maps
 	//
-	// note that local copies of TSVs groups are used in order to not mess with the
-	// actual coordinates of the groups
-	for (TSV_Island TSV_group : TSVs) {
-
-		// offset intersection, i.e., account for padded power maps and related
-		// offset in coordinates
-		TSV_group.bb.ll.x += this->blocks_offset_x;
-		TSV_group.bb.ll.y += this->blocks_offset_y;
-		TSV_group.bb.ur.x += this->blocks_offset_x;
-		TSV_group.bb.ur.y += this->blocks_offset_y;
-
-		// determine index boundaries for offset intersection; based on boundary
-		// of intersection and the covered bins; note that cast to int truncates
-		// toward zero, i.e., performs like floor for positive numbers
-		x_lower = static_cast<int>(TSV_group.bb.ll.x / this->power_maps_dim_x);
-		y_lower = static_cast<int>(TSV_group.bb.ll.y / this->power_maps_dim_y);
-		// +1 in order to efficiently emulate the result of ceil(); limit upper
-		// bound to power-maps dimensions
-		x_upper = std::min(static_cast<int>(TSV_group.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-		y_upper = std::min(static_cast<int>(TSV_group.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-
-		if (ThermalAnalyzer::DBG) {
-			std::cout << "DBG> TSV group " << TSV_group.id << std::endl;
-			std::cout << "DBG>  Affected power-map bins: " << x_lower << "," << y_lower
-				<< " to " <<
-				x_upper << "," << y_upper << std::endl;
-		}
-
-		// walk power-map bins covering intersection outline; adapt TSV densities
-		for (x = x_lower; x < x_upper; x++) {
-			for (y = y_lower; y < y_upper; y++) {
-
-				// consider full TSV density for fully covered bins
-				if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
-
-					// adapt map on affected layer
-					this->power_maps[TSV_group.layer][x][y].TSV_density += 100.0;
-				}
-				// else consider TSV density according to partial
-				// intersection with current bin
-				else {
-					// determine real coords of map bin
-					bin.ll.x = this->power_maps_bins_ll_x[x];
-					bin.ll.y = this->power_maps_bins_ll_y[y];
-					// note that +1 is guaranteed to be within
-					// bounds of power_maps_bins_ll_x/y (size
-					// = ThermalAnalyzer::POWER_MAPS_DIM + 1);
-					// the related last tuple describes the
-					// upper-right corner coordinates of the
-					// right/top boundary
-					bin.ur.x = this->power_maps_bins_ll_x[x + 1];
-					bin.ur.y = this->power_maps_bins_ll_y[y + 1];
-
-					// determine intersection
-					bin_intersect = Rect::determineIntersection(bin, TSV_group.bb);
-					// normalize to full bin area
-					bin_intersect.area /= this->power_maps_bin_area;
-
-					// adapt map on affected layer
-					this->power_maps[TSV_group.layer][x][y].TSV_density += 100.0 * bin_intersect.area;
-				}
-			}
-		}
+	for (TSV_Island const& TSVi : TSVs) {
+		this->adaptPowerMapsTSVsHelper(TSVi);
+	}
+	for (TSV_Island const& TSVi : dummy_TSVs) {
+		this->adaptPowerMapsTSVsHelper(TSVi);
 	}
 
 	// walk power-map bins; adapt power according to TSV densities
@@ -584,6 +522,74 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		std::cout << "<- ThermalAnalyzer::adaptPowerMapsTSVs" << std::endl;
+	}
+}
+
+/// note that local copies of TSVs islands are used in order to not mess with the actual
+/// coordinates of the islands
+void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
+	int x, y;
+	int x_lower, x_upper, y_lower, y_upper;
+	Rect bin, bin_intersect;
+
+	// offset intersection, i.e., account for padded power maps and related
+	// offset in coordinates
+	TSVi.bb.ll.x += this->blocks_offset_x;
+	TSVi.bb.ll.y += this->blocks_offset_y;
+	TSVi.bb.ur.x += this->blocks_offset_x;
+	TSVi.bb.ur.y += this->blocks_offset_y;
+
+	// determine index boundaries for offset intersection; based on boundary
+	// of intersection and the covered bins; note that cast to int truncates
+	// toward zero, i.e., performs like floor for positive numbers
+	x_lower = static_cast<int>(TSVi.bb.ll.x / this->power_maps_dim_x);
+	y_lower = static_cast<int>(TSVi.bb.ll.y / this->power_maps_dim_y);
+	// +1 in order to efficiently emulate the result of ceil(); limit upper
+	// bound to power-maps dimensions
+	x_upper = std::min(static_cast<int>(TSVi.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+	y_upper = std::min(static_cast<int>(TSVi.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+
+	if (ThermalAnalyzer::DBG) {
+		std::cout << "DBG> TSV group " << TSVi.id << std::endl;
+		std::cout << "DBG>  Affected power-map bins: " << x_lower << "," << y_lower
+			<< " to " <<
+			x_upper << "," << y_upper << std::endl;
+	}
+
+	// walk power-map bins covering intersection outline; adapt TSV densities
+	for (x = x_lower; x < x_upper; x++) {
+		for (y = y_lower; y < y_upper; y++) {
+
+			// consider full TSV density for fully covered bins
+			if (x_lower < x && x < (x_upper - 1) && y_lower < y && y < (y_upper - 1)) {
+
+				// adapt map on affected layer
+				this->power_maps[TSVi.layer][x][y].TSV_density += 100.0;
+			}
+			// else consider TSV density according to partial
+			// intersection with current bin
+			else {
+				// determine real coords of map bin
+				bin.ll.x = this->power_maps_bins_ll_x[x];
+				bin.ll.y = this->power_maps_bins_ll_y[y];
+				// note that +1 is guaranteed to be within
+				// bounds of power_maps_bins_ll_x/y (size
+				// = ThermalAnalyzer::POWER_MAPS_DIM + 1);
+				// the related last tuple describes the
+				// upper-right corner coordinates of the
+				// right/top boundary
+				bin.ur.x = this->power_maps_bins_ll_x[x + 1];
+				bin.ur.y = this->power_maps_bins_ll_y[y + 1];
+
+				// determine intersection
+				bin_intersect = Rect::determineIntersection(bin, TSVi.bb);
+				// normalize to full bin area
+				bin_intersect.area /= this->power_maps_bin_area;
+
+				// adapt map on affected layer
+				this->power_maps[TSVi.layer][x][y].TSV_density += 100.0 * bin_intersect.area;
+			}
+		}
 	}
 }
 

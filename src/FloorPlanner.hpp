@@ -59,6 +59,8 @@ class FloorPlanner {
 
 		/// groups of TSVs, will be defined from nets and vertical buses
 		std::vector<TSV_Island> TSVs;
+		/// groups of dummy filler TSVs, required for minimum TSV density
+		std::vector<TSV_Island> dummy_TSVs;
 
 		// dummy blocks, used to represent bounding boxes of wires along with
 		// their power consumption (to be considered in HotSpot)
@@ -106,6 +108,8 @@ class FloorPlanner {
 			double TSV_dimension;
 			/// technology parameters
 			double TSV_pitch;
+			/// technology parameters
+			double TSV_frame_dim;
 			/// technology parameters
 			int TSV_per_cluster_limit;
 			/// technology parameters
