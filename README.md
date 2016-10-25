@@ -159,7 +159,7 @@ further examples can be found in exp/configs/.
 # Changelog
 
 ## 1.4.4
-*October 2016, commit e201b21e8c014721efb5b63bdd064ba5ed669e24*
+*October 2016, commit 923ea940c25944fa1d38d1751d3504ebd39b608b*
 **updates related to HotSpot to 6.0; various other updates and fixes**
 - experimental config files: added hotspot*.config to exp/; previously kept separately in
 HotSpot directory/repository
@@ -168,11 +168,13 @@ HotSpot directory/repository
 - update HotSpot data generation: nets' power consumption is now also modeled, by
 dummy blocks covering all nets' bounding boxes in each respective BEOL layers, with evenly
 				       distributed sum of nets' power
+- update power maps: also plot original (unpadded, unscaled) power density map
+- update TSV handling: add dummy TSVs in regular grid-like fashion wherever a minimum TSV
+				       density (new technology parameter) would otherwise be violated
 - fix greedy shifting TSV island: add sanity check for shifting current island itself
 - fix scaling of single-TSV islands
 - fix calculation of heat capacities for TSV islands
 - fix read in of solution file: parse rotated/shaped blocks correctly
-- update maps: also plot original (unpadded, unscaled) power density map
 
 ## 1.4.3
 *July 2016, commit 1b35f6317222ff4538273abde30ebc6c4abfb1fb*
