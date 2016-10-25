@@ -159,7 +159,7 @@ further examples can be found in exp/configs/.
 # Changelog
 
 ## 1.4.4
-*October 2016, commit e201b21e8c014721efb5b63bdd064ba5ed669e24*
+*October 2016, commit 923ea940c25944fa1d38d1751d3504ebd39b608b*
 **updates related to HotSpot to 6.0; various other updates and fixes**
 - experimental config files: added hotspot*.config to exp/; previously kept separately in
 HotSpot directory/repository
