@@ -168,11 +168,13 @@ HotSpot directory/repository
 - update HotSpot data generation: nets' power consumption is now also modeled, by
 dummy blocks covering all nets' bounding boxes in each respective BEOL layers, with evenly
 				       distributed sum of nets' power
+- update power maps: also plot original (unpadded, unscaled) power density map
+- update TSV handling: add dummy TSVs in regular grid-like fashion wherever a minimum TSV
+				       density (new technology parameter) would otherwise be violated
 - fix greedy shifting TSV island: add sanity check for shifting current island itself
 - fix scaling of single-TSV islands
 - fix calculation of heat capacities for TSV islands
 - fix read in of solution file: parse rotated/shaped blocks correctly
-- update maps: also plot original (unpadded, unscaled) power density map
 
 ## 1.4.3
 *July 2016, commit 1b35f6317222ff4538273abde30ebc6c4abfb1fb*
