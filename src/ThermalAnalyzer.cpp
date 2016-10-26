@@ -470,9 +470,10 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 	}
 }
 
-/// note that this function only accounts for (via by TSVs improved heat conduction) lower
+/// note that this function only accounts for (via TSVs improved heat conduction) lower
 /// local power consumption, not the (much smaller) increase of power consumption due to
-/// resistivity of TSVs
+/// resistivity of TSVs; TSVs densities, required for HotSpot calculation, are also
+/// adapted here
 void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
 	int x, y;
 	int i;
@@ -481,7 +482,9 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 		std::cout << "-> ThermalAnalyzer::adaptPowerMapsTSVs(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
 	}
 
-	// consider impact of all TSVs, real and dummy ones; map TSV densities to power maps
+	// consider impact of all TSVs, real and dummy ones; map TSV densities to power
+	// maps; also required for HotSpot calculation, to model different material
+	// properties in regions with and without TSVs
 	//
 	for (TSV_Island const& TSVi : TSVs) {
 		this->adaptPowerMapsTSVsHelper(TSVi);
