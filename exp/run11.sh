@@ -47,6 +47,8 @@ do
 
 	for bench in $benches
 	do
+		# (TODO) provide 0(%) as further, final parameter to ignore all TSVs; provide any other number to override actual TSVs with regular TSV structure of given density,
+# ranging from 0 to 100(%)
 		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
 	done
 
