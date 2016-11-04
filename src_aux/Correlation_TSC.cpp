@@ -86,11 +86,12 @@ int main (int argc, char** argv) {
 		// overall cost is not determined; cost cannot be determined since no
 		// normalization during SA search was performed
 		fp.finalize(corb, false);
+		std::cout << std::endl;
 
 	// (TODO) HotSpot.sh system call
 	//
 
-	// now, read in the HotSpot simulation result; keep data in thermal maps (the same as otherwise used for power blurring)
+	// now, read in the HotSpot simulation result
 	//
 	parseHotSpotFiles(fp, thermal_maps_HotSpot);
 
@@ -155,4 +156,70 @@ void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 }
 
 void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
+	double avg_power, avg_temp;
+	double std_dev_power, std_dev_temp;
+	double cov;
+	double cur_power_dev, cur_temp_dev;
+	double correlation;
+
+	for (int layer = 0; layer < fp.getLayers(); layer++) {
+
+		avg_power = avg_temp = 0.0;
+		cov = std_dev_power = std_dev_temp = 0.0;
+		correlation = 0.0;
+
+		// first pass: determine avg values
+		//
+		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+				avg_power += fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density;
+				avg_temp += thermal_maps[layer][x][y];
+			}
+		}
+		avg_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+		avg_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
+		// DBG output
+		if (DBG) {
+			std::cout << "Avg power for layer " << layer << ": " << avg_power << std::endl;
+			std::cout << "Avg temp for layer " << layer << ": " << avg_temp << std::endl;
+			std::cout << std::endl;
+		}
+		
+		// second pass: determine covariance and standard deviations
+		//
+		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+				// deviations of current values from avg values
+				cur_power_dev = fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density - avg_power;
+				cur_temp_dev = thermal_maps[layer][x][y] - avg_temp;
+
+				// covariance
+				cov += cur_power_dev * cur_temp_dev;
+
+				// standard deviation, to be sqrd later on
+				std_dev_power += std::pow(cur_power_dev, 2.0);
+				std_dev_temp += std::pow(cur_temp_dev, 2.0);
+			}
+		}
+		std_dev_power = std::sqrt(std_dev_power);
+		std_dev_temp = std::sqrt(std_dev_temp);
+
+		// calculate Pearson correlation: covariance over product of standard deviations
+		//
+		correlation = cov / (std_dev_power * std_dev_temp);
+
+		// DBG output
+		if (DBG) {
+			std::cout << "Standard deviation of power for layer " << layer << ": " << std_dev_power << std::endl;
+			std::cout << "Standard deviation of temp for layer " << layer << ": " << std_dev_temp << std::endl;
+			std::cout << "Covariance of temp and power for layer " << layer << ": " << cov << std::endl;
+			std::cout << std::endl;
+		}
+
+		std::cout << "Pearson correlation of temp and power for layer " << layer << ": " << correlation << std::endl;
+		std::cout << std::endl;
+	}
 }
