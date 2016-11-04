@@ -237,7 +237,7 @@ class ThermalAnalyzer {
 	// public data, functions
 	public:
 		friend class IO;
-
+		
 		/// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
 		/// thermal modeling: handlers
@@ -254,6 +254,12 @@ class ThermalAnalyzer {
 		/// thermal-analyzer routine based on power blurring,
 		/// i.e., convolution of thermals masks and power maps
 		void performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters);
+
+		/// getter
+		inline std::vector< std::array< std::array<PowerMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> > const& getPowerMapsOrig() const {
+			return this->power_maps_orig;
+		};
+
 };
 
 #endif

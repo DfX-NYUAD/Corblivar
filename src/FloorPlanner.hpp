@@ -418,6 +418,11 @@ class FloorPlanner {
 			return this->blocks;
 		};
 
+		/// getter
+		inline ThermalAnalyzer const& getThermalAnalyzer() const {
+			return this->thermalAnalyzer;
+		};
+
 		/// helper for die geometry
 		///
 		inline Point shrinkDieOutlines() {

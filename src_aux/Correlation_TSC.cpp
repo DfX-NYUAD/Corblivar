@@ -26,6 +26,9 @@
 #include "../src/FloorPlanner.hpp"
 #include "../src/IO.hpp"
 
+// DBG flag
+static constexpr bool DBG = false;
+
 // type definitions, for shorter notation
 typedef	std::array< std::array<double, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> thermal_maps_layer_type;
 typedef	std::vector< thermal_maps_layer_type > thermal_maps_type;
@@ -140,7 +143,10 @@ void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 			thermal_maps[layer][x][y] = temp;
 
 			// DBG output
-			std::cout << x << " " << y << " " << thermal_maps[layer][x][y] << std::endl;
+			if (DBG) {
+				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << thermal_maps[layer][x][y] << std::endl;
+				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density << std::endl;
+			}
 		}
 
 		// close file
