@@ -26,8 +26,9 @@
 #include "../src/FloorPlanner.hpp"
 #include "../src/IO.hpp"
 
-// DBG flag
+// logging flags
 static constexpr bool DBG = false;
+static constexpr bool VERBOSE = true;
 
 // type definitions, for shorter notation
 typedef	std::array< std::array<double, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> thermal_maps_layer_type;
@@ -180,8 +181,8 @@ void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 		avg_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 		avg_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 
-		// DBG output
-		if (DBG) {
+		// VERBOSE output
+		if (VERBOSE) {
 			std::cout << "Avg power for layer " << layer << ": " << avg_power << std::endl;
 			std::cout << "Avg temp for layer " << layer << ": " << avg_temp << std::endl;
 			std::cout << std::endl;
@@ -199,7 +200,7 @@ void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 				// covariance
 				cov += cur_power_dev * cur_temp_dev;
 
-				// standard deviation, to be sqrd later on
+				// standard deviation, calculate its sqrt later on
 				std_dev_power += std::pow(cur_power_dev, 2.0);
 				std_dev_temp += std::pow(cur_temp_dev, 2.0);
 			}
@@ -211,8 +212,8 @@ void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 		//
 		correlation = cov / (std_dev_power * std_dev_temp);
 
-		// DBG output
-		if (DBG) {
+		// VERBOSE output
+		if (VERBOSE) {
 			std::cout << "Standard deviation of power for layer " << layer << ": " << std_dev_power << std::endl;
 			std::cout << "Standard deviation of temp for layer " << layer << ": " << std_dev_temp << std::endl;
 			std::cout << "Covariance of temp and power for layer " << layer << ": " << cov << std::endl;
