@@ -205,6 +205,10 @@ void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 				std_dev_temp += std::pow(cur_temp_dev, 2.0);
 			}
 		}
+		cov /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+		std_dev_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+		std_dev_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
 		std_dev_power = std::sqrt(std_dev_power);
 		std_dev_temp = std::sqrt(std_dev_temp);
 
