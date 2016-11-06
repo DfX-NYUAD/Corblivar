@@ -844,6 +844,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		IO::writeHotSpotFiles(*this);
 	}
 
+// TODO integrate properly as cost function, along with Pearson correlation
+this->leakageAnalyzer.determineSpatialEntropies(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig());
+
 	// determine overall runtime
 	ftime(&end);
 	if (this->logMin()) {

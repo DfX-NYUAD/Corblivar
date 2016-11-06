@@ -1,0 +1,199 @@
+/*
+ * =====================================================================================
+ *
+ *    Description:  Corblivar thermal-related side-channel leakage analyzer, based on
+ *    Pearson correlation of power and thermal maps and spatial entropy of power maps
+ *
+ *    Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
+ *
+ *    This file is part of Corblivar.
+ *    
+ *    Corblivar is free software: you can redistribute it and/or modify it under the terms
+ *    of the GNU General Public License as published by the Free Software Foundation,
+ *    either version 3 of the License, or (at your option) any later version.
+ *    
+ *    Corblivar is distributed in the hope that it will be useful, but WITHOUT ANY
+ *    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *    PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *    
+ *    You should have received a copy of the GNU General Public License along with
+ *    Corblivar.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * =====================================================================================
+ */
+
+// own Corblivar header
+#include "LeakageAnalyzer.hpp"
+// required Corblivar headers
+#include "ThermalAnalyzer.hpp"
+
+void LeakageAnalyzer::partitionPowerMaps(int const& layers,
+		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
+	double power_avg;
+	double power_std_dev;
+	unsigned m, i;
+	unsigned range, lower_bound, upper_bound;
+	
+
+	for (int layer = 0; layer < layers; layer++) {
+
+		// put power values along with their coordinates into vector; also track avg power
+		//
+		this->power_values.clear();
+		this->power_values.reserve(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2));
+		power_avg = 0.0;
+		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+				this->power_values.push_back( std::pair<double, Point>(
+							power_maps_orig[layer][x][y].power_density,
+							Point(x, y)
+						)
+					);
+
+				power_avg += power_maps_orig[layer][x][y].power_density;
+			}
+		}
+		power_avg /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
+		// sort vector according to power values
+		std::sort(this->power_values.begin(), this->power_values.end(),
+				// lambda expression
+				[&](std::pair<double, Point> p1, std::pair<double, Point> p2) {
+					return p1.first < p2.first;
+				}
+			 );
+
+		if (DBG_VERBOSE) {
+			for (auto const& p : this->power_values) {
+				std::cout << "DBG>  Power[" << p.second.x << "][" << p.second.y << "]: " << p.first << std::endl;
+			}
+		}
+
+		// determine first cut: index of first value larger than avg
+		for (m = 0; m < this->power_values.size(); m++) {
+			
+			if (this->power_values[m].first > power_avg) {
+				break;
+			}
+		}
+
+		// start recursive calls; partition these two ranges iteratively further
+		this->partition_ranges.clear();
+		this->partitionPowerMapHelper(0, m);
+		this->partitionPowerMapHelper(m, this->power_values.size());
+
+		// now, all partitions along with their power bins are determined
+		//
+		// TODO store them into class member, layerwise
+
+		// dbg logging
+		if (DBG) {
+			std::cout << "DBG> Partitions on layer " << layer << ": " << this->partition_ranges.size() << std::endl;
+
+			for (auto const& p : this->partition_ranges) {
+				lower_bound = p.first;
+				upper_bound = p.second;
+
+				range = upper_bound - lower_bound;
+
+				// determine avg power for given data range
+				power_avg = 0.0;
+				for (i = lower_bound; i < upper_bound; i++) {
+					power_avg += this->power_values[i].first;
+				}
+				power_avg /= range;
+
+				// determine sum of squared diffs for std dev
+				power_std_dev = 0.0;
+				for (i = lower_bound; i < upper_bound; i++) {
+					power_std_dev += std::pow(this->power_values[i].first - power_avg, 2.0);
+				}
+				// determine std dev
+				power_std_dev /= range;
+				power_std_dev = std::sqrt(power_std_dev);
+				
+				std::cout << "DBG>  Partition: " << lower_bound << ", " << upper_bound - 1 << std::endl;
+				std::cout << "DBG>   Size: " << range << std::endl;
+				std::cout << "DBG>   Std dev: " << power_std_dev << std::endl;
+				std::cout << "DBG>   Avg: " << power_avg << std::endl;
+				std::cout << "DBG>   Min: " << this->power_values[lower_bound].first << std::endl;
+				std::cout << "DBG>   Max: " << this->power_values[upper_bound - 1].first << std::endl;
+
+				if (DBG_VERBOSE) {
+					for (unsigned i = p.first; i < p.second; i++) {
+						std::cout << "DBG>   Power[" << this->power_values[i].second.x << "][" << this->power_values[i].second.y << "]: " << this->power_values[i].first << std::endl;
+					}
+				}
+			}
+		}
+	}
+}
+
+/// note that partition_ranges are updated in this function
+inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound) {
+	double avg, std_dev;
+	unsigned range;
+	unsigned m, i;
+
+	// sanity check for proper ranges
+	if (upper_bound <= lower_bound) {
+		return;
+	}
+
+	range = upper_bound - lower_bound;
+
+	// determine avg power for given data range
+	avg = 0.0;
+	for (i = lower_bound; i < upper_bound; i++) {
+		avg += this->power_values[i].first;
+	}
+	avg /= range;
+
+	// determine sum of squared diffs for std dev
+	std_dev = 0.0;
+	for (i = lower_bound; i < upper_bound; i++) {
+		std_dev += std::pow(this->power_values[i].first - avg, 2.0);
+	}
+	// determine std dev
+	std_dev /= range;
+	std_dev = std::sqrt(std_dev);
+	
+	if (DBG_VERBOSE) {
+		std::cout << "DBG> Current range: " << lower_bound << ", " << upper_bound - 1 << std::endl;
+		std::cout << "DBG>  Std dev: " << std_dev << std::endl;
+		std::cout << "DBG>  Avg: " << avg << std::endl;
+		std::cout << "DBG>  Min: " << this->power_values[lower_bound].first << std::endl;
+		std::cout << "DBG>  Max: " << this->power_values[upper_bound - 1].first << std::endl;
+	}
+
+	// check break criterion for recursive partitioning;
+	// 	trivial case: std dev is close to zero
+	// 	otherwise: lower and upper bounds do not stretch beyond avg +- std dev, i.e., no outliers
+	//
+	if (Math::doubleComp(0.0, std_dev) ||
+			this->power_values[lower_bound].first > (avg - std_dev) ||
+			this->power_values[upper_bound - 1].first < (avg + std_dev)
+	   ) {
+
+		// if criterion reached, then memorize this current partition
+		this->partition_ranges.push_back( std::pair<unsigned, unsigned>(lower_bound, upper_bound) );
+		
+		return;
+	}
+	// continue recursively as long as the std dev is decreasing
+	//
+	else {
+		// determine cut: index of first value larger than avg
+		for (m = lower_bound; m < upper_bound; m++) {
+			
+			if (this->power_values[m].first > avg) {
+				break;
+			}
+		}
+
+		// recursive call for the two new sub-partitions
+		this->partitionPowerMapHelper(lower_bound, m);
+		this->partitionPowerMapHelper(m, upper_bound);
+	}
+}

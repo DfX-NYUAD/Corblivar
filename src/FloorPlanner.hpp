@@ -29,6 +29,7 @@
 #include "Net.hpp"
 #include "LayoutOperations.hpp"
 #include "ThermalAnalyzer.hpp"
+#include "LeakageAnalyzer.hpp"
 #include "Clustering.hpp"
 #include "RoutingUtilization.hpp"
 // forward declarations, if any
@@ -328,6 +329,9 @@ class FloorPlanner {
 		///
 		// (TODO) encapsulate in thermalAnalyzer
 		ThermalAnalyzer::ThermalAnalysisResult thermal_analysis;
+
+		/// instance for thermal-related leakage analyzer
+		LeakageAnalyzer leakageAnalyzer;
 
 		/// clustering instance
 		Clustering clustering;
