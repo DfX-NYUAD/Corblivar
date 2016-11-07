@@ -836,6 +836,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 	}
 
+// TODO integrate properly as cost function, along with Pearson correlation
+this->leakageAnalyzer.determineSpatialEntropies(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig());
+
 	// thermal-analysis files
 	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {
 		// generate power, thermal, routing-utilization and TSV-density maps
@@ -843,9 +846,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		// generate HotSpot files
 		IO::writeHotSpotFiles(*this);
 	}
-
-// TODO integrate properly as cost function, along with Pearson correlation
-this->leakageAnalyzer.determineSpatialEntropies(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig());
 
 	// determine overall runtime
 	ftime(&end);

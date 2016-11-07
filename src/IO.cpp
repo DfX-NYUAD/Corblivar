@@ -2457,6 +2457,48 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << std::endl;
 			}
 
+			// for original power maps, mark leakage-analyzer related partitions for dbg mode
+			else if (flag == POWER_ORIG) {
+				if (LeakageAnalyzer::DBG_GP) {
+
+					// sanity check if some partitions are defined
+					if (fp.leakageAnalyzer.power_partitions.empty()) {
+						continue;
+					}
+
+					id = 1;
+
+					for (auto& cur_part : fp.leakageAnalyzer.power_partitions[cur_layer]) {
+
+						// determine random color for each partition, in order to (hopefully) have clear visual separation between adjacent partitions
+						int r,g,b;
+
+						r = Math::randI(0, 256);
+						g = Math::randI(0, 256);
+						b = Math::randI(0, 256);
+
+						for (auto& bin : cur_part) {
+
+							gp_out << "set obj " << id << " rect from ";
+							gp_out << bin.x << ", " << bin.y << " to ";
+							gp_out << bin.x + 1 << ", " << bin.y + 1 << " ";
+							gp_out << "front fillstyle empty border ";
+
+							gp_out << " rgb \"#";
+							gp_out << std::hex << std::setfill('0') << std::setw(2) << r;
+							gp_out << std::hex << std::setfill('0') << std::setw(2) << g;
+							gp_out << std::hex << std::setfill('0') << std::setw(2) << b;
+							gp_out << std::dec;
+							gp_out << "\" linewidth 1" << std::endl;
+
+							gp_out << std::endl;
+
+							id++;
+						}
+					}
+				}
+			}
+
 			// for thermal maps (power blurring): draw rectangles for hotspot regions
 			else if (flag == FLAGS::THERMAL) {
 
