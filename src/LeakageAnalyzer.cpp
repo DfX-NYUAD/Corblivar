@@ -186,6 +186,14 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 		std::cout << "DBG>  Max: " << this->power_values[upper_bound - 1].first << std::endl;
 	}
 
+	// determine (potential) cut: index of first value larger than avg
+	for (m = lower_bound; m < upper_bound; m++) {
+		
+		if (this->power_values[m].first > avg) {
+			break;
+		}
+	}
+
 	// check break criterion for recursive partitioning;
 	//
 	if (
@@ -193,12 +201,12 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 			Math::doubleComp(0.0, std_dev) ||
 			// also maintain (a ``soft'', see below) minimal partition size
 			//
-			// note that some partitions may be much smaller in case their previous cut was largely skewed towards one boundary; a possible mitigation here would be to
-			// implement the check as look-ahead, but this also triggers some partitions to have a rather large leakage in practice
-			(range < LeakageAnalyzer::MIN_PARTITION_SIZE)
-			// look-ahead may increase std dev too much
-//			((m - lower_bound) < LeakageAnalyzer::MIN_PARTITION_SIZE) ||
-//			((upper_bound - m) < LeakageAnalyzer::MIN_PARTITION_SIZE)
+			// note that some partitions may be much smaller in case their previous cut was largely skewed towards one boundary; a possible countermeasure here would be
+			// to implement the check as look-ahead, but this also triggers some partitions to have a rather large leakage in practice
+			(range < LeakageAnalyzer::MIN_PARTITION_SIZE) ||
+			// look-ahead checks still required, to avoid trivial sub-partitions with only one element
+			((m - lower_bound) == 1) ||
+			((upper_bound - m) == 1)
 	   ) {
 
 		// if criterion reached, then memorize this current partition
@@ -209,13 +217,6 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 	// continue recursively
 	//
 	else {
-		// determine cut: index of first value larger than avg
-		for (m = lower_bound; m < upper_bound; m++) {
-			
-			if (this->power_values[m].first > avg) {
-				break;
-			}
-		}
 
 		// recursive call for the two new sub-partitions
 		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
