@@ -836,8 +836,9 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 	}
 
-// TODO integrate properly as cost function, along with Pearson correlation
-this->leakageAnalyzer.determineSpatialEntropies(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig());
+	// TODO integrate properly as cost function, along with Pearson correlation
+	std::cout << "Avg entropy: " << this->leakageAnalyzer.determineSpatialEntropies(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig()) << std::endl;
+	std::cout << std::endl;
 
 	// thermal-analysis files
 	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {

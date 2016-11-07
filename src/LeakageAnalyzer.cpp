@@ -27,13 +27,15 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 
-void LeakageAnalyzer::determineSpatialEntropies(int const& layers,
+double LeakageAnalyzer::determineSpatialEntropies(int const& layers,
 		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
 
 	double d_int;
 	double d_ext;
-	double cur_entropy, entropy;
+	double cur_entropy, entropy, overall_entropy;
 	double ratio_bins;
+
+	overall_entropy = 0.0;
 
 	// first, the power maps have to be partitioned/classified
 	//
@@ -119,11 +121,17 @@ void LeakageAnalyzer::determineSpatialEntropies(int const& layers,
 		// entropy has negative sign
 		entropy *= -1;
 
+		// sum up entropy over layers
+		overall_entropy += entropy;
+
 		// dbg logging
 		if (DBG) {
 			std::cout << "DBG> Overall entropy on layer " << layer << ": " << entropy << std::endl;
 		}
 	}
+
+	// return avg entropy
+	return overall_entropy / layers;
 }
 
 void LeakageAnalyzer::partitionPowerMaps(int const& layers,
