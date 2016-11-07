@@ -41,20 +41,21 @@ class LeakageAnalyzer {
 		/// debugging code switch (private)
 		static constexpr bool DBG_GP = false;
 
-	// public data
-	public:
-		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of power bins (of partition), related to indices
-		//of ThermalAnalyzer::power_maps_orig
-		std::vector< std::vector< std::vector<Point> > > power_partitions;
-
 		/// minimal size of partitions, equal to 1% of power-map size/bins
 		static constexpr int MIN_PARTITION_SIZE = (ThermalAnalyzer::THERMAL_MAP_DIM * ThermalAnalyzer::THERMAL_MAP_DIM) / 100;
+
+	// public data
+	public:
 
 	// PODs, to be declared early on
 	public:
 
 	// private data, functions
 	private:
+		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of power bins (of partition), related to indices
+		//of ThermalAnalyzer::power_maps_orig
+		std::vector< std::vector< std::vector<Point> > > power_partitions;
+
 		/// internal data used for partitioning, only for one layer at a time
 		/// Point encodes the x,y indices of the corresponding power-map bin
 		std::vector< std::pair<double, Point> > power_values;
@@ -84,12 +85,9 @@ class LeakageAnalyzer {
 		//void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps);
 		
 		/// spatial entropy of original power maps
-		// TODO actual implementation in cpp
 		void determineSpatialEntropies(int const& layers,
 				std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig
-			) {
-			this->partitionPowerMaps(layers, power_maps_orig);
-		}
+			);
 };
 
 #endif

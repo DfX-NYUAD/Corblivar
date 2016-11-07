@@ -27,6 +27,14 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 
+void LeakageAnalyzer::determineSpatialEntropies(int const& layers,
+		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
+
+	// first, the power maps have to be partitioned/classified
+	//
+	this->partitionPowerMaps(layers, power_maps_orig);
+}
+
 void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
 	double power_avg;
