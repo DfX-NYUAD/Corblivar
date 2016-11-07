@@ -31,9 +31,12 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
 	double power_avg;
 	double power_std_dev;
-	unsigned m, i;
-	unsigned range, lower_bound, upper_bound;
-	
+	unsigned m;
+	std::vector<Point> bins_partition;
+	std::vector< std::vector<Point> > partitions;
+
+	this->power_partitions.clear();
+	this->power_partitions.reserve(layers);
 
 	for (int layer = 0; layer < layers; layer++) {
 
@@ -80,49 +83,65 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 
 		// start recursive calls; partition these two ranges iteratively further
 		this->partition_ranges.clear();
+		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
 		this->partitionPowerMapHelper(0, m);
 		this->partitionPowerMapHelper(m, this->power_values.size());
 
 		// now, all partitions along with their power bins are determined
+		// store them in separate, public data structure
 		//
-		// TODO store them into class member, layerwise
+
+		// walk ranges of all partitions on this layer
+		partitions.clear();
+		for (auto const& p : this->partition_ranges) {
+
+			// copy power bin coordinates/indices for current partition
+			bins_partition.clear();
+			for (unsigned i = p.first; i < p.second; i++) {
+				bins_partition.push_back(this->power_values[i].second);
+			}
+
+			partitions.push_back(bins_partition);
+		}
+
+		// store all partitions of this layer
+		this->power_partitions.push_back(partitions);
+
 
 		// dbg logging
 		if (DBG) {
-			std::cout << "DBG> Partitions on layer " << layer << ": " << this->partition_ranges.size() << std::endl;
+			std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
 
-			for (auto const& p : this->partition_ranges) {
-				lower_bound = p.first;
-				upper_bound = p.second;
+			for (auto const& cur_part : this->power_partitions[layer]) {
 
-				range = upper_bound - lower_bound;
-
-				// determine avg power for given data range
+				// determine avg power for current partition
 				power_avg = 0.0;
-				for (i = lower_bound; i < upper_bound; i++) {
-					power_avg += this->power_values[i].first;
+				for (auto const& bin : cur_part) {
+					power_avg += power_maps_orig[layer][bin.x][bin.y].power_density;
 				}
-				power_avg /= range;
+				power_avg /= cur_part.size();
 
 				// determine sum of squared diffs for std dev
 				power_std_dev = 0.0;
-				for (i = lower_bound; i < upper_bound; i++) {
-					power_std_dev += std::pow(this->power_values[i].first - power_avg, 2.0);
+				for (auto const& bin : cur_part) {
+					power_std_dev += std::pow(power_maps_orig[layer][bin.x][bin.y].power_density - power_avg, 2.0);
 				}
 				// determine std dev
-				power_std_dev /= range;
+				power_std_dev /= cur_part.size();
 				power_std_dev = std::sqrt(power_std_dev);
 				
-				std::cout << "DBG>  Partition: " << lower_bound << ", " << upper_bound - 1 << std::endl;
-				std::cout << "DBG>   Size: " << range << std::endl;
-				std::cout << "DBG>   Std dev: " << power_std_dev << std::endl;
-				std::cout << "DBG>   Avg: " << power_avg << std::endl;
-				std::cout << "DBG>   Min: " << this->power_values[lower_bound].first << std::endl;
-				std::cout << "DBG>   Max: " << this->power_values[upper_bound - 1].first << std::endl;
+				std::cout << "DBG>  Partition" << std::endl;
+				std::cout << "DBG>   Size: " << cur_part.size() << std::endl;
+				std::cout << "DBG>   Std dev power: " << power_std_dev << std::endl;
+				std::cout << "DBG>   Avg power: " << power_avg << std::endl;
+				// min value is represented by first bin, since the underlying data of power_values was sorted by power
+				std::cout << "DBG>   Min power: " << power_maps_orig[layer][cur_part.front().x][cur_part.front().y].power_density << std::endl;
+				// max value is represented by last bin, since the underlying data of power_values was sorted by power
+				std::cout << "DBG>   Max power: " << power_maps_orig[layer][cur_part.back().x][cur_part.back().y].power_density << std::endl;
 
 				if (DBG_VERBOSE) {
-					for (unsigned i = p.first; i < p.second; i++) {
-						std::cout << "DBG>   Power[" << this->power_values[i].second.x << "][" << this->power_values[i].second.y << "]: " << this->power_values[i].first << std::endl;
+					for (auto const& bin : cur_part) {
+						std::cout << "DBG>   Power[" << bin.x << "][" << bin.y << "]: " << power_maps_orig[layer][bin.x][bin.y].power_density << std::endl;
 					}
 				}
 			}
@@ -193,6 +212,7 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 		}
 
 		// recursive call for the two new sub-partitions
+		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
 		this->partitionPowerMapHelper(lower_bound, m);
 		this->partitionPowerMapHelper(m, upper_bound);
 	}

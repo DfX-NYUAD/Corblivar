@@ -35,25 +35,20 @@ class Point;
 class LeakageAnalyzer {
 	private:
 		/// debugging code switch (private)
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 		/// debugging code switch (private)
 		static constexpr bool DBG_VERBOSE = false;
+		/// debugging code switch (private)
+		static constexpr bool DBG_GP = true;
 
 	// public data
 	public:
-		// TODO data structure for actual partitions, encapsulated per layer
+		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of power bins (of partition), related to indices
+		//of ThermalAnalyzer::power_maps_orig
+		std::vector< std::vector< std::vector<Point> > > power_partitions;
 
 	// PODs, to be declared early on
 	public:
-		//struct MaskParameters {
-		//	double TSV_density;
-		//	double mask_boundary_value;
-		//	double impulse_factor;
-		//	double impulse_factor_scaling_exponent;
-		//	double power_density_scaling_padding_zone;
-		//	double power_density_scaling_TSV_region;
-		//	double temp_offset;
-		//};
 
 	// private data, functions
 	private:
