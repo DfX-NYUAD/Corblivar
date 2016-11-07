@@ -32,13 +32,14 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 	double power_avg;
 	double power_std_dev;
 	unsigned m;
-	std::vector<Point> bins_partition;
-	std::vector< std::vector<Point> > partitions;
 
 	this->power_partitions.clear();
 	this->power_partitions.reserve(layers);
 
 	for (int layer = 0; layer < layers; layer++) {
+
+		// allocate empty vector
+		this->power_partitions.push_back(std::vector< std::vector<Point> >());
 
 		// put power values along with their coordinates into vector; also track avg power
 		//
@@ -82,30 +83,13 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 		}
 
 		// start recursive calls; partition these two ranges iteratively further
-		this->partition_ranges.clear();
-		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
-		this->partitionPowerMapHelper(0, m);
-		this->partitionPowerMapHelper(m, this->power_values.size());
-
-		// now, all partitions along with their power bins are determined
-		// store them in separate, public data structure
 		//
+		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
+		this->partitionPowerMapHelper(0, m, layer);
+		this->partitionPowerMapHelper(m, this->power_values.size(), layer);
 
-		// walk ranges of all partitions on this layer
-		partitions.clear();
-		for (auto const& p : this->partition_ranges) {
-
-			// copy power bin coordinates/indices for current partition
-			bins_partition.clear();
-			for (unsigned i = p.first; i < p.second; i++) {
-				bins_partition.push_back(this->power_values[i].second);
-			}
-
-			partitions.push_back(bins_partition);
-		}
-
-		// store all partitions of this layer
-		this->power_partitions.push_back(partitions);
+		// now, all partitions along with their power bins are determined and stored in power_partitions
+		//
 
 
 		// dbg logging
@@ -149,8 +133,8 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 	}
 }
 
-/// note that partition_ranges are updated in this function
-inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound) {
+/// note that power_partitions are updated in this function
+inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound, int layer) {
 	double avg, std_dev;
 	unsigned range;
 	unsigned m, i;
@@ -209,8 +193,13 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 			((upper_bound - m) == 1)
 	   ) {
 
-		// if criterion reached, then memorize this current partition
-		this->partition_ranges.push_back( std::pair<unsigned, unsigned>(lower_bound, upper_bound) );
+		// if criterion reached, then memorize this current partition as new partition
+		//
+		std::vector<Point> partition;
+		for (i = lower_bound; i < upper_bound; i++) {
+			partition.push_back(this->power_values[i].second);
+		}
+		this->power_partitions[layer].push_back(partition);
 		
 		return;
 	}
@@ -220,7 +209,7 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 
 		// recursive call for the two new sub-partitions
 		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
-		this->partitionPowerMapHelper(lower_bound, m);
-		this->partitionPowerMapHelper(m, upper_bound);
+		this->partitionPowerMapHelper(lower_bound, m, layer);
+		this->partitionPowerMapHelper(m, upper_bound, layer);
 	}
 }

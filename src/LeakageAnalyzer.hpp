@@ -58,8 +58,6 @@ class LeakageAnalyzer {
 		/// internal data used for partitioning, only for one layer at a time
 		/// Point encodes the x,y indices of the corresponding power-map bin
 		std::vector< std::pair<double, Point> > power_values;
-		/// contains the ranges of determined partitions, with lower and upper value corresponding to indices of power_values
-		std::vector< std::pair<unsigned, unsigned> > partition_ranges;
 
 		/// nested-means based partitioning of power maps
 		///
@@ -72,7 +70,7 @@ class LeakageAnalyzer {
 		/// helper for recursive calls for partitioning of power maps
 		///
 		/// note that the upper bound is excluded
-		inline void partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound);
+		inline void partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound, int layer);
 
 	// constructors, destructors, if any non-implicit
 	public:
