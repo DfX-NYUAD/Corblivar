@@ -2477,7 +2477,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 						g = Math::randI(0, 256);
 						b = Math::randI(0, 256);
 
-						for (auto& bin : cur_part) {
+						for (auto& bin : cur_part.second) {
 
 							gp_out << "set obj " << id << " rect from ";
 							gp_out << bin.x << ", " << bin.y << " to ";

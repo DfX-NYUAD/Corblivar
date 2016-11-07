@@ -56,9 +56,14 @@ class LeakageAnalyzer {
 
 	// private data, functions
 	private:
-		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of bins (of partition), related to indices of
+		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner pair: id and vector of coordinates/indices of bins (of partition), related
+		//to indices of
 		/// ThermalAnalyzer::power_maps_orig
-		std::vector< std::vector< std::vector<Bin> > > power_partitions;
+		std::vector<
+			std::vector<
+				std::pair<std::string, std::vector<Bin>>
+				>
+			> power_partitions;
 
 		/// nested-means based partitioning of power maps
 		///
@@ -84,7 +89,7 @@ class LeakageAnalyzer {
 		// TODO implement here as well, for power-blurring estimates
 		//void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps);
 		
-		/// spatial entropy of original power maps
+		/// spatial entropy of original power maps, as proposed by Claramunt
 		void determineSpatialEntropies(int const& layers,
 				std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig
 			);

@@ -30,9 +30,100 @@
 void LeakageAnalyzer::determineSpatialEntropies(int const& layers,
 		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
 
+	double d_int;
+	double d_ext;
+	double cur_entropy, entropy;
+	double ratio_bins;
+
 	// first, the power maps have to be partitioned/classified
 	//
 	this->partitionPowerMaps(layers, power_maps_orig);
+
+	// calculate spatial entropy for each layer separately
+	//
+	for (int layer = 0; layer < layers; layer++) {
+
+		entropy = 0.0;
+
+		if (DBG) {
+			std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
+		}
+
+		// calculate the avg internal and external distances for all partitions
+		//
+		for (auto const& cur_part : this->power_partitions[layer]) {
+
+			// internal distance: distance between all elements in same partition
+			//
+			d_int = 0.0;
+			for (auto const& b1 : cur_part.second) {
+				for (auto const& b2 : cur_part.second) {
+
+					// ignore comparison with itself
+					if (b1.x == b2.x && b1.y == b2.y) {
+						continue;
+					}
+
+					// Manhattan distance should suffice for grid coordinates/distances
+					//
+					d_int += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+				}
+			}
+			// normalize to obtain avg dist; over all compared pairs of elements
+			d_int /= (cur_part.second.size() * (cur_part.second.size() - 1));
+
+			// external distance: distance between all elements in this current partition and all elements in all other partitions
+			//
+			d_ext = 0.0;
+			for (auto const& b1 : cur_part.second) {
+
+				for (auto const& other_part : this->power_partitions[layer]) {
+
+					// ignore comparison with same partition, check their id
+					if (cur_part.first == other_part.first) {
+						continue;
+					}
+
+					// calculate distance to every element of other partition
+					for (auto const& b2 : other_part.second) {
+
+						// Manhattan distance should suffice for grid coordinates/distances
+						//
+						d_ext += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+					}
+				}
+			}
+			// normalize to obtain avg dist; over all compared pairs of elements
+			d_ext /= (cur_part.second.size() *
+					// size of all other partitions taken together, equals whole grid minus this partition
+					(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2) - cur_part.second.size()));
+
+			// calculate the partial entropy for this partition
+			//
+			ratio_bins = cur_part.second.size() / std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+			cur_entropy = (d_int / d_ext) * ratio_bins * std::log2(ratio_bins);
+
+			// dbg logging
+			if (DBG) {
+				std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
+				std::cout << "DBG>   Avg internal dist: " << d_int << std::endl;
+				std::cout << "DBG>   Avg external dist: " << d_ext << std::endl;
+				std::cout << "DBG>   Partial entropy: " << cur_entropy << std::endl;
+			}
+
+			// sum up the entropy; consider current's partition impact
+			//
+			entropy += cur_entropy;
+		}
+
+		// entropy has negative sign
+		entropy *= -1;
+
+		// dbg logging
+		if (DBG) {
+			std::cout << "DBG> Overall entropy on layer " << layer << ": " << entropy << std::endl;
+		}
+	}
 }
 
 void LeakageAnalyzer::partitionPowerMaps(int const& layers,
@@ -47,8 +138,11 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 
 	for (int layer = 0; layer < layers; layer++) {
 
-		// allocate empty vector
-		this->power_partitions.push_back(std::vector< std::vector<Bin> >());
+		// allocate empty vector for current layer
+		this->power_partitions.push_back(
+				// vector of partitions in this layer
+				std::vector< std::pair<std::string, std::vector<Bin>> >()
+			);
 
 		// put power values along with their coordinates into vector; also track avg power
 		//
@@ -108,31 +202,31 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 
 				// determine avg power for current partition
 				power_avg = 0.0;
-				for (auto const& bin : cur_part) {
+				for (auto const& bin : cur_part.second) {
 					power_avg += bin.value;
 				}
-				power_avg /= cur_part.size();
+				power_avg /= cur_part.second.size();
 
 				// determine sum of squared diffs for std dev
 				power_std_dev = 0.0;
-				for (auto const& bin : cur_part) {
+				for (auto const& bin : cur_part.second) {
 					power_std_dev += std::pow(bin.value - power_avg, 2.0);
 				}
 				// determine std dev
-				power_std_dev /= cur_part.size();
+				power_std_dev /= cur_part.second.size();
 				power_std_dev = std::sqrt(power_std_dev);
 				
-				std::cout << "DBG>  Partition" << std::endl;
-				std::cout << "DBG>   Size: " << cur_part.size() << std::endl;
+				std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
+				std::cout << "DBG>   Size: " << cur_part.second.size() << std::endl;
 				std::cout << "DBG>   Std dev power: " << power_std_dev << std::endl;
 				std::cout << "DBG>   Avg power: " << power_avg << std::endl;
 				// min value is represented by first bin, since the underlying data of power_values was sorted by power
-				std::cout << "DBG>   Min power: " << cur_part.front().value << std::endl;
+				std::cout << "DBG>   Min power: " << cur_part.second.front().value << std::endl;
 				// max value is represented by last bin, since the underlying data of power_values was sorted by power
-				std::cout << "DBG>   Max power: " << cur_part.back().value << std::endl;
+				std::cout << "DBG>   Max power: " << cur_part.second.back().value << std::endl;
 
 				if (DBG_VERBOSE) {
-					for (auto const& bin : cur_part) {
+					for (auto const& bin : cur_part.second) {
 						std::cout << "DBG>   Power[" << bin.x << "][" << bin.y << "]: " << bin.value << std::endl;
 					}
 				}
@@ -207,7 +301,11 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& lower_bound
 		for (i = lower_bound; i < upper_bound; i++) {
 			partition.push_back(power_values[i]);
 		}
-		this->power_partitions[layer].push_back(partition);
+		this->power_partitions[layer].push_back(
+				std::pair<std::string, std::vector<Bin>>(
+					std::string(std::to_string(lower_bound) + "," + std::to_string(upper_bound)),
+					partition
+				));
 		
 		return;
 	}
