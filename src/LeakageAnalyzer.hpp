@@ -29,7 +29,6 @@
 // Corblivar includes, if any
 #include "ThermalAnalyzer.hpp"
 // forward declarations, if any
-class Point;
 
 /// Corblivar thermal-related leakage analyzer
 class LeakageAnalyzer {
@@ -49,16 +48,17 @@ class LeakageAnalyzer {
 
 	// PODs, to be declared early on
 	public:
+		struct Bin {
+			int x;
+			int y;
+			double value;
+		};
 
 	// private data, functions
 	private:
-		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of power bins (of partition), related to indices
-		//of ThermalAnalyzer::power_maps_orig
-		std::vector< std::vector< std::vector<Point> > > power_partitions;
-
-		/// internal data used for partitioning, only for one layer at a time
-		/// Point encodes the x,y indices of the corresponding power-map bin
-		std::vector< std::pair<double, Point> > power_values;
+		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of bins (of partition), related to indices of
+		/// ThermalAnalyzer::power_maps_orig
+		std::vector< std::vector< std::vector<Bin> > > power_partitions;
 
 		/// nested-means based partitioning of power maps
 		///
@@ -71,7 +71,7 @@ class LeakageAnalyzer {
 		/// helper for recursive calls for partitioning of power maps
 		///
 		/// note that the upper bound is excluded
-		inline void partitionPowerMapHelper(unsigned lower_bound, unsigned upper_bound, int layer);
+		inline void partitionPowerMapHelper(unsigned const& lower_bound, unsigned const& upper_bound, int const& layer, std::vector<Bin> const& power_values);
 
 	// constructors, destructors, if any non-implicit
 	public:
