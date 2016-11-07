@@ -39,13 +39,16 @@ class LeakageAnalyzer {
 		/// debugging code switch (private)
 		static constexpr bool DBG_VERBOSE = false;
 		/// debugging code switch (private)
-		static constexpr bool DBG_GP = true;
+		static constexpr bool DBG_GP = false;
 
 	// public data
 	public:
 		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner vector: coordinates/indices of power bins (of partition), related to indices
 		//of ThermalAnalyzer::power_maps_orig
 		std::vector< std::vector< std::vector<Point> > > power_partitions;
+
+		/// minimal size of partitions, equal to 1% of power-map size/bins
+		static constexpr int MIN_PARTITION_SIZE = (ThermalAnalyzer::THERMAL_MAP_DIM * ThermalAnalyzer::THERMAL_MAP_DIM) / 100;
 
 	// PODs, to be declared early on
 	public:

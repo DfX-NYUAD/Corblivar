@@ -187,12 +187,18 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 	}
 
 	// check break criterion for recursive partitioning;
-	// 	trivial case: std dev is close to zero
-	// 	otherwise: lower and upper bounds do not stretch beyond avg +- std dev, i.e., no outliers
 	//
-	if (Math::doubleComp(0.0, std_dev) ||
-			this->power_values[lower_bound].first > (avg - std_dev) ||
-			this->power_values[upper_bound - 1].first < (avg + std_dev)
+	if (
+			// ideal case: std dev of this partition is reaching zero
+			Math::doubleComp(0.0, std_dev) ||
+			// also maintain (a ``soft'', see below) minimal partition size
+			//
+			// note that some partitions may be much smaller in case their previous cut was largely skewed towards one boundary; a possible mitigation here would be to
+			// implement the check as look-ahead, but this also triggers some partitions to have a rather large leakage in practice
+			(range < LeakageAnalyzer::MIN_PARTITION_SIZE)
+			// look-ahead may increase std dev too much
+//			((m - lower_bound) < LeakageAnalyzer::MIN_PARTITION_SIZE) ||
+//			((upper_bound - m) < LeakageAnalyzer::MIN_PARTITION_SIZE)
 	   ) {
 
 		// if criterion reached, then memorize this current partition
@@ -200,7 +206,7 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned lower_bound, unsig
 		
 		return;
 	}
-	// continue recursively as long as the std dev is decreasing
+	// continue recursively
 	//
 	else {
 		// determine cut: index of first value larger than avg
