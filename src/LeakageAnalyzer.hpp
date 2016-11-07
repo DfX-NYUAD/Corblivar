@@ -90,7 +90,7 @@ class LeakageAnalyzer {
 		//void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps);
 		
 		/// avg spatial entropy of original power maps, as proposed by Claramunt
-		double determineSpatialEntropies(int const& layers,
+		double determineSpatialEntropy(int const& layers,
 				std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig
 			);
 };

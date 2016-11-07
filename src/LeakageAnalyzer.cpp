@@ -27,7 +27,7 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 
-double LeakageAnalyzer::determineSpatialEntropies(int const& layers,
+double LeakageAnalyzer::determineSpatialEntropy(int const& layers,
 		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
 
 	double d_int;
@@ -98,7 +98,8 @@ double LeakageAnalyzer::determineSpatialEntropies(int const& layers,
 			// normalize to obtain avg dist; over all compared pairs of elements
 			d_ext /= (cur_part.second.size() *
 					// size of all other partitions taken together, equals whole grid minus this partition
-					(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2) - cur_part.second.size()));
+					(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2) - cur_part.second.size())
+				);
 
 			// calculate the partial entropy for this partition
 			//
@@ -131,7 +132,7 @@ double LeakageAnalyzer::determineSpatialEntropies(int const& layers,
 	}
 
 	// return avg entropy
-	return overall_entropy / layers;
+	return (overall_entropy / layers);
 }
 
 void LeakageAnalyzer::partitionPowerMaps(int const& layers,
