@@ -47,7 +47,7 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layers,
 
 		entropy = 0.0;
 
-		if (DBG) {
+		if (DBG_BASIC) {
 			std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
 		}
 
@@ -126,7 +126,7 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layers,
 		overall_entropy += entropy;
 
 		// dbg logging
-		if (DBG) {
+		if (DBG_BASIC) {
 			std::cout << "DBG> Overall entropy on layer " << layer << ": " << entropy << std::endl;
 		}
 	}

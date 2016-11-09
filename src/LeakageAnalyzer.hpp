@@ -36,6 +36,8 @@ class LeakageAnalyzer {
 		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 		/// debugging code switch (private)
+		static constexpr bool DBG_BASIC = true;
+		/// debugging code switch (private)
 		static constexpr bool DBG_VERBOSE = false;
 		/// debugging code switch (private)
 		static constexpr bool DBG_GP = false;
