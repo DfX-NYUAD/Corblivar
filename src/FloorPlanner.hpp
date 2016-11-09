@@ -427,6 +427,11 @@ class FloorPlanner {
 			return this->thermalAnalyzer;
 		};
 
+		/// getter; may edit leakageAnalyzer instance
+		inline LeakageAnalyzer& editLeakageAnalyzer() {
+			return this->leakageAnalyzer;
+		};
+
 		/// helper for die geometry
 		///
 		inline Point shrinkDieOutlines() {
