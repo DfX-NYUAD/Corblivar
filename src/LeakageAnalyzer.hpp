@@ -87,9 +87,11 @@ class LeakageAnalyzer {
 	public:
 		friend class IO;
 	
-		/// Pearson correlation of power and thermal maps
-		// TODO implement here as well, for power-blurring estimates
-		//void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps);
+		/// Pearson correlation of power and thermal map
+		static double determinePearsonCorr(
+				std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map,
+				std::array< std::array<ThermalAnalyzer::ThermalMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const* thermal_map
+			);
 		
 		/// avg spatial entropy of original power maps, as proposed by Claramunt
 		double determineSpatialEntropy(int const& layers,

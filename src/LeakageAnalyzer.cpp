@@ -328,3 +328,84 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& lower_bound
 		this->partitionPowerMapHelper(m, upper_bound, layer, power_values);
 	}
 }
+
+double LeakageAnalyzer::determinePearsonCorr(std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map, std::array< std::array<ThermalAnalyzer::ThermalMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const* thermal_map) {
+	double avg_power, avg_temp;
+	double max_temp;
+	double std_dev_power, std_dev_temp;
+	double cov;
+	double cur_power_dev, cur_temp_dev;
+	double correlation;
+
+	// sanity check for thermal map
+	if (thermal_map == nullptr) {
+		return std::nan(nullptr);
+	}
+
+	avg_power = avg_temp = 0.0;
+	max_temp = 0.0;
+	cov = std_dev_power = std_dev_temp = 0.0;
+	correlation = 0.0;
+
+	// first pass: determine avg values
+	//
+	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+			avg_power += power_map[x][y].power_density;
+			avg_temp += (*thermal_map)[x][y].temp;
+			max_temp = std::max(max_temp, (*thermal_map)[x][y].temp);
+		}
+	}
+	avg_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+	avg_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
+	// dbg output
+	if (DBG) {
+		std::cout << "DBG> Avg power: " << avg_power << std::endl;
+		std::cout << "DBG> Avg temp: " << avg_temp << std::endl;
+		std::cout << "DBG> Max temp: " << max_temp << std::endl;
+		std::cout << std::endl;
+	}
+	
+	// second pass: determine covariance and standard deviations
+	//
+	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+			// deviations of current values from avg values
+			cur_power_dev = power_map[x][y].power_density - avg_power;
+			cur_temp_dev = (*thermal_map)[x][y].temp - avg_temp;
+
+			// covariance
+			cov += cur_power_dev * cur_temp_dev;
+
+			// standard deviation, calculate its sqrt later on
+			std_dev_power += std::pow(cur_power_dev, 2.0);
+			std_dev_temp += std::pow(cur_temp_dev, 2.0);
+		}
+	}
+	cov /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+	std_dev_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+	std_dev_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+
+	std_dev_power = std::sqrt(std_dev_power);
+	std_dev_temp = std::sqrt(std_dev_temp);
+
+	// calculate Pearson correlation: covariance over product of standard deviations
+	//
+	correlation = cov / (std_dev_power * std_dev_temp);
+
+	// dbg output
+	if (DBG) {
+		std::cout << "DBG> Standard deviation of power: " << std_dev_power << std::endl;
+		std::cout << "DBG> Standard deviation of temp: " << std_dev_temp << std::endl;
+		std::cout << "DBG> Covariance of temp and power: " << cov << std::endl;
+		std::cout << std::endl;
+	}
+	if (DBG_BASIC) {
+		std::cout << "DBG> Pearson correlation of temp and power: " << correlation << std::endl;
+	}
+
+	return correlation;
+}

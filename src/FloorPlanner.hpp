@@ -423,8 +423,8 @@ class FloorPlanner {
 		};
 
 		/// getter
-		inline ThermalAnalyzer const& getThermalAnalyzer() const {
-			return this->thermalAnalyzer;
+		inline std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& getPowerMapsOrig() const {
+			return this->thermalAnalyzer.getPowerMapsOrig();
 		};
 
 		/// getter; may edit leakageAnalyzer instance
