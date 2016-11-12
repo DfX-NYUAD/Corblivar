@@ -28,15 +28,13 @@
 
 // logging flags
 static constexpr bool DBG = false;
-static constexpr bool VERBOSE = true;
 
 // type definitions, for shorter notation
-typedef	std::array< std::array<double, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> thermal_maps_layer_type;
+typedef	std::array< std::array<ThermalAnalyzer::ThermalMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> thermal_maps_layer_type;
 typedef	std::vector< thermal_maps_layer_type > thermal_maps_type;
 
 // forward declaration
 void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps);
-void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps);
 
 // (TODO) compare actual correlation to correlation estimation, resulting from power-blurring thermal analysis
 //
@@ -96,13 +94,25 @@ int main (int argc, char** argv) {
 	//
 	parseHotSpotFiles(fp, thermal_maps_HotSpot);
 
+
+	std::cout << "Leakage metrics" << std::endl;
+	std::cout << "---------------" << std::endl;
+	std::cout << std::endl;
+
 	// now, we may calculate the correlation of the power maps and thermal maps
 	//
-	calculatePearsonCorr(fp, thermal_maps_HotSpot);
+	for (int layer = 0; layer < fp.getLayers(); layer++) {
 
-	// also, calculate the spatial entropy
+		std::cout << "Pearson correlation of (HotSpot) temp and power for layer " << layer << ": "
+			<< LeakageAnalyzer::determinePearsonCorr(fp.getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer])
+			<< std::endl;
+		std::cout << std::endl;
+	}
+
+	// also, calculate and log the spatial entropy
 	//
-	fp.editLeakageAnalyzer().determineSpatialEntropy(fp.getLayers(), fp.getThermalAnalyzer().getPowerMapsOrig());
+	std::cout << "Avg Spatial entropy of power maps: " << fp.editLeakageAnalyzer().determineSpatialEntropy(fp.getLayers(), fp.getPowerMapsOrig()) << std::endl;
+	std::cout << std::endl;
 }
 
 void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
@@ -146,93 +156,16 @@ void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 			}
 
 			// memorize temp values in thermal map
-			thermal_maps[layer][x][y] = temp;
+			thermal_maps[layer][x][y].temp = temp;
 
 			// DBG output
 			if (DBG) {
-				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << thermal_maps[layer][x][y] << std::endl;
-				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density << std::endl;
+				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << thermal_maps[layer][x][y].temp << std::endl;
+				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getPowerMapsOrig()[layer][x][y].power_density << std::endl;
 			}
 		}
 
 		// close file
 		layer_file.close();
-	}
-}
-
-void calculatePearsonCorr(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
-	double avg_power, avg_temp;
-	double max_temp;
-	double std_dev_power, std_dev_temp;
-	double cov;
-	double cur_power_dev, cur_temp_dev;
-	double correlation;
-
-	for (int layer = 0; layer < fp.getLayers(); layer++) {
-
-		avg_power = avg_temp = 0.0;
-		max_temp = 0.0;
-		cov = std_dev_power = std_dev_temp = 0.0;
-		correlation = 0.0;
-
-		// first pass: determine avg values
-		//
-		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-
-				avg_power += fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density;
-				avg_temp += thermal_maps[layer][x][y];
-				max_temp = std::max(max_temp, thermal_maps[layer][x][y]);
-			}
-		}
-		avg_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-		avg_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-
-		// VERBOSE output
-		if (VERBOSE) {
-			std::cout << "Avg power for layer " << layer << ": " << avg_power << std::endl;
-			std::cout << "Avg temp for layer " << layer << ": " << avg_temp << std::endl;
-			std::cout << "Max temp for layer " << layer << ": " << max_temp << std::endl;
-			std::cout << std::endl;
-		}
-		
-		// second pass: determine covariance and standard deviations
-		//
-		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
-
-				// deviations of current values from avg values
-				cur_power_dev = fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density - avg_power;
-				cur_temp_dev = thermal_maps[layer][x][y] - avg_temp;
-
-				// covariance
-				cov += cur_power_dev * cur_temp_dev;
-
-				// standard deviation, calculate its sqrt later on
-				std_dev_power += std::pow(cur_power_dev, 2.0);
-				std_dev_temp += std::pow(cur_temp_dev, 2.0);
-			}
-		}
-		cov /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-		std_dev_power /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-		std_dev_temp /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-
-		std_dev_power = std::sqrt(std_dev_power);
-		std_dev_temp = std::sqrt(std_dev_temp);
-
-		// calculate Pearson correlation: covariance over product of standard deviations
-		//
-		correlation = cov / (std_dev_power * std_dev_temp);
-
-		// VERBOSE output
-		if (VERBOSE) {
-			std::cout << "Standard deviation of power for layer " << layer << ": " << std_dev_power << std::endl;
-			std::cout << "Standard deviation of temp for layer " << layer << ": " << std_dev_temp << std::endl;
-			std::cout << "Covariance of temp and power for layer " << layer << ": " << cov << std::endl;
-			std::cout << std::endl;
-		}
-
-		std::cout << "Pearson correlation of temp and power for layer " << layer << ": " << correlation << std::endl;
-		std::cout << std::endl;
 	}
 }
