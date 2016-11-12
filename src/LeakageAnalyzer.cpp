@@ -27,217 +27,204 @@
 // required Corblivar headers
 #include "ThermalAnalyzer.hpp"
 
-double LeakageAnalyzer::determineSpatialEntropy(int const& layers,
-		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
-
+double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
 	double d_int;
 	double d_ext;
-	double cur_entropy, entropy, overall_entropy;
+	double cur_entropy, entropy;
 	double ratio_bins;
 
-	overall_entropy = 0.0;
-
-	// first, the power maps have to be partitioned/classified
+	// first, the power map has to be partitioned/classified
 	//
-	this->partitionPowerMaps(layers, power_maps_orig);
+	this->partitionPowerMap(layer, power_map);
 
-	// calculate spatial entropy for each layer separately
+	if (DBG_BASIC) {
+		std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
+	}
+
+	// calculate spatial entropy for each partition and sum it up
 	//
-	for (int layer = 0; layer < layers; layer++) {
+	entropy = 0.0;
+	for (auto const& cur_part : this->power_partitions[layer]) {
 
-		entropy = 0.0;
-
-		if (DBG_BASIC) {
-			std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
-		}
-
-		// calculate the avg internal and external distances for all partitions
+		// first, calculate the avg internal and external distances for partition
 		//
-		for (auto const& cur_part : this->power_partitions[layer]) {
+		// internal distance: distance between all elements in same partition
+		//
+		d_int = 0.0;
+		for (auto const& b1 : cur_part.second) {
+			for (auto const& b2 : cur_part.second) {
 
-			// internal distance: distance between all elements in same partition
-			//
-			d_int = 0.0;
-			for (auto const& b1 : cur_part.second) {
-				for (auto const& b2 : cur_part.second) {
+				// ignore comparison with itself
+				if (b1.x == b2.x && b1.y == b2.y) {
+					continue;
+				}
 
-					// ignore comparison with itself
-					if (b1.x == b2.x && b1.y == b2.y) {
-						continue;
-					}
+				// Manhattan distance should suffice for grid coordinates/distances
+				//
+				d_int += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+			}
+		}
+		// normalize to obtain avg dist; over all compared pairs of elements
+		d_int /= (cur_part.second.size() * (cur_part.second.size() - 1));
+
+		// external distance: distance between all elements in this current partition and all elements in all other partitions
+		//
+		d_ext = 0.0;
+		for (auto const& b1 : cur_part.second) {
+
+			for (auto const& other_part : this->power_partitions[layer]) {
+
+				// ignore comparison with same partition, check their id
+				if (cur_part.first == other_part.first) {
+					continue;
+				}
+
+				// calculate distance to every element of other partition
+				for (auto const& b2 : other_part.second) {
 
 					// Manhattan distance should suffice for grid coordinates/distances
 					//
-					d_int += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+					d_ext += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
 				}
 			}
-			// normalize to obtain avg dist; over all compared pairs of elements
-			d_int /= (cur_part.second.size() * (cur_part.second.size() - 1));
-
-			// external distance: distance between all elements in this current partition and all elements in all other partitions
-			//
-			d_ext = 0.0;
-			for (auto const& b1 : cur_part.second) {
-
-				for (auto const& other_part : this->power_partitions[layer]) {
-
-					// ignore comparison with same partition, check their id
-					if (cur_part.first == other_part.first) {
-						continue;
-					}
-
-					// calculate distance to every element of other partition
-					for (auto const& b2 : other_part.second) {
-
-						// Manhattan distance should suffice for grid coordinates/distances
-						//
-						d_ext += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
-					}
-				}
-			}
-			// normalize to obtain avg dist; over all compared pairs of elements
-			d_ext /= (cur_part.second.size() *
-					// size of all other partitions taken together, equals whole grid minus this partition
-					(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2) - cur_part.second.size())
-				);
-
-			// calculate the partial entropy for this partition
-			//
-			ratio_bins = cur_part.second.size() / std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
-			cur_entropy = (d_int / d_ext) * ratio_bins * std::log2(ratio_bins);
-
-			// dbg logging
-			if (DBG) {
-				std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
-				std::cout << "DBG>   Avg internal dist: " << d_int << std::endl;
-				std::cout << "DBG>   Avg external dist: " << d_ext << std::endl;
-				std::cout << "DBG>   Partial entropy: " << cur_entropy << std::endl;
-			}
-
-			// sum up the entropy; consider current's partition impact
-			//
-			entropy += cur_entropy;
 		}
+		// normalize to obtain avg dist; over all compared pairs of elements
+		d_ext /= (cur_part.second.size() *
+				// size of all other partitions taken together, equals whole grid minus this partition
+				(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2) - cur_part.second.size())
+			);
 
-		// entropy has negative sign
-		entropy *= -1;
-
-		// sum up entropy over layers
-		overall_entropy += entropy;
+		// now, calculate the partial entropy for this partition
+		//
+		ratio_bins = cur_part.second.size() / std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+		cur_entropy = (d_int / d_ext) * ratio_bins * std::log2(ratio_bins);
 
 		// dbg logging
-		if (DBG_BASIC) {
-			std::cout << "DBG> Overall entropy on layer " << layer << ": " << entropy << std::endl;
+		if (DBG) {
+			std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
+			std::cout << "DBG>   Avg internal dist: " << d_int << std::endl;
+			std::cout << "DBG>   Avg external dist: " << d_ext << std::endl;
+			std::cout << "DBG>   Partial entropy: " << cur_entropy << std::endl;
 		}
+
+		// sum up the entropy; consider current's partition impact
+		//
+		entropy += cur_entropy;
 	}
 
-	// return avg entropy
-	return (overall_entropy / layers);
+	// entropy has negative sign
+	entropy *= -1;
+
+	// dbg logging
+	if (DBG_BASIC) {
+		std::cout << "DBG> Overall entropy: " << entropy << std::endl;
+	}
+
+	return entropy;
 }
 
-void LeakageAnalyzer::partitionPowerMaps(int const& layers,
-		std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig) {
+void LeakageAnalyzer::partitionPowerMap(int const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
 	double power_avg;
 	double power_std_dev;
 	unsigned m;
-	// layer-wise power values
 	std::vector<Bin> power_values;
 
-	this->power_partitions.clear();
-
-	for (int layer = 0; layer < layers; layer++) {
+	// check if vector for this layer is to be allocated first
+	if (this->power_partitions.size() <= static_cast<unsigned>(layer)) {
 
 		// allocate empty vector for current layer
 		this->power_partitions.push_back(
 				// vector of partitions in this layer
 				std::vector< std::pair<std::string, std::vector<Bin>> >()
 			);
+	}
+	// otherwise clear previously used vector
+	else {
+		this->power_partitions[layer].clear();
+	}
 
-		// put power values along with their coordinates into vector; also track avg power
-		//
-		power_values.clear();
-		power_values.reserve(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2));
-		power_avg = 0.0;
-		for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-			for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+	// put power values along with their coordinates into vector; also track avg power
+	//
+	power_values.reserve(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2));
+	power_avg = 0.0;
+	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
-				power_values.push_back({
-						x, y,
-						power_maps_orig[layer][x][y].power_density
-					});
+			power_values.push_back({
+					x, y,
+					power_map[x][y].power_density
+				});
 
-				power_avg += power_values.back().value;
-			}
+			power_avg += power_values.back().value;
 		}
-		power_avg /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
+	}
+	power_avg /= std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2);
 
-		// sort vector according to power values
-		std::sort(power_values.begin(), power_values.end(),
-				// lambda expression
-				[&](Bin b1, Bin b2) {
-					return b1.value < b2.value;
-				}
-			 );
-
-		if (DBG_VERBOSE) {
-			for (auto const& p : power_values) {
-				std::cout << "DBG>  Power[" << p.x << "][" << p.y << "]: " << p.value << std::endl;
+	// sort vector according to power values
+	std::sort(power_values.begin(), power_values.end(),
+			// lambda expression
+			[&](Bin b1, Bin b2) {
+				return b1.value < b2.value;
 			}
-		}
+		 );
 
-		// determine first cut: index of first value larger than avg
-		for (m = 0; m < power_values.size(); m++) {
+	if (DBG_VERBOSE) {
+		for (auto const& p : power_values) {
+			std::cout << "DBG>  Power[" << p.x << "][" << p.y << "]: " << p.value << std::endl;
+		}
+	}
+
+	// determine first cut: index of first value larger than avg
+	for (m = 0; m < power_values.size(); m++) {
+		
+		if (power_values[m].value > power_avg) {
+			break;
+		}
+	}
+
+	// start recursive calls; partition these two ranges iteratively further
+	//
+	// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
+	this->partitionPowerMapHelper(layer, 0, m, power_values);
+	this->partitionPowerMapHelper(layer, m, power_values.size(), power_values);
+
+	// now, all partitions along with their power bins are determined and stored in power_partitions
+	//
+
+	// dbg logging
+	if (DBG) {
+		std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
+
+		for (auto const& cur_part : this->power_partitions[layer]) {
+
+			// determine avg power for current partition
+			power_avg = 0.0;
+			for (auto const& bin : cur_part.second) {
+				power_avg += bin.value;
+			}
+			power_avg /= cur_part.second.size();
+
+			// determine sum of squared diffs for std dev
+			power_std_dev = 0.0;
+			for (auto const& bin : cur_part.second) {
+				power_std_dev += std::pow(bin.value - power_avg, 2.0);
+			}
+			// determine std dev
+			power_std_dev /= cur_part.second.size();
+			power_std_dev = std::sqrt(power_std_dev);
 			
-			if (power_values[m].value > power_avg) {
-				break;
-			}
-		}
+			std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
+			std::cout << "DBG>   Size: " << cur_part.second.size() << std::endl;
+			std::cout << "DBG>   Std dev power: " << power_std_dev << std::endl;
+			std::cout << "DBG>   Avg power: " << power_avg << std::endl;
+			// min value is represented by first bin, since the underlying data of power_values was sorted by power
+			std::cout << "DBG>   Min power: " << cur_part.second.front().value << std::endl;
+			// max value is represented by last bin, since the underlying data of power_values was sorted by power
+			std::cout << "DBG>   Max power: " << cur_part.second.back().value << std::endl;
 
-		// start recursive calls; partition these two ranges iteratively further
-		//
-		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
-		this->partitionPowerMapHelper(0, m, layer, power_values);
-		this->partitionPowerMapHelper(m, power_values.size(), layer, power_values);
-
-		// now, all partitions along with their power bins are determined and stored in power_partitions
-		//
-
-
-		// dbg logging
-		if (DBG) {
-			std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
-
-			for (auto const& cur_part : this->power_partitions[layer]) {
-
-				// determine avg power for current partition
-				power_avg = 0.0;
+			if (DBG_VERBOSE) {
 				for (auto const& bin : cur_part.second) {
-					power_avg += bin.value;
-				}
-				power_avg /= cur_part.second.size();
-
-				// determine sum of squared diffs for std dev
-				power_std_dev = 0.0;
-				for (auto const& bin : cur_part.second) {
-					power_std_dev += std::pow(bin.value - power_avg, 2.0);
-				}
-				// determine std dev
-				power_std_dev /= cur_part.second.size();
-				power_std_dev = std::sqrt(power_std_dev);
-				
-				std::cout << "DBG>  Partition: " << cur_part.first << std::endl;
-				std::cout << "DBG>   Size: " << cur_part.second.size() << std::endl;
-				std::cout << "DBG>   Std dev power: " << power_std_dev << std::endl;
-				std::cout << "DBG>   Avg power: " << power_avg << std::endl;
-				// min value is represented by first bin, since the underlying data of power_values was sorted by power
-				std::cout << "DBG>   Min power: " << cur_part.second.front().value << std::endl;
-				// max value is represented by last bin, since the underlying data of power_values was sorted by power
-				std::cout << "DBG>   Max power: " << cur_part.second.back().value << std::endl;
-
-				if (DBG_VERBOSE) {
-					for (auto const& bin : cur_part.second) {
-						std::cout << "DBG>   Power[" << bin.x << "][" << bin.y << "]: " << bin.value << std::endl;
-					}
+					std::cout << "DBG>   Power[" << bin.x << "][" << bin.y << "]: " << bin.value << std::endl;
 				}
 			}
 		}
@@ -245,7 +232,7 @@ void LeakageAnalyzer::partitionPowerMaps(int const& layers,
 }
 
 /// note that power_partitions are updated in this function
-inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& lower_bound, unsigned const& upper_bound, int const& layer, std::vector<Bin> const& power_values) {
+inline void LeakageAnalyzer::partitionPowerMapHelper(int const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values) {
 	double avg, std_dev;
 	unsigned range;
 	unsigned m, i;
@@ -324,8 +311,8 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& lower_bound
 
 		// recursive call for the two new sub-partitions
 		// note that upper-boundary element is left out for actual calculations, but required as upper boundary for traversal of data structures
-		this->partitionPowerMapHelper(lower_bound, m, layer, power_values);
-		this->partitionPowerMapHelper(m, upper_bound, layer, power_values);
+		this->partitionPowerMapHelper(layer, lower_bound, m, power_values);
+		this->partitionPowerMapHelper(layer, m, upper_bound, power_values);
 	}
 }
 

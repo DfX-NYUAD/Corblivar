@@ -99,7 +99,7 @@ int main (int argc, char** argv) {
 	std::cout << "---------------" << std::endl;
 	std::cout << std::endl;
 
-	// now, we may calculate the correlation of the power maps and thermal maps
+	// now, we may calculate the correlation and spatial entropy
 	//
 	for (int layer = 0; layer < fp.getLayers(); layer++) {
 
@@ -107,12 +107,11 @@ int main (int argc, char** argv) {
 			<< LeakageAnalyzer::determinePearsonCorr(fp.getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer])
 			<< std::endl;
 		std::cout << std::endl;
-	}
 
-	// also, calculate and log the spatial entropy
-	//
-	std::cout << "Avg Spatial entropy of power maps: " << fp.editLeakageAnalyzer().determineSpatialEntropy(fp.getLayers(), fp.getPowerMapsOrig()) << std::endl;
-	std::cout << std::endl;
+		std::cout << "Spatial entropy of power map for layer " << layer << ": "
+			<< fp.editLeakageAnalyzer().determineSpatialEntropy(layer, fp.getPowerMapsOrig()[layer]) << std::endl;
+		std::cout << std::endl;
+	}
 }
 
 void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {

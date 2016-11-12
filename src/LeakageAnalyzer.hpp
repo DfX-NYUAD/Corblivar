@@ -36,7 +36,7 @@ class LeakageAnalyzer {
 		/// debugging code switch (private)
 		static constexpr bool DBG = false;
 		/// debugging code switch (private)
-		static constexpr bool DBG_BASIC = true;
+		static constexpr bool DBG_BASIC = false;
 		/// debugging code switch (private)
 		static constexpr bool DBG_VERBOSE = false;
 		/// debugging code switch (private)
@@ -58,27 +58,21 @@ class LeakageAnalyzer {
 
 	// private data, functions
 	private:
-		/// power partitions; outer vector: layers, middle vector: partitions (of layer), inner pair: id and vector of coordinates/indices of bins (of partition), related
-		//to indices of
-		/// ThermalAnalyzer::power_maps_orig
-		std::vector<
-			std::vector<
-				std::pair<std::string, std::vector<Bin>>
-				>
-			> power_partitions;
+		/// power partitions; outer vector: layers; middle vector: partitions (of layer), inner pair: id and vector of coordinates/indices of bins (of partition), related
+		/// to indices of ThermalAnalyzer::power_maps_orig
+		std::vector< std::vector< std::pair<std::string, std::vector<Bin>> > > power_partitions;
 
 		/// nested-means based partitioning of power maps
 		///
 		/// the values of power maps are sorted in a 1D data structure and then ``natural'' breaks are determined by
 		/// recursively bi-partitioning these values, where the mean is the boundary; the partitioning stops once the min/max values are
-		void partitionPowerMaps(int const& layers,
-				std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig
-			);
+		void partitionPowerMap(int const& layer,
+				std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map);
 
 		/// helper for recursive calls for partitioning of power maps
 		///
 		/// note that the upper bound is excluded
-		inline void partitionPowerMapHelper(unsigned const& lower_bound, unsigned const& upper_bound, int const& layer, std::vector<Bin> const& power_values);
+		inline void partitionPowerMapHelper(int const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values);
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -93,9 +87,9 @@ class LeakageAnalyzer {
 				std::array< std::array<ThermalAnalyzer::ThermalMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const* thermal_map
 			);
 		
-		/// avg spatial entropy of original power maps, as proposed by Claramunt
-		double determineSpatialEntropy(int const& layers,
-				std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& power_maps_orig
+		/// Spatial entropy of original power map, as proposed by Claramunt
+		double determineSpatialEntropy(int const& layer,
+				std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map
 			);
 };
 

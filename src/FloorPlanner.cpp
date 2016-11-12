@@ -836,9 +836,12 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 	}
 
-	// TODO integrate properly as cost function, along with Pearson correlation
-	this->leakageAnalyzer.determineSpatialEntropy(this->IC.layers, this->thermalAnalyzer.getPowerMapsOrig());
-	this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
+// TODO integrate properly as cost function, along with Pearson correlation
+for (int d = 0; d < this->IC.layers; d++) {
+	this->leakageAnalyzer.determineSpatialEntropy(d, this->thermalAnalyzer.getPowerMapsOrig()[d]);
+}
+// power blurring provides only the thermal map for the lowermost die 0, hence the correlation can also be only calculated for this die
+this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
 
 	// thermal-analysis files
 	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {
