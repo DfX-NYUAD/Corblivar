@@ -41,6 +41,7 @@ void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps);
 int main (int argc, char** argv) {
 	FloorPlanner fp;
 	thermal_maps_type thermal_maps_HotSpot;
+	double corr, entropy;
 
 	std::cout << std::endl;
 	std::cout << "Thermal Side-Channel Leakage Verification: Determine Entropy and Correlation of Power and Thermal Maps" << std::endl;
@@ -103,13 +104,13 @@ int main (int argc, char** argv) {
 	//
 	for (int layer = 0; layer < fp.getLayers(); layer++) {
 
-		std::cout << "Pearson correlation of (HotSpot) temp and power for layer " << layer << ": "
-			<< LeakageAnalyzer::determinePearsonCorr(fp.getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer])
-			<< std::endl;
+		corr = LeakageAnalyzer::determinePearsonCorr(fp.getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer]);
+		entropy = fp.editLeakageAnalyzer().determineSpatialEntropy(layer, fp.getPowerMapsOrig()[layer]);
+
+		std::cout << "Pearson correlation of (HotSpot) temp and power for layer " << layer << ": " << corr << std::endl;
 		std::cout << std::endl;
 
-		std::cout << "Spatial entropy of power map for layer " << layer << ": "
-			<< fp.editLeakageAnalyzer().determineSpatialEntropy(layer, fp.getPowerMapsOrig()[layer]) << std::endl;
+		std::cout << "Spatial entropy of power map for layer " << layer << ": "	<< entropy << std::endl;
 		std::cout << std::endl;
 	}
 }
