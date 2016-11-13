@@ -175,18 +175,18 @@ class FloorPlanner {
 
 		/// SA parameters: optimization flags
 		struct opt_flags {
-			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing, alignment_WL_estimate;
+			bool thermal, interconnects, routing_util, alignment, voltage_assignment, timing, alignment_WL_estimate, thermal_leakage;
 		} opt_flags;
 
 		/// SA parameters: cost factors/weights
 		struct weights {
-			double area_outline, thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment;
+			double area_outline, thermal, WL, TSVs, alignment, routing_util, timing, voltage_assignment, thermal_leakage;
 		} weights;
 
 		/// SA cost variables: max cost values
 		///
 		// (TODO) refactor into own struct
-		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment;
+		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment, max_cost_entropy, max_cost_correlation;
 		int max_cost_TSVs;
 
 		/// SA cost; POD declaration
@@ -222,6 +222,10 @@ class FloorPlanner {
 			unsigned voltage_assignment_modules_count;
 			double voltage_assignment_corners_avg__merged;
 			unsigned voltage_assignment_modules_count__merged;
+			double thermal_leakage_entropy;
+			double thermal_leakage_entropy_actual_value;
+			double thermal_leakage_correlation;
+			double thermal_leakage_correlation_actual_value;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/
 			friend std::ostream& operator<< (std::ostream& out, Cost const& cost) {
@@ -238,6 +242,9 @@ class FloorPlanner {
 				bool const& finalize = false);
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateThermalDistr(Cost& cost,
+				bool const& set_max_cost = false);
+		/// SA: cost functions, i.e., layout-evaluations
+		void evaluateLeakage(Cost& cost,
 				bool const& set_max_cost = false);
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateAlignments(Cost& cost,

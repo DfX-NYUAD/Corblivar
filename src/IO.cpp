@@ -476,6 +476,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// technology file is parsed
 	fp.opt_flags.voltage_assignment = fp.weights.voltage_assignment > 0.0;
 
+//TODO proper parsing
+fp.weights.thermal_leakage = 0.2;
+fp.opt_flags.thermal_leakage = true;
+
 	// sanity check for positive cost factors
 	if (
 		fp.weights.thermal < 0.0 ||
@@ -484,7 +488,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		fp.weights.TSVs < 0.0 ||
 		fp.weights.alignment < 0.0 ||
 		fp.weights.timing < 0.0 ||
-		fp.weights.voltage_assignment < 0.0
+		fp.weights.voltage_assignment < 0.0 ||
+		fp.weights.thermal_leakage < 0.0
 	) {
 		std::cout << "IO> Provide positive cost factors!" << std::endl;
 		exit(1);
@@ -499,7 +504,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			fp.weights.TSVs +
 			fp.weights.alignment +
 			fp.weights.timing +
-			fp.weights.voltage_assignment
+			fp.weights.voltage_assignment +
+			fp.weights.thermal_leakage
 	- 1.0) > 0.1) {
 		std::cout << "IO> Cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);

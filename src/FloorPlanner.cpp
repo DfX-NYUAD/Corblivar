@@ -412,6 +412,12 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 				std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
 			}
 
+			if (this->opt_flags.thermal_leakage) {
+
+				std::cout << "SA>    Thermal leakage; avg spatial entropy of power maps: " << cost.thermal_leakage_entropy_actual_value << std::endl;
+				std::cout << "SA>    Thermal leakage; Pearson correlation of power and thermal map for lowest layer: " << cost.thermal_leakage_correlation_actual_value << std::endl;
+			}
+
 			std::cout << "SA>  Accept-ops ratio: " << accepted_ops_ratio << std::endl;
 			std::cout << "SA>  Valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
 			std::cout << "SA>  Avg cost: " << avg_cost << std::endl;
@@ -816,6 +822,15 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << "  Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << std::endl;
 			}
+
+			if (this->opt_flags.thermal_leakage) {
+				std::cout << "Corblivar> Thermal leakage: " << std::endl;
+				std::cout << "Corblivar>  Avg spatial entropy of power maps: " << cost.thermal_leakage_entropy_actual_value << std::endl;
+				std::cout << "Corblivar>  Pearson correlation of power and thermal map for lowest layer: " << cost.thermal_leakage_correlation_actual_value << std::endl;
+				this->IO_conf.results << "Thermal leakage: " << std::endl;
+				this->IO_conf.results << " Avg spatial entropy of power maps: " << cost.thermal_leakage_entropy_actual_value << std::endl;
+				this->IO_conf.results << " Pearson correlation of power and thermal map for lowest layer: " << cost.thermal_leakage_correlation_actual_value << std::endl;
+			}
 		}
 	}
 
@@ -1021,6 +1036,20 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			cost.thermal = cost.thermal_actual_value = 0.0;
 		}
 
+		// thermal-related leakage of power patterns; based on spatial entropy of power maps and on Pearson correlation of power and thermal maps
+		//
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize && this->opt_flags.thermal_leakage) {
+			this->evaluateLeakage(cost, true);
+		}
+		else if (this->opt_flags.thermal_leakage) {
+			this->evaluateLeakage(cost, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
+		else {
+			cost.thermal_leakage_entropy = cost.thermal_leakage_correlation = 0.0;
+		}
+
 		// for finalize calls, re-determine interconnects and the resulting
 		// thermal profile in order to properly model hotspot cluster and TSV
 		// islands; the final / best solution's thermal distribution---which was
@@ -1040,6 +1069,11 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			// power-density and thermal maps which may be helpful for other
 			// (debugging) purposes
 			this->evaluateThermalDistr(cost);
+
+			// also perform final leakage evaluation, if required
+			if (this->opt_flags.thermal_leakage) {
+				this->evaluateLeakage(cost);
+			}
 		}
 
 		// sanity check for reasonable thermal cost
@@ -1055,6 +1089,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			+ this->weights.thermal * cost.thermal
 			+ this->weights.voltage_assignment * cost.voltage_assignment
 			+ this->weights.timing * cost.timing
+			// global leakage weight is evenly distributed for entropy and correlation
+			+ (this->weights.thermal_leakage / 2.0) * cost.thermal_leakage_entropy
+			+ (this->weights.thermal_leakage / 2.0) * cost.thermal_leakage_correlation
 			// area, outline cost is already weighted
 			+ cost.area_outline;
 
@@ -1066,6 +1103,9 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			+ this->weights.thermal * cost.thermal
 			+ this->weights.voltage_assignment * cost.voltage_assignment
 			+ this->weights.timing * cost.timing
+			// global leakage weight is evenly distributed for entropy and correlation
+			+ (this->weights.thermal_leakage / 2.0) * cost.thermal_leakage_entropy
+			+ (this->weights.thermal_leakage / 2.0) * cost.thermal_leakage_correlation
 			// consider only area term for fitting ratio 1.0, see evaluateAreaOutline
 			+ cost.area_actual_value * this->weights.area_outline;
 	}
@@ -1081,6 +1121,8 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		std::cout << "DBG_LAYOUT>  Thermal cost: " << cost.thermal << std::endl;
 		std::cout << "DBG_LAYOUT>  Timing cost: " << cost.timing << std::endl;
 		std::cout << "DBG_LAYOUT>  Voltage-assignment cost: " << cost.voltage_assignment << std::endl;
+		std::cout << "DBG_LAYOUT>  Thermal-leakage cost; spatial entropy: " << cost.thermal_leakage_entropy << std::endl;
+		std::cout << "DBG_LAYOUT>  Thermal-leakage cost; Pearson correlation: " << cost.thermal_leakage_correlation << std::endl;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -1319,15 +1361,38 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	cost.thermal = this->thermal_analysis.cost_temp / this->max_cost_thermal;
 	// store actual temp value
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
-
-// TODO integrate properly as cost function
-//
-for (int d = 0; d < this->IC.layers; d++) {
-	this->leakageAnalyzer.determineSpatialEntropy(d, this->thermalAnalyzer.getPowerMapsOrig()[d]);
 }
-// power blurring provides only the thermal map for the lowermost die 0, hence the correlation can also be only calculated for this die
-this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
-};
+
+void FloorPlanner::evaluateLeakage(Cost& cost, bool const& set_max_cost) {
+	double entropy;
+	double correlation;
+
+	// Avg spatial entropy
+	entropy = 0.0;
+	for (int d = 0; d < this->IC.layers; d++) {
+		entropy += this->leakageAnalyzer.determineSpatialEntropy(d, this->thermalAnalyzer.getPowerMapsOrig()[d]);
+	}
+	entropy /= this->IC.layers;
+
+	// Pearson correlation of power map and thermal map
+	//
+	// power blurring provides only the thermal map for the lowermost die 0, hence the correlation can also be only calculated for this die
+	correlation = this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
+
+	// memorize max cost; initial sampling
+	if (set_max_cost) {
+		this->max_cost_entropy = entropy;
+		this->max_cost_correlation = correlation;
+	}
+
+	// store normalized cost
+	cost.thermal_leakage_entropy = entropy / this->max_cost_entropy;
+	cost.thermal_leakage_correlation = correlation / this->max_cost_correlation;
+
+	// store actual values
+	cost.thermal_leakage_entropy_actual_value = entropy;
+	cost.thermal_leakage_correlation_actual_value = correlation;
+}
 
 /// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
 /// of feasible solutions (solutions fitting into outline), leveraged from Chen et al 2006
