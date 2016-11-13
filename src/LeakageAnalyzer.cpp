@@ -28,7 +28,8 @@
 #include "ThermalAnalyzer.hpp"
 
 double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
-	double d_int, cur_d_int;
+	double d_int;
+	int cur_d_int;
 	double d_ext;
 	double cur_entropy, entropy;
 	double ratio_bins;
@@ -58,13 +59,14 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 
 			// for calculation of internal distances, compare each bin to all other bins in partition
 			//
-			cur_d_int = 0.0;
+			cur_d_int = 0;
 			for (auto const& b2 : cur_part.second) {
 
-				// ignore comparison with itself
-				if (b1.x == b2.x && b1.y == b2.y) {
-					continue;
-				}
+				// incurs larger overhead than simply adding internal distance of 0 for one bin to itself
+				//// ignore comparison with itself
+				//if (b1.x == b2.x && b1.y == b2.y) {
+				//	continue;
+				//}
 
 				// use look-up table/array for x and y dimensions separately
 				cur_d_int += this->distances[b1.x][b2.x];
