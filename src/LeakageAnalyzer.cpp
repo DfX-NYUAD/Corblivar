@@ -61,7 +61,9 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 
 				// Manhattan distance should suffice for grid coordinates/distances
 				//
-				d_int += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+				// use look-up table/matrix for x and y dimensions separately
+				d_int += this->distances[b1.x][b2.x];
+				d_int += this->distances[b1.y][b2.y];
 			}
 		}
 		// normalize to obtain avg dist; over all compared pairs of elements
@@ -84,7 +86,9 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 
 					// Manhattan distance should suffice for grid coordinates/distances
 					//
-					d_ext += std::abs(b1.x - b2.x) + std::abs(b1.y - b2.y);
+					// use look-up table/matrix for x and y dimensions separately
+					d_ext += this->distances[b1.x][b2.x];
+					d_ext += this->distances[b1.y][b2.y];
 				}
 			}
 		}
@@ -147,8 +151,8 @@ void LeakageAnalyzer::partitionPowerMap(int const& layer, std::array< std::array
 	//
 	power_values.reserve(std::pow(ThermalAnalyzer::THERMAL_MAP_DIM, 2));
 	power_avg = 0.0;
-	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+	for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			power_values.push_back({
 					x, y,
