@@ -836,13 +836,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 		}
 	}
 
-// TODO integrate properly as cost function, along with Pearson correlation
-for (int d = 0; d < this->IC.layers; d++) {
-	this->leakageAnalyzer.determineSpatialEntropy(d, this->thermalAnalyzer.getPowerMapsOrig()[d]);
-}
-// power blurring provides only the thermal map for the lowermost die 0, hence the correlation can also be only calculated for this die
-this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
-
 	// thermal-analysis files
 	if ((!handle_corblivar || valid_solution) && this->IO_conf.power_density_file_avail) {
 		// generate power, thermal, routing-utilization and TSV-density maps
@@ -1326,6 +1319,14 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	cost.thermal = this->thermal_analysis.cost_temp / this->max_cost_thermal;
 	// store actual temp value
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
+
+// TODO integrate properly as cost function
+//
+for (int d = 0; d < this->IC.layers; d++) {
+	this->leakageAnalyzer.determineSpatialEntropy(d, this->thermalAnalyzer.getPowerMapsOrig()[d]);
+}
+// power blurring provides only the thermal map for the lowermost die 0, hence the correlation can also be only calculated for this die
+this->leakageAnalyzer.determinePearsonCorr(this->thermalAnalyzer.getPowerMapsOrig()[0], this->thermal_analysis.thermal_map);
 };
 
 /// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
