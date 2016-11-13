@@ -186,7 +186,7 @@ class FloorPlanner {
 		/// SA cost variables: max cost values
 		///
 		// (TODO) refactor into own struct
-		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment, max_cost_entropy, max_cost_correlation;
+		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment, max_cost_thermal_leakage;
 		int max_cost_TSVs;
 
 		/// SA cost; POD declaration
@@ -219,12 +219,12 @@ class FloorPlanner {
 			double voltage_assignment;
 			double voltage_assignment_power_saving;
 			double voltage_assignment_corners_avg;
+			double voltage_assignment_power_variation_avg;
 			unsigned voltage_assignment_modules_count;
 			double voltage_assignment_corners_avg__merged;
 			unsigned voltage_assignment_modules_count__merged;
-			double thermal_leakage_entropy;
+			double thermal_leakage;
 			double thermal_leakage_entropy_actual_value;
-			double thermal_leakage_correlation;
 			double thermal_leakage_correlation_actual_value;
 
 			// http://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/

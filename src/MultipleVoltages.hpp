@@ -68,6 +68,8 @@ class MultipleVoltages {
 			double weight_corners;
 			/// internal weights, used for internal cost terms
 			double weight_modules_count;
+			/// internal weights, used for internal cost terms
+			double weight_modules_variation;
 		} parameters;
 
 		/// max evaluation values have to memorized as well, in order to enable

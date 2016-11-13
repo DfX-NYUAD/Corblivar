@@ -47,6 +47,19 @@ class LeakageAnalyzer {
 
 	// public data
 	public:
+		struct Parameters {
+			/// internal weights, used for internal cost terms
+			double weight_entropy;
+			/// internal weights, used for internal cost terms
+			double weight_correlation;
+		} parameters;
+
+		/// max evaluation values have to memorized as well, in order to enable
+		/// comparison during different SA iterations
+		struct max_values {
+			double entropy;
+			double correlation;
+		} max_values;
 
 	// PODs, to be declared early on
 	public:

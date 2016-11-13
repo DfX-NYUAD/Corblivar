@@ -476,9 +476,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	// technology file is parsed
 	fp.opt_flags.voltage_assignment = fp.weights.voltage_assignment > 0.0;
 
-//TODO proper parsing
-fp.weights.thermal_leakage = 0.2;
-fp.opt_flags.thermal_leakage = true;
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.weights.thermal_leakage;
+
+	// memorize if thermal-leakage mitigation should be performed; requires also power maps
+	fp.opt_flags.thermal_leakage = (fp.weights.thermal_leakage > 0.0 && fp.IO_conf.power_density_file_avail);
 
 	// sanity check for positive cost factors
 	if (
@@ -511,6 +515,36 @@ fp.opt_flags.thermal_leakage = true;
 		exit(1);
 	}
 
+	// thermal-related leakage; weight factors
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.leakageAnalyzer.parameters.weight_entropy;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.leakageAnalyzer.parameters.weight_correlation;
+
+	// sanity check for positive cost factors
+	if (
+		fp.leakageAnalyzer.parameters.weight_entropy < 0.0 ||
+		fp.leakageAnalyzer.parameters.weight_correlation < 0.0
+	) {
+		std::cout << "IO> Provide positive thermal-leakage cost factors!" << std::endl;
+		exit(1);
+	}
+
+	// sanity check for sum of cost factors
+	if (std::abs(
+			fp.leakageAnalyzer.parameters.weight_entropy +
+			fp.leakageAnalyzer.parameters.weight_correlation
+	- 1.0) > 0.1) {
+		std::cout << "IO> Thermal-leakage cost factors should sum up to approx. 1!" << std::endl;
+		exit(1);
+	}
+
 	// voltage assignment; weight factors
 	//
 	in >> tmpstr;
@@ -528,11 +562,17 @@ fp.opt_flags.thermal_leakage = true;
 		in >> tmpstr;
 	in >> fp.voltageAssignment.parameters.weight_modules_count;
 
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.voltageAssignment.parameters.weight_modules_variation;
+
 	// sanity check for positive cost factors
 	if (
 		fp.voltageAssignment.parameters.weight_power_saving < 0.0 ||
 		fp.voltageAssignment.parameters.weight_corners < 0.0 ||
-		fp.voltageAssignment.parameters.weight_modules_count < 0.0
+		fp.voltageAssignment.parameters.weight_modules_count < 0.0 ||
+		fp.voltageAssignment.parameters.weight_modules_variation < 0.0
 	) {
 		std::cout << "IO> Provide positive voltage-assignment cost factors!" << std::endl;
 		exit(1);
@@ -542,7 +582,8 @@ fp.opt_flags.thermal_leakage = true;
 	if (std::abs(
 			fp.voltageAssignment.parameters.weight_power_saving +
 			fp.voltageAssignment.parameters.weight_corners +
-			fp.voltageAssignment.parameters.weight_modules_count
+			fp.voltageAssignment.parameters.weight_modules_count +
+			fp.voltageAssignment.parameters.weight_modules_variation
 	- 1.0) > 0.1) {
 		std::cout << "IO> Voltage-assignment cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
@@ -969,6 +1010,12 @@ fp.opt_flags.thermal_leakage = true;
 		// SA cost factors
 		std::cout << "IO>  SA -- Cost factor for are and fixed-outline fitting: " << fp.weights.area_outline << std::endl;
 		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.weights.thermal << std::endl;
+		if (!fp.opt_flags.thermal && fp.opt_flags.voltage_assignment) {
+			std::cout << "IO>     Note: thermal analysis (not optimization) is conducted since voltage assignment is activated" << std::endl;
+		}
+		if (!fp.opt_flags.thermal && fp.opt_flags.thermal_leakage) {
+			std::cout << "IO>     Note: thermal analysis (not optimization) is conducted since thermal-leakage mitigation is activated" << std::endl;
+		}
 		if (!fp.IO_conf.power_density_file_avail) {
 			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
 		}
@@ -983,10 +1030,14 @@ fp.opt_flags.thermal_leakage = true;
 		if (!fp.opt_flags.timing && fp.opt_flags.voltage_assignment) {
 			std::cout << "IO>     Note: timing analysis (not optimization) is conducted since voltage assignment is activated" << std::endl;
 		}
+		std::cout << "IO>  SA -- Cost factor for thermal-leakage mitigation: " << fp.weights.thermal_leakage << std::endl;
+		std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Spatial entropy of power maps: " << fp.leakageAnalyzer.parameters.weight_entropy << std::endl;
+		std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Pearson correlation of power and thermal map (lowest layer): " << fp.leakageAnalyzer.parameters.weight_correlation << std::endl;
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
-		std::cout << "IO>  Voltage assignment -- Cost factor for power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
-		std::cout << "IO>  Voltage assignment -- Cost factor for power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
-		std::cout << "IO>  Voltage assignment -- Cost factor for module-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_modules_variation << std::endl;
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
