@@ -62,8 +62,11 @@ class LeakageAnalyzer {
 		/// to indices of ThermalAnalyzer::power_maps_orig
 		std::vector< std::vector< std::pair<std::string, std::vector<Bin>> > > power_partitions;
 
-		/// table of Manhattan distances b/w array indices; used for calculation of spatial entropy; in double already here to avoid casting during read
-		std::array< std::array<double, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances;
+		/// sum of Manhattan distances from each array bin to all other bins; used for calculation of spatial entropy
+		std::array< std::array<int, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances_summed;
+
+		/// Manhattan distances, in 1D, for one bin to another bin; used for calculation of spatial entropy
+		std::array< std::array<unsigned, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances;
 
 		/// nested-means based partitioning of power maps
 		///
@@ -77,21 +80,44 @@ class LeakageAnalyzer {
 		/// note that the upper bound is excluded
 		inline void partitionPowerMapHelper(int const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values);
 
-		/// helper to init distance matrix (used as look-up table for spatial entropy)
+		/// helper to init distance arrays, which are used as look-up tables for spatial entropy
 		inline void initDistances() {
+			int dist;
 
-			for (unsigned i = 0; i < ThermalAnalyzer::THERMAL_MAP_DIM; i++) {
+			// sum of distances for one bin in 2D array to all other bins in same 2D array
+			//
+			for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+				for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
-				// j shall not be less than i
-				//
-				// this way the result of j - i is always positive; also, there is no need to calculate values in the range of [i][0--j], since they are already
-				// calculated as counterparts below
-				//
-				for (unsigned j = i; j < ThermalAnalyzer::THERMAL_MAP_DIM; j++) {
+					// for each bin, calculate the sum of distances to all other bins
+					dist = 0;
 
-					this->distances[i][j] = j - i;
-					// assign symmetric counterpart here as well
-					this->distances[j][i] = this->distances[i][j];
+					for (int i = 0; i < ThermalAnalyzer::THERMAL_MAP_DIM; i++) {
+						for (int j = 0; j < ThermalAnalyzer::THERMAL_MAP_DIM; j++) {
+
+							// Manhattan distance should suffice for grid coordinates/distances
+							//
+							dist += std::abs(x - i) + std::abs(y - j);
+						}
+					}
+
+					this->distances_summed[x][y] = dist;
+				}
+			}
+
+			// all distances for one bin in 1D array to all other bins in same 1D array
+			//
+			for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+
+				// no need to walk ranges [x][0--x]; they will be covered by symmetric counterparts below; also, by initializing y = x, the calculation of y - x is
+				// always valid on unsigned
+				for (unsigned y = x; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+					// Manhattan distance should suffice for grid coordinates/distances
+					//
+					this->distances[x][y] = y - x;
+					// symmetric counterparts
+					this->distances[y][x] = this->distances[x][y];
 				}
 			}
 		}

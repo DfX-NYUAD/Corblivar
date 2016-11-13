@@ -28,7 +28,7 @@
 #include "ThermalAnalyzer.hpp"
 
 double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
-	double d_int;
+	double d_int, cur_d_int;
 	double d_ext;
 	double cur_entropy, entropy;
 	double ratio_bins;
@@ -46,12 +46,19 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 	entropy = 0.0;
 	for (auto const& cur_part : this->power_partitions[layer]) {
 
-		// first, calculate the avg internal and external distances for partition
-		//
+		// first, calculate the avg internal and external distances for partition;
 		// internal distance: distance between all elements in same partition
+		// external distance: distance between all elements in this current partition and all elements in all other partitions
 		//
-		d_int = 0.0;
+
+		// calculate step wise for each bin of current partition
+		//
+		d_int = d_ext = 0.0;
 		for (auto const& b1 : cur_part.second) {
+
+			// for calculation of internal distances, compare each bin to all other bins in partition
+			//
+			cur_d_int = 0.0;
 			for (auto const& b2 : cur_part.second) {
 
 				// ignore comparison with itself
@@ -59,39 +66,21 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 					continue;
 				}
 
-				// Manhattan distance should suffice for grid coordinates/distances
-				//
-				// use look-up table/matrix for x and y dimensions separately
-				d_int += this->distances[b1.x][b2.x];
-				d_int += this->distances[b1.y][b2.y];
+				// use look-up table/array for x and y dimensions separately
+				cur_d_int += this->distances[b1.x][b2.x];
+				cur_d_int += this->distances[b1.y][b2.y];
 			}
+
+			// sum up distances over partition
+			//
+			// for calculation of external distances, simply subtract internal distance from pre-calculated sum of distances for this bin to all other bins, to obtain
+			// the distance between this bin and all other bins _not_ in the current partition
+			d_ext += this->distances_summed[b1.x][b1.y] - cur_d_int;
+			// sum up internal distances
+			d_int += cur_d_int;
 		}
 		// normalize to obtain avg dist; over all compared pairs of elements
 		d_int /= (cur_part.second.size() * (cur_part.second.size() - 1));
-
-		// external distance: distance between all elements in this current partition and all elements in all other partitions
-		//
-		d_ext = 0.0;
-		for (auto const& b1 : cur_part.second) {
-
-			for (auto const& other_part : this->power_partitions[layer]) {
-
-				// ignore comparison with same partition, check their id
-				if (cur_part.first == other_part.first) {
-					continue;
-				}
-
-				// calculate distance to every element of other partition
-				for (auto const& b2 : other_part.second) {
-
-					// Manhattan distance should suffice for grid coordinates/distances
-					//
-					// use look-up table/matrix for x and y dimensions separately
-					d_ext += this->distances[b1.x][b2.x];
-					d_ext += this->distances[b1.y][b2.y];
-				}
-			}
-		}
 		// normalize to obtain avg dist; over all compared pairs of elements
 		d_ext /= (cur_part.second.size() *
 				// size of all other partitions taken together, equals whole grid minus this partition
