@@ -1040,10 +1040,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		//
 		// for finalize calls, we need to initialize the max_cost
 		if (finalize && this->opt_flags.thermal_leakage) {
-			this->evaluateLeakage(cost, true);
+			this->evaluateLeakage(cost, fitting_layouts_ratio, true);
 		}
 		else if (this->opt_flags.thermal_leakage) {
-			this->evaluateLeakage(cost, set_max_cost);
+			this->evaluateLeakage(cost, fitting_layouts_ratio, set_max_cost);
 		}
 		// no optimization considered, reset cost to zero
 		else {
@@ -1072,7 +1072,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 			// also perform final leakage evaluation, if required
 			if (this->opt_flags.thermal_leakage) {
-				this->evaluateLeakage(cost);
+				this->evaluateLeakage(cost, fitting_layouts_ratio);
 			}
 		}
 
@@ -1363,9 +1363,30 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
 }
 
-void FloorPlanner::evaluateLeakage(Cost& cost, bool const& set_max_cost) {
+void FloorPlanner::evaluateLeakage(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost) {
 	double entropy;
 	double correlation;
+
+	// sanity checks, only when thermal analysis is conducted as well
+	if (!this->opt_flags.thermal) {
+		return;
+	}
+
+	// in case no fitting layouts are available, thermal-leakage analysis may, as it was done for voltage assignment, also be skipped since it is not deemed required for
+	// invalid layouts; however, set_max_cost shall be always performed
+	//
+	if (!set_max_cost && Math::doubleComp(fitting_layouts_ratio, 0.0)) {
+
+		// dummy cost, equals max normalized cost
+		cost.thermal_leakage_entropy = 1.0;
+		cost.thermal_leakage_correlation = 1.0;
+
+		// consider dummy values
+		cost.thermal_leakage_entropy_actual_value = 0.0;
+		cost.thermal_leakage_correlation_actual_value = 0.0;
+
+		return;
+	}
 
 	// Avg spatial entropy
 	entropy = 0.0;

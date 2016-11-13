@@ -245,6 +245,7 @@ class FloorPlanner {
 				bool const& set_max_cost = false);
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateLeakage(Cost& cost,
+				double const& fitting_layouts_ratio,
 				bool const& set_max_cost = false);
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateAlignments(Cost& cost,
