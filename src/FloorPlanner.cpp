@@ -1939,52 +1939,57 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// TSV shall be placed in every (m x m) frame of the die, if not already some TSVs
 	// are placed within each frame; also consider to place on top-most die
 	//
-	for (i = 0; i < this->IC.layers; i++) {
+	// sanity check: reasonable frame is defined
+	if (this->IC.TSV_frame_dim > 0) {
 
-		// walk die outline in steps according to frame dimensions
-		for (x = 0; x < this->IC.outline_x; x += this->IC.TSV_frame_dim) {
-			for (y = 0; y < this->IC.outline_y; y += this->IC.TSV_frame_dim) {
+		// insert dummy TSVs on all layers
+		for (i = 0; i < this->IC.layers; i++) {
 
-				// define frame as bb
-				bb.ll.x = x;
-				bb.ur.x = std::min(x + this->IC.TSV_frame_dim, this->IC.outline_x);
-				bb.ll.y = y;
-				bb.ur.y = std::min(y + this->IC.TSV_frame_dim, this->IC.outline_y);
-				bb.w = bb.ur.x - bb.ll.x;
-				bb.h = bb.ur.y - bb.ll.y;
+			// walk die outline in steps according to frame dimensions
+			for (x = 0; x < this->IC.outline_x; x += this->IC.TSV_frame_dim) {
+				for (y = 0; y < this->IC.outline_y; y += this->IC.TSV_frame_dim) {
 
-				// check all TSVs whether at least one overlaps with the current frame
-				TSV_in_frame = false;
+					// define frame as bb
+					bb.ll.x = x;
+					bb.ur.x = std::min(x + this->IC.TSV_frame_dim, this->IC.outline_x);
+					bb.ll.y = y;
+					bb.ur.y = std::min(y + this->IC.TSV_frame_dim, this->IC.outline_y);
+					bb.w = bb.ur.x - bb.ll.x;
+					bb.h = bb.ur.y - bb.ll.y;
 
-				for (TSV_Island const& cur_TSV : this->TSVs) {
-					if ((cur_TSV.layer == i) && Rect::rectsIntersect(cur_TSV.bb, bb)) {
-						TSV_in_frame = true;
-						break;
+					// check all TSVs whether at least one overlaps with the current frame
+					TSV_in_frame = false;
+
+					for (TSV_Island const& cur_TSV : this->TSVs) {
+						if ((cur_TSV.layer == i) && Rect::rectsIntersect(cur_TSV.bb, bb)) {
+							TSV_in_frame = true;
+							break;
+						}
 					}
-				}
 
-				// no TSV at all found in the current frame; insert a dummy TSV in
-				// the center of the frame
-				if (!TSV_in_frame) {
+					// no TSV at all found in the current frame; insert a dummy TSV in
+					// the center of the frame
+					if (!TSV_in_frame) {
 
-					// define new dummy TSV (trivial TSV island)
-					this->dummy_TSVs.emplace_back(TSV_Island(
-							// 
-							std::string("dummy_manuf_frame_"
-								+ std::to_string(x) + "_"
-								+ std::to_string(y) + "_"
-								+ std::to_string(i)),
-							// one TSV count
-							1,
-							// TSV pitch; required for proper scaling
-							// of TSV island
-							this->IC.TSV_pitch,
-							// reference point for placement
-							// of dummy TSV is frame bb
-							bb,
-							// layer assignment
-							i
-						));
+						// define new dummy TSV (trivial TSV island)
+						this->dummy_TSVs.emplace_back(TSV_Island(
+								// 
+								std::string("dummy_manuf_frame_"
+									+ std::to_string(x) + "_"
+									+ std::to_string(y) + "_"
+									+ std::to_string(i)),
+								// one TSV count
+								1,
+								// TSV pitch; required for proper scaling
+								// of TSV island
+								this->IC.TSV_pitch,
+								// reference point for placement
+								// of dummy TSV is frame bb
+								bb,
+								// layer assignment
+								i
+							));
+					}
 				}
 			}
 		}

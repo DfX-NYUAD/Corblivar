@@ -936,6 +936,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << std::endl;
 		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << std::endl;
 		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << std::endl;
+		std::cout << "IO>  Technology -- TSV frames; enforces minimal TSV density [um]: " << fp.IC.TSV_frame_dim << std::endl;
 		std::cout << "IO>  Technology -- TSV islands; upper limit for TSV per island: " << fp.IC.TSV_per_cluster_limit << std::endl;
 		std::cout << "IO>  Technology -- TSV islands; Cu vs. Si area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
 
