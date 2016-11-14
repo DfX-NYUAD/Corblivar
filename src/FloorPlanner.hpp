@@ -220,10 +220,10 @@ class FloorPlanner {
 			double voltage_assignment_power_saving;
 			double voltage_assignment_corners_avg;
 			double voltage_assignment_power_variation_avg;
-			double voltage_assignment_power_variation_avg__merged;
+//			double voltage_assignment_power_variation_avg__merged;
 			unsigned voltage_assignment_modules_count;
-			double voltage_assignment_corners_avg__merged;
-			unsigned voltage_assignment_modules_count__merged;
+//			double voltage_assignment_corners_avg__merged;
+//			unsigned voltage_assignment_modules_count__merged;
 			double thermal_leakage;
 			double thermal_leakage_entropy_actual_value;
 			double thermal_leakage_correlation_actual_value;

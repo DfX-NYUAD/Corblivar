@@ -410,6 +410,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			if (this->opt_flags.voltage_assignment) {
 
 				std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+				std::cout << "SA>    Voltage assignment; volume count: " << cost.voltage_assignment_modules_count << std::endl;
+				std::cout << "SA>    Voltage assignment; avg std dev of power densities: " << cost.voltage_assignment_power_variation_avg << std::endl;
 			}
 
 			if (this->opt_flags.thermal_leakage) {
@@ -807,11 +809,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar>   Total power (blocks, wires, TSVs) before power reduction [W]: "
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
-				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
-				std::cout << "Corblivar>  Avg std dev of power: " << cost.voltage_assignment_power_variation_avg << std::endl;
-				std::cout << "Corblivar>   Avg std dev of power after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
+//				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
+				std::cout << "Corblivar>  Avg std dev of power densities: " << cost.voltage_assignment_power_variation_avg << std::endl;
+//				std::cout << "Corblivar>   Avg std dev of power densities after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
-				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
+//				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << "Voltage assignment: " << std::endl;
 				this->IO_conf.results << " Power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
 				this->IO_conf.results << "  Total power (blocks, wires, TSVs) after power reduction [W]: "
@@ -819,11 +821,11 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << "  Total power (blocks, wires, TSVs) before power reduction [W]: "
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
-				this->IO_conf.results << "  Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
-				this->IO_conf.results << " Avg std dev of power: " << cost.voltage_assignment_power_variation_avg << std::endl;
-				this->IO_conf.results << "  Avg std dev of power after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
+//				this->IO_conf.results << "  Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
+				this->IO_conf.results << " Avg std dev of power densities: " << cost.voltage_assignment_power_variation_avg << std::endl;
+//				this->IO_conf.results << "  Avg std dev of power densities after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
-				this->IO_conf.results << "  Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
+//				this->IO_conf.results << "  Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
@@ -1254,9 +1256,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 	// voltage-volume assignment: top-down phase, i.e., determine optimal selection of
 	// compound modules such that all blocks are assigned to a voltage and that both
-	// power and routing resources for power domains are minimized
+	// power and routing resources for power domains are minimized; for more realistic evaluation,
+	// merge volumes already here, not only later on during finalize runs
 	//
-	selected_modules = this->voltageAssignment.selectCompoundModules();
+	selected_modules = this->voltageAssignment.selectCompoundModules(true);
 
 	// evaluate assignment; determine absolute values for cost terms
 	//
@@ -1270,7 +1273,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();
 
-		// avg std dev of power values
+		// avg std dev of power densities
 		power_variation_avg += module->power_std_dev();
 	}
 	// average value for corners
@@ -1319,29 +1322,31 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	//
 	this->evaluateTiming(cost, set_max_cost, true);
 
-	// for finalize runs, determine and log also the avg corners and modules count for
-	// merging adjacent compound modules
+	// (TODO) could be dropped; not required since the volumes are already merged and evaluated as merged ones during the optimization loop above
 	//
-	if (finalize) {
-		std::vector<MultipleVoltages::CompoundModule*> merged_selected_modules = this->voltageAssignment.selectCompoundModules(true);
-
-		corners_avg = 0.0;
-		power_variation_avg = 0.0;
-
-		for (auto* module : merged_selected_modules) {
-
-			corners_avg += module->corners_powerring_max();
-			power_variation_avg += module->power_std_dev();
-		}
-		// average values
-		corners_avg /= merged_selected_modules.size();
-		power_variation_avg /= merged_selected_modules.size();
-
-		// store actual values
-		cost.voltage_assignment_corners_avg__merged = corners_avg;
-		cost.voltage_assignment_modules_count__merged = merged_selected_modules.size();
-		cost.voltage_assignment_power_variation_avg__merged = power_variation_avg;
-	}
+//	// for finalize runs, determine and log also the avg corners and modules count for
+//	// merging adjacent compound modules
+//	//
+//	if (finalize) {
+//		std::vector<MultipleVoltages::CompoundModule*> merged_selected_modules = this->voltageAssignment.selectCompoundModules(true);
+//
+//		corners_avg = 0.0;
+//		power_variation_avg = 0.0;
+//
+//		for (auto* module : merged_selected_modules) {
+//
+//			corners_avg += module->corners_powerring_max();
+//			power_variation_avg += module->power_std_dev();
+//		}
+//		// average values
+//		corners_avg /= merged_selected_modules.size();
+//		power_variation_avg /= merged_selected_modules.size();
+//
+//		// store actual values
+//		cost.voltage_assignment_corners_avg__merged = corners_avg;
+//		cost.voltage_assignment_modules_count__merged = merged_selected_modules.size();
+//		cost.voltage_assignment_power_variation_avg__merged = power_variation_avg;
+//	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateVoltageAssignment()" << std::endl;
