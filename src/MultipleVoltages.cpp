@@ -108,14 +108,12 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 	}
 }
 
-// (TODO) final selection, even for merge_selected_modules applied, contains some enclosed
-// or nearby/contiguous modules which could be easily and without additional cost be
-// merged into other, larger modules
 std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(bool const& merge_selected_modules) {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 
 	bool module_to_remove;
+	bool module_to_merge;
 	unsigned count;
 
 	double max_power_saving;
@@ -308,6 +306,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		for (unsigned m = 0; m < this->selected_modules.size(); m++) {
 
 			MultipleVoltages::CompoundModule* module = this->selected_modules[m];
+			module_to_merge = false;
 
 			// walk all contiguous blocks of current module
 			//
@@ -326,6 +325,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					if (n_module->block_ids == module->block_ids) {
 						continue;
 					}
+
+					module_to_merge = true;
 
 					if (MultipleVoltages::DBG) {
 						std::cout << "DBG_VOLTAGES>   Merging modules;" << std::endl;
@@ -386,13 +387,16 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						}
 					}
 
-					// finally, reset the iterator for contiguous blocks as
-					// well; required to capture transitive merges and,
-					// furthermore, iterator it is invalid after the above
-					// insertions
+					// finally, reset the iterator for contiguous blocks; required to capture transitive merges and, furthermore, iterator it is invalid after
+					// the above insertions
 					//
 					it = module->contiguous_neighbours.begin();
 				}
+			}
+
+			// also reset the iterator/index for selected_modules in case the module was merged; required since selected_modules has been edited, so we have to restart
+			if (module_to_merge) {
+				m = 0;
 			}
 		}
 
