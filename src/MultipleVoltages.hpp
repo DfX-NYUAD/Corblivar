@@ -69,7 +69,7 @@ class MultipleVoltages {
 			/// internal weights, used for internal cost terms
 			double weight_modules_count;
 			/// internal weights, used for internal cost terms
-			double weight_modules_variation;
+			double weight_power_variation;
 		} parameters;
 
 		/// max evaluation values have to memorized as well, in order to enable
@@ -77,6 +77,7 @@ class MultipleVoltages {
 		struct max_values {
 			double inv_power_saving, corners_avg;
 			unsigned module_count;
+			double power_variation_avg;
 		} max_values;
 
 	/// inner class of compound modules, to be declared early on
@@ -124,12 +125,14 @@ class MultipleVoltages {
 			/// all comprised blocks
 			std::bitset<MAX_VOLTAGES> feasible_voltages;
 
-			/// power savings will be memorized locally; to avoid redundant
-			/// recalculations, these values will only be updated whenever the
+			/// power values will be memorized locally;
+			/// to avoid redundant recalculations, these values will only be updated whenever the
 			/// set of feasible_voltages changes
 			///
 			double power_saving_;
 			double power_saving_wasted_;
+			double power_avg_;
+			double power_std_dev_;
 
 			/// key: neighbour's numerical block id
 			///
@@ -164,7 +167,12 @@ class MultipleVoltages {
 
 			/// global cost, required during top-down selection
 			///
-			inline double cost(double const& max_power_saving, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const;
+			inline double cost(
+					double const& max_power_saving,
+					double const& max_power_std_dev,
+					unsigned const& max_corners,
+					MultipleVoltages::Parameters const& parameters
+				) const;
 
 		// public functions
 		public:
@@ -191,6 +199,11 @@ class MultipleVoltages {
 				}
 
 				return ret;
+			}
+
+			/// getter
+			inline double power_std_dev() const {
+				return this->power_std_dev_;
 			}
 	};
 

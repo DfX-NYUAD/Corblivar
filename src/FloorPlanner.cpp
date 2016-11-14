@@ -808,6 +808,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
 				std::cout << "Corblivar>   Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
+				std::cout << "Corblivar>  Avg std dev of power: " << cost.voltage_assignment_power_variation_avg << std::endl;
+				std::cout << "Corblivar>   Avg std dev of power after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				std::cout << "Corblivar>   Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << "Voltage assignment: " << std::endl;
@@ -818,6 +820,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
 				this->IO_conf.results << "  Avg max corners after merging selected modules: " << cost.voltage_assignment_corners_avg__merged << std::endl;
+				this->IO_conf.results << " Avg std dev of power: " << cost.voltage_assignment_power_variation_avg << std::endl;
+				this->IO_conf.results << "  Avg std dev of power after merging selected modules: " << cost.voltage_assignment_power_variation_avg__merged << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				this->IO_conf.results << "  Modules count after merging selected modules: " << cost.voltage_assignment_modules_count__merged << std::endl;
 				this->IO_conf.results << std::endl;
@@ -1015,7 +1019,11 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		else {
 			cost.timing = cost.timing_actual_value = 0.0;
 			cost.voltage_assignment = 0.0;
-			cost.voltage_assignment_power_saving = cost.voltage_assignment_corners_avg = cost.voltage_assignment_modules_count = 0;
+			cost.voltage_assignment_power_saving
+				= cost.voltage_assignment_corners_avg
+				= cost.voltage_assignment_modules_count
+				= cost.voltage_assignment_power_variation_avg
+				= 0;
 		}
 
 		// temperature-distribution cost and profile
@@ -1178,11 +1186,10 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool ree
 	cost.timing_actual_value = max_delay;
 }
 
-// TODO cost.voltage_assignment_power_variation_avg
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost, bool const& finalize) {
 	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
-	double module_count = 0.0;
+	double power_variation_avg = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
 	// for finalize runs, reset timing constraint to original constraint in order to
@@ -1209,6 +1216,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		cost.voltage_assignment_power_saving = 0.0;
 		cost.voltage_assignment_corners_avg = 0.0;
 		cost.voltage_assignment_modules_count = 0.0;
+		cost.voltage_assignment_power_variation_avg = 0.0;
 
 		return;
 	}
@@ -1257,19 +1265,24 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		// for power saving, the absolute sum is relevant, i.e., we ignore the
 		// ``wasted saving'' here
 		inv_power_saving += module->power_saving(false);
+
 		// for corners, the avg number (of max across all die-wise rings for
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();
+
+		// avg std dev of power values
+		power_variation_avg += module->power_std_dev();
 	}
-	// modules count
-	module_count = selected_modules.size();
 	// average value for corners
-	corners_avg /= static_cast<double>(module_count);
+	corners_avg /= selected_modules.size();
+	// avg value for power variation
+	power_variation_avg /= selected_modules.size();
 
 	// store actual values
 	cost.voltage_assignment_power_saving = inv_power_saving;
 	cost.voltage_assignment_corners_avg = corners_avg;
-	cost.voltage_assignment_modules_count = module_count;
+	cost.voltage_assignment_modules_count = selected_modules.size();
+	cost.voltage_assignment_power_variation_avg = power_variation_avg;
 
 	// for minimization purposes, consider the inverse of power saving; consider small
 	// epsilon to avoid division by zero
@@ -1280,15 +1293,17 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	if (set_max_cost) {
 		this->voltageAssignment.max_values.inv_power_saving = inv_power_saving;
 		this->voltageAssignment.max_values.corners_avg = corners_avg;
-		this->voltageAssignment.max_values.module_count = module_count;
+		this->voltageAssignment.max_values.module_count = selected_modules.size();
+		this->voltageAssignment.max_values.power_variation_avg = power_variation_avg;
 	}
 
 	// determine and memorize overall cost; weighted sum
 	//
-	cost.voltage_assignment =
-		(this->voltageAssignment.parameters.weight_power_saving) * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving) +
-		(this->voltageAssignment.parameters.weight_corners) * (corners_avg / this->voltageAssignment.max_values.corners_avg) +
-		(this->voltageAssignment.parameters.weight_modules_count) * (module_count / static_cast<double>(this->voltageAssignment.max_values.module_count));
+	cost.voltage_assignment = (this->voltageAssignment.parameters.weight_power_saving * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving))
+		+ (this->voltageAssignment.parameters.weight_corners * (corners_avg / this->voltageAssignment.max_values.corners_avg))
+		+ (this->voltageAssignment.parameters.weight_modules_count * (static_cast<double>(selected_modules.size()) / static_cast<double>(this->voltageAssignment.max_values.module_count)))
+		+ (this->voltageAssignment.parameters.weight_power_variation * (power_variation_avg / this->voltageAssignment.max_values.power_variation_avg))
+		;
 
 	// memorize max cost
 	if (set_max_cost) {
@@ -1311,19 +1326,21 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		std::vector<MultipleVoltages::CompoundModule*> merged_selected_modules = this->voltageAssignment.selectCompoundModules(true);
 
 		corners_avg = 0.0;
+		power_variation_avg = 0.0;
 
 		for (auto* module : merged_selected_modules) {
 
 			corners_avg += module->corners_powerring_max();
+			power_variation_avg += module->power_std_dev();
 		}
-		// modules count
-		module_count = merged_selected_modules.size();
-		// average value for corners
-		corners_avg /= static_cast<double>(module_count);
+		// average values
+		corners_avg /= merged_selected_modules.size();
+		power_variation_avg /= merged_selected_modules.size();
 
 		// store actual values
 		cost.voltage_assignment_corners_avg__merged = corners_avg;
-		cost.voltage_assignment_modules_count__merged = module_count;
+		cost.voltage_assignment_modules_count__merged = merged_selected_modules.size();
+		cost.voltage_assignment_power_variation_avg__merged = power_variation_avg;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {

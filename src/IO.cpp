@@ -565,14 +565,14 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.voltageAssignment.parameters.weight_modules_variation;
+	in >> fp.voltageAssignment.parameters.weight_power_variation;
 
 	// sanity check for positive cost factors
 	if (
 		fp.voltageAssignment.parameters.weight_power_saving < 0.0 ||
 		fp.voltageAssignment.parameters.weight_corners < 0.0 ||
 		fp.voltageAssignment.parameters.weight_modules_count < 0.0 ||
-		fp.voltageAssignment.parameters.weight_modules_variation < 0.0
+		fp.voltageAssignment.parameters.weight_power_variation < 0.0
 	) {
 		std::cout << "IO> Provide positive voltage-assignment cost factors!" << std::endl;
 		exit(1);
@@ -583,7 +583,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			fp.voltageAssignment.parameters.weight_power_saving +
 			fp.voltageAssignment.parameters.weight_corners +
 			fp.voltageAssignment.parameters.weight_modules_count +
-			fp.voltageAssignment.parameters.weight_modules_variation
+			fp.voltageAssignment.parameters.weight_power_variation
 	- 1.0) > 0.1) {
 		std::cout << "IO> Voltage-assignment cost factors should sum up to approx. 1!" << std::endl;
 		exit(1);
@@ -1038,7 +1038,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_modules_variation << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_power_variation << std::endl;
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
