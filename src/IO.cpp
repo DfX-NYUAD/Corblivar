@@ -1011,9 +1011,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		// SA cost factors
 		std::cout << "IO>  SA -- Cost factor for are and fixed-outline fitting: " << fp.weights.area_outline << std::endl;
 		std::cout << "IO>  SA -- Cost factor for thermal distribution: " << fp.weights.thermal << std::endl;
-		if (!fp.opt_flags.thermal && fp.opt_flags.voltage_assignment) {
-			std::cout << "IO>     Note: thermal analysis (not optimization) is conducted since voltage assignment is activated" << std::endl;
-		}
 		if (!fp.opt_flags.thermal && fp.opt_flags.thermal_leakage) {
 			std::cout << "IO>     Note: thermal analysis (not optimization) is conducted since thermal-leakage mitigation is activated" << std::endl;
 		}
@@ -1050,6 +1047,11 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Power-blurring mask parameterization -- Temperature offset: " << mask_parameters.temp_offset << std::endl;
 
 		std::cout << std::endl;
+	}
+
+	// final update of thermal-analysis flag; required when thermal-related leakage is to be analyzed but still requires power-density files
+	if (!fp.opt_flags.thermal && fp.opt_flags.thermal_leakage) {
+		fp.opt_flags.thermal = (true && fp.IO_conf.power_density_file_avail);
 	}
 }
 
