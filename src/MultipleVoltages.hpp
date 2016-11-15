@@ -131,7 +131,7 @@ class MultipleVoltages {
 			///
 			double power_saving_;
 			double power_saving_wasted_;
-			double power_avg_;
+			double power_dens_avg_;
 			double power_std_dev_;
 
 			/// key: neighbour's numerical block id

@@ -363,13 +363,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					module->power_saving_wasted_ += n_module->power_saving_wasted_;
 
 					// calculate the new avg
-					module->power_avg_ = (module->power_avg_ + n_module->power_avg_) / 2.0;
+					module->power_dens_avg_ = (module->power_dens_avg_ + n_module->power_dens_avg_) / 2.0;
 
 					// recalculate the std dev
 					module->power_std_dev_ = 0.0;
 					for (Block const* b : module->blocks) {
 
-						module->power_std_dev_ += std::pow(b->power_density() - module->power_avg_, 2);
+						module->power_std_dev_ += std::pow(b->power_density() - module->power_dens_avg_, 2);
 					}
 					module->power_std_dev_ /= module->blocks.size();
 					module->power_std_dev_ = std::sqrt(module->power_std_dev_);
@@ -700,7 +700,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		// note that power_std_dev_ is not copied; it is to be recalculated in update_power_saving below
 		new_module.power_saving_ = module.power_saving_;
 		new_module.power_saving_wasted_ = module.power_saving_wasted_;
-		new_module.power_avg_ = module.power_avg_;
+		new_module.power_dens_avg_ = module.power_dens_avg_;
 
 		// update copied values to consider new block
 		new_module.update_power_saving(neighbour->block);
@@ -1153,7 +1153,7 @@ inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* b
 		// reset previous values
 		this->power_saving_
 			= this->power_saving_wasted_
-			= this->power_avg_
+			= this->power_dens_avg_
 			= 0.0;
 
 		for (Block const* b : this->blocks) {
@@ -1171,15 +1171,15 @@ inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* b
 
 			// for the standard deviation, we have to first determine the average power densities; for the current power density, we assume the lowest power achievable in
 			// this modules, as also done for the power saving above
-			this->power_avg_ += b->power_density(min_voltage_index);
+			this->power_dens_avg_ += b->power_density(min_voltage_index);
 		}
 		// determine avg power values
-		this->power_avg_ /= this->blocks.size();
+		this->power_dens_avg_ /= this->blocks.size();
 
 		// now we may recalculate the std dev
 		for (Block const* b : this->blocks) {
 
-			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_avg_, 2);
+			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_dens_avg_, 2);
 		}
 		this->power_std_dev_ /= this->blocks.size();
 		this->power_std_dev_ = std::sqrt(this->power_std_dev_);
@@ -1195,15 +1195,15 @@ inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* b
 		// the avg power can be simply updated
 		//
 		// first, retrieve the previous sum of power densities
-		this->power_avg_ *= (this->blocks.size() - 1);
+		this->power_dens_avg_ *= (this->blocks.size() - 1);
 		// second, recalculate the new avg
-		this->power_avg_ += block_to_consider->power_density(min_voltage_index);
-		this->power_avg_ /= this->blocks.size();
+		this->power_dens_avg_ += block_to_consider->power_density(min_voltage_index);
+		this->power_dens_avg_ /= this->blocks.size();
 
 		// now we may recalculate the std dev
 		for (Block const* b : this->blocks) {
 
-			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_avg_, 2);
+			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_dens_avg_, 2);
 		}
 		this->power_std_dev_ /= this->blocks.size();
 		this->power_std_dev_ = std::sqrt(this->power_std_dev_);
