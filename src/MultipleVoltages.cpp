@@ -1269,15 +1269,15 @@ inline void MultipleVoltages::CompoundModule::update_power_saving_avg(Block cons
 
 /// global cost, required during top-down selection; the smaller the cost the better
 inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, double const& max_power_std_dev, int const& max_count, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
-	// for the normalization, the min values are fixed: zero for power-saving and std dev of power, 1 for blocks count
-	// (for trivial modules w/ only highest voltage applicable) and four for corners of
-	// trivially-shaped(rectangular) modules; add small epsilon to min values in
-	// order to avoid division by zero
+	double power_saving_term, corners_term, variation_term, count_term;
+
+	// for the normalization, the min values are fixed: zero for power-saving and std dev of power, 1 for blocks count (for trivial modules w/ only highest voltage applicable)
+	// and four for corners of trivially-shaped(rectangular) modules
 	//
-	static constexpr double min_corners = 4 + Math::epsilon;
-	static constexpr double min_power_saving = Math::epsilon;
-	static constexpr double min_power_std_dev = Math::epsilon;
-	static constexpr double min_count = 1 + Math::epsilon;
+	static constexpr double min_corners = 4;
+	static constexpr double min_power_saving = 0;
+	static constexpr double min_power_std_dev = 0;
+	static constexpr double min_count = 1;
 	//
 	// the max values are derived from all candidate modules; this enables proper
 	// judgment of quality of any module in terms of weighted sum of cost terms;
@@ -1288,24 +1288,26 @@ inline double MultipleVoltages::CompoundModule::cost(double const& max_power_sav
 	//
 	// note that the weight_modules_count is used as ``inverse counterpart'' in FloorPlanner::evaluateVoltageAssignment; there it counts the voltage volumes, and here we count
 	// the blocks within volumes; for FloorPlanner::evaluateVoltageAssignment the count shall be minimized, here the count shall be maximized, and both is more or less the same
+	//
+	// note that Math::epsilon is added to divisor to avoid division over zero for corner cases where max values equal min values
 
 	// this term models the normalized inverse power reduction, with 0 representing
 	// max power reduction and 1 representing min power reduction, i.e., smaller cost
 	// represents better solutions
 	//
-	double power_saving_term = 1.0 - ((this->power_saving_avg() - min_power_saving) / (max_power_saving - min_power_saving));
+	power_saving_term = (max_power_saving - this->power_saving_avg()) / (max_power_saving - min_power_saving + Math::epsilon);
 
 	// this term models the normalized number of corners; 0 represents min corners and
 	// 1 represents max corners, i.e., the less corners the smaller the cost term
 	//
-	double corners_term = (static_cast<double>(this->corners_powerring_max()) - min_corners) / (static_cast<double>(max_corners) - min_corners);
+	corners_term = (static_cast<double>(this->corners_powerring_max()) - min_corners) / (static_cast<double>(max_corners) - min_corners + Math::epsilon);
 
 	// this term models the normalized standard deviation of power; 0 represents the lowest dev and 1 represents the largest deviation, i.e., the lower the variation the
 	// smaller the cost term
-	double variation_term = (this->power_std_dev_ - min_power_std_dev) / (max_power_std_dev - min_power_std_dev);
+	variation_term = (this->power_std_dev_ - min_power_std_dev) / (max_power_std_dev - min_power_std_dev + Math::epsilon);
 
 	// this term models the normalized number of module count; 1 represents the max cost, for trivial modules with 1 block; lowest cost of 0 for max number of blocks
-	double count_term = static_cast<double>(max_count - this->blocks.size()) / (max_count - min_count);
+	count_term = static_cast<double>(max_count - this->blocks.size()) / (max_count - min_count + Math::epsilon);
 
 	// return weighted sum of terms
 	//
