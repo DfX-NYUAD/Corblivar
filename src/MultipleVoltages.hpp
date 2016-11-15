@@ -77,7 +77,7 @@ class MultipleVoltages {
 		struct max_values {
 			double inv_power_saving, corners_avg;
 			unsigned module_count;
-			double power_variation_avg;
+			double power_variation_max;
 		} max_values;
 
 	/// inner class of compound modules, to be declared early on
