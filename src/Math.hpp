@@ -72,6 +72,12 @@ class Math {
 
 		/// standard deviation of samples
 		inline static double stdDev(std::vector<double> const& samples) {
+
+			// determine std dev; sqrt of variance
+			return std::sqrt(variance(samples));
+		};
+
+		inline static double variance(std::vector<double> const& samples) {
 			double avg, sq_diffs;
 
 			// determine avg of samples
@@ -81,14 +87,14 @@ class Math {
 			}
 			avg /= samples.size();
 
-			// determine sum of squared diffs for std dev
+			// determine sum of squared diffs
 			sq_diffs = 0.0;
 			for (double const& s : samples) {
 				sq_diffs += std::pow(s - avg, 2.0);
 			}
 
-			// determine std dev
-			return std::sqrt(sq_diffs / ((double) samples.size()));
+			// return variance
+			return (sq_diffs / samples.size());
 		};
 
 		/// 1D gauss function; used for separated convolution w/ 2D gauss function,
