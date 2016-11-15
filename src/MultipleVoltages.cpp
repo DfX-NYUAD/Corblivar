@@ -101,7 +101,9 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module.blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module.id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module.feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>    (Notes: rightmost bit represents lowest voltage; last true bit to the left represents highest voltage, further false bits to the left may remain unused when fewer voltages are globally available than bits are compiled for)" << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module.min_voltage_index() << std::endl;
+			std::cout << "DBG_VOLTAGES>     (Note: read bitset above from right to left)" << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (local) cost: " << module.outline_cost << std::endl;
 		}
 		std::cout << "DBG_VOLTAGES>" << std::endl;
@@ -205,7 +207,9 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->blocks.size() << std::endl;
 				std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
 				std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
+				std::cout << "DBG_VOLTAGES>    (Notes: rightmost bit represents lowest voltage; last true bit to the left represents highest voltage, further false bits to the left may remain unused when fewer voltages are globally available than bits are compiled for)" << std::endl;
 				std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
+				std::cout << "DBG_VOLTAGES>     (Note: read bitset above from right to left)" << std::endl;
 				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 				std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << module->power_saving() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving(false) << std::endl;
@@ -239,7 +243,9 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << cur_selected_module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << cur_selected_module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << cur_selected_module->feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>    (Notes: rightmost bit represents lowest voltage; last true bit to the left represents highest voltage, further false bits to the left may remain unused when fewer voltages are globally available than bits are compiled for)" << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << min_voltage_index << std::endl;
+			std::cout << "DBG_VOLTAGES>     (Note: read bitset above from right to left)" << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << cur_selected_module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << cur_selected_module->power_saving(false) << std::endl;
@@ -444,7 +450,9 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Comprised blocks #: " << module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
+			std::cout << "DBG_VOLTAGES>    (Notes: rightmost bit represents lowest voltage; last true bit to the left represents highest voltage, further false bits to the left may remain unused when fewer voltages are globally available than bits are compiled for)" << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
+			std::cout << "DBG_VOLTAGES>     (Note: read bitset above from right to left)" << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving(false) << std::endl;
