@@ -170,6 +170,7 @@ class MultipleVoltages {
 			inline double cost(
 					double const& max_power_saving,
 					double const& max_power_std_dev,
+					int const& max_count,
 					unsigned const& max_corners,
 					MultipleVoltages::Parameters const& parameters
 				) const;

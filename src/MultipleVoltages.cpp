@@ -118,6 +118,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 	double max_power_saving;
 	double max_power_std_dev;
+	int max_count;
 	unsigned max_corners;
 
 	unsigned min_voltage_index;
@@ -130,22 +131,24 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 		double max_power_saving;
 		double max_power_std_dev;
+		int max_count;
 		unsigned max_corners;
 		MultipleVoltages::Parameters parameters;
 
 		public:
 			// initializer for comparator w/ parameters
-			modules_cost_comp(double const& max_power_saving, double const& max_power_std_dev, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) {
+			modules_cost_comp(double const& max_power_saving, double const& max_power_std_dev, int const& max_count, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) {
 				this->max_power_saving = max_power_saving;
 				this->max_power_std_dev = max_power_std_dev;
+				this->max_count = max_count;
 				this->max_corners = max_corners;
 				this->parameters = parameters;
 			}
 
 			bool operator()(CompoundModule const* m1, CompoundModule const* m2) const {
 
-				double c1 = m1->cost(this->max_power_saving, this->max_power_std_dev, this->max_corners, this->parameters);
-				double c2 = m2->cost(this->max_power_saving, this->max_power_std_dev, this->max_corners, this->parameters);
+				double c1 = m1->cost(this->max_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
+				double c2 = m2->cost(this->max_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
 
 				return (
 						// the smaller the cost, the better
@@ -164,16 +167,18 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	//
 	max_power_saving = this->modules.begin()->second.power_saving();
 	max_power_std_dev = this->modules.begin()->second.power_std_dev_;
+	max_count = this->modules.begin()->second.blocks.size();
 	max_corners = this->modules.begin()->second.corners_powerring_max();
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 		max_power_saving = std::max(max_power_saving, it->second.power_saving());
 		max_power_std_dev = std::max(max_power_std_dev, it->second.power_std_dev_);
+		max_count = std::max(max_count, static_cast<int>(it->second.blocks.size()));
 		max_corners = std::max(max_corners, it->second.corners_powerring_max());
 	}
 	
 	// now, a multiset can be initialized with the proper comparator parameters
 	//
-	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost (modules_cost_comp(max_power_saving, max_power_std_dev, max_corners, this->parameters));
+	std::multiset<CompoundModule*, modules_cost_comp> modules_w_cost (modules_cost_comp(max_power_saving, max_power_std_dev, max_count, max_corners, this->parameters));
 	
 	// second, insert all modules' pointers into this multiset
 	//
@@ -201,12 +206,12 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
 				std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
 				std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
-				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_corners, parameters) << std::endl;
+				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 				std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << module->power_saving() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving(false) << std::endl;
 				std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << module->power_std_dev_ << std::endl;
 				std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
-				std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << module->blocks.size() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
 
 			}
 			std::cout << "DBG_VOLTAGES>" << std::endl;
@@ -235,12 +240,12 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << cur_selected_module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << cur_selected_module->feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << min_voltage_index << std::endl;
-			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost(max_power_saving, max_power_std_dev, max_corners, parameters) << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << cur_selected_module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << cur_selected_module->power_saving(false) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << cur_selected_module->power_std_dev_ << std::endl;
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_powerring_max() << std::endl;
-			std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << cur_selected_module->blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Covered blocks: " << cur_selected_module->blocks.size() << std::endl;
 		}
 
 		// remove other modules which contain some already assigned blocks; start
@@ -301,6 +306,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	// suggesting that the merge is not beneficial
 	//
 	// thus, it shall only be applied when requested, e.g., for final logging
+	// 
+	// TODO revise; check whether merges are not undermining cost
 	if (merge_selected_modules) {
 
 		if (MultipleVoltages::DBG) {
@@ -438,12 +445,12 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Comprised blocks ids: " << module->id() << std::endl;
 			std::cout << "DBG_VOLTAGES>   Module voltages bitset: " << module->feasible_voltages << std::endl;
 			std::cout << "DBG_VOLTAGES>    Index of min voltage: " << module->min_voltage_index() << std::endl;
-			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_corners, parameters) << std::endl;
+			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, max_power_std_dev, max_count, max_corners, parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain minus ``wasted gain'' in power reduction: " << module->power_saving() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Gain in power reduction: " << module->power_saving(false) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << module->power_std_dev_ << std::endl;
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
-			std::cout << "DBG_VOLTAGES>    Covered blocks (not modeled in cost, but considered during selection): " << module->blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
 
 			count += module->blocks.size();
 		}
@@ -1203,20 +1210,17 @@ inline void MultipleVoltages::CompoundModule::update_power_saving(Block const* b
 	}
 }
 
-/// global cost, required during top-down selection
-///
-/// cost terms: normalized power reduction/saving and number of corners in power rings; the
-/// smaller the cost the better
-///
-inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, double const& max_power_std_dev, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
-	// for the normalization, the min values are fixed: zero for power-saving and std dev of power
+/// global cost, required during top-down selection; the smaller the cost the better
+inline double MultipleVoltages::CompoundModule::cost(double const& max_power_saving, double const& max_power_std_dev, int const& max_count, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) const {
+	// for the normalization, the min values are fixed: zero for power-saving and std dev of power, 1 for blocks count
 	// (for trivial modules w/ only highest voltage applicable) and four for corners of
-	// trivially-shaped(rectangular) modules; add small epsilon to both min values in
+	// trivially-shaped(rectangular) modules; add small epsilon to min values in
 	// order to avoid division by zero
 	//
 	static constexpr double min_corners = 4 + Math::epsilon;
 	static constexpr double min_power_saving = Math::epsilon;
 	static constexpr double min_power_std_dev = Math::epsilon;
+	static constexpr double min_count = 1 + Math::epsilon;
 	//
 	// the max values are derived from all candidate modules; this enables proper
 	// judgment of quality of any module in terms of weighted sum of cost terms;
@@ -1225,6 +1229,8 @@ inline double MultipleVoltages::CompoundModule::cost(double const& max_power_sav
 	// FloorPlanner::evaluateVoltageAssignment where cost are normalized to initial
 	// values, similar like WL or thermal management cost terms
 	//
+	// note that the weight_modules_count is used as ``inverse counterpart'' in FloorPlanner::evaluateVoltageAssignment; there it counts the voltage volumes, and here we count
+	// the blocks within volumes; for FloorPlanner::evaluateVoltageAssignment the count shall be minimized, here the count shall be maximized, and both is more or less the same
 
 	// this term models the normalized inverse power reduction, with 0 representing
 	// max power reduction and 1 representing min power reduction, i.e., smaller cost
@@ -1237,16 +1243,20 @@ inline double MultipleVoltages::CompoundModule::cost(double const& max_power_sav
 	//
 	double corners_term = (static_cast<double>(this->corners_powerring_max()) - min_corners) / (static_cast<double>(max_corners) - min_corners);
 
-	// this terms models the normalized standard deviation of power; 0 represents the lowest dev and 1 represents the largest deviation, i.e., the lower the variation the
+	// this term models the normalized standard deviation of power; 0 represents the lowest dev and 1 represents the largest deviation, i.e., the lower the variation the
 	// smaller the cost term
 	double variation_term = (this->power_std_dev_ - min_power_std_dev) / (max_power_std_dev - min_power_std_dev);
 
+	// this term models the normalized number of module count; 1 represents the max cost, for trivial modules with 1 block; lowest cost of 0 for max number of blocks
+	double count_term = static_cast<double>(max_count - this->blocks.size()) / (max_count - min_count);
+
 	// return weighted sum of terms
 	//
-	return
-		(parameters.weight_power_saving * power_saving_term) +
+	return (parameters.weight_power_saving * power_saving_term) +
 		(parameters.weight_corners * corners_term) +
-		(parameters.weight_power_variation * variation_term);
+		(parameters.weight_power_variation * variation_term) +
+		(parameters.weight_modules_count * count_term)
+	;
 }
 
 std::string MultipleVoltages::CompoundModule::id() const {
