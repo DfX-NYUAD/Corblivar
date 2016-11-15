@@ -129,8 +129,8 @@ class MultipleVoltages {
 			/// to avoid redundant recalculations, these values will only be updated whenever the
 			/// set of feasible_voltages changes
 			///
-			double power_saving_;
-			double power_saving_wasted_;
+			double power_saving_avg_;
+			double power_saving_wasted_avg_;
 			double power_dens_avg_;
 			double power_std_dev_;
 
@@ -179,14 +179,14 @@ class MultipleVoltages {
 		public:
 			/// helper to estimate gain in power reduction
 			///
-			inline void update_power_saving(Block const* block_to_consider = nullptr);
-			inline double power_saving(bool subtract_wasted_saving = true) const {
+			inline void update_power_saving_avg(Block const* block_to_consider = nullptr);
+			inline double power_saving_avg(bool subtract_wasted_saving = true) const {
 
 				if (subtract_wasted_saving) {
-					return (this->power_saving_ - this->power_saving_wasted_);
+					return (this->power_saving_avg_ - this->power_saving_wasted_avg_);
 				}
 				else {
-					return this->power_saving_;
+					return this->power_saving_avg_;
 				}
 			};
 
