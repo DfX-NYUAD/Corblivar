@@ -27,6 +27,7 @@
 #include "Block.hpp"
 
 void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
+	modules_type modules_other_voltages;
 
 	this->modules.clear();
 
@@ -87,6 +88,48 @@ void MultipleVoltages::determineCompoundModules(int layers, std::vector<Block> c
 		// perform stepwise and recursive merging of base module into larger
 		// compound modules
 		this->buildCompoundModulesHelper(inserted_it->second, inserted_it, cont);
+	}
+
+	// at this point, volumes are determined, but only all volumes with their lowest feasible voltage implicitly (via min_voltage_index) assigned as their voltage of choice
+	//
+	//
+	// however, we should also consider all those volumes with all their other feasible voltages, not for power minimization, but for other considerations
+	//
+	// currently, these considerations cover only the need to minimize the power variations across the selected volumes in order to obtain uniform power ranges for mitigation
+	// of thermal-related side-channel leakage; thus we check below for the related optimization parameter/weight
+	//
+	if (this->parameters.weight_power_variation > 0) {
+
+		// for each module, insert another module with all other feasible voltages
+		//
+		for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
+
+			CompoundModule& module = it->second;
+
+			// skip the min voltage itself, since the modules already existing will have this voltage assigned
+			for (unsigned v = module.min_voltage_index() + 1; v < MAX_VOLTAGES; v++) {
+
+				// for all other feasible voltages, first copy the module
+				if (module.feasible_voltages[v]) {
+
+					CompoundModule new_module = module;
+
+					// now reset all lower voltages; they have already been considered within other modules
+					for (unsigned w = 0; w < v; w++) {
+						new_module.feasible_voltages[w] = 0;
+					}
+
+					// update all power values
+					new_module.update_power_saving_avg();
+
+					// and store this new module in temporary data structure
+					modules_other_voltages.insert({new_module.block_ids, std::move(new_module)});
+				}
+			}
+		}
+
+		// now, move all new modules into the global data structure
+		this->modules.insert(modules_other_voltages.begin(), modules_other_voltages.end());
 	}
 
 	if (MultipleVoltages::DBG) {

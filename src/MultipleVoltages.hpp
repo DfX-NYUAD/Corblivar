@@ -212,11 +212,11 @@ class MultipleVoltages {
 	private:
 		friend class IO;
 
-		/// map of unique compound modules; keys are a vector<bool>, with each
+		/// map of compound modules; keys are a vector<bool>, with each
 		/// index representing a numerical block id, and each index' position set
 		/// true when the related block is comprised in the module; unordered map
 		/// is more efficient in accessing individual elements
-		typedef std::unordered_map< std::vector<bool>, CompoundModule > modules_type;
+		typedef std::unordered_multimap< std::vector<bool>, CompoundModule > modules_type;
 		modules_type modules;
 
 		/// vector of selected modules, filled by selectCompoundModules()
