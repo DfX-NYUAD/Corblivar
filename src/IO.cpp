@@ -696,6 +696,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> fp.IC.layers;
 	// also memorize in layout-operations handler
 	fp.layoutOp.parameters.layers = fp.IC.layers;
+	// also memorize in voltage-volumes handler
+	fp.voltageAssignment.parameters.layers = fp.IC.layers;
 
 	// sanity check for positive, non-zero layer
 	if (fp.IC.layers <= 0) {

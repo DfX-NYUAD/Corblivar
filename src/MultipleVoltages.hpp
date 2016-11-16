@@ -62,6 +62,9 @@ class MultipleVoltages {
 			/// module delays
 			std::vector<double> voltages_delay_factors;
 
+			/// global layer/die count
+			int layers;
+
 			/// internal weights, used for internal cost terms
 			double weight_power_saving;
 			/// internal weights, used for internal cost terms
@@ -131,8 +134,10 @@ class MultipleVoltages {
 			///
 			double power_saving_avg_;
 			double power_saving_wasted_avg_;
-			double power_dens_avg_;
-			double power_std_dev_;
+			/// the avg values are kept layer-wise; first element in pair encodes the number of blocks in layer, second element the avg power densities of those blocks
+			std::vector< std::pair<int, double> > power_dens_avg_;
+			/// the std dev values are kept layer-wise; only the values are kept, the blocks count is already kept in power_dens_avg_
+			std::vector< double > power_std_dev_;
 
 			/// key: neighbour's numerical block id
 			///
@@ -170,7 +175,7 @@ class MultipleVoltages {
 			inline double cost(
 					double const& max_power_saving,
 					double const& min_power_saving,
-					double const& max_power_std_dev,
+					std::vector<double> const& max_power_std_dev,
 					int const& max_count,
 					unsigned const& max_corners,
 					MultipleVoltages::Parameters const& parameters
@@ -180,7 +185,7 @@ class MultipleVoltages {
 		public:
 			/// helper to estimate gain in power reduction
 			///
-			inline void update_power_saving_avg(Block const* block_to_consider = nullptr);
+			inline void update_power_saving_avg(int const& layers, Block const* block_to_consider = nullptr);
 			inline double power_saving_avg(bool subtract_wasted_saving = true) const {
 
 				if (subtract_wasted_saving) {
@@ -204,8 +209,14 @@ class MultipleVoltages {
 			}
 
 			/// getter
-			inline double power_std_dev() const {
-				return this->power_std_dev_;
+			inline double power_std_dev_max() const {
+				double ret = 0.0;
+
+				for (double const& std_dev : this->power_std_dev_) {
+					ret = std::max(ret, std_dev);
+				}
+
+				return ret;
 			}
 	};
 
@@ -229,7 +240,7 @@ class MultipleVoltages {
 	// public data, functions
 	public:
 		/// helper to determine all compound modules
-		void determineCompoundModules(int const& layers, std::vector<Block> const& blocks, ContiguityAnalysis& contig);
+		void determineCompoundModules(std::vector<Block> const& blocks, ContiguityAnalysis& contig);
 		/// helper to perform top-down selection of compound modules
 		std::vector<CompoundModule*> const& selectCompoundModules(bool const& merge_selected_modules = false);
 

@@ -26,7 +26,7 @@
 // required Corblivar headers
 #include "Block.hpp"
 
-void MultipleVoltages::determineCompoundModules(int const& layers, std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
+void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
 	modules_type modules_other_voltages;
 
 	this->modules.clear();
@@ -46,7 +46,7 @@ void MultipleVoltages::determineCompoundModules(int const& layers, std::vector<B
 		// init power saving, based on feasible voltages and current block; note
 		// that previous values are not defined, thus the regular case to reset
 		// and recalculate power saving over all (here one) blocks is applied
-		module.update_power_saving_avg();
+		module.update_power_saving_avg(this->parameters.layers);
 
 		// init block ids such that they may encode all blocks' numerical ids;
 		// also account for the offset of one, introduced by Block::DUMMY_NUM_ID
@@ -64,10 +64,10 @@ void MultipleVoltages::determineCompoundModules(int const& layers, std::vector<B
 		}
 
 		// init outline and corners for power rings
-		module.outline.reserve(layers);
-		module.corners_powerring.reserve(layers);
+		module.outline.reserve(this->parameters.layers);
+		module.corners_powerring.reserve(this->parameters.layers);
 
-		for (int l = 0; l < layers; l++) {
+		for (int l = 0; l < this->parameters.layers; l++) {
 
 			// empty bb
 			module.outline.emplace_back(std::vector<Rect>());
@@ -120,7 +120,7 @@ void MultipleVoltages::determineCompoundModules(int const& layers, std::vector<B
 					}
 
 					// update all power values
-					new_module.update_power_saving_avg();
+					new_module.update_power_saving_avg(this->parameters.layers);
 
 					// and store this new module in temporary data structure
 					modules_other_voltages.insert({new_module.block_ids, std::move(new_module)});
@@ -164,11 +164,17 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 	double max_power_saving;
 	double min_power_saving;
-	double max_power_std_dev;
+	std::vector<double> max_power_std_dev;
 	int max_count;
 	unsigned max_corners;
 
-	std::vector<double> selected_modules__power_dens_avg;
+	// outer vector for layers; inner vector for avg power densities of selected modules in that layer
+	std::vector< std::vector<double> > selected_modules__power_dens_avg;
+
+	// allocate empty inner vectors
+	for (int l = 0; l < this->parameters.layers; l++) {
+		selected_modules__power_dens_avg.emplace_back( std::vector<double>() );
+	}
 
 	unsigned min_voltage_index;
 
@@ -180,11 +186,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 		double max_power_saving;
 		double min_power_saving;
-		double max_power_std_dev;
+		std::vector<double> max_power_std_dev;
 		int max_count;
 		unsigned max_corners;
 
-		std::vector<double> selected_modules__power_dens_avg;
+		std::vector< std::vector<double> > selected_modules__power_dens_avg;
 
 		MultipleVoltages::Parameters parameters;
 
@@ -193,8 +199,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			modules_cost_comp(
 					double const& max_power_saving,
 					double const& min_power_saving,
-					double const& max_power_std_dev,
-					std::vector<double> const& selected_modules__power_dens_avg,
+					std::vector<double> const& max_power_std_dev,
+					std::vector< std::vector<double> > const& selected_modules__power_dens_avg,
 					int const& max_count,
 					unsigned const& max_corners,
 					MultipleVoltages::Parameters const& parameters
@@ -216,21 +222,47 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				// if power variations shall be considered, then we seek to minimize also the variation among volumes; cost will be augmented with that inter-volume
 				// variations, i.e., variations among volumes if m1 or m2 would be selected next impact the overall cost
 				//
-				// note that the look-ahead won't make sense for the very first module to select
-				//
-				if (this->parameters.weight_power_variation > 0 && !selected_modules__power_dens_avg.empty()) {
+				if (this->parameters.weight_power_variation > 0) {
 
-					// local copy required for look-ahead manipulation
-					std::vector<double> next_selected_modules__power_dens_avg = selected_modules__power_dens_avg;
+					// note that the look-ahead won't make sense for the very first module to select; so we check each layer individually and only look-ahead
+					// for those already having at least one value assigned _and_ being affected by either m1 or m2
+					//
+					double m1_variance = 0.0;
+					double m2_variance = 0.0;
+					// local copy required for look-ahead data manipulation
+					std::vector< std::vector<double> > look_ahead_power_dens = this->selected_modules__power_dens_avg;
 
-					// first, augment respective cost with variance of power density values when m1 would be selected next
-					next_selected_modules__power_dens_avg.push_back(m1->power_dens_avg_);
-					c1 += (this->parameters.weight_power_variation * Math::variance(next_selected_modules__power_dens_avg));
+					for (int l = 0; l < this->parameters.layers; l++) {
 
-					// second, augment respective cost with variance of power density values when m2 would be selected next
-					next_selected_modules__power_dens_avg.pop_back();
-					next_selected_modules__power_dens_avg.push_back(m2->power_dens_avg_);
-					c2 += (this->parameters.weight_power_variation * Math::variance(next_selected_modules__power_dens_avg));
+						if (!this->selected_modules__power_dens_avg[l].empty()) {
+
+							// update of c1, related to m1; only when both previously selected modules and m1 will impact this layer
+							//
+							if (m1->power_dens_avg_[l].first != 0) {
+
+								look_ahead_power_dens[l].push_back( m1->power_dens_avg_[l].second );
+
+								// memorize only the worst/max impact
+								m1_variance = std::max(m1_variance, Math::variance(look_ahead_power_dens[l]));
+
+								// remove m1's value such that look_ahead_power_dens can be reused for checking against m2
+								look_ahead_power_dens[l].pop_back();
+							}
+
+							// update of c2, related to m2; only when both previously selected modules and m2 will impact this layer
+							//
+							if (m2->power_dens_avg_[l].first != 0) {
+
+								look_ahead_power_dens[l].push_back( m2->power_dens_avg_[l].second );
+
+								// memorize only the worst/max impact
+								m2_variance = std::max(m2_variance,Math::variance(look_ahead_power_dens[l]));
+							}
+						}
+					}
+					// add weighted cost variance to previous, regular cost
+					c1 += (this->parameters.weight_power_variation * m1_variance);
+					c2 += (this->parameters.weight_power_variation * m2_variance);
 				}
 				// now and for regular cases, consider the cost
 				return (
@@ -242,19 +274,26 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			}
 	};
 
-	// first, determine max values, required for cost terms and for ordering
+	// first, determine max/min values, required for cost terms and for ordering
 	//
-	max_power_saving = this->modules.begin()->second.power_saving_avg();
+	max_power_saving = 0.0;
 	min_power_saving = 0.0;
-	max_power_std_dev = this->modules.begin()->second.power_std_dev_;
-	max_count = this->modules.begin()->second.blocks.size();
-	max_corners = this->modules.begin()->second.corners_powerring_max();
+	max_count = 0;
+	max_corners = 0;
+
+	for (int l = 0; l < this->parameters.layers; l++) {
+		max_power_std_dev.push_back(0.0);
+	}
+
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 		max_power_saving = std::max(max_power_saving, it->second.power_saving_avg());
 		min_power_saving = std::min(min_power_saving, it->second.power_saving_avg());
-		max_power_std_dev = std::max(max_power_std_dev, it->second.power_std_dev_);
 		max_count = std::max(max_count, static_cast<int>(it->second.blocks.size()));
 		max_corners = std::max(max_corners, it->second.corners_powerring_max());
+
+		for (int l = 0; l < this->parameters.layers; l++) {
+			max_power_std_dev[l] = std::max(max_power_std_dev[l], it->second.power_std_dev_[l]);
+		}
 	}
 
 	
@@ -273,7 +312,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	this->selected_modules.clear();
 	while (!modules.empty()) {
 
-		// update sorting of vector, mainly because the values in selected_modules__power_dens_avg have changed because of the previously selected module
+		// update sorting of vector; the values in selected_modules__power_dens_avg have changed because of the previously selected module
 		std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
 
 		if (MultipleVoltages::DBG_VERBOSE) {
@@ -292,17 +331,38 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, min_power_saving, max_power_std_dev, max_count, max_corners, this->parameters) << std::endl;
 				std::cout << "DBG_VOLTAGES>    Avg gain minus ``wasted gain'' in power reduction: " << module->power_saving_avg() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Avg gain in power reduction: " << module->power_saving_avg(false) << std::endl;
-				std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << module->power_std_dev_ << std::endl;
+				std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << module->power_std_dev_[l] << std::endl;
+					}
 				std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
-				std::cout << "DBG_VOLTAGES>  Power densities of modules selected so far and of this module: ";
-					for (double dens : selected_modules__power_dens_avg) {
-						std::cout << dens << ", ";
+				std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << module->power_dens_avg_[l].first << " blocks): " << module->power_dens_avg_[l].second << std::endl;
 					}
-					std::cout << module->power_dens_avg_ << std::endl;
-				std::vector<double> selected_modules__power_dens_avg_copy = selected_modules__power_dens_avg;
-				selected_modules__power_dens_avg_copy.push_back(module->power_dens_avg_);
-				std::cout << "DBG_VOLTAGES>   Variance of those power densities: " << Math::variance(selected_modules__power_dens_avg_copy) << std::endl;
+
+				std::cout << "DBG_VOLTAGES>  Power densities of modules selected so far:" << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << selected_modules__power_dens_avg[l].size() << " modules): ";
+
+						for (double dens : selected_modules__power_dens_avg[l]) {
+							std::cout << dens << ", ";
+						}
+						std::cout << std::endl;
+					}
+
+				std::vector< std::vector<double> > selected_modules__power_dens_avg_copy = selected_modules__power_dens_avg;
+				for (int l = 0; l < this->parameters.layers; l++) {
+
+					if (module->power_dens_avg_[l].first > 0) {
+						selected_modules__power_dens_avg_copy[l].push_back(module->power_dens_avg_[l].second);
+					}
+				}
+				std::cout << "DBG_VOLTAGES>  Variance for those (selected and this module's) power densities:" << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>   On layer " << l << ": " << Math::variance(selected_modules__power_dens_avg_copy[l]) << std::endl;
+					}
 			}
 			std::cout << "DBG_VOLTAGES>" << std::endl;
 		}
@@ -313,8 +373,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		// memorize this module as selected
 		this->selected_modules.push_back(cur_selected_module);
 
-		// also memorize its average power density
-		selected_modules__power_dens_avg.push_back(cur_selected_module->power_dens_avg_);
+		// also memorize its average power densities layer wise
+		for (int l = 0; l < this->parameters.layers; l++) {
+
+			if (cur_selected_module->power_dens_avg_[l].first > 0) {
+				selected_modules__power_dens_avg[l].push_back(cur_selected_module->power_dens_avg_[l].second);
+			}
+		}
 
 		// assign related values to all blocks comprised in this module: (index
 		// of) lowest applicable voltage, and pointer to module itself
@@ -338,15 +403,25 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << cur_selected_module->cost(max_power_saving, min_power_saving, max_power_std_dev, max_count, max_corners, this->parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Avg gain minus ``wasted gain'' in power reduction: " << cur_selected_module->power_saving_avg() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Avg gain in power reduction: " << cur_selected_module->power_saving_avg(false) << std::endl;
-			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << cur_selected_module->power_std_dev_ << std::endl;
+			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << cur_selected_module->power_std_dev_[l] << std::endl;
+					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_powerring_max() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << cur_selected_module->blocks.size() << std::endl;
-			std::cout << "DBG_VOLTAGES>  Power densities of modules selected so far: ";
-				for (double dens : selected_modules__power_dens_avg) {
-					std::cout << dens << ", ";
+			std::cout << "DBG_VOLTAGES>  Power densities of modules selected so far:" << std::endl;
+				for (int l = 0; l < this->parameters.layers; l++) {
+					std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << selected_modules__power_dens_avg[l].size() << " modules): ";
+
+					for (double dens : selected_modules__power_dens_avg[l]) {
+						std::cout << dens << ", ";
+					}
+					std::cout << std::endl;
 				}
-				std::cout << std::endl;
-			std::cout << "DBG_VOLTAGES>   Variance of power densities: " << Math::variance(selected_modules__power_dens_avg) << std::endl;
+			std::cout << "DBG_VOLTAGES>  Variance for those (selected module's) power densities:" << std::endl;
+				for (int l = 0; l < this->parameters.layers; l++) {
+					std::cout << "DBG_VOLTAGES>   On layer " << l << ": " << Math::variance(selected_modules__power_dens_avg[l]) << std::endl;
+				}
 		}
 
 		// remove other modules which contain some already assigned blocks; start
@@ -398,17 +473,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	// fourth, merge selected modules whenever possible, i.e., when some of the
 	// modules' blocks are contiguous to another module sharing the same voltage
 	//
-	// note that such merging will a) impact the corners and b) undermine the cost
-	// normalization and thus the actual top-down selection. For a), it most likely
-	// increases the estimated max number of corners to an unreasonably high value
+	// note that such merging will a) impact the corners and b) may undermine the cost
+	// normalization and thus the actual top-down selection. For a), the implementation below
+	// most likely increases the estimated max number of corners to an unreasonably high value
 	// since most merges will not increase the numbers of corners, especially not when
 	// many modules nearby (with same voltages) are merged. For b), the actual cost of
-	// merged modules shall be different and may be inferior than other cost,
-	// suggesting that the merge is not beneficial
+	// merged modules will be different and may be inferior than the previous cost
 	//
-	// thus, it shall only be applied when requested, e.g., for final logging
-	// 
-	// TODO revise; check whether merges are not undermining cost
 	if (merge_selected_modules) {
 
 		if (MultipleVoltages::DBG) {
@@ -460,18 +531,47 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					}
 
 					// calculate the new avg values
-					module->power_dens_avg_ = (module->power_dens_avg_ + n_module->power_dens_avg_) / 2.0;
 					module->power_saving_avg_ = (module->power_saving_avg_ + n_module->power_saving_avg_) / 2.0;
 					module->power_saving_wasted_avg_ = (module->power_saving_wasted_avg_ + n_module->power_saving_wasted_avg_) / 2.0;
 
-					// recalculate the std dev
-					module->power_std_dev_ = 0.0;
-					for (Block const* b : module->blocks) {
+					for (int l = 0; l < this->parameters.layers; l++) {
 
-						module->power_std_dev_ += std::pow(b->power_density() - module->power_dens_avg_, 2);
+						// for each layer, we have to check whether at least some blocks are considered in each module
+						if (module->power_dens_avg_[l].first > 0 && n_module->power_dens_avg_[l].first > 0) {
+							module->power_dens_avg_[l].second = (module->power_dens_avg_[l].second + n_module->power_dens_avg_[l].second) / 2.0;
+							// also memorize the new blocks count
+							module->power_dens_avg_[l].first += n_module->power_dens_avg_[l].first;
+						}
+						// only the new module has some blocks in that layer, so use this new module's avg
+						else if (module->power_dens_avg_[l].first == 0 && n_module->power_dens_avg_[l].first > 0) {
+							module->power_dens_avg_[l].second = n_module->power_dens_avg_[l].second;
+							// also memorize the new blocks count
+							module->power_dens_avg_[l].first = n_module->power_dens_avg_[l].first;
+						}
+						// other cases are safe to ignore: no module has any blocks in this layer; only the previous module has some blocks in that layer
 					}
-					module->power_std_dev_ /= module->blocks.size();
-					module->power_std_dev_ = std::sqrt(module->power_std_dev_);
+
+					// recalculate the std devs
+					for (int l = 0; l < this->parameters.layers; l++) {
+
+						module->power_std_dev_[l] = 0.0;
+
+						// no need to calculate on layers without blocks; also avoids potential division by zero below for normalization
+						if (module->power_dens_avg_[l].first == 0) {
+							continue;
+						}
+
+						for (Block const* b : module->blocks) {
+
+							if (b->layer != l) {
+								continue;
+							}
+
+							module->power_std_dev_[l] += std::pow(b->power_density() - module->power_dens_avg_[l].second, 2);
+						}
+						module->power_std_dev_[l] /= module->power_dens_avg_[l].first;
+						module->power_std_dev_[l] = std::sqrt(module->power_std_dev_[l]);
+					}
 
 
 					// add the outline rects from the module to be merged
@@ -549,7 +649,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			std::cout << "DBG_VOLTAGES>   Module (total) cost: " << module->cost(max_power_saving, min_power_saving, max_power_std_dev, max_count, max_corners, this->parameters) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Avg gain minus ``wasted gain'' in power reduction: " << module->power_saving_avg() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Avg gain in power reduction: " << module->power_saving_avg(false) << std::endl;
-			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << module->power_std_dev_ << std::endl;
+			std::cout << "DBG_VOLTAGES>    Std dev of power densities: " << std::endl;
+					for (int l = 0; l < this->parameters.layers; l++) {
+						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << module->power_std_dev_[l] << std::endl;
+					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
 
@@ -790,7 +893,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	//
 	if (new_module.feasible_voltages != module.feasible_voltages) {
 
-		new_module.update_power_saving_avg();
+		new_module.update_power_saving_avg(this->parameters.layers);
 	}
 	// otherwise, copy previous values and update only according to the specific new
 	// block to be considered
@@ -804,7 +907,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		new_module.power_dens_avg_ = module.power_dens_avg_;
 
 		// update copied values to consider new block
-		new_module.update_power_saving_avg(neighbour->block);
+		new_module.update_power_saving_avg(this->parameters.layers, neighbour->block);
 	}
 
 	// copy outline from the previous module
@@ -1241,11 +1344,14 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 ///
 /// note that we also update the modules' standard deviation of power values here as well
 ///
-inline void MultipleVoltages::CompoundModule::update_power_saving_avg(Block const* block_to_consider) {
+inline void MultipleVoltages::CompoundModule::update_power_saving_avg(int const& layers, Block const* block_to_consider) {
 	unsigned min_voltage_index = this->min_voltage_index();
 
-	// std dev has to be recalculated in any case
-	this->power_std_dev_ = 0.0;
+	// std devs have to be recalculated in any case
+	this->power_std_dev_.clear();
+	for (int l = 0; l < layers; l++) {
+		this->power_std_dev_.push_back(0.0);
+	}
 
 	// all blocks shall be considered
 	//
@@ -1254,8 +1360,13 @@ inline void MultipleVoltages::CompoundModule::update_power_saving_avg(Block cons
 		// reset previous values
 		this->power_saving_avg_
 			= this->power_saving_wasted_avg_
-			= this->power_dens_avg_
 			= 0.0;
+
+		this->power_dens_avg_.clear();
+		for (int l = 0; l < layers; l++) {
+			this->power_dens_avg_.emplace_back( std::pair<int, double>(0, 0.0) );
+		}
+
 
 		for (Block const* b : this->blocks) {
 
@@ -1270,52 +1381,62 @@ inline void MultipleVoltages::CompoundModule::update_power_saving_avg(Block cons
 			// best-case / lowest-voltage / lowest-power module
 			this->power_saving_wasted_avg_ += (b->power(min_voltage_index) - b->power_min());
 
-			// for the standard deviation, we have to first determine the average power densities; for the current power density, we assume the lowest power achievable in
-			// this modules, as also done for the power saving above
-			this->power_dens_avg_ += b->power_density(min_voltage_index);
+			// for the standard deviation, we have to first determine the average power densities; for the current power density, we assume the lowest power achievable
+			// in this modules, as also done for the power saving above
+			this->power_dens_avg_[b->layer].second += b->power_density(min_voltage_index);
+			this->power_dens_avg_[b->layer].first++;
 		}
 		// determine avg power values
-		this->power_dens_avg_ /= this->blocks.size();
 		this->power_saving_avg_ /= this->blocks.size();
 		this->power_saving_wasted_avg_ /= this->blocks.size();
+		for (int l = 0; l < layers; l++) {
 
-		// now we may recalculate the std dev
-		for (Block const* b : this->blocks) {
+			// sanity check whether some blocks are considered in this layer at all, also to avoid potential division by zero below
+			if (this->power_dens_avg_[l].first == 0) {
+				continue;
+			}
 
-			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_dens_avg_, 2);
+			this->power_dens_avg_[l].second /= this->power_dens_avg_[l].first;
 		}
-		this->power_std_dev_ /= this->blocks.size();
-		this->power_std_dev_ = std::sqrt(this->power_std_dev_);
-
 	}
-	// only one specific block shall be considered; update values only, no complete
-	// recalculation
+	// only one specific block shall be considered; update values
+	//
+	// note that block_to_consider _should_ already be included in this->blocks at this point
 	//
 	else {
 		// the avg values can be simply updated
 		//
 		// first, retrieve the previous sums
-		this->power_dens_avg_ *= (this->blocks.size() - 1);
 		this->power_saving_avg_ *= (this->blocks.size() - 1);
 		this->power_saving_wasted_avg_ *= (this->blocks.size() - 1);
+		this->power_dens_avg_[block_to_consider->layer].second *= this->power_dens_avg_[block_to_consider->layer].first;
 
 		// second, recalculate the new avg values
-		this->power_dens_avg_ += block_to_consider->power_density(min_voltage_index);
-		this->power_dens_avg_ /= this->blocks.size();
-
 		this->power_saving_avg_ += (block_to_consider->power_max() - block_to_consider->power(min_voltage_index));
 		this->power_saving_avg_ /= this->blocks.size();
 
 		this->power_saving_wasted_avg_ += (block_to_consider->power(min_voltage_index) - block_to_consider->power_min());
 		this->power_saving_wasted_avg_ /= this->blocks.size();
 
-		// now we may recalculate the std dev
-		for (Block const* b : this->blocks) {
+		this->power_dens_avg_[block_to_consider->layer].first++;
+		this->power_dens_avg_[block_to_consider->layer].second += block_to_consider->power_density(min_voltage_index);
+		this->power_dens_avg_[block_to_consider->layer].second /= this->power_dens_avg_[block_to_consider->layer].first;
+	}
 
-			this->power_std_dev_ += std::pow(b->power_density(min_voltage_index) - this->power_dens_avg_, 2);
+	// now we may recalculate the std dev
+	for (Block const* b : this->blocks) {
+
+		this->power_std_dev_[b->layer] += std::pow(b->power_density(min_voltage_index) - this->power_dens_avg_[b->layer].second, 2);
+	}
+	for (int l = 0; l < layers; l++) {
+
+		// sanity check whether some blocks are considered in this layer at all, also to avoid potential division by zero below
+		if (this->power_dens_avg_[l].first == 0) {
+			continue;
 		}
-		this->power_std_dev_ /= this->blocks.size();
-		this->power_std_dev_ = std::sqrt(this->power_std_dev_);
+
+		this->power_std_dev_[l] /= this->power_dens_avg_[l].first;
+		this->power_std_dev_[l] = std::sqrt(this->power_std_dev_[l]);
 	}
 }
 
@@ -1323,12 +1444,13 @@ inline void MultipleVoltages::CompoundModule::update_power_saving_avg(Block cons
 inline double MultipleVoltages::CompoundModule::cost(
 		double const& max_power_saving,
 		double const& min_power_saving,
-		double const& max_power_std_dev,
+		std::vector<double> const& max_power_std_dev,
 		int const& max_count,
 		unsigned const& max_corners,
 		MultipleVoltages::Parameters const& parameters
 ) const {
 	double power_saving_term, corners_term, variation_term, count_term;
+	int affected_layers;
 
 	// for the normalization, the following min values are fixed: zero for std dev of power, 1 for blocks count (for trivial modules w/ only highest voltage applicable), and
 	// four for corners of trivially-shaped(rectangular) modules
@@ -1365,7 +1487,22 @@ inline double MultipleVoltages::CompoundModule::cost(
 
 	// this term models the normalized standard deviation of power; 0 represents the lowest dev and 1 represents the largest deviation, i.e., the lower the variation the
 	// smaller the cost term
-	variation_term = (this->power_std_dev_ - min_power_std_dev) / (max_power_std_dev - min_power_std_dev + Math::epsilon);
+	//
+	// this term finally considers the avg of above outlined cost over all affected layers
+	//
+	variation_term = 0.0;
+	affected_layers = 0;
+	
+	for (int l = 0; l < parameters.layers; l++) {
+
+		if (this->power_std_dev_[l] > 0) {
+			variation_term += (this->power_std_dev_[l] - min_power_std_dev) / (max_power_std_dev[l] - min_power_std_dev + Math::epsilon);
+			affected_layers++;
+		}
+	}
+	if (affected_layers > 0) {
+		variation_term /= affected_layers;
+	}
 
 	// this term models the normalized number of module count; 1 represents the max cost, for trivial modules with 1 block; lowest cost of 0 for max number of blocks
 	count_term = static_cast<double>(max_count - this->blocks.size()) / (max_count - min_count + Math::epsilon);

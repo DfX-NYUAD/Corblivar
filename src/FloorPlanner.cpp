@@ -1246,7 +1246,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// voltage-volume assignment: bottom-up phase, i.e., determine set of compound
 	// modules with their assignable voltages and their (local) cost for power-domain
 	// routing; here, modules are stepwise arranged into compound modules
-	this->voltageAssignment.determineCompoundModules(this->IC.layers, this->blocks, this->contigAnalyser);
+	this->voltageAssignment.determineCompoundModules(this->blocks, this->contigAnalyser);
 
 	// voltage-volume assignment: top-down phase, i.e., determine optimal selection of
 	// compound modules such that all blocks are assigned to a voltage and that both
@@ -1268,7 +1268,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		corners_avg += module->corners_powerring_max();
 
 		// max std dev of power densities
-		power_variation_max = std::max(power_variation_max, module->power_std_dev());
+		power_variation_max = std::max(power_variation_max, module->power_std_dev_max());
 	}
 	// average value for corners
 	corners_avg /= selected_modules.size();
