@@ -190,7 +190,15 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 		public:
 			// initializer for comparator w/ parameters
-			modules_cost_comp(double const& max_power_saving, double const& min_power_saving, double const& max_power_std_dev, std::vector<double> const& selected_modules__power_dens_avg, int const& max_count, unsigned const& max_corners, MultipleVoltages::Parameters const& parameters) {
+			modules_cost_comp(
+					double const& max_power_saving,
+					double const& min_power_saving,
+					double const& max_power_std_dev,
+					std::vector<double> const& selected_modules__power_dens_avg,
+					int const& max_count,
+					unsigned const& max_corners,
+					MultipleVoltages::Parameters const& parameters
+			) {
 				this->max_power_saving = max_power_saving;
 				this->min_power_saving = min_power_saving;
 				this->max_power_std_dev = max_power_std_dev;
@@ -205,37 +213,32 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				double c1 = m1->cost(this->max_power_saving, this->min_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
 				double c2 = m2->cost(this->max_power_saving, this->min_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
 
-				// if power variations shall be considered, then we seek to minimize also the variation among volumes, not only within
+				// if power variations shall be considered, then we seek to minimize also the variation among volumes; cost will be augmented with that inter-volume
+				// variations, i.e., variations among volumes if m1 or m2 would be selected next impact the overall cost
 				//
-				if (this->parameters.weight_power_variation > 0) {
+				// note that the look-ahead won't make sense for the very first module to select
+				//
+				if (this->parameters.weight_power_variation > 0 && !selected_modules__power_dens_avg.empty()) {
 
-					// cost are similar, to some degree; maybe even equal
-					//
-					// sorting based on look-ahead of variation among volumes if m1 or m2 would be selected next
-					if (Math::doubleComp(c1, c2, 1.0e-03)) {
-						std::vector<double> selected_and_m1 = selected_modules__power_dens_avg;
-						std::vector<double> selected_and_m2 = selected_modules__power_dens_avg;
+					// local copy required for look-ahead manipulation
+					std::vector<double> next_selected_modules__power_dens_avg = selected_modules__power_dens_avg;
 
-						selected_and_m1.push_back(m1->power_dens_avg_);
-						selected_and_m2.push_back(m2->power_dens_avg_);
+					// first, augment respective cost with variance of power density values when m1 would be selected next
+					next_selected_modules__power_dens_avg.push_back(m1->power_dens_avg_);
+					c1 += (this->parameters.weight_power_variation * Math::variance(next_selected_modules__power_dens_avg));
 
-						// prefer the module with the lower resulting variance
-						return (Math::variance(selected_and_m1) < Math::variance(selected_and_m2));
-					}
-					// otherwise sort in ascending order by cost
-					else {
-						return (c1 < c2);
-					}
+					// second, augment respective cost with variance of power density values when m2 would be selected next
+					next_selected_modules__power_dens_avg.pop_back();
+					next_selected_modules__power_dens_avg.push_back(m2->power_dens_avg_);
+					c2 += (this->parameters.weight_power_variation * Math::variance(next_selected_modules__power_dens_avg));
 				}
-				// for regular cases, we shall simply consider the cost
-				else {
-					return (
-						(c1 < c2) ||
-						// in case cost are very similar, which typically happens for trivial modules, also consider the number of covered blocks, in order
-						// to prefer more larger volumes instead of trivial modules
-						(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size()))
-					);
-				}
+				// now and for regular cases, consider the cost
+				return (
+					(c1 < c2) ||
+					// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
+					// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
+					(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size()))
+				);
 			}
 	};
 
@@ -1369,10 +1372,10 @@ inline double MultipleVoltages::CompoundModule::cost(
 
 	// return weighted sum of terms
 	//
-	return (parameters.weight_power_saving * power_saving_term) +
-		(parameters.weight_corners * corners_term) +
-		(parameters.weight_power_variation * variation_term) +
-		(parameters.weight_modules_count * count_term)
+	return (parameters.weight_power_saving * power_saving_term)
+		+ (parameters.weight_corners * corners_term)
+		+ (parameters.weight_power_variation * variation_term)
+		+ (parameters.weight_modules_count * count_term)
 	;
 }
 
