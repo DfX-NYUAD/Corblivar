@@ -200,7 +200,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					double const& max_power_saving,
 					double const& min_power_saving,
 					std::vector<double> const& max_power_std_dev,
-					std::vector< std::vector<double> > const& selected_modules__power_dens_avg,
+					std::vector< std::vector<double> > const* selected_modules__power_dens_avg,
 					int const& max_count,
 					unsigned const& max_corners,
 					MultipleVoltages::Parameters const& parameters
@@ -208,13 +208,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				this->max_power_saving = max_power_saving;
 				this->min_power_saving = min_power_saving;
 				this->max_power_std_dev = max_power_std_dev;
-				this->selected_modules__power_dens_avg = selected_modules__power_dens_avg;
+				this->selected_modules__power_dens_avg = (*selected_modules__power_dens_avg);
 				this->max_count = max_count;
 				this->max_corners = max_corners;
 				this->parameters = parameters;
 			}
 
-			bool operator()(CompoundModule const* m1, CompoundModule const* m2) const {
+			bool operator()(CompoundModule const* m1, CompoundModule const* m2) {
 
 				double c1 = m1->cost(this->max_power_saving, this->min_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
 				double c2 = m2->cost(this->max_power_saving, this->min_power_saving, this->max_power_std_dev, this->max_count, this->max_corners, this->parameters);
@@ -229,8 +229,6 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					//
 					double m1_variance = 0.0;
 					double m2_variance = 0.0;
-					// local copy required for look-ahead data manipulation
-					std::vector< std::vector<double> > look_ahead_power_dens = this->selected_modules__power_dens_avg;
 
 					for (int l = 0; l < this->parameters.layers; l++) {
 
@@ -240,23 +238,26 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 							//
 							if (m1->power_dens_avg_[l].first != 0) {
 
-								look_ahead_power_dens[l].push_back( m1->power_dens_avg_[l].second );
+								this->selected_modules__power_dens_avg[l].push_back( m1->power_dens_avg_[l].second );
 
 								// memorize only the worst/max impact
-								m1_variance = std::max(m1_variance, Math::variance(look_ahead_power_dens[l]));
+								m1_variance = std::max(m1_variance, Math::variance(this->selected_modules__power_dens_avg[l]));
 
-								// remove m1's value such that look_ahead_power_dens can be reused for checking against m2
-								look_ahead_power_dens[l].pop_back();
+								// remove m1's value again to restore previous state
+								this->selected_modules__power_dens_avg[l].pop_back();
 							}
 
 							// update of c2, related to m2; only when both previously selected modules and m2 will impact this layer
 							//
 							if (m2->power_dens_avg_[l].first != 0) {
 
-								look_ahead_power_dens[l].push_back( m2->power_dens_avg_[l].second );
+								this->selected_modules__power_dens_avg[l].push_back( m2->power_dens_avg_[l].second );
 
 								// memorize only the worst/max impact
-								m2_variance = std::max(m2_variance,Math::variance(look_ahead_power_dens[l]));
+								m2_variance = std::max(m2_variance,Math::variance(this->selected_modules__power_dens_avg[l]));
+
+								// remove m2's value again to restore previous state
+								this->selected_modules__power_dens_avg[l].pop_back();
 							}
 						}
 					}
@@ -313,7 +314,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	while (!modules.empty()) {
 
 		// update sorting of vector; the values in selected_modules__power_dens_avg have changed because of the previously selected module
-		std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
+		std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, &selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
 
 		if (MultipleVoltages::DBG_VERBOSE) {
 
