@@ -265,6 +265,7 @@ class FloorPlanner {
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateTiming(Cost& cost,
 				bool const& set_max_cost = false,
+				bool const& finalize = false,
 				bool reevaluation = false);
 		/// SA: cost functions, i.e., layout-evaluations
 		void evaluateVoltageAssignment(Cost& cost,

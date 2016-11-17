@@ -993,12 +993,12 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		if (finalize && this->opt_flags.voltage_assignment) {
 
 			// for voltage assignment, we require timing analysis anyway
-			this->evaluateTiming(cost, true);
+			this->evaluateTiming(cost, true, true);
 
 			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true, true);
 		}
 		else if (finalize && this->opt_flags.timing) {
-			this->evaluateTiming(cost, true);
+			this->evaluateTiming(cost, true, true);
 		}
 		else if (this->opt_flags.voltage_assignment) {
 
@@ -1133,8 +1133,15 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 /// determine the delays for all blocks; they shall fulfill a max delay below a given
 /// threshold
-void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool reevaluation) {
+void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool const& finalize, bool reevaluation) {
 	double max_delay;
+
+	// for finalize runs, reset timing constraint to original constraint in order to
+	// evaluate final result w.r.t. the user-given constraint, not an possibly
+	// down-scaled constraint (see below)
+	if (finalize) {
+		this->IC.delay_threshold = this->IC.delay_threshold_initial;
+	}
 
 	// for reevaluation, after voltage assignment, don't reset voltage-assignment
 	// values and avoid redundant recalculation of net delays
@@ -1180,6 +1187,21 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool ree
 
 	// store actual max delay value
 	cost.timing_actual_value = max_delay;
+
+	// iteratively reduce the timing constraint / delay threshold stepwise if possible; this way, chances for actually meeting the timing constraints during further SA
+	// iterations will reduce which, in turn, will emphasize the cost for timing optimization
+	//
+	// also, this will reduce the required iterations/computation for voltage assignment since it's skipped in case timing is violated
+	//
+	if (
+		!finalize
+		&& cost.fits_fixed_outline
+		&& cost.timing_actual_value < this->IC.delay_threshold
+		// also only when timing shall be optimized, not when only analysed
+		&& this->weights.timing > 0
+	) {
+		this->IC.delay_threshold = cost.timing_actual_value;
+	}
 }
 
 void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_layouts_ratio, bool const& set_max_cost, bool const& finalize) {
@@ -1187,13 +1209,6 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double corners_avg = 0.0;
 	double power_variation_max = 0.0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
-
-	// for finalize runs, reset timing constraint to original constraint in order to
-	// evaluate final result w.r.t. the user-given constraint, not an possibly
-	// down-scaled constraint (see below)
-	if (finalize) {
-		this->IC.delay_threshold = this->IC.delay_threshold_initial;
-	}
 
 	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
@@ -1218,16 +1233,6 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "-> FloorPlanner::evaluateVoltageAssignment()" << std::endl;
-	}
-
-	// iteratively reduce the timing constraint stepwise if possible; this way,
-	// chances for actually meeting the timing constraints during further SA
-	// iterations will reduce which, in turn, will reduce the required
-	// iterations/computation for voltage assignment since it's skipped in case timing
-	// is violated
-	//
-	if (!finalize && cost.fits_fixed_outline && cost.timing_actual_value < this->IC.delay_threshold) {
-		this->IC.delay_threshold = cost.timing_actual_value;
 	}
 
 	// derive applicable voltages for each block; lower voltages are applicable as
@@ -1311,7 +1316,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// delay cost is modelling max delay over delay threshold, i.e., larger max delays
 	// due to voltage assignment will increase delay cost
 	//
-	this->evaluateTiming(cost, set_max_cost, true);
+	this->evaluateTiming(cost, set_max_cost, finalize, true);
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateVoltageAssignment()" << std::endl;
