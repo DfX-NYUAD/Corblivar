@@ -298,11 +298,15 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	}
 
 	
-	// second, insert all modules' pointers into new vector, to be updated and sorted below
+	// second, insert all modules' pointers into new vector, to be sorted next
 	//
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 		modules.push_back(&(it->second));
 	}
+
+	// initial sort for steady-state cost, i.e., without consideration of inter-volume variations (via selected_modules__power_dens_avg), but still with consideration of std
+	// dev of power densities within volumes
+	std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, &selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
 
 	// third, stepwise select module with best cost, assign module's voltage to all
 	// related modules, remove the other (candidate) modules which comprise any of the
@@ -313,8 +317,15 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	this->selected_modules.clear();
 	while (!modules.empty()) {
 
-		// update sorting of vector; the values in selected_modules__power_dens_avg have changed because of the previously selected module
-		std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, &selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
+		// update sorting of vector if called for; the values in selected_modules__power_dens_avg have changed because of the previously selected module; so selecting any
+		// next module will have different cost
+		//
+		// only to be done when both intra-volume power variations are to be considered (parameters.weight_power_variation > 0) and when inter-volume variations shall be
+		// minimized
+		// TODO new config parameter for inter-volume variation optimization
+		if (this->parameters.weight_power_variation > 0) {
+			std::sort(modules.begin(), modules.end(), modules_cost_comp(max_power_saving, min_power_saving, max_power_std_dev, &selected_modules__power_dens_avg, max_count, max_corners, this->parameters));
+		}
 
 		if (MultipleVoltages::DBG_VERBOSE) {
 
