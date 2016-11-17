@@ -60,7 +60,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 		// sort the nets' bounding boxes by their area
 		sort(nets_segments[i].begin(), nets_segments[i].end(),
 			// lambda expression
-			[&](Segments sn1, Segments sn2) {
+			[](Segments const& sn1, Segments const& sn2) {
 				return sn1.bb.area > sn2.bb.area;
 			}
 		);
@@ -353,7 +353,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	// sort list by temperature values
 	sort(thermal_map.begin(), thermal_map.end(),
 		// lambda expression
-		[&](ThermalAnalyzer::ThermalMapBin* b1, ThermalAnalyzer::ThermalMapBin* b2) {
+		[](ThermalAnalyzer::ThermalMapBin const* b1, ThermalAnalyzer::ThermalMapBin const* b2) {
 			return (b1->temp > b2->temp);
 		}
 	);

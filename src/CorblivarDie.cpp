@@ -374,7 +374,7 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 	// structure for further horizontal block insertion
 	this->Hi.sort(
 		// lambda expression
-		[&](Block const* b1, Block const* b2) {
+		[](Block const* b1, Block const* b2) {
 			// descending order, b1 above b2
 			return !Rect::rectA_below_rectB(b1->bb, b2->bb, false);
 		}
@@ -439,7 +439,7 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 	// structure for further vertical block insertion
 	this->Vi.sort(
 		// lambda expression
-		[&](Block const* b1, Block const* b2) {
+		[](Block const* b1, Block const* b2) {
 			// descending order, b1 right of b2
 			return !Rect::rectA_leftOf_rectB(b1->bb, b2->bb, false);
 		}
@@ -943,7 +943,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 		// sort blocks by lower-left x-coordinate (ascending order)
 		sort(blocks.begin(), blocks.end(),
 			// lambda expression
-			[&](Block const* b1, Block const* b2){
+			[](Block const* b1, Block const* b2){
 				return (b1->bb.ll.x < b2->bb.ll.x)
 					// for blocks on same column, sort additionally by
 					// their width, putting the bigger back in the
@@ -1039,7 +1039,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 		// sort blocks by lower-left y-coordinate (ascending order)
 		sort(blocks.begin(), blocks.end(),
 			// lambda expression
-			[&](Block const* b1, Block const* b2){
+			[](Block const* b1, Block const* b2){
 				return (b1->bb.ll.y < b2->bb.ll.y)
 					// for blocks on same row, sort additionally by
 					// their height, putting the bigger back in the
