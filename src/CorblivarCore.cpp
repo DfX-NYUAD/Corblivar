@@ -61,7 +61,7 @@ void CorblivarCore::initCorblivarRandomly(bool const& log, int const& layers, st
 		// sort blocks by power density; use local (mutable) copy of blocks
 		sort(blocks_copy.begin(), blocks_copy.end(),
 			// lambda expression
-			[&](Block b1, Block b2) {
+			[](Block const& b1, Block const& b2) {
 				return b1.power_density() < b2.power_density();
 			}
 		    );
@@ -773,7 +773,7 @@ std::vector<CorblivarAlignmentReq const*> CorblivarCore::findAlignmentReqs(Block
 	// placed/aligned first
 	sort(ret.begin(), ret.end(),
 		// lambda expression
-		[&](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
+		[](CorblivarAlignmentReq const* req1, CorblivarAlignmentReq const* req2) {
 			return (req1->s_i->placed || req1->s_j->placed) && (!req2->s_i->placed && !req2->s_j->placed);
 		}
 	);
@@ -824,7 +824,7 @@ void CorblivarCore::sortCBLs(bool const& log, int const& mode) {
 			for (auto& tuples_die : tuples) {
 				sort(tuples_die.begin(), tuples_die.end(),
 					// lambda expression to provide compare function
-					[&](CornerBlockList::Tuple t1, CornerBlockList::Tuple t2) {
+					[](CornerBlockList::Tuple const& t1, CornerBlockList::Tuple const& t2) {
 						return t1.S->bb.area > t2.S->bb.area;
 					}
 				);
