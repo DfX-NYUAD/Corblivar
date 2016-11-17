@@ -140,7 +140,7 @@ class MultipleVoltages {
 			std::vector< double > power_std_dev_;
 
 			/// memorize global cost locally, to avoid recalculation
-			mutable double cost_ = -1;
+			double cost = -1;
 
 			/// key: neighbour's numerical block id
 			///
@@ -173,16 +173,16 @@ class MultipleVoltages {
 				return MAX_VOLTAGES - 1;
 			}
 
-			/// global cost, required during top-down selection
+			/// set global cost, required for top-down selection of modules
 			///
-			inline double cost(
+			inline void setCost(
 					double const& max_power_saving,
 					double const& min_power_saving,
 					std::vector<double> const& max_power_std_dev,
 					int const& max_count,
 					unsigned const& max_corners,
 					MultipleVoltages::Parameters const& parameters
-				) const;
+				);
 
 		// public functions
 		public:
