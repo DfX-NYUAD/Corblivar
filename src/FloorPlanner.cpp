@@ -1197,11 +1197,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 	// sanity checks, only for regular runs; set_max_cost must be always performed
 	//
-	// if delay violations occur (with some small tolerance margin), conducting
-	// voltage assignment is not reasonable since this will not reduce delays but
-	// rather seeks to increase them (in order to reduce power); also, in case no
-	// fitting layouts are available, voltage assignment may also be skipped since it
-	// is not deemed required for invalid layouts
+	// if delay violations occur (with some small tolerance margin), conducting voltage assignment is not reasonable since this cannot reduce delays further; evaluateTiming
+	// already assumes highest voltages, resulting in lowest delays, so any chance in voltages will not help anyway
+	//
+	// also, in case no fitting layouts are available, voltage assignment may also be skipped since it is not deemed required for invalid layouts
 	//
 	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::doubleComp(fitting_layouts_ratio, 0.0))) {
 
