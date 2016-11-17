@@ -1464,6 +1464,11 @@ inline double MultipleVoltages::CompoundModule::cost(
 	double power_saving_term, corners_term, variation_term, count_term;
 	int affected_layers;
 
+	// sanity check for previously calculated cost
+	if (this->cost_ != -1) {
+		return this->cost_;
+	}
+
 	// for the normalization, the following min values are fixed: zero for std dev of power, 1 for blocks count (for trivial modules w/ only highest voltage applicable), and
 	// four for corners of trivially-shaped(rectangular) modules
 	//
@@ -1519,13 +1524,16 @@ inline double MultipleVoltages::CompoundModule::cost(
 	// this term models the normalized number of module count; 1 represents the max cost, for trivial modules with 1 block; lowest cost of 0 for max number of blocks
 	count_term = static_cast<double>(max_count - this->blocks.size()) / (max_count - min_count + Math::epsilon);
 
-	// return weighted sum of terms
+	// memorize global cost; weighted sum of terms
 	//
-	return (parameters.weight_power_saving * power_saving_term)
+	this->cost_ =
+		(parameters.weight_power_saving * power_saving_term)
 		+ (parameters.weight_corners * corners_term)
 		+ (parameters.weight_power_variation * variation_term)
 		+ (parameters.weight_modules_count * count_term)
 	;
+
+	return this->cost_;
 }
 
 std::string MultipleVoltages::CompoundModule::id() const {

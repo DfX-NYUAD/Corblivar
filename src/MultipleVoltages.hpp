@@ -139,6 +139,9 @@ class MultipleVoltages {
 			/// the std dev values are kept layer-wise; only the values are kept, the blocks count is already kept in power_dens_avg_
 			std::vector< double > power_std_dev_;
 
+			/// memorize global cost locally, to avoid recalculation
+			mutable double cost_ = -1;
+
 			/// key: neighbour's numerical block id
 			///
 			/// with an map, redundant neighbours which may arise during
