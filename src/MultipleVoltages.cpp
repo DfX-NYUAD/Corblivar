@@ -46,7 +46,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 		// init power saving, based on feasible voltages and current block; note
 		// that previous values are not defined, thus the regular case to reset
 		// and recalculate power saving over all (here one) blocks is applied
-		module.update_power_saving_avg(this->parameters.layers);
+		module.updatePower(this->parameters.layers);
 
 		// init block ids such that they may encode all blocks' numerical ids;
 		// also account for the offset of one, introduced by Block::DUMMY_NUM_ID
@@ -120,7 +120,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 					}
 
 					// update all power values
-					new_module.update_power_saving_avg(this->parameters.layers);
+					new_module.updatePower(this->parameters.layers);
 
 					// and store this new module in temporary data structure
 					modules_other_voltages.insert({new_module.block_ids, std::move(new_module)});
@@ -580,7 +580,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		//
 		for (auto* module : this->selected_modules) {
 
-			module->update_power_saving_avg(this->parameters.layers);
+			module->updatePower(this->parameters.layers);
 		}
 
 		if (MultipleVoltages::DBG) {
@@ -855,7 +855,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 	//
 	if (new_module.feasible_voltages != module.feasible_voltages) {
 
-		new_module.update_power_saving_avg(this->parameters.layers);
+		new_module.updatePower(this->parameters.layers);
 	}
 	// otherwise, copy previous values and update only according to the specific new
 	// block to be considered
@@ -869,7 +869,7 @@ inline void MultipleVoltages::insertCompoundModuleHelper(MultipleVoltages::Compo
 		new_module.power_dens_avg_ = module.power_dens_avg_;
 
 		// update copied values to consider new block
-		new_module.update_power_saving_avg(this->parameters.layers, neighbour->block);
+		new_module.updatePower(this->parameters.layers, neighbour->block);
 	}
 
 	// copy outline from the previous module
@@ -1306,7 +1306,7 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 ///
 /// note that we also update the modules' standard deviation of power values here as well
 ///
-inline void MultipleVoltages::CompoundModule::update_power_saving_avg(int const& layers, Block const* block_to_consider) {
+inline void MultipleVoltages::CompoundModule::updatePower(int const& layers, Block const* block_to_consider) {
 	unsigned min_voltage_index = this->min_voltage_index();
 
 	// std devs have to be recalculated in any case

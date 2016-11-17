@@ -186,8 +186,8 @@ class MultipleVoltages {
 
 		// public functions
 		public:
-			/// helper to estimate gain in power reduction
-			inline void update_power_saving_avg(int const& layers, Block const* block_to_consider = nullptr);
+			/// helper to update power reduction etc.
+			inline void updatePower(int const& layers, Block const* block_to_consider = nullptr);
 
 			/// helper to retrieve avg gain in power reduction
 			inline double power_saving_avg(bool subtract_wasted_saving = true) const {
