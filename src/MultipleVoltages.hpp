@@ -187,8 +187,9 @@ class MultipleVoltages {
 		// public functions
 		public:
 			/// helper to estimate gain in power reduction
-			///
 			inline void update_power_saving_avg(int const& layers, Block const* block_to_consider = nullptr);
+
+			/// helper to retrieve avg gain in power reduction
 			inline double power_saving_avg(bool subtract_wasted_saving = true) const {
 
 				if (subtract_wasted_saving) {
@@ -197,6 +198,11 @@ class MultipleVoltages {
 				else {
 					return this->power_saving_avg_;
 				}
+			};
+			/// helper to retrieve absolute gain in power reduction
+			inline double power_saving() const {
+
+				return this->blocks.size() * (this->power_saving_avg_ - this->power_saving_wasted_avg_);
 			};
 
 			/// helper to obtain overall (over all dies) max number of corners
