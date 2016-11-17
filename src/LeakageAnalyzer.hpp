@@ -79,19 +79,19 @@ class LeakageAnalyzer {
 		std::array< std::array<int, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances_summed;
 
 		/// Manhattan distances, in 1D, for one bin to another bin; used for calculation of spatial entropy
-		std::array< std::array<unsigned, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances;
+		std::array< std::array<int, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> distances;
 
 		/// nested-means based partitioning of power maps
 		///
 		/// the values of power maps are sorted in a 1D data structure and then ``natural'' breaks are determined by
 		/// recursively bi-partitioning these values, where the mean is the boundary; the partitioning stops once the min/max values are
-		void partitionPowerMap(int const& layer,
+		void partitionPowerMap(unsigned const& layer,
 				std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map);
 
 		/// helper for recursive calls for partitioning of power maps
 		///
 		/// note that the upper bound is excluded
-		inline void partitionPowerMapHelper(int const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values);
+		inline void partitionPowerMapHelper(unsigned const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values);
 
 		/// helper to init distance arrays, which are used as look-up tables for spatial entropy
 		inline void initDistances() {
@@ -120,11 +120,11 @@ class LeakageAnalyzer {
 
 			// all distances for one bin in 1D array to all other bins in same 1D array
 			//
-			for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 
-				// no need to walk ranges [x][0--x]; they will be covered by symmetric counterparts below; also, by initializing y = x, the calculation of y - x is
-				// always valid on unsigned
-				for (unsigned y = x; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+				// no need to walk ranges [x][0--x]; they will be covered by symmetric counterparts below;
+				// also, the result of (y - x) is >=, so no std::abs call required
+				for (int y = x; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 					// Manhattan distance should suffice for grid coordinates/distances
 					//

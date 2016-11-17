@@ -33,19 +33,22 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 	double d_ext;
 	double cur_entropy, entropy;
 	double ratio_bins;
+	
+	// for more efficient access into data structures, especially within partitionPowerMap and partitionPowerMapHelper
+	unsigned l = static_cast<unsigned>(layer);
 
 	// first, the power map has to be partitioned/classified
 	//
-	this->partitionPowerMap(layer, power_map);
+	this->partitionPowerMap(l, power_map);
 
 	if (DBG_BASIC) {
-		std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[layer].size() << std::endl;
+		std::cout << "DBG> Partitions on layer " << layer << ": " << this->power_partitions[l].size() << std::endl;
 	}
 
 	// calculate spatial entropy for each partition and sum it up
 	//
 	entropy = 0.0;
-	for (auto const& cur_part : this->power_partitions[layer]) {
+	for (auto const& cur_part : this->power_partitions[l]) {
 
 		// first, calculate the avg internal and external distances for partition;
 		// internal distance: distance between all elements in same partition
@@ -77,9 +80,9 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 			//
 			// for calculation of external distances, simply subtract internal distance from pre-calculated sum of distances for this bin to all other bins, to obtain
 			// the distance between this bin and all other bins _not_ in the current partition
-			d_ext += this->distances_summed[b1.x][b1.y] - cur_d_int;
+			d_ext += static_cast<double>(this->distances_summed[b1.x][b1.y] - cur_d_int);
 			// sum up internal distances
-			d_int += cur_d_int;
+			d_int += static_cast<double>(cur_d_int);
 		}
 		// normalize to obtain avg dist; over all compared pairs of elements
 		d_int /= (cur_part.second.size() * (cur_part.second.size() - 1));
@@ -118,14 +121,14 @@ double LeakageAnalyzer::determineSpatialEntropy(int const& layer, std::array< st
 	return entropy;
 }
 
-void LeakageAnalyzer::partitionPowerMap(int const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
+void LeakageAnalyzer::partitionPowerMap(unsigned const& layer, std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> const& power_map) {
 	double power_avg;
 	double power_std_dev;
 	unsigned m;
 	std::vector<Bin> power_values;
 
 	// check if vector for this layer is to be allocated first
-	if (this->power_partitions.size() <= static_cast<unsigned>(layer)) {
+	if (this->power_partitions.size() <= layer) {
 
 		// allocate empty vector for current layer
 		this->power_partitions.push_back(
@@ -227,7 +230,7 @@ void LeakageAnalyzer::partitionPowerMap(int const& layer, std::array< std::array
 }
 
 /// note that power_partitions are updated in this function
-inline void LeakageAnalyzer::partitionPowerMapHelper(int const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values) {
+inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& layer, unsigned const& lower_bound, unsigned const& upper_bound, std::vector<Bin> const& power_values) {
 	double avg, std_dev;
 	unsigned range;
 	unsigned m, i;
