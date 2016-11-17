@@ -3,7 +3,7 @@
 #=============================================================================#
 APP := Corblivar
 AUX := 3DFP_Parser 3DSTAF_Parser Correlation_TSC
-ALL := $(APP)
+ALL := $(APP) Correlation_TSC
 
 #=============================================================================#
 # Define Compiler Executable:
