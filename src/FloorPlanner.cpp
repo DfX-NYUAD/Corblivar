@@ -1194,6 +1194,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 	// also, this will reduce the required iterations/computation for voltage assignment since it's skipped in case timing is violated
 	//
 	if (
+		!finalize &&
 		!reevaluation &&
 		cost.fits_fixed_outline &&
 		(cost.timing_actual_value < this->IC.delay_threshold) &&
