@@ -329,6 +329,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_powerring_max() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << cur_selected_module->blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
+				for (int l = 0; l < this->parameters.layers; l++) {
+					std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << cur_selected_module->power_dens_avg_[l].first << " blocks): " << cur_selected_module->power_dens_avg_[l].second << std::endl;
+				}
 			std::cout << "DBG_VOLTAGES>  Power densities of modules selected so far:" << std::endl;
 				for (int l = 0; l < this->parameters.layers; l++) {
 					std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << selected_modules__power_dens_avg[l].size() << " modules): ";
@@ -521,50 +525,6 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						b->assigned_module = module;
 					}
 
-					// calculate the new avg values
-					module->power_saving_avg_ = (module->power_saving_avg_ + n_module->power_saving_avg_) / 2.0;
-					module->power_saving_wasted_avg_ = (module->power_saving_wasted_avg_ + n_module->power_saving_wasted_avg_) / 2.0;
-
-					for (int l = 0; l < this->parameters.layers; l++) {
-
-						// for each layer, we have to check whether at least some blocks are considered in each module
-						if (module->power_dens_avg_[l].first > 0 && n_module->power_dens_avg_[l].first > 0) {
-							module->power_dens_avg_[l].second = (module->power_dens_avg_[l].second + n_module->power_dens_avg_[l].second) / 2.0;
-							// also memorize the new blocks count
-							module->power_dens_avg_[l].first += n_module->power_dens_avg_[l].first;
-						}
-						// only the new module has some blocks in that layer, so use this new module's avg
-						else if (module->power_dens_avg_[l].first == 0 && n_module->power_dens_avg_[l].first > 0) {
-							module->power_dens_avg_[l].second = n_module->power_dens_avg_[l].second;
-							// also memorize the new blocks count
-							module->power_dens_avg_[l].first = n_module->power_dens_avg_[l].first;
-						}
-						// other cases are safe to ignore: no module has any blocks in this layer; only the previous module has some blocks in that layer
-					}
-
-					// recalculate the std devs
-					for (int l = 0; l < this->parameters.layers; l++) {
-
-						module->power_std_dev_[l] = 0.0;
-
-						// no need to calculate on layers without blocks; also avoids potential division by zero below for normalization
-						if (module->power_dens_avg_[l].first == 0) {
-							continue;
-						}
-
-						for (Block const* b : module->blocks) {
-
-							if (b->layer != l) {
-								continue;
-							}
-
-							module->power_std_dev_[l] += std::pow(b->power_density() - module->power_dens_avg_[l].second, 2);
-						}
-						module->power_std_dev_[l] /= module->power_dens_avg_[l].first;
-						module->power_std_dev_[l] = std::sqrt(module->power_std_dev_[l]);
-					}
-
-
 					// add the outline rects from the module to be merged
 					for (unsigned l = 0; l < module->outline.size(); l++) {
 
@@ -616,6 +576,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			}
 		}
 
+		// finally, update the resulting power values
+		//
+		for (auto* module : this->selected_modules) {
+
+			module->update_power_saving_avg(this->parameters.layers);
+		}
+
 		if (MultipleVoltages::DBG) {
 			std::cout << "DBG_VOLTAGES>  Done merging modules" << std::endl;
 			std::cout << "DBG_VOLTAGES>" << std::endl;
@@ -646,6 +613,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
+			std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
+				for (int l = 0; l < this->parameters.layers; l++) {
+					std::cout << "DBG_VOLTAGES>   On layer " << l << " (" << module->power_dens_avg_[l].first << " blocks): " << module->power_dens_avg_[l].second << std::endl;
+				}
 
 			count += module->blocks.size();
 		}
