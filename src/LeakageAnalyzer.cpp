@@ -158,7 +158,7 @@ void LeakageAnalyzer::partitionPowerMap(int const& layer, std::array< std::array
 	// sort vector according to power values
 	std::sort(power_values.begin(), power_values.end(),
 			// lambda expression
-			[&](Bin b1, Bin b2) {
+			[](Bin const& b1, Bin const& b2) {
 				return b1.value < b2.value;
 			}
 		 );
