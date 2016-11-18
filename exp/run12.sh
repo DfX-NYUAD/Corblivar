@@ -3,15 +3,12 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="VA_LP"
-#benches=$1
-#benches=$2
-benches="n100_soft n200_soft"
-#benches="ami33 xerox"
-runs=20
+exp="voltage_assignment"
+benches=$1
+runs=40
 
-#for die_count in 2 3
-for die_count in $1
+for die_count in 2
+#for die_count in $2
 do
 	dies=$die_count"dies"
 
@@ -93,6 +90,9 @@ do
 			# run individual aux scripts, if required
 			#
 			./HotSpot.sh $bench $die_count
+
+			# evaluate leakage via dedicated binary
+			$root/Correlation_TSC $bench $base/$dies/$exp/$bench.conf $base/benches/ $bench.solution >> $bench.log
 		done
 
 		# run experiments-folder aux scripts
