@@ -112,7 +112,9 @@ class Block {
 
 		/// The power_density_unscaled is read in from the benchmarks (where voltage
 		/// assignment was not considered), representing the baseline power
-		double power_density_unscaled;
+		mutable double power_density_unscaled;
+		/// backup of original value
+		double power_density_unscaled_back;
 
 		/// density in [uW/(um^2)]; relates to given voltage index
 		inline double power_density(unsigned index) const {

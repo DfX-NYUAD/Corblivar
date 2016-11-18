@@ -439,6 +439,16 @@ class FloorPlanner {
 			return this->leakageAnalyzer;
 		};
 
+		/// getter; may edit ThermalAnalyzer instance
+		inline ThermalAnalyzer& editThermalAnalyzer() {
+			return this->thermalAnalyzer;
+		};
+
+		/// getter
+		inline ThermalAnalyzer::MaskParameters const& getPowerBlurringParameters() {
+			return this->power_blurring_parameters;
+		}
+
 		/// helper for die geometry
 		///
 		inline Point shrinkDieOutlines() {

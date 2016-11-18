@@ -1712,6 +1712,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 					// however, apply general power-scaling factor
 					new_block.power_density_unscaled *= fp.IC.power_scale;
+
+					// backup original value
+					new_block.power_density_unscaled_back = new_block.power_density_unscaled;
 				}
 				else {
 					if (fp.logMin()) {
@@ -1747,6 +1750,9 @@ void IO::parseBlocks(FloorPlanner& fp) {
 
 					// finally, apply general power-scaling factor
 					new_block.power_density_unscaled *= fp.IC.power_scale;
+
+					// backup original value
+					new_block.power_density_unscaled_back = new_block.power_density_unscaled;
 				}
 
 				// reset power file stream for next search
