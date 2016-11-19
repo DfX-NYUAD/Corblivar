@@ -474,12 +474,12 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 /// local power consumption, not the (much smaller) increase of power consumption due to
 /// resistivity of TSVs; TSVs densities, required for HotSpot calculation, are also
 /// adapted here
-void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, std::vector<Net> const& nets, MaskParameters const& parameters) {
+void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, MaskParameters const& parameters) {
 	int x, y;
 	int i;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		std::cout << "-> ThermalAnalyzer::adaptPowerMapsTSVs(" << layers << ", " << &TSVs << ", " << &nets << ", " << &parameters << ")" << std::endl;
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsTSVs(" << layers << ", " << &TSVs << ", " << &parameters << ")" << std::endl;
 	}
 
 	// consider impact of all TSVs, real and dummy ones; map TSV densities to power

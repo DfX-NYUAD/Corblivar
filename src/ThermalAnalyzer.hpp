@@ -247,7 +247,7 @@ class ThermalAnalyzer {
 		/// thermal modeling: handlers
 		void generatePowerMaps(int const& layers, std::vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone = true);
 		/// thermal modeling: handlers
-		void adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, std::vector<Net> const& nets, MaskParameters const& parameters);
+		void adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, MaskParameters const& parameters);
 		void adaptPowerMapsTSVsHelper(TSV_Island TSVi);
 		/// thermal modeling: handlers
 		void adaptPowerMapsWires(std::vector<Block>& wires, int const& layer, Rect net_bb, double const& total_wire_power);
