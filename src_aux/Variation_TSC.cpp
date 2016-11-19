@@ -33,7 +33,7 @@ static constexpr bool DBG = false;
 static constexpr bool DBG_PARSING = false;
 
 // global fixed parameters
-static constexpr unsigned SAMPLING_ITERATIONS = 50;
+static constexpr unsigned SAMPLING_ITERATIONS = 100;
 // for the Gaussian distribution of power values; the std dev is set up from the mean value and this factor
 static constexpr double MEAN_TO_STD_DEV_FACTOR = 0.1;
 
