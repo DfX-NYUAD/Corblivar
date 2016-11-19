@@ -29,23 +29,38 @@
 #include <chrono>
 
 // logging flags
-static constexpr bool DBG = true;
+static constexpr bool DBG = false;
+static constexpr bool DBG_PARSING = false;
+
+// global fixed parameters
+static constexpr unsigned SAMPLING_ITERATIONS = 50;
+// for the Gaussian distribution of power values; the std dev is set up from the mean value and this factor
+static constexpr double MEAN_TO_STD_DEV_FACTOR = 0.1;
 
 // type definitions, for shorter notation
-static constexpr unsigned VARIATIONS_FRAME_DIM = 1;
-typedef	std::array< std::array< std::array<double, VARIATIONS_FRAME_DIM> , ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> variations_data_layer_type;
-typedef	std::vector< variations_data_layer_type > variations_data_type;
+typedef	std::array< std::array< std::array<double, SAMPLING_ITERATIONS> , ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> samples_data_layer_type;
+typedef	std::vector< samples_data_layer_type > samples_data_type;
 
 // forward declaration
-void parseHotSpotFiles(FloorPlanner& fp, unsigned frame, variations_data_type& temperature_variations);
+void parseHotSpotFiles(FloorPlanner& fp, unsigned sampling_iter, samples_data_type& temp_samples);
+void writeHotSpotPtrace(FloorPlanner& fp);
+void writeHotSpotFiles__passiveSi_bonding(FloorPlanner& fp);
 
 int main (int argc, char** argv) {
 	FloorPlanner fp;
-	double corr;
-	bool correlation_reduced;
 
-	variations_data_type temperature_variations;
-	variations_data_type power_variations;
+	samples_data_type temp_samples;
+	samples_data_type power_samples;
+
+	double avg_power, avg_temp;
+	double std_dev_power, std_dev_temp;
+	double cur_power_dev, cur_temp_dev;
+
+	double cov;
+
+	double corr;
+	double avg_corr;
+	int count_corr;
 
 	// construct a trivial random generator engine from a time-based seed:
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -96,101 +111,178 @@ int main (int argc, char** argv) {
 	//
 	// generates also all required files
 	fp.finalize(corb, false);
-
 	std::cout << std::endl;
 
-	// iteratively try to reduce the worst correlations over each layer
+	// allocate vectors
+	for (int layer = 0; layer < fp.getLayers(); layer++) {
+
+		power_samples.emplace_back(samples_data_layer_type());
+		temp_samples.emplace_back(samples_data_layer_type());
+	}
+
+	// generate power data and gather related HotSpot simulation temperature data
 	//
-	// TODO memorize whether correlation was reduced for each layer individually
-	correlation_reduced = true;
-	while (correlation_reduced) {
+	for (unsigned sampling_iter = 0; sampling_iter < SAMPLING_ITERATIONS; sampling_iter++) {
 
-		// clear local variations_data_type
+		std::cout << std::endl;
+		std::cout << "Sampling iteration: " << (sampling_iter + 1) << "/" << SAMPLING_ITERATIONS << std::endl;
+		std::cout << "------------------------------" << std::endl;
+
+		// first, randomly vary power densities in blocks
 		//
-		power_variations.clear();
-		temperature_variations.clear();
+		for (Block const& b : fp.getBlocks()) {
 
-		// allocate vectors
-		for (int layer = 0; layer < fp.getLayers(); layer++) {
+			// restore original value, used as mean for Gaussian distribution of power densities
+			b.power_density_unscaled = b.power_density_unscaled_back;
 
-			power_variations.emplace_back(variations_data_layer_type());
-			temperature_variations.emplace_back(variations_data_layer_type());
+			// calculate new power value, based on Gaussian distribution
+			std::normal_distribution<double> gaussian(b.power_density_unscaled, b.power_density_unscaled * MEAN_TO_STD_DEV_FACTOR);
+
+			b.power_density_unscaled = gaussian(random_generator);
+
+			if (DBG) {
+				std::cout << "Block " << b.id << ":" << std::endl;
+				std::cout << " Original power = " << b.power_density_unscaled_back << std::endl;
+				std::cout << " New random power = " << b.power_density_unscaled << std::endl;
+			}
 		}
 
-		// generate new power variations and gather related HotSpot simulation temperature data
+		// second, generate new power maps
 		//
-		for (unsigned frame = 0; frame < VARIATIONS_FRAME_DIM; frame++) {
+		fp.editThermalAnalyzer().generatePowerMaps(fp.getLayers(), fp.getBlocks(), fp.getOutline(), fp.getPowerBlurringParameters());
 
-			// first, randomly vary power densities in blocks
-			//
-			for (Block const& b : fp.getBlocks()) {
+		// copy data from Corblivar power maps into local data structure power_samples
+		//
+		for (int layer = 0; layer < fp.getLayers(); layer++) {
+			for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+				for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
-				// restore original value, used as mean for Gaussian distribution of power variations
-				b.power_density_unscaled = b.power_density_unscaled_back;
-
-				// calculate new power value, based on Gaussian distribution with std dev of 10% of power value
-				std::normal_distribution<double> gaussian(b.power_density_unscaled, b.power_density_unscaled * 0.1);
-
-				b.power_density_unscaled = gaussian(random_generator);
-
-				if (DBG) {
-					std::cout << "Block " << b.id << ":" << std::endl;
-					std::cout << " Original power = " << b.power_density_unscaled_back << std::endl;
-					std::cout << " New random power = " << b.power_density_unscaled << std::endl;
+					power_samples[layer][x][y][sampling_iter] = fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density;
 				}
 			}
+		}
 
-			// second, generate new power maps
-			//
-			fp.editThermalAnalyzer().generatePowerMaps(fp.getLayers(), fp.getBlocks(), fp.getOutline(), fp.getPowerBlurringParameters());
+		// third, run HotSpot on this new map
+		//
+		// generate new ptrace file first
+		writeHotSpotPtrace(fp);
+		// HotSpot.sh system call
+		system(std::string("./HotSpot.sh " + fp.getBenchmark() + " " + std::to_string(fp.getLayers())).c_str());
 
-			// copy data from Corblivar power maps into local data structure power_variations
-			//
+		// fourth, read in the new HotSpot results into local data structure temp_samples
+		//
+		parseHotSpotFiles(fp, sampling_iter, temp_samples);
+
+
+		if (DBG) {
+			std::cout << "Printing gathered power/temperature data for sampling iteration " << sampling_iter << std::endl;
+			std::cout << std::endl;
+
 			for (int layer = 0; layer < fp.getLayers(); layer++) {
+				std::cout << " Layer " << layer << std::endl;
+				std::cout << std::endl;
+
 				for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 					for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
-						power_variations[layer][x][y][frame] = fp.getPowerMapsOrig()[layer][x][y].power_density;
+						std::cout << "  Power[" << x << "][" << y << "]: " << power_samples[layer][x][y][sampling_iter] << std::endl;
+						std::cout << "  Temp [" << x << "][" << y << "]: " << temp_samples[layer][x][y][sampling_iter] << std::endl;
 					}
 				}
 			}
-
-			// third, run HotSpot on this new map
-			//
-			// TODO generate new ptrace file first; not all HotSpot files
-			IO::writeHotSpotFiles(fp);
-			// TODO HotSpot.sh system call
-
-			// fourth, read in the new HotSpot results into local data structure temperature_variations
-			//
-			parseHotSpotFiles(fp, frame, temperature_variations);
 		}
-
-		// TODO
-		// calculate and memorize new Pearson correlation for each bin of grid
-		//
-		
-
-		// TODO
-		// adapt TSV densities in original power map; set to 100% for bins within frame of 90-100% of worst correlation
-		//
-		// only if new worst correlation is smaller than previous worst correlation; otherwise, the new correlation actually increased again, that is, the previous TSV adaption
-		// was not beneficial anymore, and further dummy-TSV insertions will most likely also not be helpful
-		//
-		// in general, ignore upper-most layer; don't place TSVs there
-
-		correlation_reduced = false;
 	}
 
-	// (TODO) probably not required
-	//// restore original power values
-	//for (Block const& b : fp.getBlocks()) {
+	// calculate avg Pearson correlation over all bins
+	//
+	std::cout << std::endl;
+	std::cout << "Sampling results" << std::endl;
+	std::cout << "----------------" << std::endl;
 
-	//	b.power_density_unscaled = b.power_density_unscaled_back;
-	//}
+	for (int layer = 0; layer < fp.getLayers(); layer++) {
+
+		// dbg output
+		if (DBG) {
+			std::cout << std::endl;
+			std::cout << "Pearson correlations on layer " << layer << std::endl;
+			std::cout << std::endl;
+		}
+
+		avg_corr = 0.0;
+		count_corr = 0;
+
+		for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+
+				avg_power = avg_temp = 0.0;
+				cov = std_dev_power = std_dev_temp = 0.0;
+				corr = 0.0;
+
+				// first pass: determine avg values
+				//
+				for (unsigned sampling_iter = 0; sampling_iter < SAMPLING_ITERATIONS; sampling_iter++) {
+
+					avg_power += power_samples[layer][x][y][sampling_iter];
+					avg_temp += temp_samples[layer][x][y][sampling_iter];
+				}
+				avg_power /= SAMPLING_ITERATIONS;
+				avg_temp /= SAMPLING_ITERATIONS;
+
+				// dbg output
+				if (DBG) {
+					std::cout << "Bin: " << x << ", " << y << std::endl;
+					std::cout << " Avg power: " << avg_power << std::endl;
+					std::cout << " Avg temp: " << avg_temp << std::endl;
+				}
+				
+				// second pass: determine covariance and standard deviations
+				//
+				for (unsigned sampling_iter = 0; sampling_iter < SAMPLING_ITERATIONS; sampling_iter++) {
+
+					// deviations of current values from avg values
+					cur_power_dev = power_samples[layer][x][y][sampling_iter] - avg_power;
+					cur_temp_dev = temp_samples[layer][x][y][sampling_iter] - avg_temp;
+
+					// covariance
+					cov += cur_power_dev * cur_temp_dev;
+
+					// standard deviation, calculate its sqrt later on
+					std_dev_power += std::pow(cur_power_dev, 2.0);
+					std_dev_temp += std::pow(cur_temp_dev, 2.0);
+				}
+				cov /= SAMPLING_ITERATIONS;
+				std_dev_power /= SAMPLING_ITERATIONS;
+				std_dev_temp /= SAMPLING_ITERATIONS;
+
+				std_dev_power = std::sqrt(std_dev_power);
+				std_dev_temp = std::sqrt(std_dev_temp);
+
+				// calculate Pearson correlation: covariance over product of standard deviations
+				//
+				corr = cov / (std_dev_power * std_dev_temp);
+
+				// consider only valid correlations values
+				if (!std::isnan(corr)) {
+					avg_corr += corr;
+					count_corr++;
+				}
+
+				// dbg output
+				if (DBG) {
+					std::cout << " Correlation: " << corr << std::endl;
+					if (std::isnan(corr)) {
+						std::cout << "  NAN, because of zero power; to be skipped" << std::endl;
+					}
+				}
+			}
+		}
+		avg_corr /= count_corr;
+
+		std::cout << "Avg Pearson correlations over all bins on layer " << layer << ": " << avg_corr << std::endl;
+	}
 }
 
-void parseHotSpotFiles(FloorPlanner& fp, unsigned frame, variations_data_type& temperature_variations) {
+void parseHotSpotFiles(FloorPlanner& fp, unsigned sampling_iter, samples_data_type& temp_samples) {
 	std::ifstream layer_file;
 	int x, y;
 	double temp;
@@ -226,16 +318,222 @@ void parseHotSpotFiles(FloorPlanner& fp, unsigned frame, variations_data_type& t
 			}
 
 			// memorize temperature value for its respective bin
-			temperature_variations[layer][x][y][frame] = temp;
+			temp_samples[layer][x][y][sampling_iter] = temp;
 
 			// DBG output
-			if (DBG) {
-				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << temperature_variations[layer][x][y][frame] << std::endl;
-				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getPowerMapsOrig()[layer][x][y].power_density << std::endl;
+			if (DBG_PARSING) {
+				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << temp_samples[layer][x][y][sampling_iter] << std::endl;
+				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density << std::endl;
 			}
 		}
 
 		// close file
 		layer_file.close();
+	}
+}
+
+// copied from IO::writeHotSpotFiles; adapter for getter on FloorPlanner
+//
+void writeHotSpotPtrace(FloorPlanner& fp) {
+	std::ofstream file;
+	int cur_layer;
+
+	/// generate power-trace file
+	//
+	// build up file name
+	std::stringstream power_file;
+	power_file << fp.getBenchmark() << "_HotSpot.ptrace";
+
+	// init file stream
+	file.open(power_file.str().c_str());
+
+	// block sequence in trace file has to follow layer files, thus build up file
+	// according to layer structure
+	//
+	// output block labels in first line
+	for (cur_layer = 0; cur_layer < fp.getLayers(); cur_layer++) {
+
+		// output dummy blocks representing wires first, since they are placed in
+		// the BEOL layer, coming before the active Si layer
+		for (Block const& cur_wire : fp.getWires()) {
+
+			if (cur_wire.layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_wire.id << " ";
+		}
+
+		// dummy BEOL outline block
+		file << "BEOL_" << cur_layer + 1 << " ";
+
+		// actual blocks
+		for (Block const& cur_block : fp.getBlocks()) {
+
+			if (cur_block.layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_block.id << " ";
+		}
+
+		// dummy outline block
+		file << "outline_" << cur_layer + 1 << " ";
+	}
+	file << std::endl;
+
+	// output block power in second line
+	for (cur_layer = 0; cur_layer < fp.getLayers(); cur_layer++) {
+
+		// dummy blocks representing wires along with their power consumption
+		for (Block const& cur_wire : fp.getWires()) {
+
+			if (cur_wire.layer != cur_layer) {
+				continue;
+			}
+
+			// actual power encoded in power_density_unscaled, see
+			// ThermalAnalyzer::adaptPowerMapsWires
+			file << cur_wire.power_density_unscaled << " ";
+		}
+
+		// dummy BEOL outline block
+		file << "0.0 ";
+
+		for (Block const& cur_block : fp.getBlocks()) {
+
+			if (cur_block.layer != cur_layer) {
+				continue;
+			}
+
+			file << cur_block.power() << " ";
+		}
+
+		// dummy outline block
+		file << "0.0 ";
+	}
+	file << std::endl;
+
+	// close file stream
+	file.close();
+}
+
+// copied from IO::writeHotSpotFiles; adapter for getter on FloorPlanner
+//
+void writeHotSpotFiles__passiveSi_bonding(FloorPlanner& fp) {
+	std::ofstream file, file_bond;
+	int cur_layer;
+	int x, y;
+	int map_x, map_y;
+	float x_ll, y_ll;
+	float bin_w, bin_h;
+
+	/// generate floorplans for passive Si and bonding layer; considering TSVs (modelled via densities)
+	for (cur_layer = 0; cur_layer < fp.getLayers(); cur_layer++) {
+
+		// build up file names
+		std::stringstream Si_fp_file;
+		Si_fp_file << fp.getBenchmark() << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp";
+		std::stringstream bond_fp_file;
+		bond_fp_file << fp.getBenchmark() << "_HotSpot_bond_" << cur_layer + 1 << ".flp";
+
+		// init file streams
+		file.open(Si_fp_file.str().c_str());
+		file_bond.open(bond_fp_file.str().c_str());
+
+		// file headers
+		file << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file << "# all dimensions are in meters" << std::endl;
+		file << "# comment lines begin with a '#'" << std::endl;
+		file << "# comments and empty lines are ignored" << std::endl;
+		file_bond << "# Line Format: <unit-name>\\t<width>\\t<height>\\t<left-x>\\t<bottom-y>\\t<specific-heat>\\t<resistivity>" << std::endl;
+		file_bond << "# all dimensions are in meters" << std::endl;
+		file_bond << "# comment lines begin with a '#'" << std::endl;
+		file_bond << "# comments and empty lines are ignored" << std::endl;
+
+		// walk power-map grid to obtain specific TSV densities of bins
+		for (x = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; x++) {
+
+			// adapt index for final thermal map according to padding
+			map_x = x - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+
+			// pre-calculate bin's lower-left corner coordinates;
+			// float precision required to avoid grid coordinate
+			// mismatches
+			x_ll = static_cast<float>(map_x * fp.getThermalAnalyzer().power_maps_dim_x * Math::SCALE_UM_M);
+
+			// pre-calculate bin dimensions; float precision required
+			// to avoid grid coordinate mismatches; re-calculation
+			// only required for lower and upper bounds
+			//
+			// lower bound, regular bin dimension; value also used
+			// until reaching upper bound
+			if (x == ThermalAnalyzer::POWER_MAPS_PADDED_BINS) {
+				bin_w = static_cast<float>(fp.getThermalAnalyzer().power_maps_dim_x * Math::SCALE_UM_M);
+			}
+			// upper bound, limit bin dimension according to overall
+			// chip outline; scale down slightly is required to avoid
+			// rounding errors during HotSpot's grid mapping
+			else if (x == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
+				bin_w = 0.999 * static_cast<float>(fp.getOutline().x * Math::SCALE_UM_M - x_ll);
+			}
+
+			for (y = ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y < ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS; y++) {
+				// adapt index for final thermal map according to padding
+				map_y = y - ThermalAnalyzer::POWER_MAPS_PADDED_BINS;
+
+				// pre-calculate bin's lower-left corner
+				// coordinates; float precision required to avoid
+				// grid coordinate mismatches
+				y_ll = static_cast<float>(map_y * fp.getThermalAnalyzer().power_maps_dim_y * Math::SCALE_UM_M);
+
+				// pre-calculate bin dimensions; float precision required
+				// to avoid grid coordinate mismatches; re-calculation
+				// only required for lower and upper bounds
+				//
+				// lower bound, regular bin dimension; value also used
+				// until reaching upper bound
+				if (y == ThermalAnalyzer::POWER_MAPS_PADDED_BINS) {
+					bin_h = static_cast<float>(fp.getThermalAnalyzer().power_maps_dim_y * Math::SCALE_UM_M);
+				}
+				// upper bound, limit bin dimension according to
+				// overall chip outline; scale down slightly is
+				// required to avoid rounding errors during
+				// HotSpot's grid mapping
+				else if (y == (ThermalAnalyzer::THERMAL_MAP_DIM + ThermalAnalyzer::POWER_MAPS_PADDED_BINS - 1)) {
+					bin_h = 0.999 * static_cast<float>(fp.getOutline().y * Math::SCALE_UM_M - y_ll);
+				}
+
+				// put grid block as floorplan blocks; passive Si layer
+				file << "Si_passive_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
+				/// bin dimensions
+				file << "	" << bin_w;
+				file << "	" << bin_h;
+				/// bin's lower-left corner
+				file << "	" << x_ll;
+				file << "	" << y_ll;
+				// thermal properties, depending on bin's TSV density
+				file << "	" << ThermalAnalyzer::heatCapSi(fp.getTechParameters().TSV_group_Cu_area_ratio, fp.getThermalAnalyzer().getPowerMaps()[cur_layer][x][y].TSV_density);
+				file << "	" << ThermalAnalyzer::thermResSi(fp.getTechParameters().TSV_group_Cu_area_ratio, fp.getThermalAnalyzer().getPowerMaps()[cur_layer][x][y].TSV_density);
+				file << std::endl;
+
+				// put grid block as floorplan blocks; bonding layer
+				file_bond << "bond_" << cur_layer + 1 << "_" << map_x << ":" << map_y;
+				/// bin dimensions
+				file_bond << "	" << bin_w;
+				file_bond << "	" << bin_h;
+				/// bin's lower-left corner
+				file_bond << "	" << x_ll;
+				file_bond << "	" << y_ll;
+				// thermal properties, depending on bin's TSV density
+				file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.getTechParameters().TSV_group_Cu_area_ratio, fp.getThermalAnalyzer().getPowerMaps()[cur_layer][x][y].TSV_density);
+				file_bond << "	" << ThermalAnalyzer::thermResBond(fp.getTechParameters().TSV_group_Cu_area_ratio, fp.getThermalAnalyzer().getPowerMaps()[cur_layer][x][y].TSV_density);
+				file_bond << std::endl;
+			}
+		}
+
+		// close file streams
+		file.close();
+		file_bond.close();
 	}
 }
