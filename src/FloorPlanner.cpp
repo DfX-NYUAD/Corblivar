@@ -1335,7 +1335,7 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 	}
 
 	// adapt power maps to account for TSVs' impact
-	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->dummy_TSVs, this->nets, this->power_blurring_parameters);
+	this->thermalAnalyzer.adaptPowerMapsTSVs(this->IC.layers, this->TSVs, this->dummy_TSVs, this->power_blurring_parameters);
 
 	// perform actual thermal analysis
 	this->thermalAnalyzer.performPowerBlurring(this->thermal_analysis, this->IC.layers,
