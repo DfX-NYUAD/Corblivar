@@ -440,6 +440,21 @@ class FloorPlanner {
 			return this->wires;
 		};
 
+		/// getter
+		inline std::vector<TSV_Island> const& getTSVs() const {
+			return this->TSVs;
+		};
+
+		/// getter
+		inline std::vector<TSV_Island> const& getDummyTSVs() const {
+			return this->dummy_TSVs;
+		};
+
+		/// getter; may edit the dummy TSVs
+		inline std::vector<TSV_Island>& editDummyTSVs() {
+			return this->dummy_TSVs;
+		};
+
 		/// getter; may edit leakageAnalyzer instance
 		inline LeakageAnalyzer& editLeakageAnalyzer() {
 			return this->leakageAnalyzer;

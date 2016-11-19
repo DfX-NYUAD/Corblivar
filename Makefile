@@ -3,7 +3,7 @@
 #=============================================================================#
 APP := Corblivar
 #AUX := 3DFP_Parser 3DSTAF_Parser
-AUX := Correlation_TSC Variation_TSC
+AUX := Correlation_TSC Variation_TSC Postprocessing_TSC
 ALL := $(APP) $(AUX)
 
 #=============================================================================#

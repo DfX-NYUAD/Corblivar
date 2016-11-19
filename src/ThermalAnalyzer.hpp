@@ -265,6 +265,11 @@ class ThermalAnalyzer {
 			return this->power_maps;
 		};
 
+		/// getter; may also edit the power_maps
+		inline std::vector< std::array< std::array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> >& editPowerMaps() {
+			return this->power_maps;
+		};
+
 };
 
 #endif
