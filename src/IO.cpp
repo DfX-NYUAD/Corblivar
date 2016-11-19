@@ -760,49 +760,49 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.die_thickness;
+	in >> fp.techParameters.die_thickness;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.Si_active_thickness;
+	in >> fp.techParameters.Si_active_thickness;
 
 	// determine thickness of passive Si layer
-	fp.IC.Si_passive_thickness = fp.IC.die_thickness - fp.IC.Si_active_thickness;
+	fp.techParameters.Si_passive_thickness = fp.techParameters.die_thickness - fp.techParameters.Si_active_thickness;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.BEOL_thickness;
+	in >> fp.techParameters.BEOL_thickness;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.bond_thickness;
+	in >> fp.techParameters.bond_thickness;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.TSV_dimension;
+	in >> fp.techParameters.TSV_dimension;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.TSV_pitch;
+	in >> fp.techParameters.TSV_pitch;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.TSV_frame_dim;
+	in >> fp.techParameters.TSV_frame_dim;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.TSV_per_cluster_limit;
+	in >> fp.techParameters.TSV_per_cluster_limit;
 
 	// determine Cu area fraction for TSV groups
-	fp.IC.TSV_group_Cu_area_ratio = (fp.IC.TSV_dimension * fp.IC.TSV_dimension) /
-		(fp.IC.TSV_pitch * fp.IC.TSV_pitch);
+	fp.techParameters.TSV_group_Cu_area_ratio = (fp.techParameters.TSV_dimension * fp.techParameters.TSV_dimension) /
+		(fp.techParameters.TSV_pitch * fp.techParameters.TSV_pitch);
 
 	// multiple-voltages values
 	//
@@ -931,16 +931,16 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 		// technology parameters
 		std::cout << "IO>  Technology -- Power scaling factor: " << fp.IC.power_scale << std::endl;
-		std::cout << "IO>  Technology -- Die thickness [um]: " << fp.IC.die_thickness << std::endl;
-		std::cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.IC.Si_active_thickness << std::endl;
-		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.IC.Si_passive_thickness << std::endl;
-		std::cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.IC.BEOL_thickness << std::endl;
-		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.IC.bond_thickness << std::endl;
-		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.IC.TSV_dimension << std::endl;
-		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.IC.TSV_pitch << std::endl;
-		std::cout << "IO>  Technology -- TSV frames; enforces minimal TSV density [um]: " << fp.IC.TSV_frame_dim << std::endl;
-		std::cout << "IO>  Technology -- TSV islands; upper limit for TSV per island: " << fp.IC.TSV_per_cluster_limit << std::endl;
-		std::cout << "IO>  Technology -- TSV islands; Cu vs. Si area fraction: " << fp.IC.TSV_group_Cu_area_ratio << std::endl;
+		std::cout << "IO>  Technology -- Die thickness [um]: " << fp.techParameters.die_thickness << std::endl;
+		std::cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.techParameters.Si_active_thickness << std::endl;
+		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.techParameters.Si_passive_thickness << std::endl;
+		std::cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.techParameters.BEOL_thickness << std::endl;
+		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.techParameters.bond_thickness << std::endl;
+		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.techParameters.TSV_dimension << std::endl;
+		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.techParameters.TSV_pitch << std::endl;
+		std::cout << "IO>  Technology -- TSV frames; enforces minimal TSV density [um]: " << fp.techParameters.TSV_frame_dim << std::endl;
+		std::cout << "IO>  Technology -- TSV islands; upper limit for TSV per island: " << fp.techParameters.TSV_per_cluster_limit << std::endl;
+		std::cout << "IO>  Technology -- TSV islands; Cu vs. Si area fraction: " << fp.techParameters.TSV_group_Cu_area_ratio << std::endl;
 
 		// technology parameters for multi-voltage domains
 		//
@@ -3549,8 +3549,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file << "	0.0";
 			file << "	0.0";
-			file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
-			file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::heatCapSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::thermResSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
 			file << std::endl;
 
 			file_bond << "bond_" << cur_layer + 1;
@@ -3558,8 +3558,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file_bond << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file_bond << "	0.0";
 			file_bond << "	0.0";
-			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
-			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file_bond << "	" << ThermalAnalyzer::thermResBond(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
 			file_bond << std::endl;
 		}
 		// for regular runs, i.e., Corblivar runs, we have to consider different
@@ -3627,8 +3627,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					file << "	" << x_ll;
 					file << "	" << y_ll;
 					// thermal properties, depending on bin's TSV density
-					file << "	" << ThermalAnalyzer::heatCapSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file << "	" << ThermalAnalyzer::thermResSi(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::heatCapSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::thermResSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << std::endl;
 
 					// put grid block as floorplan blocks; bonding layer
@@ -3640,8 +3640,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 					file_bond << "	" << x_ll;
 					file_bond << "	" << y_ll;
 					// thermal properties, depending on bin's TSV density
-					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.IC.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file_bond << "	" << ThermalAnalyzer::heatCapBond(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file_bond << "	" << ThermalAnalyzer::thermResBond(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file_bond << std::endl;
 				}
 			}
@@ -3812,7 +3812,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "Y" << std::endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << std::endl;
-		file << fp.IC.BEOL_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.techParameters.BEOL_thickness * Math::SCALE_UM_M << std::endl;
 		file << fp.benchmark << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
@@ -3822,7 +3822,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << "Y" << std::endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
-		file << fp.IC.Si_active_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.techParameters.Si_active_thickness * Math::SCALE_UM_M << std::endl;
 		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
@@ -3834,7 +3834,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		// actual floorplan file
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
-		file << fp.IC.Si_passive_thickness * Math::SCALE_UM_M << std::endl;
+		file << fp.techParameters.Si_passive_thickness * Math::SCALE_UM_M << std::endl;
 		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
@@ -3847,7 +3847,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			// the actual floorplan file
 			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << std::endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << std::endl;
-			file << fp.IC.bond_thickness * Math::SCALE_UM_M << std::endl;
+			file << fp.techParameters.bond_thickness * Math::SCALE_UM_M << std::endl;
 			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
 			file << std::endl;
 		}

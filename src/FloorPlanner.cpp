@@ -1789,7 +1789,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 								1,
 								// TSV pitch; required for proper scaling
 								// of TSV island
-								this->IC.TSV_pitch,
+								this->techParameters.TSV_pitch,
 								// reference point for placement
 								// of dummy TSV is net bb
 								bb,
@@ -1815,7 +1815,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 			// also consider lengths of (regular signal) TSVs in HPWL; each
 			// TSV has to pass the whole Si layer and the bonding layer
-			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->techParameters.die_thickness + this->techParameters.bond_thickness);
 
 			// memorize cost/HPWL for this net
 			cost.HPWL += WL_cur_net;
@@ -1849,7 +1849,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	if (this->layoutOp.parameters.signal_TSV_clustering && !this->layoutOp.parameters.trivial_HPWL) {
 
 		// actual clustering
-		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->IC.TSV_pitch, this->IC.TSV_per_cluster_limit, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->techParameters.TSV_pitch, this->techParameters.TSV_per_cluster_limit, this->thermal_analysis);
 
 		// after clustering, we can obtain a more accurate wirelength and
 		// routing-utilization estimation by considering TSVs' positions as well
@@ -1909,7 +1909,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 			// also consider lengths of (regular signal) TSVs in HPWL; each
 			// TSV has to pass the whole Si layer and the bonding layer
-			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->IC.die_thickness + this->IC.bond_thickness);
+			WL_cur_net += (cur_net.layer_top - cur_net.layer_bottom) * (this->techParameters.die_thickness + this->techParameters.bond_thickness);
 
 			// add HPWL of net to cost
 			cost.HPWL += WL_cur_net;
@@ -1933,20 +1933,20 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	// are placed within each frame; also consider to place on top-most die
 	//
 	// sanity check: reasonable frame is defined
-	if (this->IC.TSV_frame_dim > 0) {
+	if (this->techParameters.TSV_frame_dim > 0) {
 
 		// insert dummy TSVs on all layers
 		for (i = 0; i < this->IC.layers; i++) {
 
 			// walk die outline in steps according to frame dimensions
-			for (x = 0; x < this->IC.outline_x; x += this->IC.TSV_frame_dim) {
-				for (y = 0; y < this->IC.outline_y; y += this->IC.TSV_frame_dim) {
+			for (x = 0; x < this->IC.outline_x; x += this->techParameters.TSV_frame_dim) {
+				for (y = 0; y < this->IC.outline_y; y += this->techParameters.TSV_frame_dim) {
 
 					// define frame as bb
 					bb.ll.x = x;
-					bb.ur.x = std::min(x + this->IC.TSV_frame_dim, this->IC.outline_x);
+					bb.ur.x = std::min(x + this->techParameters.TSV_frame_dim, this->IC.outline_x);
 					bb.ll.y = y;
-					bb.ur.y = std::min(y + this->IC.TSV_frame_dim, this->IC.outline_y);
+					bb.ur.y = std::min(y + this->techParameters.TSV_frame_dim, this->IC.outline_y);
 					bb.w = bb.ur.x - bb.ll.x;
 					bb.h = bb.ur.y - bb.ll.y;
 
@@ -1975,7 +1975,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 								1,
 								// TSV pitch; required for proper scaling
 								// of TSV island
-								this->IC.TSV_pitch,
+								this->techParameters.TSV_pitch,
 								// reference point for placement
 								// of dummy TSV is frame bb
 								bb,
@@ -1998,7 +1998,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	}
 
 	// determine by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// determine routing utilization
 	if (this->opt_flags.routing_util) {
@@ -2130,7 +2130,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 							req.signals,
 							// TSV pitch; required for proper scaling
 							// of TSV island
-							this->IC.TSV_pitch,
+							this->techParameters.TSV_pitch,
 							// blocks intersection; reference
 							// point for placement of vertical
 							// bus / TSV island
@@ -2230,7 +2230,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 	// consider lengths of additional TSVs in HPWL; each TSV has to pass the
 	// whole Si layer and the bonding layer
-	cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->IC.die_thickness + this->IC.bond_thickness);
+	cost.HPWL_actual_value += (cost.TSVs_actual_value - prev_TSVs) * (this->techParameters.die_thickness + this->techParameters.bond_thickness);
 
 	// memorize max cost; initial sampling; also consider HPWL and other adapted cost
 	// terms
@@ -2258,7 +2258,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	}
 
 	// update by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->IC.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace;
 
 	// update normalized HPWL cost; sanity check for zero HPWL not required
 	// since max cost are initialized during first phase

@@ -116,6 +116,13 @@ class ThermalAnalyzer {
 		/// thermal map for layer 0 (lowest layer), i.e., hottest layer
 		std::array< std::array<ThermalMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> thermal_map;
 
+	// constructors, destructors, if any non-implicit
+	public:
+
+	// public data, functions
+	public:
+		friend class IO;
+
 		/// thermal modeling: parameters for generating thermal maps
 		double thermal_map_dim_x, thermal_map_dim_y;
 		/// thermal modeling: parameters for generating power maps
@@ -230,13 +237,6 @@ class ThermalAnalyzer {
 					);
 			}
 		}
-
-	// constructors, destructors, if any non-implicit
-	public:
-
-	// public data, functions
-	public:
-		friend class IO;
 		
 		/// thermal modeling: handlers
 		void initThermalMasks(int const& layers, bool const& log, MaskParameters const& parameters);
@@ -258,6 +258,11 @@ class ThermalAnalyzer {
 		/// getter
 		inline std::vector< std::array< std::array<PowerMapBin, THERMAL_MAP_DIM>, THERMAL_MAP_DIM> > const& getPowerMapsOrig() const {
 			return this->power_maps_orig;
+		};
+
+		/// getter
+		inline std::vector< std::array< std::array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> > const& getPowerMaps() const {
+			return this->power_maps;
 		};
 
 };

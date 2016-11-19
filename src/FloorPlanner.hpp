@@ -90,11 +90,22 @@ class FloorPlanner {
 			/// note that these two parameters below cover all dies
 			double stack_area, stack_deadspace;
 
-			// technology parameters
-			// (TODO) refactor into own struct
-			//
-			/// technology parameters
+			/// power scaling factor
 			double power_scale;
+
+			/// global delay threshold
+			double delay_threshold;
+			/// global delay threshold
+			double delay_threshold_initial;
+			/// the achievable frequency is derived from this delay
+			/// threshold/constraint: f = 1.0 / delay
+			double frequency;
+
+		} IC;
+
+		/// POD for technology parameters
+		struct techParameters {
+
 			/// technology parameters
 			double die_thickness;;
 			/// technology parameters
@@ -116,16 +127,7 @@ class FloorPlanner {
 			/// technology parameters
 			/// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
-
-			/// global delay threshold
-			double delay_threshold;
-			/// global delay threshold
-			double delay_threshold_initial;
-			/// the achievable frequency is derived from this delay
-			/// threshold/constraint: f = 1.0 / delay
-			double frequency;
-
-		} IC;
+		} techParameters;
 
 		/// IO files and parameters
 		struct IO_conf {
@@ -404,6 +406,10 @@ class FloorPlanner {
 			return this->IC.layers;
 		};
 
+		inline struct techParameters const& getTechParameters() const {
+			return this->techParameters;
+		};
+
 		/// getter
 		inline Point getOutline() const {
 			Point ret;
@@ -430,8 +436,8 @@ class FloorPlanner {
 		};
 
 		/// getter
-		inline std::vector< std::array< std::array<ThermalAnalyzer::PowerMapBin, ThermalAnalyzer::THERMAL_MAP_DIM>, ThermalAnalyzer::THERMAL_MAP_DIM> > const& getPowerMapsOrig() const {
-			return this->thermalAnalyzer.getPowerMapsOrig();
+		inline std::vector<Block> const& getWires() const {
+			return this->wires;
 		};
 
 		/// getter; may edit leakageAnalyzer instance
@@ -441,6 +447,11 @@ class FloorPlanner {
 
 		/// getter; may edit ThermalAnalyzer instance
 		inline ThermalAnalyzer& editThermalAnalyzer() {
+			return this->thermalAnalyzer;
+		};
+
+		/// getter
+		inline ThermalAnalyzer const& getThermalAnalyzer() const {
 			return this->thermalAnalyzer;
 		};
 
