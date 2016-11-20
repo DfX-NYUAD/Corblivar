@@ -2172,13 +2172,12 @@ void IO::parseNets(FloorPlanner& fp) {
 }
 
 /// output gnuplot maps
-void IO::writeMaps(FloorPlanner& fp) {
+void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string const& benchmark_suffix) {
 	std::ofstream gp_out;
 	std::ofstream data_out;
 	int cur_layer;
 	int layer_limit;
 	unsigned x, y;
-	enum FLAGS : int {POWER = 0, THERMAL = 1, THERMAL_HOTSPOT = 2, TSV_DENSITY = 3, POWER_ORIG = 4, ROUTING = 5};
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
 	int id;
@@ -2200,6 +2199,10 @@ void IO::writeMaps(FloorPlanner& fp) {
 		else {
 			std::cout << "Generating power maps, TSV-density maps, and thermal map ..." << std::endl;
 		}
+
+		if (benchmark_suffix != "") {
+			std::cout << "IO>  Benchmark suffix: " << benchmark_suffix << std::endl;
+		}
 	}
 
 	// generate set of maps; integer encoding
@@ -2214,23 +2217,27 @@ void IO::writeMaps(FloorPlanner& fp) {
 	// for regular runs, generate all sets; for thermal-analyzer runs, only generate
 	// the required thermal map
 	flag_start = flag_stop = -1;
+	// also, check whether a particular flag was passed as parameter
+	if (flag_parameter != -1) {
+		flag_start = flag_stop = flag_parameter;
+	}
 	if (fp.thermal_analyser_run) {
-		flag_start = flag_stop = FLAGS::THERMAL;
+		flag_start = flag_stop = MAPS_FLAGS::THERMAL;
 	}
 	else if (fp.opt_flags.routing_util) {
-		flag_start = FLAGS::POWER;
-		flag_stop = FLAGS::ROUTING;
+		flag_start = MAPS_FLAGS::POWER;
+		flag_stop = MAPS_FLAGS::ROUTING;
 	}
 	else {
-		flag_start = FLAGS::POWER;
-		flag_stop = FLAGS::POWER_ORIG;
+		flag_start = MAPS_FLAGS::POWER;
+		flag_stop = MAPS_FLAGS::POWER_ORIG;
 	}
 	//
 	// actual map generation	
 	for (flag = flag_start; flag <= flag_stop; flag++) {
 
 		// thermal map (power blurring) only for layer 0
-		if (flag == FLAGS::THERMAL) {
+		if (flag == MAPS_FLAGS::THERMAL) {
 			layer_limit = 1;
 		}
 		// power, thermal (HotSpot), routing-utilization and TSV-density maps for all layers
@@ -2242,20 +2249,20 @@ void IO::writeMaps(FloorPlanner& fp) {
 			// build up file names
 			std::stringstream gp_out_name;
 			std::stringstream data_out_name;
-			if (flag == FLAGS::POWER) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power.data";
+			if (flag == MAPS_FLAGS::POWER) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_power.gp";
+				data_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_power.data";
 			}
-			else if (flag == FLAGS::POWER_ORIG) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power_orig.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_power_orig.data";
+			else if (flag == MAPS_FLAGS::POWER_ORIG) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_power_orig.gp";
+				data_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_power_orig.data";
 			}
-			else if (flag == FLAGS::THERMAL) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_thermal.data";
+			else if (flag == MAPS_FLAGS::THERMAL) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_thermal.gp";
+				data_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_thermal.data";
 			}
-			else if (flag == FLAGS::THERMAL_HOTSPOT) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_HotSpot.gp";
+			else if (flag == MAPS_FLAGS::THERMAL_HOTSPOT) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_HotSpot.gp";
 
 				// note that this file is not written here, but actually
 				// to be generated separately by HotSpot; it is only
@@ -2264,41 +2271,41 @@ void IO::writeMaps(FloorPlanner& fp) {
 				// also note that layer ids must match with active Si
 				// layers, where the order is defined in the lcf file in
 				// writeHotSpotFiles
-				data_out_name << fp.benchmark << "_HotSpot.steady.grid.gp_data.layer_" << (1 + 4 * cur_layer);
+				data_out_name << fp.benchmark << benchmark_suffix << "_HotSpot.steady.grid.gp_data.layer_" << (1 + 4 * cur_layer);
 			}
-			else if (flag == FLAGS::TSV_DENSITY) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_TSV_density.data";
+			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_TSV_density.gp";
+				data_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_TSV_density.data";
 			}
-			else if (flag == FLAGS::ROUTING) {
-				gp_out_name << fp.benchmark << "_" << cur_layer + 1 << "_routing_util.gp";
-				data_out_name << fp.benchmark << "_" << cur_layer + 1 << "_routing_util.data";
+			else if (flag == MAPS_FLAGS::ROUTING) {
+				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_routing_util.gp";
+				data_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_routing_util.data";
 			}
 
 			// init file stream for gnuplot script
 			gp_out.open(gp_out_name.str().c_str());
 			// init file stream for data file;
 			// don't open (overwrite) for HotSpot data
-			if (flag != FLAGS::THERMAL_HOTSPOT) {
+			if (flag != MAPS_FLAGS::THERMAL_HOTSPOT) {
 				data_out.open(data_out_name.str().c_str());
 			}
 
 			// file header for data file
-			if (flag == FLAGS::POWER || flag == FLAGS::POWER_ORIG) {
+			if (flag == MAPS_FLAGS::POWER || flag == MAPS_FLAGS::POWER_ORIG) {
 				data_out << "# X Y power" << std::endl;
 			}
-			else if (flag == FLAGS::THERMAL) {
+			else if (flag == MAPS_FLAGS::THERMAL) {
 				data_out << "# X Y thermal" << std::endl;
 			}
-			else if (flag == FLAGS::TSV_DENSITY) {
+			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
 				data_out << "# X Y TSV_density" << std::endl;
 			}
-			else if (flag == FLAGS::ROUTING) {
+			else if (flag == MAPS_FLAGS::ROUTING) {
 				data_out << "# X Y routing_util" << std::endl;
 			}
 
 			// output grid values for power maps
-			if (flag == FLAGS::POWER) {
+			if (flag == MAPS_FLAGS::POWER) {
 
 				for (x = 0; x < ThermalAnalyzer::POWER_MAPS_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::POWER_MAPS_DIM; y++) {
@@ -2319,7 +2326,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			}
 			// output grid values for original power maps
-			else if (flag == FLAGS::POWER_ORIG) {
+			else if (flag == MAPS_FLAGS::POWER_ORIG) {
 
 				// not padded, dimensions like thermal map
 				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
@@ -2341,7 +2348,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			}
 			// output grid values for thermal maps
-			else if (flag == FLAGS::THERMAL) {
+			else if (flag == MAPS_FLAGS::THERMAL) {
 				max_temp = 0.0;
 				min_temp = 1.0e6;
 
@@ -2367,7 +2374,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 			// output grid values for TSV-density maps; consider only bin bins
 			// w/in die outline, not in padded zone
-			else if (flag == FLAGS::TSV_DENSITY) {
+			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
 
 				for (x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 					for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
@@ -2389,7 +2396,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 				}
 			}
 			// output grid values for routing-utilization maps
-			else if (flag == FLAGS::ROUTING) {
+			else if (flag == MAPS_FLAGS::ROUTING) {
 
 				for (x = 0; x < RoutingUtilization::UTIL_MAPS_DIM; x++) {
 					for (y = 0; y < RoutingUtilization::UTIL_MAPS_DIM; y++) {
@@ -2411,25 +2418,25 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 
 			// close file stream for data file
-			if (flag != FLAGS::THERMAL_HOTSPOT) {
+			if (flag != MAPS_FLAGS::THERMAL_HOTSPOT) {
 				data_out.close();
 			}
 
 			// file header for gnuplot script
-			if (flag == FLAGS::POWER) {
-				gp_out << "set title \"Padded and Adapted Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			if (flag == MAPS_FLAGS::POWER) {
+				gp_out << "set title \"Padded and Adapted Power Map - " << fp.benchmark << benchmark_suffix << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
-			else if (flag == FLAGS::POWER_ORIG) {
-				gp_out << "set title \"Power Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			else if (flag == MAPS_FLAGS::POWER_ORIG) {
+				gp_out << "set title \"Power Map - " << fp.benchmark << benchmark_suffix << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
-			else if (flag == FLAGS::THERMAL || flag == FLAGS::THERMAL_HOTSPOT) {
-				gp_out << "set title \"Thermal Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			else if (flag == MAPS_FLAGS::THERMAL || flag == MAPS_FLAGS::THERMAL_HOTSPOT) {
+				gp_out << "set title \"Thermal Map - " << fp.benchmark << benchmark_suffix << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
-			else if (flag == FLAGS::TSV_DENSITY) {
-				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
+				gp_out << "set title \"TSV-Density Map - " << fp.benchmark << benchmark_suffix << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
-			else if (flag == FLAGS::ROUTING) {
-				gp_out << "set title \"Routing-Utilization Map - " << fp.benchmark << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
+			else if (flag == MAPS_FLAGS::ROUTING) {
+				gp_out << "set title \"Routing-Utilization Map - " << fp.benchmark << benchmark_suffix << ", Layer " << cur_layer + 1 << "\" noenhanced" << std::endl;
 			}
 
 			gp_out << "set terminal pdfcairo enhanced font \"Gill Sans, 12\"" << std::endl;
@@ -2439,43 +2446,43 @@ void IO::writeMaps(FloorPlanner& fp) {
 			// different 2D ranges for maps; consider dummy data row and
 			// column, since gnuplot option corners2color cuts off last row
 			// and column
-			if (flag == FLAGS::POWER) {
+			if (flag == MAPS_FLAGS::POWER) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::POWER_MAPS_DIM << "]" << std::endl;
 			}
 			// other dimensions, not padded
-			else if (flag == FLAGS::POWER_ORIG) {
+			else if (flag == MAPS_FLAGS::POWER_ORIG) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
-			else if (flag == FLAGS::THERMAL	|| flag == FLAGS::THERMAL_HOTSPOT || flag == FLAGS::TSV_DENSITY) {
+			else if (flag == MAPS_FLAGS::THERMAL	|| flag == MAPS_FLAGS::THERMAL_HOTSPOT || flag == MAPS_FLAGS::TSV_DENSITY) {
 				gp_out << "set xrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << ThermalAnalyzer::THERMAL_MAP_DIM << "]" << std::endl;
 			}
-			else if (flag == FLAGS::ROUTING) {
+			else if (flag == MAPS_FLAGS::ROUTING) {
 				gp_out << "set xrange [0:" << RoutingUtilization::UTIL_MAPS_DIM << "]" << std::endl;
 				gp_out << "set yrange [0:" << RoutingUtilization::UTIL_MAPS_DIM << "]" << std::endl;
 			}
 
 			// power maps
-			if (flag == FLAGS::POWER || flag == FLAGS::POWER_ORIG) {
+			if (flag == MAPS_FLAGS::POWER || flag == MAPS_FLAGS::POWER_ORIG) {
 				// label for power density
 				gp_out << "set cblabel \"Power Density [10^{-2} {/Symbol m}W/{/Symbol m}m^2]\"" << std::endl;
 			}
 			// thermal maps (power blurring)
-			else if (flag == FLAGS::THERMAL) {
+			else if (flag == MAPS_FLAGS::THERMAL) {
 				// fixed scale to avoid remapping to extended range
 				gp_out << "set cbrange [" << min_temp << ":" << max_temp << "]" << std::endl;
 				// thermal estimation, correlates w/ power density
 				gp_out << "set cblabel \"Estimated Temperature [K]\"" << std::endl;
 			}
 			// thermal maps (HotSpot)
-			else if (flag == FLAGS::THERMAL_HOTSPOT) {
+			else if (flag == MAPS_FLAGS::THERMAL_HOTSPOT) {
 				// label for HotSpot results
 				gp_out << "set cblabel \"Temperature [K], from HotSpot\"" << std::endl;
 			}
 			// TSV-density maps
-			else if (flag == FLAGS::TSV_DENSITY) {
+			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
 				// fixed scale
 				gp_out << "set cbrange [0:100]" << std::endl;
 				// (TODO) also possible: fixed log scale to emphasize both
@@ -2487,7 +2494,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 				gp_out << "set cblabel \"TSV-Density [%]\"" << std::endl;
 			}
 			// routing-util maps
-			else if (flag == FLAGS::ROUTING) {
+			else if (flag == MAPS_FLAGS::ROUTING) {
 				// label for utilization
 				gp_out << "set cblabel \"Estimated Routing Utilization\"" << std::endl;
 			}
@@ -2517,7 +2524,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 			gp_out << "8 \"#7f0000\")" << std::endl;
 
 			// for padded power maps: draw rectangle for unpadded core
-			if (flag == FLAGS::POWER && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
+			if (flag == MAPS_FLAGS::POWER && ThermalAnalyzer::POWER_MAPS_PADDED_BINS > 0) {
 				gp_out << "set obj 1 rect from ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", " << ThermalAnalyzer::POWER_MAPS_PADDED_BINS << " to ";
 				gp_out << ThermalAnalyzer::POWER_MAPS_DIM - ThermalAnalyzer::POWER_MAPS_PADDED_BINS << ", ";
@@ -2568,7 +2575,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 			}
 
 			// for thermal maps (power blurring): draw rectangles for hotspot regions
-			else if (flag == FLAGS::THERMAL) {
+			else if (flag == MAPS_FLAGS::THERMAL) {
 
 				id = 1;
 
@@ -2614,7 +2621,7 @@ void IO::writeMaps(FloorPlanner& fp) {
 
 			// for thermal maps (HotSpot): draw rectangles for floorplan
 			// blocks, which have to scaled to grid dimensions
-			else if (flag == FLAGS::THERMAL_HOTSPOT) {
+			else if (flag == MAPS_FLAGS::THERMAL_HOTSPOT) {
 
 				double scaling_factor_x = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_x;
 				double scaling_factor_y = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_y;
@@ -2839,7 +2846,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 }
 
 /// generate gnuplot for floorplans
-void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& file_suffix) {
+void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignmentReq> const& alignment, std::string const& benchmark_suffix) {
 	std::ofstream gp_out;
 	int cur_layer;
 	double ratio_inv;
@@ -2856,11 +2863,10 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 	}
 
 	if (fp.logMed()) {
-		std::cout << "IO> ";
-		if (file_suffix != "")
-			std::cout << "Generating GP scripts for floorplan (suffix \"" << file_suffix << "\")..." << std::endl;
-		else
-			std::cout << "Generating GP scripts for floorplan ..." << std::endl;
+		std::cout << "IO> Generating GP scripts for floorplan ..." << std::endl;
+		if (benchmark_suffix != "") {
+			std::cout << "IO>  Benchmark suffix: " << benchmark_suffix << std::endl;
+		}
 	}
 
 	// GP parameters
@@ -2877,10 +2883,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 		// build up file name
 		std::stringstream out_name;
-		out_name << fp.benchmark << "_" << cur_layer + 1;
-		if (file_suffix != "")
-			out_name << "_" << file_suffix;
-		out_name << ".gp";
+		out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << ".gp";
 
 		// init file stream
 		gp_out.open(out_name.str().c_str());
@@ -3457,7 +3460,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 }
 
 /// generate files for HotSpot steady-state thermal simulation
-void IO::writeHotSpotFiles(FloorPlanner const& fp) {
+void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_suffix) {
 	std::ofstream file, file_bond;
 	int cur_layer;
 	int x, y;
@@ -3467,6 +3470,9 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 	if (fp.logMed()) {
 		std::cout << "IO> Generating files for HotSpot 3D-thermal simulation..." << std::endl;
+		if (benchmark_suffix != "") {
+			std::cout << "IO>  Benchmark suffix: " << benchmark_suffix << std::endl;
+		}
 	}
 
 	/// generate floorplan files
@@ -3474,7 +3480,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 		// build up file name
 		std::stringstream fp_file;
-		fp_file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp";
+		fp_file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp";
 
 		// init file stream
 		file.open(fp_file.str().c_str());
@@ -3522,9 +3528,9 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 		// build up file names
 		std::stringstream Si_fp_file;
-		Si_fp_file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp";
+		Si_fp_file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp";
 		std::stringstream bond_fp_file;
-		bond_fp_file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp";
+		bond_fp_file << fp.benchmark << benchmark_suffix << "_HotSpot_bond_" << cur_layer + 1 << ".flp";
 
 		// init file streams
 		file.open(Si_fp_file.str().c_str());
@@ -3659,7 +3665,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 
 		// build up file name
 		std::stringstream BEOL_fp_file;
-		BEOL_fp_file << fp.benchmark << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp";
+		BEOL_fp_file << fp.benchmark << benchmark_suffix << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp";
 
 		// init file stream
 		file.open(BEOL_fp_file.str().c_str());
@@ -3707,7 +3713,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	//
 	// build up file name
 	std::stringstream power_file;
-	power_file << fp.benchmark << "_HotSpot.ptrace";
+	power_file << fp.benchmark << benchmark_suffix << "_HotSpot.ptrace";
 
 	// init file stream
 	file.open(power_file.str().c_str());
@@ -3785,7 +3791,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 	/// generate 3D-IC description file
 	// build up file name
 	std::stringstream stack_file;
-	stack_file << fp.benchmark << "_HotSpot.lcf";
+	stack_file << fp.benchmark << benchmark_suffix << "_HotSpot.lcf";
 
 	// init file stream
 	file.open(stack_file.str().c_str());
@@ -3813,7 +3819,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_BEOL << std::endl;
 		file << fp.techParameters.BEOL_thickness * Math::SCALE_UM_M << std::endl;
-		file << fp.benchmark << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp" << std::endl;
+		file << fp.benchmark << benchmark_suffix << "_HotSpot_BEOL_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
 		file << "# Active Si layer; design layer " << cur_layer + 1 << std::endl;
@@ -3823,7 +3829,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
 		file << fp.techParameters.Si_active_thickness * Math::SCALE_UM_M << std::endl;
-		file << fp.benchmark << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << std::endl;
+		file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
 		file << "# Passive Si layer " << cur_layer + 1 << std::endl;
@@ -3835,7 +3841,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
 		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
 		file << fp.techParameters.Si_passive_thickness * Math::SCALE_UM_M << std::endl;
-		file << fp.benchmark << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
+		file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
 		if (cur_layer < (fp.IC.layers - 1)) {
@@ -3848,7 +3854,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp) {
 			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << std::endl;
 			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << std::endl;
 			file << fp.techParameters.bond_thickness * Math::SCALE_UM_M << std::endl;
-			file << fp.benchmark << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
+			file << fp.benchmark << benchmark_suffix << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
 			file << std::endl;
 		}
 	}

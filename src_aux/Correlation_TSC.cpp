@@ -104,8 +104,8 @@ int main (int argc, char** argv) {
 	//
 	for (int layer = 0; layer < fp.getLayers(); layer++) {
 
-		corr = LeakageAnalyzer::determinePearsonCorr(fp.getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer]);
-		entropy = fp.editLeakageAnalyzer().determineSpatialEntropy(layer, fp.getPowerMapsOrig()[layer]);
+		corr = LeakageAnalyzer::determinePearsonCorr(fp.getThermalAnalyzer().getPowerMapsOrig()[layer], &thermal_maps_HotSpot[layer]);
+		entropy = fp.editLeakageAnalyzer().determineSpatialEntropy(layer, fp.getThermalAnalyzer().getPowerMapsOrig()[layer]);
 
 		std::cout << "Pearson correlation of (HotSpot) temp and power for layer " << layer << ": " << corr << std::endl;
 		std::cout << std::endl;
@@ -161,7 +161,7 @@ void parseHotSpotFiles(FloorPlanner& fp, thermal_maps_type& thermal_maps) {
 			// DBG output
 			if (DBG) {
 				std::cout << "Temp for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << thermal_maps[layer][x][y].temp << std::endl;
-				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getPowerMapsOrig()[layer][x][y].power_density << std::endl;
+				std::cout << "Power for [layer= " << layer << "][x= " << x << "][y= " << y << "]: " << fp.getThermalAnalyzer().getPowerMapsOrig()[layer][x][y].power_density << std::endl;
 			}
 		}
 
