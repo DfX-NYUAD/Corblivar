@@ -159,8 +159,7 @@ further examples can be found in exp/configs/.
 # Changelog
 
 ## 1.4.4
-*October 2016, commit 923ea940c25944fa1d38d1751d3504ebd39b608b*
-**updates related to HotSpot to 6.0; various other updates and fixes**
+*November 2016: updates related to HotSpot to 6.0; various other updates and fixes*
 - experimental config files: added hotspot*.config to exp/; previously kept separately in
 HotSpot directory/repository
 - update experimental setup (HotSpot): consider now also secondary path, only possible
@@ -175,19 +174,19 @@ dummy blocks covering all nets' bounding boxes in each respective BEOL layers, w
 - fix scaling of single-TSV islands
 - fix calculation of heat capacities for TSV islands
 - fix read in of solution file: parse rotated/shaped blocks correctly
+- fix merging of adjacent voltage volumes
+- fix layout generation: random operation on blocks exceeding outline, independent of SA phase
+- various cleanups
 
 ## 1.4.3
-*July 2016, commit 1b35f6317222ff4538273abde30ebc6c4abfb1fb*
-**updates and fixes; added Doxygen documentation**
+*July 2016: updates and fixes; added Doxygen documentation*
 - benchmarks: added parser and some functions for GATech-style benchmarks
 - benchmarks and experimental scripts: updates for IBM-HB+ benchmarks
 - config files: added parameters for adaptive die shrinking and trivial HPWL
 - layout evaluation: updates/fixes for interconnects, overall dies and voltage assignment
 
 ## 1.4.2
-*November 2015, commit 8d104fee63fc1b1a340d317a2193381435f03b5b*
-**updates and fixes for layout operations / floorplanner and voltage assignment; further
-general updates/fixes**
+*November 2015: updates and fixes for layout operations / floorplanner and voltage assignment; further general updates/fixes*
 - benchmarks: GSRC benchmarks now also available with soft blocks, e.g., n100_soft; added
 power densities for (randomly) selected IBM-HB+ benchmarks
 - layout operations / floorplanner: fix thermal-aware block moving, to avoid excessive deadspace; consider blocks with
@@ -211,8 +210,7 @@ hotspots
 - updates config scripts and helper scripts
 
 ## 1.4.1
-*August 2015, commit 6273e1c66705c905f72ab2409045a4677ad7d05a*
-**major updates and fixes for voltage assignment, mainly related to memory/runtime efforts**
+*August 2015: major updates and fixes for voltage assignment, mainly related to memory/runtime efforts*
 - voltage assignment: consider only one best-cost candidate, notably reduces memory
 consumption but maintains proper solution-space exploration
 - voltage assignment: perform only for solutions without delay violations, reduces runtime
@@ -228,8 +226,7 @@ computational effort for voltage assignment notably
 - div refactoring and cleanups
 
 ## 1.4.0
-*July 2015, commit 3cecd66182758b190dac0481fc3ed30f35270dad*
-**new feature: delay-aware voltage assignment, minor other updates and fixes**
+*July 2015: new feature: delay-aware voltage assignment, minor other updates and fixes*
 - added determination of delays, using Elmore delay for net and TSV delay, and module
 delays based on voltage assignment
 - added voltage-assignment handler: determines possible arrangements of voltage domains and
@@ -241,16 +238,13 @@ selects the best-cost solutions
 - div refactoring and cleanups
 
 ## 1.3.1
-*May 2015, commit f770ba1d2e56f9df6f3f0dab0d9e2b020e111928*
-**minor updates and fixes**
+*May 2015: minor updates and fixes*
 - fixes related to handling alignment with RBOD, i.e., alignments for pre-fixed blocks
 - updates for TSV handling; put single TSVs (in net's bounding boxes' center) in case
 clustering is not applied
 
 ## 1.3.0
-*May 2015, commit 10098b4fe61b8f23e8d777c1039ef75b9523e024*
-**considerable updates and fixes (interconnects handling, clustering, layout operations,
-HotSpot data, etc), new feature: routing-congestion estimation**
+*May 2015: considerable updates and fixes (interconnects handling, clustering, layout operations (HotSpot data, etc), new feature: routing-congestion estimation*
 - added estimation of routing congestion; considering all wires, also connecting to TSVs
 - various fixes regarding clustering and related interconnects handling
 - improved accuracy for determination of interconnects; for TSVs, regular wires and
@@ -266,9 +260,7 @@ errors are now settled
 - various updates and cleanups for benchmarks and experimental setups
 
 ## 1.2.0
-*October 13, 2014, commit 3f770ef4302729f6aa253ecdb65d2ffbb6c2ffbb*
-**major updates (alignment encoding and handling, consideration of interconnects' HPWL),
-new features (clustering of signal TSVs and related hotspot determination), and various fixes and cleanups**
+*October 13, 2014: major updates (alignment encoding and handling, consideration of interconnects' HPWL); new features (clustering of signal TSVs and related hotspot determination), and various fixes and cleanups*
 - added handling for TSV blocks
 - added feature; clustering of signal TSVs into vertical buses, related features like blob-detection-based hotspot determination and handling of vertical buses during thermal analysis
 - update alignment encoding; added global type (strict, flexible) and signals count
@@ -283,8 +275,7 @@ new features (clustering of signal TSVs and related hotspot determination), and 
 - various further fixes and updates
 
 ## 1.1.1
-*May 7, 2014, commit bacb85a62a4b779cb94286ee3a1e946c19e234a1*
-**updates, consideration of heterogeneous TSV densities**
+*May 7, 2014: updates, consideration of heterogeneous TSV densities*
 - dropped deprecated handling of different masks
 - dropped dummy TSV handling
 - added handler for TSV densities considering both signal TSVs and vertical buses
@@ -292,8 +283,7 @@ new features (clustering of signal TSVs and related hotspot determination), and 
 - various minor updates and fixes
 
 ## 1.1.0
-*Nov 13, 2013, commit 1de2426d361595bbec4542e425c8eb74fecaf544*
-**new feature, consideration of heterogeneous TSV densities**
+*Nov 13, 2013: new feature, consideration of heterogeneous TSV densities*
 - adapted power blurring for using different masks
 - added plotting of TSV-density maps
 - adapted HotSpot file handler
@@ -302,24 +292,19 @@ new features (clustering of signal TSVs and related hotspot determination), and 
 - various minor updates and fixes
 
 ## 1.0.4
-*Aug 21, 2013, commit 44f573ed8f31654e6c07d6cc391cf528233f30bf*
-**fixes and updates, thermal analysis**
+*Aug 21, 2013: fixes and updates, thermal analysis*
 
 ## 1.0.3
-*Aug 1, 2013, commit 157d3c989ac20799d0e4efce8acf6b244a68a480*
-**fix, compiling error for 64-bit libaries**
+*Aug 1, 2013: fix, compiling error for 64-bit libaries*
 
 ## 1.0.2
-*Jul 29, 2013, commit 80029340de6e0d9fc97c705828671cbc4a26057c*
-**update, enable fixed-position block alignment**
+*Jul 29, 2013: update, enable fixed-position block alignment*
 
 ## 1.0.1
-*Jul 29, 2013, commit f583c3b77b4c67a7b11aacc117f0d436b5408d84*
-**bugfixes and updates**
+*Jul 29, 2013: bugfixes and updates*
 - update HotSpot BU to v 1.2
 - fixes calculation of thermal-related material properties
 - new class Chip contains all chip-related settings
 
 ## 1.0.0
-*Jul 22, 2013, commit 286b7917b05be13d3cbcdb4b837422baa00888ad*
-**initial public release**
+*Jul 22, 2013: initial public release*
