@@ -1,0 +1,15 @@
+1) extract numbers for all runs into common files
+
+regular example:
+johann@nyuad:~/github/Corblivar/exp$ bench=n100
+johann@nyuad:~/github/Corblivar/exp$ cat 2dies/TSC/*/$bench.results | grep "TSVs (w/o dummy TSVs)" > TSV; cp TSV TSV.l
+
+example for TSC runs:
+johann@nyuad:~/github/Corblivar/exp$ bench=n100
+johann@nyuad:~/github/Corblivar/exp$ cat 2dies/TSC/*/$bench.postprocessing.log | grep "Overall number" > TSV; cp TSV TSV.l
+
+2) edit files via two vim macros: first, drop all prefix strings on each line, i.e., keep only numbers; second, add up numbers in one line
+
+3) calculate avg values via bc:
+
+calc=$(bc < r2); bc <<< "scale=3; $calc / `wc -l r2.l | cut -c 1-2`"
