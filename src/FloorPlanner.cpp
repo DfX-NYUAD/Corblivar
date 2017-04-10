@@ -1930,13 +1930,13 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// insert dummy TSVs wherever required for manufacturing purposes; at least one
 	// TSV shall be placed in every (m x m) frame of the die, if not already some TSVs
-	// are placed within each frame; also consider to place on top-most die
+	// are placed within each frame; not required for top-most die since this die has no TSVs at all
 	//
 	// sanity check: reasonable frame is defined
 	if (this->techParameters.TSV_frame_dim > 0) {
 
-		// insert dummy TSVs on all layers
-		for (i = 0; i < this->IC.layers; i++) {
+		// insert dummy TSVs on dies, expect top-most die
+		for (i = 0; i < this->IC.layers - 1; i++) {
 
 			// walk die outline in steps according to frame dimensions
 			for (x = 0; x < this->IC.outline_x; x += this->techParameters.TSV_frame_dim) {
