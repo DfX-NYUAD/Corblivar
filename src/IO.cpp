@@ -2532,8 +2532,14 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 				gp_out << "front fillstyle empty border rgb \"white\" linewidth 3" << std::endl;
 			}
 
-			// for original power maps, mark leakage-analyzer related partitions for dbg mode
+			// for original power maps
+			//
+			// 1) mark leakage-analyzer related partitions for dbg mode
+			// 2) put block boundaries
+			//
 			else if (flag == POWER_ORIG) {
+
+				// 1) mark leakage-analyzer related partitions for dbg mode
 				if (LeakageAnalyzer::DBG_GP) {
 
 					// sanity check if some partitions are defined
@@ -2571,6 +2577,29 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 							id++;
 						}
 					}
+				}
+
+				// 2) put block boundaries
+
+				// determine scaling factor to map real coordinates to gridded thermal map
+				//
+				double scaling_factor_x = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_x;
+				double scaling_factor_y = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_y;
+
+				// output blocks
+				for (Block const& cur_block : fp.blocks) {
+
+					if (cur_block.layer != cur_layer) {
+						continue;
+					}
+
+					// block rectangles, only white boundary;
+					// down-scaled to grid dimension
+					gp_out << "set obj rect front";
+					gp_out << " from " << cur_block.bb.ll.x * scaling_factor_x << "," << cur_block.bb.ll.y * scaling_factor_y;
+					gp_out << " to " << cur_block.bb.ur.x * scaling_factor_x << "," << cur_block.bb.ur.y * scaling_factor_y;
+					gp_out << " fillstyle empty border rgb \"white\"";
+					gp_out << std::endl;
 				}
 			}
 
@@ -2620,7 +2649,7 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 			}
 
 			// for thermal maps (HotSpot): draw rectangles for floorplan
-			// blocks, which have to scaled to grid dimensions
+			// blocks, which have to scaled to grid dimensions; also plot TSVs
 			else if (flag == MAPS_FLAGS::THERMAL_HOTSPOT) {
 
 				double scaling_factor_x = static_cast<double>(ThermalAnalyzer::THERMAL_MAP_DIM) / fp.IC.outline_x;
@@ -2639,6 +2668,36 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 					gp_out << " from " << cur_block.bb.ll.x * scaling_factor_x << "," << cur_block.bb.ll.y * scaling_factor_y;
 					gp_out << " to " << cur_block.bb.ur.x * scaling_factor_x << "," << cur_block.bb.ur.y * scaling_factor_y;
 					gp_out << " fillstyle empty border rgb \"white\"";
+					gp_out << std::endl;
+				}
+
+				// output TSVs (blocks)
+				for (TSV_Island const& TSV_group : fp.TSVs) {
+
+					if (TSV_group.layer != cur_layer) {
+						continue;
+					}
+
+					// only white boundary; down-scaled to grid dimension
+					gp_out << "set obj rect front";
+					gp_out << " from " << TSV_group.bb.ll.x * scaling_factor_x << "," << TSV_group.bb.ll.y * scaling_factor_y;
+					gp_out << " to " << TSV_group.bb.ur.x * scaling_factor_x << "," << TSV_group.bb.ur.y * scaling_factor_y;
+					gp_out << " fillstyle solid border rgb \"white\" fillcolor rgb \"white\"";
+					gp_out << std::endl;
+				}
+
+				// output dummy TSVs
+				for (TSV_Island const& TSV_group : fp.dummy_TSVs) {
+
+					if (TSV_group.layer != cur_layer) {
+						continue;
+					}
+
+					// only white boundary; down-scaled to grid dimension
+					gp_out << "set obj rect front";
+					gp_out << " from " << TSV_group.bb.ll.x * scaling_factor_x << "," << TSV_group.bb.ll.y * scaling_factor_y;
+					gp_out << " to " << TSV_group.bb.ur.x * scaling_factor_x << "," << TSV_group.bb.ur.y * scaling_factor_y;
+					gp_out << " fillstyle solid border rgb \"white\" fillcolor rgb \"white\"";
 					gp_out << std::endl;
 				}
 			}
