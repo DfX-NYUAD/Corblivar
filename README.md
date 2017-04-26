@@ -47,7 +47,7 @@ based on HotSpot 6.0, and is compiled and tested with SuperLU 5.2.1
 **To use Corblivar, the following procedure should be followed**
 
 ### 1) Configuration of HotSpot
-**see exp/hotspot*.config**
+**see exp/hotspot&ast;.config**
 
 Most relevant are the specs for the heat sink and heat spreader; they should be adapted to
 reflect largest chip dimensions under consideration.
@@ -116,20 +116,20 @@ density) for the whole bus region, even if fewer TSVs would suffice for signal
 transmission.
 
 ### 4) Running Corblivar
-**see exp/run*.sh or directly start ./Corblivar**
+**see exp/run&ast;.sh or directly start ./Corblivar**
 
 To run Corblivar, one can start the binary directly, for example from the exp/ folder as
 
 	../Corblivar BENCH CORBLIVAR.CONF benches/
 
 The other option is to call Corblivar in a batch mode, as outlined in the scripts
-exp/run*.sh
+exp/run&ast;.sh
 
 Note that for generation of plotted data, one has to call the script exp/gp.sh afterwards
 in the related working directory.
 
 ### 5) Optional: Running Correlation_TSC, Postprocessing_TSC, and Variation_TSC after running Corblivar
-**see exp/*TSC.sh or directly start the above binaries after running Corblivar**
+**see exp/&ast;TSC.sh or directly start the above binaries after running Corblivar**
 
 A new feature introduced in v1.5.0 regards the analysis and optimization (i.e., reduction) of the thermal side-channel (TSC). This feature serves to dissolve the correlation
 between power and thermal maps. It is implemented in Corblivar itself and in the three auxiliary binaries. All auxilarly binaries should be run on a previously obtained solution
@@ -149,19 +149,19 @@ Correlation_TSC: this binary simply reads in a Corblivar solution and the relate
 
 The configuration files are currently only provided for 2 dies; see exp/configs/2dies/TSC
 
-The parameters to run the above binaries are the same as with the main Corblivar binary; see exp/*TSC.sh
+The parameters to run the above binaries are the same as with the main Corblivar binary; see exp/&ast;TSC.sh
 
 # Comments
 **The further comments elaborate on the folders and scripts of Corblivar**
 
-Various experiments can be started using exp/run*.sh; these scripts are not a complete
+Various experiments can be started using exp/run&ast;.sh; these scripts are not a complete
 set for running all experiments but rather a guideline for different setups.
 
 The folder exp/benches/ includes MCNC (some are not working, i.e., have issues with their
 content), GSRC, and IBM-HB+ benchmarks, all in the GSRC format
 
 The folder thermal_analysis_octave/ includes Octave scripts for the parameterization of
-the power-blurring-based thermal analysis; they can be also included e.g. in run*.sh
+the power-blurring-based thermal analysis; they can be also included e.g. in run&ast;.sh
 scripts.  Note that these scripts will produce temporary output data in
 thermal_analysis_octave/, i.e., you might want to copy thermal_analysis_octave/ into
 separate working directories for parallel execution of different experiments, to avoid
@@ -175,7 +175,7 @@ related code should be provided along with Corblivar. Note that the script conta
 to the HotSpot binary which has to be adapted for your local setup.
 
 The script exp/extract_numeric_results.sh and the spreadsheet exp/evaluate_via_charts.ods
-can be used to evaluate experimental batches, generated via some run script in exp/run*.sh
+can be used to evaluate experimental batches, generated via some run script in exp/run&ast;.sh
 
 The file exp/Corblivar.conf is a template for the config file required by Corblivar,
 further examples can be found in exp/configs/.
@@ -191,7 +191,7 @@ further examples can be found in exp/configs/.
 
 ## 1.4.4
 *November 2016: updates related to HotSpot to 6.0; various other updates and fixes*
-- experimental config files: added hotspot*.config to exp/; previously kept separately in
+- experimental config files: added hotspot&ast;.config to exp/; previously kept separately in
 HotSpot directory/repository
 - update experimental setup (HotSpot): consider now also secondary path, only possible
 				       thanks to updated HotSpot 6.0
