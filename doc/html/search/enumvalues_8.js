@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['x',['X',['../_coordinate_8hpp.html#ad47497ee723a2e9176a19c1c3810859fa02129bb861061d1a052c592e2dc6b383',1,'Coordinate.hpp']]]
+  ['undef',['UNDEF',['../class_block.html#a3f5bcf0c8efe917dc9965fbb27872572ab3f7791472924b0d1530bb9112409c01',1,'Block::UNDEF()'],['../class_corblivar_alignment_req.html#aab42fdbf1208249ca64508c933a290aaab3f7791472924b0d1530bb9112409c01',1,'CorblivarAlignmentReq::UNDEF()']]]
 ];

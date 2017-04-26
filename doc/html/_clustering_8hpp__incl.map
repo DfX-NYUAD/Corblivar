@@ -1,11 +1,11 @@
-<map id="src/Clustering.hpp" name="src/Clustering.hpp">
-<area shape="rect" id="node2" href="$_corblivar_8incl_8hpp.html" title="Corblivar.incl.hpp" alt="" coords="688,453,811,480"/>
-<area shape="rect" id="node20" href="$_thermal_analyzer_8hpp.html" title="ThermalAnalyzer.hpp" alt="" coords="703,80,849,107"/>
-<area shape="rect" id="node21" href="$_block_8hpp.html" title="Block.hpp" alt="" coords="736,155,816,181"/>
-<area shape="rect" id="node22" href="$_rect_8hpp.html" title="Rect.hpp" alt="" coords="456,304,531,331"/>
-<area shape="rect" id="node24" href="$_math_8hpp.html" title="Math.hpp" alt="" coords="787,379,863,405"/>
-<area shape="rect" id="node25" href="$_multiple_voltages_8hpp.html" title="MultipleVoltages.hpp" alt="" coords="595,229,738,256"/>
-<area shape="rect" id="node27" href="$_timing_power_analyser_8hpp.html" title="TimingPowerAnalyser.hpp" alt="" coords="814,229,989,256"/>
-<area shape="rect" id="node23" href="$_point_8hpp.html" title="Point.hpp" alt="" coords="584,379,661,405"/>
-<area shape="rect" id="node26" href="$_contiguity_analysis_8hpp.html" title="ContiguityAnalysis.hpp" alt="" coords="555,304,711,331"/>
+<map id="/home/johann/github/Corblivar/src/Clustering.hpp" name="/home/johann/github/Corblivar/src/Clustering.hpp">
+<area shape="rect" id="node2" href="$_corblivar_8incl_8hpp.html" title="Corblivar.incl.hpp" alt="" coords="728,468,851,495"/>
+<area shape="rect" id="node21" href="$_thermal_analyzer_8hpp.html" title="ThermalAnalyzer.hpp" alt="" coords="743,95,889,121"/>
+<area shape="rect" id="node22" href="$_block_8hpp.html" title="Block.hpp" alt="" coords="776,169,856,196"/>
+<area shape="rect" id="node23" href="$_rect_8hpp.html" title="Rect.hpp" alt="" coords="496,319,571,345"/>
+<area shape="rect" id="node25" href="$_math_8hpp.html" title="Math.hpp" alt="" coords="827,393,903,420"/>
+<area shape="rect" id="node26" href="$_multiple_voltages_8hpp.html" title="MultipleVoltages.hpp" alt="" coords="635,244,778,271"/>
+<area shape="rect" id="node28" href="$_timing_power_analyser_8hpp.html" title="TimingPowerAnalyser.hpp" alt="" coords="854,244,1029,271"/>
+<area shape="rect" id="node24" href="$_point_8hpp.html" title="Point.hpp" alt="" coords="624,393,701,420"/>
+<area shape="rect" id="node27" href="$_contiguity_analysis_8hpp.html" title="ContiguityAnalysis.hpp" alt="" coords="595,319,751,345"/>
 </map>

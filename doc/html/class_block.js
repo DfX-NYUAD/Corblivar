@@ -48,6 +48,7 @@ var class_block =
     [ "numerical_id", "class_block.html#a47814ba102142cb88c0230cf2a29ece6", null ],
     [ "placed", "class_block.html#a41abe6ffc0247678e8795548e490d650", null ],
     [ "power_density_unscaled", "class_block.html#aee7d5a18875cfbdc894f3364b86d223b", null ],
+    [ "power_density_unscaled_back", "class_block.html#a96bd1917d96154d520fdb7f96b749c8e", null ],
     [ "rotatable", "class_block.html#ac132f7440d5a137d5b5673883238a31c", null ],
     [ "soft", "class_block.html#ab8ca3f82316300b2f3f5d92df9698247", null ],
     [ "voltages", "class_block.html#a109dc969dc1a92e572b7fae61b4bd46a", null ],

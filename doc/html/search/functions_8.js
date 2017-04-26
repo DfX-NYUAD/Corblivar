@@ -2,6 +2,7 @@ var searchData=
 [
   ['id',['id',['../class_multiple_voltages_1_1_compound_module.html#adb118303a35325e75757ff0e253329be',1,'MultipleVoltages::CompoundModule']]],
   ['initcorblivarrandomly',['initCorblivarRandomly',['../class_corblivar_core.html#aca5c083822db096d84a93fd1446fffa7',1,'CorblivarCore']]],
+  ['initdistances',['initDistances',['../class_leakage_analyzer.html#abb49b6dd1498b23eefccb47211713e1d',1,'LeakageAnalyzer']]],
   ['initpowermaps',['initPowerMaps',['../class_thermal_analyzer.html#ae5ef65dc654c0129ba7e0a0d703a3203',1,'ThermalAnalyzer']]],
   ['initroutingutilanalyzer',['initRoutingUtilAnalyzer',['../class_floor_planner.html#af338858f8e15998ec5d13fef5c0559ba',1,'FloorPlanner']]],
   ['initsa',['initSA',['../class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1',1,'FloorPlanner']]],

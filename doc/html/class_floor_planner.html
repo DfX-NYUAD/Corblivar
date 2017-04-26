@@ -144,6 +144,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_floor_planner_1_1schedule.html">schedule</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA schedule parameters.  <a href="struct_floor_planner_1_1schedule.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_floor_planner_1_1tech_parameters.html">techParameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">POD for technology parameters.  <a href="struct_floor_planner_1_1tech_parameters.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_floor_planner_1_1_temp_step.html">TempStep</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA-related temperature step; POD declaration.  <a href="struct_floor_planner_1_1_temp_step.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,6 +177,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac40cd1edc41359aae3c3629c30ab8b36"><td class="memItemLeft" align="right" valign="top">int const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#ac40cd1edc41359aae3c3629c30ab8b36">getLayers</a> () const </td></tr>
 <tr class="memdesc:ac40cd1edc41359aae3c3629c30ab8b36"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#ac40cd1edc41359aae3c3629c30ab8b36">More...</a><br /></td></tr>
 <tr class="separator:ac40cd1edc41359aae3c3629c30ab8b36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa023f1d5e9e096b2a9f02d99c1feebd5"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_floor_planner_1_1tech_parameters.html">techParameters</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aa023f1d5e9e096b2a9f02d99c1feebd5">getTechParameters</a> () const </td></tr>
+<tr class="separator:aa023f1d5e9e096b2a9f02d99c1feebd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f8f848a5c88228efc823cacfa188cca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a9f8f848a5c88228efc823cacfa188cca">getOutline</a> () const </td></tr>
 <tr class="memdesc:a9f8f848a5c88228efc823cacfa188cca"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#a9f8f848a5c88228efc823cacfa188cca">More...</a><br /></td></tr>
 <tr class="separator:a9f8f848a5c88228efc823cacfa188cca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,6 +191,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b29feb0b0418f8e4b997e9617bc802c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a4b29feb0b0418f8e4b997e9617bc802c">getBlocks</a> () const </td></tr>
 <tr class="memdesc:a4b29feb0b0418f8e4b997e9617bc802c"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#a4b29feb0b0418f8e4b997e9617bc802c">More...</a><br /></td></tr>
 <tr class="separator:a4b29feb0b0418f8e4b997e9617bc802c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78b6ab8308a577661fb2566001e8067f"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a78b6ab8308a577661fb2566001e8067f">getWires</a> () const </td></tr>
+<tr class="memdesc:a78b6ab8308a577661fb2566001e8067f"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#a78b6ab8308a577661fb2566001e8067f">More...</a><br /></td></tr>
+<tr class="separator:a78b6ab8308a577661fb2566001e8067f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af98d6e050ca8dda8357eb6d6c81de1ab"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#af98d6e050ca8dda8357eb6d6c81de1ab">getTSVs</a> () const </td></tr>
+<tr class="memdesc:af98d6e050ca8dda8357eb6d6c81de1ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#af98d6e050ca8dda8357eb6d6c81de1ab">More...</a><br /></td></tr>
+<tr class="separator:af98d6e050ca8dda8357eb6d6c81de1ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7773c567dc75ab914014db2fc5271b4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#ad7773c567dc75ab914014db2fc5271b4">getDummyTSVs</a> () const </td></tr>
+<tr class="memdesc:ad7773c567dc75ab914014db2fc5271b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#ad7773c567dc75ab914014db2fc5271b4">More...</a><br /></td></tr>
+<tr class="separator:ad7773c567dc75ab914014db2fc5271b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a954d2b89e7d7c6ec21a07eab0c84d4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a3a954d2b89e7d7c6ec21a07eab0c84d4">editDummyTSVs</a> ()</td></tr>
+<tr class="memdesc:a3a954d2b89e7d7c6ec21a07eab0c84d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter; may edit the dummy TSVs  <a href="#a3a954d2b89e7d7c6ec21a07eab0c84d4">More...</a><br /></td></tr>
+<tr class="separator:a3a954d2b89e7d7c6ec21a07eab0c84d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a071ac204f5cc5187a3fd7d8809c818"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_leakage_analyzer.html">LeakageAnalyzer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a1a071ac204f5cc5187a3fd7d8809c818">editLeakageAnalyzer</a> ()</td></tr>
+<tr class="memdesc:a1a071ac204f5cc5187a3fd7d8809c818"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter; may edit leakageAnalyzer instance  <a href="#a1a071ac204f5cc5187a3fd7d8809c818">More...</a><br /></td></tr>
+<tr class="separator:a1a071ac204f5cc5187a3fd7d8809c818"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea96ca1aab815ad2444040acecb01abb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_thermal_analyzer.html">ThermalAnalyzer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aea96ca1aab815ad2444040acecb01abb">editThermalAnalyzer</a> ()</td></tr>
+<tr class="memdesc:aea96ca1aab815ad2444040acecb01abb"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter; may edit <a class="el" href="class_thermal_analyzer.html" title="Corblivar thermal analyzer, based on power blurring. ">ThermalAnalyzer</a> instance  <a href="#aea96ca1aab815ad2444040acecb01abb">More...</a><br /></td></tr>
+<tr class="separator:aea96ca1aab815ad2444040acecb01abb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa22ae7d2e35eea2904443a0bfbc5af80"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_thermal_analyzer.html">ThermalAnalyzer</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aa22ae7d2e35eea2904443a0bfbc5af80">getThermalAnalyzer</a> () const </td></tr>
+<tr class="memdesc:aa22ae7d2e35eea2904443a0bfbc5af80"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#aa22ae7d2e35eea2904443a0bfbc5af80">More...</a><br /></td></tr>
+<tr class="separator:aa22ae7d2e35eea2904443a0bfbc5af80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ec57ae82e49b8b5efaf96900df44213"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">ThermalAnalyzer::MaskParameters</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a5ec57ae82e49b8b5efaf96900df44213">getPowerBlurringParameters</a> ()</td></tr>
+<tr class="memdesc:a5ec57ae82e49b8b5efaf96900df44213"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#a5ec57ae82e49b8b5efaf96900df44213">More...</a><br /></td></tr>
+<tr class="separator:a5ec57ae82e49b8b5efaf96900df44213"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9861753e3b7046839ff29a1d1062f6a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7">shrinkDieOutlines</a> ()</td></tr>
 <tr class="separator:a9861753e3b7046839ff29a1d1062f6a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7337cf560b0621463d247f7ddfc0be20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a7337cf560b0621463d247f7ddfc0be20">scaleTerminalPins</a> (<a class="el" href="class_point.html">Point</a> outline)</td></tr>
@@ -216,6 +245,9 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a3af39e21df446ba7adf8abcdd168e53e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e">evaluateThermalDistr</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, bool const &amp;set_max_cost=false)</td></tr>
 <tr class="memdesc:a3af39e21df446ba7adf8abcdd168e53e"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#a3af39e21df446ba7adf8abcdd168e53e">More...</a><br /></td></tr>
 <tr class="separator:a3af39e21df446ba7adf8abcdd168e53e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcd668cc5130e291f7d6d7fe2bdd73a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#abcd668cc5130e291f7d6d7fe2bdd73a7">evaluateLeakage</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, double const &amp;fitting_layouts_ratio, bool const &amp;set_max_cost=false)</td></tr>
+<tr class="memdesc:abcd668cc5130e291f7d6d7fe2bdd73a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#abcd668cc5130e291f7d6d7fe2bdd73a7">More...</a><br /></td></tr>
+<tr class="separator:abcd668cc5130e291f7d6d7fe2bdd73a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad52b217d6c7152fcba408a1a587a1e18"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#ad52b217d6c7152fcba408a1a587a1e18">evaluateAlignments</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, std::vector&lt; <a class="el" href="class_corblivar_alignment_req.html">CorblivarAlignmentReq</a> &gt; const &amp;alignments, bool const &amp;derive_TSVs=true, bool const &amp;set_max_cost=false, bool const &amp;<a class="el" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50">finalize</a>=false)</td></tr>
 <tr class="memdesc:ad52b217d6c7152fcba408a1a587a1e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#ad52b217d6c7152fcba408a1a587a1e18">More...</a><br /></td></tr>
 <tr class="separator:ad52b217d6c7152fcba408a1a587a1e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,9 +260,9 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:adeedaad8e3950a3c3a32ba17bc31b5ce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce">evaluateInterconnects</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, double const &amp;frequency, std::vector&lt; <a class="el" href="class_corblivar_alignment_req.html">CorblivarAlignmentReq</a> &gt; const &amp;alignments, bool const &amp;set_max_cost=false, bool const &amp;<a class="el" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50">finalize</a>=false)</td></tr>
 <tr class="memdesc:adeedaad8e3950a3c3a32ba17bc31b5ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#adeedaad8e3950a3c3a32ba17bc31b5ce">More...</a><br /></td></tr>
 <tr class="separator:adeedaad8e3950a3c3a32ba17bc31b5ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd12899b86a27e8438b95ccd809023d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#afd12899b86a27e8438b95ccd809023d1">evaluateTiming</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, bool const &amp;set_max_cost=false, bool reevaluation=false)</td></tr>
-<tr class="memdesc:afd12899b86a27e8438b95ccd809023d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#afd12899b86a27e8438b95ccd809023d1">More...</a><br /></td></tr>
-<tr class="separator:afd12899b86a27e8438b95ccd809023d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0652a85db8275c4dfed12277173df09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#ae0652a85db8275c4dfed12277173df09">evaluateTiming</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, bool const &amp;set_max_cost=false, bool const &amp;<a class="el" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50">finalize</a>=false, bool reevaluation=false)</td></tr>
+<tr class="memdesc:ae0652a85db8275c4dfed12277173df09"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#ae0652a85db8275c4dfed12277173df09">More...</a><br /></td></tr>
+<tr class="separator:ae0652a85db8275c4dfed12277173df09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c09b1a2f0c8b678631b5dbefd6ccb9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9">evaluateVoltageAssignment</a> (<a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;cost, double const &amp;fitting_layouts_ratio, bool const &amp;set_max_cost=false, bool const &amp;<a class="el" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50">finalize</a>=false)</td></tr>
 <tr class="memdesc:aa0c09b1a2f0c8b678631b5dbefd6ccb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">SA: cost functions, i.e., layout-evaluations.  <a href="#aa0c09b1a2f0c8b678631b5dbefd6ccb9">More...</a><br /></td></tr>
 <tr class="separator:aa0c09b1a2f0c8b678631b5dbefd6ccb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -256,11 +288,18 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a5ca5d8e785cc417eda755c74bafcfdbc"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a5ca5d8e785cc417eda755c74bafcfdbc">TSVs</a></td></tr>
 <tr class="memdesc:a5ca5d8e785cc417eda755c74bafcfdbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">groups of TSVs, will be defined from nets and vertical buses  <a href="#a5ca5d8e785cc417eda755c74bafcfdbc">More...</a><br /></td></tr>
 <tr class="separator:a5ca5d8e785cc417eda755c74bafcfdbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dc0e664852c1dd96a2ef80fe32b0f87"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a0dc0e664852c1dd96a2ef80fe32b0f87">dummy_TSVs</a></td></tr>
+<tr class="memdesc:a0dc0e664852c1dd96a2ef80fe32b0f87"><td class="mdescLeft">&#160;</td><td class="mdescRight">groups of dummy filler TSVs, required for minimum TSV density  <a href="#a0dc0e664852c1dd96a2ef80fe32b0f87">More...</a><br /></td></tr>
+<tr class="separator:a0dc0e664852c1dd96a2ef80fe32b0f87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a536cac824d3e1117c8d7cc223ebb32a2"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a536cac824d3e1117c8d7cc223ebb32a2">wires</a></td></tr>
+<tr class="separator:a536cac824d3e1117c8d7cc223ebb32a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82d6a7579b6033e66f31ee5112f36d84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_r_b_o_d.html">RBOD</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a82d6a7579b6033e66f31ee5112f36d84">RBOD</a></td></tr>
 <tr class="memdesc:a82d6a7579b6033e66f31ee5112f36d84"><td class="mdescLeft">&#160;</td><td class="mdescRight">dummy reference block, represents lower-left corner of dies  <a href="#a82d6a7579b6033e66f31ee5112f36d84">More...</a><br /></td></tr>
 <tr class="separator:a82d6a7579b6033e66f31ee5112f36d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a543e41de34cab9857029df22e86d8b99"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_floor_planner_1_1_i_c.html">FloorPlanner::IC</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a543e41de34cab9857029df22e86d8b99">IC</a></td></tr>
 <tr class="separator:a543e41de34cab9857029df22e86d8b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d6cc1cdd595dd9f8794b39b25089c0d"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_floor_planner_1_1tech_parameters.html">FloorPlanner::techParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a1d6cc1cdd595dd9f8794b39b25089c0d">techParameters</a></td></tr>
+<tr class="separator:a1d6cc1cdd595dd9f8794b39b25089c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e064f96647cf02fa010903fb2f4d4cc"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_floor_planner_1_1_i_o__conf.html">FloorPlanner::IO_conf</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a6e064f96647cf02fa010903fb2f4d4cc">IO_conf</a></td></tr>
 <tr class="separator:a6e064f96647cf02fa010903fb2f4d4cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa40e56ba910b025544941c0804cefd90"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aa40e56ba910b025544941c0804cefd90">benchmark</a></td></tr>
@@ -292,6 +331,8 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a78d556b0ecb67b44979fa3f5538fac23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fad878635554b7fd2852aa3c80d6d3b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a6fad878635554b7fd2852aa3c80d6d3b">max_cost_voltage_assignment</a></td></tr>
 <tr class="separator:a6fad878635554b7fd2852aa3c80d6d3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8c08fa0f7afc6c1fab9ea7afc90e008"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#ae8c08fa0f7afc6c1fab9ea7afc90e008">max_cost_thermal_leakage</a></td></tr>
+<tr class="separator:ae8c08fa0f7afc6c1fab9ea7afc90e008"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12ebcf532f200f065c6fdf651a589d5d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a12ebcf532f200f065c6fdf651a589d5d">max_cost_TSVs</a></td></tr>
 <tr class="separator:a12ebcf532f200f065c6fdf651a589d5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3808f05561c605124d92243235377865"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="struct_floor_planner_1_1_temp_step.html">TempStep</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a3808f05561c605124d92243235377865">tempSchedule</a></td></tr>
@@ -309,6 +350,9 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a3bb590cbab89b72dbcb661c8981afef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1af98e02dd84d892299809ac016c9f94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_thermal_analyzer_1_1_thermal_analysis_result.html">ThermalAnalyzer::ThermalAnalysisResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a1af98e02dd84d892299809ac016c9f94">thermal_analysis</a></td></tr>
 <tr class="separator:a1af98e02dd84d892299809ac016c9f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50a9441c5144d849f524c5481cf20f13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_leakage_analyzer.html">LeakageAnalyzer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#a50a9441c5144d849f524c5481cf20f13">leakageAnalyzer</a></td></tr>
+<tr class="memdesc:a50a9441c5144d849f524c5481cf20f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">instance for thermal-related leakage analyzer  <a href="#a50a9441c5144d849f524c5481cf20f13">More...</a><br /></td></tr>
+<tr class="separator:a50a9441c5144d849f524c5481cf20f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca667717d492e3263200ee3f3eb2fd7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_clustering.html">Clustering</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_floor_planner.html#aca667717d492e3263200ee3f3eb2fd7d">clustering</a></td></tr>
 <tr class="memdesc:aca667717d492e3263200ee3f3eb2fd7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">clustering instance  <a href="#aca667717d492e3263200ee3f3eb2fd7d">More...</a><br /></td></tr>
 <tr class="separator:aca667717d492e3263200ee3f3eb2fd7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -422,6 +466,81 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a3a954d2b89e7d7c6ec21a07eab0c84d4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_t_s_v___island.html">TSV_Island</a>&gt;&amp; FloorPlanner::editDummyTSVs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter; may edit the dummy TSVs </p>
+
+</div>
+</div>
+<a class="anchor" id="a1a071ac204f5cc5187a3fd7d8809c818"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_leakage_analyzer.html">LeakageAnalyzer</a>&amp; FloorPlanner::editLeakageAnalyzer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter; may edit leakageAnalyzer instance </p>
+
+</div>
+</div>
+<a class="anchor" id="aea96ca1aab815ad2444040acecb01abb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_thermal_analyzer.html">ThermalAnalyzer</a>&amp; FloorPlanner::editThermalAnalyzer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter; may edit <a class="el" href="class_thermal_analyzer.html" title="Corblivar thermal analyzer, based on power blurring. ">ThermalAnalyzer</a> instance </p>
+
+</div>
+</div>
 <a class="anchor" id="ad52b217d6c7152fcba408a1a587a1e18"></a>
 <div class="memitem">
 <div class="memproto">
@@ -727,6 +846,62 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="abcd668cc5130e291f7d6d7fe2bdd73a7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void FloorPlanner::evaluateLeakage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_floor_planner_1_1_cost.html">Cost</a> &amp;&#160;</td>
+          <td class="paramname"><em>cost</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double const &amp;&#160;</td>
+          <td class="paramname"><em>fitting_layouts_ratio</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool const &amp;&#160;</td>
+          <td class="paramname"><em>set_max_cost</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>SA: cost functions, i.e., layout-evaluations. </p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_floor_planner_abcd668cc5130e291f7d6d7fe2bdd73a7_icgraph.png" border="0" usemap="#class_floor_planner_abcd668cc5130e291f7d6d7fe2bdd73a7_icgraph" alt=""/></div>
+<map name="class_floor_planner_abcd668cc5130e291f7d6d7fe2bdd73a7_icgraph" id="class_floor_planner_abcd668cc5130e291f7d6d7fe2bdd73a7_icgraph">
+<area shape="rect" id="node2" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="255,22,445,48"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="680,22,845,48"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="493,22,632,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="691,72,835,99"/>
+<area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="893,47,944,74"/>
+</map>
+</div>
+</p>
+
+</div>
+</div>
 <a class="anchor" id="a3af39e21df446ba7adf8abcdd168e53e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -777,7 +952,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="afd12899b86a27e8438b95ccd809023d1"></a>
+<a class="anchor" id="ae0652a85db8275c4dfed12277173df09"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -795,6 +970,12 @@ Here is the caller graph for this function:</div>
           <td></td>
           <td class="paramtype">bool const &amp;&#160;</td>
           <td class="paramname"><em>set_max_cost</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool const &amp;&#160;</td>
+          <td class="paramname"><em>finalize</em> = <code>false</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -821,8 +1002,8 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_floor_planner_afd12899b86a27e8438b95ccd809023d1_icgraph.png" border="0" usemap="#class_floor_planner_afd12899b86a27e8438b95ccd809023d1_icgraph" alt=""/></div>
-<map name="class_floor_planner_afd12899b86a27e8438b95ccd809023d1_icgraph" id="class_floor_planner_afd12899b86a27e8438b95ccd809023d1_icgraph">
+<div class="center"><img src="class_floor_planner_ae0652a85db8275c4dfed12277173df09_icgraph.png" border="0" usemap="#class_floor_planner_ae0652a85db8275c4dfed12277173df09_icgraph" alt=""/></div>
+<map name="class_floor_planner_ae0652a85db8275c4dfed12277173df09_icgraph" id="class_floor_planner_ae0652a85db8275c4dfed12277173df09_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="488,22,679,48"/>
 <area shape="rect" id="node7" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="244,44,440,85"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="913,22,1079,48"/>
@@ -1051,6 +1232,31 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="ad7773c567dc75ab914014db2fc5271b4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_t_s_v___island.html">TSV_Island</a>&gt; const&amp; FloorPlanner::getDummyTSVs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
 <a class="anchor" id="ac40cd1edc41359aae3c3629c30ab8b36"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1128,6 +1334,129 @@ Here is the caller graph for this function:</div>
 </map>
 </div>
 </p>
+
+</div>
+</div>
+<a class="anchor" id="a5ec57ae82e49b8b5efaf96900df44213"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">ThermalAnalyzer::MaskParameters</a> const&amp; FloorPlanner::getPowerBlurringParameters </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
+<a class="anchor" id="aa023f1d5e9e096b2a9f02d99c1feebd5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="struct_floor_planner_1_1tech_parameters.html">techParameters</a> const&amp; FloorPlanner::getTechParameters </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa22ae7d2e35eea2904443a0bfbc5af80"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_thermal_analyzer.html">ThermalAnalyzer</a> const&amp; FloorPlanner::getThermalAnalyzer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
+<a class="anchor" id="af98d6e050ca8dda8357eb6d6c81de1ab"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_t_s_v___island.html">TSV_Island</a>&gt; const&amp; FloorPlanner::getTSVs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
+<a class="anchor" id="a78b6ab8308a577661fb2566001e8067f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_block.html">Block</a>&gt; const&amp; FloorPlanner::getWires </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
 
 </div>
 </div>
@@ -1367,10 +1696,10 @@ Here is the caller graph for this function:</div>
 <area shape="rect" id="node7" href="class_i_o.html#a2deddf61dd088b41d03161f197da3fdf" title="parse alignment&#45;requests file " alt="" coords="405,225,596,252"/>
 <area shape="rect" id="node8" href="class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="443,276,559,302"/>
 <area shape="rect" id="node9" href="class_i_o.html#acada5a50daab30c8c12487f8b9f175d6" title="parse nets file " alt="" coords="226,326,330,353"/>
-<area shape="rect" id="node10" href="class_i_o.html#a5712311e97783772da8a7b20e7462757" title="non&#45;const reference due to map acces via [] " alt="" coords="226,377,330,404"/>
+<area shape="rect" id="node10" href="class_i_o.html#ab8b9a3c4ba0f49846530745c74108ee1" title="non&#45;const reference due to map acces via [] " alt="" coords="226,377,330,404"/>
 <area shape="rect" id="node12" href="class_i_o.html#a737833670f2a31f4413b34e20cba91ae" title="output gnuplot for SA annealing schedule " alt="" coords="199,428,357,454"/>
-<area shape="rect" id="node13" href="class_i_o.html#a63107d073f1709afa54fc16fd25f2684" title="generate gnuplot for floorplans " alt="" coords="206,478,350,505"/>
-<area shape="rect" id="node14" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="204,529,352,556"/>
+<area shape="rect" id="node13" href="class_i_o.html#a16d99e580fa63c77fb94e3af6618553b" title="generate gnuplot for floorplans " alt="" coords="206,478,350,505"/>
+<area shape="rect" id="node14" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="204,529,352,556"/>
 <area shape="rect" id="node11" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="429,428,573,454"/>
 </map>
 </div>
@@ -1797,6 +2126,28 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="a0dc0e664852c1dd96a2ef80fe32b0f87"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_t_s_v___island.html">TSV_Island</a>&gt; FloorPlanner::dummy_TSVs</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>groups of dummy filler TSVs, required for minimum TSV density </p>
+
+</div>
+</div>
 <a class="anchor" id="ac0da6d5c3204791882096a5726f214e2"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1877,6 +2228,28 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>layout-operation handler </p>
+
+</div>
+</div>
+<a class="anchor" id="a50a9441c5144d849f524c5481cf20f13"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_leakage_analyzer.html">LeakageAnalyzer</a> FloorPlanner::leakageAnalyzer</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>instance for thermal-related leakage analyzer </p>
 
 </div>
 </div>
@@ -2026,6 +2399,26 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>SA cost variables: max cost values </p>
+
+</div>
+</div>
+<a class="anchor" id="ae8c08fa0f7afc6c1fab9ea7afc90e008"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double FloorPlanner::max_cost_thermal_leakage</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -2322,6 +2715,26 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="a1d6cc1cdd595dd9f8794b39b25089c0d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="struct_floor_planner_1_1tech_parameters.html">FloorPlanner::techParameters</a>  <a class="el" href="struct_floor_planner_1_1tech_parameters.html">FloorPlanner::techParameters</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a3808f05561c605124d92243235377865"></a>
 <div class="memitem">
 <div class="memproto">
@@ -2516,9 +2929,29 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="a536cac824d3e1117c8d7cc223ebb32a2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="class_block.html">Block</a>&gt; FloorPlanner::wires</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_floor_planner_8hpp.html">FloorPlanner.hpp</a></li>
-<li>src/<a class="el" href="_floor_planner_8cpp.html">FloorPlanner.cpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_floor_planner_8hpp.html">FloorPlanner.hpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_floor_planner_8cpp.html">FloorPlanner.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

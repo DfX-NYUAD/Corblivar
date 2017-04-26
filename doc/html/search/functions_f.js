@@ -3,6 +3,7 @@ var searchData=
   ['scaleterminalpins',['scaleTerminalPins',['../class_floor_planner.html#a7337cf560b0621463d247f7ddfc0be20',1,'FloorPlanner']]],
   ['selectcompoundmodules',['selectCompoundModules',['../class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad',1,'MultipleVoltages']]],
   ['sequentialshiftinghelper',['sequentialShiftingHelper',['../class_corblivar_core.html#a5f282feadc72c87b9cef37888ec7de46',1,'CorblivarCore']]],
+  ['setcost',['setCost',['../class_multiple_voltages_1_1_compound_module.html#af526e84ad92ca19128000ab39cc61757',1,'MultipleVoltages::CompoundModule']]],
   ['setfeasiblevoltages',['setFeasibleVoltages',['../class_block.html#a7c5fb81c99c0259091d54e3d7267901d',1,'Block']]],
   ['shapebywidthheight',['shapeByWidthHeight',['../class_block.html#a82ba474052e92d6501c7918cd30a381b',1,'Block']]],
   ['shaperandomlybyar',['shapeRandomlyByAR',['../class_block.html#af3ce91e69e4941dd087f433c3dfde7f2',1,'Block']]],

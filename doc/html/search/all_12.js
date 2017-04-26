@@ -1,15 +1,16 @@
 var searchData=
 [
+  ['value',['value',['../struct_leakage_analyzer_1_1_bin.html#af23d8a8a5f9a7c8a0434fa35908be48f',1,'LeakageAnalyzer::Bin']]],
+  ['variance',['variance',['../class_math.html#aa407198a830072621a9844fef2a216b3',1,'Math']]],
   ['vertical',['VERTICAL',['../_direction_8hpp.html#ab59987c43c510fd8da557161af6a8d21a3e1b74251c07310c5f1b968145bf00dc',1,'Direction.hpp']]],
   ['vertical_5fbus',['vertical_bus',['../class_corblivar_alignment_req.html#ab46b93ae4801ef79a93be48ec08eb46a',1,'CorblivarAlignmentReq']]],
   ['vi',['Vi',['../class_corblivar_die.html#a5981e73b8ef3dd04d2b294501598eac0',1,'CorblivarDie']]],
   ['voltage',['voltage',['../class_block.html#a54ab01c87eeb8fabf08c3c049e6bdfd4',1,'Block']]],
   ['voltage_5fassignment',['voltage_assignment',['../struct_floor_planner_1_1opt__flags.html#a604bbe7d9f38372c4bc6c18f4ad8946d',1,'FloorPlanner::opt_flags::voltage_assignment()'],['../struct_floor_planner_1_1weights.html#a48b6ed957ab1aacf9fb8abaea0c6f06b',1,'FloorPlanner::weights::voltage_assignment()'],['../struct_floor_planner_1_1_cost.html#a1888d6d6e9a9f431c83be29c66d242fc',1,'FloorPlanner::Cost::voltage_assignment()']]],
   ['voltage_5fassignment_5fcorners_5favg',['voltage_assignment_corners_avg',['../struct_floor_planner_1_1_cost.html#a59ef0521c9545541b6465b44d0a20ff4',1,'FloorPlanner::Cost']]],
-  ['voltage_5fassignment_5fcorners_5favg_5f_5fmerged',['voltage_assignment_corners_avg__merged',['../struct_floor_planner_1_1_cost.html#adca3da1b8032d4c048dff387f2c253f4',1,'FloorPlanner::Cost']]],
   ['voltage_5fassignment_5fmodules_5fcount',['voltage_assignment_modules_count',['../struct_floor_planner_1_1_cost.html#a6115e3a0433ca5c00c6dd533bb1f45c4',1,'FloorPlanner::Cost']]],
-  ['voltage_5fassignment_5fmodules_5fcount_5f_5fmerged',['voltage_assignment_modules_count__merged',['../struct_floor_planner_1_1_cost.html#aa1e1b81d8dc914fecaa5725b80ea4536',1,'FloorPlanner::Cost']]],
   ['voltage_5fassignment_5fpower_5fsaving',['voltage_assignment_power_saving',['../struct_floor_planner_1_1_cost.html#a43d604069445c1ad53e219e71bf19668',1,'FloorPlanner::Cost']]],
+  ['voltage_5fassignment_5fpower_5fvariation_5fmax',['voltage_assignment_power_variation_max',['../struct_floor_planner_1_1_cost.html#a60cf41e09611b7afcb4c9bd9e7a502c0',1,'FloorPlanner::Cost']]],
   ['voltage_5fmax',['voltage_max',['../class_block.html#a14524131ca26c5a2e85457e0cc117262',1,'Block']]],
   ['voltageassignment',['voltageAssignment',['../class_floor_planner.html#a03cfcc4fa343c17e6b0358da7a43e1a4',1,'FloorPlanner']]],
   ['voltages',['voltages',['../class_block.html#a109dc969dc1a92e572b7fae61b4bd46a',1,'Block::voltages()'],['../struct_multiple_voltages_1_1_parameters.html#a12959d4373c8aca229eefa6bd4eea711',1,'MultipleVoltages::Parameters::voltages()']]],

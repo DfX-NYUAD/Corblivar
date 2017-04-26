@@ -7,6 +7,7 @@ var class_math =
     [ "randF", "class_math.html#aacb796c19649cad3d7e187e8f63edb6b", null ],
     [ "randI", "class_math.html#a2f3afda6dfe926c07b1bd3409ca754ed", null ],
     [ "stdDev", "class_math.html#a9a7a99034f6d5e78424eca32a66bdb06", null ],
+    [ "variance", "class_math.html#aa407198a830072621a9844fef2a216b3", null ],
     [ "epsilon", "class_math.html#a0869a95dda3877cf753ff7b1abee6200", null ],
     [ "SCALE_UM_M", "class_math.html#abc68c8ea63764f80e214a3acfa1ff728", null ]
 ];

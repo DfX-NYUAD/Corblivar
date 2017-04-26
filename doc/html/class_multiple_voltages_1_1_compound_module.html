@@ -123,12 +123,20 @@ $(document).ready(function(){initNavTree('class_multiple_voltages_1_1_compound_m
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:add302ebaa36d1ba197de1056add71f03"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03">update_power_saving</a> (<a class="el" href="class_block.html">Block</a> const *block_to_consider=nullptr)</td></tr>
-<tr class="separator:add302ebaa36d1ba197de1056add71f03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8426e3703efc392f453735350f539ce4"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a8426e3703efc392f453735350f539ce4">power_saving</a> (bool subtract_wasted_saving=true) const </td></tr>
-<tr class="separator:a8426e3703efc392f453735350f539ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc8b1249405c3a3a42c724d9240a107e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#acc8b1249405c3a3a42c724d9240a107e">updatePower</a> (int const &amp;layers, <a class="el" href="class_block.html">Block</a> const *block_to_consider=nullptr)</td></tr>
+<tr class="memdesc:acc8b1249405c3a3a42c724d9240a107e"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to update power reduction etc.  <a href="#acc8b1249405c3a3a42c724d9240a107e">More...</a><br /></td></tr>
+<tr class="separator:acc8b1249405c3a3a42c724d9240a107e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c8ae8a1c84df9c882037f0a0ecc8459"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a8c8ae8a1c84df9c882037f0a0ecc8459">power_saving_avg</a> (bool subtract_wasted_saving=true) const </td></tr>
+<tr class="memdesc:a8c8ae8a1c84df9c882037f0a0ecc8459"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to retrieve avg gain in power reduction  <a href="#a8c8ae8a1c84df9c882037f0a0ecc8459">More...</a><br /></td></tr>
+<tr class="separator:a8c8ae8a1c84df9c882037f0a0ecc8459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a36eae732cd20bfe0862eb2de8c6fda"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a6a36eae732cd20bfe0862eb2de8c6fda">power_saving</a> () const </td></tr>
+<tr class="memdesc:a6a36eae732cd20bfe0862eb2de8c6fda"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to retrieve absolute gain in power reduction  <a href="#a6a36eae732cd20bfe0862eb2de8c6fda">More...</a><br /></td></tr>
+<tr class="separator:a6a36eae732cd20bfe0862eb2de8c6fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a787e2b46d232b42b8d524cf9ccf4b938"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938">corners_powerring_max</a> () const </td></tr>
 <tr class="separator:a787e2b46d232b42b8d524cf9ccf4b938"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1aea38a020aab2b2273722dda434831"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#ae1aea38a020aab2b2273722dda434831">power_std_dev_max</a> () const </td></tr>
+<tr class="memdesc:ae1aea38a020aab2b2273722dda434831"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#ae1aea38a020aab2b2273722dda434831">More...</a><br /></td></tr>
+<tr class="separator:ae1aea38a020aab2b2273722dda434831"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -140,8 +148,9 @@ Private Member Functions</h2></td></tr>
 <tr class="separator:adb118303a35325e75757ff0e253329be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a761ce6e71fd1addc406c97d4d1154c11"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a761ce6e71fd1addc406c97d4d1154c11">min_voltage_index</a> () const </td></tr>
 <tr class="separator:a761ce6e71fd1addc406c97d4d1154c11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a010afcf8d4156747402ef8a188722412"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412">cost</a> (double const &amp;max_power_saving, unsigned const &amp;max_corners, <a class="el" href="struct_multiple_voltages_1_1_parameters.html">MultipleVoltages::Parameters</a> const &amp;<a class="el" href="class_multiple_voltages.html#a12c080a9ac5c8c2c632c4933c195de03">parameters</a>) const </td></tr>
-<tr class="separator:a010afcf8d4156747402ef8a188722412"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af526e84ad92ca19128000ab39cc61757"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#af526e84ad92ca19128000ab39cc61757">setCost</a> (double const &amp;max_power_saving, double const &amp;min_power_saving, std::vector&lt; double &gt; const &amp;max_power_std_dev, int const &amp;max_count, unsigned const &amp;max_corners, <a class="el" href="struct_multiple_voltages_1_1_parameters.html">MultipleVoltages::Parameters</a> const &amp;<a class="el" href="class_multiple_voltages.html#a12c080a9ac5c8c2c632c4933c195de03">parameters</a>)</td></tr>
+<tr class="memdesc:af526e84ad92ca19128000ab39cc61757"><td class="mdescLeft">&#160;</td><td class="mdescRight">global cost; the smaller the cost the better  <a href="#af526e84ad92ca19128000ab39cc61757">More...</a><br /></td></tr>
+<tr class="separator:af526e84ad92ca19128000ab39cc61757"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -158,10 +167,19 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a651681427009c8f239d54c7afeb35ab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54244987677587d10562b04a22565095"><td class="memItemLeft" align="right" valign="top">std::bitset&lt; <a class="el" href="class_multiple_voltages.html#a19798b60294a6dce992c550424075623">MAX_VOLTAGES</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a54244987677587d10562b04a22565095">feasible_voltages</a></td></tr>
 <tr class="separator:a54244987677587d10562b04a22565095"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacfbc0c358f5943414614db1187b0596"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#aacfbc0c358f5943414614db1187b0596">power_saving_</a></td></tr>
-<tr class="separator:aacfbc0c358f5943414614db1187b0596"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14b522e076fb9bad56d81701291f6865"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a14b522e076fb9bad56d81701291f6865">power_saving_wasted_</a></td></tr>
-<tr class="separator:a14b522e076fb9bad56d81701291f6865"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5a74afdfa8f9f6930f5e0444a1281d1"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#ad5a74afdfa8f9f6930f5e0444a1281d1">power_saving_avg_</a></td></tr>
+<tr class="separator:ad5a74afdfa8f9f6930f5e0444a1281d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37b9b9e4430f403c38b52328f5ab752c"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a37b9b9e4430f403c38b52328f5ab752c">power_saving_wasted_avg_</a></td></tr>
+<tr class="separator:a37b9b9e4430f403c38b52328f5ab752c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad11a15ccc79a52dd209c21df5f2bbae9"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; int, double &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#ad11a15ccc79a52dd209c21df5f2bbae9">power_dens_avg_</a></td></tr>
+<tr class="memdesc:ad11a15ccc79a52dd209c21df5f2bbae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">the avg values are kept layer-wise; first element in pair encodes the number of blocks in layer, second element the avg power densities of those blocks  <a href="#ad11a15ccc79a52dd209c21df5f2bbae9">More...</a><br /></td></tr>
+<tr class="separator:ad11a15ccc79a52dd209c21df5f2bbae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5921ff2c34f425ddf611b8daf5127556"><td class="memItemLeft" align="right" valign="top">std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a5921ff2c34f425ddf611b8daf5127556">power_std_dev_</a></td></tr>
+<tr class="memdesc:a5921ff2c34f425ddf611b8daf5127556"><td class="mdescLeft">&#160;</td><td class="mdescRight">the std dev values are kept layer-wise; only the values are kept, the blocks count is already kept in power_dens_avg_  <a href="#a5921ff2c34f425ddf611b8daf5127556">More...</a><br /></td></tr>
+<tr class="separator:a5921ff2c34f425ddf611b8daf5127556"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba962aab9d73ce64ba19d3f6f5b1cc9b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#aba962aab9d73ce64ba19d3f6f5b1cc9b">cost</a> = -1</td></tr>
+<tr class="memdesc:aba962aab9d73ce64ba19d3f6f5b1cc9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">memorize global cost locally, to avoid recalculation  <a href="#aba962aab9d73ce64ba19d3f6f5b1cc9b">More...</a><br /></td></tr>
+<tr class="separator:aba962aab9d73ce64ba19d3f6f5b1cc9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cc6808d8b9ed4e00cb7cceef054e12f"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; unsigned, <a class="el" href="struct_contiguity_analysis_1_1_contiguous_neighbour.html">ContiguityAnalysis::ContiguousNeighbour</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages_1_1_compound_module.html#a8cc6808d8b9ed4e00cb7cceef054e12f">contiguous_neighbours</a></td></tr>
 <tr class="separator:a8cc6808d8b9ed4e00cb7cceef054e12f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -214,59 +232,6 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a010afcf8d4156747402ef8a188722412"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double MultipleVoltages::CompoundModule::cost </td>
-          <td>(</td>
-          <td class="paramtype">double const &amp;&#160;</td>
-          <td class="paramname"><em>max_power_saving</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned const &amp;&#160;</td>
-          <td class="paramname"><em>max_corners</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="struct_multiple_voltages_1_1_parameters.html">MultipleVoltages::Parameters</a> const &amp;&#160;</td>
-          <td class="paramname"><em>parameters</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>global cost, required during top-down selection</p>
-<p>global cost, required during top-down selection</p>
-<p>cost terms: normalized power reduction/saving and number of corners in power rings; the smaller the cost the better </p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_1_1_compound_module_a010afcf8d4156747402ef8a188722412_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_a010afcf8d4156747402ef8a188722412_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_1_1_compound_module_a010afcf8d4156747402ef8a188722412_icgraph" id="class_multiple_voltages_1_1_compound_module_a010afcf8d4156747402ef8a188722412_icgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="243,5,404,47"/>
-</map>
-</div>
-</p>
-
-</div>
-</div>
 <a class="anchor" id="adb118303a35325e75757ff0e253329be"></a>
 <div class="memitem">
 <div class="memproto">
@@ -295,7 +260,7 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_multiple_voltages_1_1_compound_module_adb118303a35325e75757ff0e253329be_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_adb118303a35325e75757ff0e253329be_icgraph" alt=""/></div>
 <map name="class_multiple_voltages_1_1_compound_module_adb118303a35325e75757ff0e253329be_icgraph" id="class_multiple_voltages_1_1_compound_module_adb118303a35325e75757ff0e253329be_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#a63107d073f1709afa54fc16fd25f2684" title="generate gnuplot for floorplans " alt="" coords="243,13,387,39"/>
+<area shape="rect" id="node2" href="class_i_o.html#a16d99e580fa63c77fb94e3af6618553b" title="generate gnuplot for floorplans " alt="" coords="243,13,387,39"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="435,13,579,39"/>
 <area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="627,13,677,39"/>
 </map>
@@ -331,16 +296,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_multiple_voltages_1_1_compound_module_a761ce6e71fd1addc406c97d4d1154c11_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_a761ce6e71fd1addc406c97d4d1154c11_icgraph" alt=""/></div>
 <map name="class_multiple_voltages_1_1_compound_module_a761ce6e71fd1addc406c97d4d1154c11_icgraph" id="class_multiple_voltages_1_1_compound_module_a761ce6e71fd1addc406c97d4d1154c11_icgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="261,5,423,47"/>
-<area shape="rect" id="node3" href="class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03" title="MultipleVoltages::Compound\lModule::update_power_saving" alt="" coords="243,71,441,112"/>
-<area shape="rect" id="node4" href="class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="489,71,672,112"/>
+<area shape="rect" id="node2" href="class_multiple_voltages.html#a38fd36123e5318489061c7a2431c9963" title="helper to determine all compound modules " alt="" coords="480,5,663,47"/>
+<area shape="rect" id="node3" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="491,84,652,125"/>
+<area shape="rect" id="node4" href="class_multiple_voltages_1_1_compound_module.html#acc8b1249405c3a3a42c724d9240a107e" title="helper to update power reduction etc. " alt="" coords="243,51,432,92"/>
 </map>
 </div>
 </p>
 
 </div>
 </div>
-<a class="anchor" id="a8426e3703efc392f453735350f539ce4"></a>
+<a class="anchor" id="a6a36eae732cd20bfe0862eb2de8c6fda"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -349,6 +314,46 @@ Here is the caller graph for this function:</div>
       <table class="memname">
         <tr>
           <td class="memname">double MultipleVoltages::CompoundModule::power_saving </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>helper to retrieve absolute gain in power reduction </p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_multiple_voltages_1_1_compound_module_a6a36eae732cd20bfe0862eb2de8c6fda_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_a6a36eae732cd20bfe0862eb2de8c6fda_icgraph" alt=""/></div>
+<map name="class_multiple_voltages_1_1_compound_module_a6a36eae732cd20bfe0862eb2de8c6fda_icgraph" id="class_multiple_voltages_1_1_compound_module_a6a36eae732cd20bfe0862eb2de8c6fda_icgraph">
+<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="243,14,439,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="487,22,677,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="912,22,1077,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="725,22,864,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="923,72,1067,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1125,47,1176,74"/>
+</map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a8c8ae8a1c84df9c882037f0a0ecc8459"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double MultipleVoltages::CompoundModule::power_saving_avg </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>subtract_wasted_saving</em> = <code>true</code></td><td>)</td>
@@ -362,24 +367,11 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_1_1_compound_module_a8426e3703efc392f453735350f539ce4_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_a8426e3703efc392f453735350f539ce4_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_1_1_compound_module_a8426e3703efc392f453735350f539ce4_icgraph" id="class_multiple_voltages_1_1_compound_module_a8426e3703efc392f453735350f539ce4_icgraph">
-<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="243,14,439,56"/>
-<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="487,22,677,48"/>
-<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="912,22,1077,48"/>
-<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="725,22,864,48"/>
-<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="923,72,1067,99"/>
-<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1125,47,1176,74"/>
-</map>
-</div>
-</p>
+<p>helper to retrieve avg gain in power reduction </p>
 
 </div>
 </div>
-<a class="anchor" id="add302ebaa36d1ba197de1056add71f03"></a>
+<a class="anchor" id="ae1aea38a020aab2b2273722dda434831"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -387,11 +379,10 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void MultipleVoltages::CompoundModule::update_power_saving </td>
+          <td class="memname">double MultipleVoltages::CompoundModule::power_std_dev_max </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="class_block.html">Block</a> const *&#160;</td>
-          <td class="paramname"><em>block_to_consider</em> = <code>nullptr</code></td><td>)</td>
-          <td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -400,19 +391,84 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>helper to estimate gain in power reduction</p>
-<p>helper to estimate gain in power reduction</p>
-<p>this is done by comparing lowest applicable to highest (trivial solution) voltage / power for all (or one specific) comprised blocks; the flag subtract_wasted_saving flag required for cost calculation, the flag update is used to perform actual evaluation only when required, and the <a class="el" href="class_block.html" title="Corblivar design block. ">Block</a> pointer may be used to update power saving only w.r.t. one specific block </p>
+
+<p>getter </p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_multiple_voltages_1_1_compound_module_add302ebaa36d1ba197de1056add71f03_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_add302ebaa36d1ba197de1056add71f03_icgraph" alt=""/></div>
-<map name="class_multiple_voltages_1_1_compound_module_add302ebaa36d1ba197de1056add71f03_icgraph" id="class_multiple_voltages_1_1_compound_module_add302ebaa36d1ba197de1056add71f03_icgraph">
-<area shape="rect" id="node2" href="class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab" title="helper to determine all compound modules " alt="" coords="252,5,435,47"/>
+<div class="center"><img src="class_multiple_voltages_1_1_compound_module_ae1aea38a020aab2b2273722dda434831_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_ae1aea38a020aab2b2273722dda434831_icgraph" alt=""/></div>
+<map name="class_multiple_voltages_1_1_compound_module_ae1aea38a020aab2b2273722dda434831_icgraph" id="class_multiple_voltages_1_1_compound_module_ae1aea38a020aab2b2273722dda434831_icgraph">
+<area shape="rect" id="node2" href="class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="245,14,441,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="489,22,680,48"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="915,22,1080,48"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="728,22,867,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="925,72,1069,99"/>
+<area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1128,47,1179,74"/>
 </map>
 </div>
 </p>
+
+</div>
+</div>
+<a class="anchor" id="af526e84ad92ca19128000ab39cc61757"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MultipleVoltages::CompoundModule::setCost </td>
+          <td>(</td>
+          <td class="paramtype">double const &amp;&#160;</td>
+          <td class="paramname"><em>max_power_saving</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double const &amp;&#160;</td>
+          <td class="paramname"><em>min_power_saving</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; const &amp;&#160;</td>
+          <td class="paramname"><em>max_power_std_dev</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int const &amp;&#160;</td>
+          <td class="paramname"><em>max_count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned const &amp;&#160;</td>
+          <td class="paramname"><em>max_corners</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_multiple_voltages_1_1_parameters.html">MultipleVoltages::Parameters</a> const &amp;&#160;</td>
+          <td class="paramname"><em>parameters</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>global cost; the smaller the cost the better </p>
+<p>set global cost, required for top-down selection of modules </p>
 
 </div>
 </div>
@@ -467,6 +523,56 @@ Here is the caller graph for this function:</div>
 <map name="class_multiple_voltages_1_1_compound_module_a756b521458f286dcb39c9a02d1b1de7b_icgraph" id="class_multiple_voltages_1_1_compound_module_a756b521458f286dcb39c9a02d1b1de7b_icgraph">
 <area shape="rect" id="node2" href="class_multiple_voltages.html#a67b6a4767b2ef05b3d556c24dbd1d269" title="internal helper to recursively build up compound modules " alt="" coords="243,5,459,47"/>
 <area shape="rect" id="node3" href="class_multiple_voltages.html#ac6dfdf08fbac9aca4cf46d08016a855d" title="internal helper to manage compound module in data structure " alt="" coords="268,71,433,112"/>
+</map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="acc8b1249405c3a3a42c724d9240a107e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MultipleVoltages::CompoundModule::updatePower </td>
+          <td>(</td>
+          <td class="paramtype">int const &amp;&#160;</td>
+          <td class="paramname"><em>layers</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_block.html">Block</a> const *&#160;</td>
+          <td class="paramname"><em>block_to_consider</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>helper to update power reduction etc. </p>
+<p>helper to estimate gain in power reduction</p>
+<p>this is done by comparing lowest applicable to highest (trivial solution) voltage / power for all (or one specific) comprised blocks; the flag subtract_wasted_saving flag required for cost calculation, the flag update is used to perform actual evaluation only when required, and the <a class="el" href="class_block.html" title="Corblivar design block. ">Block</a> pointer may be used to update power saving only w.r.t. one specific block</p>
+<p>note that we also update the modules' standard deviation of power values here as well </p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_multiple_voltages_1_1_compound_module_acc8b1249405c3a3a42c724d9240a107e_icgraph.png" border="0" usemap="#class_multiple_voltages_1_1_compound_module_acc8b1249405c3a3a42c724d9240a107e_icgraph" alt=""/></div>
+<map name="class_multiple_voltages_1_1_compound_module_acc8b1249405c3a3a42c724d9240a107e_icgraph" id="class_multiple_voltages_1_1_compound_module_acc8b1249405c3a3a42c724d9240a107e_icgraph">
+<area shape="rect" id="node2" href="class_multiple_voltages.html#a38fd36123e5318489061c7a2431c9963" title="helper to determine all compound modules " alt="" coords="243,5,425,47"/>
+<area shape="rect" id="node3" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="253,71,415,112"/>
 </map>
 </div>
 </p>
@@ -602,6 +708,28 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="aba962aab9d73ce64ba19d3f6f5b1cc9b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double MultipleVoltages::CompoundModule::cost = -1</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>memorize global cost locally, to avoid recalculation </p>
+
+</div>
+</div>
 <a class="anchor" id="a54244987677587d10562b04a22565095"></a>
 <div class="memitem">
 <div class="memproto">
@@ -665,7 +793,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="aacfbc0c358f5943414614db1187b0596"></a>
+<a class="anchor" id="ad11a15ccc79a52dd209c21df5f2bbae9"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -673,7 +801,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">double MultipleVoltages::CompoundModule::power_saving_</td>
+          <td class="memname">std::vector&lt; std::pair&lt;int, double&gt; &gt; MultipleVoltages::CompoundModule::power_dens_avg_</td>
         </tr>
       </table>
   </td>
@@ -682,11 +810,12 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>power savings will be memorized locally; to avoid redundant recalculations, these values will only be updated whenever the set of feasible_voltages changes </p>
+
+<p>the avg values are kept layer-wise; first element in pair encodes the number of blocks in layer, second element the avg power densities of those blocks </p>
 
 </div>
 </div>
-<a class="anchor" id="a14b522e076fb9bad56d81701291f6865"></a>
+<a class="anchor" id="ad5a74afdfa8f9f6930f5e0444a1281d1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -694,7 +823,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">double MultipleVoltages::CompoundModule::power_saving_wasted_</td>
+          <td class="memname">double MultipleVoltages::CompoundModule::power_saving_avg_</td>
         </tr>
       </table>
   </td>
@@ -703,12 +832,55 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>power values will be memorized locally; to avoid redundant recalculations, these values will only be updated whenever the set of feasible_voltages changes </p>
+
+</div>
+</div>
+<a class="anchor" id="a37b9b9e4430f403c38b52328f5ab752c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double MultipleVoltages::CompoundModule::power_saving_wasted_avg_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a5921ff2c34f425ddf611b8daf5127556"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; double &gt; MultipleVoltages::CompoundModule::power_std_dev_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>the std dev values are kept layer-wise; only the values are kept, the blocks count is already kept in power_dens_avg_ </p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_multiple_voltages_8hpp.html">MultipleVoltages.hpp</a></li>
-<li>src/<a class="el" href="_multiple_voltages_8cpp.html">MultipleVoltages.cpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_multiple_voltages_8hpp.html">MultipleVoltages.hpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_multiple_voltages_8cpp.html">MultipleVoltages.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -138,9 +138,9 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5f4274ccccd2fe5a7dd399573acecbab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a5f4274ccccd2fe5a7dd399573acecbab">determineCompoundModules</a> (int layers, std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;blocks, <a class="el" href="class_contiguity_analysis.html">ContiguityAnalysis</a> &amp;contig)</td></tr>
-<tr class="memdesc:a5f4274ccccd2fe5a7dd399573acecbab"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to determine all compound modules  <a href="#a5f4274ccccd2fe5a7dd399573acecbab">More...</a><br /></td></tr>
-<tr class="separator:a5f4274ccccd2fe5a7dd399573acecbab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38fd36123e5318489061c7a2431c9963"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a38fd36123e5318489061c7a2431c9963">determineCompoundModules</a> (std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;blocks, <a class="el" href="class_contiguity_analysis.html">ContiguityAnalysis</a> &amp;contig)</td></tr>
+<tr class="memdesc:a38fd36123e5318489061c7a2431c9963"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to determine all compound modules  <a href="#a38fd36123e5318489061c7a2431c9963">More...</a><br /></td></tr>
+<tr class="separator:a38fd36123e5318489061c7a2431c9963"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16352f47bd11dcdfe7b2155ecb6a54ad"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> * &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad">selectCompoundModules</a> (bool const &amp;merge_selected_modules=false)</td></tr>
 <tr class="memdesc:a16352f47bd11dcdfe7b2155ecb6a54ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper to perform top-down selection of compound modules  <a href="#a16352f47bd11dcdfe7b2155ecb6a54ad">More...</a><br /></td></tr>
 <tr class="separator:a16352f47bd11dcdfe7b2155ecb6a54ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,8 +162,8 @@ Static Public Attributes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-types"></a>
 Private Types</h2></td></tr>
-<tr class="memitem:ab76641d1d4eb29e07471cb6a17cb4ae6"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map&lt; std::vector&lt; bool &gt;, <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#ab76641d1d4eb29e07471cb6a17cb4ae6">modules_type</a></td></tr>
-<tr class="separator:ab76641d1d4eb29e07471cb6a17cb4ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cca649d7816eddae6875105e7592404"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_multimap&lt; std::vector&lt; bool &gt;, <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a2cca649d7816eddae6875105e7592404">modules_type</a></td></tr>
+<tr class="separator:a2cca649d7816eddae6875105e7592404"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -176,7 +176,7 @@ Private Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a9b125061650b3c9fc3dc3968a5691b8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_multiple_voltages.html#ab76641d1d4eb29e07471cb6a17cb4ae6">modules_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a9b125061650b3c9fc3dc3968a5691b8d">modules</a></td></tr>
+<tr class="memitem:a9b125061650b3c9fc3dc3968a5691b8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_multiple_voltages.html#a2cca649d7816eddae6875105e7592404">modules_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a9b125061650b3c9fc3dc3968a5691b8d">modules</a></td></tr>
 <tr class="separator:a9b125061650b3c9fc3dc3968a5691b8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96d8611a2a0118351e8d57c244866c95"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multiple_voltages.html#a96d8611a2a0118351e8d57c244866c95">selected_modules</a></td></tr>
 <tr class="memdesc:a96d8611a2a0118351e8d57c244866c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of selected modules, filled by <a class="el" href="class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top-down selection of compound modules ">selectCompoundModules()</a>  <a href="#a96d8611a2a0118351e8d57c244866c95">More...</a><br /></td></tr>
@@ -199,7 +199,7 @@ Friends</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar handler for multiple voltages. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a class="anchor" id="ab76641d1d4eb29e07471cb6a17cb4ae6"></a>
+<a class="anchor" id="a2cca649d7816eddae6875105e7592404"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -207,7 +207,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">typedef std::unordered_map&lt; std::vector&lt;bool&gt;, <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> &gt; <a class="el" href="class_multiple_voltages.html#ab76641d1d4eb29e07471cb6a17cb4ae6">MultipleVoltages::modules_type</a></td>
+          <td class="memname">typedef std::unordered_multimap&lt; std::vector&lt;bool&gt;, <a class="el" href="class_multiple_voltages_1_1_compound_module.html">CompoundModule</a> &gt; <a class="el" href="class_multiple_voltages.html#a2cca649d7816eddae6875105e7592404">MultipleVoltages::modules_type</a></td>
         </tr>
       </table>
   </td>
@@ -216,7 +216,7 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>map of unique compound modules; keys are a vector&lt;bool&gt;, with each index representing a numerical block id, and each index' position set true when the related block is comprised in the module; unordered map is more efficient in accessing individual elements </p>
+<p>map of compound modules; keys are a vector&lt;bool&gt;, with each index representing a numerical block id, and each index' position set true when the related block is comprised in the module; unordered map is more efficient in accessing individual elements </p>
 
 </div>
 </div>
@@ -264,19 +264,13 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5f4274ccccd2fe5a7dd399573acecbab"></a>
+<a class="anchor" id="a38fd36123e5318489061c7a2431c9963"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void MultipleVoltages::determineCompoundModules </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>layers</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;&#160;</td>
           <td class="paramname"><em>blocks</em>, </td>
         </tr>
@@ -505,7 +499,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="class_multiple_voltages.html#ab76641d1d4eb29e07471cb6a17cb4ae6">modules_type</a> MultipleVoltages::modules</td>
+          <td class="memname"><a class="el" href="class_multiple_voltages.html#a2cca649d7816eddae6875105e7592404">modules_type</a> MultipleVoltages::modules</td>
         </tr>
       </table>
   </td>
@@ -552,8 +546,8 @@ Friends</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_multiple_voltages_8hpp.html">MultipleVoltages.hpp</a></li>
-<li>src/<a class="el" href="_multiple_voltages_8cpp.html">MultipleVoltages.cpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_multiple_voltages_8hpp.html">MultipleVoltages.hpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_multiple_voltages_8cpp.html">MultipleVoltages.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

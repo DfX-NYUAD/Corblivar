@@ -31,6 +31,7 @@ var searchData=
   ['results',['results',['../struct_floor_planner_1_1_i_o__conf.html#acd7dc1cc5c9c4639b642a6f20a1b21a7',1,'FloorPlanner::IO_conf']]],
   ['rotatable',['rotatable',['../class_block.html#ac132f7440d5a137d5b5673883238a31c',1,'Block']]],
   ['rotate',['rotate',['../class_block.html#a9374a712be70400505c68b697c0fe25c',1,'Block']]],
+  ['routing',['ROUTING',['../class_i_o.html#a14c160110906a1205fd40412e7b7fe45a63d9af3481ecd700ceef16e44dcfd250',1,'IO']]],
   ['routing_5futil',['routing_util',['../struct_floor_planner_1_1opt__flags.html#a05a7e50a709ffe1548e38a4215130940',1,'FloorPlanner::opt_flags::routing_util()'],['../struct_floor_planner_1_1weights.html#acfcae96a9c80d59a383f50ed342e0958',1,'FloorPlanner::weights::routing_util()'],['../struct_floor_planner_1_1_cost.html#a9c81dd29afa96f8b4bc5ebf176d5fc34',1,'FloorPlanner::Cost::routing_util()']]],
   ['routing_5futil_5factual_5fvalue',['routing_util_actual_value',['../struct_floor_planner_1_1_cost.html#a57e07b5eda757181163fc21a88a23d55',1,'FloorPlanner::Cost']]],
   ['routingutil',['routingUtil',['../class_floor_planner.html#ad30f6993eee31fe90d69e236804f7fc1',1,'FloorPlanner']]],

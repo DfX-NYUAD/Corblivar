@@ -18,6 +18,9 @@ var struct_floor_planner_1_1_cost =
     [ "routing_util_actual_value", "struct_floor_planner_1_1_cost.html#a57e07b5eda757181163fc21a88a23d55", null ],
     [ "thermal", "struct_floor_planner_1_1_cost.html#a37c2beed4937b4d49fafa829008c3698", null ],
     [ "thermal_actual_value", "struct_floor_planner_1_1_cost.html#a8fea6e00d39eb7cc3c3bc21cb96265da", null ],
+    [ "thermal_leakage", "struct_floor_planner_1_1_cost.html#a69c5763068d9d07e34542b9152a2b570", null ],
+    [ "thermal_leakage_correlation_actual_value", "struct_floor_planner_1_1_cost.html#adafe9bad66c7842bbc01f675f2d9fa4f", null ],
+    [ "thermal_leakage_entropy_actual_value", "struct_floor_planner_1_1_cost.html#a2654cc2d9c39895caefbf11b9ed7edd7", null ],
     [ "timing", "struct_floor_planner_1_1_cost.html#ac1258d3f0d2bcc0b2c9e61d731e3e103", null ],
     [ "timing_actual_value", "struct_floor_planner_1_1_cost.html#a6cdd23eff61acc3be73acd1e696bcbcb", null ],
     [ "total_cost", "struct_floor_planner_1_1_cost.html#a8da092533b1dfdb2ccd52fa1c5f17d96", null ],
@@ -27,8 +30,7 @@ var struct_floor_planner_1_1_cost =
     [ "TSVs_area_deadspace_ratio", "struct_floor_planner_1_1_cost.html#a57d6ec6821586f48ba858609c207562c", null ],
     [ "voltage_assignment", "struct_floor_planner_1_1_cost.html#a1888d6d6e9a9f431c83be29c66d242fc", null ],
     [ "voltage_assignment_corners_avg", "struct_floor_planner_1_1_cost.html#a59ef0521c9545541b6465b44d0a20ff4", null ],
-    [ "voltage_assignment_corners_avg__merged", "struct_floor_planner_1_1_cost.html#adca3da1b8032d4c048dff387f2c253f4", null ],
     [ "voltage_assignment_modules_count", "struct_floor_planner_1_1_cost.html#a6115e3a0433ca5c00c6dd533bb1f45c4", null ],
-    [ "voltage_assignment_modules_count__merged", "struct_floor_planner_1_1_cost.html#aa1e1b81d8dc914fecaa5725b80ea4536", null ],
-    [ "voltage_assignment_power_saving", "struct_floor_planner_1_1_cost.html#a43d604069445c1ad53e219e71bf19668", null ]
+    [ "voltage_assignment_power_saving", "struct_floor_planner_1_1_cost.html#a43d604069445c1ad53e219e71bf19668", null ],
+    [ "voltage_assignment_power_variation_max", "struct_floor_planner_1_1_cost.html#a60cf41e09611b7afcb4c9bd9e7a502c0", null ]
 ];

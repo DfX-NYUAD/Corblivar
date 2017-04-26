@@ -10,6 +10,7 @@ var annotated_dup =
     [ "FloorPlanner", "class_floor_planner.html", "class_floor_planner" ],
     [ "IO", "class_i_o.html", "class_i_o" ],
     [ "LayoutOperations", "class_layout_operations.html", "class_layout_operations" ],
+    [ "LeakageAnalyzer", "class_leakage_analyzer.html", "class_leakage_analyzer" ],
     [ "Math", "class_math.html", "class_math" ],
     [ "MultipleVoltages", "class_multiple_voltages.html", "class_multiple_voltages" ],
     [ "Net", "class_net.html", "class_net" ],

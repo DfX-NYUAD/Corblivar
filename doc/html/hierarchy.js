@@ -1,6 +1,7 @@
 var hierarchy =
 [
     [ "Block::AR", "struct_block_1_1_a_r.html", null ],
+    [ "LeakageAnalyzer::Bin", "struct_leakage_analyzer_1_1_bin.html", null ],
     [ "Block", "class_block.html", [
       [ "Pin", "class_pin.html", null ],
       [ "RBOD", "class_r_b_o_d.html", null ],
@@ -24,14 +25,17 @@ var hierarchy =
     [ "IO", "class_i_o.html", null ],
     [ "FloorPlanner::IO_conf", "struct_floor_planner_1_1_i_o__conf.html", null ],
     [ "LayoutOperations", "class_layout_operations.html", null ],
+    [ "LeakageAnalyzer", "class_leakage_analyzer.html", null ],
     [ "ThermalAnalyzer::MaskParameters", "struct_thermal_analyzer_1_1_mask_parameters.html", null ],
     [ "Math", "class_math.html", null ],
     [ "MultipleVoltages::max_values", "struct_multiple_voltages_1_1max__values.html", null ],
+    [ "LeakageAnalyzer::max_values", "struct_leakage_analyzer_1_1max__values.html", null ],
     [ "MultipleVoltages", "class_multiple_voltages.html", null ],
     [ "Net", "class_net.html", null ],
     [ "FloorPlanner::opt_flags", "struct_floor_planner_1_1opt__flags.html", null ],
     [ "MultipleVoltages::Parameters", "struct_multiple_voltages_1_1_parameters.html", null ],
     [ "LayoutOperations::parameters", "struct_layout_operations_1_1parameters.html", null ],
+    [ "LeakageAnalyzer::Parameters", "struct_leakage_analyzer_1_1_parameters.html", null ],
     [ "Point", "class_point.html", null ],
     [ "FloorPlanner::power_stats", "struct_floor_planner_1_1power__stats.html", null ],
     [ "ThermalAnalyzer::PowerMapBin", "struct_thermal_analyzer_1_1_power_map_bin.html", null ],
@@ -39,6 +43,7 @@ var hierarchy =
     [ "RoutingUtilization", "class_routing_utilization.html", null ],
     [ "FloorPlanner::schedule", "struct_floor_planner_1_1schedule.html", null ],
     [ "Clustering::Segments", "struct_clustering_1_1_segments.html", null ],
+    [ "FloorPlanner::techParameters", "struct_floor_planner_1_1tech_parameters.html", null ],
     [ "FloorPlanner::TempStep", "struct_floor_planner_1_1_temp_step.html", null ],
     [ "ThermalAnalyzer::ThermalAnalysisResult", "struct_thermal_analyzer_1_1_thermal_analysis_result.html", null ],
     [ "ThermalAnalyzer", "class_thermal_analyzer.html", null ],

@@ -1,12 +1,14 @@
 var searchData=
 [
-  ['dbg',['DBG',['../class_clustering.html#ac09d0d57642dfc73264a605162eed099',1,'Clustering::DBG()'],['../class_thermal_analyzer.html#a24c3569f45261cafdec6800e0e1f661e',1,'ThermalAnalyzer::DBG()'],['../class_t_s_v___island.html#a91652ab4182bfd0c4bc74ba3273c8bdd',1,'TSV_Island::DBG()'],['../class_multiple_voltages.html#aad96f986629ba8271519d7171502a448',1,'MultipleVoltages::DBG()'],['../class_contiguity_analysis.html#acead14df6ac40be2cc336dc1c69f08f4',1,'ContiguityAnalysis::DBG()'],['../class_timing_power_analyser.html#aac5689085596c47508244137f77ea1e8',1,'TimingPowerAnalyser::DBG()'],['../class_net.html#ad379cccf073d54963402a9e820590952',1,'Net::DBG()'],['../class_corblivar_core.html#abf55b275e8002fa6669422f7aea745a1',1,'CorblivarCore::DBG()'],['../class_corner_block_list.html#a91485feffd1105636a3f178ff8d04de6',1,'CornerBlockList::DBG()'],['../class_layout_operations.html#ad073aa512348f01a527ac06803aa1f5b',1,'LayoutOperations::DBG()'],['../class_routing_utilization.html#a961a891a6dca3cdc8ed40346b36d7846',1,'RoutingUtilization::DBG()'],['../class_i_o.html#a95cccfca3292c2c7e1bb4c81c71c1c4f',1,'IO::DBG()']]],
+  ['dbg',['DBG',['../class_clustering.html#ac09d0d57642dfc73264a605162eed099',1,'Clustering::DBG()'],['../class_thermal_analyzer.html#a24c3569f45261cafdec6800e0e1f661e',1,'ThermalAnalyzer::DBG()'],['../class_t_s_v___island.html#a91652ab4182bfd0c4bc74ba3273c8bdd',1,'TSV_Island::DBG()'],['../class_multiple_voltages.html#aad96f986629ba8271519d7171502a448',1,'MultipleVoltages::DBG()'],['../class_contiguity_analysis.html#acead14df6ac40be2cc336dc1c69f08f4',1,'ContiguityAnalysis::DBG()'],['../class_timing_power_analyser.html#aac5689085596c47508244137f77ea1e8',1,'TimingPowerAnalyser::DBG()'],['../class_net.html#ad379cccf073d54963402a9e820590952',1,'Net::DBG()'],['../class_corblivar_core.html#abf55b275e8002fa6669422f7aea745a1',1,'CorblivarCore::DBG()'],['../class_corner_block_list.html#a91485feffd1105636a3f178ff8d04de6',1,'CornerBlockList::DBG()'],['../class_layout_operations.html#ad073aa512348f01a527ac06803aa1f5b',1,'LayoutOperations::DBG()'],['../class_leakage_analyzer.html#a2457bd71457e5e60f6a0eb4174aa6e0e',1,'LeakageAnalyzer::DBG()'],['../class_routing_utilization.html#a961a891a6dca3cdc8ed40346b36d7846',1,'RoutingUtilization::DBG()'],['../class_i_o.html#a95cccfca3292c2c7e1bb4c81c71c1c4f',1,'IO::DBG()']]],
+  ['dbg_5fbasic',['DBG_BASIC',['../class_leakage_analyzer.html#a57776d321ef61af7285e7b934b4ea92c',1,'LeakageAnalyzer']]],
   ['dbg_5fcalls',['DBG_CALLS',['../class_thermal_analyzer.html#a7857cad198947501e5217e3e55539b6a',1,'ThermalAnalyzer::DBG_CALLS()'],['../class_routing_utilization.html#a8f7b23b9555c2563f4a1678f39a585f1',1,'RoutingUtilization::DBG_CALLS()']]],
   ['dbg_5fcalls_5fsa',['DBG_CALLS_SA',['../class_floor_planner.html#a7ff5a5a69df32ffd2ce00cf7f8d9d940',1,'FloorPlanner']]],
   ['dbg_5fclustering',['DBG_CLUSTERING',['../class_clustering.html#a040631081862e72a3e538c5334b58c26',1,'Clustering']]],
   ['dbg_5fclustering_5ffinal',['DBG_CLUSTERING_FINAL',['../class_clustering.html#ad5aba1326a86df6eff8396b790a0dae8',1,'Clustering']]],
   ['dbg_5fevaluate',['DBG_EVALUATE',['../class_corblivar_alignment_req.html#aeff13dcf7939090a140b09ebf2abbf6b',1,'CorblivarAlignmentReq']]],
   ['dbg_5ffloorplan',['DBG_FLOORPLAN',['../class_multiple_voltages.html#afa202a7ac6b48deeff1c06b71e964640',1,'MultipleVoltages']]],
+  ['dbg_5fgp',['DBG_GP',['../class_leakage_analyzer.html#ab3ada48aa3ee21f50d0b6ff1fbb82fb2',1,'LeakageAnalyzer']]],
   ['dbg_5fhandle_5ffailed',['DBG_HANDLE_FAILED',['../class_corblivar_alignment_req.html#af10ba2a9508e45e3ccca2402791b6de3',1,'CorblivarAlignmentReq']]],
   ['dbg_5fhotspot',['DBG_HOTSPOT',['../class_clustering.html#ac68c20172fe77b503334958a8858d70a',1,'Clustering']]],
   ['dbg_5fhotspot_5fplot',['DBG_HOTSPOT_PLOT',['../class_clustering.html#ad273a2937e79b745c0284092b85930e2',1,'Clustering']]],
@@ -16,7 +18,7 @@ var searchData=
   ['dbg_5fsa',['DBG_SA',['../class_floor_planner.html#a3f763613e9b36fea7991d34a3755605a',1,'FloorPlanner']]],
   ['dbg_5fstacks',['DBG_STACKS',['../class_corblivar_die.html#a187259e4901844211613e684b6ff7c51',1,'CorblivarDie']]],
   ['dbg_5ftsvs',['DBG_TSVS',['../class_floor_planner.html#a2ff0c7e486a0ed10fa14a089d88ce12c',1,'FloorPlanner']]],
-  ['dbg_5fverbose',['DBG_VERBOSE',['../class_multiple_voltages.html#ae21ceca033b64b621a62d70465444959',1,'MultipleVoltages']]],
+  ['dbg_5fverbose',['DBG_VERBOSE',['../class_multiple_voltages.html#ae21ceca033b64b621a62d70465444959',1,'MultipleVoltages::DBG_VERBOSE()'],['../class_leakage_analyzer.html#a3c2f949b18e50f2d5d6f7fdc8f85abbd',1,'LeakageAnalyzer::DBG_VERBOSE()']]],
   ['delay_5ffactor_5fmodule',['DELAY_FACTOR_MODULE',['../class_timing_power_analyser.html#a259dbcc90b43890e7fb90731cfd42afe',1,'TimingPowerAnalyser']]],
   ['delay_5ffactor_5ftsv',['DELAY_FACTOR_TSV',['../class_timing_power_analyser.html#ae12b0f6924b46d576581db9213b79cba',1,'TimingPowerAnalyser']]],
   ['delay_5ffactor_5fwire',['DELAY_FACTOR_WIRE',['../class_timing_power_analyser.html#a6d46201b0c997a5d46dbe51c19cd548e',1,'TimingPowerAnalyser']]],
@@ -27,8 +29,11 @@ var searchData=
   ['density_5fsi',['DENSITY_SI',['../class_thermal_analyzer.html#a1c7a2aee628734af914e8ec6f6c5f37c',1,'ThermalAnalyzer']]],
   ['die_5far',['die_AR',['../struct_floor_planner_1_1_i_c.html#adfa19789ed5eed1e480ddbaf16f0dd7d',1,'FloorPlanner::IC']]],
   ['die_5farea',['die_area',['../struct_floor_planner_1_1_i_c.html#aebd80e8f035f7208d3891f700128545a',1,'FloorPlanner::IC']]],
-  ['die_5fthickness',['die_thickness',['../struct_floor_planner_1_1_i_c.html#a2d46599a85ff7b776ffd9eb3bc686f1c',1,'FloorPlanner::IC']]],
+  ['die_5fthickness',['die_thickness',['../struct_floor_planner_1_1tech_parameters.html#a860531dacc1b234ce4918dae7adc2522',1,'FloorPlanner::techParameters']]],
   ['dies',['dies',['../class_corblivar_core.html#a1210d482fbd0c85099ebbc5dc8dd11ff',1,'CorblivarCore']]],
+  ['distances',['distances',['../class_leakage_analyzer.html#a276bc4411e1bfd05cb3b93495cd7daf3',1,'LeakageAnalyzer']]],
+  ['distances_5fsummed',['distances_summed',['../class_leakage_analyzer.html#ac0208d4fd85d8f503bf0467dc732b190',1,'LeakageAnalyzer']]],
   ['done',['done',['../class_corblivar_die.html#af01bb2982286f8efd1c9d3ee90642c56',1,'CorblivarDie']]],
-  ['dummy_5fnum_5fid',['DUMMY_NUM_ID',['../class_block.html#a14f86700bd3f5ee22fd637ad51020a06',1,'Block']]]
+  ['dummy_5fnum_5fid',['DUMMY_NUM_ID',['../class_block.html#a14f86700bd3f5ee22fd637ad51020a06',1,'Block']]],
+  ['dummy_5ftsvs',['dummy_TSVs',['../class_floor_planner.html#a0dc0e664852c1dd96a2ef80fe32b0f87',1,'FloorPlanner']]]
 ];

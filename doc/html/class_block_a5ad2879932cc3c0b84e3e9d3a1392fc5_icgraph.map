@@ -2,7 +2,7 @@
 <area shape="rect" id="node2" href="$class_block.html#ad5040c17bcc4ad1aead5cdeca9719635" title="power in [W]; returns power according to currently assigned voltage " alt="" coords="200,56,299,83"/>
 <area shape="rect" id="node9" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="404,107,520,133"/>
 <area shape="rect" id="node3" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="347,56,577,83"/>
-<area shape="rect" id="node10" href="$class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="647,5,795,32"/>
+<area shape="rect" id="node10" href="$class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="647,5,795,32"/>
 <area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="625,56,816,83"/>
 <area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1056,95,1221,121"/>
 <area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="867,56,1005,83"/>

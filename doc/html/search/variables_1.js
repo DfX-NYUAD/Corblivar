@@ -6,7 +6,7 @@ var searchData=
   ['bb_5fbackup',['bb_backup',['../class_block.html#a7da5b54581cfdf571f5e23b6ebd63c73',1,'Block']]],
   ['bb_5fbest',['bb_best',['../class_block.html#a968adffba20c214a5296552b9646764d',1,'Block']]],
   ['benchmark',['benchmark',['../class_floor_planner.html#aa40e56ba910b025544941c0804cefd90',1,'FloorPlanner']]],
-  ['beol_5fthickness',['BEOL_thickness',['../struct_floor_planner_1_1_i_c.html#a6bd7a8f375fe70bfe74d74e5548bd178',1,'FloorPlanner::IC']]],
+  ['beol_5fthickness',['BEOL_thickness',['../struct_floor_planner_1_1tech_parameters.html#a031cc271e028106cd3cc6ade85ba46c1',1,'FloorPlanner::techParameters']]],
   ['bins',['bins',['../struct_clustering_1_1_hotspot.html#a2dba2a27c8fa656b7c602ea7e30e217e',1,'Clustering::Hotspot']]],
   ['block',['block',['../struct_contiguity_analysis_1_1_contiguous_neighbour.html#a0cda93d635ffce8448c436766a658101',1,'ContiguityAnalysis::ContiguousNeighbour::block()'],['../struct_contiguity_analysis_1_1_boundary.html#a2a5970c6118609070765009e80c25cfc',1,'ContiguityAnalysis::Boundary::block()']]],
   ['block_5fids',['block_ids',['../class_multiple_voltages_1_1_compound_module.html#a945565223f45248982b5278861b573ad',1,'MultipleVoltages::CompoundModule']]],
@@ -16,7 +16,7 @@ var searchData=
   ['blocks_5foffset_5fx',['blocks_offset_x',['../class_thermal_analyzer.html#a2fee208f21fccbc0f1137f5a50001466',1,'ThermalAnalyzer']]],
   ['blocks_5foffset_5fy',['blocks_offset_y',['../class_thermal_analyzer.html#a3642edd429b7e0681994be2a4a23f1fa',1,'ThermalAnalyzer']]],
   ['blocks_5fscale',['blocks_scale',['../struct_floor_planner_1_1_i_c.html#a3cec28cccb824a754f6e1f9d7f10ee67',1,'FloorPlanner::IC']]],
-  ['bond_5fthickness',['bond_thickness',['../struct_floor_planner_1_1_i_c.html#a3f42f8278bdb06bf15ddb93ee340bc7d',1,'FloorPlanner::IC']]],
+  ['bond_5fthickness',['bond_thickness',['../struct_floor_planner_1_1tech_parameters.html#ab14a7538a518d5a2df0adcce77ce4109',1,'FloorPlanner::techParameters']]],
   ['boundaries_5fhor',['boundaries_hor',['../class_contiguity_analysis.html#a09c07d94184d3b0a51860487fe565915',1,'ContiguityAnalysis']]],
   ['boundaries_5fvert',['boundaries_vert',['../class_contiguity_analysis.html#adf2ae285ac13d4da2e1fc1b0c555bd78',1,'ContiguityAnalysis']]]
 ];

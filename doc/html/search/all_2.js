@@ -42,8 +42,9 @@ var searchData=
   ['corners_5favg',['corners_avg',['../struct_multiple_voltages_1_1max__values.html#aa72cf7c922db7137423dde75e695d856',1,'MultipleVoltages::max_values']]],
   ['corners_5fpowerring',['corners_powerring',['../class_multiple_voltages_1_1_compound_module.html#a651681427009c8f239d54c7afeb35ab2',1,'MultipleVoltages::CompoundModule']]],
   ['corners_5fpowerring_5fmax',['corners_powerring_max',['../class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938',1,'MultipleVoltages::CompoundModule']]],
+  ['correlation',['correlation',['../struct_leakage_analyzer_1_1max__values.html#a29dbe6918abff3eb251231417fbe13dd',1,'LeakageAnalyzer::max_values']]],
   ['cost',['Cost',['../struct_floor_planner_1_1_cost.html',1,'FloorPlanner']]],
-  ['cost',['cost',['../struct_corblivar_alignment_req_1_1_evaluate.html#a952ef01d974c0ef8fa433afee8083338',1,'CorblivarAlignmentReq::Evaluate::cost()'],['../struct_routing_utilization_1_1_util_result.html#a3aed427c4660e2981ffa70d96abcd8e7',1,'RoutingUtilization::UtilResult::cost()'],['../class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412',1,'MultipleVoltages::CompoundModule::cost()']]],
+  ['cost',['cost',['../class_multiple_voltages_1_1_compound_module.html#aba962aab9d73ce64ba19d3f6f5b1cc9b',1,'MultipleVoltages::CompoundModule::cost()'],['../struct_corblivar_alignment_req_1_1_evaluate.html#a952ef01d974c0ef8fa433afee8083338',1,'CorblivarAlignmentReq::Evaluate::cost()'],['../struct_routing_utilization_1_1_util_result.html#a3aed427c4660e2981ffa70d96abcd8e7',1,'RoutingUtilization::UtilResult::cost()']]],
   ['cost_5fbest_5fsol',['cost_best_sol',['../struct_floor_planner_1_1_temp_step.html#a8a1bb8ff292654727855789ed63c87db',1,'FloorPlanner::TempStep']]],
   ['cost_5ftemp',['cost_temp',['../struct_thermal_analyzer_1_1_thermal_analysis_result.html#acc525d1b24ac287ac17748c255cc4f91',1,'ThermalAnalyzer::ThermalAnalysisResult']]],
   ['corblivar',['Corblivar',['../index.html',1,'']]]

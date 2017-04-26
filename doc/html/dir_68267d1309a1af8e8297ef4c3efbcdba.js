@@ -45,6 +45,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "FloorPlanner.hpp", "_floor_planner_8hpp.html", [
       [ "FloorPlanner", "class_floor_planner.html", "class_floor_planner" ],
       [ "IC", "struct_floor_planner_1_1_i_c.html", "struct_floor_planner_1_1_i_c" ],
+      [ "techParameters", "struct_floor_planner_1_1tech_parameters.html", "struct_floor_planner_1_1tech_parameters" ],
       [ "IO_conf", "struct_floor_planner_1_1_i_o__conf.html", "struct_floor_planner_1_1_i_o__conf" ],
       [ "schedule", "struct_floor_planner_1_1schedule.html", "struct_floor_planner_1_1schedule" ],
       [ "opt_flags", "struct_floor_planner_1_1opt__flags.html", "struct_floor_planner_1_1opt__flags" ],
@@ -59,6 +60,13 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "LayoutOperations.hpp", "_layout_operations_8hpp.html", [
       [ "LayoutOperations", "class_layout_operations.html", "class_layout_operations" ],
       [ "parameters", "struct_layout_operations_1_1parameters.html", "struct_layout_operations_1_1parameters" ]
+    ] ],
+    [ "LeakageAnalyzer.cpp", "_leakage_analyzer_8cpp.html", null ],
+    [ "LeakageAnalyzer.hpp", "_leakage_analyzer_8hpp.html", [
+      [ "LeakageAnalyzer", "class_leakage_analyzer.html", "class_leakage_analyzer" ],
+      [ "Parameters", "struct_leakage_analyzer_1_1_parameters.html", "struct_leakage_analyzer_1_1_parameters" ],
+      [ "max_values", "struct_leakage_analyzer_1_1max__values.html", "struct_leakage_analyzer_1_1max__values" ],
+      [ "Bin", "struct_leakage_analyzer_1_1_bin.html", "struct_leakage_analyzer_1_1_bin" ]
     ] ],
     [ "Math.hpp", "_math_8hpp.html", [
       [ "Math", "class_math.html", "class_math" ]

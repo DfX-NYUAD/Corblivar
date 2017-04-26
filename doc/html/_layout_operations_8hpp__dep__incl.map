@@ -1,7 +1,7 @@
-<map id="src/LayoutOperations.hpp" name="src/LayoutOperations.hpp">
-<area shape="rect" id="node2" href="$_floor_planner_8hpp.html" title="src/FloorPlanner.hpp" alt="" coords="151,80,293,107"/>
-<area shape="rect" id="node6" href="$_layout_operations_8cpp.html" title="src/LayoutOperations.cpp" alt="" coords="318,80,489,107"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html" title="src/Corblivar.cpp" alt="" coords="5,155,127,181"/>
-<area shape="rect" id="node4" href="$_floor_planner_8cpp.html" title="src/FloorPlanner.cpp" alt="" coords="151,155,293,181"/>
-<area shape="rect" id="node5" href="$_i_o_8cpp.html" title="src/IO.cpp" alt="" coords="317,155,399,181"/>
+<map id="/home/johann/github/Corblivar/src/LayoutOperations.hpp" name="/home/johann/github/Corblivar/src/LayoutOperations.hpp">
+<area shape="rect" id="node2" href="$_floor_planner_8hpp.html" title="/home/johann/github\l/Corblivar/src/FloorPlanner.hpp" alt="" coords="211,95,413,136"/>
+<area shape="rect" id="node6" href="$_layout_operations_8cpp.html" title="/home/johann/github\l/Corblivar/src/LayoutOperations.cpp" alt="" coords="438,95,669,136"/>
+<area shape="rect" id="node3" href="$_corblivar_8cpp.html" title="/home/johann/github\l/Corblivar/src/Corblivar.cpp" alt="" coords="5,184,187,225"/>
+<area shape="rect" id="node4" href="$_floor_planner_8cpp.html" title="/home/johann/github\l/Corblivar/src/FloorPlanner.cpp" alt="" coords="211,184,413,225"/>
+<area shape="rect" id="node5" href="$_i_o_8cpp.html" title="/home/johann/github\l/Corblivar/src/IO.cpp" alt="" coords="438,184,581,225"/>
 </map>

@@ -1,0 +1,19 @@
+<map id="ThermalAnalyzer::editPowerMaps" name="ThermalAnalyzer::editPowerMaps">
+<area shape="rect" id="node2" href="$class_clustering.html#a75dec773a773987e8ae32383396023ab" title="Hotspot determination. " alt="" coords="280,248,479,275"/>
+<area shape="rect" id="node10" href="$class_thermal_analyzer.html#a54373013516e53a942f4667e22a86ead" title="getter " alt="" coords="288,81,471,122"/>
+<area shape="rect" id="node11" href="$class_thermal_analyzer.html#acf82f1082f62323ae776d514bfd30824" title="getter " alt="" coords="272,147,487,174"/>
+<area shape="rect" id="node12" href="$class_i_o.html#abb56f3216c40588b923ff69569a27d30" title="parse program parameter, config file, and further files " alt="" coords="1077,59,1247,86"/>
+<area shape="rect" id="node13" href="$class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="559,299,707,326"/>
+<area shape="rect" id="node14" href="$class_thermal_analyzer.html#ae5ef65dc654c0129ba7e0a0d703a3203" title="thermal modeling: handlers " alt="" coords="788,350,1003,376"/>
+<area shape="rect" id="node17" href="$class_thermal_analyzer.html#a9325c9782c7fb230a77e7197a9b82062" title="thermal modeling: handlers " alt="" coords="544,182,723,224"/>
+<area shape="rect" id="node3" href="$class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="535,248,732,275"/>
+<area shape="rect" id="node4" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="780,248,1011,275"/>
+<area shape="rect" id="node5" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1067,248,1257,275"/>
+<area shape="rect" id="node6" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1506,248,1671,275"/>
+<area shape="rect" id="node8" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1316,198,1455,224"/>
+<area shape="rect" id="node9" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1313,299,1457,326"/>
+<area shape="rect" id="node7" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1720,274,1771,300"/>
+<area shape="rect" id="node15" href="$class_floor_planner.html#ae3325e13f99146a9c26ca16047ef919a" title="ThermalAnalyzer: handler. " alt="" coords="1505,372,1672,413"/>
+<area shape="rect" id="node16" href="$class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7" title="FloorPlanner::shrinkDieOutlines" alt="" coords="1059,350,1265,376"/>
+<area shape="rect" id="node18" href="$class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="796,182,995,224"/>
+</map>

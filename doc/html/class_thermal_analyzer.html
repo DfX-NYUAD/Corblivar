@@ -108,8 +108,9 @@ $(document).ready(function(){initNavTree('class_thermal_analyzer.html','');});
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
-<a href="#pri-static-methods">Static Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
@@ -149,57 +150,39 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9325c9782c7fb230a77e7197a9b82062"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a9325c9782c7fb230a77e7197a9b82062">generatePowerMaps</a> (int const &amp;layers, std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; const &amp;blocks, <a class="el" href="class_point.html">Point</a> const &amp;die_outline, <a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">MaskParameters</a> const &amp;parameters, bool const &amp;extend_boundary_blocks_into_padding_zone=true)</td></tr>
 <tr class="memdesc:a9325c9782c7fb230a77e7197a9b82062"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: handlers  <a href="#a9325c9782c7fb230a77e7197a9b82062">More...</a><br /></td></tr>
 <tr class="separator:a9325c9782c7fb230a77e7197a9b82062"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44b16ac60c38e1ba8987960f8cdebba1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a44b16ac60c38e1ba8987960f8cdebba1">adaptPowerMapsTSVs</a> (int const &amp;layers, std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; TSVs, std::vector&lt; <a class="el" href="class_net.html">Net</a> &gt; const &amp;nets, <a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">MaskParameters</a> const &amp;parameters)</td></tr>
-<tr class="memdesc:a44b16ac60c38e1ba8987960f8cdebba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: handlers  <a href="#a44b16ac60c38e1ba8987960f8cdebba1">More...</a><br /></td></tr>
-<tr class="separator:a44b16ac60c38e1ba8987960f8cdebba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02eebe3d1edc6d730bb80e04116ae5cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a02eebe3d1edc6d730bb80e04116ae5cf">adaptPowerMapsWires</a> (int const &amp;layer, <a class="el" href="class_rect.html">Rect</a> net_bb, double const &amp;total_wire_power)</td></tr>
-<tr class="memdesc:a02eebe3d1edc6d730bb80e04116ae5cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: handlers  <a href="#a02eebe3d1edc6d730bb80e04116ae5cf">More...</a><br /></td></tr>
-<tr class="separator:a02eebe3d1edc6d730bb80e04116ae5cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1e8353e1ea5252b2e36266873bb2205"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ac1e8353e1ea5252b2e36266873bb2205">adaptPowerMapsTSVs</a> (int const &amp;layers, std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; TSVs, std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt; dummy_TSVs, <a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">MaskParameters</a> const &amp;parameters)</td></tr>
+<tr class="memdesc:ac1e8353e1ea5252b2e36266873bb2205"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: handlers  <a href="#ac1e8353e1ea5252b2e36266873bb2205">More...</a><br /></td></tr>
+<tr class="separator:ac1e8353e1ea5252b2e36266873bb2205"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d35a8e64514a6363533a3e2544e8b61"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a0d35a8e64514a6363533a3e2544e8b61">adaptPowerMapsTSVsHelper</a> (<a class="el" href="class_t_s_v___island.html">TSV_Island</a> TSVi)</td></tr>
+<tr class="separator:a0d35a8e64514a6363533a3e2544e8b61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa56dae0d4c6adb5ddf942a326a8b2ded"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#aa56dae0d4c6adb5ddf942a326a8b2ded">adaptPowerMapsWires</a> (std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; &amp;wires, int const &amp;layer, <a class="el" href="class_rect.html">Rect</a> net_bb, double const &amp;total_wire_power)</td></tr>
+<tr class="memdesc:aa56dae0d4c6adb5ddf942a326a8b2ded"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: handlers  <a href="#aa56dae0d4c6adb5ddf942a326a8b2ded">More...</a><br /></td></tr>
+<tr class="separator:aa56dae0d4c6adb5ddf942a326a8b2ded"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b44dc0583b7fc9fc2fbb3d2300b9c80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a8b44dc0583b7fc9fc2fbb3d2300b9c80">performPowerBlurring</a> (<a class="el" href="struct_thermal_analyzer_1_1_thermal_analysis_result.html">ThermalAnalysisResult</a> &amp;ret, int const &amp;layers, <a class="el" href="struct_thermal_analyzer_1_1_mask_parameters.html">MaskParameters</a> const &amp;parameters)</td></tr>
 <tr class="separator:a8b44dc0583b7fc9fc2fbb3d2300b9c80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54373013516e53a942f4667e22a86ead"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt; &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a54373013516e53a942f4667e22a86ead">getPowerMapsOrig</a> () const </td></tr>
+<tr class="memdesc:a54373013516e53a942f4667e22a86ead"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#a54373013516e53a942f4667e22a86ead">More...</a><br /></td></tr>
+<tr class="separator:a54373013516e53a942f4667e22a86ead"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf82f1082f62323ae776d514bfd30824"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt; &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#acf82f1082f62323ae776d514bfd30824">getPowerMaps</a> () const </td></tr>
+<tr class="memdesc:acf82f1082f62323ae776d514bfd30824"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter  <a href="#acf82f1082f62323ae776d514bfd30824">More...</a><br /></td></tr>
+<tr class="separator:acf82f1082f62323ae776d514bfd30824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f9ccd472d95504901488817e2f73b82"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt; &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a3f9ccd472d95504901488817e2f73b82">editPowerMaps</a> ()</td></tr>
+<tr class="memdesc:a3f9ccd472d95504901488817e2f73b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter; may also edit the power_maps  <a href="#a3f9ccd472d95504901488817e2f73b82">More...</a><br /></td></tr>
+<tr class="separator:a3f9ccd472d95504901488817e2f73b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
-Static Public Attributes</h2></td></tr>
-<tr class="memitem:ad07f9d63478ea466f86e5945f46c090c"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> = 64</td></tr>
-<tr class="memdesc:ad07f9d63478ea466f86e5945f46c090c"><td class="mdescLeft">&#160;</td><td class="mdescRight">represents the thermal map's dimension  <a href="#ad07f9d63478ea466f86e5945f46c090c">More...</a><br /></td></tr>
-<tr class="separator:ad07f9d63478ea466f86e5945f46c090c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac919f46065cc523ac2ca6f3694b9b69d"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> = 11</td></tr>
-<tr class="separator:ac919f46065cc523ac2ca6f3694b9b69d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73f89ee2f50b360fc2320a47a561517d"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a73f89ee2f50b360fc2320a47a561517d">THERMAL_MASK_CENTER</a> = <a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> / 2</td></tr>
-<tr class="separator:a73f89ee2f50b360fc2320a47a561517d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a670bf1da340e8ef11cb7338d9680eeca"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a670bf1da340e8ef11cb7338d9680eeca">POWER_MAPS_PADDED_BINS</a> = <a class="el" href="class_thermal_analyzer.html#a73f89ee2f50b360fc2320a47a561517d">THERMAL_MASK_CENTER</a></td></tr>
-<tr class="memdesc:a670bf1da340e8ef11cb7338d9680eeca"><td class="mdescLeft">&#160;</td><td class="mdescRight">represents the amount of padded bins at power maps' boundaries  <a href="#a670bf1da340e8ef11cb7338d9680eeca">More...</a><br /></td></tr>
-<tr class="separator:a670bf1da340e8ef11cb7338d9680eeca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> = <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> + (<a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> - 1)</td></tr>
-<tr class="memdesc:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="mdescLeft">&#160;</td><td class="mdescRight">memory allocation  <a href="#ae86376a3b8b0a2af4f023c1bea4ae13c">More...</a><br /></td></tr>
-<tr class="separator:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20df178b0d34ab291db9aee53694f877"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a20df178b0d34ab291db9aee53694f877">HOTSPOT_BACKGROUND</a> = -1</td></tr>
-<tr class="memdesc:a20df178b0d34ab291db9aee53694f877"><td class="mdescLeft">&#160;</td><td class="mdescRight">flags for hotspot detection  <a href="#a20df178b0d34ab291db9aee53694f877">More...</a><br /></td></tr>
-<tr class="separator:a20df178b0d34ab291db9aee53694f877"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a171b005bef203fe697eaca009cc17790"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a171b005bef203fe697eaca009cc17790">HOTSPOT_UNDEFINED</a> = -2</td></tr>
-<tr class="memdesc:a171b005bef203fe697eaca009cc17790"><td class="mdescLeft">&#160;</td><td class="mdescRight">flags for hotspot detection  <a href="#a171b005bef203fe697eaca009cc17790">More...</a><br /></td></tr>
-<tr class="separator:a171b005bef203fe697eaca009cc17790"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-methods"></a>
-Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a53ac704b5cb7905f7fcdba7432ef38c2"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a53ac704b5cb7905f7fcdba7432ef38c2">heatCapSi</a> (double const &amp;TSV_group_Cu_Si_ratio, double const &amp;TSV_density)</td></tr>
-<tr class="separator:a53ac704b5cb7905f7fcdba7432ef38c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d940d490ea68849ef2de19d0b39e633"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a8d940d490ea68849ef2de19d0b39e633">heatCapBond</a> (double const &amp;TSV_group_Cu_Si_ratio, double const &amp;TSV_density)</td></tr>
-<tr class="separator:a8d940d490ea68849ef2de19d0b39e633"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:aba5b5cd0ca573085653ec1a2d7592a42"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#aba5b5cd0ca573085653ec1a2d7592a42">heatCapSi</a> (double const &amp;TSV_group_Cu_area_ratio, double const &amp;TSV_density)</td></tr>
+<tr class="separator:aba5b5cd0ca573085653ec1a2d7592a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c92823c36273b2d89ae33a2ea2718bb"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a9c92823c36273b2d89ae33a2ea2718bb">heatCapBond</a> (double const &amp;TSV_group_Cu_area_ratio, double const &amp;TSV_density)</td></tr>
+<tr class="separator:a9c92823c36273b2d89ae33a2ea2718bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17b15ac89a7269c6e9040bc09d991dc2"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a17b15ac89a7269c6e9040bc09d991dc2">thermResSi</a> (double const &amp;TSV_group_Cu_area_ratio, double const &amp;TSV_density)</td></tr>
 <tr class="separator:a17b15ac89a7269c6e9040bc09d991dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe232861cdc55bcf81beb710408b5978"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#afe232861cdc55bcf81beb710408b5978">thermResBond</a> (double const &amp;TSV_group_Cu_area_ratio, double const &amp;TSV_density)</td></tr>
 <tr class="separator:afe232861cdc55bcf81beb710408b5978"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a7af925efc9e7e4291c51c99ef46a197a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; double, <a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a7af925efc9e7e4291c51c99ef46a197a">thermal_masks</a></td></tr>
-<tr class="separator:a7af925efc9e7e4291c51c99ef46a197a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af19e5e8323b1fcfeb07aec8307f781aa"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#af19e5e8323b1fcfeb07aec8307f781aa">power_maps</a></td></tr>
-<tr class="separator:af19e5e8323b1fcfeb07aec8307f781aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3742a7534601c4fad5a4e58dac48a22f"><td class="memItemLeft" align="right" valign="top">std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_thermal_map_bin.html">ThermalMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a3742a7534601c4fad5a4e58dac48a22f">thermal_map</a></td></tr>
-<tr class="memdesc:a3742a7534601c4fad5a4e58dac48a22f"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal map for layer 0 (lowest layer), i.e., hottest layer  <a href="#a3742a7534601c4fad5a4e58dac48a22f">More...</a><br /></td></tr>
-<tr class="separator:a3742a7534601c4fad5a4e58dac48a22f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
 <tr class="memitem:ad6452a75e9a4d7e94f346b4ec34e1a7b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ad6452a75e9a4d7e94f346b4ec34e1a7b">thermal_map_dim_x</a></td></tr>
 <tr class="memdesc:ad6452a75e9a4d7e94f346b4ec34e1a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: parameters for generating thermal maps  <a href="#ad6452a75e9a4d7e94f346b4ec34e1a7b">More...</a><br /></td></tr>
 <tr class="separator:ad6452a75e9a4d7e94f346b4ec34e1a7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -229,17 +212,27 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a6c9a1e7362b9f9540d34f02a57045798"><td class="memItemLeft" align="right" valign="top">std::array&lt; double, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a>+1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a6c9a1e7362b9f9540d34f02a57045798">power_maps_bins_ll_y</a></td></tr>
 <tr class="separator:a6c9a1e7362b9f9540d34f02a57045798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
-Static Private Attributes</h2></td></tr>
-<tr class="memitem:a7857cad198947501e5217e3e55539b6a"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a7857cad198947501e5217e3e55539b6a">DBG_CALLS</a> = false</td></tr>
-<tr class="memdesc:a7857cad198947501e5217e3e55539b6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#a7857cad198947501e5217e3e55539b6a">More...</a><br /></td></tr>
-<tr class="separator:a7857cad198947501e5217e3e55539b6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24c3569f45261cafdec6800e0e1f661e"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a24c3569f45261cafdec6800e0e1f661e">DBG</a> = false</td></tr>
-<tr class="memdesc:a24c3569f45261cafdec6800e0e1f661e"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#a24c3569f45261cafdec6800e0e1f661e">More...</a><br /></td></tr>
-<tr class="separator:a24c3569f45261cafdec6800e0e1f661e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa215585d0cd0bb83fa07c8173eeb54da"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#aa215585d0cd0bb83fa07c8173eeb54da">DBG_INSANE</a> = false</td></tr>
-<tr class="memdesc:aa215585d0cd0bb83fa07c8173eeb54da"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#aa215585d0cd0bb83fa07c8173eeb54da">More...</a><br /></td></tr>
-<tr class="separator:aa215585d0cd0bb83fa07c8173eeb54da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:ad07f9d63478ea466f86e5945f46c090c"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> = 64</td></tr>
+<tr class="memdesc:ad07f9d63478ea466f86e5945f46c090c"><td class="mdescLeft">&#160;</td><td class="mdescRight">represents the thermal map's dimension  <a href="#ad07f9d63478ea466f86e5945f46c090c">More...</a><br /></td></tr>
+<tr class="separator:ad07f9d63478ea466f86e5945f46c090c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac919f46065cc523ac2ca6f3694b9b69d"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> = 11</td></tr>
+<tr class="separator:ac919f46065cc523ac2ca6f3694b9b69d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73f89ee2f50b360fc2320a47a561517d"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a73f89ee2f50b360fc2320a47a561517d">THERMAL_MASK_CENTER</a> = <a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> / 2</td></tr>
+<tr class="separator:a73f89ee2f50b360fc2320a47a561517d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a670bf1da340e8ef11cb7338d9680eeca"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a670bf1da340e8ef11cb7338d9680eeca">POWER_MAPS_PADDED_BINS</a> = <a class="el" href="class_thermal_analyzer.html#a73f89ee2f50b360fc2320a47a561517d">THERMAL_MASK_CENTER</a></td></tr>
+<tr class="memdesc:a670bf1da340e8ef11cb7338d9680eeca"><td class="mdescLeft">&#160;</td><td class="mdescRight">represents the amount of padded bins at power maps' boundaries  <a href="#a670bf1da340e8ef11cb7338d9680eeca">More...</a><br /></td></tr>
+<tr class="separator:a670bf1da340e8ef11cb7338d9680eeca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> = <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> + (<a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> - 1)</td></tr>
+<tr class="memdesc:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="mdescLeft">&#160;</td><td class="mdescRight">memory allocation  <a href="#ae86376a3b8b0a2af4f023c1bea4ae13c">More...</a><br /></td></tr>
+<tr class="separator:ae86376a3b8b0a2af4f023c1bea4ae13c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20df178b0d34ab291db9aee53694f877"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a20df178b0d34ab291db9aee53694f877">HOTSPOT_BACKGROUND</a> = -1</td></tr>
+<tr class="memdesc:a20df178b0d34ab291db9aee53694f877"><td class="mdescLeft">&#160;</td><td class="mdescRight">flags for hotspot detection  <a href="#a20df178b0d34ab291db9aee53694f877">More...</a><br /></td></tr>
+<tr class="separator:a20df178b0d34ab291db9aee53694f877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171b005bef203fe697eaca009cc17790"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a171b005bef203fe697eaca009cc17790">HOTSPOT_UNDEFINED</a> = -2</td></tr>
+<tr class="memdesc:a171b005bef203fe697eaca009cc17790"><td class="mdescLeft">&#160;</td><td class="mdescRight">flags for hotspot detection  <a href="#a171b005bef203fe697eaca009cc17790">More...</a><br /></td></tr>
+<tr class="separator:a171b005bef203fe697eaca009cc17790"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afaa7774a02020b6b5f94fd2fd069a741"><td class="memItemLeft" align="right" valign="top">static constexpr double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#afaa7774a02020b6b5f94fd2fd069a741">PADDING_ZONE_BLOCKS_DISTANCE_LIMIT</a> = 0.01</td></tr>
 <tr class="memdesc:afaa7774a02020b6b5f94fd2fd069a741"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal modeling: parameters for generating power maps  <a href="#afaa7774a02020b6b5f94fd2fd069a741">More...</a><br /></td></tr>
 <tr class="separator:afaa7774a02020b6b5f94fd2fd069a741"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -266,6 +259,30 @@ Static Private Attributes</h2></td></tr>
 <tr class="memitem:aa1558c17a1a965af334b329f688939f5"><td class="memItemLeft" align="right" valign="top">static constexpr double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#aa1558c17a1a965af334b329f688939f5">DENSITY_CU</a> = 8933.0</td></tr>
 <tr class="separator:aa1558c17a1a965af334b329f688939f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a7af925efc9e7e4291c51c99ef46a197a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; double, <a class="el" href="class_thermal_analyzer.html#ac919f46065cc523ac2ca6f3694b9b69d">THERMAL_MASK_DIM</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a7af925efc9e7e4291c51c99ef46a197a">thermal_masks</a></td></tr>
+<tr class="separator:a7af925efc9e7e4291c51c99ef46a197a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af19e5e8323b1fcfeb07aec8307f781aa"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#af19e5e8323b1fcfeb07aec8307f781aa">power_maps</a></td></tr>
+<tr class="separator:af19e5e8323b1fcfeb07aec8307f781aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cc66cc37d740708b0b5e600116643e1"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a0cc66cc37d740708b0b5e600116643e1">power_maps_orig</a></td></tr>
+<tr class="separator:a0cc66cc37d740708b0b5e600116643e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3742a7534601c4fad5a4e58dac48a22f"><td class="memItemLeft" align="right" valign="top">std::array&lt; std::array&lt; <a class="el" href="struct_thermal_analyzer_1_1_thermal_map_bin.html">ThermalMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a3742a7534601c4fad5a4e58dac48a22f">thermal_map</a></td></tr>
+<tr class="memdesc:a3742a7534601c4fad5a4e58dac48a22f"><td class="mdescLeft">&#160;</td><td class="mdescRight">thermal map for layer 0 (lowest layer), i.e., hottest layer  <a href="#a3742a7534601c4fad5a4e58dac48a22f">More...</a><br /></td></tr>
+<tr class="separator:a3742a7534601c4fad5a4e58dac48a22f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:a7857cad198947501e5217e3e55539b6a"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a7857cad198947501e5217e3e55539b6a">DBG_CALLS</a> = false</td></tr>
+<tr class="memdesc:a7857cad198947501e5217e3e55539b6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#a7857cad198947501e5217e3e55539b6a">More...</a><br /></td></tr>
+<tr class="separator:a7857cad198947501e5217e3e55539b6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24c3569f45261cafdec6800e0e1f661e"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a24c3569f45261cafdec6800e0e1f661e">DBG</a> = false</td></tr>
+<tr class="memdesc:a24c3569f45261cafdec6800e0e1f661e"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#a24c3569f45261cafdec6800e0e1f661e">More...</a><br /></td></tr>
+<tr class="separator:a24c3569f45261cafdec6800e0e1f661e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa215585d0cd0bb83fa07c8173eeb54da"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#aa215585d0cd0bb83fa07c8173eeb54da">DBG_INSANE</a> = false</td></tr>
+<tr class="memdesc:aa215585d0cd0bb83fa07c8173eeb54da"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#aa215585d0cd0bb83fa07c8173eeb54da">More...</a><br /></td></tr>
+<tr class="separator:aa215585d0cd0bb83fa07c8173eeb54da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:a326e329be4ec9ba0cb88d0426291d89d"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_thermal_analyzer.html#a326e329be4ec9ba0cb88d0426291d89d">IO</a></td></tr>
@@ -274,7 +291,7 @@ Friends</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar thermal analyzer, based on power blurring. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a44b16ac60c38e1ba8987960f8cdebba1"></a>
+<a class="anchor" id="ac1e8353e1ea5252b2e36266873bb2205"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -293,8 +310,8 @@ Friends</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="class_net.html">Net</a> &gt; const &amp;&#160;</td>
-          <td class="paramname"><em>nets</em>, </td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="class_t_s_v___island.html">TSV_Island</a> &gt;&#160;</td>
+          <td class="paramname"><em>dummy_TSVs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -311,13 +328,13 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>thermal modeling: handlers </p>
-<p>note that this function only accounts for (via by TSVs improved heat conduction) lower local power consumption, not the (much smaller) increase of power consumption due to resistivity of TSVs </p>
+<p>note that this function only accounts for (via TSVs improved heat conduction) lower local power consumption, not the (much smaller) increase of power consumption due to resistivity of TSVs; TSVs densities, required for HotSpot calculation, are also adapted here </p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph.png" border="0" usemap="#class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph" id="class_thermal_analyzer_a44b16ac60c38e1ba8987960f8cdebba1_icgraph">
+<div class="center"><img src="class_thermal_analyzer_ac1e8353e1ea5252b2e36266873bb2205_icgraph.png" border="0" usemap="#class_thermal_analyzer_ac1e8353e1ea5252b2e36266873bb2205_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_ac1e8353e1ea5252b2e36266873bb2205_icgraph" id="class_thermal_analyzer_ac1e8353e1ea5252b2e36266873bb2205_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,14,449,56"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="497,22,688,48"/>
 <area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="923,22,1088,48"/>
@@ -330,13 +347,52 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a02eebe3d1edc6d730bb80e04116ae5cf"></a>
+<a class="anchor" id="a0d35a8e64514a6363533a3e2544e8b61"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ThermalAnalyzer::adaptPowerMapsTSVsHelper </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_t_s_v___island.html">TSV_Island</a>&#160;</td>
+          <td class="paramname"><em>TSVi</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>note that local copies of TSVs islands are used in order to not mess with the actual coordinates of the islands </p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_thermal_analyzer_a0d35a8e64514a6363533a3e2544e8b61_icgraph.png" border="0" usemap="#class_thermal_analyzer_a0d35a8e64514a6363533a3e2544e8b61_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_a0d35a8e64514a6363533a3e2544e8b61_icgraph" id="class_thermal_analyzer_a0d35a8e64514a6363533a3e2544e8b61_icgraph">
+<area shape="rect" id="node2" href="class_thermal_analyzer.html#ac1e8353e1ea5252b2e36266873bb2205" title="thermal modeling: handlers " alt="" coords="251,14,448,56"/>
+<area shape="rect" id="node3" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="496,14,695,56"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="743,22,933,48"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1168,22,1333,48"/>
+<area shape="rect" id="node7" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="981,22,1120,48"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1179,72,1323,99"/>
+<area shape="rect" id="node6" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1381,47,1432,74"/>
+</map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="aa56dae0d4c6adb5ddf942a326a8b2ded"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void ThermalAnalyzer::adaptPowerMapsWires </td>
           <td>(</td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="class_block.html">Block</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>wires</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int const &amp;&#160;</td>
           <td class="paramname"><em>layer</em>, </td>
         </tr>
@@ -361,19 +417,70 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>thermal modeling: handlers </p>
-<p>note that the power consumption of wires is only output for power blurring, but (currently) not for the HotSpot input data; the power consumption in wires is much smaller than that of actual blocks, which makes this omission reasonable </p>
+<p>note that the power consumption of wires is handled differently for power blurring and HotSpot; for power blurring, the power density maps are adapted, while for HotSpot data dummy blocks are generated to represent the wire with its bounding box and its power density </p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph.png" border="0" usemap="#class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph" id="class_thermal_analyzer_a02eebe3d1edc6d730bb80e04116ae5cf_icgraph">
+<div class="center"><img src="class_thermal_analyzer_aa56dae0d4c6adb5ddf942a326a8b2ded_icgraph.png" border="0" usemap="#class_thermal_analyzer_aa56dae0d4c6adb5ddf942a326a8b2ded_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_aa56dae0d4c6adb5ddf942a326a8b2ded_icgraph" id="class_thermal_analyzer_aa56dae0d4c6adb5ddf942a326a8b2ded_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,22,481,48"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,22,720,48"/>
 <area shape="rect" id="node4" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="955,22,1120,48"/>
 <area shape="rect" id="node6" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="768,22,907,48"/>
 <area shape="rect" id="node7" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="965,72,1109,99"/>
 <area shape="rect" id="node5" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1168,47,1219,74"/>
+</map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a3f9ccd472d95504901488817e2f73b82"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::array&lt; std::array&lt;<a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a>&gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a>&gt; &gt;&amp; ThermalAnalyzer::editPowerMaps </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter; may also edit the power_maps </p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_thermal_analyzer_a3f9ccd472d95504901488817e2f73b82_icgraph.png" border="0" usemap="#class_thermal_analyzer_a3f9ccd472d95504901488817e2f73b82_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_a3f9ccd472d95504901488817e2f73b82_icgraph" id="class_thermal_analyzer_a3f9ccd472d95504901488817e2f73b82_icgraph">
+<area shape="rect" id="node2" href="class_clustering.html#a75dec773a773987e8ae32383396023ab" title="Hotspot determination. " alt="" coords="280,248,479,275"/>
+<area shape="rect" id="node10" href="class_thermal_analyzer.html#a54373013516e53a942f4667e22a86ead" title="getter " alt="" coords="288,81,471,122"/>
+<area shape="rect" id="node11" href="class_thermal_analyzer.html#acf82f1082f62323ae776d514bfd30824" title="getter " alt="" coords="272,147,487,174"/>
+<area shape="rect" id="node12" href="class_i_o.html#abb56f3216c40588b923ff69569a27d30" title="parse program parameter, config file, and further files " alt="" coords="1077,59,1247,86"/>
+<area shape="rect" id="node13" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="559,299,707,326"/>
+<area shape="rect" id="node14" href="class_thermal_analyzer.html#ae5ef65dc654c0129ba7e0a0d703a3203" title="thermal modeling: handlers " alt="" coords="788,350,1003,376"/>
+<area shape="rect" id="node17" href="class_thermal_analyzer.html#a9325c9782c7fb230a77e7197a9b82062" title="thermal modeling: handlers " alt="" coords="544,182,723,224"/>
+<area shape="rect" id="node3" href="class_clustering.html#adbc814d7ac1d5dcb3f2bc1ca6e5e419f" title="Clustering helper. " alt="" coords="535,248,732,275"/>
+<area shape="rect" id="node4" href="class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="780,248,1011,275"/>
+<area shape="rect" id="node5" href="class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="1067,248,1257,275"/>
+<area shape="rect" id="node6" href="class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1506,248,1671,275"/>
+<area shape="rect" id="node8" href="class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="1316,198,1455,224"/>
+<area shape="rect" id="node9" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1313,299,1457,326"/>
+<area shape="rect" id="node7" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1720,274,1771,300"/>
+<area shape="rect" id="node15" href="class_floor_planner.html#ae3325e13f99146a9c26ca16047ef919a" title="ThermalAnalyzer: handler. " alt="" coords="1505,372,1672,413"/>
+<area shape="rect" id="node16" href="class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7" title="FloorPlanner::shrinkDieOutlines" alt="" coords="1059,350,1265,376"/>
+<area shape="rect" id="node18" href="class_floor_planner.html#a3af39e21df446ba7adf8abcdd168e53e" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="796,182,995,224"/>
 </map>
 </div>
 </p>
@@ -442,7 +549,57 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a8d940d490ea68849ef2de19d0b39e633"></a>
+<a class="anchor" id="acf82f1082f62323ae776d514bfd30824"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::array&lt; std::array&lt;<a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a>&gt;, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a>&gt; &gt; const&amp; ThermalAnalyzer::getPowerMaps </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
+<a class="anchor" id="a54373013516e53a942f4667e22a86ead"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::array&lt; std::array&lt;<a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a>&gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a>&gt; &gt; const&amp; ThermalAnalyzer::getPowerMapsOrig </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>getter </p>
+
+</div>
+</div>
+<a class="anchor" id="a9c92823c36273b2d89ae33a2ea2718bb"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -453,7 +610,7 @@ Here is the caller graph for this function:</div>
           <td class="memname">static double ThermalAnalyzer::heatCapBond </td>
           <td>(</td>
           <td class="paramtype">double const &amp;&#160;</td>
-          <td class="paramname"><em>TSV_group_Cu_Si_ratio</em>, </td>
+          <td class="paramname"><em>TSV_group_Cu_area_ratio</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -469,7 +626,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -479,9 +636,9 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph.png" border="0" usemap="#class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph" id="class_thermal_analyzer_a8d940d490ea68849ef2de19d0b39e633_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="260,5,408,32"/>
+<div class="center"><img src="class_thermal_analyzer_a9c92823c36273b2d89ae33a2ea2718bb_icgraph.png" border="0" usemap="#class_thermal_analyzer_a9c92823c36273b2d89ae33a2ea2718bb_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_a9c92823c36273b2d89ae33a2ea2718bb_icgraph" id="class_thermal_analyzer_a9c92823c36273b2d89ae33a2ea2718bb_icgraph">
+<area shape="rect" id="node2" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="260,5,408,32"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="456,5,600,32"/>
 <area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="648,5,699,32"/>
 </map>
@@ -490,7 +647,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a53ac704b5cb7905f7fcdba7432ef38c2"></a>
+<a class="anchor" id="aba5b5cd0ca573085653ec1a2d7592a42"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -501,7 +658,7 @@ Here is the caller graph for this function:</div>
           <td class="memname">static double ThermalAnalyzer::heatCapSi </td>
           <td>(</td>
           <td class="paramtype">double const &amp;&#160;</td>
-          <td class="paramname"><em>TSV_group_Cu_Si_ratio</em>, </td>
+          <td class="paramname"><em>TSV_group_Cu_area_ratio</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -517,7 +674,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -528,9 +685,9 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph.png" border="0" usemap="#class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph" alt=""/></div>
-<map name="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph" id="class_thermal_analyzer_a53ac704b5cb7905f7fcdba7432ef38c2_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="243,5,391,32"/>
+<div class="center"><img src="class_thermal_analyzer_aba5b5cd0ca573085653ec1a2d7592a42_icgraph.png" border="0" usemap="#class_thermal_analyzer_aba5b5cd0ca573085653ec1a2d7592a42_icgraph" alt=""/></div>
+<map name="class_thermal_analyzer_aba5b5cd0ca573085653ec1a2d7592a42_icgraph" id="class_thermal_analyzer_aba5b5cd0ca573085653ec1a2d7592a42_icgraph">
+<area shape="rect" id="node2" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="243,5,391,32"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="439,5,583,32"/>
 <area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="631,5,681,32"/>
 </map>
@@ -733,7 +890,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -745,7 +902,7 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph.png" border="0" usemap="#class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph" id="class_thermal_analyzer_afe232861cdc55bcf81beb710408b5978_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="268,5,416,32"/>
+<area shape="rect" id="node2" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="268,5,416,32"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="464,5,608,32"/>
 <area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="656,5,707,32"/>
 </map>
@@ -781,7 +938,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -793,7 +950,7 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph.png" border="0" usemap="#class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph" alt=""/></div>
 <map name="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph" id="class_thermal_analyzer_a17b15ac89a7269c6e9040bc09d991dc2_icgraph">
-<area shape="rect" id="node2" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="251,5,399,32"/>
+<area shape="rect" id="node2" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be" title="generate files for HotSpot steady&#45;state thermal simulation " alt="" coords="251,5,399,32"/>
 <area shape="rect" id="node3" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="447,5,591,32"/>
 <area shape="rect" id="node4" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="639,5,689,32"/>
 </map>
@@ -827,19 +984,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a2fee208f21fccbc0f1137f5a50001466"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::blocks_offset_x</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating power maps </p>
@@ -849,19 +998,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a3642edd429b7e0681994be2a4a23f1fa"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::blocks_offset_y</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -945,7 +1086,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -966,7 +1107,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -987,7 +1128,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1008,7 +1149,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1029,7 +1170,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1050,7 +1191,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1071,7 +1212,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1126,19 +1267,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a04b684fc62719a3cc3b6b6d08efbfab4"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::padding_right_boundary_blocks_distance</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating power maps </p>
@@ -1148,19 +1281,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="ae22a69ca392decf938e1fbe3e8692e1c"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::padding_upper_boundary_blocks_distance</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -1178,7 +1303,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1211,19 +1336,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a0f1b4f3a2ce5192ce6b2641d50fd0fa8"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::power_maps_bin_area</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating power maps </p>
@@ -1233,19 +1350,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="ae326587d08e241cf8cc5cee5c56c232e"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::array&lt;double, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> + 1&gt; ThermalAnalyzer::power_maps_bins_ll_x</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating power maps </p>
@@ -1255,19 +1364,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a6c9a1e7362b9f9540d34f02a57045798"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::array&lt;double, <a class="el" href="class_thermal_analyzer.html#ae86376a3b8b0a2af4f023c1bea4ae13c">POWER_MAPS_DIM</a> + 1&gt; ThermalAnalyzer::power_maps_bins_ll_y</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -1298,19 +1399,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="af384dab322248f3fc6a3cc8ed2a010f4"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::power_maps_dim_x</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating power maps </p>
@@ -1320,12 +1413,24 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="af490a4e8e782e7638d53669c36080055"></a>
 <div class="memitem">
 <div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double ThermalAnalyzer::power_maps_dim_y</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0cc66cc37d740708b0b5e600116643e1"></a>
+<div class="memitem">
+<div class="memproto">
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">double ThermalAnalyzer::power_maps_dim_y</td>
+          <td class="memname">std::vector&lt; std::array&lt; std::array&lt;<a class="el" href="struct_thermal_analyzer_1_1_power_map_bin.html">PowerMapBin</a>, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a>&gt;, <a class="el" href="class_thermal_analyzer.html#ad07f9d63478ea466f86e5945f46c090c">THERMAL_MAP_DIM</a>&gt; &gt; ThermalAnalyzer::power_maps_orig</td>
         </tr>
       </table>
   </td>
@@ -1334,6 +1439,7 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>original (i.e., unpadded and not adapted) power_maps_orig[i][x][y], whereas power_maps[0] relates to the map for layer / 0 and so forth; same dimensions as thermal map </p>
 
 </div>
 </div>
@@ -1406,19 +1512,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="ad6452a75e9a4d7e94f346b4ec34e1a7b"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::thermal_map_dim_x</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>thermal modeling: parameters for generating thermal maps </p>
@@ -1428,19 +1526,11 @@ Here is the caller graph for this function:</div>
 <a class="anchor" id="a5bf11c5032a0e150100a3b3dedac3770"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double ThermalAnalyzer::thermal_map_dim_y</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -1521,7 +1611,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1542,7 +1632,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1563,7 +1653,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1584,7 +1674,7 @@ Here is the caller graph for this function:</div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1593,8 +1683,8 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_thermal_analyzer_8hpp.html">ThermalAnalyzer.hpp</a></li>
-<li>src/<a class="el" href="_thermal_analyzer_8cpp.html">ThermalAnalyzer.cpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_thermal_analyzer_8hpp.html">ThermalAnalyzer.hpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_thermal_analyzer_8cpp.html">ThermalAnalyzer.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

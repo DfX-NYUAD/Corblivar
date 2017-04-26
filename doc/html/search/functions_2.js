@@ -8,6 +8,5 @@ var searchData=
   ['corblivaralignmentreq',['CorblivarAlignmentReq',['../class_corblivar_alignment_req.html#ad86b6196c6479ccd97eb5efe3e2193ba',1,'CorblivarAlignmentReq']]],
   ['corblivarcore',['CorblivarCore',['../class_corblivar_core.html#a7012fa346cb4c2ce93dac8b2844a22cc',1,'CorblivarCore']]],
   ['corblivardie',['CorblivarDie',['../class_corblivar_die.html#ab0986c971b4dcffb5df9f897677bfed4',1,'CorblivarDie']]],
-  ['corners_5fpowerring_5fmax',['corners_powerring_max',['../class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938',1,'MultipleVoltages::CompoundModule']]],
-  ['cost',['cost',['../class_multiple_voltages_1_1_compound_module.html#a010afcf8d4156747402ef8a188722412',1,'MultipleVoltages::CompoundModule']]]
+  ['corners_5fpowerring_5fmax',['corners_powerring_max',['../class_multiple_voltages_1_1_compound_module.html#a787e2b46d232b42b8d524cf9ccf4b938',1,'MultipleVoltages::CompoundModule']]]
 ];

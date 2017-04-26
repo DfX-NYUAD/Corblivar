@@ -106,6 +106,7 @@ $(document).ready(function(){initNavTree('class_i_o.html','');});
 
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-static-attribs">Static Private Attributes</a> &#124;
@@ -120,6 +121,20 @@ $(document).ready(function(){initNavTree('class_i_o.html','');});
 
 <p><code>#include &lt;IO.hpp&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a14c160110906a1205fd40412e7b7fe45"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45">MAPS_FLAGS</a> : int { <br />
+&#160;&#160;<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45aaafc0b6f3af846fd870d70df9d63fb44">POWER</a> = 0, 
+<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45a067e91ffafd673fe4279b9898628fb81">THERMAL</a> = 1, 
+<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45abac0eaffd3d1e294622b63d968214881">THERMAL_HOTSPOT</a> = 2, 
+<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45abc4170e7cdd095e22531aa0d03a481b1">TSV_DENSITY</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45a12594defd8de0cf4e2a89677433be89b">POWER_ORIG</a> = 4, 
+<a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45a63d9af3481ecd700ceef16e44dcfd250">ROUTING</a> = 5
+<br />
+ }</td></tr>
+<tr class="separator:a14c160110906a1205fd40412e7b7fe45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:abb56f3216c40588b923ff69569a27d30"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#abb56f3216c40588b923ff69569a27d30">parseParametersFiles</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> &amp;fp, int const &amp;argc, char **argv)</td></tr>
@@ -137,15 +152,15 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ad23c22df3fbdd5938e7e94307a737868"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#ad23c22df3fbdd5938e7e94307a737868">parseCorblivarFile</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> &amp;fp, <a class="el" href="class_corblivar_core.html">CorblivarCore</a> &amp;corb)</td></tr>
 <tr class="memdesc:ad23c22df3fbdd5938e7e94307a737868"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse Corblivar solution file, to rerun Corbliar w/ previous data  <a href="#ad23c22df3fbdd5938e7e94307a737868">More...</a><br /></td></tr>
 <tr class="separator:ad23c22df3fbdd5938e7e94307a737868"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a63107d073f1709afa54fc16fd25f2684"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a63107d073f1709afa54fc16fd25f2684">writeFloorplanGP</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;fp, std::vector&lt; <a class="el" href="class_corblivar_alignment_req.html">CorblivarAlignmentReq</a> &gt; const &amp;alignment, std::string const &amp;file_suffix=&quot;&quot;)</td></tr>
-<tr class="memdesc:a63107d073f1709afa54fc16fd25f2684"><td class="mdescLeft">&#160;</td><td class="mdescRight">generate gnuplot for floorplans  <a href="#a63107d073f1709afa54fc16fd25f2684">More...</a><br /></td></tr>
-<tr class="separator:a63107d073f1709afa54fc16fd25f2684"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af26bbfc6a5a06a821eef79378c9f3463"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#af26bbfc6a5a06a821eef79378c9f3463">writeHotSpotFiles</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;fp)</td></tr>
-<tr class="memdesc:af26bbfc6a5a06a821eef79378c9f3463"><td class="mdescLeft">&#160;</td><td class="mdescRight">generate files for HotSpot steady-state thermal simulation  <a href="#af26bbfc6a5a06a821eef79378c9f3463">More...</a><br /></td></tr>
-<tr class="separator:af26bbfc6a5a06a821eef79378c9f3463"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5712311e97783772da8a7b20e7462757"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a5712311e97783772da8a7b20e7462757">writeMaps</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> &amp;fp)</td></tr>
-<tr class="memdesc:a5712311e97783772da8a7b20e7462757"><td class="mdescLeft">&#160;</td><td class="mdescRight">non-const reference due to map acces via []  <a href="#a5712311e97783772da8a7b20e7462757">More...</a><br /></td></tr>
-<tr class="separator:a5712311e97783772da8a7b20e7462757"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16d99e580fa63c77fb94e3af6618553b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a16d99e580fa63c77fb94e3af6618553b">writeFloorplanGP</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;fp, std::vector&lt; <a class="el" href="class_corblivar_alignment_req.html">CorblivarAlignmentReq</a> &gt; const &amp;alignment, std::string const &amp;benchmark_suffix=&quot;&quot;)</td></tr>
+<tr class="memdesc:a16d99e580fa63c77fb94e3af6618553b"><td class="mdescLeft">&#160;</td><td class="mdescRight">generate gnuplot for floorplans  <a href="#a16d99e580fa63c77fb94e3af6618553b">More...</a><br /></td></tr>
+<tr class="separator:a16d99e580fa63c77fb94e3af6618553b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7d5c66007caf40ebd3ac1610503a4be"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#ab7d5c66007caf40ebd3ac1610503a4be">writeHotSpotFiles</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;fp, std::string const &amp;benchmark_suffix=&quot;&quot;)</td></tr>
+<tr class="memdesc:ab7d5c66007caf40ebd3ac1610503a4be"><td class="mdescLeft">&#160;</td><td class="mdescRight">generate files for HotSpot steady-state thermal simulation  <a href="#ab7d5c66007caf40ebd3ac1610503a4be">More...</a><br /></td></tr>
+<tr class="separator:ab7d5c66007caf40ebd3ac1610503a4be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8b9a3c4ba0f49846530745c74108ee1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#ab8b9a3c4ba0f49846530745c74108ee1">writeMaps</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> &amp;fp, int const &amp;flag_parameter=-1, std::string const &amp;benchmark_suffix=&quot;&quot;)</td></tr>
+<tr class="memdesc:ab8b9a3c4ba0f49846530745c74108ee1"><td class="mdescLeft">&#160;</td><td class="mdescRight">non-const reference due to map acces via []  <a href="#ab8b9a3c4ba0f49846530745c74108ee1">More...</a><br /></td></tr>
+<tr class="separator:ab8b9a3c4ba0f49846530745c74108ee1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a737833670f2a31f4413b34e20cba91ae"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a737833670f2a31f4413b34e20cba91ae">writeTempSchedule</a> (<a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;fp)</td></tr>
 <tr class="memdesc:a737833670f2a31f4413b34e20cba91ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">output gnuplot for SA annealing schedule  <a href="#a737833670f2a31f4413b34e20cba91ae">More...</a><br /></td></tr>
 <tr class="separator:a737833670f2a31f4413b34e20cba91ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,14 +176,41 @@ Static Private Attributes</h2></td></tr>
 <tr class="memitem:a95cccfca3292c2c7e1bb4c81c71c1c4f"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a95cccfca3292c2c7e1bb4c81c71c1c4f">DBG</a> = false</td></tr>
 <tr class="memdesc:a95cccfca3292c2c7e1bb4c81c71c1c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">debugging code switch (private)  <a href="#a95cccfca3292c2c7e1bb4c81c71c1c4f">More...</a><br /></td></tr>
 <tr class="separator:a95cccfca3292c2c7e1bb4c81c71c1c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9336163d8f941987232a3f55a1956b13"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a9336163d8f941987232a3f55a1956b13">CONFIG_VERSION</a> = 21</td></tr>
+<tr class="memitem:a9336163d8f941987232a3f55a1956b13"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#a9336163d8f941987232a3f55a1956b13">CONFIG_VERSION</a> = 22</td></tr>
 <tr class="separator:a9336163d8f941987232a3f55a1956b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4355d156424bbbb178489925b1eb886"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#aa4355d156424bbbb178489925b1eb886">TECHNOLOGY_VERSION</a> = 6</td></tr>
+<tr class="memitem:aa4355d156424bbbb178489925b1eb886"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_o.html#aa4355d156424bbbb178489925b1eb886">TECHNOLOGY_VERSION</a> = 7</td></tr>
 <tr class="separator:aa4355d156424bbbb178489925b1eb886"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Corblivar <a class="el" href="class_i_o.html" title="Corblivar IO handler. ">IO</a> handler. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a class="anchor" id="a14c160110906a1205fd40412e7b7fe45"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="class_i_o.html#a14c160110906a1205fd40412e7b7fe45">IO::MAPS_FLAGS</a> : int</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45aaafc0b6f3af846fd870d70df9d63fb44"></a>POWER&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45a067e91ffafd673fe4279b9898628fb81"></a>THERMAL&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45abac0eaffd3d1e294622b63d968214881"></a>THERMAL_HOTSPOT&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45abc4170e7cdd095e22531aa0d03a481b1"></a>TSV_DENSITY&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45a12594defd8de0cf4e2a89677433be89b"></a>POWER_ORIG&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a14c160110906a1205fd40412e7b7fe45a63d9af3481ecd700ceef16e44dcfd250"></a>ROUTING&#160;</td><td class="fielddoc">
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a49b27a2ee79bce0de4e3ef163cbebd30"></a>
 <div class="memitem">
 <div class="memproto">
@@ -411,7 +453,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a63107d073f1709afa54fc16fd25f2684"></a>
+<a class="anchor" id="a16d99e580fa63c77fb94e3af6618553b"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -434,7 +476,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::string const &amp;&#160;</td>
-          <td class="paramname"><em>file_suffix</em> = <code>&quot;&quot;</code>&#160;</td>
+          <td class="paramname"><em>benchmark_suffix</em> = <code>&quot;&quot;</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -454,8 +496,8 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_i_o_a63107d073f1709afa54fc16fd25f2684_icgraph.png" border="0" usemap="#class_i_o_a63107d073f1709afa54fc16fd25f2684_icgraph" alt=""/></div>
-<map name="class_i_o_a63107d073f1709afa54fc16fd25f2684_icgraph" id="class_i_o_a63107d073f1709afa54fc16fd25f2684_icgraph">
+<div class="center"><img src="class_i_o_a16d99e580fa63c77fb94e3af6618553b_icgraph.png" border="0" usemap="#class_i_o_a16d99e580fa63c77fb94e3af6618553b_icgraph" alt=""/></div>
+<map name="class_i_o_a16d99e580fa63c77fb94e3af6618553b_icgraph" id="class_i_o_a16d99e580fa63c77fb94e3af6618553b_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="197,5,341,32"/>
 <area shape="rect" id="node3" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="389,5,440,32"/>
 </map>
@@ -464,7 +506,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="af26bbfc6a5a06a821eef79378c9f3463"></a>
+<a class="anchor" id="ab7d5c66007caf40ebd3ac1610503a4be"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -475,8 +517,18 @@ Here is the caller graph for this function:</div>
           <td class="memname">void IO::writeHotSpotFiles </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="class_floor_planner.html">FloorPlanner</a> const &amp;&#160;</td>
-          <td class="paramname"><em>fp</em></td><td>)</td>
+          <td class="paramname"><em>fp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">std::string const &amp;&#160;</td>
+          <td class="paramname"><em>benchmark_suffix</em> = <code>&quot;&quot;</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -500,8 +552,8 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_i_o_af26bbfc6a5a06a821eef79378c9f3463_icgraph.png" border="0" usemap="#class_i_o_af26bbfc6a5a06a821eef79378c9f3463_icgraph" alt=""/></div>
-<map name="class_i_o_af26bbfc6a5a06a821eef79378c9f3463_icgraph" id="class_i_o_af26bbfc6a5a06a821eef79378c9f3463_icgraph">
+<div class="center"><img src="class_i_o_ab7d5c66007caf40ebd3ac1610503a4be_icgraph.png" border="0" usemap="#class_i_o_ab7d5c66007caf40ebd3ac1610503a4be_icgraph" alt=""/></div>
+<map name="class_i_o_ab7d5c66007caf40ebd3ac1610503a4be_icgraph" id="class_i_o_ab7d5c66007caf40ebd3ac1610503a4be_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="201,5,345,32"/>
 <area shape="rect" id="node3" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="393,5,444,32"/>
 </map>
@@ -510,7 +562,7 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a5712311e97783772da8a7b20e7462757"></a>
+<a class="anchor" id="ab8b9a3c4ba0f49846530745c74108ee1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -521,8 +573,24 @@ Here is the caller graph for this function:</div>
           <td class="memname">void IO::writeMaps </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="class_floor_planner.html">FloorPlanner</a> &amp;&#160;</td>
-          <td class="paramname"><em>fp</em></td><td>)</td>
+          <td class="paramname"><em>fp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int const &amp;&#160;</td>
+          <td class="paramname"><em>flag_parameter</em> = <code>-1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string const &amp;&#160;</td>
+          <td class="paramname"><em>benchmark_suffix</em> = <code>&quot;&quot;</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -538,8 +606,8 @@ Here is the caller graph for this function:</div>
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="class_i_o_a5712311e97783772da8a7b20e7462757_icgraph.png" border="0" usemap="#class_i_o_a5712311e97783772da8a7b20e7462757_icgraph" alt=""/></div>
-<map name="class_i_o_a5712311e97783772da8a7b20e7462757_icgraph" id="class_i_o_a5712311e97783772da8a7b20e7462757_icgraph">
+<div class="center"><img src="class_i_o_ab8b9a3c4ba0f49846530745c74108ee1_icgraph.png" border="0" usemap="#class_i_o_ab8b9a3c4ba0f49846530745c74108ee1_icgraph" alt=""/></div>
+<map name="class_i_o_ab8b9a3c4ba0f49846530745c74108ee1_icgraph" id="class_i_o_ab8b9a3c4ba0f49846530745c74108ee1_icgraph">
 <area shape="rect" id="node2" href="class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="157,5,301,32"/>
 <area shape="rect" id="node3" href="_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="349,5,400,32"/>
 </map>
@@ -594,7 +662,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr int IO::CONFIG_VERSION = 21</td>
+          <td class="memname">constexpr int IO::CONFIG_VERSION = 22</td>
         </tr>
       </table>
   </td>
@@ -636,7 +704,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr int IO::TECHNOLOGY_VERSION = 6</td>
+          <td class="memname">constexpr int IO::TECHNOLOGY_VERSION = 7</td>
         </tr>
       </table>
   </td>
@@ -649,8 +717,8 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="_i_o_8hpp.html">IO.hpp</a></li>
-<li>src/<a class="el" href="_i_o_8cpp.html">IO.cpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_i_o_8hpp.html">IO.hpp</a></li>
+<li>/home/johann/github/Corblivar/src/<a class="el" href="_i_o_8cpp.html">IO.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

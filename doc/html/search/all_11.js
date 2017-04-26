@@ -1,9 +1,9 @@
 var searchData=
 [
   ['undef',['UNDEF',['../class_point.html#ae011fa170a25348e4ffff401a8bf380e',1,'Point::UNDEF()'],['../class_block.html#a3f5bcf0c8efe917dc9965fbb27872572ab3f7791472924b0d1530bb9112409c01',1,'Block::UNDEF()'],['../class_corblivar_alignment_req.html#aab42fdbf1208249ca64508c933a290aaab3f7791472924b0d1530bb9112409c01',1,'CorblivarAlignmentReq::UNDEF()']]],
-  ['update_5fpower_5fsaving',['update_power_saving',['../class_multiple_voltages_1_1_compound_module.html#add302ebaa36d1ba197de1056add71f03',1,'MultipleVoltages::CompoundModule']]],
   ['updateoutlinecost',['updateOutlineCost',['../class_multiple_voltages_1_1_compound_module.html#a756b521458f286dcb39c9a02d1b1de7b',1,'MultipleVoltages::CompoundModule']]],
   ['updateplacementstacks',['updatePlacementStacks',['../class_corblivar_die.html#a6d3c6e4601b613ec6505365bcd2a1510',1,'CorblivarDie']]],
+  ['updatepower',['updatePower',['../class_multiple_voltages_1_1_compound_module.html#acc8b1249405c3a3a42c724d9240a107e',1,'MultipleVoltages::CompoundModule']]],
   ['updateprogresspointerflag',['updateProgressPointerFlag',['../class_corblivar_die.html#a61ed0a0a6f0485d77997593f0867c5f2',1,'CorblivarDie']]],
   ['updatetemp',['updateTemp',['../class_floor_planner.html#af1530177a26bedfb52c15803aa63ee01',1,'FloorPlanner']]],
   ['ur',['ur',['../class_rect.html#a7e63d116354c3a2c6c7aa5326584181e',1,'Rect']]],
