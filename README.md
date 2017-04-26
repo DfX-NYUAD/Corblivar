@@ -1,11 +1,10 @@
 # Corblivar			{#mainpage}
 
-Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special
-emphasis on (a) structural planning of large-scale interconnects and (b) timing-driven
-voltage assignment.
+Corblivar is a simulated-annealing-based floorplanning suite for 3D ICs, with special emphasis on planning of large-scale interconnects, timing-driven voltage assignment, and
+analysis and mitigation of thermal side-channel leakage.
 
 ## Licence
-Copyright (C) 2013-2016 Johann Knechtel, johann aett jknechtel dot de
+Copyright (C) 2013-2017 Johann Knechtel, johann aett jknechtel dot de
 
 https://github.com/jknechtel/Corblivar
 
@@ -24,9 +23,11 @@ Corblivar.  If not, see <http://www.gnu.org/licenses/>.
 
 ## Citation
 If you find this tool useful, and apply it for your research and publications, please
-cite our papers:
-- J. Knechtel, E. F. Y. Young, J. Lienig, "Planning Massive Interconnects in 3D Chips", in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 34(11):1808-1821, 2015, DOI: http://dx.doi.org/10.1109/TCAD.2015.2432141
-- J. Knechtel, E. F. Y. Young, J. Lienig, "Structural Planning of 3D-IC Interconnects by Block Alignment", in Proc. Asia South Pacific Design Automation Conference, pp. 53-60, 2014, DOI: http://dx.doi.org/10.1109/ASPDAC.2014.6742866
+cite the following:
+- In general: https://github.com/IFTE-EDA/Corblivar
+- Related to thermal side-channel leakage: J. Knechtel, O. Sinanoglu, "On Mitigation of Side-Channel Attacks in 3D ICs: Decorrelating Thermal Patterns from Power and Activity", in Proc. Design Automation Conference, 2017, DOI: http://dx.doi.org/10.1145/3061639.3062293 (PDF: https://wp.nyu.edu/johann/knechtel17_dac-3d_tsc/)
+- Related to planning of large-scale interconnects, fast thermal management, and 3D floorplanning in general: J. Knechtel, E. F. Y. Young, J. Lienig, "Planning Massive Interconnects in 3D Chips", in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 34(11):1808-1821, 2015, DOI: http://dx.doi.org/10.1109/TCAD.2015.2432141 (PDF: http://www.ifte.de/mitarbeiter/lienig/TCAD_Nov2015_pp1808_1821.pdf)
+- Related to planning of large-scale interconnects, fast thermal management, and 3D floorplanning in general: J. Knechtel, E. F. Y. Young, J. Lienig, "Structural Planning of 3D-IC Interconnects by Block Alignment", in Proc. Asia South Pacific Design Automation Conference, pp. 53-60, 2014, DOI: http://dx.doi.org/10.1109/ASPDAC.2014.6742866 (PDF: http://www.ifte.de/mitarbeiter/lienig/aspdac2014_pp53_60.pdf)
 
 ## Compile & Run
 **To compile and run Corblivar, you need the following**
@@ -127,6 +128,29 @@ exp/run*.sh
 Note that for generation of plotted data, one has to call the script exp/gp.sh afterwards
 in the related working directory.
 
+### 5) Optional: Running Correlation_TSC, Postprocessing_TSC, and Variation_TSC after running Corblivar
+** see exp/*TSC.sh or directly start the above binaries after running Corblivar**
+
+A new feature introduced in v1.5.0 regards the analysis and optimization (i.e., reduction) of the thermal side-channel (TSC). This feature serves to dissolve the correlation
+between power and thermal maps. It is implemented in Corblivar itself and in the three auxiliary binaries. All auxilarly binaries should be run on a previously obtained solution
+which may or may not have been optimized with respect to thermal leakage; see the sections on "thermal-related leakage mitigation" in the experimental configuration files.
+
+Variation_TSC: initialy, this binary reads in a Corblivar solution. Then, it **iteratively samples** all the blocks' power densities as Gaussian distribution, calls HotSpot for
+detailed thermal analysis, reads in the results, and computes the Pearson correlation between the power and temperature values over all dies. Finally, the average correlation
+values over all sampling iterations are reported.
+
+Postprocessing_TSC: initialy, this binary reads in a Corblivar solution. Then, it **iteratively samples** all the blocks' power densities as Gaussian distribution, calls HotSpot
+for detailed thermal analysis, reads in the results, and computes the Pearson correlation between the power and temperature values over all dies. Next, the average correlation
+values over all sampling iterations are reported. Based on these results, additional TSVs are inserted in a post-processing fashion, to locally reduce correlation. TSV are inserted
+for those locations where the average correlation was the highest (with some threshold) over the previous sampling run. Then, **the sampling process is repeated**. Overall, this
+two-fold sampling and post-processing loop is repeated until no further reduction in the average correlation can be achieved.
+
+Correlation_TSC: this binary simply reads in a Corblivar solution and the related HotSpot results, and it calculates the Pearson correlation (over all power and temperature values) and the spatial entropies (over the power maps) for all dies.
+
+The configuration files are currently only provided for 2 dies; see exp/configs/2dies/TSC
+
+The parameters to run the above binaries are the same as with the main Corblivar binary; see exp/*TSC.sh
+
 # Comments
 **The further comments elaborate on the folders and scripts of Corblivar**
 
@@ -157,6 +181,13 @@ The file exp/Corblivar.conf is a template for the config file required by Corbli
 further examples can be found in exp/configs/.
 
 # Changelog
+
+## 1.5.0
+*April 2017: new feature: analysis and mitigation of thermal side-channel (TSC); further updates and fixes*
+- new feature described in more details above, in Sec 5)
+- added related three new binaries (src_aux): Correlation_TSC, Postprocessing_TSC, and Variation_TSC
+- various updates and fixes related to voltage assignment
+- minor updates logging and plotting
 
 ## 1.4.4
 *November 2016: updates related to HotSpot to 6.0; various other updates and fixes*
