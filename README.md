@@ -129,7 +129,7 @@ Note that for generation of plotted data, one has to call the script exp/gp.sh a
 in the related working directory.
 
 ### 5) Optional: Running Correlation_TSC, Postprocessing_TSC, and Variation_TSC after running Corblivar
-** see exp/*TSC.sh or directly start the above binaries after running Corblivar**
+**see exp/*TSC.sh or directly start the above binaries after running Corblivar**
 
 A new feature introduced in v1.5.0 regards the analysis and optimization (i.e., reduction) of the thermal side-channel (TSC). This feature serves to dissolve the correlation
 between power and thermal maps. It is implemented in Corblivar itself and in the three auxiliary binaries. All auxilarly binaries should be run on a previously obtained solution
