@@ -181,7 +181,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	// first, determine max/min values, required for cost terms and for ordering
 	//
 	max_power_saving = 0.0;
-	min_power_saving = 0.0;
+	min_power_saving = this->modules.begin()->second.power_saving_avg();
 	max_count = 0;
 	max_corners = 0;
 
