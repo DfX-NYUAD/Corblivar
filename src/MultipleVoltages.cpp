@@ -1539,7 +1539,8 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 		this->level_shifter_actual = 0;
 	}
 
-	// for each net, check whether its driver is related to this module and how many level shifter we require
+	// for each net, check whether its driver is related to this compound module
+	//
 	for (Net const& cur_net : all_nets) {
 
 		// skip input nets, as they cannot be driven by this module
@@ -1552,8 +1553,7 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 			continue;
 		}
 
-		// for all other nets, check whether their driver is within this module
-		//
+		// for all other nets, consider them in case their driver is within this module
 		if (this->block_ids[cur_net.source->numerical_id] == true) {
 			relevant_nets.push_back(&cur_net);
 		}
@@ -1572,7 +1572,7 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 		}
 	}
 
-	// for the upper-estimate, we simply assume that all external blocks (not in this module) impose one level shifter
+	// for the upper-bound estimate, we simply assume that all external blocks/sinks (not in this module) impose one level shifter
 	//
 	if (upper_bound) {
 
@@ -1584,7 +1584,7 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 
 			for (Block const* block : cur_net->blocks) {
 
-				// this block is not in the module, thus it must be in another module, and thus it may require a level shifter
+				// this block/sink is not in the module, thus it must be in another module, and thus it may require a level shifter
 				//
 				if (this->block_ids[block->numerical_id] == false) {
 					this->level_shifter_upper_bound++;
@@ -1603,7 +1603,8 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 			std::cout << this->level_shifter_upper_bound << " estimated level shifter required" << std::endl;
 		}
 	}
-	// else, for the proper count, we check the voltages of external blocks, and we require a level shifter only in case those voltages are different
+	// for the proper count, we check the voltages of external blocks/sinks, and we require a level shifter only in case those voltages are different
+	//
 	else {
 		if (MultipleVoltages::DBG_VERBOSE) {
 			std::cout << "DBG_VOLTAGES>  Actual count of level shifters..." << std::endl;
@@ -1611,7 +1612,7 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 
 		for (Net const* cur_net : relevant_nets) {
 
-			// each different voltage requires only one level shifter per net; keep track of which voltages have been already considered
+			// further, each different voltage requires only one level shifter per net; keep track of which voltages have been already considered
 			//
 			considered_voltages.reset();
 
@@ -1621,10 +1622,10 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 				//
 				if (this->block_ids[block->numerical_id] == false) {
 
-					// this block in the other module has a different voltage applied, thus we may require a level shifter
+					// this other-module block has a different voltage applied, thus we may require a level shifter
 					if (block->assigned_voltage_index != this->min_voltage_index()) {
 
-						// this voltage level has not been considered yet, thus it requires a level shifter
+						// the related voltage level has not been considered yet, thus we indeed require a level shifter
 						if (considered_voltages[block->assigned_voltage_index] == false) {
 							this->level_shifter_actual++;
 
@@ -1637,7 +1638,6 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 							}
 						}
 						else {
-
 							if (MultipleVoltages::DBG_VERBOSE) {
 								std::cout << "DBG_VOLTAGES>   No further level shifter required for net " << cur_net->id << "; block " << block->id << "; ";
 								std::cout << "voltage index " << block->assigned_voltage_index << " already covered" << std::endl;
