@@ -221,6 +221,7 @@ class FloorPlanner {
 			double voltage_assignment;
 			double voltage_assignment_power_saving;
 			double voltage_assignment_corners_avg;
+			double voltage_assignment_level_shifter;
 			double voltage_assignment_power_variation_max;
 			unsigned voltage_assignment_modules_count;
 			double thermal_leakage;

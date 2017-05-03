@@ -809,6 +809,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				std::cout << "Corblivar>   Total power (blocks, wires, TSVs) before power reduction [W]: "
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				std::cout << "Corblivar>  Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				std::cout << "Corblivar>  Sum of level shifters: " << cost.voltage_assignment_level_shifter << std::endl;
 				std::cout << "Corblivar>  Max std dev of power densities: " << cost.voltage_assignment_power_variation_max << std::endl;
 				std::cout << "Corblivar>  Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				this->IO_conf.results << "Voltage assignment: " << std::endl;
@@ -818,6 +819,7 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << "  Total power (blocks, wires, TSVs) before power reduction [W]: "
 					<< cost.power_blocks + cost.voltage_assignment_power_saving + cost.max_power_wires + cost.max_power_TSVs << std::endl;
 				this->IO_conf.results << " Avg max corners: " << cost.voltage_assignment_corners_avg << std::endl;
+				this->IO_conf.results << " Sum of level shifters: " << cost.voltage_assignment_level_shifter << std::endl;
 				this->IO_conf.results << " Max std dev of power densities: " << cost.voltage_assignment_power_variation_max << std::endl;
 				this->IO_conf.results << " Modules count: " << cost.voltage_assignment_modules_count << std::endl;
 				this->IO_conf.results << std::endl;
@@ -1017,6 +1019,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 			cost.voltage_assignment = 0.0;
 			cost.voltage_assignment_power_saving
 				= cost.voltage_assignment_corners_avg
+				= cost.voltage_assignment_level_shifter
 				= cost.voltage_assignment_modules_count
 				= cost.voltage_assignment_power_variation_max
 				= 0;
@@ -1209,6 +1212,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	double inv_power_saving = 0.0;
 	double corners_avg = 0.0;
 	double power_variation_max = 0.0;
+	unsigned level_shifter = 0;
 	std::vector<MultipleVoltages::CompoundModule*> selected_modules;
 
 	// sanity checks, only for regular runs; set_max_cost must be always performed
@@ -1226,6 +1230,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		// consider dummy voltage assignment: zero modules etc
 		cost.voltage_assignment_power_saving = 0.0;
 		cost.voltage_assignment_corners_avg = 0.0;
+		cost.voltage_assignment_level_shifter = 0;
 		cost.voltage_assignment_modules_count = 0.0;
 		cost.voltage_assignment_power_variation_max = 0.0;
 
@@ -1258,7 +1263,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// power and routing resources for power domains are minimized; for more realistic evaluation,
 	// merge volumes already here, not only later on during finalize runs
 	//
-	selected_modules = this->voltageAssignment.selectCompoundModules(true);
+	selected_modules = this->voltageAssignment.selectCompoundModules(this->nets, true);
 
 	// evaluate assignment; determine absolute values for cost terms
 	//
@@ -1272,6 +1277,9 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 		// module) is relevant
 		corners_avg += module->corners_powerring_max();
 
+		// consider the final, actual count of level shifters, which was just updated during selectCompoundModules()
+		level_shifter += module->level_shifter(false);
+
 		// max std dev of power densities
 		power_variation_max = std::max(power_variation_max, module->power_std_dev_max());
 	}
@@ -1281,6 +1289,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// store actual values
 	cost.voltage_assignment_power_saving = inv_power_saving;
 	cost.voltage_assignment_corners_avg = corners_avg;
+	cost.voltage_assignment_level_shifter = level_shifter;
 	cost.voltage_assignment_modules_count = selected_modules.size();
 	cost.voltage_assignment_power_variation_max = power_variation_max;
 
@@ -1293,14 +1302,17 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	if (set_max_cost) {
 		this->voltageAssignment.max_values.inv_power_saving = inv_power_saving;
 		this->voltageAssignment.max_values.corners_avg = corners_avg;
+		this->voltageAssignment.max_values.level_shifter = level_shifter;
 		this->voltageAssignment.max_values.module_count = selected_modules.size();
 		this->voltageAssignment.max_values.power_variation_max = power_variation_max;
 	}
 
 	// determine and memorize overall cost; weighted sum
 	//
-	cost.voltage_assignment = (this->voltageAssignment.parameters.weight_power_saving * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving))
+	cost.voltage_assignment =
+		(this->voltageAssignment.parameters.weight_power_saving * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving))
 		+ (this->voltageAssignment.parameters.weight_corners * (corners_avg / this->voltageAssignment.max_values.corners_avg))
+		+ (this->voltageAssignment.parameters.weight_level_shifter * (level_shifter / this->voltageAssignment.max_values.level_shifter))
 		+ (this->voltageAssignment.parameters.weight_modules_count * (static_cast<double>(selected_modules.size()) / static_cast<double>(this->voltageAssignment.max_values.module_count)))
 		+ (this->voltageAssignment.parameters.weight_power_variation * (power_variation_max / this->voltageAssignment.max_values.power_variation_max))
 		;

@@ -557,6 +557,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.voltageAssignment.parameters.weight_corners;
 
+	//TODO
+	fp.voltageAssignment.parameters.weight_level_shifter = 0;
+
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
@@ -571,6 +574,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	if (
 		fp.voltageAssignment.parameters.weight_power_saving < 0.0 ||
 		fp.voltageAssignment.parameters.weight_corners < 0.0 ||
+		fp.voltageAssignment.parameters.weight_level_shifter < 0.0 ||
 		fp.voltageAssignment.parameters.weight_modules_count < 0.0 ||
 		fp.voltageAssignment.parameters.weight_power_variation < 0.0
 	) {
@@ -582,6 +586,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	if (std::abs(
 			fp.voltageAssignment.parameters.weight_power_saving +
 			fp.voltageAssignment.parameters.weight_corners +
+			fp.voltageAssignment.parameters.weight_level_shifter +
 			fp.voltageAssignment.parameters.weight_modules_count +
 			fp.voltageAssignment.parameters.weight_power_variation
 	- 1.0) > 0.1) {
@@ -1036,6 +1041,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
+		std::cout << "IO>  Voltage assignment -- Internal cost factor - Level-shifter minimization: " << fp.voltageAssignment.parameters.weight_level_shifter << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
 		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_power_variation << std::endl;
 

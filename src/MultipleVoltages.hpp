@@ -30,6 +30,7 @@
 // forward declarations, if any
 class Block;
 class Rect;
+class Net;
 
 /// Corblivar handler for multiple voltages
 class MultipleVoltages {
@@ -70,6 +71,8 @@ class MultipleVoltages {
 			/// internal weights, used for internal cost terms
 			double weight_corners;
 			/// internal weights, used for internal cost terms
+			double weight_level_shifter;
+			/// internal weights, used for internal cost terms
 			double weight_modules_count;
 			/// internal weights, used for internal cost terms
 			double weight_power_variation;
@@ -80,6 +83,7 @@ class MultipleVoltages {
 		struct max_values {
 			double inv_power_saving, corners_avg;
 			unsigned module_count;
+			unsigned level_shifter;
 			double power_variation_max;
 		} max_values;
 
@@ -139,6 +143,11 @@ class MultipleVoltages {
 			/// the std dev values are kept layer-wise; only the values are kept, the blocks count is already kept in power_dens_avg_
 			std::vector< double > power_std_dev_;
 
+			/// values for level shifters will be memorized locally;
+			/// to avoid redundant recalculations, these values will only be updated whenever updateLevelShifter() is called
+			unsigned level_shifter_upper_bound = 0;
+			unsigned level_shifter_actual = 0;
+			
 			/// memorize global cost locally, to avoid recalculation
 			double cost = -1;
 
@@ -173,6 +182,14 @@ class MultipleVoltages {
 				return MAX_VOLTAGES - 1;
 			}
 
+			/// helper to count all required level shifters; whenever a nets is connecting from this compound module to another one with a different voltage setting, we
+			/// need to account for a level shifter
+			///
+			/// note that the count of level shifters is calculated in two versions; before actual top-down selection of compound modules, we shall estimate the level
+			/// shifters as upper bound (upper_bound = true), i.e., we assume that any net passing to another module requires a level shifter; after top-down selection,
+			/// we can check for the assigned voltages of different modules and thus exclude level shifters whenever the voltages are the same (upper_bound = false)
+			inline void updateLevelShifter(std::vector<Net> const& all_nets, bool upper_bound = true);
+
 			/// set global cost, required for top-down selection of modules
 			///
 			inline void setCost(
@@ -181,6 +198,8 @@ class MultipleVoltages {
 					std::vector<double> const& max_power_std_dev,
 					int const& max_count,
 					unsigned const& max_corners,
+					unsigned const& max_level_shifter,
+					unsigned const& min_level_shifter,
 					MultipleVoltages::Parameters const& parameters
 				);
 
@@ -217,6 +236,18 @@ class MultipleVoltages {
 				return ret;
 			}
 
+			/// helper to retrieve all required level shifters; whenever a nets is connecting from this compound module to another one with a different voltage setting,
+			/// we need to account for a level shifter
+			inline unsigned level_shifter(bool upper_bound = true) const {
+
+				if (upper_bound) {
+					return this->level_shifter_upper_bound;
+				}
+				else {
+					return this->level_shifter_actual;
+				}
+			};
+
 			/// getter
 			inline double power_std_dev_max() const {
 				double ret = 0.0;
@@ -251,7 +282,7 @@ class MultipleVoltages {
 		/// helper to determine all compound modules
 		void determineCompoundModules(std::vector<Block> const& blocks, ContiguityAnalysis& contig);
 		/// helper to perform top-down selection of compound modules
-		std::vector<CompoundModule*> const& selectCompoundModules(bool const& merge_selected_modules = false);
+		std::vector<CompoundModule*> const& selectCompoundModules(std::vector<Net> const& all_nets, bool const& merge_selected_modules = false);
 
 	// private helper data, functions
 	private:

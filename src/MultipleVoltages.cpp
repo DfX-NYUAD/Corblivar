@@ -25,6 +25,7 @@
 #include "MultipleVoltages.hpp"
 // required Corblivar headers
 #include "Block.hpp"
+#include "Net.hpp"
 
 void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks, ContiguityAnalysis& cont) {
 	modules_type modules_other_voltages;
@@ -153,7 +154,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 	}
 }
 
-std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(bool const& merge_selected_modules) {
+std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(std::vector<Net> const& all_nets, bool const& merge_selected_modules) {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 	std::vector<MultipleVoltages::CompoundModule*> modules;
@@ -169,6 +170,8 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	std::vector<double> max_power_std_dev;
 	int max_count;
 	unsigned max_corners;
+	unsigned max_level_shifter;
+	unsigned min_level_shifter;
 
 	// outer vector for layers; inner vector for avg power densities of selected modules in that layer
 	std::vector< std::vector<double> > selected_modules__power_dens_avg;
@@ -182,8 +185,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	//
 	max_power_saving = 0.0;
 	min_power_saving = this->modules.begin()->second.power_saving_avg();
+
 	max_count = 0;
 	max_corners = 0;
+
+	max_level_shifter = 0;
+	this->modules.begin()->second.updateLevelShifter(all_nets);
+	min_level_shifter = this->modules.begin()->second.level_shifter();
 
 	for (int l = 0; l < this->parameters.layers; l++) {
 		max_power_std_dev.push_back(0.0);
@@ -192,8 +200,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	for (auto it = this->modules.begin(); it != this->modules.end(); ++it) {
 		max_power_saving = std::max(max_power_saving, it->second.power_saving_avg());
 		min_power_saving = std::min(min_power_saving, it->second.power_saving_avg());
+
 		max_count = std::max(max_count, static_cast<int>(it->second.blocks.size()));
 		max_corners = std::max(max_corners, it->second.corners_powerring_max());
+
+		it->second.updateLevelShifter(all_nets);
+		max_level_shifter = std::max(max_level_shifter, it->second.level_shifter());
+		min_level_shifter = std::min(min_level_shifter, it->second.level_shifter());
 
 		for (int l = 0; l < this->parameters.layers; l++) {
 			max_power_std_dev[l] = std::max(max_power_std_dev[l], it->second.power_std_dev_[l]);
@@ -207,7 +220,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		modules.push_back(&(it->second));
 
 		// also set the cost for each module, now that the parameters (max values) have been determined
-		it->second.setCost(max_power_saving, min_power_saving, max_power_std_dev, max_count, max_corners, this->parameters);
+		it->second.setCost(max_power_saving, min_power_saving, max_power_std_dev, max_count, max_corners, max_level_shifter, min_level_shifter, this->parameters);
 	}
 
 	// initial sort; solely based on above set cost, i.e., without consideration of inter-volume variations (via selected_modules__power_dens_avg), but still with consideration
@@ -256,6 +269,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << module->power_std_dev_[l] << std::endl;
 					}
 				std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
+				std::cout << "DBG_VOLTAGES>    Estimated count (upper-bound) of level shifters: " << module->level_shifter() << std::endl;
 				std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
 				std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
 					for (int l = 0; l < this->parameters.layers; l++) {
@@ -328,6 +342,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << cur_selected_module->power_std_dev_[l] << std::endl;
 					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << cur_selected_module->corners_powerring_max() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Estimated count (upper-bound) of level shifters: " << cur_selected_module->level_shifter() << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << cur_selected_module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
 				for (int l = 0; l < this->parameters.layers; l++) {
@@ -589,6 +604,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		}
 	}
 
+	// at this point, all modules are selected, and we may now evaluate the actual count of level shifters, where only shifters are required for nets crossing modules with
+	// different voltages
+	for (auto* module : this->selected_modules) {
+		module->updateLevelShifter(all_nets, false);
+	}
+	
+
 	if (MultipleVoltages::DBG) {
 
 		count = 0;
@@ -612,6 +634,7 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						std::cout << "DBG_VOLTAGES>     On layer " << l << ": " << module->power_std_dev_[l] << std::endl;
 					}
 			std::cout << "DBG_VOLTAGES>    Estimated max number of corners for power rings: " << module->corners_powerring_max() << std::endl;
+			std::cout << "DBG_VOLTAGES>    Count of level shifters: " << module->level_shifter(false) << std::endl;
 			std::cout << "DBG_VOLTAGES>    Covered blocks: " << module->blocks.size() << std::endl;
 			std::cout << "DBG_VOLTAGES>  Power densities of this module:" << std::endl;
 				for (int l = 0; l < this->parameters.layers; l++) {
@@ -1409,9 +1432,11 @@ inline void MultipleVoltages::CompoundModule::setCost(
 		std::vector<double> const& max_power_std_dev,
 		int const& max_count,
 		unsigned const& max_corners,
+		unsigned const& max_level_shifter,
+		unsigned const& min_level_shifter,
 		MultipleVoltages::Parameters const& parameters
 ) {
-	double power_saving_term, corners_term, variation_term, count_term;
+	double power_saving_term, corners_term, variation_term, count_term, level_shifter_term;
 	int affected_layers;
 
 	// for the normalization, the following min values are fixed: zero for std dev of power, 1 for blocks count (for trivial modules w/ only highest voltage applicable), and
@@ -1447,6 +1472,10 @@ inline void MultipleVoltages::CompoundModule::setCost(
 	//
 	corners_term = (static_cast<double>(this->corners_powerring_max()) - min_corners) / (static_cast<double>(max_corners) - min_corners + Math::epsilon);
 
+	// this terms models the normalized count of level shifters; 0 represents min count and 1 represents max count, i.e., the less shifters the small the cost term
+	//
+	level_shifter_term = (static_cast<double>(this->level_shifter() - min_level_shifter)) / (static_cast<double>(max_level_shifter - min_level_shifter) + Math::epsilon);
+
 	// this term models the normalized standard deviation of power; 0 represents the lowest dev and 1 represents the largest deviation, i.e., the lower the variation the
 	// smaller the cost term
 	//
@@ -1474,6 +1503,7 @@ inline void MultipleVoltages::CompoundModule::setCost(
 	this->cost =
 		(parameters.weight_power_saving * power_saving_term)
 		+ (parameters.weight_corners * corners_term)
+		+ (parameters.weight_level_shifter * level_shifter_term)
 		+ (parameters.weight_power_variation * variation_term)
 		+ (parameters.weight_modules_count * count_term)
 	;
@@ -1490,4 +1520,142 @@ std::string MultipleVoltages::CompoundModule::id() const {
 	ret += this->blocks.back()->id;
 
 	return ret;
+};
+
+void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const& all_nets, bool upper_bound) {
+	std::vector<Net const*> relevant_nets;
+	std::bitset<MAX_VOLTAGES> considered_voltages;
+
+	if (MultipleVoltages::DBG_VERBOSE) {
+		std::cout << "DBG_VOLTAGES> Updating level shifters for compound module: " << this->id() << std::endl;
+	}
+
+	// reset counts
+	if (upper_bound) {
+		this->level_shifter_upper_bound = 0;
+
+	}
+	else {
+		this->level_shifter_actual = 0;
+	}
+
+	// for each net, check whether it is related to this module and how many level shifter we require
+	for (Net const& cur_net : all_nets) {
+
+		// skip input nets, as they cannot be driven by this module
+		if (cur_net.inputNet) {
+			continue;
+		}
+
+		// skip nets with only one block (connecting with some I/O pins, or intra-block nets)
+		if (cur_net.blocks.size() == 1) {
+			continue;
+		}
+
+		// for all other nets, check whether they contain at least one block within this module
+		//
+		for (Block const* block : cur_net.blocks) {
+
+			if (this->block_ids[block->numerical_id] == true) {
+				relevant_nets.push_back(&cur_net);
+				break;
+			}
+		}
+	}
+
+	if (MultipleVoltages::DBG_VERBOSE) {
+		std::cout << "DBG_VOLTAGES>  Relevant nets to consider: " << relevant_nets.size() << std::endl;
+
+		for (Net const* cur_net : relevant_nets) {
+
+			std::cout << "DBG_VOLTAGES>   Net " << cur_net->id << ": ";
+			for (Block const* block : cur_net->blocks) {
+				std::cout << block->id << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+
+	// for the upper-estimate, we simply assume that all external blocks (not in this module) impose one level shifter
+	//
+	if (upper_bound) {
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+			std::cout << "DBG_VOLTAGES>  Upper-bound estimation of level shifters..." << std::endl;
+		}
+
+		for (Net const* cur_net : relevant_nets) {
+
+			for (Block const* block : cur_net->blocks) {
+
+				// this block is not in the module, thus it must be in another module, and thus it may require a level shifter
+				//
+				if (this->block_ids[block->numerical_id] == false) {
+					this->level_shifter_upper_bound++;
+
+					if (MultipleVoltages::DBG_VERBOSE) {
+						std::cout << "DBG_VOLTAGES>   Level shifter maybe required for net " << cur_net->id << "; block " << block->id << "; ";
+						std::cout << "voltage index " << block->assigned_voltage_index << std::endl;
+					}
+				}
+			}
+		}
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+			std::cout << "DBG_VOLTAGES> Done updating level shifters for compound module: " << this->id() << "; ";
+			std::cout << "voltage index: " << this->min_voltage_index() << "; ";
+			std::cout << this->level_shifter_upper_bound << " estimated level shifter required" << std::endl;
+		}
+	}
+	// else, for the proper count, we check the voltages of external blocks, and we require a level shifter only in case those voltages are different
+	else {
+		if (MultipleVoltages::DBG_VERBOSE) {
+			std::cout << "DBG_VOLTAGES>  Actual count of level shifters..." << std::endl;
+		}
+
+		for (Net const* cur_net : relevant_nets) {
+
+			// each different voltage requires only one level shifter per net; keep track of which voltages have been already considered
+			//
+			considered_voltages.reset();
+
+			for (Block const* block : cur_net->blocks) {
+
+				// this block is not in the module, thus it must be in another module
+				//
+				if (this->block_ids[block->numerical_id] == false) {
+
+					// this block in the other module has a different voltage applied, thus we may require a level shifter
+					if (block->assigned_voltage_index != this->min_voltage_index()) {
+
+						// this voltage level has not been considered yet, thus it requires a level shifter
+						if (considered_voltages[block->assigned_voltage_index] == false) {
+							this->level_shifter_actual++;
+
+							// memorize that this voltage level has been considered
+							considered_voltages[block->assigned_voltage_index] = true;
+
+							if (MultipleVoltages::DBG_VERBOSE) {
+								std::cout << "DBG_VOLTAGES>   Level shifter required for net " << cur_net->id << "; block " << block->id << "; ";
+								std::cout << "voltage index " << block->assigned_voltage_index << std::endl;
+							}
+						}
+						else {
+
+							if (MultipleVoltages::DBG_VERBOSE) {
+								std::cout << "DBG_VOLTAGES>   No further level shifter required for net " << cur_net->id << "; block " << block->id << "; ";
+								std::cout << "voltage index " << block->assigned_voltage_index << " already covered" << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (MultipleVoltages::DBG_VERBOSE) {
+			std::cout << "DBG_VOLTAGES> Done updating level shifters for compound module: " << this->id() << "; ";
+			std::cout << "voltage index: " << this->min_voltage_index() << "; ";
+			std::cout << this->level_shifter_actual << " actual level shifter required" << std::endl;
+		}
+	}
 };
