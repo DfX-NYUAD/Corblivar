@@ -1539,7 +1539,7 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 		this->level_shifter_actual = 0;
 	}
 
-	// for each net, check whether it is related to this module and how many level shifter we require
+	// for each net, check whether its driver is related to this module and how many level shifter we require
 	for (Net const& cur_net : all_nets) {
 
 		// skip input nets, as they cannot be driven by this module
@@ -1552,14 +1552,10 @@ void MultipleVoltages::CompoundModule::updateLevelShifter(std::vector<Net> const
 			continue;
 		}
 
-		// for all other nets, check whether they contain at least one block within this module
+		// for all other nets, check whether their driver is within this module
 		//
-		for (Block const* block : cur_net.blocks) {
-
-			if (this->block_ids[block->numerical_id] == true) {
-				relevant_nets.push_back(&cur_net);
-				break;
-			}
+		if (this->block_ids[cur_net.source->numerical_id] == true) {
+			relevant_nets.push_back(&cur_net);
 		}
 	}
 
