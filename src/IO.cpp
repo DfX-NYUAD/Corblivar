@@ -557,8 +557,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		in >> tmpstr;
 	in >> fp.voltageAssignment.parameters.weight_corners;
 
-	//TODO
-	fp.voltageAssignment.parameters.weight_level_shifter = 0;
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> fp.voltageAssignment.parameters.weight_level_shifter;
 
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
