@@ -154,7 +154,7 @@ void MultipleVoltages::determineCompoundModules(std::vector<Block> const& blocks
 	}
 }
 
-std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(std::vector<Net> const& all_nets, bool const& merge_selected_modules) {
+std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCompoundModules(std::vector<Net> const& all_nets, bool const& finalize, bool const& merge_selected_modules) {
 	MultipleVoltages::CompoundModule* cur_selected_module;
 	MultipleVoltages::CompoundModule* module_to_check;
 	std::vector<MultipleVoltages::CompoundModule*> modules;
@@ -189,9 +189,13 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 	max_count = 0;
 	max_corners = 0;
 
-	max_level_shifter = 0;
-	this->modules.begin()->second.updateLevelShifter(all_nets);
-	min_level_shifter = this->modules.begin()->second.level_shifter();
+	max_level_shifter = min_level_shifter = 0;
+
+	// evaluate level shifters only if they shall be considered
+	if (this->parameters.weight_level_shifter > 0) {
+		this->modules.begin()->second.updateLevelShifter(all_nets);
+		min_level_shifter = this->modules.begin()->second.level_shifter();
+	}
 
 	for (int l = 0; l < this->parameters.layers; l++) {
 		max_power_std_dev.push_back(0.0);
@@ -204,9 +208,12 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 		max_count = std::max(max_count, static_cast<int>(it->second.blocks.size()));
 		max_corners = std::max(max_corners, it->second.corners_powerring_max());
 
-		it->second.updateLevelShifter(all_nets);
-		max_level_shifter = std::max(max_level_shifter, it->second.level_shifter());
-		min_level_shifter = std::min(min_level_shifter, it->second.level_shifter());
+		// evaluate level shifters only if they shall be considered
+		if (this->parameters.weight_level_shifter > 0) {
+			it->second.updateLevelShifter(all_nets);
+			max_level_shifter = std::max(max_level_shifter, it->second.level_shifter());
+			min_level_shifter = std::min(min_level_shifter, it->second.level_shifter());
+		}
 
 		for (int l = 0; l < this->parameters.layers; l++) {
 			max_power_std_dev[l] = std::max(max_power_std_dev[l], it->second.power_std_dev_[l]);
@@ -606,8 +613,15 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 	// at this point, all modules are selected, and we may now evaluate the actual count of level shifters, where only shifters are required for nets crossing modules with
 	// different voltages
-	for (auto* module : this->selected_modules) {
-		module->updateLevelShifter(all_nets, false);
+	//
+	// only required if level shifters shall be accounted for
+	// OR for finalize runs
+	//
+	if ((this->parameters.weight_level_shifter > 0) || finalize) {
+
+		for (auto* module : this->selected_modules) {
+			module->updateLevelShifter(all_nets, false);
+		}
 	}
 	
 

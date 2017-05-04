@@ -282,7 +282,7 @@ class MultipleVoltages {
 		/// helper to determine all compound modules
 		void determineCompoundModules(std::vector<Block> const& blocks, ContiguityAnalysis& contig);
 		/// helper to perform top-down selection of compound modules
-		std::vector<CompoundModule*> const& selectCompoundModules(std::vector<Net> const& all_nets, bool const& merge_selected_modules = false);
+		std::vector<CompoundModule*> const& selectCompoundModules(std::vector<Net> const& all_nets, bool const& finalize, bool const& merge_selected_modules = false);
 
 	// private helper data, functions
 	private:

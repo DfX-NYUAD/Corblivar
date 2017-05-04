@@ -1263,7 +1263,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	// power and routing resources for power domains are minimized; for more realistic evaluation,
 	// merge volumes already here, not only later on during finalize runs
 	//
-	selected_modules = this->voltageAssignment.selectCompoundModules(this->nets, true);
+	selected_modules = this->voltageAssignment.selectCompoundModules(this->nets, finalize, true);
 
 	// evaluate assignment; determine absolute values for cost terms
 	//
@@ -1312,7 +1312,9 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	cost.voltage_assignment =
 		(this->voltageAssignment.parameters.weight_power_saving * (inv_power_saving / this->voltageAssignment.max_values.inv_power_saving))
 		+ (this->voltageAssignment.parameters.weight_corners * (corners_avg / this->voltageAssignment.max_values.corners_avg))
-		+ (this->voltageAssignment.parameters.weight_level_shifter * (level_shifter / this->voltageAssignment.max_values.level_shifter))
+		// as max_values.level_shifter may be zero (when level shifter are not optimized) we should consider epsilon for calculation; this will not impact the regular cost
+		// in any concerning means
+		+ (this->voltageAssignment.parameters.weight_level_shifter * (level_shifter / (this->voltageAssignment.max_values.level_shifter + Math::epsilon)))
 		+ (this->voltageAssignment.parameters.weight_modules_count * (static_cast<double>(selected_modules.size()) / static_cast<double>(this->voltageAssignment.max_values.module_count)))
 		+ (this->voltageAssignment.parameters.weight_power_variation * (power_variation_max / this->voltageAssignment.max_values.power_variation_max))
 		;
