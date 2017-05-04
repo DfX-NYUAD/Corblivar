@@ -182,6 +182,9 @@ further examples can be found in exp/configs/.
 
 # Changelog
 
+## 1.5.1
+*May 2017: new cost critiera: level shifter; updates config/experimental files for "regular", "VA_&ast;" and "voltage\_assignment"*
+
 ## 1.5.0
 *April 2017: new feature: analysis and mitigation of thermal side-channel (TSC); further updates and fixes*
 - new feature described in more details above, in Sec 5)
