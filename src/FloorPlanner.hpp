@@ -355,6 +355,9 @@ class FloorPlanner {
 		/// instance for contiguity-analysis handler
 		ContiguityAnalysis contigAnalyser;
 
+		/// instance for timing and power-analysis handler
+		TimingPowerAnalyser timingPowerAnalyser;
+
 	// constructors, destructors, if any non-implicit
 	public:
 		/// default constructor
@@ -395,6 +398,13 @@ class FloorPlanner {
 
 			// init thermal map, i.e., allocate data structure
 			this->thermalAnalyzer.initThermalMap(this->getOutline());
+		};
+
+		/// TimingPowerAnalyser: handler
+		inline void initTimingPowerAnalyser() {
+
+			// generate DAG (directed acyclic graph) for SL-STA (system-level static timing analysis)
+			this->timingPowerAnalyser.initSLSTA(this->blocks, this->terminals, this->nets, this->logMed());
 		};
 
 		/// RoutingUtilization: handler

@@ -29,7 +29,8 @@
 #include "Rect.hpp"
 #include "Math.hpp"
 #include "MultipleVoltages.hpp"
-#include "TimingPowerAnalyser.hpp"
+//TODO drop
+//#include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 class CorblivarAlignmentReq;
 class ContiguityAnalysis;
@@ -133,24 +134,25 @@ class Block {
 		/// delay in [ns]; relates to net delay and currently assigned voltage
 		inline double delay() const {
 
-			if (TimingPowerAnalyser::DBG) {
-				std::cout << "DBG_TIMING> Block " << this->id << std::endl;
-				std::cout << "DBG_TIMING>  Net delay: " << this->net_delay_max << std::endl;
-				std::cout << "DBG_TIMING>  Module delay: " << this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index] << std::endl;
-				std::cout << "DBG_TIMING>   Base delay: " << this->base_delay << std::endl;
-				std::cout << "DBG_TIMING>   Voltage delay factors: ";
-				for (unsigned v = 0; v < this->voltages_delay_factors.size(); v++) {
-
-					// last value shall have no tailing comma
-					if (v == this->voltages_delay_factors.size() - 1) {
-						std::cout << this->voltages_delay_factors[v] << std::endl;
-					}
-					else {
-						std::cout << this->voltages_delay_factors[v] << ", ";
-					}
-				}
-				std::cout << "DBG_TIMING>  Assigned voltage (index): " << this->assigned_voltage_index << std::endl;
-			}
+			//TODO drop; move to TimingPowerAnalyser
+//			if (TimingPowerAnalyser::DBG) {
+//				std::cout << "DBG_TIMING> Block " << this->id << std::endl;
+//				std::cout << "DBG_TIMING>  Net delay: " << this->net_delay_max << std::endl;
+//				std::cout << "DBG_TIMING>  Module delay: " << this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index] << std::endl;
+//				std::cout << "DBG_TIMING>   Base delay: " << this->base_delay << std::endl;
+//				std::cout << "DBG_TIMING>   Voltage delay factors: ";
+//				for (unsigned v = 0; v < this->voltages_delay_factors.size(); v++) {
+//
+//					// last value shall have no tailing comma
+//					if (v == this->voltages_delay_factors.size() - 1) {
+//						std::cout << this->voltages_delay_factors[v] << std::endl;
+//					}
+//					else {
+//						std::cout << this->voltages_delay_factors[v] << ", ";
+//					}
+//				}
+//				std::cout << "DBG_TIMING>  Assigned voltage (index): " << this->assigned_voltage_index << std::endl;
+//			}
 
 			return
 				// the module delay resulting from current voltage

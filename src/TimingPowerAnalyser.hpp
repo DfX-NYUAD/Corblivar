@@ -26,13 +26,13 @@
 // library includes
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
-// forward declarations, if any
+#include "Block.hpp"
 
 /// Corblivar handler for timing, delay and power analysis
 class TimingPowerAnalyser {
 	public:
 		/// debugging code switch
-		static constexpr bool DBG = false;
+		static constexpr bool DBG = true;
 
 	// private constants
 	private:
@@ -53,7 +53,7 @@ class TimingPowerAnalyser {
 		/// technology simulations, thus scaled down by factor 2 to roughly match
 		/// 45nm technology; delay = factor times (width + height) for any module
 		///
-		static constexpr double DELAY_FACTOR_MODULE = 1.0/2000.0 / 2.0;
+		static constexpr double DELAY_FACTOR_MODULE = (1.0/2000.0) / 2.0;
 	
 		/// delay factors for TSVs and wires, taken/resulting from [Ahmed14] which
 		/// models 45nm technology
@@ -74,11 +74,45 @@ class TimingPowerAnalyser {
 		/// activity factor, taken from [Ahmed14]
 		static constexpr double ACTIVITY_FACTOR = 0.1;
 
+		// IDs for special DAG nodes
+		static constexpr const char* DAG_SOURCE_ID = "DAG_SOURCE";
+		static constexpr const char* DAG_SINK_ID = "DAG_SINK";
+
 	// public POD, to be declared early on
 	public:
 
 	// private data, functions
 	private:
+
+		/// inner class of nodes for DAG, to be declared early on
+		class DAG_Node {
+
+			// public data
+			public:
+				/// block represented by this node
+				Block const* block;
+
+				// parents and children nodes in the DAG; keep track of each child instance only once
+				std::unordered_map<std::string, DAG_Node const*> parents;
+				std::unordered_map<std::string, DAG_Node const*> children;
+
+				// index for topological order, from global source to sink
+				int index;
+
+			/// default constructor
+			DAG_Node(Block const* block, int index = -1) {
+				this->block = block;
+				this->index = index;
+			};
+		};
+
+		/// data for DAG (directed acyclic graph) of nets
+		/// key is id of blocks/pins represented by node
+		std::unordered_map<std::string, DAG_Node> nets_DAG;
+
+		// init dummy blocks for special nodes
+		Block nets_DAG_source = Block(DAG_SOURCE_ID);
+		Block nets_DAG_sink = Block(DAG_SINK_ID);
 
 	// constructors, destructors, if any non-implicit
 	public:
@@ -107,6 +141,9 @@ class TimingPowerAnalyser {
 		inline static double powerTSV(double const& driver_voltage, double const& frequency, double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR) {
 			return activity_factor * C_TSV * std::pow(driver_voltage, 2.0) * frequency;
 		}
+
+		/// helper to generate the DAG (directed acyclic graph) for the SL-STA
+		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, bool const& log);
 
 	// private helper data, functions
 	private:
