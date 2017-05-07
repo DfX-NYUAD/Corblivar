@@ -262,7 +262,7 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
 	for (auto const& parent : cur_node->parents) {
 		cur_node->index = std::max(cur_node->index, parent.second->index + 1);
 	}
-
+	
 	if (TimingPowerAnalyser::DBG_VERBOSE) {
 
 		std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
@@ -278,8 +278,23 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
 	}
 
 	// traverse all children in depth-first manner
+	//
 	for (auto &child : cur_node->children) {
 
-		this->determIndicesDAG(child.second);
+		// only traverse when useful; in case the child's index is already larger than the index of the current node, no updates will be possible
+		//
+		if (child.second->index <= cur_node->index) {
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+				std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; continue with child of cur_node: " << cur_node->block->id << std::endl;
+			}
+
+			this->determIndicesDAG(child.second);
+		}
+	}
+	
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+		std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; done (for now) with cur_node: " << cur_node->block->id << std::endl;
 	}
 }
