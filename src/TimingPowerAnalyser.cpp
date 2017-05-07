@@ -213,6 +213,13 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 		}
 	}
 
+	// now, determine all the DAG node topological indices by depth-first search; start with global source
+	//
+	this->determIndicesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID));
+
+	// finally, order DAG nodes by indices
+	// TODO
+
 	if (TimingPowerAnalyser::DBG) {
 
 		std::cout << "DBG_TimingPowerAnalyser> Parsed DAG for nets:" << std::endl;
@@ -245,5 +252,34 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	if (log) {
 		std::cout << "TimingPowerAnalyser> Done; " << this->nets_DAG.size() << " nodes created" << std::endl;
 		std::cout << std::endl;
+	}
+}
+
+void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
+
+	// derive index for current node from maximum among parents
+	//
+	for (auto const& parent : cur_node->parents) {
+		cur_node->index = std::max(cur_node->index, parent.second->index + 1);
+	}
+
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+		std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
+		std::cout << "DBG_TimingPowerAnalyser>  Topological index: " << cur_node->index << std::endl;
+
+		if (!cur_node->children.empty()) {
+			std::cout << "DBG_TimingPowerAnalyser>  Children: " << cur_node->children.size() << std::endl;
+			for (auto const& child : cur_node->children) {
+				std::cout << "DBG_TimingPowerAnalyser>   Child: " << child.first << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Current topological index of child: " << child.second->index << std::endl;
+			}
+		}
+	}
+
+	// traverse all children in depth-first manner
+	for (auto &child : cur_node->children) {
+
+		this->determIndicesDAG(child.second);
 	}
 }
