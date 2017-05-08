@@ -117,6 +117,8 @@ class TimingPowerAnalyser {
 		/// data for DAG (directed acyclic graph) of nets
 		/// key is id of blocks/pins represented by node
 		std::unordered_map<std::string, DAG_Node> nets_DAG;
+		/// wrapper for access of final DAG; sorted by topological indices
+		std::vector<DAG_Node const*> nets_DAG_sorted;
 
 		// init dummy blocks for special nodes
 		Block nets_DAG_source = Block(DAG_SOURCE_ID);

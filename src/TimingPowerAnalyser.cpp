@@ -40,9 +40,11 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 
 	// reset DAG
 	this->nets_DAG.clear();
+	this->nets_DAG_sorted.clear();
 
 	// allocate memory for DAG
 	this->nets_DAG.reserve(blocks.size() + terminals.size() + 2);
+	this->nets_DAG_sorted.reserve(blocks.size() + terminals.size() + 2);
 
 	// init DAG nodes from all the blocks
 	for (Block const& cur_block : blocks) {
@@ -227,31 +229,45 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	}
 	this->determIndicesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID));
 
-	// finally, order DAG nodes by indices
-	// TODO
+	// finally, order DAG nodes by indices; put the nodes' pointers into separate container
+	//
+	for (auto const& pair : this->nets_DAG) {
+		this->nets_DAG_sorted.push_back(&pair.second);
+	}
+	std::sort(this->nets_DAG_sorted.begin(), this->nets_DAG_sorted.end(),
+			// lambda expression
+			[](DAG_Node const* n1, DAG_Node const* n2) {
+
+				return (
+						// sort in ascending order of topological indices
+						(n1->index < n2->index) ||
+						// in case indices are the same, also consider the ID; this way a more natural representation of the ordering will arise assuming
+						// that the notations for pins/blocks follow a regular scheme
+						((n1->index == n2->index) && (n1->block->id < n2->block->id))
+			       );
+			}
+		 );
 
 	if (TimingPowerAnalyser::DBG) {
 
 		std::cout << "DBG_TimingPowerAnalyser> Parsed DAG for nets:" << std::endl;
 
-		for (auto const& pair : this->nets_DAG) {
+		for (DAG_Node const* node : this->nets_DAG_sorted) {
 
-			TimingPowerAnalyser::DAG_Node const& node = pair.second;
+			std::cout << "DBG_TimingPowerAnalyser>  Node for block/pin " << node->block->id << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Topological index of node: " << node->index << std::endl;
 
-			std::cout << "DBG_TimingPowerAnalyser>  Node for block/pin " << node.block->id << std::endl;
-			std::cout << "DBG_TimingPowerAnalyser>   Topological index of node: " << node.index << std::endl;
-
-			if (!node.children.empty()) {
-				std::cout << "DBG_TimingPowerAnalyser>   Children: " << node.children.size() << std::endl;
-				for (auto const& child : node.children) {
+			if (!node->children.empty()) {
+				std::cout << "DBG_TimingPowerAnalyser>   Children: " << node->children.size() << std::endl;
+				for (auto const& child : node->children) {
 					std::cout << "DBG_TimingPowerAnalyser>    Child: " << child.first << std::endl;
 					std::cout << "DBG_TimingPowerAnalyser>     Index of child: " << child.second->index << std::endl;
 				}
 			}
 
-			if (!node.parents.empty()) {
-				std::cout << "DBG_TimingPowerAnalyser>   Parents: " << node.parents.size() << std::endl;
-				for (auto const& parent : node.parents) {
+			if (!node->parents.empty()) {
+				std::cout << "DBG_TimingPowerAnalyser>   Parents: " << node->parents.size() << std::endl;
+				for (auto const& parent : node->parents) {
 					std::cout << "DBG_TimingPowerAnalyser>    Parent: " << parent.first << std::endl;
 					std::cout << "DBG_TimingPowerAnalyser>     Index of parent: " << parent.second->index << std::endl;
 				}
@@ -260,12 +276,12 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	}
 
 	if (log) {
-		std::cout << "TimingPowerAnalyser> Done; " << this->nets_DAG.size() << " nodes created, ";
+		std::cout << "TimingPowerAnalyser> Done; " << this->nets_DAG_sorted.size() << " nodes created, ";
 
 		// count all edges/children
 		int children = 0;
-		for (auto const& pair : this->nets_DAG) {
-			children += pair.second.children.size();
+		for (DAG_Node const* node : this->nets_DAG_sorted) {
+			children += node->children.size();
 		}
 		std::cout << children << " unique edges created (not accounting for multiple same-net instances)" << std::endl;
 		std::cout << std::endl;
