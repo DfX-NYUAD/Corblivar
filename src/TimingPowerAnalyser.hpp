@@ -93,7 +93,10 @@ class TimingPowerAnalyser {
 				/// block represented by this node
 				Block const* block;
 
-				// parents and children nodes in the DAG; keep track of each child instance only once
+				// parents and children nodes in the DAG; keep track of each child instance only once, i.e., we ignore all the multiples of nets connecting from the
+				// same source to the same sink; this is valid for the DAG, as we only require it for timing, where the location of source/sink are evaluated, not
+				// how many same-type connections pass between them
+				//
 				std::unordered_map<std::string, DAG_Node*> parents;
 				std::unordered_map<std::string, DAG_Node*> children;
 

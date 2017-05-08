@@ -260,7 +260,14 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	}
 
 	if (log) {
-		std::cout << "TimingPowerAnalyser> Done; " << this->nets_DAG.size() << " nodes created" << std::endl;
+		std::cout << "TimingPowerAnalyser> Done; " << this->nets_DAG.size() << " nodes created, ";
+
+		// count all edges/children
+		int children = 0;
+		for (auto const& pair : this->nets_DAG) {
+			children += pair.second.children.size();
+		}
+		std::cout << children << " unique edges created (not accounting for multiple same-net instances)" << std::endl;
 		std::cout << std::endl;
 	}
 }
