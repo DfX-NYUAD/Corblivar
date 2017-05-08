@@ -213,8 +213,18 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 		}
 	}
 
+	// check for cycles (and resolve them) in the graph
+	//
+	if (TimingPowerAnalyser::DBG) {
+		std::cout << "DBG_TimingPowerAnalyser> Check DAG for cycles (and resolve them)" << std::endl;
+	}
+	this->resolveCyclesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID), log);
+
 	// now, determine all the DAG node topological indices by depth-first search; start with global source
 	//
+	if (TimingPowerAnalyser::DBG) {
+		std::cout << "DBG_TimingPowerAnalyser> Determine topological order/indices for DAG; global source is first (index = 0)" << std::endl;
+	}
 	this->determIndicesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID));
 
 	// finally, order DAG nodes by indices
@@ -255,7 +265,69 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	}
 }
 
-void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
+bool TimingPowerAnalyser::resolveCyclesDAG(DAG_Node *cur_node, bool const& log) {
+
+	// node not visited/checked yet
+	//
+	if (!cur_node->visited) {
+
+		if (TimingPowerAnalyser::DBG_VERBOSE) {
+			std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
+		}
+
+		// mark as visited/checked, and also mark as part of this recursion
+		cur_node->visited = cur_node->recursion = true;
+
+		// now, check all children in depth-first manner
+		//
+		for (auto &child : cur_node->children) {
+
+			// child not visited yet; check recursively whether some cycle can be found
+			//
+			if (!child.second->visited && this->resolveCyclesDAG(child.second, log)) {
+
+				// in case a cycle was found, resolve it naively by deleting the child which was associated with the cycle
+				cur_node->children.erase(child.first);
+
+				if (log) {
+					std::cout << "TimingPowerAnalyser> ";
+					std::cout << " A cycle was found in the DAG/netlist! The following driver-sink relation was deleted: ";
+					std::cout << cur_node->block->id << "->" << child.first << std::endl;
+					std::cout << "TimingPowerAnalyser> ";
+					std::cout << "  Please check and revise the netlist accordingly!" << std::endl;
+				}
+
+				return true;
+			}
+			// child already visited; in case it has been visited during the current recursive call, then we found a cycle/backedge
+			// http://www.geeksforgeeks.org/detect-cycle-in-a-graph/
+			//
+			else if (child.second->recursion) {
+
+				// in case a cycle was found, resolve it naively by deleting the child which was associated with the cycle
+				cur_node->children.erase(child.first);
+
+				if (log) {
+					std::cout << "TimingPowerAnalyser> ";
+					std::cout << " A cycle was found in the DAG/netlist! The following driver-sink relation was deleted: ";
+					std::cout << cur_node->block->id << "->" << child.first << std::endl;
+					std::cout << "TimingPowerAnalyser> ";
+					std::cout << "  Please check and revise the netlist accordingly!" << std::endl;
+				}
+
+				return true;
+			}
+		}
+	}
+
+	// after return from recursion; mark as "not anymore part of a recursion"
+	cur_node->recursion = false;
+
+	// also, at this point, it's clear that this node is not part of a cycle
+	return false;
+}
+
+void TimingPowerAnalyser::determIndicesDAG(DAG_Node *cur_node) {
 
 	// derive index for current node from maximum among parents
 	//
@@ -265,14 +337,14 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
 	
 	if (TimingPowerAnalyser::DBG_VERBOSE) {
 
-		std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
-		std::cout << "DBG_TimingPowerAnalyser>  Topological index: " << cur_node->index << std::endl;
+		std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
+		std::cout << "DBG_TimingPowerAnalyser>   Topological index: " << cur_node->index << std::endl;
 
 		if (!cur_node->children.empty()) {
-			std::cout << "DBG_TimingPowerAnalyser>  Children: " << cur_node->children.size() << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Children: " << cur_node->children.size() << std::endl;
 			for (auto const& child : cur_node->children) {
-				std::cout << "DBG_TimingPowerAnalyser>   Child: " << child.first << std::endl;
-				std::cout << "DBG_TimingPowerAnalyser>    Current topological index of child: " << child.second->index << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Child: " << child.first << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>     Current topological index of child: " << child.second->index << std::endl;
 			}
 		}
 	}
@@ -286,7 +358,7 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
 		if (child.second->index <= cur_node->index) {
 
 			if (TimingPowerAnalyser::DBG_VERBOSE) {
-				std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; continue with child of cur_node: " << cur_node->block->id << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; continue with child of cur_node: " << cur_node->block->id << std::endl;
 			}
 
 			this->determIndicesDAG(child.second);
@@ -295,6 +367,6 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node const* cur_node) {
 	
 	if (TimingPowerAnalyser::DBG_VERBOSE) {
 
-		std::cout << "DBG_TimingPowerAnalyser> Depth-first traversal of DAG; done (for now) with cur_node: " << cur_node->block->id << std::endl;
+		std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; done (for now) with cur_node: " << cur_node->block->id << std::endl;
 	}
 }

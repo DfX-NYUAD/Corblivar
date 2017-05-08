@@ -32,7 +32,7 @@
 class TimingPowerAnalyser {
 	public:
 		/// debugging code switch
-		static constexpr bool DBG = true;
+		static constexpr bool DBG = false;
 		static constexpr bool DBG_VERBOSE= false;
 
 	// private constants
@@ -94,15 +94,15 @@ class TimingPowerAnalyser {
 				Block const* block;
 
 				// parents and children nodes in the DAG; keep track of each child instance only once
-				std::unordered_map<std::string, DAG_Node const*> parents;
-				std::unordered_map<std::string, DAG_Node const*> children;
+				std::unordered_map<std::string, DAG_Node*> parents;
+				std::unordered_map<std::string, DAG_Node*> children;
 
 				// index for topological order, from global source to sink
-				mutable int index;
+				int index;
 
 				// flag for DAG traversal
-				// TODO
 				bool visited = false;
+				bool recursion = false;
 
 			/// default constructor
 			DAG_Node(Block const* block, int index = -1) {
@@ -152,7 +152,8 @@ class TimingPowerAnalyser {
 
 	// private helper data, functions
 	private:
-		void determIndicesDAG(DAG_Node const* cur_node);
+		void determIndicesDAG(DAG_Node *cur_node);
+		bool resolveCyclesDAG(DAG_Node *cur_node, bool const& log);
 };
 
 #endif
