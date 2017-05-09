@@ -1136,7 +1136,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 /// determine the delays for all blocks; they shall fulfill a max delay below a given
 /// threshold
-//TODO revise according to new TimingPowerAnalyser
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool const& finalize, bool reevaluation) {
 	double max_delay;
 
@@ -1147,33 +1146,25 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		this->IC.delay_threshold = this->IC.delay_threshold_initial;
 	}
 
+	// reset previous voltage assignments if required; they impact the module delay
+	//
 	// for reevaluation, after voltage assignment, don't reset voltage-assignment
-	// values and avoid redundant recalculation of net delays
 	//
 	if (!reevaluation) {
 
-		// reset previous voltage assignments if required; they impact the module delay
 		if (this->opt_flags.voltage_assignment) {
 
 			for (Block& block : this->blocks) {
 				block.resetVoltageAssignment();
 			}
 		}
-
-		// reset previous net delays
-		for (Net& cur_net : this->nets) {
-			cur_net.resetSourceMaxDelay();
-		}
-
-		// assign max net delays to all nets' driving/source blocks; note that some source
-		// blocks may drive several nets, i.e., the overall max value is finally assigned
-		for (Net& cur_net : this->nets) {
-			cur_net.assignSourceMaxDelay();
-		}
 	}
 
+	// (re-)evaluate timing in any case
 	this->timingPowerAnalyser.updateTiming();
 
+//TODO revise according to new TimingPowerAnalyser
+//
 	// evaluate max delay over all blocks, drivers and non-driving blocks; covers both
 	// net delay and actual block delays
 	//

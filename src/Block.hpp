@@ -89,7 +89,6 @@ class Block {
 			this->voltages_delay_factors = std::vector<double> {0.0};
 			this->feasible_voltages.reset();
 			this->assigned_voltage_index = 0;
-			this->net_delay_max = 0.0;
 			this->slack = 0.0;
 		};
 
@@ -147,10 +146,6 @@ class Block {
 		inline double voltage_max() const {
 			return this->voltages.back();
 		}
-
-		/// this delay value is the max value for any net where this block is the
-		/// source/driving block
-		mutable double net_delay_max;
 
 		/// this is the timing slack available for this block, considering the current voltage assignment, and with regard to the SL-STA
 		mutable double slack;
