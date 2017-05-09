@@ -393,3 +393,110 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node *cur_node) {
 		std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; done (for now) with cur_node: " << cur_node->block->id << std::endl;
 	}
 }
+
+void TimingPowerAnalyser::updateTiming() {
+	DAG_Node* child;
+	Rect bb_driver_sink;
+
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+		std::cout << "DBG_TimingPowerAnalyser> Determine timing values for DAG" << std::endl;
+	}
+
+	// reset AAT, RAT
+	//
+	for (auto &pair : this->nets_DAG) {
+		pair.second.AAT = 0;
+		// TODO
+		pair.second.RAT = 15;
+	}
+
+	// first, compute all arrival times over sorted DAG
+	//
+	// ignore the very first node, i.e., the global source; there is no physical delay between the global source and the input pins, which are following right after in
+	// nets_DAG_sorted
+	//
+	// also ignore here the very last node, i.e., the global sink; this node is handled as special case below
+	//
+	for (auto iter = (this->nets_DAG_sorted.begin() + 1); iter != (this->nets_DAG_sorted.end() - 1); ++iter) {
+
+		DAG_Node const* node = *iter;
+
+		if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+			std::cout << "DBG_TimingPowerAnalyser>  Determine AAT for all " << node->children.size() << " children of node: " << node->block->id << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>  (AAT of this node: " << node->AAT << ")" << std::endl;
+		}
+
+		// propagate AAT from this node to all children
+		//
+		// note that the global sink is still considered here every now and then, namely when we have an output pin as node; however, always checking whether the child is
+		// the global sink is more costly than just recalculating the proper AAT for the global sink as we do below
+		//
+		for (auto &pair : node->children) {
+			child = pair.second;
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+				std::cout << "DBG_TimingPowerAnalyser>   Current AAT for node " << child->block->id << ": " << child->AAT << std::endl;
+			}
+
+			// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
+			// placed within that box
+			//
+			bb_driver_sink = Rect::determBoundingBox(node->block->bb, child->block->bb);
+
+			// now, the AAT for the child is to be calculated considering the driver's AAT, the interconnect delay, and the delay of the child itself
+			//
+			child->AAT = std::max(child->AAT,
+					node->AAT
+					+ TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(node->block->layer - child->block->layer))
+					+ child->block->delay()
+				);
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+				std::cout << "DBG_TimingPowerAnalyser>   Updated AAT for node " << child->block->id << ": " << child->AAT << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Inherent delay for this node: " << child->block->delay() << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Elmore delay for connecting " << node->block->id << " to this node: ";
+				std::cout << TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(node->block->layer - child->block->layer)) << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>     Related HPWL: " << bb_driver_sink.w + bb_driver_sink.h << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>     Related TSVs: " << std::abs(node->block->layer - child->block->layer) << std::endl;
+			}
+		}
+	}
+	// now, solve the special case for the global sink; its AAT is simply the maximum among all parents, as there is no physical delay between those parents (the output pins)
+	// and the global sink
+	//
+	// also note that the AAT for the global sink has been set already above; reset first
+	this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).AAT = 0;
+	for (auto &pair : this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).parents) {
+
+		this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).AAT = std::max(
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).AAT,
+				pair.second->AAT
+			);
+	}
+
+	// next, compute the required arrival times over sorted DAG, considering the given critical delay
+	// TODO
+
+	// finally, compute the slack for all DAG nodes
+	//
+	for (auto &pair : this->nets_DAG) {
+		pair.second.slack = pair.second.RAT - pair.second.AAT;
+	}
+
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+		std::cout << "DBG_TimingPowerAnalyser> Final timing values for DAG:" << std::endl;
+
+		for (DAG_Node const* node : this->nets_DAG_sorted) {
+
+			std::cout << "DBG_TimingPowerAnalyser>  Node for block/pin " << node->block->id << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Topological index: " << node->index << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Actual arrival time: " << node->AAT << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Required arrival time: " << node->RAT << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Timing slack: " << node->slack << std::endl;
+		}
+	}
+}

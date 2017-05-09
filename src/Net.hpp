@@ -75,6 +75,7 @@ class Net {
 		/// precise location of previously placed TSVs since we don't require TSVs
 		/// to be placed at this point; assign max value to source block
 		///
+		//TODO during TimingPowerAnalyser::updateTiming()
 		inline void assignSourceMaxDelay() const {
 			Rect source_sink_bb;
 
@@ -116,6 +117,7 @@ class Net {
 		};
 
 		/// reset helper
+		//TODO during TimingPowerAnalyser::updateTiming()
 		inline void resetSourceMaxDelay() {
 
 			// sanity check; input nets are ignored since they have no driving block

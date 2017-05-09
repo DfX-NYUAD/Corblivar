@@ -1136,6 +1136,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 
 /// determine the delays for all blocks; they shall fulfill a max delay below a given
 /// threshold
+//TODO revise according to new TimingPowerAnalyser
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool const& finalize, bool reevaluation) {
 	double max_delay;
 
@@ -1170,6 +1171,8 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 			cur_net.assignSourceMaxDelay();
 		}
 	}
+
+	this->timingPowerAnalyser.updateTiming();
 
 	// evaluate max delay over all blocks, drivers and non-driving blocks; covers both
 	// net delay and actual block delays

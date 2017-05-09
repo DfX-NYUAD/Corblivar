@@ -32,8 +32,8 @@
 class TimingPowerAnalyser {
 	public:
 		/// debugging code switch
-		static constexpr bool DBG = false;
-		static constexpr bool DBG_VERBOSE= false;
+		static constexpr bool DBG = true;
+		static constexpr bool DBG_VERBOSE= true;
 
 	// private constants
 	private:
@@ -107,6 +107,11 @@ class TimingPowerAnalyser {
 				bool visited = false;
 				bool recursion = false;
 
+				// timing values; AAT: actual arrival time, RAT: required arrival time
+				mutable double AAT = 0;
+				mutable double RAT = 0;
+				mutable double slack = 0;
+
 			/// default constructor
 			DAG_Node(Block const* block, int index = -1) {
 				this->block = block;
@@ -154,6 +159,9 @@ class TimingPowerAnalyser {
 
 		/// helper to generate the DAG (directed acyclic graph) for the SL-STA
 		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, bool const& log);
+
+		/// determine timing values for DAG; will also update the slack for all blocks
+		void updateTiming();
 
 	// private helper data, functions
 	private:

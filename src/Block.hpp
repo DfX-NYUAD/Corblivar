@@ -29,8 +29,6 @@
 #include "Rect.hpp"
 #include "Math.hpp"
 #include "MultipleVoltages.hpp"
-//TODO drop
-//#include "TimingPowerAnalyser.hpp"
 // forward declarations, if any
 class CorblivarAlignmentReq;
 class ContiguityAnalysis;
@@ -47,8 +45,8 @@ class Block {
 		/// These values are required for multi-voltage domains; the
 		/// factors are read in from the Technology.conf.
 		std::vector<double> voltages_power_factors;
-		/// Base_delay is calculated according to [Lin10] during block parsing; the
-		/// power_density() and delay() are calculated accordingly to these factors
+		/// This value is calculated according to [Lin10] during block parsing; the
+		/// delay() is calculated accordingly to this factor
 		/// and the current assigned voltage, given in assigned_voltage_index.
 		mutable double base_delay;
 		/// These values are required for multi-voltage domains; the
@@ -57,14 +55,6 @@ class Block {
 
 		/// the actual voltage(s) are also required
 		std::vector<double> voltages;
-
-		/// delay in [ns]; relates to net delay and currently assigned voltage;
-		/// theoretical value to be obtained for given voltage index
-		inline double delay(unsigned voltage_index) const {
-			return
-				this->base_delay * this->voltages_delay_factors[voltage_index]
-				+ this->net_delay_max;
-		}
 
 	// enum class for alignment status; has to be defined first
 	public:
@@ -85,13 +75,21 @@ class Block {
 			this->id = id;
 			this->numerical_id = numerical_id;
 			this->layer = -1;
-			this->power_density_unscaled = this->base_delay = 0.0;
+			this->power_density_unscaled = 0.0;
 			this->AR.min = AR.max = 1.0;
 			this->placed = false;
 			this->soft = false;
 			this->floorplacement = false;
 			this->alignment = AlignmentStatus::UNDEF;
 			this->rotatable = true;
+
+			this->base_delay = 0.0;
+			this->voltages = std::vector<double> {0.0};
+			this->voltages_power_factors = std::vector<double> {0.0};
+			this->voltages_delay_factors = std::vector<double> {0.0};
+			this->resetVoltageAssignment();
+			this->feasible_voltages.reset();
+			this->assigned_voltage_index = 0;
 			this->net_delay_max = 0.0;
 		};
 
@@ -131,35 +129,9 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors.back();
 		}
 
-		/// delay in [ns]; relates to net delay and currently assigned voltage
+		/// delay in [ns]; relates to the inherent delay experienced for the currently assigned voltage
 		inline double delay() const {
-
-			//TODO drop; move to TimingPowerAnalyser
-//			if (TimingPowerAnalyser::DBG) {
-//				std::cout << "DBG_TIMING> Block " << this->id << std::endl;
-//				std::cout << "DBG_TIMING>  Net delay: " << this->net_delay_max << std::endl;
-//				std::cout << "DBG_TIMING>  Module delay: " << this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index] << std::endl;
-//				std::cout << "DBG_TIMING>   Base delay: " << this->base_delay << std::endl;
-//				std::cout << "DBG_TIMING>   Voltage delay factors: ";
-//				for (unsigned v = 0; v < this->voltages_delay_factors.size(); v++) {
-//
-//					// last value shall have no tailing comma
-//					if (v == this->voltages_delay_factors.size() - 1) {
-//						std::cout << this->voltages_delay_factors[v] << std::endl;
-//					}
-//					else {
-//						std::cout << this->voltages_delay_factors[v] << ", ";
-//					}
-//				}
-//				std::cout << "DBG_TIMING>  Assigned voltage (index): " << this->assigned_voltage_index << std::endl;
-//			}
-
-			return
-				// the module delay resulting from current voltage
-				// assignment
-				this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index]
-				// the net delay, greater zero for any driving block
-				+ this->net_delay_max;
+			return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
 		}
 
 		/// currently assigned voltage
@@ -204,6 +176,8 @@ class Block {
 		/// voltage is considered feasible as long as setting it will not violate
 		/// the delay threshold (by increasing the module delay too much)
 		///
+		// TODO set according to block's slack
+		// TODO revise delay_threshold globally
 		inline void setFeasibleVoltages(double delay_threshold) {
 			unsigned index;
 
@@ -213,9 +187,10 @@ class Block {
 
 			// try to consider the next-lower index / voltage as long as the
 			// resulting delay is not violating the threshold; also consider
-			// lower limit for index
+			// lower limit for index; also consider the maximal delay on all nets for this driver
 			//
-			while (index > 0 && this->delay(index - 1) <= delay_threshold) {
+			while (index > 0 &&
+					(this->base_delay * this->voltages_delay_factors[index - 1] + this->net_delay_max) <= delay_threshold) {
 
 				// consider this voltage as feasible; memorize it
 				index--;
