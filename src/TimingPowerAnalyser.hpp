@@ -75,10 +75,6 @@ class TimingPowerAnalyser {
 		/// activity factor, taken from [Ahmed14]
 		static constexpr double ACTIVITY_FACTOR = 0.1;
 
-		// IDs for special DAG nodes
-		static constexpr const char* DAG_SOURCE_ID = "DAG_SOURCE";
-		static constexpr const char* DAG_SINK_ID = "DAG_SINK";
-
 	// public POD, to be declared early on
 	public:
 
@@ -90,6 +86,10 @@ class TimingPowerAnalyser {
 
 			// public data
 			public:
+				// IDs for special DAG nodes
+				static constexpr const char* SOURCE_ID = "DAG_SOURCE";
+				static constexpr const char* SINK_ID = "DAG_SINK";
+
 				/// block represented by this node
 				Block const* block;
 
@@ -121,8 +121,8 @@ class TimingPowerAnalyser {
 		std::vector<DAG_Node const*> nets_DAG_sorted;
 
 		// init dummy blocks for special nodes
-		Block nets_DAG_source = Block(DAG_SOURCE_ID);
-		Block nets_DAG_sink = Block(DAG_SINK_ID);
+		Block dummy_block_DAG_source = Block(DAG_Node::SOURCE_ID);
+		Block dummy_block_DAG_sink = Block(DAG_Node::SINK_ID);
 
 	// constructors, destructors, if any non-implicit
 	public:

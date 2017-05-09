@@ -27,8 +27,8 @@
 #include "Net.hpp"
 
 // memory allocation
-constexpr const char* TimingPowerAnalyser::DAG_SOURCE_ID;
-constexpr const char* TimingPowerAnalyser::DAG_SINK_ID;
+constexpr const char* TimingPowerAnalyser::DAG_Node::SOURCE_ID;
+constexpr const char* TimingPowerAnalyser::DAG_Node::SINK_ID;
 
 /// generate DAG (direct acyclic graph) from nets
 void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, bool const& log) {
@@ -67,17 +67,17 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	// put global sink
 	this->nets_DAG.emplace(std::make_pair(
 				// dummy id for sink
-				TimingPowerAnalyser::DAG_SINK_ID,
+				TimingPowerAnalyser::DAG_Node::SINK_ID,
 				// index yet unknown
-				TimingPowerAnalyser::DAG_Node(&this->nets_DAG_sink)
+				TimingPowerAnalyser::DAG_Node(&this->dummy_block_DAG_sink)
 			));
 
 	// put global source
 	this->nets_DAG.emplace(std::make_pair(
 				// dummy id for global source
-				TimingPowerAnalyser::DAG_SOURCE_ID,
+				TimingPowerAnalyser::DAG_Node::SOURCE_ID,
 				// has always index 0
-				TimingPowerAnalyser::DAG_Node(&this->nets_DAG_source, 0)
+				TimingPowerAnalyser::DAG_Node(&this->dummy_block_DAG_source, 0)
 			));
 
 	// construct the links/pointers for the DAG; simply walk all nets and translate them to parents-children relationships
@@ -92,15 +92,15 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 			TimingPowerAnalyser::DAG_Node &pin_node = this->nets_DAG.at(n.terminals.front()->id);
 
 			// memorize pin node as child for the global source
-			this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID).children.emplace(std::make_pair(
+			this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID).children.emplace(std::make_pair(
 					pin_node.block->id,
 					&pin_node
 				));
 
 			// also memorize global source as parent of pin node
 			pin_node.parents.emplace(std::make_pair(
-						TimingPowerAnalyser::DAG_SOURCE_ID,
-						&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID)
+						TimingPowerAnalyser::DAG_Node::SOURCE_ID,
+						&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID)
 					));
 
 			// check all the children of the node, i.e., the blocks driven by this net
@@ -201,15 +201,15 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 						));
 
 				// further, memorize output pin (child) as parent for the global sink
-				this->nets_DAG.at(TimingPowerAnalyser::DAG_SINK_ID).parents.emplace(std::make_pair(
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).parents.emplace(std::make_pair(
 						child_node.block->id,
 						&child_node
 					));
 
 				// finally, memorize global sink as child of output pin (child)
 				child_node.children.emplace(std::make_pair(
-							TimingPowerAnalyser::DAG_SINK_ID,
-							&this->nets_DAG.at(TimingPowerAnalyser::DAG_SINK_ID)
+							TimingPowerAnalyser::DAG_Node::SINK_ID,
+							&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID)
 						));
 			}
 		}
@@ -220,14 +220,14 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 	if (TimingPowerAnalyser::DBG) {
 		std::cout << "DBG_TimingPowerAnalyser> Check DAG for cycles (and resolve them)" << std::endl;
 	}
-	this->resolveCyclesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID), log);
+	this->resolveCyclesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID), log);
 
 	// now, determine all the DAG node topological indices by depth-first search; start with global source
 	//
 	if (TimingPowerAnalyser::DBG) {
 		std::cout << "DBG_TimingPowerAnalyser> Determine topological order/indices for DAG; global source is first (index = 0)" << std::endl;
 	}
-	this->determIndicesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_SOURCE_ID));
+	this->determIndicesDAG(&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID));
 
 	// finally, order DAG nodes by indices; put the nodes' pointers into separate container
 	//
