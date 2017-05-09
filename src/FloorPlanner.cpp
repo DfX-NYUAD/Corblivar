@@ -1245,10 +1245,10 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	}
 
 	// derive applicable voltages for each block; lower voltages are applicable as
-	// long as the delay threshold would not be violated by doing so
+	// long as the increase of the block's delay would not violate the block's slack
 	//
 	for (Block& block : this->blocks) {
-		block.setFeasibleVoltages(this->IC.delay_threshold);
+		block.setFeasibleVoltages();
 	}
 
 	// derive contiguity for each block from current layout; contiguity matrix is kept

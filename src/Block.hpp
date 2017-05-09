@@ -87,10 +87,10 @@ class Block {
 			this->voltages = std::vector<double> {0.0};
 			this->voltages_power_factors = std::vector<double> {0.0};
 			this->voltages_delay_factors = std::vector<double> {0.0};
-			this->resetVoltageAssignment();
 			this->feasible_voltages.reset();
 			this->assigned_voltage_index = 0;
 			this->net_delay_max = 0.0;
+			this->slack = 0.0;
 		};
 
 	// public data, functions
@@ -129,9 +129,14 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors.back();
 		}
 
-		/// delay in [ns]; relates to the inherent delay experienced for the currently assigned voltage
+		/// delay in [ns]; relates to the inherent delay experienced for the currently assigned voltage index
 		inline double delay() const {
 			return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
+		}
+
+		/// delay in [ns]; relates to the inherent delay theoretically experienced for the given voltage index
+		inline double delay(unsigned index) const {
+			return this->base_delay * this->voltages_delay_factors[index];
 		}
 
 		/// currently assigned voltage
@@ -146,6 +151,9 @@ class Block {
 		/// this delay value is the max value for any net where this block is the
 		/// source/driving block
 		mutable double net_delay_max;
+
+		/// this is the timing slack available for this block, considering the current voltage assignment, and with regard to the SL-STA
+		mutable double slack;
 
 		/// bit-wise flags for applicable voltages, where feasible_voltages[k]
 		/// encodes the highest voltage V_k, and remaining bits encode the lower
@@ -172,29 +180,26 @@ class Block {
 			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
 		}
 
-		/// helper to set/update feasible voltages; considers a delay threshold; a
+		/// helper to set/update feasible voltages; considers the block's slack; a
 		/// voltage is considered feasible as long as setting it will not violate
-		/// the delay threshold (by increasing the module delay too much)
-		///
-		// TODO set according to block's slack
-		// TODO revise delay_threshold globally
-		inline void setFeasibleVoltages(double delay_threshold) {
-			unsigned index;
+		/// the slack (by increasing the module delay too much)
+		//
+		inline void setFeasibleVoltages() {
 
-			// the first index, i.e., the index for the highest applicable
-			// voltage; this voltage is set per definition
-			index = this->voltages_power_factors.size() - 1;
-
-			// try to consider the next-lower index / voltage as long as the
-			// resulting delay is not violating the threshold; also consider
-			// lower limit for index; also consider the maximal delay on all nets for this driver
+			// the first index, i.e., the index for the highest applicable voltage; this voltage is set per definition (via resetVoltageAssignment), but it may already
+			// violate the block's slack
 			//
-			while (index > 0 &&
-					(this->base_delay * this->voltages_delay_factors[index - 1] + this->net_delay_max) <= delay_threshold) {
+			int index = this->voltages_power_factors.size() - 1;
 
-				// consider this voltage as feasible; memorize it
-				index--;
-				this->feasible_voltages[index] = 1;
+			// try to consider lower indices/voltages
+			for (index = index - 1; index >= 0; index--) {
+
+				// lower voltages are feasible as long as the increase of the block delay is not violating the slack
+				//
+				if (this->delay(index) - this->delay() <= this->slack) {
+
+					this->feasible_voltages[index] = 1;
+				}
 			}
 		}
 

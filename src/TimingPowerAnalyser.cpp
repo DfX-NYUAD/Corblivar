@@ -484,6 +484,9 @@ void TimingPowerAnalyser::updateTiming() {
 	//
 	for (auto &pair : this->nets_DAG) {
 		pair.second.slack = pair.second.RAT - pair.second.AAT;
+
+		// also memorize the slack in the blocks themselves
+		pair.second.block->slack = pair.second.slack;
 	}
 
 	if (TimingPowerAnalyser::DBG_VERBOSE) {
