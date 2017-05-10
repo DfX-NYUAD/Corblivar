@@ -394,8 +394,9 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node *cur_node) {
 	}
 }
 
-void TimingPowerAnalyser::updateTiming() {
+void TimingPowerAnalyser::updateTiming(double const& global_arrival_time) {
 	DAG_Node* child;
+	DAG_Node* parent;
 	Rect bb_driver_sink;
 
 	if (TimingPowerAnalyser::DBG_VERBOSE) {
@@ -406,8 +407,7 @@ void TimingPowerAnalyser::updateTiming() {
 	//
 	for (auto &pair : this->nets_DAG) {
 		pair.second.AAT = 0;
-		// TODO
-		pair.second.RAT = 15;
+		pair.second.RAT = global_arrival_time;
 	}
 
 	// first, compute all arrival times over sorted DAG
@@ -478,7 +478,70 @@ void TimingPowerAnalyser::updateTiming() {
 	}
 
 	// next, compute the required arrival times over sorted DAG, considering the given critical delay
-	// TODO
+	//
+	// same principle as AAT, just reversed, walking DAG backwards and using parents
+	//
+	// also ignore the very first node and last nodes (global sink and source), with the same reasoning as for the AAT
+	//
+	for (auto r_iter = (this->nets_DAG_sorted.rbegin() + 1); r_iter != (this->nets_DAG_sorted.rend() - 1); ++r_iter) {
+
+		DAG_Node const* node = *r_iter;
+
+		if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+			std::cout << "DBG_TimingPowerAnalyser>  Determine RAT for all " << node->parents.size() << " parents of node: " << node->block->id << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>  (RAT of this node: " << node->RAT << ")" << std::endl;
+		}
+
+		// propagate RAT from this node to all parents
+		//
+		// note that the global source is still considered here every now and then, namely when we have an input pin as node; however, always checking whether the parent is
+		// the global source is more costly than just recalculating the proper RAT for the global source as we do below
+		//
+		for (auto &pair : node->parents) {
+			parent = pair.second;
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+				std::cout << "DBG_TimingPowerAnalyser>   Current RAT for node " << parent->block->id << ": " << parent->RAT << std::endl;
+			}
+
+			// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
+			// placed within that box
+			//
+			bb_driver_sink = Rect::determBoundingBox(parent->block->bb, node->block->bb);
+
+			// now, the RAT for the parent is to be calculated considering the node's RAT, the interconnect delay, and the delay of the parent itself
+			//
+			parent->RAT = std::min(parent->RAT,
+					node->RAT
+					- TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer))
+					- parent->block->delay()
+				);
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+				std::cout << "DBG_TimingPowerAnalyser>   Updated RAT for node " << parent->block->id << ": " << parent->RAT << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Inherent delay for this node: " << parent->block->delay() << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>    Elmore delay for connecting this node to node " << node->block->id << ": ";
+				std::cout << TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer)) << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>     Related HPWL: " << bb_driver_sink.w + bb_driver_sink.h << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>     Related TSVs: " << std::abs(parent->block->layer - node->block->layer) << std::endl;
+			}
+		}
+	}
+	// now, solve the special case for the global source; its RAT is simply the minimum among all children, as there is no physical delay between those children (the input
+	// pins) and the global source
+	//
+	// also note that the RAT for the global source has been set already above; reset first
+	this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID).RAT = global_arrival_time;
+	for (auto &pair : this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID).children) {
+
+		this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID).RAT = std::min(
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SOURCE_ID).RAT,
+				pair.second->RAT
+			);
+	}
 
 	// finally, compute the slack for all DAG nodes
 	//

@@ -1160,8 +1160,8 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		}
 	}
 
-	// (re-)evaluate timing in any case
-	this->timingPowerAnalyser.updateTiming();
+	// (re-)evaluate timing in any case; consider the threshold as required global arrival time
+	this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold);
 
 //TODO revise according to new TimingPowerAnalyser
 //

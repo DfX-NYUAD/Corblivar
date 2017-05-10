@@ -161,7 +161,7 @@ class TimingPowerAnalyser {
 		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, bool const& log);
 
 		/// determine timing values for DAG; will also update the slack for all blocks
-		void updateTiming();
+		void updateTiming(double const& global_arrival_time);
 
 	// private helper data, functions
 	private:
