@@ -34,14 +34,11 @@ class Net;
 
 /// Corblivar handler for multiple voltages
 class MultipleVoltages {
-	private:
-		/// debugging code switch (private)
-		static constexpr bool DBG = false;
-		/// debugging code switch (private)
-		static constexpr bool DBG_VERBOSE = false;
-
-	// public constants
 	public:
+		/// debugging code switch (public)
+		static constexpr bool DBG = false;
+		/// debugging code switch (public)
+		static constexpr bool DBG_VERBOSE = false;
 		/// debugging code switch (public)
 		static constexpr bool DBG_FLOORPLAN = false;
 

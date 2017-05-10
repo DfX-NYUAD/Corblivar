@@ -32,8 +32,8 @@
 class TimingPowerAnalyser {
 	public:
 		/// debugging code switch
-		static constexpr bool DBG = true;
-		static constexpr bool DBG_VERBOSE= true;
+		static constexpr bool DBG = false;
+		static constexpr bool DBG_VERBOSE= false;
 
 	// private constants
 	private:

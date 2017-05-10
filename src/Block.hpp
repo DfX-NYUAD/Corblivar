@@ -181,6 +181,10 @@ class Block {
 		//
 		inline void setFeasibleVoltages() {
 
+			if (MultipleVoltages::DBG) {
+				std::cout << "DBG_VOLTAGES> Setting feasible voltages for block " << this->id << std::endl;
+			}
+
 			// the first index, i.e., the index for the highest applicable voltage; this voltage is set per definition (via resetVoltageAssignment), but it may already
 			// violate the block's slack
 			//
@@ -189,9 +193,19 @@ class Block {
 			// try to consider lower indices/voltages
 			for (index = index - 1; index >= 0; index--) {
 
+				if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES>  Voltage under consideration: " << this->voltages[index] << " (index: " << index << ")" << std::endl;
+				}
+
 				// lower voltages are feasible as long as the increase of the block delay is not violating the slack
 				//
 				if (this->delay(index) - this->delay() <= this->slack) {
+
+					if (MultipleVoltages::DBG) {
+						std::cout << "DBG_VOLTAGES>   Voltage feasible; block's slack would not be violated" << std::endl;
+						std::cout << "DBG_VOLTAGES>    Slack: " << this->slack;
+						std::cout << "; additional delay imposed by this voltage: " << this->delay(index) - this->delay() << std::endl;
+					}
 
 					this->feasible_voltages[index] = 1;
 				}
