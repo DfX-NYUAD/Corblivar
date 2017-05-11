@@ -168,6 +168,17 @@ class TimingPowerAnalyser {
 		/// block's assigned voltage)
 		void updateTiming(double const& global_arrival_time, int const& voltage_index = -1);
 
+		double getGlobalAAT() {
+			DAG_Node const& global_sink = this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID);
+
+			if (DBG) {
+				std::cout << "DBG_TimingPowerAnalyser> Final, global AAT, considering all individual assigned voltages for all blocks: ";
+				std::cout << global_sink.AAT[global_sink.block->assigned_voltage_index]	<< std::endl;
+			}
+
+			return global_sink.AAT[global_sink.block->assigned_voltage_index];
+		}
+
 	// private helper data, functions
 	private:
 		void determIndicesDAG(DAG_Node *cur_node);

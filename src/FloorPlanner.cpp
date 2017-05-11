@@ -1137,7 +1137,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 /// determine the delays for all blocks; they shall fulfill a max delay below a given
 /// threshold
 void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool const& finalize, bool reevaluation) {
-	double max_delay;
 
 	// for finalize runs, reset timing constraint to original constraint in order to
 	// evaluate final result w.r.t. the user-given constraint, not an possibly
@@ -1170,27 +1169,16 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold);
 	}
 
-//TODO revise according to new TimingPowerAnalyser
-//
-	// evaluate max delay over all blocks, drivers and non-driving blocks; covers both
-	// net delay and actual block delays
-	//
-	max_delay = 0.0;
-	for (Block const& block : this->blocks) {
-
-		max_delay = std::max(max_delay, block.delay());
-	}
-
 	// memorize max cost; consider given delay threshold
 	if (set_max_cost) {
 		this->max_cost_timing = this->IC.delay_threshold;
 	}
 
-	// apply cost normalization
-	cost.timing = max_delay / this->max_cost_timing;
-
 	// store actual max delay value
-	cost.timing_actual_value = max_delay;
+	cost.timing_actual_value = this->timingPowerAnalyser.getGlobalAAT();
+
+	// also apply cost normalization
+	cost.timing = cost.timing_actual_value / this->max_cost_timing;
 
 	// iteratively reduce the timing constraint / delay threshold stepwise if possible; this way, chances for actually meeting the timing constraints during further SA
 	// iterations will reduce which, in turn, will emphasize the cost for timing optimization
