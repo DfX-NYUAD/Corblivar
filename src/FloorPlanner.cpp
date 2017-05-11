@@ -1146,9 +1146,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		this->IC.delay_threshold = this->IC.delay_threshold_initial;
 	}
 
-	// reset previous voltage assignments if required; they impact the module delay
-	//
-	// for reevaluation, after voltage assignment, don't reset voltage-assignment
+	// reset previous voltage assignments if required; they impact the module delay; resetting implies to set only the highest voltage as feasible (and as assigned)
 	//
 	if (!reevaluation) {
 
@@ -1158,10 +1156,19 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 				block.resetVoltageAssignment();
 			}
 		}
-	}
 
-	// (re-)evaluate timing in any case; consider the threshold as required global arrival time
-	this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold);
+		// evaluate timing for all possible scenarios, i.e., when all various voltages are assigned to the blocks
+		// also consider the threshold as required global arrival time
+		//
+		for (int voltage_index = 0; voltage_index < static_cast<int>(this->voltageAssignment.parameters.voltages.size()); voltage_index++) {
+			this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold, voltage_index);
+		}
+	}
+	// for reevaluation, after voltage assignment, don't reset voltage-assignment
+	// but still re-evaluate timing according to all assigned voltages
+	else {
+		this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold);
+	}
 
 //TODO revise according to new TimingPowerAnalyser
 //

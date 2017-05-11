@@ -107,15 +107,19 @@ class TimingPowerAnalyser {
 				bool visited = false;
 				bool recursion = false;
 
-				// timing values; AAT: actual arrival time, RAT: required arrival time
-				mutable double AAT = 0;
-				mutable double RAT = 0;
-				mutable double slack = 0;
+				// timing values, for all different available voltages which are then assumed to be globally applied; AAT: actual arrival time, RAT: required
+				// arrival time
+				mutable std::vector<double> AAT;
+				mutable std::vector<double> RAT;
+				mutable std::vector<double> slacks;
 
 			/// default constructor
-			DAG_Node(Block const* block, int index = -1) {
+			DAG_Node(Block const* block, unsigned const& voltages_count, int index = -1) {
 				this->block = block;
 				this->index = index;
+				this->AAT = std::vector<double>(voltages_count, 0.0);
+				this->RAT = std::vector<double>(voltages_count, 0.0);
+				this->slacks = std::vector<double>(voltages_count, 0.0);
 			};
 		};
 
@@ -158,10 +162,11 @@ class TimingPowerAnalyser {
 		}
 
 		/// helper to generate the DAG (directed acyclic graph) for the SL-STA
-		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, bool const& log);
+		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, unsigned const& voltages_count, bool const& log);
 
-		/// determine timing values for DAG; will also update the slack for all blocks
-		void updateTiming(double const& global_arrival_time);
+		/// determine timing values for DAG; will also update the slack for all blocks, based on the voltage index given (if -1, then the timing will be based on each
+		/// block's assigned voltage)
+		void updateTiming(double const& global_arrival_time, int const& voltage_index = -1);
 
 	// private helper data, functions
 	private:

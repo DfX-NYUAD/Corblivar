@@ -41,6 +41,7 @@ class Block {
 	// private data, functions
 	private:
 		friend class IO;
+		friend class TimingPowerAnalyser;
 
 		/// These values are required for multi-voltage domains; the
 		/// factors are read in from the Technology.conf.
@@ -51,7 +52,7 @@ class Block {
 		mutable double base_delay;
 		/// These values are required for multi-voltage domains; the
 		/// factors are read in from the Technology.conf.
-		std::vector<double> voltages_delay_factors;
+		mutable std::vector<double> voltages_delay_factors;
 
 		/// the actual voltage(s) are also required
 		std::vector<double> voltages;
@@ -83,13 +84,17 @@ class Block {
 			this->alignment = AlignmentStatus::UNDEF;
 			this->rotatable = true;
 
+			// for real blocks (not dummy ones for pins), these values are set during IO::parseBlocks
 			this->base_delay = 0.0;
 			this->voltages = std::vector<double> {0.0};
 			this->voltages_power_factors = std::vector<double> {0.0};
-			this->voltages_delay_factors = std::vector<double> {0.0};
 			this->feasible_voltages.reset();
 			this->assigned_voltage_index = 0;
-			this->slack = 0.0;
+			// for dummy blocks and pins, this vector is allocated during TimingPowerAnalyser::initSLSTA
+			this->voltages_delay_factors = std::vector<double> {0.0};
+
+			// for all blocks and pins, this vector is properly allocated during TimingPowerAnalyser::initSLSTA
+			this->slacks = std::vector<double> {0.0};
 		};
 
 	// public data, functions
@@ -138,17 +143,23 @@ class Block {
 			return this->base_delay * this->voltages_delay_factors[index];
 		}
 
+		/// slack in [ns]; relates to the slack this block would experience when _all_ blocks are assigned with the same voltage given by the index
+		inline double slack(unsigned index) const {
+			return this->slacks[index];
+		}
+
 		/// currently assigned voltage
 		inline double voltage() const {
 			return this->voltages[this->assigned_voltage_index];
 		}
 
+		/// highest voltage available
 		inline double voltage_max() const {
 			return this->voltages.back();
 		}
 
-		/// this is the timing slack available for this block, considering the current voltage assignment, and with regard to the SL-STA
-		mutable double slack;
+		/// these are the timing slacks available for this block, which are different for each (globally uniformly applied) voltage, and according to SL-STA
+		mutable std::vector<double> slacks;
 
 		/// bit-wise flags for applicable voltages, where feasible_voltages[k]
 		/// encodes the highest voltage V_k, and remaining bits encode the lower
@@ -169,7 +180,7 @@ class Block {
 		/// voltage shall be considered as set; this enables all the related
 		/// functions to return correct values even if no assignment is performed
 		/// and/or only one voltage is globally available
-		inline void resetVoltageAssignment() {
+		inline void resetVoltageAssignment() const {
 			this->feasible_voltages.reset();
 			this->feasible_voltages[this->voltages_power_factors.size() - 1] = 1;
 			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
@@ -197,17 +208,23 @@ class Block {
 					std::cout << "DBG_VOLTAGES>  Voltage under consideration: " << this->voltages[index] << " (index: " << index << ")" << std::endl;
 				}
 
-				// lower voltages are feasible as long as the increase of the block delay is not violating the slack
+				// lower voltages are feasible as long as the increase of the block delay is not violating the slack available for this block, under the assumption
+				// that all other blocks would have the same voltage assigned; this assumption is captured in slack(index)
 				//
-				if (this->delay(index) - this->delay() <= this->slack) {
+				if (this->slack(index) > 0.0) {
 
 					if (MultipleVoltages::DBG) {
 						std::cout << "DBG_VOLTAGES>   Voltage feasible; block's slack would not be violated" << std::endl;
-						std::cout << "DBG_VOLTAGES>    Slack: " << this->slack;
-						std::cout << "; additional delay imposed by this voltage: " << this->delay(index) - this->delay() << std::endl;
 					}
 
 					this->feasible_voltages[index] = 1;
+				}
+				else if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES>   Voltage not feasible; block's slack would be violated" << std::endl;
+				}
+
+				if (MultipleVoltages::DBG) {
+					std::cout << "DBG_VOLTAGES>    Slack at this voltage level: " << this->slack(index);
 				}
 			}
 		}
