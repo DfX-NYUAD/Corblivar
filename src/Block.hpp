@@ -182,8 +182,8 @@ class Block {
 		/// and/or only one voltage is globally available
 		inline void resetVoltageAssignment() const {
 			this->feasible_voltages.reset();
-			this->feasible_voltages[this->voltages_power_factors.size() - 1] = 1;
-			this->assigned_voltage_index = this->voltages_power_factors.size() - 1;
+			this->feasible_voltages[this->voltages.size() - 1] = 1;
+			this->assigned_voltage_index = this->voltages.size() - 1;
 		}
 
 		/// helper to set/update feasible voltages; considers the block's slack; a
