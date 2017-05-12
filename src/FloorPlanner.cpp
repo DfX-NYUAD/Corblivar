@@ -362,9 +362,6 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			// different solutions and their cost
 			cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two);
 
-			// finally, restore previous layout
-			corb.restoreCBLs();
-
 			if (SA_phase_two) {
 				std::cout << "SA>   Current best solution; overall cost: " << cost.total_cost << std::endl;
 			}
@@ -376,54 +373,59 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			std::cout << "SA>    Current max AR mismatch (ideal value is 0.0): " << cost.outline_actual_value << std::endl;
 			std::cout << "SA>    Current max packing overhead (ideal value is 0.0): " << cost.area_actual_value << std::endl;
 
-			if (this->opt_flags.alignment) {
-				std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
-			}
-
+			// log other more detailed cost term only for phase two
 			if (SA_phase_two) {
+
+				if (this->opt_flags.alignment) {
+					std::cout << "SA>    Alignment mismatches [um]: " << cost.alignments_actual_value << std::endl;
+				}
+
 				std::cout << "SA>    Total power for blocks, wires and TSVs [W]: " << cost.power_blocks + cost.power_wires + cost.power_TSVs << std::endl;
 				std::cout << "SA>    HPWL: " << cost.HPWL_actual_value << std::endl;
-			}
 
-			if (this->opt_flags.routing_util) {
-				std::cout << "SA>    Max routing utilization: " << cost.routing_util_actual_value << std::endl;
-			}
+				if (this->opt_flags.routing_util) {
+					std::cout << "SA>    Max routing utilization: " << cost.routing_util_actual_value << std::endl;
+				}
 
-			if (this->opt_flags.thermal) {
-				std::cout << "SA>    Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
-			}
+				if (this->opt_flags.thermal) {
+					std::cout << "SA>    Temp (estimated max temp for lowest layer [K]): " << cost.thermal_actual_value << std::endl;
+				}
 
-			if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
+				if (this->opt_flags.timing || this->opt_flags.voltage_assignment) {
 
-				std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
-				// always display violation, also when it's negative
-				// (i.e., timing better than constraint)
-				std::cout << "SA>     Timing violation ([ns] / [%]): ";
-				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
-				std::cout << " / ";
-				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
-				std::cout << std::endl;
-				// is adapted dynamically for voltage assignment
-				std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
-			}
+					std::cout << "SA>    Timing (max delay [ns]): " << cost.timing_actual_value << std::endl;
+					// always display violation, also when it's negative
+					// (i.e., timing better than constraint)
+					std::cout << "SA>     Timing violation ([ns] / [%]): ";
+					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+					std::cout << " / ";
+					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+					std::cout << std::endl;
+					// is adapted dynamically for voltage assignment
+					std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
+				}
 
-			if (this->opt_flags.voltage_assignment) {
+				if (this->opt_flags.voltage_assignment) {
 
-				std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
-				std::cout << "SA>    Voltage assignment; volume count: " << cost.voltage_assignment_modules_count << std::endl;
-				std::cout << "SA>    Voltage assignment; max std dev of power densities: " << cost.voltage_assignment_power_variation_max << std::endl;
-			}
+					std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
+					std::cout << "SA>    Voltage assignment; volume count: " << cost.voltage_assignment_modules_count << std::endl;
+					std::cout << "SA>    Voltage assignment; max std dev of power densities: " << cost.voltage_assignment_power_variation_max << std::endl;
+				}
 
-			if (this->opt_flags.thermal_leakage) {
+				if (this->opt_flags.thermal_leakage) {
 
-				std::cout << "SA>    Thermal leakage; avg spatial entropy of power maps: " << cost.thermal_leakage_entropy_actual_value << std::endl;
-				std::cout << "SA>    Thermal leakage; Pearson correlation of power and thermal map for lowest layer: " << cost.thermal_leakage_correlation_actual_value << std::endl;
+					std::cout << "SA>    Thermal leakage; avg spatial entropy of power maps: " << cost.thermal_leakage_entropy_actual_value << std::endl;
+					std::cout << "SA>    Thermal leakage; Pearson correlation of power and thermal map for lowest layer: " << cost.thermal_leakage_correlation_actual_value << std::endl;
+				}
 			}
 
 			std::cout << "SA>  Accept-ops ratio: " << accepted_ops_ratio << std::endl;
 			std::cout << "SA>  Valid-layouts ratio: " << fitting_layouts_ratio << std::endl;
 			std::cout << "SA>  Avg cost: " << avg_cost << std::endl;
 			std::cout << "SA>  SA temp: " << cur_temp << std::endl;
+
+			// finally, restore previous layout
+			corb.restoreCBLs();
 		}
 
 		// log temperature step
