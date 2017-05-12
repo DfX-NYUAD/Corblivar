@@ -107,20 +107,85 @@ class TimingPowerAnalyser {
 				bool visited = false;
 				bool recursion = false;
 
+				/// default constructor
+				DAG_Node(Block const* block, unsigned const& voltages_count, int index = -1) {
+					this->block = block;
+					this->index = index;
+					this->AAT = std::vector<double>(voltages_count, 0.0);
+					this->RAT = std::vector<double>(voltages_count, 0.0);
+					this->slacks = std::vector<double>(voltages_count, 0.0);
+				};
+
+			// private data
+			private:
+
 				// timing values, for all different available voltages which are then assumed to be globally applied; AAT: actual arrival time, RAT: required
 				// arrival time
 				mutable std::vector<double> AAT;
 				mutable std::vector<double> RAT;
 				mutable std::vector<double> slacks;
 
-			/// default constructor
-			DAG_Node(Block const* block, unsigned const& voltages_count, int index = -1) {
-				this->block = block;
-				this->index = index;
-				this->AAT = std::vector<double>(voltages_count, 0.0);
-				this->RAT = std::vector<double>(voltages_count, 0.0);
-				this->slacks = std::vector<double>(voltages_count, 0.0);
-			};
+			// public helper data, functions
+			public:
+				inline double const& getAAT(int const& index) const {
+
+					if (index == -1) {
+						return this->AAT[this->block->assigned_voltage_index];
+					}
+					else {
+						return this->AAT[index];
+					}
+				}
+
+				inline void setAAT(int const& index, double const& AAT) {
+
+					if (index == -1) {
+						this->AAT[this->block->assigned_voltage_index] = AAT;
+					}
+					else {
+						this->AAT[index] = AAT;
+					}
+				}
+
+				inline double const& getRAT(int const& index) const {
+
+					if (index == -1) {
+						return this->RAT[this->block->assigned_voltage_index];
+					}
+					else {
+						return this->RAT[index];
+					}
+				}
+
+				inline void setRAT(int const& index, double const& RAT) {
+
+					if (index == -1) {
+						this->RAT[this->block->assigned_voltage_index] = RAT;
+					}
+					else {
+						this->RAT[index] = RAT;
+					}
+				}
+
+				inline double const& getSlack(int const& index) const {
+
+					if (index == -1) {
+						return this->slacks[this->block->assigned_voltage_index];
+					}
+					else {
+						return this->slacks[index];
+					}
+				}
+
+				inline void setSlack(int const& index, double const& slack) {
+
+					if (index == -1) {
+						this->slacks[this->block->assigned_voltage_index] = slack;
+					}
+					else {
+						this->slacks[index] = slack;
+					}
+				}
 		};
 
 		/// data for DAG (directed acyclic graph) of nets
@@ -173,10 +238,10 @@ class TimingPowerAnalyser {
 
 			if (DBG) {
 				std::cout << "DBG_TimingPowerAnalyser> Final, global AAT, considering all individual assigned voltages for all blocks: ";
-				std::cout << global_sink.AAT[global_sink.block->assigned_voltage_index]	<< std::endl;
+				std::cout << global_sink.getAAT(-1) << std::endl;
 			}
 
-			return global_sink.AAT[global_sink.block->assigned_voltage_index];
+			return global_sink.getAAT(-1);
 		}
 
 	// private helper data, functions

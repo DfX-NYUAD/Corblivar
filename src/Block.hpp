@@ -133,14 +133,15 @@ class Block {
 			return this->power_density_unscaled * this->voltages_power_factors.back();
 		}
 
-		/// delay in [ns]; relates to the inherent delay experienced for the currently assigned voltage index
-		inline double delay() const {
-			return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
-		}
+		/// delay in [ns]; relates to the inherent delay experienced for the given voltage index or for the currently assigned index
+		inline double delay(int index = -1) const {
 
-		/// delay in [ns]; relates to the inherent delay theoretically experienced for the given voltage index
-		inline double delay(unsigned index) const {
-			return this->base_delay * this->voltages_delay_factors[index];
+			if (index == -1) {
+				return this->base_delay * this->voltages_delay_factors[this->assigned_voltage_index];
+			}
+			else {
+				return this->base_delay * this->voltages_delay_factors[index];
+			}
 		}
 
 		/// slack in [ns]; relates to the slack this block would experience when _all_ blocks are assigned with the same voltage given by the index
