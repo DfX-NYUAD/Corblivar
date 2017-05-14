@@ -357,10 +357,17 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			corb.applyBestCBLs(false);
 			this->generateLayout(corb, this->opt_flags.alignment);
 
+			// enable voltage assignment based on initial threshold value, but also backup current threshold
+			double cur_threshold = this->IC.delay_threshold;
+			this->IC.delay_threshold = this->IC.delay_threshold_initial;
+
 			// determine cost terms and overall cost for new best solution;
 			// assume fitting ratio of 1.0 for better comparability of
 			// different solutions and their cost
 			cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two);
+
+			// restore current threshold
+			this->IC.delay_threshold = cur_threshold;
 
 			if (SA_phase_two) {
 				std::cout << "SA>   Current best solution; overall cost: " << cost.total_cost << std::endl;
