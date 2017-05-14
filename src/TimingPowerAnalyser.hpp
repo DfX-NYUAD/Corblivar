@@ -111,16 +111,19 @@ class TimingPowerAnalyser {
 				DAG_Node(Block const* block, unsigned const& voltages_count, int index = -1) {
 					this->block = block;
 					this->index = index;
-					this->AAT = std::vector<double>(voltages_count, 0.0);
-					this->RAT = std::vector<double>(voltages_count, 0.0);
-					this->slacks = std::vector<double>(voltages_count, 0.0);
+					// the last element in those vectors encodes the configuration where all blocks have their particular best voltage assigned
+					this->AAT = std::vector<double>(voltages_count + 1, 0.0);
+					this->RAT = std::vector<double>(voltages_count + 1, 0.0);
+					this->slacks = std::vector<double>(voltages_count + 1, 0.0);
 				};
 
 			// private data
 			private:
 
-				// timing values, for all different available voltages which are then assumed to be globally applied; AAT: actual arrival time, RAT: required
-				// arrival time
+				// timing values, for all different available voltages which are then assumed to be globally applied, and also for the configuration where all
+				// blocks/nodes have their voltage assigned; the latter is encoded in the last/back element of the vectors; vectors are made private to ease access
+				// to those different configurations; AAT: actual arrival time, RAT: required arrival time
+				//
 				mutable std::vector<double> AAT;
 				mutable std::vector<double> RAT;
 				mutable std::vector<double> slacks;
@@ -130,7 +133,7 @@ class TimingPowerAnalyser {
 				inline double const& getAAT(int const& index) const {
 
 					if (index == -1) {
-						return this->AAT[this->block->assigned_voltage_index];
+						return this->AAT.back();
 					}
 					else {
 						return this->AAT[index];
@@ -140,7 +143,7 @@ class TimingPowerAnalyser {
 				inline void setAAT(int const& index, double const& AAT) {
 
 					if (index == -1) {
-						this->AAT[this->block->assigned_voltage_index] = AAT;
+						this->AAT.back() = AAT;
 					}
 					else {
 						this->AAT[index] = AAT;
@@ -150,7 +153,7 @@ class TimingPowerAnalyser {
 				inline double const& getRAT(int const& index) const {
 
 					if (index == -1) {
-						return this->RAT[this->block->assigned_voltage_index];
+						return this->RAT.back();
 					}
 					else {
 						return this->RAT[index];
@@ -160,7 +163,7 @@ class TimingPowerAnalyser {
 				inline void setRAT(int const& index, double const& RAT) {
 
 					if (index == -1) {
-						this->RAT[this->block->assigned_voltage_index] = RAT;
+						this->RAT.back() = RAT;
 					}
 					else {
 						this->RAT[index] = RAT;
@@ -170,7 +173,7 @@ class TimingPowerAnalyser {
 				inline double const& getSlack(int const& index) const {
 
 					if (index == -1) {
-						return this->slacks[this->block->assigned_voltage_index];
+						return this->slacks.back();
 					}
 					else {
 						return this->slacks[index];
@@ -180,7 +183,7 @@ class TimingPowerAnalyser {
 				inline void setSlack(int const& index, double const& slack) {
 
 					if (index == -1) {
-						this->slacks[this->block->assigned_voltage_index] = slack;
+						this->slacks.back() = slack;
 					}
 					else {
 						this->slacks[index] = slack;
@@ -233,15 +236,20 @@ class TimingPowerAnalyser {
 		/// block's assigned voltage)
 		void updateTiming(double const& global_arrival_time, int const& voltage_index = -1);
 
-		double getGlobalAAT() {
+		double getGlobalAAT(int const& voltage_index = -1) {
 			DAG_Node const& global_sink = this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID);
 
 			if (DBG) {
-				std::cout << "DBG_TimingPowerAnalyser> Final, global AAT, considering all individual assigned voltages for all blocks: ";
-				std::cout << global_sink.getAAT(-1) << std::endl;
+				if (voltage_index == -1) {
+					std::cout << "DBG_TimingPowerAnalyser> Global AAT, considering all individual assigned voltages for all blocks: ";
+				}
+				else {
+					std::cout << "DBG_TimingPowerAnalyser> Global AAT, considering the global voltage index of " << voltage_index << " for all blocks: ";
+				}
+				std::cout << global_sink.getAAT(voltage_index) << std::endl;
 			}
 
-			return global_sink.getAAT(-1);
+			return global_sink.getAAT(voltage_index);
 		}
 
 	// private helper data, functions
