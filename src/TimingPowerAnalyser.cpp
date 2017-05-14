@@ -55,7 +55,7 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 					TimingPowerAnalyser::DAG_Node(&cur_block, voltages_count)
 				));
 
-		cur_block.slacks = std::vector<double>(voltages_count, 0.0);
+		cur_block.potential_slacks = std::vector<double>(voltages_count, 0.0);
 	}
 
 	// also put all terminals (both input/output) into the DAG
@@ -67,7 +67,7 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 				));
 
 		// allocate slack vectors as well
-		cur_pin.slacks = std::vector<double>(voltages_count, 0.0);
+		cur_pin.potential_slacks = std::vector<double>(voltages_count, 0.0);
 		// for pins, we additionally need to allocate dummy delay factors
 		cur_pin.voltages_delay_factors = std::vector<double>(voltages_count, 0.0);
 		// for pins, we additionally need to reset a dummy voltage assignment
@@ -91,8 +91,8 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 			));
 
 	// allocate slack vectors for global source/sink as well
-	this->dummy_block_DAG_sink.slacks = std::vector<double>(voltages_count, 0.0);
-	this->dummy_block_DAG_source.slacks = std::vector<double>(voltages_count, 0.0);
+	this->dummy_block_DAG_sink.potential_slacks = std::vector<double>(voltages_count, 0.0);
+	this->dummy_block_DAG_source.potential_slacks = std::vector<double>(voltages_count, 0.0);
 	// also for global source/sinks, we need to allocate dummy delay factors
 	this->dummy_block_DAG_sink.voltages_delay_factors = std::vector<double>(voltages_count, 0.0);
 	this->dummy_block_DAG_source.voltages_delay_factors = std::vector<double>(voltages_count, 0.0);
@@ -476,7 +476,6 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 			// now, the AAT for the child is to be calculated considering the driver's AAT, the interconnect delay, and the delay of the child itself
 			//
 			child->setAAT(voltage_index, std::max(child->getAAT(voltage_index),
-					// TODO or node->AAT[child->block->assigned_voltage_index]?
 					node->getAAT(voltage_index)
 					+ TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(node->block->layer - child->block->layer))
 					+ child->block->delay(voltage_index)
@@ -543,7 +542,6 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 			// now, the RAT for the parent is to be calculated considering the node's RAT, the interconnect delay, and the delay of the parent itself
 			//
 			parent->setRAT(voltage_index, std::min(parent->getRAT(voltage_index),
-					// TODO or node->RAT[parent->block->assigned_voltage_index]?
 					node->getRAT(voltage_index)
 					- TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer))
 					- parent->block->delay(voltage_index)
@@ -581,13 +579,10 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 
 		node.setSlack(voltage_index, node.getRAT(voltage_index)- node.getAAT(voltage_index));
 
-		// also memorize the slack in the blocks themselves
-		if (voltage_index == -1) {
-			// TODO cur_slack
-			node.block->slacks[node.block->assigned_voltage_index] = node.getSlack(voltage_index);
-		}
-		else {
-			node.block->slacks[voltage_index] = node.getSlack(voltage_index);
+		// also memorize the _potential_ slack in the blocks themselves; only required for the cases where we pre-calculate the conservative slack models for all blocks
+		// having the same voltage index
+		if (voltage_index != -1) {
+			node.block->potential_slacks[voltage_index] = node.getSlack(voltage_index);
 		}
 	}
 
