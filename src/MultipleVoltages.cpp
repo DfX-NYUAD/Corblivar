@@ -435,6 +435,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 					// lambda expression; note that [&] allows to capture all variables of this scope, not only the internals of modules
 					[&](CompoundModule const* m1, CompoundModule const* m2) {
 
+						// early sanity check for strict weak ordering, same elements shall compare to false
+						if (m1 == m2) {
+							return false;
+						}
+
 						m1_variance = m2_variance = 0.0;
 
 						// note that the look-ahead won't make sense for the very first module to select; so we check each layer individually and only look-ahead for those

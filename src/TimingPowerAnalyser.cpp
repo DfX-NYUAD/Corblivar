@@ -258,13 +258,14 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 			// lambda expression
 			[](DAG_Node const* n1, DAG_Node const* n2) {
 
-				return (
+				// early sanity check to enable that same-element comparisons return false
+				return (n1 != n2) && (
 						// sort in ascending order of topological indices
 						(n1->index < n2->index) ||
 						// in case indices are the same, also consider the ID; this way a more natural representation of the ordering will arise assuming
 						// that the notations for pins/blocks follow a regular scheme
 						((n1->index == n2->index) && (n1->block->id < n2->block->id))
-			       );
+				       );
 			}
 		 );
 
