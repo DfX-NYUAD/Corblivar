@@ -236,13 +236,16 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 			// lambda expression
 			[](CompoundModule const* m1, CompoundModule const* m2) {
 
-				return (
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				//
+				return (m1 != m2) && (
 						// the smaller the cost the better; sort in ascending order
 						(m1->cost < m2->cost) ||
 						// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
 						// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
 						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size()))
-			       );
+					);
 			}
 		 );
 
