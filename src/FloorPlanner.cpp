@@ -1197,6 +1197,9 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 	//
 	// also, this will reduce the required iterations/computation for voltage assignment since it's skipped in case timing is violated
 	//
+	// most importantly, it will help to achieve better/lower timing values, and this will also help voltage assignment and power saving: the better the timing optimization,
+	// the larger the slack with regard to the initial timing threshold and, thus, the better the chances for voltage-assignment optimization
+	//
 	if (
 		!finalize &&
 		!reevaluation &&
