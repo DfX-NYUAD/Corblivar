@@ -956,6 +956,44 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// area and outline cost, already weighted w/ global weight factor
 		this->evaluateAreaOutline(cost, fitting_layouts_ratio, true);
 
+		// determine voltage-assignment and/or timing cost; initially determine
+		// the timing information anyway and later on apply the actual optimized
+		// voltage volumes if required
+		//
+		// for finalize calls, we need to initialize the max_cost
+		if (finalize && this->opt_flags.voltage_assignment) {
+
+			// for voltage assignment, we require timing analysis anyway
+			this->evaluateTiming(cost, true, true);
+
+			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true, true);
+		}
+		else if (finalize && this->opt_flags.timing) {
+			this->evaluateTiming(cost, true, true);
+		}
+		else if (this->opt_flags.voltage_assignment) {
+
+			// for voltage assignment, we require timing analysis anyway
+			this->evaluateTiming(cost, set_max_cost);
+
+			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, set_max_cost);
+		}
+		// only consider timing
+		else if (this->opt_flags.timing) {
+			this->evaluateTiming(cost, set_max_cost);
+		}
+		// no optimization considered, reset cost to zero
+		else {
+			cost.timing = cost.timing_actual_value = 0.0;
+			cost.voltage_assignment = 0.0;
+			cost.voltage_assignment_power_saving
+				= cost.voltage_assignment_corners_avg
+				= cost.voltage_assignment_level_shifter
+				= cost.voltage_assignment_modules_count
+				= cost.voltage_assignment_power_variation_max
+				= 0;
+		}
+
 		// determine interconnects cost; also determines hotspot regions and
 		// clusters signal TSVs accordingly
 		//
@@ -994,44 +1032,6 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// no optimization considered, reset cost to zero
 		else {
 			cost.alignments = cost.alignments_actual_value = 0.0;
-		}
-
-		// determine voltage-assignment and/or timing cost; initially determine
-		// the timing information anyway and later on apply the actual optimized
-		// voltage volumes if required
-		//
-		// for finalize calls, we need to initialize the max_cost
-		if (finalize && this->opt_flags.voltage_assignment) {
-
-			// for voltage assignment, we require timing analysis anyway
-			this->evaluateTiming(cost, true, true);
-
-			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, true, true);
-		}
-		else if (finalize && this->opt_flags.timing) {
-			this->evaluateTiming(cost, true, true);
-		}
-		else if (this->opt_flags.voltage_assignment) {
-
-			// for voltage assignment, we require timing analysis anyway
-			this->evaluateTiming(cost, set_max_cost);
-
-			this->evaluateVoltageAssignment(cost, fitting_layouts_ratio, set_max_cost);
-		}
-		// only consider timing
-		else if (this->opt_flags.timing) {
-			this->evaluateTiming(cost, set_max_cost);
-		}
-		// no optimization considered, reset cost to zero
-		else {
-			cost.timing = cost.timing_actual_value = 0.0;
-			cost.voltage_assignment = 0.0;
-			cost.voltage_assignment_power_saving
-				= cost.voltage_assignment_corners_avg
-				= cost.voltage_assignment_level_shifter
-				= cost.voltage_assignment_modules_count
-				= cost.voltage_assignment_power_variation_max
-				= 0;
 		}
 
 		// temperature-distribution cost and profile
