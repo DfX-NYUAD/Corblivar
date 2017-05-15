@@ -64,16 +64,16 @@ class Rect {
 				if (consider_center) {
 
 					// init w/ center point of first rect
-					ret.ll.x = ret.ur.x = rects[0]->ll.x + rects[0]->w / 2.0;
-					ret.ll.y = ret.ur.y = rects[0]->ll.y + rects[0]->h / 2.0;
+					ret.ll.x = ret.ur.x = rects[0]->ll.x + (rects[0]->w / 2.0);
+					ret.ll.y = ret.ur.y = rects[0]->ll.y + (rects[0]->h / 2.0);
 
 					// determine bounding box off all rects based on
 					// center points of rects
 					for (Rect const* r : rects) {
-						ret.ll.x = std::min(ret.ll.x, r->ll.x + r->w / 2.0);
-						ret.ur.x = std::max(ret.ur.x, r->ll.x + r->w / 2.0);
-						ret.ll.y = std::min(ret.ll.y, r->ll.y + r->h / 2.0);
-						ret.ur.y = std::max(ret.ur.y, r->ll.y + r->h / 2.0);
+						ret.ll.x = std::min(ret.ll.x, r->ll.x + (r->w / 2.0));
+						ret.ur.x = std::max(ret.ur.x, r->ll.x + (r->w / 2.0));
+						ret.ll.y = std::min(ret.ll.y, r->ll.y + (r->h / 2.0));
+						ret.ur.y = std::max(ret.ur.y, r->ll.y + (r->h / 2.0));
 					}
 				}
 				else {
@@ -107,10 +107,10 @@ class Rect {
 			// determine bounding box considering minx, max ranges of both
 			// rects; possibly consider center points as well
 			if (consider_center) {
-				ret.ll.x = std::min(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
-				ret.ll.y = std::min(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
-				ret.ur.x = std::max(r1.ll.x + r1.w / 2.0, r2.ll.x + r2.w / 2.0);
-				ret.ur.y = std::max(r1.ll.y + r1.h / 2.0, r2.ll.y + r2.h / 2.0);
+				ret.ll.x = std::min(r1.ll.x + (r1.w / 2.0), r2.ll.x + (r2.w / 2.0));
+				ret.ll.y = std::min(r1.ll.y + (r1.h / 2.0), r2.ll.y + (r2.h / 2.0));
+				ret.ur.x = std::max(r1.ll.x + (r1.w / 2.0), r2.ll.x + (r2.w / 2.0));
+				ret.ur.y = std::max(r1.ll.y + (r1.h / 2.0), r2.ll.y + (r2.h / 2.0));
 			}
 			else {
 				ret.ll.x = std::min(r1.ll.x, r2.ll.x);
