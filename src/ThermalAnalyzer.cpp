@@ -602,8 +602,8 @@ void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
 /// density
 void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires, int const& layer, Rect net_bb, double const& total_wire_power) {
 	double power_density;
-	int x, y;
-	int x_lower, x_upper, y_lower, y_upper;
+	unsigned x, y;
+	unsigned x_lower, x_upper, y_lower, y_upper;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << &wires << ", " << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
@@ -637,12 +637,12 @@ void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires, int const& 
 	// determine index boundaries for offset intersection; based on boundary of bb and
 	// the covered bins; note that cast to int truncates toward zero, i.e., performs
 	// like floor for positive numbers
-	x_lower = static_cast<int>(net_bb.ll.x / this->power_maps_dim_x);
-	y_lower = static_cast<int>(net_bb.ll.y / this->power_maps_dim_y);
+	x_lower = static_cast<unsigned>(net_bb.ll.x / this->power_maps_dim_x);
+	y_lower = static_cast<unsigned>(net_bb.ll.y / this->power_maps_dim_y);
 	// +1 in order to efficiently emulate the result of ceil(); limit upper bound to
 	// power-maps dimensions
-	x_upper = std::min(static_cast<int>(net_bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-	y_upper = std::min(static_cast<int>(net_bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+	x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->power_maps_dim_x) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
+	y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->power_maps_dim_y) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
 
 	// determine power density
 	power_density = total_wire_power / net_bb.area;
