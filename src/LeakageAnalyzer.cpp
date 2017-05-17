@@ -334,8 +334,8 @@ double LeakageAnalyzer::determinePearsonCorr(std::array< std::array<ThermalAnaly
 
 	// first pass: determine avg values
 	//
-	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+	for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			avg_power += power_map[x][y].power_density;
 			avg_temp += (*thermal_map)[x][y].temp;
@@ -355,8 +355,8 @@ double LeakageAnalyzer::determinePearsonCorr(std::array< std::array<ThermalAnaly
 	
 	// second pass: determine covariance and standard deviations
 	//
-	for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-		for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+	for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+		for (unsigned y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			// deviations of current values from avg values
 			cur_power_dev = power_map[x][y].power_density - avg_power;

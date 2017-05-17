@@ -46,20 +46,20 @@ class ThermalAnalyzer {
 	public:
 
 		/// represents the thermal map's dimension
-		static constexpr int THERMAL_MAP_DIM = 64;
+		static constexpr unsigned THERMAL_MAP_DIM = 64;
 		/// represents the thermal mask's dimension (i.e., the 2D gauss function
 		/// representing the thermal impulse response);
 		/// note that value should be uneven!
-		static constexpr int THERMAL_MASK_DIM = 11;
-		/// represents the center index of the center originated mask; int division
-		/// discards remainder, i.e., is equal to floor() for positive int
-		static constexpr int THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
+		static constexpr unsigned THERMAL_MASK_DIM = 11;
+		/// represents the center index of the center originated mask; unsigned division
+		/// discards remainder, i.e., is equal to floor() for positive numbers
+		static constexpr unsigned THERMAL_MASK_CENTER = THERMAL_MASK_DIM / 2;
 		/// represents the amount of padded bins at power maps' boundaries
-		static constexpr int POWER_MAPS_PADDED_BINS = THERMAL_MASK_CENTER;
+		static constexpr unsigned POWER_MAPS_PADDED_BINS = THERMAL_MASK_CENTER;
 		/// represents the power maps' dimension
 		/// (note that maps are padded at the boundaries according to mask
 		/// dim in order to handle boundary values for convolution)
-		static constexpr int POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
+		static constexpr unsigned POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
 		/// flags for hotspot detection
 		static constexpr int HOTSPOT_BACKGROUND = -1;
@@ -83,8 +83,8 @@ class ThermalAnalyzer {
 		};
 		struct ThermalMapBin {
 			double temp;
-			int x;
-			int y;
+			unsigned x;
+			unsigned y;
 			Rect bb;
 			int hotspot_id;
 			std::list<ThermalMapBin*> neighbors;

@@ -31,10 +31,10 @@
 #include "CorblivarAlignmentReq.hpp"
 
 /// memory allocation
-constexpr int ThermalAnalyzer::POWER_MAPS_DIM;
+constexpr unsigned ThermalAnalyzer::POWER_MAPS_DIM;
 
 void ThermalAnalyzer::initThermalMap(Point const& die_outline) {
-	int x, y;
+	unsigned x, y;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
 		std::cout << "-> ThermalAnalyzer::initThermalMap()" << std::endl;
@@ -269,7 +269,7 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 		layer_impulse_factor = parameters.impulse_factor / std::pow(i, parameters.impulse_factor_scaling_exponent);
 
 		ii = 0;
-		for (x_y = -ThermalAnalyzer::THERMAL_MASK_CENTER; x_y <= ThermalAnalyzer::THERMAL_MASK_CENTER; x_y++) {
+		for (x_y = -ThermalAnalyzer::THERMAL_MASK_CENTER; x_y <= static_cast<int>(ThermalAnalyzer::THERMAL_MASK_CENTER); x_y++) {
 			// sqrt for impulse factor is mandatory since the mask is
 			// used for separated convolution (i.e., factor will be
 			// squared in final convolution result)
@@ -309,9 +309,9 @@ void ThermalAnalyzer::initThermalMasks(int const& layers, bool const& log, MaskP
 
 void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> const& blocks, Point const& die_outline, MaskParameters const& parameters, bool const& extend_boundary_blocks_into_padding_zone) {
 	int i;
-	int x, y;
+	unsigned x, y;
+	unsigned x_lower, x_upper, y_lower, y_upper;
 	Rect bin, intersect, block_offset;
-	int x_lower, x_upper, y_lower, y_upper;
 	bool padding_zone;
 	ThermalAnalyzer::PowerMapBin init_bin;
 
@@ -388,14 +388,14 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 			}
 
 			// determine index boundaries for offset block; based on boundary
-			// of blocks and the covered bins; note that cast to int truncates
+			// of blocks and the covered bins; note that casting truncates
 			// toward zero, i.e., performs like floor for positive numbers
-			x_lower = static_cast<int>(block_offset.ll.x / this->power_maps_dim_x);
-			y_lower = static_cast<int>(block_offset.ll.y / this->power_maps_dim_y);
+			x_lower = static_cast<unsigned>(block_offset.ll.x / this->power_maps_dim_x);
+			y_lower = static_cast<unsigned>(block_offset.ll.y / this->power_maps_dim_y);
 			// +1 in order to efficiently emulate the result of ceil(); limit
-			// upper bound to power-maps dimenions
-			x_upper = std::min(static_cast<int>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-			y_upper = std::min(static_cast<int>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			// upper bound to power-maps dimensions
+			x_upper = std::min(static_cast<unsigned>(block_offset.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+			y_upper = std::min(static_cast<unsigned>(block_offset.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 			// walk power-map bins covering block outline
 			for (x = x_lower; x < x_upper; x++) {
@@ -475,7 +475,7 @@ void ThermalAnalyzer::generatePowerMaps(int const& layers, std::vector<Block> co
 /// resistivity of TSVs; TSVs densities, required for HotSpot calculation, are also
 /// adapted here
 void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, MaskParameters const& parameters) {
-	int x, y;
+	unsigned x, y;
 	int i;
 
 	if (ThermalAnalyzer::DBG_CALLS) {
@@ -531,8 +531,8 @@ void ThermalAnalyzer::adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Isla
 /// note that local copies of TSVs islands are used in order to not mess with the actual
 /// coordinates of the islands
 void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
-	int x, y;
-	int x_lower, x_upper, y_lower, y_upper;
+	unsigned x, y;
+	unsigned x_lower, x_upper, y_lower, y_upper;
 	Rect bin, bin_intersect;
 
 	// offset intersection, i.e., account for padded power maps and related
@@ -543,14 +543,14 @@ void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
 	TSVi.bb.ur.y += this->blocks_offset_y;
 
 	// determine index boundaries for offset intersection; based on boundary
-	// of intersection and the covered bins; note that cast to int truncates
+	// of intersection and the covered bins; note that casting truncates
 	// toward zero, i.e., performs like floor for positive numbers
-	x_lower = static_cast<int>(TSVi.bb.ll.x / this->power_maps_dim_x);
-	y_lower = static_cast<int>(TSVi.bb.ll.y / this->power_maps_dim_y);
+	x_lower = static_cast<unsigned>(TSVi.bb.ll.x / this->power_maps_dim_x);
+	y_lower = static_cast<unsigned>(TSVi.bb.ll.y / this->power_maps_dim_y);
 	// +1 in order to efficiently emulate the result of ceil(); limit upper
 	// bound to power-maps dimensions
-	x_upper = std::min(static_cast<int>(TSVi.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
-	y_upper = std::min(static_cast<int>(TSVi.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+	x_upper = std::min(static_cast<unsigned>(TSVi.bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+	y_upper = std::min(static_cast<unsigned>(TSVi.bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 	if (ThermalAnalyzer::DBG) {
 		std::cout << "DBG> TSV group " << TSVi.id << std::endl;
@@ -651,14 +651,14 @@ void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires) {
 		net_bb.ur.y += this->blocks_offset_y;
 
 		// determine index boundaries for offset intersection; based on boundary of bb and
-		// the covered bins; note that cast to int truncates toward zero, i.e., performs
+		// the covered bins; note that casting truncates toward zero, i.e., performs
 		// like floor for positive numbers
 		x_lower = static_cast<unsigned>(net_bb.ll.x / this->power_maps_dim_x);
 		y_lower = static_cast<unsigned>(net_bb.ll.y / this->power_maps_dim_y);
 		// +1 in order to efficiently emulate the result of ceil(); limit upper bound to
 		// power-maps dimensions
-		x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->power_maps_dim_x) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
-		y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->power_maps_dim_y) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
+		x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->power_maps_dim_x) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
+		y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->power_maps_dim_y) + 1, ThermalAnalyzer::POWER_MAPS_DIM);
 
 		// determine power density
 		power_density = wires[layer].power_density_unscaled / net_bb.area;
@@ -689,9 +689,9 @@ void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires) {
 /// Returns thermal map of lowest layer, i.e., hottest layer
 void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters) {
 	int layer;
-	int x, y, i;
-	int map_x, map_y;
-	int mask_i;
+	unsigned x, y, i;
+	unsigned map_x, map_y;
+	unsigned mask_i;
 	double max_temp, avg_temp;
 	// required as buffer for separated convolution; note that its dimensions
 	// corresponds to a power map, which is required to hold temporary results for 1D
@@ -762,7 +762,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 							std::cout << "DBG> y=" << y << ", x=" << x << ", mask_i=" << mask_i << ", i=" << i << std::endl;
 						}
 
-						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
+						if (i >= ThermalAnalyzer::POWER_MAPS_DIM) {
 							std::cout << "DBG> Convolution data error; i out of range (should be limited by x)" << std::endl;
 						}
 					}
@@ -811,7 +811,7 @@ void ThermalAnalyzer::performPowerBlurring(ThermalAnalysisResult& ret, int const
 							std::cout << ", mask_i=" << mask_i << ", i=" << i << std::endl;
 						}
 
-						if (i < 0 || i >= ThermalAnalyzer::POWER_MAPS_DIM) {
+						if (i >= ThermalAnalyzer::POWER_MAPS_DIM) {
 							std::cout << "DBG> Convolution data error; i out of range (should be limited by y)" << std::endl;
 						}
 					}

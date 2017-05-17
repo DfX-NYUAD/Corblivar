@@ -3530,8 +3530,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_suffix) {
 	std::ofstream file, file_bond;
 	int cur_layer;
-	int x, y;
-	int map_x, map_y;
+	unsigned x, y;
+	unsigned map_x, map_y;
 	float x_ll, y_ll;
 	float bin_w, bin_h;
 

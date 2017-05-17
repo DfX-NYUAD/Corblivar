@@ -305,7 +305,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 /// temperatures) from the thermal analysis run. The determination of hotspots/blobs is
 /// based on Lindeberg's grey-level blob detection algorithm.
 void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
-	int x, y;
+	unsigned x, y;
 	std::vector<ThermalAnalyzer::ThermalMapBin*> thermal_map;
 	std::vector<ThermalAnalyzer::ThermalMapBin*>::iterator it1;
 	std::list<ThermalAnalyzer::ThermalMapBin*> relev_neighbors;

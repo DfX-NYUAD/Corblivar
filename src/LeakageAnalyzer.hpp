@@ -99,14 +99,14 @@ class LeakageAnalyzer {
 
 			// sum of distances for one bin in 2D array to all other bins in same 2D array
 			//
-			for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
-				for (int y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+			for (int x = 0; x < static_cast<int>(ThermalAnalyzer::THERMAL_MAP_DIM); x++) {
+				for (int y = 0; y < static_cast<int>(ThermalAnalyzer::THERMAL_MAP_DIM); y++) {
 
 					// for each bin, calculate the sum of distances to all other bins
 					dist = 0;
 
-					for (int i = 0; i < ThermalAnalyzer::THERMAL_MAP_DIM; i++) {
-						for (int j = 0; j < ThermalAnalyzer::THERMAL_MAP_DIM; j++) {
+					for (int i = 0; i < static_cast<int>(ThermalAnalyzer::THERMAL_MAP_DIM); i++) {
+						for (int j = 0; j < static_cast<int>(ThermalAnalyzer::THERMAL_MAP_DIM); j++) {
 
 							// Manhattan distance should suffice for grid coordinates/distances
 							//
@@ -120,11 +120,11 @@ class LeakageAnalyzer {
 
 			// all distances for one bin in 1D array to all other bins in same 1D array
 			//
-			for (int x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
+			for (unsigned x = 0; x < ThermalAnalyzer::THERMAL_MAP_DIM; x++) {
 
 				// no need to walk ranges [x][0--x]; they will be covered by symmetric counterparts below;
-				// also, the result of (y - x) is >=, so no std::abs call required
-				for (int y = x; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
+				// also, the result of (y - x) is >= 0, so no std::abs call required
+				for (unsigned y = x; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 					// Manhattan distance should suffice for grid coordinates/distances
 					//
