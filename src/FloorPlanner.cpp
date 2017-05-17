@@ -1690,7 +1690,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				//// the wires' power is tracked (but not for input nets)
 				//if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-				//	this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
+				//	this->thermalAnalyzer.adaptPowerMapsWiresHelper(this->wires, i, bb,
 				//			// the wire's power, to be
 				//			// reflected in layer i, is scaled
 				//			// according the net_weight
@@ -1785,7 +1785,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					// for input nets)
 					if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-						this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
+						this->thermalAnalyzer.adaptPowerMapsWiresHelper(this->wires, i, bb,
 								// the wire's power, to be
 								// reflected in layer i,
 								// is scaled according the
@@ -1878,7 +1878,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 		// reset previous power
 		cost.power_wires = cost.power_TSVs = 0.0;
 		cost.max_power_wires = cost.max_power_TSVs = 0.0;
-		// note that previous routing util and power for wires doesn't require
+		// note that previous routing util and dummy blocks for wires don't require
 		// resets, since they are only affected now, during clustering itself
 
 		// determine HPWL for each net
@@ -1915,7 +1915,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 				// the wires' power is tracked (but not for input nets)
 				if (this->opt_flags.thermal && !cur_net.inputNet) {
 
-					this->thermalAnalyzer.adaptPowerMapsWires(this->wires, i, bb,
+					this->thermalAnalyzer.adaptPowerMapsWiresHelper(this->wires, i, bb,
 							TimingPowerAnalyser::powerWire(bb.w + bb.h, cur_net.source->voltage(), frequency)
 						);
 				}
@@ -1945,6 +1945,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			std::cout << "DBG_NET>  Largest net (after clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
 		}
 	}
+
+	// after considering all nets, apply the related power footprint to the power maps
+	this->thermalAnalyzer.adaptPowerMapsWires(this->wires);
 
 	// insert dummy TSVs wherever required for manufacturing purposes; at least one
 	// TSV shall be placed in every (m x m) frame of the die, if not already some TSVs

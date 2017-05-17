@@ -250,7 +250,8 @@ class ThermalAnalyzer {
 		void adaptPowerMapsTSVs(int const& layers, std::vector<TSV_Island> TSVs, std::vector<TSV_Island> dummy_TSVs, MaskParameters const& parameters);
 		void adaptPowerMapsTSVsHelper(TSV_Island TSVi);
 		/// thermal modeling: handlers
-		void adaptPowerMapsWires(std::vector<Block>& wires, int const& layer, Rect net_bb, double const& total_wire_power);
+		void adaptPowerMapsWires(std::vector<Block>& wires);
+		void adaptPowerMapsWiresHelper(std::vector<Block>& wires, int const& layer, Rect const& net_bb, double const& total_wire_power);
 		/// thermal-analyzer routine based on power blurring,
 		/// i.e., convolution of thermals masks and power maps
 		void performPowerBlurring(ThermalAnalysisResult& ret, int const& layers, MaskParameters const& parameters);

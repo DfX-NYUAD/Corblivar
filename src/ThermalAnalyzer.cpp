@@ -596,20 +596,18 @@ void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
 	}
 }
 
-/// note that the power consumption of wires is handled differently for power blurring and
-/// HotSpot; for power blurring, the power density maps are adapted, while for HotSpot data
-/// dummy blocks are generated to represent the wire with its bounding box and its power
-/// density
-void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires, int const& layer, Rect net_bb, double const& total_wire_power) {
-	double power_density;
-	unsigned x, y;
-	unsigned x_lower, x_upper, y_lower, y_upper;
+void ThermalAnalyzer::adaptPowerMapsWiresHelper(std::vector<Block>& wires, int const& layer, Rect const& net_bb, double const& total_wire_power) {
 
 	if (ThermalAnalyzer::DBG_CALLS) {
-		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << &wires << ", " << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWiresHelper(" << &wires << ", " << layer << ", " << &net_bb << ", " << total_wire_power << ")" << std::endl;
 	}
 
-	// update dummy wires block
+	// update respective dummy block; these blocks encapsulate all the wires in each layer within the overall bounding box
+	//
+	// note that this limits the accuracy, but this is acceptable as the power consumed by the wires will typically be much smaller than that consumed by real blocks; further,
+	// HotSpot does not cope well with an excessive number of dummy blocks (which would be required if we were to handled each net separately)
+	//
+	// finally, this also reduces runtime efforts notably, as we walk the power maps only once, after we considered all the wires/nets
 	//
 
 	// extend bb such that this net is also covered
@@ -624,39 +622,58 @@ void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires, int const& 
 	// dummy blocks
 	wires[layer].power_density_unscaled += total_wire_power;
 
-	// now, adapt power maps for consideration of wires in power blurring
+	if (ThermalAnalyzer::DBG_CALLS) {
+		std::cout << "<- ThermalAnalyzer::adaptPowerMapsWiresHelper" << std::endl;
+	}
+}
+
+void ThermalAnalyzer::adaptPowerMapsWires(std::vector<Block>& wires) {
+	double power_density;
+	unsigned x, y;
+	unsigned x_lower, x_upper, y_lower, y_upper;
+	Rect net_bb;
+
+	if (ThermalAnalyzer::DBG_CALLS) {
+		std::cout << "-> ThermalAnalyzer::adaptPowerMapsWires(" << &wires << ")" << std::endl;
+	}
+
+	// now, adapt power maps to consider all the wires in each layer separately
 	//
+	for (unsigned layer = 0; layer < wires.size(); layer++) {
 
-	// offset bb, i.e., account for padded power maps and related offset in
-	// coordinates; note that net_bb is a copy
-	net_bb.ll.x += this->blocks_offset_x;
-	net_bb.ll.y += this->blocks_offset_y;
-	net_bb.ur.x += this->blocks_offset_x;
-	net_bb.ur.y += this->blocks_offset_y;
+		net_bb = wires[layer].bb;
 
-	// determine index boundaries for offset intersection; based on boundary of bb and
-	// the covered bins; note that cast to int truncates toward zero, i.e., performs
-	// like floor for positive numbers
-	x_lower = static_cast<unsigned>(net_bb.ll.x / this->power_maps_dim_x);
-	y_lower = static_cast<unsigned>(net_bb.ll.y / this->power_maps_dim_y);
-	// +1 in order to efficiently emulate the result of ceil(); limit upper bound to
-	// power-maps dimensions
-	x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->power_maps_dim_x) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
-	y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->power_maps_dim_y) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
+		// offset bb, i.e., account for padded power maps and related offset in
+		// coordinates; note that net_bb is a copy
+		net_bb.ll.x += this->blocks_offset_x;
+		net_bb.ll.y += this->blocks_offset_y;
+		net_bb.ur.x += this->blocks_offset_x;
+		net_bb.ur.y += this->blocks_offset_y;
 
-	// determine power density
-	power_density = total_wire_power / net_bb.area;
+		// determine index boundaries for offset intersection; based on boundary of bb and
+		// the covered bins; note that cast to int truncates toward zero, i.e., performs
+		// like floor for positive numbers
+		x_lower = static_cast<unsigned>(net_bb.ll.x / this->power_maps_dim_x);
+		y_lower = static_cast<unsigned>(net_bb.ll.y / this->power_maps_dim_y);
+		// +1 in order to efficiently emulate the result of ceil(); limit upper bound to
+		// power-maps dimensions
+		x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->power_maps_dim_x) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
+		y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->power_maps_dim_y) + 1, static_cast<unsigned>(ThermalAnalyzer::POWER_MAPS_DIM));
 
-	// walk power-map bins covering bb; adapt power densities
-	for (x = x_lower; x < x_upper; x++) {
-		for (y = y_lower; y < y_upper; y++) {
+		// determine power density
+		power_density = wires[layer].power_density_unscaled / net_bb.area;
 
-			// adapt map on affected layer
-			//
-			// don't consider partial overlaps, any affected bin is considered
-			// as fully affected; the loss in accuracy is expected to be
-			// rather low
-			this->power_maps[layer][x][y].power_density += power_density;
+		// walk power-map bins covering bb; adapt power densities
+		for (x = x_lower; x < x_upper; x++) {
+			for (y = y_lower; y < y_upper; y++) {
+
+				// adapt map on affected layer
+				//
+				// don't consider partial overlaps, any affected bin is considered
+				// as fully affected; the loss in accuracy is expected to be
+				// rather low
+				this->power_maps[layer][x][y].power_density += power_density;
+			}
 		}
 	}
 
