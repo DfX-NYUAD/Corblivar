@@ -415,7 +415,7 @@ void TimingPowerAnalyser::determIndicesDAG(DAG_Node *cur_node) {
 	}
 }
 
-void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int const& voltage_index) {
+void TimingPowerAnalyser::updateTiming(bool const& voltage_assignment, double const& global_arrival_time, int const& voltage_index) {
 	DAG_Node* child;
 	DAG_Node* parent;
 	Rect bb_driver_sink;
@@ -430,6 +430,9 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 		else {
 			std::cout << "DBG_TimingPowerAnalyser> Determine timing values for DAG, considering the voltage index " << voltage_index << " for all blocks" << std::endl;
 		}
+		if (!voltage_assignment) {
+			std::cout << "DBG_TimingPowerAnalyser>  No voltage assignment is applied, so we determine only the actual arrival time / system-level latency here..." << std::endl;
+		}
 	}
 
 	// reset AAT, RAT
@@ -439,7 +442,7 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 		pair.second.setRAT(voltage_index, global_arrival_time);
 	}
 
-	// first, compute all arrival times over sorted DAG
+	// first and in any case, compute all arrival times over sorted DAG
 	//
 	// ignore the very first node, i.e., the global source; there is no physical delay between the global source and the input pins, which are following right after in
 	// nets_DAG_sorted
@@ -506,84 +509,89 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 			));
 	}
 
-	// next, compute the required arrival times over sorted DAG, considering the given critical delay
+	// the other calculations (for RAT and slack) are only required in case voltage assignment is applied
 	//
-	// same principle as AAT, just reversed, walking DAG backwards and using parents
-	//
-	// also ignore the very first node and last nodes (global sink and source), with the same reasoning as for the AAT
-	//
-	for (auto r_iter = (this->nets_DAG_sorted.rbegin() + 1); r_iter != (this->nets_DAG_sorted.rend() - 1); ++r_iter) {
+	if (voltage_assignment) {
 
-		DAG_Node const* node = *r_iter;
-
-		if (TimingPowerAnalyser::DBG_VERBOSE) {
-
-			std::cout << "DBG_TimingPowerAnalyser>  Determine RAT for all " << node->parents.size() << " parents of node: " << node->block->id << std::endl;
-			std::cout << "DBG_TimingPowerAnalyser>  (RAT of this node: " << node->getRAT(voltage_index) << ")" << std::endl;
-		}
-
-		// propagate RAT from this node to all parents
+		// next, compute the required arrival times over sorted DAG, considering the given critical delay
 		//
-		// note that the global source is still considered here every now and then, namely when we have an input pin as node; however, always checking whether the parent is
-		// the global source is more costly than just recalculating the proper RAT for the global source as we do below
+		// same principle as AAT, just reversed, walking DAG backwards and using parents
 		//
-		for (auto &pair : node->parents) {
-			parent = pair.second;
+		// also ignore the very first node and last nodes (global sink and source), with the same reasoning as for the AAT
+		//
+		for (auto r_iter = (this->nets_DAG_sorted.rbegin() + 1); r_iter != (this->nets_DAG_sorted.rend() - 1); ++r_iter) {
+
+			DAG_Node const* node = *r_iter;
 
 			if (TimingPowerAnalyser::DBG_VERBOSE) {
 
-				std::cout << "DBG_TimingPowerAnalyser>   Current RAT for node " << parent->block->id << ": " << parent->getRAT(voltage_index) << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>  Determine RAT for all " << node->parents.size() << " parents of node: " << node->block->id << std::endl;
+				std::cout << "DBG_TimingPowerAnalyser>  (RAT of this node: " << node->getRAT(voltage_index) << ")" << std::endl;
 			}
 
-			// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
-			// placed within that box
+			// propagate RAT from this node to all parents
 			//
-			bb_driver_sink = Rect::determBoundingBox(parent->block->bb, node->block->bb);
+			// note that the global source is still considered here every now and then, namely when we have an input pin as node; however, always checking whether the parent is
+			// the global source is more costly than just recalculating the proper RAT for the global source as we do below
+			//
+			for (auto &pair : node->parents) {
+				parent = pair.second;
 
-			// now, the RAT for the parent is to be calculated considering the node's RAT, the interconnect delay, and the delay of the parent itself
-			//
-			parent->setRAT(voltage_index, std::min(parent->getRAT(voltage_index),
-					node->getRAT(voltage_index)
-					- TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer))
-					- parent->block->delay(voltage_index)
+				if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+					std::cout << "DBG_TimingPowerAnalyser>   Current RAT for node " << parent->block->id << ": " << parent->getRAT(voltage_index) << std::endl;
+				}
+
+				// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
+				// placed within that box
+				//
+				bb_driver_sink = Rect::determBoundingBox(parent->block->bb, node->block->bb);
+
+				// now, the RAT for the parent is to be calculated considering the node's RAT, the interconnect delay, and the delay of the parent itself
+				//
+				parent->setRAT(voltage_index, std::min(parent->getRAT(voltage_index),
+						node->getRAT(voltage_index)
+						- TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer))
+						- parent->block->delay(voltage_index)
+					));
+
+				if (TimingPowerAnalyser::DBG_VERBOSE) {
+
+					std::cout << "DBG_TimingPowerAnalyser>   Updated RAT for node " << parent->block->id << ": " << parent->getRAT(voltage_index) << std::endl;
+					std::cout << "DBG_TimingPowerAnalyser>    Inherent delay for this node: " << parent->block->delay(voltage_index) << std::endl;
+					std::cout << "DBG_TimingPowerAnalyser>    Elmore delay for connecting this node to node " << node->block->id << ": ";
+					std::cout << TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer)) << std::endl;
+					std::cout << "DBG_TimingPowerAnalyser>     Related HPWL: " << bb_driver_sink.w + bb_driver_sink.h << std::endl;
+					std::cout << "DBG_TimingPowerAnalyser>     Related TSVs: " << std::abs(parent->block->layer - node->block->layer) << std::endl;
+				}
+			}
+		}
+		// now, solve the special case for the global source; its RAT is simply the minimum among all children, as there is no physical delay between those children (the input
+		// pins) and the global source
+		//
+		// also note that the RAT for the global source has been set already above; reset first
+		global_source.setRAT(voltage_index, global_arrival_time);
+		for (auto &pair : global_source.children) {
+
+			global_source.setRAT(voltage_index, std::min(
+					global_source.getRAT(voltage_index),
+					pair.second->getRAT(voltage_index)
 				));
-
-			if (TimingPowerAnalyser::DBG_VERBOSE) {
-
-				std::cout << "DBG_TimingPowerAnalyser>   Updated RAT for node " << parent->block->id << ": " << parent->getRAT(voltage_index) << std::endl;
-				std::cout << "DBG_TimingPowerAnalyser>    Inherent delay for this node: " << parent->block->delay(voltage_index) << std::endl;
-				std::cout << "DBG_TimingPowerAnalyser>    Elmore delay for connecting this node to node " << node->block->id << ": ";
-				std::cout << TimingPowerAnalyser::elmoreDelay(bb_driver_sink.w + bb_driver_sink.h, std::abs(parent->block->layer - node->block->layer)) << std::endl;
-				std::cout << "DBG_TimingPowerAnalyser>     Related HPWL: " << bb_driver_sink.w + bb_driver_sink.h << std::endl;
-				std::cout << "DBG_TimingPowerAnalyser>     Related TSVs: " << std::abs(parent->block->layer - node->block->layer) << std::endl;
-			}
 		}
-	}
-	// now, solve the special case for the global source; its RAT is simply the minimum among all children, as there is no physical delay between those children (the input
-	// pins) and the global source
-	//
-	// also note that the RAT for the global source has been set already above; reset first
-	global_source.setRAT(voltage_index, global_arrival_time);
-	for (auto &pair : global_source.children) {
 
-		global_source.setRAT(voltage_index, std::min(
-				global_source.getRAT(voltage_index),
-				pair.second->getRAT(voltage_index)
-			));
-	}
+		// finally, compute the slack for all DAG nodes
+		//
+		for (auto &pair : this->nets_DAG) {
 
-	// finally, compute the slack for all DAG nodes
-	//
-	for (auto &pair : this->nets_DAG) {
+			DAG_Node &node = pair.second;
 
-		DAG_Node &node = pair.second;
+			node.setSlack(voltage_index, node.getRAT(voltage_index)- node.getAAT(voltage_index));
 
-		node.setSlack(voltage_index, node.getRAT(voltage_index)- node.getAAT(voltage_index));
-
-		// also memorize the _potential_ slack in the blocks themselves; only required for the cases where we pre-calculate the conservative slack models for all blocks
-		// having the same voltage index
-		if (voltage_index != -1) {
-			node.block->potential_slacks[voltage_index] = node.getSlack(voltage_index);
+			// also memorize the _potential_ slack in the blocks themselves; only required for the cases where we pre-calculate the conservative slack models for all blocks
+			// having the same voltage index
+			if (voltage_index != -1) {
+				node.block->potential_slacks[voltage_index] = node.getSlack(voltage_index);
+			}
 		}
 	}
 
@@ -594,6 +602,9 @@ void TimingPowerAnalyser::updateTiming(double const& global_arrival_time, int co
 		}
 		else {
 			std::cout << "DBG_TimingPowerAnalyser> Final timing values for DAG, considering the voltage index " << voltage_index << " for all blocks" << std::endl;
+		}
+		if (!voltage_assignment) {
+			std::cout << "DBG_TimingPowerAnalyser>  No voltage assignment is applied, so only the actual arrival time / system-level latency is valid" << std::endl;
 		}
 
 		for (DAG_Node const* node : this->nets_DAG_sorted) {

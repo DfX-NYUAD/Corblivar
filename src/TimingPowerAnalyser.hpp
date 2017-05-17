@@ -232,9 +232,9 @@ class TimingPowerAnalyser {
 		/// helper to generate the DAG (directed acyclic graph) for the SL-STA
 		void initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, unsigned const& voltages_count, bool const& log);
 
-		/// determine timing values for DAG; will also update the slack for all blocks, based on the voltage index given (if -1, then the timing will be based on each
-		/// block's assigned voltage)
-		void updateTiming(double const& global_arrival_time, int const& voltage_index = -1);
+		/// determine timing values for DAG; will also update the slack for all blocks (if voltage_assignment is true), based on the voltage index given (if -1, then the
+		//timing will be based on each / block's assigned voltage)
+		void updateTiming(bool const& voltage_assignment, double const& global_arrival_time, int const& voltage_index = -1);
 
 		double getGlobalAAT(int const& voltage_index = -1) {
 			DAG_Node const& global_sink = this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID);

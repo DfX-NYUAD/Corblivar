@@ -1170,7 +1170,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		// also consider the threshold as required global arrival time
 		//
 		for (int voltage_index = 0; voltage_index < static_cast<int>(this->voltageAssignment.parameters.voltages.size()); voltage_index++) {
-			this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold, voltage_index);
+			this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->IC.delay_threshold, voltage_index);
 		}
 
 		// store actual max delay value; considering the default voltage
@@ -1179,7 +1179,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 	// for reevaluation, after voltage assignment, don't reset voltage-assignment
 	// but still re-evaluate timing according to all assigned voltages
 	else {
-		this->timingPowerAnalyser.updateTiming(this->IC.delay_threshold);
+		this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->IC.delay_threshold);
 
 		// store actual max delay value; considering the voltage assignment
 		cost.timing_actual_value = this->timingPowerAnalyser.getGlobalAAT();
