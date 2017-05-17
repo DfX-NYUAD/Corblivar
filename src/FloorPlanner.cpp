@@ -412,6 +412,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
 				}
 
+				// TODO add level shifter, avg corners; plot all only when according weight is defined
 				if (this->opt_flags.voltage_assignment) {
 
 					std::cout << "SA>    Voltage assignment; power reduction for blocks [W]: " << cost.voltage_assignment_power_saving << std::endl;
@@ -1226,6 +1227,8 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	//
 	// also, in case no fitting layouts are available, voltage assignment may also be skipped since it is not deemed required for invalid layouts
 	//
+	//TODO evaluate based on best possible global AAT, not cost.timing_actual_value; but only really required after the reference voltage may be different from the highest
+	//voltage
 	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::doubleComp(fitting_layouts_ratio, 0.0))) {
 
 		// dummy cost, equals max normalized cost
