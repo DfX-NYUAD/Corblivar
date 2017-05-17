@@ -30,7 +30,7 @@
 #include "Math.hpp"
 
 /// memory allocation
-constexpr int RoutingUtilization::UTIL_MAPS_DIM;
+constexpr unsigned RoutingUtilization::UTIL_MAPS_DIM;
 
 void RoutingUtilization::resetUtilMaps(int const& layers) {
 	int i;
@@ -117,9 +117,9 @@ RoutingUtilization::UtilResult RoutingUtilization::determCost() const {
 }
 
 void RoutingUtilization::adaptUtilMap(int const& layer, Rect const& net_bb, double const& net_weight) {
-	int x, y;
 	double util;
-	int x_lower, x_upper, y_lower, y_upper;
+	unsigned x, y;
+	unsigned x_lower, x_upper, y_lower, y_upper;
 	Rect bb_ext;
 
 	if (RoutingUtilization::DBG_CALLS) {
@@ -127,14 +127,14 @@ void RoutingUtilization::adaptUtilMap(int const& layer, Rect const& net_bb, doub
 	}
 
 	// determine index boundaries for utilization map; based on intersection of map and
-	// net's bb; note that cast to int truncates toward zero, i.e., performs like
+	// net's bb; note that casting truncates toward zero, i.e., performs like
 	// floor for positive numbers
-	x_lower = static_cast<int>(net_bb.ll.x / this->util_maps_dim_x);
-	y_lower = static_cast<int>(net_bb.ll.y / this->util_maps_dim_y);
+	x_lower = static_cast<unsigned>(net_bb.ll.x / this->util_maps_dim_x);
+	y_lower = static_cast<unsigned>(net_bb.ll.y / this->util_maps_dim_y);
 	// +1 in order to efficiently emulate the result of ceil(); limit upper
 	// bound to util-maps dimensions
-	x_upper = std::min(static_cast<int>(net_bb.ur.x / this->util_maps_dim_x) + 1, RoutingUtilization::UTIL_MAPS_DIM);
-	y_upper = std::min(static_cast<int>(net_bb.ur.y / this->util_maps_dim_y) + 1, RoutingUtilization::UTIL_MAPS_DIM);
+	x_upper = std::min(static_cast<unsigned>(net_bb.ur.x / this->util_maps_dim_x) + 1, RoutingUtilization::UTIL_MAPS_DIM);
+	y_upper = std::min(static_cast<unsigned>(net_bb.ur.y / this->util_maps_dim_y) + 1, RoutingUtilization::UTIL_MAPS_DIM);
 
 	if (RoutingUtilization::DBG) {
 		std::cout << "DBG_ROUTING_UTIL>  Affected util-map bins: " << x_lower << "," << y_lower

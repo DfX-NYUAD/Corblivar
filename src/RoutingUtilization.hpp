@@ -42,7 +42,7 @@ class RoutingUtilization {
 	public:
 
 		/// dimensions for routing-utilization map
-		static constexpr int UTIL_MAPS_DIM = 64;
+		static constexpr unsigned UTIL_MAPS_DIM = 64;
 
 	// PODs, to be declared early on
 	public:
