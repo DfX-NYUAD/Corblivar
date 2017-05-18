@@ -35,7 +35,14 @@ class TimingPowerAnalyser {
 		static constexpr bool DBG = false;
 		static constexpr bool DBG_VERBOSE= false;
 
+		/// frequency for clock domain; required for dynamic power consumption in wires
+		/// 1 GHz, own assumption
+		// TODO put into technology file
+		static constexpr double FREQUENCY = 1.0e09;
+
 	// private constants
+	// TODO put into technology file
+	//
 	private:
 		/// TSV/wire resistivity/capacitance values, taken from [Ahmed14] which
 		/// models 45nm technology; wires are on M7-M8 layers, TSV are assumed to
@@ -217,7 +224,10 @@ class TimingPowerAnalyser {
 		}
 
 		/// WL shall be given in um; returned power is in W
-		inline static double powerWire(double const& WL, double const& driver_voltage, double const& frequency, double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR) {
+		inline static double powerWire(double const& WL, double const& driver_voltage,
+				double const& frequency,
+				double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR
+			) {
 
 			// P_wire = a * C_wire * WL * V_driver^2 * f
 			// a * [F/um * um * V^2 * Hz] = [W]
@@ -225,7 +235,11 @@ class TimingPowerAnalyser {
 			return activity_factor * C_WIRE * WL * std::pow(driver_voltage, 2.0) * frequency;
 		}
 
-		inline static double powerTSV(double const& driver_voltage, double const& frequency, double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR) {
+		inline static double powerTSV(double const& driver_voltage,
+				double const& frequency,
+				double const& activity_factor = TimingPowerAnalyser::ACTIVITY_FACTOR
+			) {
+
 			return activity_factor * C_TSV * std::pow(driver_voltage, 2.0) * frequency;
 		}
 

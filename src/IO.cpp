@@ -917,9 +917,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// the achievable frequency is derived from this delay threshold/constraint:
-	// f = 1.0 / delay; delay is given in ns, scale to seconds for f in [Hz]
-	fp.IC.frequency = 1.0 / (fp.IC.delay_threshold * 1.0e-09);
+	// TODO encapsulate and read in from technology file
+	fp.IC.frequency = TimingPowerAnalyser::FREQUENCY;
 
 	in.close();
 
