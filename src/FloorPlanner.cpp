@@ -1720,7 +1720,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 				// determine HPWL using the net's bounding box on the
 				// current layer
-				bb = cur_net.determBoundingBox(i);
+				// also consider the centers of the blocks, as we do for interconnect estimation in general
+				bb = cur_net.determBoundingBox(i, true);
 				WL_cur_net += (bb.w + bb.h);
 
 				// update power values accordingly, only for driver nets,
@@ -1897,7 +1898,8 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			for (i = cur_net.layer_bottom; i <= cur_net.layer_top; i++) {
 
 				// determine the net's bounding box on the current layer
-				bb = cur_net.determBoundingBox(i);
+				// also consider the centers of the blocks, as we do for interconnect estimation in general
+				bb = cur_net.determBoundingBox(i, true);
 				WL_cur_net += (bb.w + bb.h);
 
 				// update power values accordingly, only for driver nets,
@@ -2098,7 +2100,8 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		// TSVs; however, this alignment impacts WL and routing utilization
 		if (req.s_i->layer == req.s_j->layer) {
 
-			routing_bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+			// also consider the centers of the blocks, as we do for interconnect estimation in general
+			routing_bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 
 			// add HPWL of bb to cost
 			cost.HPWL_actual_value += routing_bb.w * req.signals;
@@ -2182,11 +2185,13 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						// determine the routing bb, connecting
 						// the TSV island and the block on the
 						// layer of interest
+						//
+						// also consider the centers of the blocks, as we do for interconnect estimation in general
 						if (layer == req.s_i->layer) {
-							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb, true);
 						}
 						else {
-							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb, true);
 						}
 
 						// add HPWL of bb to cost
@@ -2209,11 +2214,13 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 						// determine the routing bb, connecting
 						// the TSV island and the block on the
 						// layer of interest
+						//
+						// also consider the centers of the blocks, as we do for interconnect estimation in general
 						if (layer + 1 == req.s_i->layer) {
-							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_i->bb, true);
 						}
 						else {
-							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb);
+							routing_bb = Rect::determBoundingBox(island.bb, req.s_j->bb, true);
 						}
 
 						// add HPWL of bb to cost
@@ -2321,14 +2328,10 @@ double FloorPlanner::evaluateAlignmentsHPWL(std::vector<CorblivarAlignmentReq> c
 			continue;
 		}
 
-		// derive blocks' bb; only consider center points since massive
-		// interconnects (on average) will connect to pins within the block
-		// outline, not the worst-case outer block boundaries
+		// derive blocks' bb
 		//
-		// deactivated for now, consider outer block boundaries, as it is done in
-		// evaluateAlignments
-		//bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
-		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb);
+		// also consider the centers of the blocks, as we do for interconnect estimation in general
+		bb = Rect::determBoundingBox(req.s_i->bb, req.s_j->bb, true);
 
 		if (this->opt_flags.routing_util) {
 			// consider rough estimate for routing utilization: spread across all

@@ -96,7 +96,7 @@ class Net {
 
 		/// helper to determine net's bb accurately, with consideration of TSVs
 		/// and terminal pins
-		inline Rect determBoundingBox(int const& layer, bool const& consider_center = false) const {
+		inline Rect determBoundingBox(int const& layer, bool const& consider_center) const {
 			int i;
 			std::vector<Rect const*> blocks_to_consider;
 			bool blocks_above_considered;

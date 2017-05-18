@@ -473,9 +473,9 @@ void TimingPowerAnalyser::updateTiming(bool const& voltage_assignment, double co
 			}
 
 			// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
-			// placed within that box
+			// placed within that box; also consider the centers of the blocks, as we do for interconnect estimation in general
 			//
-			bb_driver_sink = Rect::determBoundingBox(node->block->bb, child->block->bb);
+			bb_driver_sink = Rect::determBoundingBox(node->block->bb, child->block->bb, true);
 
 			// now, the AAT for the child is to be calculated considering the driver's AAT, the interconnect delay, and the delay of the child itself
 			//
@@ -543,9 +543,9 @@ void TimingPowerAnalyser::updateTiming(bool const& voltage_assignment, double co
 				}
 
 				// to estimate the interconnects delay (wires and TSVs), we consider the projected bounding box; it is reasonable to assume that all wires and TSVs will be
-				// placed within that box
+				// placed within that box; also consider the centers of the blocks, as we do for interconnect estimation in general
 				//
-				bb_driver_sink = Rect::determBoundingBox(parent->block->bb, node->block->bb);
+				bb_driver_sink = Rect::determBoundingBox(parent->block->bb, node->block->bb, true);
 
 				// now, the RAT for the parent is to be calculated considering the node's RAT, the interconnect delay, and the delay of the parent itself
 				//
