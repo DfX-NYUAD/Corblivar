@@ -34,6 +34,8 @@
 /// compromise. (The most precise, however time-consuming, approach would be to 1) perform
 /// the thermal analysis w/o TSVs, 2) cluster TSVs according to the thermal-analysis
 /// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
+// TODO according to valgrind/callgrind, the efforts for thermal analysis are around 8%, whereas the efforts for determineHotspots are 30%; thus, we could also allow for the
+// additional efforts for another run of thermal analysis
 void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::vector<Segments>::iterator it_seg;
