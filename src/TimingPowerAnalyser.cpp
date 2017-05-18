@@ -310,13 +310,18 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 }
 
 bool TimingPowerAnalyser::resolveCyclesDAG(DAG_Node *cur_node, bool const& log) {
+	bool cycle_found = false;
+
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+		std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; consider node: " << cur_node->block->id << std::endl;
+	}
 
 	// node not visited/checked yet
 	//
 	if (!cur_node->visited) {
 
 		if (TimingPowerAnalyser::DBG_VERBOSE) {
-			std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; cur_node: " << cur_node->block->id << std::endl;
+			std::cout << "DBG_TimingPowerAnalyser>   Proceed with node " << cur_node->block->id <<"; not visited yet; mark as visited and as part of recursion" << std::endl;
 		}
 
 		// mark as visited/checked, and also mark as part of this recursion
@@ -324,51 +329,76 @@ bool TimingPowerAnalyser::resolveCyclesDAG(DAG_Node *cur_node, bool const& log) 
 
 		// now, check all children in depth-first manner
 		//
-		for (auto &child : cur_node->children) {
+		unsigned child_id = 1;
+		unsigned orig_child_count = cur_node->children.size();
+		for (auto it = cur_node->children.begin(); it != cur_node->children.end(); ) {
+
+			DAG_Node* child = (*it).second;
+
+			if (TimingPowerAnalyser::DBG_VERBOSE) {
+				std::cout << "DBG_TimingPowerAnalyser>    Consider node " << cur_node->block->id << "'s child: " << child->block->id;
+				std::cout << "; child " << child_id << " out of " << orig_child_count << " in total" << std::endl;
+				child_id++;
+			}
 
 			// child not visited yet; check recursively whether some cycle can be found
 			//
-			if (!child.second->visited && this->resolveCyclesDAG(child.second, log)) {
+			if (!child->visited && this->resolveCyclesDAG(child, log)) {
 
-				// in case a cycle was found, resolve it naively by deleting the child which was associated with the cycle
-				cur_node->children.erase(child.first);
-
-				if (log) {
-					std::cout << "TimingPowerAnalyser> ";
-					std::cout << " A cycle was found in the DAG/netlist! The following driver-sink relation was deleted: ";
-					std::cout << cur_node->block->id << "->" << child.first << std::endl;
-					std::cout << "TimingPowerAnalyser> ";
-					std::cout << "  Please check and revise the netlist accordingly!" << std::endl;
+				if (TimingPowerAnalyser::DBG_VERBOSE) {
+					std::cout << "DBG_TimingPowerAnalyser>     Return from recursive check of node " << cur_node->block->id << "'s child: " << child->block->id;
+					std::cout << "; at least one cycle was found and resolved; continue with next child ..." << std::endl;
 				}
 
-				return true;
+				cycle_found = true;
+				++it;
 			}
 			// child already visited; in case it has been visited during the current recursive call, then we found a cycle/backedge
 			// http://www.geeksforgeeks.org/detect-cycle-in-a-graph/
 			//
-			else if (child.second->recursion) {
+			else if (child->recursion) {
 
-				// in case a cycle was found, resolve it naively by deleting the child which was associated with the cycle
-				cur_node->children.erase(child.first);
-
-				if (log) {
-					std::cout << "TimingPowerAnalyser> ";
-					std::cout << " A cycle was found in the DAG/netlist! The following driver-sink relation was deleted: ";
-					std::cout << cur_node->block->id << "->" << child.first << std::endl;
-					std::cout << "TimingPowerAnalyser> ";
-					std::cout << "  Please check and revise the netlist accordingly!" << std::endl;
+				if (TimingPowerAnalyser::DBG_VERBOSE) {
+					std::cout << "DBG_TimingPowerAnalyser>     Cycle found; passed this node " << child->block->id << " already during recursion; resolve and proceed with next child..." << std::endl;
 				}
 
-				return true;
+				if (log) {
+					std::cout << "TimingPowerAnalyser>  A cycle was found! The following driver-sink relation is deleted to resolve: ";
+					std::cout << cur_node->block->id << "->" << child->block->id << std::endl;
+				}
+
+				cycle_found = true;
+
+				// resolve the cycle by deleting the child from the parent (cur_node) which is inducing the cycle; continue with next child
+				//
+				it = cur_node->children.erase(it);
 			}
+			// child already visited, but not part of the recursion anymore; represents a transitive edge from one parent node to some child node, which is fine
+			// 
+			else {
+				if (TimingPowerAnalyser::DBG_VERBOSE) {
+					std::cout << "DBG_TimingPowerAnalyser>     Cleared node " << cur_node->block->id << "'s child: " << child->block->id << std::endl;
+				}
+
+				++it;
+			}
+		}
+	}
+
+	if (TimingPowerAnalyser::DBG_VERBOSE) {
+		std::cout << "DBG_TimingPowerAnalyser>  Depth-first traversal of DAG; considering the node " << cur_node->block->id << " is done; mark it as _not_ part of the recursion anymore" << std::endl;
+		if (cycle_found) {
+			std::cout << "DBG_TimingPowerAnalyser>   At least one cycle was found and resolved" << std::endl;
+		}
+		else {
+			std::cout << "DBG_TimingPowerAnalyser>   No cycle was found" << std::endl;
 		}
 	}
 
 	// after return from recursion; mark as "not anymore part of a recursion"
 	cur_node->recursion = false;
 
-	// also, at this point, it's clear that this node is not part of a cycle
-	return false;
+	return cycle_found;
 }
 
 void TimingPowerAnalyser::determIndicesDAG(DAG_Node *cur_node) {
