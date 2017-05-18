@@ -61,10 +61,12 @@ class ThermalAnalyzer {
 		/// dim in order to handle boundary values for convolution)
 		static constexpr unsigned POWER_MAPS_DIM = THERMAL_MAP_DIM + (THERMAL_MASK_DIM - 1);
 
-		/// flags for hotspot detection
-		static constexpr int HOTSPOT_BACKGROUND = -1;
-		/// flags for hotspot detection
-		static constexpr int HOTSPOT_UNDEFINED = -2;
+		/// specific id for hotspot detection
+		static constexpr unsigned HOTSPOT_BACKGROUND = 0;
+		/// specific id for hotspot detection
+		static constexpr unsigned HOTSPOT_UNDEFINED = 1;
+		/// id of first regular hotspot for hotspot detection
+		static constexpr unsigned HOTSPOT_FIRST_ID = 2;
 
 	// PODs, to be declared early on
 	public:

@@ -59,7 +59,7 @@ class Clustering {
 		struct Cluster {
 			std::list<Net*> nets;
 			Rect bb;
-			int hotspot_id;
+			unsigned hotspot_id;
 		};
 		/// POD wrapping hotspot regions
 		struct Hotspot {
@@ -68,13 +68,13 @@ class Clustering {
 			double temp_gradient;
 			std::vector<ThermalAnalyzer::ThermalMapBin*> bins;
 			bool still_growing;
-			int id;
+			unsigned id;
 			double score;
 			Rect bb;
 		};
 
 		/// Hotspots container
-		std::map<double, Hotspot, std::greater<double>> hotspots;
+		std::vector<Hotspot> hotspots;
 
 		/// Clustering helper
 		void clusterSignalTSVs(std::vector<Net> &nets,

@@ -633,7 +633,6 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 	Cost cost;
 	unsigned i;
 	int clustered_TSVs;
-	std::map<double, Clustering::Hotspot, std::greater<double>>::iterator it_hotspots;
 	double avg_peak_temp, avg_base_temp, avg_temp_gradient, avg_score, avg_bins_count;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -752,12 +751,12 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << "Hotspot regions (on lowest layer 0): " << this->clustering.hotspots.size() << std::endl;
 
 				avg_peak_temp = avg_base_temp = avg_temp_gradient = avg_score = avg_bins_count = 0.0;
-				for (it_hotspots = this->clustering.hotspots.begin(); it_hotspots != this->clustering.hotspots.end(); ++it_hotspots) {
-					avg_peak_temp += (*it_hotspots).second.peak_temp;
-					avg_base_temp += (*it_hotspots).second.base_temp;
-					avg_temp_gradient += (*it_hotspots).second.temp_gradient;
-					avg_score += (*it_hotspots).second.score;
-					avg_bins_count += (*it_hotspots).second.bins.size();
+				for (Clustering::Hotspot const& cur_hotspot : this->clustering.hotspots) {
+					avg_peak_temp += cur_hotspot.peak_temp;
+					avg_base_temp += cur_hotspot.base_temp;
+					avg_temp_gradient += cur_hotspot.temp_gradient;
+					avg_score += cur_hotspot.score;
+					avg_bins_count += cur_hotspot.bins.size();
 				}
 
 				avg_peak_temp /= this->clustering.hotspots.size();
