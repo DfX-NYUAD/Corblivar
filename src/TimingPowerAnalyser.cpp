@@ -141,6 +141,19 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 							pin_node.block->id,
 							&pin_node
 						));
+
+				// finally, memorize the block<->global_sink relations; for regular netlists with proper output pins, this is not required but also won't hurt, but
+				// for netlists without outputs, this is essential; then, all blocks which would otherwise drive nothing are considered to connect to the
+				// global_sink, mimicking output drivers
+				//
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).parents.emplace(std::make_pair(
+						child_node.block->id,
+						&child_node
+					));
+				child_node.children.emplace(std::make_pair(
+							TimingPowerAnalyser::DAG_Node::SINK_ID,
+							&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID)
+						));
 			}
 
 			// also check all the output pins driven by this input net; note that such nets might be rare in practice
@@ -166,6 +179,17 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 				child_node.parents.emplace(std::make_pair(
 							pin_node.block->id,
 							&pin_node
+						));
+
+				// finally, memorize the pin<->global_sink relations
+				//
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).parents.emplace(std::make_pair(
+						child_node.block->id,
+						&child_node
+					));
+				child_node.children.emplace(std::make_pair(
+							TimingPowerAnalyser::DAG_Node::SINK_ID,
+							&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID)
 						));
 			}
 		}
@@ -198,6 +222,19 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 				child_node.parents.emplace(std::make_pair(
 							driver_node.block->id,
 							&driver_node
+						));
+
+				// finally, memorize the block<->global_sink relations; for regular netlists with proper output pins, this is not required but also won't hurt, but
+				// for netlists without outputs, this is essential; then, all blocks which would otherwise drive nothing are considered to connect to the
+				// global_sink, mimicking output drivers
+				//
+				this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID).parents.emplace(std::make_pair(
+						child_node.block->id,
+						&child_node
+					));
+				child_node.children.emplace(std::make_pair(
+							TimingPowerAnalyser::DAG_Node::SINK_ID,
+							&this->nets_DAG.at(TimingPowerAnalyser::DAG_Node::SINK_ID)
 						));
 			}
 
