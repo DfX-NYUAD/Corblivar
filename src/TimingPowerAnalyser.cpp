@@ -416,7 +416,7 @@ bool TimingPowerAnalyser::resolveCyclesDAG(DAG_Node *cur_node, bool const& log) 
 
 				if (log) {
 					std::cout << "TimingPowerAnalyser>  A cycle was found! The following driver-sink relation is deleted to resolve: ";
-					std::cout << cur_node->block->id << "->" << child->block->id << std::endl;
+					std::cout << cur_node->block->id << " -> " << child->block->id << std::endl;
 				}
 
 				cycle_found = true;
