@@ -404,7 +404,7 @@ class FloorPlanner {
 		inline void initTimingPowerAnalyser() {
 
 			// generate DAG (directed acyclic graph) for SL-STA (system-level static timing analysis)
-			this->timingPowerAnalyser.initSLSTA(this->blocks, this->terminals, this->nets, this->voltageAssignment.parameters.voltages.size(), this->logMed(), this->benchmark);
+			this->timingPowerAnalyser.initSLSTA(this->blocks, this->terminals, this->nets, this->voltageAssignment.parameters.voltages.size(), this->logMax(), this->benchmark);
 		};
 
 		/// RoutingUtilization: handler
