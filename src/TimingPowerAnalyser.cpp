@@ -31,7 +31,7 @@ constexpr const char* TimingPowerAnalyser::DAG_Node::SOURCE_ID;
 constexpr const char* TimingPowerAnalyser::DAG_Node::SINK_ID;
 
 /// generate DAG (direct acyclic graph) from nets
-void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, unsigned const& voltages_count, bool const& log) {
+void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vector<Pin> const& terminals, std::vector<Net> const& nets, unsigned const& voltages_count, bool const& log, std::string const& benchmark) {
 
 	if (log) {
 		std::cout << "TimingPowerAnalyser> ";
@@ -342,6 +342,21 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 			children += node->children.size();
 		}
 		std::cout << children << " unique edges created (not accounting for multiple same-net instances)" << std::endl;
+		std::cout << std::endl;
+	}
+
+	if (TimingPowerAnalyser::DBG_DAG_DOT) {
+
+		std::cout << "DBG_TimingPowerAnalyser> Output of DAG as it would be required as input for dot graphviz:" << std::endl;
+		std::cout << std::endl;
+
+		std::cout << "strict digraph " << benchmark << " {" << std::endl;
+		for (DAG_Node const* node : this->nets_DAG_sorted) {
+			for (auto const& child : node->children) {
+				std::cout << "	" << node->block->id << " -> " << child.first << ";" << std::endl;
+			}
+		}
+		std::cout << "}" << std::endl;
 		std::cout << std::endl;
 	}
 }
