@@ -7,6 +7,7 @@ exp="regular"
 #benches="ami33 xerox"
 benches=$1
 runs=20
+wait_for_octave=30
 
 for die_count in 2 3 4
 #for die_count in $2
@@ -49,6 +50,15 @@ do
 
 	for bench in $benches
 	do
+		# only proceed in case no other octave instance is still running, as the script does not cope well with that
+		# note that 1 process will always be there, which is the grep process
+		while [[ `ps aux | grep 'octave optimization.m' | wc -l` > 1 ]]
+		do
+			echo "another instance of 'octave optimization.m' is still running: `ps aux | grep 'octave optimization.m' | head -n 1`"
+			echo "retrying in $wait_for_octave ..."
+			sleep $wait_for_octave
+		done
+
 		# (TODO) provide 0(%) as further, final parameter to ignore all TSVs; provide any other number to override actual TSVs with regular TSV structure of given density,
 # ranging from 0 to 100(%)
 		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
