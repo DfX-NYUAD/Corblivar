@@ -3,13 +3,13 @@ root=~/github/Corblivar
 base=$root/exp
 fitting=thermal_analysis_octave
 
-exp="clustering_off"
+exp="regular"
 #benches="ami33 xerox"
 benches=$1
 runs=20
 
-#for die_count in 2 3
-for die_count in $2
+for die_count in 2 3 4
+#for die_count in $2
 do
 	dies=$die_count"dies"
 
@@ -86,7 +86,8 @@ do
 			echo "running Corblivar for $bench on $dies; run $run; working dir: $dir"
 
 			# use local config; configured w/ thermal fitting
-			$root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
+			# also wrap gdb in batch mode, which helps to log any segfault's origin
+			gdb -batch -ex=run --args $root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
 
 			# run individual aux scripts, if required
 			#
