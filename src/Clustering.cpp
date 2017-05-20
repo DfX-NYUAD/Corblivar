@@ -59,10 +59,16 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 	for (i = 0; i < nets_segments.size(); i++) {
 
 		// sort the nets' bounding boxes by their area
-		sort(nets_segments[i].begin(), nets_segments[i].end(),
+		std::sort(nets_segments[i].begin(), nets_segments[i].end(),
 			// lambda expression
 			[](Segments const& sn1, Segments const& sn2) {
-				return sn1.bb.area > sn2.bb.area;
+				return
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
+				(sn1.net != sn2.net) && (
+					sn1.bb.area > sn2.bb.area
+				);
 			}
 		);
 
@@ -350,10 +356,15 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 	}
 
 	// sort list by temperature values
-	sort(thermal_map.begin(), thermal_map.end(),
+	std::sort(thermal_map.begin(), thermal_map.end(),
 		// lambda expression
 		[](ThermalAnalyzer::ThermalMapBin const* b1, ThermalAnalyzer::ThermalMapBin const* b2) {
-			return (b1->temp > b2->temp);
+			return
+			// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+			// http://stackoverflow.com/a/1541909
+			// also helps to make comparison short-cutting it early
+			(b1 != b2) &&
+			(b1->temp > b2->temp);
 		}
 	);
 
@@ -463,7 +474,12 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 						// lambda expression
 						[](ThermalAnalyzer::ThermalMapBin const* b1, ThermalAnalyzer::ThermalMapBin const* b2) {
 
-							return (b1->hotspot_id < b2->hotspot_id);
+							return
+							// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+							// http://stackoverflow.com/a/1541909
+							// also helps to make comparison short-cutting it early
+							(b1 != b2) &&
+							(b1->hotspot_id < b2->hotspot_id);
 						}
 					);
 				// now, remove consecutive duplicates
@@ -572,7 +588,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 
 				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
 				// http://stackoverflow.com/a/1541909
-				//
+				// also helps to make comparison short-cutting it early
 				return (hs1.id != hs2.id) && (
 						// the higher the cost the better; sort in desceding order
 						(hs1.score > hs2.score)

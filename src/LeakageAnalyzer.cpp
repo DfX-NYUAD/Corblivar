@@ -162,7 +162,10 @@ void LeakageAnalyzer::partitionPowerMap(unsigned const& layer, std::array< std::
 	std::sort(power_values.begin(), power_values.end(),
 			// lambda expression
 			[](Bin const& b1, Bin const& b2) {
-				return b1.value < b2.value;
+				return
+					// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+					// http://stackoverflow.com/a/1541909
+					(b1.x != b2.x && b1.y != b2.y) && (b1.value < b2.value);
 			}
 		 );
 

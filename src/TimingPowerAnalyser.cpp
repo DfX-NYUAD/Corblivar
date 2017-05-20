@@ -301,7 +301,9 @@ void TimingPowerAnalyser::initSLSTA(std::vector<Block> const& blocks, std::vecto
 						(n1->index < n2->index) ||
 						// in case indices are the same, also consider the ID; this way a more natural representation of the ordering will arise assuming
 						// that the notations for pins/blocks follow a regular scheme
-						((n1->index == n2->index) && (n1->block->id < n2->block->id))
+						((n1->index == n2->index) && (n1->block->id < n2->block->id)) ||
+						// in case even the IDs are the same, we can still resort to numerical IDs
+						((n1->index == n2->index) && (n1->block->id == n2->block->id) && (n1->block->numerical_id < n2->block->numerical_id))
 				       );
 			}
 		 );

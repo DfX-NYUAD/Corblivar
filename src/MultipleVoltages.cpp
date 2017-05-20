@@ -238,13 +238,19 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 
 				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
 				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
 				//
 				return (m1 != m2) && (
 						// the smaller the cost the better; sort in ascending order
 						(m1->cost < m2->cost) ||
 						// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
 						// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
-						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size()))
+						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
+						// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here we simply
+						// assume that the first block is the relevant one, without further checking whether that's the only or largest one
+						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+						 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
+						)
 					);
 			}
 		 );
@@ -484,8 +490,16 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 								// the smaller the cost the better; sort in ascending order
 								(c1 < c2) ||
 								// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
-								// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
-								(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size()))
+								// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost
+								// parameters), also consider the number of covered blocks, in order to prefer more larger volumes instead of
+								// trivial modules
+								(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
+								// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here
+								// we simply assume that the first block is the relevant one, without further checking whether that's the only or
+								// largest one
+								(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+								 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
+								)
 					       );
 					});
 
@@ -1160,7 +1174,12 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			std::sort(intruding_blocks.begin(), intruding_blocks.end(),
 				// lambda expression for sorting
 				[](Block const* b1, Block const* b2) {
-					return b1->numerical_id < b2->numerical_id;
+					return
+					// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+					// http://stackoverflow.com/a/1541909
+					(b1 != b2) && (
+						b1->numerical_id < b2->numerical_id
+					);
 				}
 			);
 			auto it_last = std::unique(intruding_blocks.begin(), intruding_blocks.end(),

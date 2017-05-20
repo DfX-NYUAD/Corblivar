@@ -376,7 +376,11 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 		// lambda expression
 		[](Block const* b1, Block const* b2) {
 			// descending order, b1 above b2
-			return !Rect::rectA_below_rectB(b1->bb, b2->bb, false);
+			return
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
+				(b1 != b2) && !Rect::rectA_below_rectB(b1->bb, b2->bb, false);
 		}
 	);
 
@@ -441,7 +445,11 @@ void CorblivarDie::rebuildPlacementStacks(std::list<Block const*>& relev_blocks_
 		// lambda expression
 		[](Block const* b1, Block const* b2) {
 			// descending order, b1 right of b2
-			return !Rect::rectA_leftOf_rectB(b1->bb, b2->bb, false);
+			return
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
+				(b1 != b2) && !Rect::rectA_leftOf_rectB(b1->bb, b2->bb, false);
 		}
 	);
 
@@ -941,10 +949,14 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	if (dir == Direction::HORIZONTAL) {
 
 		// sort blocks by lower-left x-coordinate (ascending order)
-		sort(blocks.begin(), blocks.end(),
+		std::sort(blocks.begin(), blocks.end(),
 			// lambda expression
 			[](Block const* b1, Block const* b2){
-				return (b1->bb.ll.x < b2->bb.ll.x)
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
+				return (b1 != b2) && (
+					(b1->bb.ll.x < b2->bb.ll.x)
 					// for blocks on same column, sort additionally by
 					// their width, putting the bigger back in the
 					// list, thus consider them first during
@@ -956,7 +968,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
 					|| (Math::doubleComp(b1->bb.ll.x, b2->bb.ll.x) && Math::doubleComp(b1->bb.ur.x, b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
-					;
+				);
 			}
 		);
 
@@ -1037,10 +1049,14 @@ void CorblivarDie::performPacking(Direction const& dir) {
 	else {
 
 		// sort blocks by lower-left y-coordinate (ascending order)
-		sort(blocks.begin(), blocks.end(),
+		std::sort(blocks.begin(), blocks.end(),
 			// lambda expression
 			[](Block const* b1, Block const* b2){
-				return (b1->bb.ll.y < b2->bb.ll.y)
+				// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
+				// http://stackoverflow.com/a/1541909
+				// also helps to make comparison short-cutting it early
+				return (b1 != b2) && (
+					(b1->bb.ll.y < b2->bb.ll.y)
 					// for blocks on same row, sort additionally by
 					// their height, putting the bigger back in the
 					// list, thus consider them first during
@@ -1052,7 +1068,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
 					|| (Math::doubleComp(b1->bb.ll.y, b2->bb.ll.y) && Math::doubleComp(b1->bb.ur.y, b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
-					;
+				);
 			}
 		);
 
