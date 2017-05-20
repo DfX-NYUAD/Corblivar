@@ -1,7 +1,0 @@
-<map id="RoutingUtilization::initUtilMaps" name="RoutingUtilization::initUtilMaps">
-<area shape="rect" id="node2" href="$class_floor_planner.html#af338858f8e15998ec5d13fef5c0559ba" title="RoutingUtilization: handler. " alt="" coords="199,5,365,47"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a9861753e3b7046839ff29a1d1062f6a7" title="FloorPlanner::shrinkDieOutlines" alt="" coords="179,71,385,98"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="647,63,697,90"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="433,63,599,90"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="444,114,588,141"/>
-</map>

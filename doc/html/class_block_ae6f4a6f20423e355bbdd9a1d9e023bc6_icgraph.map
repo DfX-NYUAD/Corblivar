@@ -1,6 +1,0 @@
-<map id="Block::power_density" name="Block::power_density">
-<area shape="rect" id="node2" href="$class_block.html#a85a93b38fe900d0b2a6e8b81fefbd245" title="power in [W]; returns power according to given voltage index " alt="" coords="245,5,344,32"/>
-<area shape="rect" id="node3" href="$class_multiple_voltages_1_1_compound_module.html#acc8b1249405c3a3a42c724d9240a107e" title="helper to update power reduction etc. " alt="" coords="200,57,389,98"/>
-<area shape="rect" id="node4" href="$class_multiple_voltages.html#a38fd36123e5318489061c7a2431c9963" title="helper to determine all compound modules " alt="" coords="437,23,620,65"/>
-<area shape="rect" id="node5" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="448,89,609,130"/>
-</map>

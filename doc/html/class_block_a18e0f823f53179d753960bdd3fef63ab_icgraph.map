@@ -1,9 +1,0 @@
-<map id="Block::delay" name="Block::delay">
-<area shape="rect" id="node2" href="$class_block.html#a7c5fb81c99c0259091d54e3d7267901d" title="Block::setFeasibleVoltages" alt="" coords="148,22,329,48"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#aa0c09b1a2f0c8b678631b5dbefd6ccb9" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="377,14,573,56"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="621,22,812,48"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="1047,22,1212,48"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="860,22,999,48"/>
-<area shape="rect" id="node8" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="1057,72,1201,99"/>
-<area shape="rect" id="node6" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1260,47,1311,74"/>
-</map>

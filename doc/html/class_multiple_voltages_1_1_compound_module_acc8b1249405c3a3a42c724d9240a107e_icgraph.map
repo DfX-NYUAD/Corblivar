@@ -1,4 +1,0 @@
-<map id="MultipleVoltages::CompoundModule::updatePower" name="MultipleVoltages::CompoundModule::updatePower">
-<area shape="rect" id="node2" href="$class_multiple_voltages.html#a38fd36123e5318489061c7a2431c9963" title="helper to determine all compound modules " alt="" coords="243,5,425,47"/>
-<area shape="rect" id="node3" href="$class_multiple_voltages.html#a16352f47bd11dcdfe7b2155ecb6a54ad" title="helper to perform top&#45;down selection of compound modules " alt="" coords="253,71,415,112"/>
-</map>

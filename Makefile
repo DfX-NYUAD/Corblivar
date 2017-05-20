@@ -46,6 +46,9 @@ BUILD_DIR := build
 SRC_DIR := src
 LIBS_DIR := libs
 SRC_AUX := src_aux
+DOC_DIR := doc
+DOXYGEN_DIR := $(DOC_DIR)/Doxygen
+DOXYFILE := $(DOC_DIR)/Doxyfile
 
 # derive related variables
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
@@ -127,9 +130,9 @@ cleanlibs:
 ##=============================================================================#
 ## Doxygen documentation:
 ##=============================================================================#
-#doc: $(SRC) Doxyfile
-#	doxygen
-#
+doc: $(SRC) $(SRC_AUX) $(DOXYFILE)
+	doxygen $(DOXYFILE)
+
 ##=============================================================================#
 ## Doxygen documentation:
 ##=============================================================================#
@@ -140,15 +143,15 @@ cleanlibs:
 ## Remove documentation files
 ##=============================================================================#
 docclean:
-#	@echo "Deleting Documentation: rm -rf doc"
-#	@rm -rf doc
+	@echo "Deleting Doxygen documentation"
+	rm -rf $(DOXYGEN_DIR)
 
 #=============================================================================#
 # Cleanup build
 #=============================================================================#
 clean:
 	@echo "removing: $(BUILD_DIR)/* $(APP) $(AUX)"
-	@rm -f $(BUILD_DIR)/* $(APP) $(AUX)
+	rm -f $(BUILD_DIR)/* $(APP) $(AUX)
 
 #=============================================================================#
 # Purge build

@@ -1,8 +1,0 @@
-<map id="CorblivarCore::switchDie" name="CorblivarCore::switchDie">
-<area shape="rect" id="node2" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="221,22,420,48"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="468,22,660,48"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="895,22,1060,48"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="708,22,847,48"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="905,72,1049,99"/>
-<area shape="rect" id="node5" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1108,47,1159,74"/>
-</map>

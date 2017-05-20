@@ -1,7 +1,0 @@
-<map id="Block::findBlock" name="Block::findBlock">
-<area shape="rect" id="node2" href="$class_corblivar_core.html#aca5c083822db096d84a93fd1446fffa7" title="general operations; randomly setup data structure from input " alt="" coords="177,5,355,47"/>
-<area shape="rect" id="node4" href="$class_i_o.html#ad23c22df3fbdd5938e7e94307a737868" title="parse Corblivar solution file, to rerun Corbliar w/ previous data " alt="" coords="191,71,341,98"/>
-<area shape="rect" id="node5" href="$class_i_o.html#a2deddf61dd088b41d03161f197da3fdf" title="parse alignment&#45;requests file " alt="" coords="171,122,361,149"/>
-<area shape="rect" id="node6" href="$class_i_o.html#acada5a50daab30c8c12487f8b9f175d6" title="parse nets file " alt="" coords="214,173,318,199"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="409,97,460,123"/>
-</map>

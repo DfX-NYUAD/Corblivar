@@ -1,8 +1,0 @@
-<map id="CorblivarDie::reset" name="CorblivarDie::reset">
-<area shape="rect" id="node2" href="$class_corblivar_core.html#ab9b720bd68a5a3df2296b232ccf7d6dd" title="general operations; generate layout from data structure " alt="" coords="184,22,383,48"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#ac26ac1430d01277fd6179b9658a59552" title="layout&#45;generation helper " alt="" coords="431,22,623,48"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="857,22,1023,48"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="671,22,809,48"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="868,72,1012,99"/>
-<area shape="rect" id="node5" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1071,47,1121,74"/>
-</map>

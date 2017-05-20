@@ -1,8 +1,0 @@
-<map id="Clustering::clusterSignalTSVs" name="Clustering::clusterSignalTSVs">
-<area shape="rect" id="node2" href="$class_floor_planner.html#adeedaad8e3950a3c3a32ba17bc31b5ce" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="251,22,481,48"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#a11003fa64fee85e63df9617095336416" title="SA: cost functions, i.e., layout&#45;evaluations. " alt="" coords="529,22,720,48"/>
-<area shape="rect" id="node4" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="955,22,1120,48"/>
-<area shape="rect" id="node6" href="$class_floor_planner.html#a5c1c62f1675bf47618ed631ad9555fe1" title="FloorPlanner::initSA" alt="" coords="768,22,907,48"/>
-<area shape="rect" id="node7" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="965,72,1109,99"/>
-<area shape="rect" id="node5" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1168,47,1219,74"/>
-</map>

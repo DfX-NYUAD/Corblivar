@@ -1,9 +1,0 @@
-<map id="Math::randB" name="Math::randB">
-<area shape="rect" id="node2" href="$class_corblivar_core.html#aca5c083822db096d84a93fd1446fffa7" title="general operations; randomly setup data structure from input " alt="" coords="400,5,579,47"/>
-<area shape="rect" id="node4" href="$class_layout_operations.html#aa07f9e4702a1fa483af55d7c47a34233" title="layout&#45;operation handler " alt="" coords="401,92,577,133"/>
-<area shape="rect" id="node6" href="$class_layout_operations.html#a1e814cefe17f4f8279c095560fc83f67" title="LayoutOperations::prepare\lHandlingOutlineCriticalBlock" alt="" coords="155,103,343,144"/>
-<area shape="rect" id="node7" href="$class_layout_operations.html#a76c938e4cb1dc40ba819c7b89cc698a7" title="LayoutOperations::prepare\lBlockSwappingFailedAlignment" alt="" coords="147,168,352,209"/>
-<area shape="rect" id="node8" href="$class_layout_operations.html#a1adb13850660db2cfa17a275d15793c3" title="LayoutOperations::perform\lOpSwitchTupleJunctions" alt="" coords="161,233,337,275"/>
-<area shape="rect" id="node3" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="840,53,891,79"/>
-<area shape="rect" id="node5" href="$class_floor_planner.html#a67f9d64f258e746cb09bbc47bcd26d2e" title="SA: main handler. " alt="" coords="627,82,792,109"/>
-</map>

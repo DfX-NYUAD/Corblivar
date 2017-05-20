@@ -1,7 +1,0 @@
-<map id="FloorPlanner::logMin" name="FloorPlanner::logMin">
-<area shape="rect" id="node2" href="$_corblivar_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="413,88,464,114"/>
-<area shape="rect" id="node3" href="$class_floor_planner.html#a921813298cd0b0a4e0322dfa0d98db50" title="SA: finalize handler. " alt="" coords="208,37,352,64"/>
-<area shape="rect" id="node4" href="$class_i_o.html#abb56f3216c40588b923ff69569a27d30" title="parse program parameter, config file, and further files " alt="" coords="195,88,365,114"/>
-<area shape="rect" id="node5" href="$class_i_o.html#afd72102413ec61a1579a0a1955469fda" title="parse blocks file " alt="" coords="222,138,338,165"/>
-<area shape="rect" id="node6" href="$class_i_o.html#acada5a50daab30c8c12487f8b9f175d6" title="parse nets file " alt="" coords="228,189,332,216"/>
-</map>
