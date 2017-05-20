@@ -57,9 +57,7 @@ OBJ := $(notdir $(OBJ))
 OBJ := $(addprefix $(BUILD_DIR)/,$(OBJ))
 DEP := $(OBJ:%.o=%.d)
 # assume all objects to be required for aux binaries, expect main object
-#OBJ_AUX := $(filter-out $(BUILD_DIR)/$(APP).o, $(OBJ))
-OBJ_AUX := $(filter-out build/Corblivar.o, $(OBJ))
-OBJ_AUX := $(filter-out build/Corblivar.o, $(OBJ))
+OBJ_AUX := $(filter-out $(BUILD_DIR)/$(APP).o, $(OBJ))
 # variable to monitor changes in aux src
 SRC_AUX_ALL := $(wildcard $(SRC_AUX)/*.cpp)
 
