@@ -104,7 +104,7 @@ class Math {
 		};
 
 		/// comparison of double values, allows minor deviation
-		inline static bool doubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
+		inline static bool looseDoubleComp(double const& d1, double const& d2, double const& precision = 1.0e-03) {
 			return std::abs(d1 - d2) < precision;
 		};
 

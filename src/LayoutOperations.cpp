@@ -98,7 +98,7 @@ bool LayoutOperations::performLayoutOp(CorblivarCore& corb, int const& layout_fi
 		// another scenario: in case very few valid layout were found in the
 		// previous iteration, randomly select one block which currently exceeds
 		// the fixed outline
-		else if (Math::doubleComp(layout_fit_counter, 0.0)) {
+		else if (Math::looseDoubleComp(layout_fit_counter, 0.0)) {
 
 			if (Math::randB()) {
 				this->prepareHandlingOutlineCriticalBlock(corb, die1, tuple1);

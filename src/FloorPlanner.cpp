@@ -1228,7 +1228,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	//
 	//TODO evaluate based on best possible global AAT, not cost.timing_actual_value; but only really required after the reference voltage may be different from the highest
 	//voltage
-	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::doubleComp(fitting_layouts_ratio, 0.0))) {
+	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::looseDoubleComp(fitting_layouts_ratio, 0.0))) {
 
 		// dummy cost, equals max normalized cost
 		cost.voltage_assignment = 1.0;
@@ -1384,7 +1384,7 @@ void FloorPlanner::evaluateLeakage(Cost& cost, double const& fitting_layouts_rat
 	// in case no fitting layouts are available, thermal-leakage analysis may, as it was done for voltage assignment, also be skipped since it is not deemed required for
 	// invalid layouts; however, set_max_cost shall be always performed
 	//
-	if (!set_max_cost && Math::doubleComp(fitting_layouts_ratio, 0.0)) {
+	if (!set_max_cost && Math::looseDoubleComp(fitting_layouts_ratio, 0.0)) {
 
 		// dummy cost, equals max normalized cost
 		cost.thermal_leakage = 1.0;

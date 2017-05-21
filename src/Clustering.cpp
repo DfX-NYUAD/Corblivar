@@ -347,7 +347,7 @@ void Clustering::determineHotspots(ThermalAnalyzer::ThermalAnalysisResult &therm
 		for (y = 0; y < ThermalAnalyzer::THERMAL_MAP_DIM; y++) {
 
 			// ignore bins w/ temperature values near the offset
-			if (Math::doubleComp(thermal_analysis.temp_offset, (*thermal_analysis.thermal_map)[x][y].temp)) {
+			if (Math::looseDoubleComp(thermal_analysis.temp_offset, (*thermal_analysis.thermal_map)[x][y].temp)) {
 				continue;
 			}
 

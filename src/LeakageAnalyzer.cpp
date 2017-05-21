@@ -281,7 +281,7 @@ inline void LeakageAnalyzer::partitionPowerMapHelper(unsigned const& layer, unsi
 	//
 	if (
 			// ideal case: std dev of this partition is reaching zero
-			Math::doubleComp(0.0, std_dev) ||
+			Math::looseDoubleComp(0.0, std_dev) ||
 			// also maintain (a ``soft'', see below) minimal partition size
 			//
 			// note that some partitions may be much smaller in case their previous cut was largely skewed towards one boundary; a possible countermeasure here would be

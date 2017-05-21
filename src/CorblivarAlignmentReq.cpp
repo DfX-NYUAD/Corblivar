@@ -116,7 +116,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	else if (this->offset_x()) {
 
 		// check the blocks' offset against the required offset
-		if (!Math::doubleComp(this->s_j->bb.ll.x - this->s_i->bb.ll.x, this->alignment_x)) {
+		if (!Math::looseDoubleComp(this->s_j->bb.ll.x - this->s_i->bb.ll.x, this->alignment_x)) {
 
 			// s_j should be to the right of s_i;
 			// consider the spatial mismatch as cost
@@ -257,7 +257,7 @@ CorblivarAlignmentReq::Evaluate CorblivarAlignmentReq::evaluate() const {
 	else if (this->offset_y()) {
 
 		// check the blocks' offset against the required offset
-		if (!Math::doubleComp(this->s_j->bb.ll.y - this->s_i->bb.ll.y, this->alignment_y)) {
+		if (!Math::looseDoubleComp(this->s_j->bb.ll.y - this->s_i->bb.ll.y, this->alignment_y)) {
 
 			// s_j should be above s_i;
 			// consider the spatial mismatch as cost

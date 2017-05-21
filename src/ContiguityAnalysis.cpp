@@ -188,7 +188,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					// if the lower point of b2 is just matching or
 					// already above the upper point of b1, i.e., when
 					// no intersection is feasible anymore
-					(Math::doubleComp(b2.low.y, b1.high.y) || b2.low.y > b1.high.y)
+					(b2.low.y >= b1.high.y)
 					// or if we reached the next x-coordinate already,
 					// i.e., again no intersection is feasible anymore
 					|| (b2.low.x > b1.low.x)
@@ -265,7 +265,7 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 					// if the left point of b2 is just matching or
 					// already to the right of the right point of b1,
 					// i.e., when no intersection is feasible anymore
-					(Math::doubleComp(b2.low.x, b1.high.x) || b2.low.x > b1.high.x)
+					(b2.low.x >= b1.high.x)
 					// or if we reached the next y-coordinate already,
 					// i.e., again no intersection is feasible anymore
 					|| (b2.low.y > b1.low.y)
@@ -500,12 +500,12 @@ inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundar
 			// for boundaries with same x-coordinate, resolve
 			// equal values by considering the boundaries'
 			// y-coordinate
-			|| (Math::doubleComp(b1.low.x, b2.low.x) && (b1.low.y < b2.low.y))
+			|| ((b1.low.x == b2.low.x) && (b1.low.y < b2.low.y))
 			// there will also be cases when segments start on
 			// the same x- and y-coordinate; then, resolve by
 			// block order, i.e., the segment of the left
 			// block comes first
-			|| (Math::doubleComp(b1.low.x, b2.low.x) && Math::doubleComp(b1.low.y, b2.low.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
+			|| ((b1.low.x == b2.low.x) && (b1.low.y == b2.low.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
 		)
 	       );
 };
@@ -524,12 +524,12 @@ inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary
 			// for boundaries with same y-coordinate, resolve
 			// equal values by considering the boundaries'
 			// x-coordinate
-			|| (Math::doubleComp(b1.low.y, b2.low.y) && (b1.low.x < b2.low.x))
+			|| ((b1.low.y == b2.low.y) && (b1.low.x < b2.low.x))
 			// there will also be cases when segments start on
 			// the same y- and x-coordinate; then, resolve by
 			// block order, i.e., the segment of the lower
 			// block comes first
-			|| (Math::doubleComp(b1.low.y, b2.low.y) && Math::doubleComp(b1.low.x, b2.low.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
+			|| ((b1.low.y == b2.low.y) && (b1.low.x == b2.low.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
 		)
 	       );
 };

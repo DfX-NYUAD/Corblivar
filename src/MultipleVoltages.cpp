@@ -245,10 +245,10 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						(m1->cost < m2->cost) ||
 						// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
 						// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
-						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
+						(Math::looseDoubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
 						// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here we simply
 						// assume that the first block is the relevant one, without further checking whether that's the only or largest one
-						(Math::doubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+						(Math::looseDoubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
 						 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
 						)
 					);
@@ -493,11 +493,11 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 								// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost
 								// parameters), also consider the number of covered blocks, in order to prefer more larger volumes instead of
 								// trivial modules
-								(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
+								(Math::looseDoubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
 								// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here
 								// we simply assume that the first block is the relevant one, without further checking whether that's the only or
 								// largest one
-								(Math::doubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+								(Math::looseDoubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
 								 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
 								)
 					       );
@@ -1318,10 +1318,10 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				if (Rect::rectsIntersectVertical(neighbour->block->bb, prev_bb)) {
 
 					// check both boundaries separately
-					if (!Math::doubleComp(neighbour_ext_bb.ll.y, prev_bb_ext.ll.y)) {
+					if (!Math::looseDoubleComp(neighbour_ext_bb.ll.y, prev_bb_ext.ll.y)) {
 						this->corners_powerring[n_l] += 2;
 					}
-					if (!Math::doubleComp(neighbour_ext_bb.ur.y, prev_bb_ext.ur.y)) {
+					if (!Math::looseDoubleComp(neighbour_ext_bb.ur.y, prev_bb_ext.ur.y)) {
 						this->corners_powerring[n_l] += 2;
 					}
 				}
@@ -1330,10 +1330,10 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 				else if (Rect::rectsIntersectHorizontal(neighbour->block->bb, prev_bb)) {
 
 					// check both boundaries separately
-					if (!Math::doubleComp(neighbour_ext_bb.ll.x, prev_bb_ext.ll.x)) {
+					if (!Math::looseDoubleComp(neighbour_ext_bb.ll.x, prev_bb_ext.ll.x)) {
 						this->corners_powerring[n_l] += 2;
 					}
-					if (!Math::doubleComp(neighbour_ext_bb.ur.x, prev_bb_ext.ur.x)) {
+					if (!Math::looseDoubleComp(neighbour_ext_bb.ur.x, prev_bb_ext.ur.x)) {
 						this->corners_powerring[n_l] += 2;
 					}
 				}

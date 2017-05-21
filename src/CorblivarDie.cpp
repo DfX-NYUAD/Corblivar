@@ -962,12 +962,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// list, thus consider them first during
 					// subsequent checking for adjacent blocks
 					// (reverse list traversal)
-					|| (Math::doubleComp(b1->bb.ll.x, b2->bb.ll.x) && (b1->bb.ur.x < b2->bb.ur.x))
+					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x < b2->bb.ur.x))
 					// for blocks on same column and w/ same width,
 					// order additionally by y-coordinate to ease list
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
-					|| (Math::doubleComp(b1->bb.ll.x, b2->bb.ll.x) && Math::doubleComp(b1->bb.ur.x, b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
+					|| ((b1->bb.ll.x == b2->bb.ll.x) && (b1->bb.ur.x == b2->bb.ur.x) && (b1->bb.ll.y < b2->bb.ll.y))
 				);
 			}
 		);
@@ -1031,7 +1031,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 					// in case the full block front was checked, we
 					// can stop checking other blocks
-					if (Math::doubleComp(block->bb.h, range_checked)) {
+					if (Math::looseDoubleComp(block->bb.h, range_checked)) {
 						break;
 					}
 				}
@@ -1062,12 +1062,12 @@ void CorblivarDie::performPacking(Direction const& dir) {
 					// list, thus consider them first during
 					// subsequent checking for adjacent blocks
 					// (reverse list traversal)
-					|| (Math::doubleComp(b1->bb.ll.y, b2->bb.ll.y) && (b1->bb.ur.y < b2->bb.ur.y))
+					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y < b2->bb.ur.y))
 					// for blocks on same row and w/ same height,
 					// order additionally by x-coordinate to ease list
 					// traversal (relevant blocks are adjacent tuples
 					// in list)
-					|| (Math::doubleComp(b1->bb.ll.y, b2->bb.ll.y) && Math::doubleComp(b1->bb.ur.y, b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
+					|| ((b1->bb.ll.y == b2->bb.ll.y) && (b1->bb.ur.y == b2->bb.ur.y) && (b1->bb.ll.x < b2->bb.ll.x))
 				);
 			}
 		);
@@ -1131,7 +1131,7 @@ void CorblivarDie::performPacking(Direction const& dir) {
 
 					// in case the full block front was checked, we
 					// can stop checking other blocks
-					if (Math::doubleComp(block->bb.w, range_checked)) {
+					if (Math::looseDoubleComp(block->bb.w, range_checked)) {
 						break;
 					}
 				}

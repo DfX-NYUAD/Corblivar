@@ -3233,7 +3233,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 							alignment_rect.w = alignment_rect.ur.x - alignment_rect.ll.x;
 
 							// offset and thus alignment fulfilled
-							if (Math::doubleComp(alignment_rect.w,  req.alignment_x)) {
+							if (Math::looseDoubleComp(alignment_rect.w,  req.alignment_x)) {
 
 								req_x_fulfilled = 1;
 							}
@@ -3323,7 +3323,7 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 							alignment_rect.h = alignment_rect.ur.y - alignment_rect.ll.y;
 
 							// offset and thus alignment fulfilled
-							if (Math::doubleComp(alignment_rect.h,  req.alignment_y)) {
+							if (Math::looseDoubleComp(alignment_rect.h,  req.alignment_y)) {
 
 								req_y_fulfilled = 1;
 							}
