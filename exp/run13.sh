@@ -9,8 +9,8 @@ benches=$1
 runs=20
 wait_for_octave=30
 
-for die_count in 2 3 4
-#for die_count in $2
+#for die_count in 2 3 4
+for die_count in $2
 do
 	dies=$die_count"dies"
 
@@ -97,7 +97,7 @@ do
 
 			# use local config; configured w/ thermal fitting
 			# also wrap gdb in batch mode, which helps to log any segfault's origin
-			gdb -batch -ex=run --args $root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
+			gdb -batch -ex=run -ex=backtrace --args $root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
 
 			# run individual aux scripts, if required
 			#

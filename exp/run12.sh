@@ -5,10 +5,11 @@ fitting=thermal_analysis_octave
 
 exp="voltage_assignment"
 benches=$1
-runs=40
+runs=20
+wait_for_octave=30
 
-for die_count in 2
-#for die_count in $2
+#for die_count in 2 3 4
+for die_count in $2
 do
 	dies=$die_count"dies"
 
@@ -48,6 +49,15 @@ do
 
 	for bench in $benches
 	do
+		# only proceed in case no other octave instance is still running, as the script does not cope well with that
+		# note that 1 process will always be there, which is the grep process
+		while [[ `ps aux | grep 'octave optimization.m' | wc -l` > 1 ]]
+		do
+			echo "another instance of 'octave optimization.m' is still running: `ps aux | grep 'octave optimization.m' | head -n 1`"
+			echo "retrying in $wait_for_octave ..."
+			sleep $wait_for_octave
+		done
+
 		# (TODO) provide 0(%) as further, final parameter to ignore all TSVs; provide any other number to override actual TSVs with regular TSV structure of given density,
 # ranging from 0 to 100(%)
 		octave optimization.m $bench $base/$dies/$exp/$bench.conf $root
@@ -85,14 +95,15 @@ do
 			echo "running Corblivar for $bench on $dies; run $run; working dir: $dir"
 
 			# use local config; configured w/ thermal fitting
-			$root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
+			# also wrap gdb in batch mode, which helps to log any segfault's origin
+			gdb -batch -ex=run -ex=backtrace --args $root/Corblivar $bench $base/$dies/$exp/$bench.conf $base/benches/ > $bench.log
 
 			# run individual aux scripts, if required
 			#
 			./HotSpot.sh $bench $die_count
 
-			# evaluate leakage via dedicated binary
-			$root/Correlation_TSC $bench $base/$dies/$exp/$bench.conf $base/benches/ $bench.solution >> $bench.log
+#			# evaluate leakage via dedicated binary
+#			$root/Correlation_TSC $bench $base/$dies/$exp/$bench.conf $base/benches/ $bench.solution >> $bench.log
 		done
 
 		# run experiments-folder aux scripts
