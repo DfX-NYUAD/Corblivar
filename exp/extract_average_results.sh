@@ -2,13 +2,15 @@
 
 exp="regular"
 benches="n100_soft n200_soft n300_soft"
-#benches="n100_soft"
+#benches="n200_soft"
 #benches="ibm01 ibm03 ibm07"
 #benches="ibm01 ibm03"
 runs=20
 dies_range="2 3 4"
+#dies_range="2"
 
 deadspace_threshold_std_dev=$1
+power_threshold_std_dev=$2
 
 #exp=$2
 #benches=$3
@@ -44,6 +46,7 @@ do
 				#
 				# also memorize how many data points / criteria to consider, including run
 				criteria=14
+#				criteria=17
 
 				# Run
 				result="$run"
@@ -57,6 +60,7 @@ do
 
 				# Power
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '11 p' -n`
+				power_count=4
 
 				# HPWL; keep also track of which criterion count this is, including run
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '13 p' -n`
@@ -84,10 +88,19 @@ do
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '30 p' -n`
 				delay_count=12
 
+#				# VA: avg corners
+#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '38 p' -n`
+#
+#				# VA: level shifters
+#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '39 p' -n`
+#
+#				# VA: volumes count
+#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '41 p' -n`
+
 				# HotSpot Temp; extract from separate file
 				result=$result"	"`tail -n 1 $dies/$exp/$run/$bench'_HotSpot.txt' | rev | cut -f 1 | rev`
 
-				# Runtime
+				# Runtime, last line
 				result=$result"	"`tail -n 1 $file | rev | cut -d ' ' -f 2 | rev`
 
 				# push variable as new line into file, append mode
@@ -118,7 +131,7 @@ do
 
 		echo "Valid results: $count"
 
-		# also drop lines where the deadspace is some threshold; work on file copy, to avoid removing lines while iterating over lines
+		# also drop lines where the deadspace is above some threshold; work on file copy, to avoid removing lines while iterating over lines
 		if [ "$deadspace_threshold_std_dev" ]; then
 			deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
 			deadspace_threshold=`awk "BEGIN {sum_sq=0} {sum_sq+=($\"$deadspace_count\" - \"$deadspace_avg\")**2} END {print \"$deadspace_avg\" - \"$deadspace_threshold_std_dev\"*sqrt(sum_sq/NR)}" $summary_file`
@@ -129,6 +142,7 @@ do
 
 			summary_file_copy=$summary_file".copy"
 			deleted_lines=0
+			count_new=0
 			cp $summary_file $summary_file_copy
 			for (( run = 1; run <= $count; run++ ))
 			do
@@ -140,12 +154,45 @@ do
 						#sed $sed_string $summary_file
 						sed -i "$((run - deleted_lines))d" $summary_file_copy
 						deleted_lines=$((deleted_lines + 1))
+					else
+						count_new=$((count_new + 1))
+					fi
+				fi
+			done
+			mv $summary_file_copy $summary_file
+			count=$count_new
+
+			echo "Count of valid results / data sets after removing those exceeding the deadspace threshold:" `wc -l $summary_file | awk '{print $1}'`
+		fi
+
+		# also drop lines where the power is some threshold; work on file copy, to avoid removing lines while iterating over lines
+		if [ "$power_threshold_std_dev" ]; then
+			power_avg=`awk "BEGIN {sum=0} {sum+=$\"$power_count\"} END {print sum/NR}" $summary_file`
+			power_threshold=`awk "BEGIN {sum_sq=0} {sum_sq+=($\"$power_count\" - \"$power_avg\")**2} END {print \"$power_avg\" - \"$power_threshold_std_dev\"*sqrt(sum_sq/NR)}" $summary_file`
+
+			echo "Average power: $power_avg"
+			echo "Power threshold (curr avg - $power_threshold_std_dev x curr std dev): $power_threshold"
+			#echo "Dropping the following results, which exceed the threshold:"
+
+			summary_file_copy=$summary_file".copy"
+			deleted_lines=0
+			cp $summary_file $summary_file_copy
+			for (( run = 1; run <= $count; run++ ))
+			do
+				if [ -f $file ]; then
+					sed_string="$((run))q;d"
+					# simply escaping only variable is not sufficient, so just calculate 0 + power_count
+					cur_power=`sed $sed_string $summary_file | awk "{print 0 + $\"$power_count\"}"`
+					if (( $(echo "$cur_power > $power_threshold" | bc) )); then
+						#sed $sed_string $summary_file
+						sed -i "$((run - deleted_lines))d" $summary_file_copy
+						deleted_lines=$((deleted_lines + 1))
 					fi
 				fi
 			done
 			mv $summary_file_copy $summary_file
 
-			echo "Count of valid results / data sets after removing those exceeding the threshold:" `wc -l $summary_file | awk '{print $1}'`
+			echo "Count of valid results / data sets after removing those exceeding the power threshold:" `wc -l $summary_file | awk '{print $1}'`
 		fi
 
 		# calculate averages, for each criteria separately, but excluding the run identifier (1st criterion)
@@ -159,8 +206,8 @@ do
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2e\\n\",total/NR)}" $summary_file`
 #			# delay criterion, for gathering data for HP/LP VA setups, scaling the delay is required
 #			elif [ "$criterion" -eq "$delay_count" ]; then
-#				echo "Delay value will be scaled!"
-#				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",0.9*(total/NR))}" $summary_file`
+#				avg=$avg" SCALED_DELAY:"
+#				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",1.3*(total/NR))}" $summary_file`
 			# other criteria shall be reported as regular float
 			else
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",total/NR)}" $summary_file`
@@ -174,17 +221,20 @@ do
 
 		# report all the averages
 		echo "Average values:"
-		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime"
+		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay VA_corners VA_level_shifter VA_volumes Temp Runtime"
 		echo $avg
 		echo "Average deadspace per die: $deadspace_avg_per_die"
 		echo ""
 
 		echo "" >> $summary_file
-		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime" >> $summary_file
+		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay VA_corners VA_level_shifter VA_volumes Temp Runtime" >> $summary_file
 		echo $avg >> $summary_file
 		echo "Average deadspace per die: $deadspace_avg_per_die" >> $summary_file
 		if [ "$deadspace_threshold_std_dev" ]; then
 			echo "[Note that other results with deadspace above threshold (initial avg - $deadspace_threshold_std_dev x initial std dev: $deadspace_threshold) have been dropped]" >> $summary_file
+		fi
+		if [ "$power_threshold_std_dev" ]; then
+			echo "[Note that other results with power above threshold (initial avg - $power_threshold_std_dev x initial std dev: $power_threshold) have been dropped]" >> $summary_file
 		fi
 	done
 done
