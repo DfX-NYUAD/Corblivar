@@ -157,6 +157,10 @@ do
 				# http://stackoverflow.com/questions/2451635/howto-pass-a-string-as-parameter-in-awk-within-bash-script
 				# https://linuxconfig.org/calculate-column-average-using-bash-shell
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2e\\n\",total/NR)}" $summary_file`
+#			# delay criterion, for gathering data for HP/LP VA setups, scaling the delay is required
+#			elif [ "$criterion" -eq "$delay_count" ]; then
+#				echo "Delay value will be scaled!"
+#				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",0.9*(total/NR))}" $summary_file`
 			# other criteria shall be reported as regular float
 			else
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",total/NR)}" $summary_file`
