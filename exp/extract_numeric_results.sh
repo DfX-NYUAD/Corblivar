@@ -1,13 +1,20 @@
 #!/bin/bash
 
-exp="regular_"
+exp="regular"
 benches="n100_soft n200_soft n300_soft"
-benches="n100_soft"
+#benches="n100_soft"
 #benches="ibm01 ibm03 ibm07"
+benches="ibm01 ibm03"
 runs=20
+dies_range="2 3 4"
 
+deadspace_threshold_std_dev=$1
 
-for die_count in 2 3 4
+#exp=$2
+#benches=$3
+#dies_range=$4
+
+for die_count in $dies_range
 do
 	dies=$die_count"dies"
 
@@ -73,44 +80,58 @@ do
 			fi
 		done
 
-# drop lines where some data is missing; this indicates a failed Corblivar run
+# drop lines where some data is missing; this indicates a failed Corblivar run; work on file copy, to avoid removing lines while iterating over lines
+		count=0
+		deleted_lines=0
 		summary_file_copy=$summary_file".copy"
 		cp $summary_file $summary_file_copy
 		for (( run = 1; run <= $runs; run++ ))
 		do
-			sed_string="$((run))q;d"
-			sed_result=`sed $sed_string $summary_file`
-			wc_result=`echo $sed_result | wc -w`
-# there will always be 2 data points; the run number and the Hotspot result
-			if [ "$wc_result" -lt $criteria ]; then
-				sed -i "/$sed_result/d" $summary_file_copy
+			if [ -f $file ]; then
+				sed_string="$((run))q;d"
+				sed_result=`sed $sed_string $summary_file`
+				wc_result=`echo $sed_result | wc -w`
+				if [ "$wc_result" -lt $criteria ]; then
+					sed -i "$((run - deleted_lines))d" $summary_file_copy
+					deleted_lines=$((deleted_lines + 1))
+				else
+					count=$((count + 1))
+				fi
 			fi
 		done
 		mv $summary_file_copy $summary_file
 
-# also drop lines where the deadspace is above avg + 1x std_dev
-		deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
-		deadspace_threshold=`awk "BEGIN {sum_sq=0} {sum_sq+=($\"$deadspace_count\" - \"$deadspace_avg\")**2} END {print \"$deadspace_avg\" - sqrt(sum_sq/NR)}" $summary_file`
+		echo "Valid results: $count"
 
-		echo "Average deadspace: $deadspace_avg"
-		echo "Deadspace threshold (avg - 1x std_dev): $deadspace_threshold"
+		if [ "$deadspace_threshold_std_dev" ]; then
+# also drop lines where the deadspace is above avg + 1x std_dev; work on file copy, to avoid removing lines while iterating over lines
+			deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
+			deadspace_threshold=`awk "BEGIN {sum_sq=0} {sum_sq+=($\"$deadspace_count\" - \"$deadspace_avg\")**2} END {print \"$deadspace_avg\" - \"$deadspace_threshold_std_dev\"*sqrt(sum_sq/NR)}" $summary_file`
+
+			echo "Average deadspace: $deadspace_avg"
+			echo "Deadspace threshold (curr avg - $deadspace_threshold_std_dev x curr std dev): $deadspace_threshold"
 ##		echo "Dropping the following results, which exceed the threshold:"
 
-		summary_file_copy=$summary_file".copy"
-		cp $summary_file $summary_file_copy
-		for (( run = 1; run <= $runs; run++ ))
-		do
-			sed_string="$((run))q;d"
+			summary_file_copy=$summary_file".copy"
+			deleted_lines=0
+			cp $summary_file $summary_file_copy
+			for (( run = 1; run <= $count; run++ ))
+			do
+				if [ -f $file ]; then
+					sed_string="$((run))q;d"
 # simply escaping only variable is not sufficient, so just calculate 0 + deadspace_count
-			cur_deadspace=`sed $sed_string $summary_file | awk "{print 0 + $\"$deadspace_count\"}"`
-			if (( $(echo "$cur_deadspace > $deadspace_threshold" | bc) )); then
-##				sed $sed_string $summary_file
-				sed -i "/$cur_deadspace/d" $summary_file_copy
-			fi
-		done
-		mv $summary_file_copy $summary_file
+					cur_deadspace=`sed $sed_string $summary_file | awk "{print 0 + $\"$deadspace_count\"}"`
+					if (( $(echo "$cur_deadspace > $deadspace_threshold" | bc) )); then
+##						sed $sed_string $summary_file
+						sed -i "$((run - deleted_lines))d" $summary_file_copy
+						deleted_lines=$((deleted_lines + 1))
+					fi
+				fi
+			done
+			mv $summary_file_copy $summary_file
 
-		echo "Count of valid data sets / experimental runs:" `wc -l $summary_file | awk '{print $1}'`
+			echo "Count of valid results / data sets after removing those exceeding the threshold:" `wc -l $summary_file | awk '{print $1}'`
+		fi
 
 # calculate averages, for each criteria separately, but excluding the run identifier (1st criterion)
 		avg=""
@@ -130,13 +151,23 @@ do
 
 		done
 
+# recalculate deadspace average, and report average over die count
+		deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
+		deadspace_avg_per_die=`echo "scale=2; $deadspace_avg / $die_count" | bc`
+
+# report all the averages
 		echo "Average values:"
-		echo "Deadspace Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime"
+		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime"
 		echo $avg
+		echo "Average deadspace per die: $deadspace_avg_per_die"
 		echo ""
 
 		echo "" >> $summary_file
-		echo "Deadspace Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime" >> $summary_file
+		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay Temp Runtime" >> $summary_file
 		echo $avg >> $summary_file
+		echo "Average deadspace per die: $deadspace_avg_per_die" >> $summary_file
+		if [ "$deadspace_threshold_std_dev" ]; then
+			echo "[Note that other results with deadspace above threshold (initial avg - $deadspace_threshold_std_dev x initial std dev: $deadspace_threshold) have been dropped]" >> $summary_file
+		fi
 	done
 done
