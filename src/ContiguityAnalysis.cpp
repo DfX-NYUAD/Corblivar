@@ -489,10 +489,6 @@ void ContiguityAnalysis::analyseBlocks(int layers, std::vector<Block> const& blo
 /// helper to check vertical boundaries
 inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	return (
-		// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
-		// http://stackoverflow.com/a/1541909
-		// also helps to make comparison more efficient by short-cutting it early
-		(b1.block != b2.block) && (
 			// x-coordinates are the first criterion; note
 			// that it's sufficient to compare the first
 			// (lower) points since it's a vertical segment
@@ -506,17 +502,12 @@ inline bool ContiguityAnalysis::boundaries_vert_comp(ContiguityAnalysis::Boundar
 			// block order, i.e., the segment of the left
 			// block comes first
 			|| ((b1.low.x == b2.low.x) && (b1.low.y == b2.low.y) && (b1.block->bb.ll.x < b2.block->bb.ll.x))
-		)
 	       );
 };
 
 /// helper to check horizontal boundaries
 inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary const& b1, ContiguityAnalysis::Boundary const& b2) {
 	return (
-		// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
-		// http://stackoverflow.com/a/1541909
-		// also helps to make comparison more efficient by short-cutting it early
-		(b1.block != b2.block) && (
 			// y-coordinates are the first criterion; note
 			// that it's sufficient to compare the first
 			// (left) points since it's a horizontal segment
@@ -530,7 +521,6 @@ inline bool ContiguityAnalysis::boundaries_hor_comp(ContiguityAnalysis::Boundary
 			// block order, i.e., the segment of the lower
 			// block comes first
 			|| ((b1.low.y == b2.low.y) && (b1.low.x == b2.low.x) && (b1.block->bb.ll.y < b2.block->bb.ll.y))
-		)
 	       );
 };
 
