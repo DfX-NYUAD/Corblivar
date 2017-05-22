@@ -576,12 +576,9 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 							module->outline[l].push_back(std::move(rect));
 						}
 
-						// also sum up the power-ring corners, but
-						// subtract two under the assumption that the
-						// previous module's outline can be extended
-						// without further corners; this is an somewhat
-						// optimistic but simple estimation
-						module->corners_powerring[l] += n_module->corners_powerring[l] - 2;
+						// also update the power-ring corners, but only assume the maximum over the current count and the module's to merge count with 2
+						// additional corners; this is an somewhat optimistic but simple estimation
+						module->corners_powerring[l] = std::max(module->corners_powerring[l], n_module->corners_powerring[l] + 2);
 					}
 
 					// add (pointers to) now additionally considered
