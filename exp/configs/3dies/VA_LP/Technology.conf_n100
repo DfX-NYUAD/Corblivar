@@ -41,10 +41,9 @@ value
 value
 10
 # Frame dimension [um] to check for at least one signal TSV, otherwise a dummy
-# TSV will be placed; enforces minimum TSV density; set to /value/ larger than
-# die dimension to deactivate
+# TSV will be placed; enforces minimum TSV density; set to 0 to deactivate
 value
-200
+0
 # Upper limit of TSVs per TSV island; relates to clustering of TSV into TSV islands; own /value/
 value
 1024
@@ -68,4 +67,4 @@ values
 0.83
 # Global delay threshold; covers module and net delay; given in [ns]
 value
-0.975
+29.45

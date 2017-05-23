@@ -1,13 +1,15 @@
 #!/bin/bash
 
-exp="regular"
-benches="n100_soft n200_soft n300_soft"
-#benches="n200_soft"
+#exp="regular"
+#exp="VA_HP"
+exp="voltage_assignment"
+#benches="n100_soft n200_soft n300_soft"
+#benches="n300_soft"
 #benches="ibm01 ibm03 ibm07"
-#benches="ibm01 ibm03"
+benches="ibm01"
 runs=20
 dies_range="2 3 4"
-#dies_range="2"
+#dies_range="4"
 
 deadspace_threshold_std_dev=$1
 power_threshold_std_dev=$2
@@ -45,63 +47,68 @@ do
 				# the sed 'X p' represents the line with the respective result in the file; be careful that those lines will differ depending on the cost factors!
 				#
 				# also memorize how many data points / criteria to consider, including run
+				criteria=11
 				criteria=14
-#				criteria=17
 
 				# Run
 				result="$run"
 
-				# Deadspace; keep also track of which criterion count this is, including run
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '4 p' -n`
-				deadspace_count=2
-
-				# Outline
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '9 p' -n`
-
 				# Power
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '11 p' -n`
-				power_count=4
+				power_count=2
+
+				# Critical Delay
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '30 p' -n`
+				delay_count=3
 
 				# HPWL; keep also track of which criterion count this is, including run
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '13 p' -n`
-				HWPL_count=5
-
-				# Power for HPWL
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '15 p' -n`
+				HWPL_count=4
 
 				# Routing utilization
 				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '17 p' -n`
 
-				# TSVs
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '19 p' -n`
+				# Power for HPWL
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '15 p' -n`
 
-				# Power for TSVs
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '20 p' -n`
+				# Deadspace; keep also track of which criterion count this is, including run
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '4 p' -n`
+				deadspace_count=7
 
-				# Avg TSVs per Island
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '23 p' -n`
-
-				# Use of Deadspace by TSVs
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '24 p' -n`
-
-				# Critical Delay
-				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '30 p' -n`
-				delay_count=12
-
-#				# VA: avg corners
-#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '38 p' -n`
-#
-#				# VA: level shifters
-#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '39 p' -n`
-#
-#				# VA: volumes count
-#				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '41 p' -n`
+				# Outline
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '9 p' -n`
+				outline_count=8
 
 				# HotSpot Temp; extract from separate file
 				result=$result"	"`tail -n 1 $dies/$exp/$run/$bench'_HotSpot.txt' | rev | cut -f 1 | rev`
 
+				# TSVs
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '19 p' -n`
+
+##				# Power for TSVs
+##				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '20 p' -n`
+##
+##				# Avg TSVs per Island
+##				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '23 p' -n`
+##
+##				# Use of Deadspace by TSVs
+##				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '24 p' -n`
+
+				# VA: volumes count
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '41 p' -n`
+				volumes_count=11
+
+				# VA: avg corners
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '38 p' -n`
+				corners_count=12
+
+				# VA: level shifters
+				result=$result"	"`rev $file | cut -d ' ' -f 1 | rev | sed '39 p' -n`
+
 				# Runtime, last line
 				result=$result"	"`tail -n 1 $file | rev | cut -d ' ' -f 2 | rev`
+				runtime_count=11
+				runtime_count=14
 
 				# push variable as new line into file, append mode
 				echo $result >> $summary_file
@@ -204,10 +211,22 @@ do
 				# http://stackoverflow.com/questions/2451635/howto-pass-a-string-as-parameter-in-awk-within-bash-script
 				# https://linuxconfig.org/calculate-column-average-using-bash-shell
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2e\\n\",total/NR)}" $summary_file`
-#			# delay criterion, for gathering data for HP/LP VA setups, scaling the delay is required
-#			elif [ "$criterion" -eq "$delay_count" ]; then
-#				avg=$avg" SCALED_DELAY:"
-#				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",1.3*(total/NR))}" $summary_file`
+			# outline, scale from um^2 to mm^2
+			elif [ "$criterion" -eq "$outline_count" ]; then
+				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",100*(total/NR))}" $summary_file`
+			# deadspace, report average over dies
+			elif [ "$criterion" -eq "$deadspace_count" ]; then
+				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",(total/NR)/\"$die_count\")}" $summary_file`
+			# runtime, report no decimal points 
+			elif [ "$criterion" -eq "$runtime_count" ]; then
+				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.0f\\n\",total/NR)}" $summary_file`
+#			# corners in volumes, calculate average over volumes count
+#			elif [ "$criterion" -eq "$corners_count" ]; then
+#				avg=$avg" "`awk "BEGIN {total_corners=0;total_volumes=0} {total_corners+=$\"$criterion\";total_volumes+=$\"$volumes_count\"} END {printf(\"%.2f\\n\",((total_corners/total_volumes)/NR))}" $summary_file`
+##			# delay criterion, for gathering data for HP/LP VA setups, scaling the delay is required
+##			elif [ "$criterion" -eq "$delay_count" ]; then
+##				avg=$avg" SCALED_DELAY:"
+##				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",1.3*(total/NR))}" $summary_file`
 			# other criteria shall be reported as regular float
 			else
 				avg=$avg" "`awk "BEGIN {total=0} {total+=$\"$criterion\"} END {printf(\"%.2f\\n\",total/NR)}" $summary_file`
@@ -215,21 +234,19 @@ do
 
 		done
 
-		# recalculate deadspace average, and report average over die count
-		deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
-		deadspace_avg_per_die=`echo "scale=2; $deadspace_avg / $die_count" | bc`
+#		# recalculate deadspace average, and report average over die count
+#		deadspace_avg=`awk "BEGIN {sum=0} {sum+=$\"$deadspace_count\"} END {print sum/NR}" $summary_file`
+#		deadspace_avg_per_die=`echo "scale=2; $deadspace_avg / $die_count" | bc`
 
 		# report all the averages
 		echo "Average values:"
-		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay VA_corners VA_level_shifter VA_volumes Temp Runtime"
 		echo $avg
-		echo "Average deadspace per die: $deadspace_avg_per_die"
+#		echo "Average deadspace per die: $deadspace_avg_per_die"
 		echo ""
 
 		echo "" >> $summary_file
-		echo "Deadspace_sum Outline Power HPWL Power_HPWL Routing_Util TSVs Power_TSVs TSVs/Island Deadspace/TSVs Critical_Delay VA_corners VA_level_shifter VA_volumes Temp Runtime" >> $summary_file
 		echo $avg >> $summary_file
-		echo "Average deadspace per die: $deadspace_avg_per_die" >> $summary_file
+#		echo "Average deadspace per die: $deadspace_avg_per_die" >> $summary_file
 		if [ "$deadspace_threshold_std_dev" ]; then
 			echo "[Note that other results with deadspace above threshold (initial avg - $deadspace_threshold_std_dev x initial std dev: $deadspace_threshold) have been dropped]" >> $summary_file
 		fi
