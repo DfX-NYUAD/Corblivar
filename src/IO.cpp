@@ -2876,6 +2876,7 @@ void IO::writeTempSchedule(FloorPlanner const& fp) {
 	gp_out << "set key box lt rgb \"#808080\" out bottom center" << std::endl;
 	// specific settings: log scale (for SA temp)
 	gp_out << "set log y" << std::endl;
+	gp_out << "set format y \"%g\"" << std::endl;
 	gp_out << "set mytics 10" << std::endl;
 	// second, indepentend scale for cost values
 	gp_out << "set y2tics nomirror" << std::endl;
