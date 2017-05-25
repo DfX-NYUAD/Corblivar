@@ -182,6 +182,10 @@ further examples can be found in exp/configs/.
 
 # Changelog
 
+## 1.6.0
+*May 2017: new feature: system-level static timing analysis; various updates and bugfixes*
+- TODO
+
 ## 1.5.1
 *May 2017: new cost critiera: level shifter; updates config/experimental files for "regular", "VA_&ast;" and "voltage\_assignment"*
 
