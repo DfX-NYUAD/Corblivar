@@ -184,7 +184,13 @@ further examples can be found in exp/configs/.
 
 ## 1.6.0
 *May 2017: new feature: system-level static timing analysis; various updates and bugfixes*
-- TODO
+- new timing model, based on STA; related updates and cleanups
+- updates logging, dbg logging
+- bugfix segfaults (had been due to violations of strict weak ordering for std::sort)
+- update/runtime improvement regarding: dynamic power consumption in wires. voltage volumes, and routing utilization
+- revised (HP)WL metric; now based on center of modules/blocks/TSVs
+- updates/cleanups experimental scripts and config files
+- updates documentation
 
 ## 1.5.1
 *May 2017: new cost critiera: level shifter; updates config/experimental files for "regular", "VA_&ast;" and "voltage\_assignment"*
