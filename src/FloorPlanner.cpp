@@ -94,7 +94,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 	i_valid_layout_found = Point::UNDEF;
 	fitting_layouts_ratio = 0.0;
 	// dummy large value to accept first fitting solution
-	best_cost = 100.0 * Math::stdDev(cost_samples);
+	best_cost = 10e6 * Math::stdDev(cost_samples);
 
 	/// outer loop: annealing -- temperature steps
 	while (i <= this->schedule.loop_limit) {
@@ -215,7 +215,6 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 								(this->opt_flags.alignment && cost_sanity_check.fits_fixed_outline) ||
 								!this->opt_flags.alignment
 							   ) {
-
 								// switch phase
 								SA_phase_two = SA_phase_two_init = true;
 
@@ -259,7 +258,11 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 						}
 
 						// memorize best solution which fits into outline
-						if (fitting_cost < best_cost) {
+						//
+						// proceed only once we really switched to phase 2; note that this depends on the additional checks done during transitioning from
+						// phase 1 to 2, see above
+						//
+						if (SA_phase_two && (fitting_cost < best_cost)) {
 
 							// also, shrink die outline
 							// whenever possible (and if
