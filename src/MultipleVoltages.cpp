@@ -1171,12 +1171,10 @@ double MultipleVoltages::CompoundModule::updateOutlineCost(ContiguityAnalysis::C
 			std::sort(intruding_blocks.begin(), intruding_blocks.end(),
 				// lambda expression for sorting
 				[](Block const* b1, Block const* b2) {
-					return
 					// std::sort requires a _strict_ ordering, thus we have to make sure that same elements returns false
 					// http://stackoverflow.com/a/1541909
-					(b1 != b2) && (
-						b1->numerical_id < b2->numerical_id
-					);
+					// this is ensured by comparing using lesser-than operator
+					return (b1->numerical_id < b2->numerical_id);
 				}
 			);
 			auto it_last = std::unique(intruding_blocks.begin(), intruding_blocks.end(),
