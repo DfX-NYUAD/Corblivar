@@ -243,12 +243,12 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 				return (m1 != m2) && (
 						// the smaller the cost the better; sort in ascending order
 						(m1->cost < m2->cost) ||
-						// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
+						// in case cost are the same, which typically happens for modules being trivial (in some way to the current cost parameters),
 						// also consider the number of covered blocks, in order to prefer more larger volumes instead of trivial modules
-						(Math::looseDoubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
-						// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here we simply
+						((m1->cost == m2->cost) && (m1->blocks.size() > m2->blocks.size())) ||
+						// in case covered blocks are also the same, which may also happen for comparing trivial modules, compare by block area; here we simply
 						// assume that the first block is the relevant one, without further checking whether that's the only or largest one
-						(Math::looseDoubleComp(m1->cost, m2->cost, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+						((m1->cost == m2->cost) && (m1->blocks.size() == m2->blocks.size())
 						 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
 						)
 					);
@@ -489,15 +489,14 @@ std::vector<MultipleVoltages::CompoundModule*> const& MultipleVoltages::selectCo
 						return (
 								// the smaller the cost the better; sort in ascending order
 								(c1 < c2) ||
-								// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost parameters),
-								// in case cost are very similar, which typically happens for modules being trivial (in some way to the current cost
+								// in case cost are the same, which typically happens for modules being trivial (in some way to the current cost
 								// parameters), also consider the number of covered blocks, in order to prefer more larger volumes instead of
 								// trivial modules
-								(Math::looseDoubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() > m2->blocks.size())) ||
-								// in case covered blocks are same, which may also happen for comparing trivial modules, compare by block area; here
-								// we simply assume that the first block is the relevant one, without further checking whether that's the only or
-								// largest one
-								(Math::looseDoubleComp(c1, c2, 1.0e-6) && (m1->blocks.size() == m2->blocks.size())
+								((c1 == c2) && (m1->blocks.size() > m2->blocks.size())) ||
+								// in case also the covered blocks are the same, which may also happen for comparing trivial modules, compare by
+								// block area; here we simply assume that the first block is the relevant one, without further checking whether
+								// that's the only or largest one
+								((c1 == c2) && (m1->blocks.size() == m2->blocks.size())
 								 	&& (m1->blocks.front()->bb.area < m2->blocks.front()->bb.area)
 								)
 					       );
