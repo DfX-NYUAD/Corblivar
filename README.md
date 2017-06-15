@@ -182,6 +182,12 @@ further examples can be found in exp/configs/.
 
 # Changelog
 
+## 1.6.1
+*June 2017: updates and bugfixes*
+- fixes segfaults for std::sort
+- updates TSC binaries related to 1.6.0
+- update/fix SA schedule
+
 ## 1.6.0
 *May 2017: new feature: system-level static timing analysis; various updates and bugfixes*
 - new timing model, based on STA; related updates and cleanups
