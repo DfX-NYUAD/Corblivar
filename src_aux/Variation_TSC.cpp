@@ -79,6 +79,9 @@ int main (int argc, char** argv) {
 	// parse nets
 	IO::parseNets(fp);
 
+	// generate DAG (directed acyclic graph) for SL-STA (system-level static timing analysis)
+	fp.initTimingPowerAnalyser();
+
 	// init Corblivar core
 	CorblivarCore corb = CorblivarCore(fp.getLayers(), fp.getBlocks().size());
 
@@ -423,8 +426,8 @@ void writeHotSpotPtrace(FloorPlanner& fp) {
 void writeHotSpotFiles__passiveSi_bonding(FloorPlanner& fp) {
 	std::ofstream file, file_bond;
 	int cur_layer;
-	int x, y;
-	int map_x, map_y;
+	unsigned x, y;
+	unsigned map_x, map_y;
 	float x_ll, y_ll;
 	float bin_w, bin_h;
 
