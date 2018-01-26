@@ -25,6 +25,9 @@ Corblivar.  If not, see <http://www.gnu.org/licenses/>.
 If you find this tool useful, and apply it for your research and publications, please
 cite the following:
 - In general: https://github.com/IFTE-EDA/Corblivar
+- Related to timing-driven voltage assignment and 3D floorplanning in general: J. Knechtel, J. Lienig, and I. A. M. Elfadel, "Multi-Objective 3D Floorplanning with Integrated Voltage Assignment," in ACM
+Transactions on Design Automation of Electronic Systems (TODAES), Vol. 23, No. 2, Article 22, 2017 (PDF:
+		https://18798-presscdn-pagely.netdna-ssl.com/johann/wp-content/uploads/sites/4483/2016/08/knechtel17_TODAES.pdf)
 - Related to thermal side-channel leakage: J. Knechtel, O. Sinanoglu, "On Mitigation of Side-Channel Attacks in 3D ICs: Decorrelating Thermal Patterns from Power and Activity", in Proc. Design Automation Conference, 2017, DOI: http://dx.doi.org/10.1145/3061639.3062293 (PDF: https://wp.nyu.edu/johann/knechtel17_tsc_dac/)
 - Related to planning of large-scale interconnects, fast thermal management, and 3D floorplanning in general: J. Knechtel, E. F. Y. Young, J. Lienig, "Planning Massive Interconnects in 3D Chips", in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 34(11):1808-1821, 2015, DOI: http://dx.doi.org/10.1109/TCAD.2015.2432141 (PDF: http://www.ifte.de/mitarbeiter/lienig/TCAD_Nov2015_pp1808_1821.pdf)
 - Related to planning of large-scale interconnects, fast thermal management, and 3D floorplanning in general: J. Knechtel, E. F. Y. Young, J. Lienig, "Structural Planning of 3D-IC Interconnects by Block Alignment", in Proc. Asia South Pacific Design Automation Conference, pp. 53-60, 2014, DOI: http://dx.doi.org/10.1109/ASPDAC.2014.6742866 (PDF: http://www.ifte.de/mitarbeiter/lienig/aspdac2014_pp53_60.pdf)
