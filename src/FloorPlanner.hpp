@@ -77,56 +77,51 @@ class FloorPlanner {
 
 			/// general geometrical parameters
 			double outline_x, outline_y;
-			/// general geometrical parameters
-			double blocks_scale;
-			/// general geometrical parameters
-			bool outline_shrink;
-			/// general geometrical parameters
 			double die_AR, die_area;
-			/// general geometrical parameters
+
+			/// scaling factor
+			double blocks_scale;
+
+			bool outline_shrink;
+
 			/// note that this parameter covers all dies
 			double blocks_area;
-			/// general geometrical parameters
-			/// note that these two parameters below cover all dies
+
+			/// note that these two parameters cover all dies
 			double stack_area, stack_deadspace;
-
-			/// power scaling factor
-			double power_scale;
-
-			/// global delay threshold
-			double delay_threshold;
-			/// global delay threshold
-			double delay_threshold_initial;
-			/// the achievable frequency is derived from this delay
-			/// threshold/constraint: f = 1.0 / delay
-			double frequency;
 
 		} IC;
 
 		/// POD for technology parameters
 		struct techParameters {
 
-			/// technology parameters
+			/// power scaling factor
+			double power_scale;
+
+			/// global delay/latency
+			double delay_curr;
+			double delay_constraint;
+
+			// assumed clock freq
+			double frequency;
+
+			// layers
 			double die_thickness;;
-			/// technology parameters
 			double Si_active_thickness;
-			/// technology parameters
 			double Si_passive_thickness;
-			/// technology parameters
 			double BEOL_thickness;
-			/// technology parameters
 			double bond_thickness;
-			/// technology parameters
+
+			// TSVs
 			double TSV_dimension;
-			/// technology parameters
 			double TSV_pitch;
-			/// technology parameters
 			double TSV_frame_dim;
-			/// technology parameters
 			int TSV_per_cluster_limit;
-			/// technology parameters
 			/// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
+
+			// TODO parameters from TimingPowerAnalyser
+			//
 		} techParameters;
 
 		/// IO files and parameters

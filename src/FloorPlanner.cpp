@@ -361,8 +361,8 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			this->generateLayout(corb, this->opt_flags.alignment);
 
 			// enable voltage assignment based on initial threshold value, but also backup current threshold
-			double cur_threshold = this->IC.delay_threshold;
-			this->IC.delay_threshold = this->IC.delay_threshold_initial;
+			double cur_threshold = this->techParameters.delay_curr;
+			this->techParameters.delay_curr = this->techParameters.delay_constraint;
 
 			// determine cost terms and overall cost for new best solution;
 			// assume fitting ratio of 1.0 for better comparability of
@@ -370,7 +370,7 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 			cost = this->evaluateLayout(corb.getAlignments(), 1.0, SA_phase_two);
 
 			// restore current threshold
-			this->IC.delay_threshold = cur_threshold;
+			this->techParameters.delay_curr = cur_threshold;
 
 			if (SA_phase_two) {
 				std::cout << "SA>   Current best solution; overall cost: " << cost.total_cost << std::endl;
@@ -407,12 +407,12 @@ bool FloorPlanner::performSA(CorblivarCore& corb) {
 					// always display violation, also when it's negative
 					// (i.e., timing better than constraint)
 					std::cout << "SA>     Timing violation ([ns] / [%]): ";
-					std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+					std::cout << cost.timing_actual_value - this->techParameters.delay_curr;
 					std::cout << " / ";
-					std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+					std::cout << cost.timing_actual_value * (100.0 / this->techParameters.delay_curr) - 100.0;
 					std::cout << std::endl;
 					// is adapted dynamically for voltage assignment
-					std::cout << "SA>      Current timing threshold: " << this->IC.delay_threshold << std::endl;
+					std::cout << "SA>      Current timing threshold: " << this->techParameters.delay_curr << std::endl;
 				}
 
 				// TODO add level shifter, avg corners; plot all only when according weight is defined
@@ -795,20 +795,20 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				// always display violation, also when it's negative
 				// (i.e., timing better than constraint)
 				std::cout << "Corblivar>  Timing violation ([ns] / [%]): ";
-				std::cout << cost.timing_actual_value - this->IC.delay_threshold;
+				std::cout << cost.timing_actual_value - this->techParameters.delay_curr;
 				std::cout << " / ";
-				std::cout << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				std::cout << cost.timing_actual_value * (100.0 / this->techParameters.delay_curr) - 100.0;
 				std::cout << std::endl;
 				// is adapted dynamically for voltage assignment
-				std::cout << "Corblivar>   Current timing threshold: " << this->IC.delay_threshold << std::endl;
+				std::cout << "Corblivar>   Current timing threshold: " << this->techParameters.delay_curr << std::endl;
 
 				this->IO_conf.results << " Timing violation ([ns] / [%]): ";
-				this->IO_conf.results << cost.timing_actual_value - this->IC.delay_threshold;
+				this->IO_conf.results << cost.timing_actual_value - this->techParameters.delay_curr;
 				this->IO_conf.results << " / ";
-				this->IO_conf.results << cost.timing_actual_value * (100.0 / this->IC.delay_threshold) - 100.0;
+				this->IO_conf.results << cost.timing_actual_value * (100.0 / this->techParameters.delay_curr) - 100.0;
 				this->IO_conf.results << std::endl;
 				// is adapted dynamically for voltage assignment
-				this->IO_conf.results << "  Current timing threshold: " << this->IC.delay_threshold << std::endl;
+				this->IO_conf.results << "  Current timing threshold: " << this->techParameters.delay_curr << std::endl;
 				this->IO_conf.results << std::endl;
 			}
 
@@ -1005,10 +1005,10 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// note that interconnects will be always evaluated, even if they are not
 		// optimized; they are a key criterion to be reported
 		if (finalize) {
-			this->evaluateInterconnects(cost, this->IC.frequency, alignments, true, true);
+			this->evaluateInterconnects(cost, this->techParameters.frequency, alignments, true, true);
 		}
 		else if (this->opt_flags.interconnects) {
-			this->evaluateInterconnects(cost, this->IC.frequency, alignments, set_max_cost);
+			this->evaluateInterconnects(cost, this->techParameters.frequency, alignments, set_max_cost);
 		}
 		// no optimization considered, reset cost to zero
 		else {
@@ -1077,7 +1077,7 @@ FloorPlanner::Cost FloorPlanner::evaluateLayout(std::vector<CorblivarAlignmentRe
 		// TSV clustering
 		if (finalize) {
 
-			this->evaluateInterconnects(cost, this->IC.frequency, alignments, false, true);
+			this->evaluateInterconnects(cost, this->techParameters.frequency, alignments, false, true);
 
 			if (this->opt_flags.alignment) {
 				this->evaluateAlignments(cost, alignments, true, false, true);
@@ -1154,7 +1154,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 	// evaluate final result w.r.t. the user-given constraint, not an possibly
 	// down-scaled constraint (see below)
 	if (finalize) {
-		this->IC.delay_threshold = this->IC.delay_threshold_initial;
+		this->techParameters.delay_curr = this->techParameters.delay_constraint;
 	}
 
 	// reset previous voltage assignments if required; they impact the module delay; resetting implies to set only the highest voltage as feasible (and as assigned)
@@ -1172,7 +1172,7 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		// also consider the threshold as required global arrival time
 		//
 		for (int voltage_index = 0; voltage_index < static_cast<int>(this->voltageAssignment.parameters.voltages.size()); voltage_index++) {
-			this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->IC.delay_threshold, voltage_index);
+			this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->techParameters.delay_curr, voltage_index);
 		}
 
 		// store actual max delay value; considering the default voltage
@@ -1181,21 +1181,21 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 	// for reevaluation, after voltage assignment, don't reset voltage-assignment
 	// but still re-evaluate timing according to all assigned voltages
 	else {
-		this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->IC.delay_threshold);
+		this->timingPowerAnalyser.updateTiming(this->opt_flags.voltage_assignment, this->techParameters.delay_curr);
 
 		// store actual max delay value; considering the voltage assignment
 		cost.timing_actual_value = this->timingPowerAnalyser.getGlobalAAT();
 	}
 
-	// memorize max cost; consider given delay threshold
+	// memorize max cost
 	if (set_max_cost) {
-		this->max_cost.timing = this->IC.delay_threshold;
+		this->max_cost.timing = this->techParameters.delay_curr;
 	}
 
 	// also apply cost normalization
 	cost.timing = cost.timing_actual_value / this->max_cost.timing;
 
-	// iteratively reduce the timing constraint / delay threshold stepwise if possible; this way, chances for actually meeting the timing constraints during further SA
+	// iteratively reduce the delay/latency stepwise if possible; this way, chances for actually meeting the timing constraints during further SA
 	// iterations will reduce which, in turn, will emphasize the cost for timing optimization
 	//
 	// also, this will reduce the required iterations/computation for voltage assignment since it's skipped in case timing is violated
@@ -1207,11 +1207,11 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 		!finalize &&
 		!reevaluation &&
 		cost.fits_fixed_outline &&
-		(cost.timing_actual_value < this->IC.delay_threshold) &&
+		(cost.timing_actual_value < this->techParameters.delay_curr) &&
 		// also only when timing shall be optimized, not when only analysed
 		(this->weights.timing > 0)
 	) {
-		this->IC.delay_threshold = cost.timing_actual_value;
+		this->techParameters.delay_curr = cost.timing_actual_value;
 	}
 }
 
@@ -1231,7 +1231,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	//
 	//TODO evaluate based on best possible global AAT, not cost.timing_actual_value; but only really required after the reference voltage may be different from the highest
 	//voltage
-	if (!set_max_cost && (cost.timing_actual_value > (this->IC.delay_threshold + Math::epsilon) || Math::looseDoubleComp(fitting_layouts_ratio, 0.0))) {
+	if (!set_max_cost && (cost.timing_actual_value > (this->techParameters.delay_curr + Math::epsilon) || Math::looseDoubleComp(fitting_layouts_ratio, 0.0))) {
 
 		// dummy cost, equals max normalized cost
 		cost.voltage_assignment = 1.0;
@@ -1337,7 +1337,7 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 	cost.voltage_assignment /= this->max_cost.voltage_assignment;
 
 	// note that the delay cost shall be updated after voltage assignment, since the
-	// delay cost is modelling max delay over delay threshold, i.e., larger max delays
+	// delay cost is modelling max delay over delay constraint, i.e., larger max delays
 	// due to voltage assignment will increase delay cost
 	//
 	this->evaluateTiming(cost, set_max_cost, finalize, true);

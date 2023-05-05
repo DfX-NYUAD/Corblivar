@@ -682,10 +682,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.power_scale;
+	in >> fp.techParameters.power_scale;
 
 	// sanity check for power scaling factor
-	if (fp.IC.power_scale <= 0.0) {
+	if (fp.techParameters.power_scale <= 0.0) {
 		std::cout << "IO> Provide a positive, non-zero power scaling factor!" << std::endl;
 		exit(1);
 	}
@@ -834,17 +834,17 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 	}
 
-	// delay threshold
+	// delay/latency constraint
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.delay_threshold;
-	// memorize initially parsed threshold separately
-	fp.IC.delay_threshold_initial = fp.IC.delay_threshold;
+	in >> fp.techParameters.delay_constraint;
+	// init current delay from the constraint
+	fp.techParameters.delay_curr = fp.techParameters.delay_constraint;
 
 	// sanity check for appropriate, i.e., positive non-zero threshold
-	if (fp.IC.delay_threshold <= 0.0) {
-		std::cout << "IO> Check the provided delay threshold, it should be positive and non-zero!" << std::endl;
+	if (fp.techParameters.delay_constraint <= 0.0) {
+		std::cout << "IO> Check the provided delay/latency constraint, it should be positive and non-zero!" << std::endl;
 		exit(1);
 	}
 
@@ -852,10 +852,10 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 	in >> tmpstr;
 	while (tmpstr != "value" && !in.eof())
 		in >> tmpstr;
-	in >> fp.IC.frequency;
+	in >> fp.techParameters.frequency;
 
 	// sanity check for appropriate, i.e., positive non-zero frequency
-	if (fp.IC.frequency <= 0.0) {
+	if (fp.techParameters.frequency <= 0.0) {
 		std::cout << "IO> Check the provided clock frequency, it should be positive and non-zero!" << std::endl;
 		exit(1);
 	}
@@ -945,7 +945,7 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Chip -- Final die outline shrink: " << fp.IC.outline_shrink << std::endl;
 
 		// technology parameters
-		std::cout << "IO>  Technology -- Power scaling factor: " << fp.IC.power_scale << std::endl;
+		std::cout << "IO>  Technology -- Power scaling factor: " << fp.techParameters.power_scale << std::endl;
 		std::cout << "IO>  Technology -- Die thickness [um]: " << fp.techParameters.die_thickness << std::endl;
 		std::cout << "IO>  Technology -- Active Si layer thickness [um]: " << fp.techParameters.Si_active_thickness << std::endl;
 		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.techParameters.Si_passive_thickness << std::endl;
@@ -998,8 +998,8 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		}
 		std::cout << std::endl;
 
-		std::cout << "IO>  Technology -- Global delay threshold (covering module and net delay, in [ns]): " << fp.IC.delay_threshold << std::endl;
-		std::cout << "IO>  Technology -- Assumed clock frequency (in Hz): " << fp.IC.frequency << std::endl;
+		std::cout << "IO>  Technology -- Global delay/latency constraint (covering module and net delay, in [ns]): " << fp.techParameters.delay_constraint << std::endl;
+		std::cout << "IO>  Technology -- Assumed clock frequency (in Hz): " << fp.techParameters.frequency << std::endl;
 
 		// layout generation options
 		std::cout << "IO>  SA -- Layout generation; guided hard block rotation: " << fp.layoutOp.parameters.enhanced_hard_block_rotation << std::endl;
@@ -1732,7 +1732,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 					power_in >> new_block.power_density_unscaled;
 
 					// however, apply general power-scaling factor
-					new_block.power_density_unscaled *= fp.IC.power_scale;
+					new_block.power_density_unscaled *= fp.techParameters.power_scale;
 
 					// backup original value
 					new_block.power_density_unscaled_back = new_block.power_density_unscaled;
@@ -1770,7 +1770,7 @@ void IO::parseBlocks(FloorPlanner& fp) {
 					new_block.power_density_unscaled *= 1.0e6;
 
 					// finally, apply general power-scaling factor
-					new_block.power_density_unscaled *= fp.IC.power_scale;
+					new_block.power_density_unscaled *= fp.techParameters.power_scale;
 
 					// backup original value
 					new_block.power_density_unscaled_back = new_block.power_density_unscaled;
