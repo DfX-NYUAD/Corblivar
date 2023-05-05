@@ -1033,13 +1033,13 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: thermal analysis (not optimization) is conducted since thermal-leakage mitigation is activated" << std::endl;
 		}
 		if (!fp.IO_conf.power_density_file_avail) {
-			std::cout << "IO>     Note: thermal optimization is disabled since no power density file is available" << std::endl;
+			std::cout << "IO>     Note: thermal analysis/optimization is disabled since no power density file is available" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for wirelength: " << fp.weights.WL << std::endl;
 		std::cout << "IO>  SA -- Cost factor for routing utilization: " << fp.weights.routing_util << std::endl;
 		std::cout << "IO>  SA -- Cost factor for TSVs: " << fp.weights.TSVs << std::endl;
 		std::cout << "IO>  SA -- Cost factor for block alignment: " << fp.weights.alignment << std::endl;
-		if (!fp.IO_conf.alignments_file_avail) {
+		if (fp.weights.alignment > 0.0 && !fp.IO_conf.alignments_file_avail) {
 			std::cout << "IO>     Note: block alignment is disabled since no alignment-requests file is available" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for timing optimization: " << fp.weights.timing << std::endl;
@@ -1047,14 +1047,18 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 			std::cout << "IO>     Note: timing analysis (not optimization) is conducted since voltage assignment is activated" << std::endl;
 		}
 		std::cout << "IO>  SA -- Cost factor for thermal-leakage mitigation: " << fp.weights.thermal_leakage << std::endl;
-		std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Spatial entropy of power maps: " << fp.leakageAnalyzer.parameters.weight_entropy << std::endl;
-		std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Pearson correlation of power and thermal map (lowest layer): " << fp.leakageAnalyzer.parameters.weight_correlation << std::endl;
+		if (fp.opt_flags.thermal_leakage) {
+			std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Spatial entropy of power maps: " << fp.leakageAnalyzer.parameters.weight_entropy << std::endl;
+			std::cout << "IO>  Thermal-leakage mitigation -- Internal cost factor - Pearson correlation of power and thermal map (lowest layer): " << fp.leakageAnalyzer.parameters.weight_correlation << std::endl;
+		}
 		std::cout << "IO>  SA -- Cost factor for voltage assignment: " << fp.weights.voltage_assignment << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Level-shifter minimization: " << fp.voltageAssignment.parameters.weight_level_shifter << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
-		std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_power_variation << std::endl;
+		if (fp.opt_flags.voltage_assignment) {
+			std::cout << "IO>  Voltage assignment -- Internal cost factor - Power saving: " << fp.voltageAssignment.parameters.weight_power_saving << std::endl;
+			std::cout << "IO>  Voltage assignment -- Internal cost factor - Power-ring corner minimization: " << fp.voltageAssignment.parameters.weight_corners << std::endl;
+			std::cout << "IO>  Voltage assignment -- Internal cost factor - Level-shifter minimization: " << fp.voltageAssignment.parameters.weight_level_shifter << std::endl;
+			std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-count minimization: " << fp.voltageAssignment.parameters.weight_modules_count << std::endl;
+			std::cout << "IO>  Voltage assignment -- Internal cost factor - Volume-variation minimization: " << fp.voltageAssignment.parameters.weight_power_variation << std::endl;
+		}
 
 		// power blurring mask parameters
 		std::cout << "IO>  Power-blurring mask parameterization -- TSV density: " << mask_parameters.TSV_density << std::endl;
