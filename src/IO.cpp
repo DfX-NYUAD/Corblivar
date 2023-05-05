@@ -596,75 +596,6 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		exit(1);
 	}
 
-	// thermal-analysis parameters
-	//
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.impulse_factor;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.impulse_factor_scaling_exponent;
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.mask_boundary_value;
-
-	// sanity check for positive, non-zero parameters
-	if (mask_parameters.impulse_factor <= 0.0) {
-		std::cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << std::endl;
-		exit(1);
-	}
-	if (mask_parameters.mask_boundary_value <= 0.0) {
-		std::cout << "IO> Provide a positive, non-zero power blurring mask boundary value!" << std::endl;
-		exit(1);
-	}
-
-	// sanity check for reasonable mask parameters
-	if (mask_parameters.impulse_factor <= mask_parameters.mask_boundary_value) {
-		std::cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << std::endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.power_density_scaling_padding_zone;
-
-	// sanity check for positive parameter
-	if (mask_parameters.power_density_scaling_padding_zone < 1.0) {
-		std::cout << "IO> Provide a positive (greater or equal 1.0) power-density scaling factor!" << std::endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.power_density_scaling_TSV_region;
-
-	// sanity check for parameter range
-	if (mask_parameters.power_density_scaling_TSV_region > 1.0 || mask_parameters.power_density_scaling_TSV_region < 0.0) {
-		std::cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << std::endl;
-		exit(1);
-	}
-
-	in >> tmpstr;
-	while (tmpstr != "value" && !in.eof())
-		in >> tmpstr;
-	in >> mask_parameters.temp_offset;
-
-	// sanity check for positive parameter
-	if (mask_parameters.temp_offset < 0.0) {
-		std::cout << "IO> Provide a positive temperature offset!" << std::endl;
-		exit(1);
-	}
-
-	// store power-blurring parameters
-	fp.power_blurring_parameters = mask_parameters;
-
 	in.close();
 
 	// technology file parsing
@@ -919,6 +850,75 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 
 	// TODO encapsulate and read in from technology file
 	fp.IC.frequency = TimingPowerAnalyser::FREQUENCY;
+
+	// thermal-analysis parameters
+	//
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.impulse_factor;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.impulse_factor_scaling_exponent;
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.mask_boundary_value;
+
+	// sanity check for positive, non-zero parameters
+	if (mask_parameters.impulse_factor <= 0.0) {
+		std::cout << "IO> Provide a positive, non-zero power blurring impulse factor!" << std::endl;
+		exit(1);
+	}
+	if (mask_parameters.mask_boundary_value <= 0.0) {
+		std::cout << "IO> Provide a positive, non-zero power blurring mask boundary value!" << std::endl;
+		exit(1);
+	}
+
+	// sanity check for reasonable mask parameters
+	if (mask_parameters.impulse_factor <= mask_parameters.mask_boundary_value) {
+		std::cout << "IO> Provide a power blurring impulse factor larger than the power blurring mask boundary value!" << std::endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.power_density_scaling_padding_zone;
+
+	// sanity check for positive parameter
+	if (mask_parameters.power_density_scaling_padding_zone < 1.0) {
+		std::cout << "IO> Provide a positive (greater or equal 1.0) power-density scaling factor!" << std::endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.power_density_scaling_TSV_region;
+
+	// sanity check for parameter range
+	if (mask_parameters.power_density_scaling_TSV_region > 1.0 || mask_parameters.power_density_scaling_TSV_region < 0.0) {
+		std::cout << "IO> Provide a power-density down-scaling factor for TSV regions between 0.0 and 1.0!" << std::endl;
+		exit(1);
+	}
+
+	in >> tmpstr;
+	while (tmpstr != "value" && !in.eof())
+		in >> tmpstr;
+	in >> mask_parameters.temp_offset;
+
+	// sanity check for positive parameter
+	if (mask_parameters.temp_offset < 0.0) {
+		std::cout << "IO> Provide a positive temperature offset!" << std::endl;
+		exit(1);
+	}
+
+	// store power-blurring parameters
+	fp.power_blurring_parameters = mask_parameters;
 
 	in.close();
 
