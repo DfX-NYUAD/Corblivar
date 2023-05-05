@@ -541,13 +541,13 @@ void FloorPlanner::initSA(CorblivarCore& corb, std::vector<double>& cost_samples
 	double cur_cost, prev_cost, cost_diff;
 
 	// reset max cost
-	this->max_cost_WL = 0.0;
-	this->max_cost_routing_util = 0.0;
-	this->max_cost_TSVs = 0;
-	this->max_cost_thermal = 0.0;
-	this->max_cost_alignments = 0.0;
-	this->max_cost_timing = 0.0;
-	this->max_cost_voltage_assignment = 0.0;
+	this->max_cost.WL = 0.0;
+	this->max_cost.routing_util = 0.0;
+	this->max_cost.TSVs = 0;
+	this->max_cost.thermal = 0.0;
+	this->max_cost.alignments = 0.0;
+	this->max_cost.timing = 0.0;
+	this->max_cost.voltage_assignment = 0.0;
 
 	// reset temperature-schedule log
 	this->tempSchedule.clear();
@@ -1189,11 +1189,11 @@ void FloorPlanner::evaluateTiming(Cost& cost, bool const& set_max_cost, bool con
 
 	// memorize max cost; consider given delay threshold
 	if (set_max_cost) {
-		this->max_cost_timing = this->IC.delay_threshold;
+		this->max_cost.timing = this->IC.delay_threshold;
 	}
 
 	// also apply cost normalization
-	cost.timing = cost.timing_actual_value / this->max_cost_timing;
+	cost.timing = cost.timing_actual_value / this->max_cost.timing;
 
 	// iteratively reduce the timing constraint / delay threshold stepwise if possible; this way, chances for actually meeting the timing constraints during further SA
 	// iterations will reduce which, in turn, will emphasize the cost for timing optimization
@@ -1330,11 +1330,11 @@ void FloorPlanner::evaluateVoltageAssignment(Cost& cost, double const& fitting_l
 
 	// memorize max cost
 	if (set_max_cost) {
-		this->max_cost_voltage_assignment = cost.voltage_assignment;
+		this->max_cost.voltage_assignment = cost.voltage_assignment;
 	}
 
 	// apply cost normalization
-	cost.voltage_assignment /= this->max_cost_voltage_assignment;
+	cost.voltage_assignment /= this->max_cost.voltage_assignment;
 
 	// note that the delay cost shall be updated after voltage assignment, since the
 	// delay cost is modelling max delay over delay threshold, i.e., larger max delays
@@ -1366,11 +1366,11 @@ void FloorPlanner::evaluateThermalDistr(Cost& cost, bool const& set_max_cost) {
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_thermal = this->thermal_analysis.cost_temp;
+		this->max_cost.thermal = this->thermal_analysis.cost_temp;
 	}
 
 	// store normalized temp cost
-	cost.thermal = this->thermal_analysis.cost_temp / this->max_cost_thermal;
+	cost.thermal = this->thermal_analysis.cost_temp / this->max_cost.thermal;
 	// store actual temp value
 	cost.thermal_actual_value = this->thermal_analysis.max_temp;
 }
@@ -1429,11 +1429,11 @@ void FloorPlanner::evaluateLeakage(Cost& cost, double const& fitting_layouts_rat
 
 	// memorize max cost
 	if (set_max_cost) {
-		this->max_cost_thermal_leakage = cost.thermal_leakage;
+		this->max_cost.thermal_leakage = cost.thermal_leakage;
 	}
 
 	// apply cost normalization
-	cost.thermal_leakage /= this->max_cost_thermal_leakage;
+	cost.thermal_leakage /= this->max_cost.thermal_leakage;
 }
 
 /// adaptive cost model: terms for area and AR mismatch are _mutually_ depending on ratio
@@ -2043,9 +2043,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// memorize max cost; initial sampling
 	if (set_max_cost) {
-		this->max_cost_WL = cost.HPWL;
-		this->max_cost_TSVs = cost.TSVs;
-		this->max_cost_routing_util = cost.routing_util;
+		this->max_cost.WL = cost.HPWL;
+		this->max_cost.TSVs = cost.TSVs;
+		this->max_cost.routing_util = cost.routing_util;
 	}
 
 	// store actual values
@@ -2054,17 +2054,17 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 
 	// normalized values; max value refers to initial sampling, thus sanity check for
 	// zero cost is not required
-	cost.HPWL /= this->max_cost_WL;
+	cost.HPWL /= this->max_cost.WL;
 
 	// sanity check for normalizing TSVs cost; zero max cost applies to 2D
 	// floorplanning
-	if (this->max_cost_TSVs != 0) {
-		cost.TSVs /= this->max_cost_TSVs;
+	if (this->max_cost.TSVs != 0) {
+		cost.TSVs /= this->max_cost.TSVs;
 	}
 	// sanity check for normalizing routing util cost; zero max cost may arise when
 	// routing util is not evaluated
-	if (this->max_cost_routing_util != 0) {
-		cost.routing_util /= this->max_cost_routing_util;
+	if (this->max_cost.routing_util != 0) {
+		cost.routing_util /= this->max_cost.routing_util;
 	}
 
 	if (FloorPlanner::DBG_CALLS_SA) {
@@ -2268,26 +2268,26 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 	// memorize max cost; initial sampling; also consider HPWL and other adapted cost
 	// terms
 	if (set_max_cost) {
-		this->max_cost_alignments = cost.alignments;
-		this->max_cost_WL = cost.HPWL_actual_value;
-		this->max_cost_TSVs = cost.TSVs_actual_value;
-		this->max_cost_routing_util = cost.routing_util;
+		this->max_cost.alignments = cost.alignments;
+		this->max_cost.WL = cost.HPWL_actual_value;
+		this->max_cost.TSVs = cost.TSVs_actual_value;
+		this->max_cost.routing_util = cost.routing_util;
 	}
 
 	// update normalized cost; refers to max value from initial sampling
-	if (this->max_cost_alignments != 0) {
-		cost.alignments /= this->max_cost_alignments;
+	if (this->max_cost.alignments != 0) {
+		cost.alignments /= this->max_cost.alignments;
 	}
 
 	// update normalized routing utilization
-	if (this->max_cost_routing_util != 0) {
-		cost.routing_util /= this->max_cost_routing_util;
+	if (this->max_cost.routing_util != 0) {
+		cost.routing_util /= this->max_cost.routing_util;
 	}
 
 	// update normalized TSV cost; sanity check for zero TSVs cost; applies to
 	// 2D floorplanning
-	if (this->max_cost_TSVs != 0) {
-		cost.TSVs = cost.TSVs_actual_value / this->max_cost_TSVs;
+	if (this->max_cost.TSVs != 0) {
+		cost.TSVs = cost.TSVs_actual_value / this->max_cost.TSVs;
 	}
 
 	// update by TSVs occupied deadspace amount
@@ -2295,7 +2295,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 
 	// update normalized HPWL cost; sanity check for zero HPWL not required
 	// since max cost are initialized during first phase
-	cost.HPWL = cost.HPWL_actual_value / this->max_cost_WL;
+	cost.HPWL = cost.HPWL_actual_value / this->max_cost.WL;
 
 	if (FloorPlanner::DBG_CALLS_SA) {
 		std::cout << "<- FloorPlanner::evaluateAlignments : " << cost.alignments << std::endl;

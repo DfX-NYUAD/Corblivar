@@ -186,10 +186,10 @@ class FloorPlanner {
 		} weights;
 
 		/// SA cost variables: max cost values
-		///
-		// (TODO) refactor into own struct
-		double max_cost_thermal, max_cost_WL, max_cost_alignments, max_cost_routing_util, max_cost_timing, max_cost_voltage_assignment, max_cost_thermal_leakage;
-		int max_cost_TSVs;
+		struct max_cost {
+			double thermal, WL, alignments, routing_util, timing, voltage_assignment, thermal_leakage;
+			int TSVs;
+		} max_cost;
 
 		/// SA cost; POD declaration
 		struct Cost {
