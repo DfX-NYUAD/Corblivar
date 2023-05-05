@@ -36,11 +36,6 @@ class TimingPowerAnalyser {
 		static constexpr bool DBG_VERBOSE= false;
 		static constexpr bool DBG_DAG_DOT = false;
 
-		/// frequency for clock domain; required for dynamic power consumption in wires
-		/// 1 GHz, own assumption
-		// TODO put into technology file
-		static constexpr double FREQUENCY = 1.0e09;
-
 	// private constants
 	// TODO put into technology file
 	//
