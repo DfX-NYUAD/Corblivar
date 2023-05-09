@@ -951,6 +951,9 @@ void IO::parseParametersFiles(FloorPlanner& fp, int const& argc, char** argv) {
 		std::cout << "IO>  Technology -- Passive Si layer thickness [um]: " << fp.techParameters.Si_passive_thickness << std::endl;
 		std::cout << "IO>  Technology -- BEOL layer thickness [um]: " << fp.techParameters.BEOL_thickness << std::endl;
 		std::cout << "IO>  Technology -- BCB bonding layer thickness [um]: " << fp.techParameters.bond_thickness << std::endl;
+		if (fp.techParameters.bond_thickness == 0.0) {
+			std::cout << "IO>     Note: bond layer will be skipped for HotSpot files" << std::endl;
+		}
 		std::cout << "IO>  Technology -- TSV dimension [um]: " << fp.techParameters.TSV_dimension << std::endl;
 		std::cout << "IO>  Technology -- TSV pitch [um]: " << fp.techParameters.TSV_pitch << std::endl;
 		std::cout << "IO>  Technology -- TSV frames; enforces minimal TSV density [um]: " << fp.techParameters.TSV_frame_dim << std::endl;
@@ -2198,6 +2201,7 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 	std::ofstream data_out;
 	int cur_layer;
 	int layer_limit;
+	int layer_offset;
 	unsigned x, y;
 	int flag, flag_start, flag_stop;
 	double max_temp, min_temp;
@@ -2292,7 +2296,15 @@ void IO::writeMaps(FloorPlanner& fp, int const& flag_parameter, std::string cons
 				// also note that layer ids must match with active Si
 				// layers, where the order is defined in the lcf file in
 				// writeHotSpotFiles
-				data_out_name << fp.benchmark << benchmark_suffix << "_HotSpot.steady.grid.gp_data.layer_" << (1 + 4 * cur_layer);
+				//
+				// also note that the layer ids depent on whether a bond layer is used or not
+				if (fp.techParameters.bond_thickness == 0.0) {
+					layer_offset = 3;
+				}
+				else {
+					layer_offset = 4;
+				}
+				data_out_name << fp.benchmark << benchmark_suffix << "_HotSpot.steady.grid.gp_data.layer_" << (1 + layer_offset * cur_layer);
 			}
 			else if (flag == MAPS_FLAGS::TSV_DENSITY) {
 				gp_out_name << fp.benchmark << benchmark_suffix << "_" << cur_layer + 1 << "_TSV_density.gp";
@@ -3544,6 +3556,8 @@ void IO::writeFloorplanGP(FloorPlanner const& fp, std::vector<CorblivarAlignment
 void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_suffix) {
 	std::ofstream file, file_bond;
 	int cur_layer;
+	int layer_offset;
+	std::string bond_layer_prefix;
 	unsigned x, y;
 	unsigned map_x, map_y;
 	float x_ll, y_ll;
@@ -3891,10 +3905,17 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 	file << "#<floorplan file>" << std::endl;
 	file << std::endl;
 
+	if (fp.techParameters.bond_thickness == 0.0) {
+		layer_offset = 3;
+	}
+	else {
+		layer_offset = 4;
+	}
+
 	for (cur_layer = 0; cur_layer < fp.IC.layers; cur_layer++) {
 
 		file << "# BEOL (interconnects) layer " << cur_layer + 1 << std::endl;
-		file << 4 * cur_layer << std::endl;
+		file << layer_offset * cur_layer << std::endl;
 		file << "Y" << std::endl;
 		file << "Y" << std::endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_BEOL << std::endl;
@@ -3904,7 +3925,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << std::endl;
 
 		file << "# Active Si layer; design layer " << cur_layer + 1 << std::endl;
-		file << 4 * cur_layer + 1 << std::endl;
+		file << layer_offset * cur_layer + 1 << std::endl;
 		file << "Y" << std::endl;
 		file << "Y" << std::endl;
 		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
@@ -3914,7 +3935,7 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << std::endl;
 
 		file << "# Passive Si layer " << cur_layer + 1 << std::endl;
-		file << 4 * cur_layer + 2 << std::endl;
+		file << layer_offset * cur_layer + 2 << std::endl;
 		file << "Y" << std::endl;
 		file << "N" << std::endl;
 		// dummy values, proper values (depending on TSV densities) are in the
@@ -3925,19 +3946,33 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
 
+		// bond layer; init
 		if (cur_layer < (fp.IC.layers - 1)) {
-			file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << std::endl;
-			file << 4 * cur_layer + 3 << std::endl;
-			file << "Y" << std::endl;
-			file << "N" << std::endl;
-			// dummy values, proper values (depending on TSV densities) are in
-			// the actual floorplan file
-			file << ThermalAnalyzer::HEAT_CAPACITY_BOND << std::endl;
-			file << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << std::endl;
-			file << fp.techParameters.bond_thickness * Math::SCALE_UM_M << std::endl;
-			file << fp.benchmark << benchmark_suffix << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
-			file << std::endl;
+
+			if (fp.techParameters.bond_thickness == 0.0) {
+				file << "# bond layer " << cur_layer + 1 << "; skipped due to 0.0 thickness provided in the tech config file" << std::endl;
+				bond_layer_prefix = "#";
+			}
+			else {
+				file << "# bond layer " << cur_layer + 1 << "; for F2B bonding to next die " << cur_layer + 2 << std::endl;
+				bond_layer_prefix = "";
+			}
 		}
+		// Note that this case is needed really, but since the related flp is generated anway, it might help for understanding
+		else {
+				file << "# bond layer " << cur_layer + 1 << "; skipped due this being the last IC layer/tier in the stack" << std::endl;
+				bond_layer_prefix = "#";
+		}
+		file << bond_layer_prefix << layer_offset * cur_layer + 3 << std::endl;
+		file << bond_layer_prefix << "Y" << std::endl;
+		file << bond_layer_prefix << "N" << std::endl;
+		// dummy values, proper values (depending on TSV densities) are in
+		// the actual floorplan file
+		file << bond_layer_prefix << ThermalAnalyzer::HEAT_CAPACITY_BOND << std::endl;
+		file << bond_layer_prefix << ThermalAnalyzer::THERMAL_RESISTIVITY_BOND << std::endl;
+		file << bond_layer_prefix << fp.techParameters.bond_thickness * Math::SCALE_UM_M << std::endl;
+		file << bond_layer_prefix << fp.benchmark << benchmark_suffix << "_HotSpot_bond_" << cur_layer + 1 << ".flp" << std::endl;
+		file << std::endl;
 	}
 
 	// close file stream
