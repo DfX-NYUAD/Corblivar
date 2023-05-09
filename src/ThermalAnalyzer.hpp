@@ -185,6 +185,7 @@ class ThermalAnalyzer {
 		///
 		/// note that TSV_density is to be passed as percent
 		inline static double heatCapSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_SI;
 			}
@@ -198,6 +199,7 @@ class ThermalAnalyzer {
 		///
 		/// note that TSV_density is to be passed as percent
 		inline static double heatCapBond(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
 				return HEAT_CAPACITY_BOND;
 			}
@@ -212,6 +214,7 @@ class ThermalAnalyzer {
 		///
 		/// note that TSV_density is to be passed as percent
 		inline static double thermResSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
 				return THERMAL_RESISTIVITY_SI;
 			}
@@ -228,6 +231,7 @@ class ThermalAnalyzer {
 		///
 		/// note that TSV_density is to be passed as percent
 		inline static double thermResBond(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
 				return THERMAL_RESISTIVITY_BOND;
 			}
@@ -268,7 +272,7 @@ class ThermalAnalyzer {
 			return this->power_maps;
 		};
 
-		/// getter; may also edit the power_maps
+		/// getter/setter
 		inline std::vector< std::array< std::array<PowerMapBin, POWER_MAPS_DIM>, POWER_MAPS_DIM> >& editPowerMaps() {
 			return this->power_maps;
 		};
