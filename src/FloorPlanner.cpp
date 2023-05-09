@@ -1853,7 +1853,9 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 			}
 
 			if (Net::DBG) {
-				std::cout << "DBG_NET>  Largest net (before clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
+				if (this->layoutOp.parameters.largest_net != nullptr) {
+					std::cout << "DBG_NET>  Largest net (before clustering): " << this->layoutOp.parameters.largest_net->id << "; related HPWL: " << WL_largest_net << std::endl;
+				}
 			}
 		}
 
