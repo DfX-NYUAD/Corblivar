@@ -116,7 +116,8 @@ class Net {
 					blocks_to_consider.push_back(&b->bb);
 
 					if (Net::DBG) {
-						std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer << std::endl;
+						std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << layer;
+						std::cout << " at (LL_X, LL_Y, UR_X, UR_Y) = (" << b->bb.ll.x << ", " << b->bb.ll.y << ", " << b->bb.ur.x << ", " << b->bb.ur.y << ")"<< std::endl;
 					}
 				}
 			}
@@ -133,7 +134,8 @@ class Net {
 					TSV_in_layer = true;
 
 					if (Net::DBG) {
-						std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer << std::endl;
+						std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer;
+						std::cout << " at (LL_X, LL_Y, UR_X, UR_Y) = (" << t.bb.ll.x << ", " << t.bb.ll.y << ", " << t.bb.ur.x << ", " << t.bb.ur.y << ")"<< std::endl;
 					}
 				}
 			}
@@ -145,7 +147,8 @@ class Net {
 					blocks_to_consider.push_back(&pin->bb);
 
 					if (Net::DBG) {
-						std::cout << "DBG_NET> 	Consider terminal pin " << pin->id << std::endl;
+						std::cout << "DBG_NET> 	Consider terminal pin " << pin->id;
+						std::cout << " at (LL_X, LL_Y, UR_X, UR_Y) = (" << pin->bb.ll.x << ", " << pin->bb.ll.y << ", " << pin->bb.ur.x << ", " << pin->bb.ur.y << ")"<< std::endl;
 					}
 				}
 			}
@@ -175,7 +178,8 @@ class Net {
 							blocks_above_considered = true;
 
 							if (Net::DBG) {
-								std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i << std::endl;
+								std::cout << "DBG_NET> 	Consider block " << b->id << " on layer " << i;
+								std::cout << " at (LL_X, LL_Y, UR_X, UR_Y) = (" << b->bb.ll.x << ", " << b->bb.ll.y << ", " << b->bb.ur.x << ", " << b->bb.ur.y << ")"<< std::endl;
 							}
 						}
 					}
@@ -199,7 +203,8 @@ class Net {
 						blocks_to_consider.push_back(&t.bb);
 
 						if (Net::DBG) {
-							std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer - 1 << std::endl;
+							std::cout << "DBG_NET> 	Consider TSV island " << t.id << " on layer " << layer - 1;
+							std::cout << " at (LL_X, LL_Y, UR_X, UR_Y) = (" << t.bb.ll.x << ", " << t.bb.ll.y << ", " << t.bb.ur.x << ", " << t.bb.ur.y << ")"<< std::endl;
 						}
 					}
 				}
