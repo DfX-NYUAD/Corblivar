@@ -3599,8 +3599,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 			file << "	" << cur_block.bb.h * Math::SCALE_UM_M;
 			file << "	" << cur_block.bb.ll.x * Math::SCALE_UM_M;
 			file << "	" << cur_block.bb.ll.y * Math::SCALE_UM_M;
-			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
-			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
+			file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI_ACTIVE;
+			file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI_ACTIVE;
 			file << std::endl;
 		}
 
@@ -3610,8 +3610,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 		file << "	0.0";
 		file << "	0.0";
-		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI;
-		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI;
+		file << "	" << ThermalAnalyzer::HEAT_CAPACITY_SI_ACTIVE;
+		file << "	" << ThermalAnalyzer::THERMAL_RESISTIVITY_SI_ACTIVE;
 		file << std::endl;
 
 		// close file stream
@@ -3650,8 +3650,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 			file << "	" << fp.IC.outline_y * Math::SCALE_UM_M;
 			file << "	0.0";
 			file << "	0.0";
-			file << "	" << ThermalAnalyzer::heatCapSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
-			file << "	" << ThermalAnalyzer::thermResSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::heatCapSiBulk(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
+			file << "	" << ThermalAnalyzer::thermResSiBulk(fp.techParameters.TSV_group_Cu_area_ratio, fp.power_blurring_parameters.TSV_density);
 			file << std::endl;
 
 			file_bond << "bond_" << cur_layer + 1;
@@ -3728,8 +3728,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 					file << "	" << x_ll;
 					file << "	" << y_ll;
 					// thermal properties, depending on bin's TSV density
-					file << "	" << ThermalAnalyzer::heatCapSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
-					file << "	" << ThermalAnalyzer::thermResSi(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::heatCapSiBulk(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
+					file << "	" << ThermalAnalyzer::thermResSiBulk(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density);
 					file << std::endl;
 
 					// put grid block as floorplan blocks; bonding layer
@@ -3928,8 +3928,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << layer_offset * cur_layer + 1 << std::endl;
 		file << "Y" << std::endl;
 		file << "Y" << std::endl;
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI_ACTIVE << std::endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI_ACTIVE << std::endl;
 		file << fp.techParameters.Si_active_thickness * Math::SCALE_UM_M << std::endl;
 		file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_active_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;
@@ -3940,8 +3940,8 @@ void IO::writeHotSpotFiles(FloorPlanner const& fp, std::string const& benchmark_
 		file << "N" << std::endl;
 		// dummy values, proper values (depending on TSV densities) are in the
 		// actual floorplan file
-		file << ThermalAnalyzer::HEAT_CAPACITY_SI << std::endl;
-		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI << std::endl;
+		file << ThermalAnalyzer::HEAT_CAPACITY_SI_BULK << std::endl;
+		file << ThermalAnalyzer::THERMAL_RESISTIVITY_SI_BULK << std::endl;
 		file << fp.techParameters.Si_passive_thickness * Math::SCALE_UM_M << std::endl;
 		file << fp.benchmark << benchmark_suffix << "_HotSpot_Si_passive_" << cur_layer + 1 << ".flp" << std::endl;
 		file << std::endl;

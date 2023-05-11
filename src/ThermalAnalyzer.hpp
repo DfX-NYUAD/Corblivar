@@ -141,13 +141,20 @@ class ThermalAnalyzer {
 		static constexpr double PADDING_ZONE_BLOCKS_DISTANCE_LIMIT = 0.01;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Park09]; derived from 700 J/(kg*K) to J/(m^3*K) considering Si density of 2330 kg/m^3
-		static constexpr double HEAT_CAPACITY_SI = 1.631e06;
+		/// Note: also matches the value provided in HotSpot
+		static constexpr double HEAT_CAPACITY_SI_BULK = 1.631e06;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Park09]
-		static constexpr double THERMAL_RESISTIVITY_SI = 8.510638298e-03;
+		static constexpr double THERMAL_RESISTIVITY_SI_BULK = 8.510638298e-03;
+		/// material parameters for thermal 3D-IC simulation using HotSpot
+		// derived from bulk Si, considering a scaling factor for thermal conductivity (see below) and a further scaling factor of (1/9) for thermal thermal conductivity to thermal capacity of Si, SiO2
+		static constexpr double HEAT_CAPACITY_SI_ACTIVE = HEAT_CAPACITY_SI_BULK * (1/11.38) * (1/9.00);
+		/// material parameters for thermal 3D-IC simulation using HotSpot
+		/// derived from bulk Si, considering a scaling factor of 1/11.38 for thermal conductivity [Yan16_IEDM_Thermal_Resistance_Modeling]
+		static constexpr double THERMAL_RESISTIVITY_SI_ACTIVE = THERMAL_RESISTIVITY_SI_BULK * 11.38;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Sridhar10]; derived considering a factor of appr. 1.35 for Si/BEOL heat capacity
-		static constexpr double HEAT_CAPACITY_BEOL = HEAT_CAPACITY_SI / 1.35;
+		static constexpr double HEAT_CAPACITY_BEOL = HEAT_CAPACITY_SI_BULK / 1.35;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Sridhar10]
 		static constexpr double THERMAL_RESISTIVITY_BEOL = 0.4444;
@@ -165,7 +172,7 @@ class ThermalAnalyzer {
 		static constexpr double THERMAL_RESISTIVITY_CU = 2.53164557e-03;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Park09]
-		static constexpr double DENSITY_SI = 2330.0;
+		static constexpr double DENSITY_SI_BULK = 2330.0;
 		/// material parameters for thermal 3D-IC simulation using HotSpot
 		/// [Park09]
 		static constexpr double DENSITY_BOND = 1051.0;
@@ -184,15 +191,15 @@ class ThermalAnalyzer {
 		/// http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCwQFjAA&url=http%3A%2F%2Fpubs.acs.org%2Fdoi%2Fabs%2F10.1021%2Fma902122u&ei=6JXuUfD-K9GKswaPzIGgDw&usg=AFQjCNFX7TTz6SQ_ZlLkt5nwGcLh-abdzQ&sig2=Jd7U_ZTSDs_7KYWTmXaA7g
 		///
 		/// note that TSV_density is to be passed as percent
-		inline static double heatCapSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+		inline static double heatCapSiBulk(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
-				return HEAT_CAPACITY_SI;
+				return HEAT_CAPACITY_SI_BULK;
 			}
 			else {
 				return
-					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) ) +
-					HEAT_CAPACITY_SI / (1.0 + ( (DENSITY_CU / DENSITY_SI) * ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) );
+					HEAT_CAPACITY_CU / (1.0 + ( (DENSITY_SI_BULK / DENSITY_CU) / ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) ) +
+					HEAT_CAPACITY_SI_BULK / (1.0 + ( (DENSITY_CU / DENSITY_SI_BULK) * ((TSV_density * 0.01) * TSV_group_Cu_area_ratio) ) );
 			}
 		};
 		/// similar for Bond scenario; TSV group's area-ratio for Cu-Si applies to Cu-Bond as well
@@ -213,16 +220,16 @@ class ThermalAnalyzer {
 		/// resistance of Si, Cu where TSV density impacts the area fractions
 		///
 		/// note that TSV_density is to be passed as percent
-		inline static double thermResSi(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
+		inline static double thermResSiBulk(double const& TSV_group_Cu_area_ratio, double const& TSV_density) {
 			// note the special mode of TSV_density 0.0
 			if (TSV_density == 0.0) {
-				return THERMAL_RESISTIVITY_SI;
+				return THERMAL_RESISTIVITY_SI_BULK;
 			}
 			else {
 				return 1.0 /
 					(
 					 (((TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_CU) +
-					 ((1.0 - (TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_SI)
+					 ((1.0 - (TSV_density * 0.01) * TSV_group_Cu_area_ratio) / THERMAL_RESISTIVITY_SI_BULK)
 					);
 			}
 		}
