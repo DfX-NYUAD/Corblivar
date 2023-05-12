@@ -85,7 +85,8 @@ class Clustering {
 				double const& outline_y,
 				double const& TSV_pitch,
 				unsigned const& upper_limit_TSVs,
-				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);
+				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis,
+				bool const& mono);
 
 	// private data, functions
 	private:
