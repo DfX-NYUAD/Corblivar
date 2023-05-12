@@ -519,7 +519,8 @@ class TSV_Island : public Block {
 
 		/// greedy shifting of new TSV island such that they don't overlap any
 		/// existing island or any existing hard block
-		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks) {
+		//TODO have some limit on while loop; if reached, exit and mark solution as violating outline
+		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks, double const& outline_x, double const& outline_y) {
 			bool shift = true;
 
 			while (shift) {
@@ -547,7 +548,7 @@ class TSV_Island : public Block {
 						}
 
 						// shift only the new TSV
-						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb);
+						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb, outline_x, outline_y);
 
 						shift = true;
 						break;
@@ -573,7 +574,7 @@ class TSV_Island : public Block {
 						}
 
 						// shift only the new TSV
-						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, block.bb);
+						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, block.bb, outline_x, outline_y);
 
 						shift = true;
 						break;

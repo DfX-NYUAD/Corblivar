@@ -1831,7 +1831,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 						// errors for connecting to TSVs
 						//
 						if (finalize) {
-							TSV_Island::greedyShifting(this->TSVs.back(), this->TSVs, this->blocks);
+							TSV_Island::greedyShifting(this->TSVs.back(), this->TSVs, this->blocks, this->IC.outline_x, this->IC.outline_y);
 						}
 					}
 				}
@@ -1875,7 +1875,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	if (this->layoutOp.parameters.signal_TSV_clustering && !this->layoutOp.parameters.trivial_HPWL) {
 
 		// actual clustering
-		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->blocks, this->techParameters.TSV_pitch, this->techParameters.TSV_per_cluster_limit, this->thermal_analysis);
+		this->clustering.clusterSignalTSVs(this->nets, nets_segments, this->TSVs, this->blocks, this->IC.outline_x, this->IC.outline_y, this->techParameters.TSV_pitch, this->techParameters.TSV_per_cluster_limit, this->thermal_analysis);
 
 		// after clustering, we can obtain a more accurate wirelength and
 		// routing-utilization estimation by considering TSVs' positions as well
@@ -2178,7 +2178,7 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 					// perform greedy shifting in case new island
 					// overlaps with any previous one
 					//
-					TSV_Island::greedyShifting(island, this->TSVs, this->blocks);
+					TSV_Island::greedyShifting(island, this->TSVs, this->blocks, this->IC.outline_x, this->IC.outline_y);
 
 					// determine the HPWL components and routing
 					// utilization; net segments are to be considered

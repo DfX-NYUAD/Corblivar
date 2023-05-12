@@ -81,6 +81,8 @@ class Clustering {
 				std::vector< std::vector<Segments> > &nets_segments,
 				std::vector<TSV_Island> &TSVs,
 				std::vector<Block> const& blocks,
+				double const& outline_x,
+				double const& outline_y,
 				double const& TSV_pitch,
 				unsigned const& upper_limit_TSVs,
 				ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis);

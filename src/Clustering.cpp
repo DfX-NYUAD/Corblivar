@@ -36,7 +36,7 @@
 /// results, and 3) perform the thermal analysis again, w/ consideration of TSVs.)
 // TODO according to valgrind/callgrind, the efforts for thermal analysis are around 8%, whereas the efforts for determineHotspots are 30%; thus, we could also allow for the
 // additional efforts for another run of thermal analysis
-void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, std::vector<Block> const& blocks, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
+void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vector<Segments> > &nets_segments, std::vector<TSV_Island> &TSVs, std::vector<Block> const& blocks, double const& outline_x, double const& outline_y, double const& TSV_pitch, unsigned const& upper_limit_TSVs, ThermalAnalyzer::ThermalAnalysisResult &thermal_analysis) {
 	unsigned i, j;
 	std::vector<Segments>::iterator it_seg;
 	std::list<Net*>::iterator it_net;
@@ -282,7 +282,7 @@ void Clustering::clusterSignalTSVs(std::vector<Net> &nets, std::vector< std::vec
 			// perform greedy shifting in case new island overlaps with any
 			// previous one
 			//
-			TSV_Island::greedyShifting(TSVi, TSVs, blocks);
+			TSV_Island::greedyShifting(TSVi, TSVs, blocks, outline_x, outline_y);
 
 			// store in global TSVs container
 			TSVs.push_back(TSVi);

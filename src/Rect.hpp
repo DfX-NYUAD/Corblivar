@@ -27,6 +27,7 @@
 #include "Corblivar.incl.hpp"
 // Corblivar includes, if any
 #include "Point.hpp"
+#include "Math.hpp"
 // forward declarations, if any
 
 /// Corblivar layout box
@@ -182,25 +183,109 @@ class Rect {
 		/// back and forth; thus, greedy shifting has to follow a strict shifting
 		/// direction, i.e., upwards
 		///
-		inline static void greedyShiftingRemoveIntersection(Rect& to_shift, Rect& fixed) {
+		inline static void greedyShiftingRemoveIntersection(Rect& to_shift, Rect const& fixed, double const& outline_x, double const& outline_y) {
 			Rect intersect;
+			double dist_would_remain_to_boundary_x, dist_would_remain_to_boundary_y;
 
 			intersect = Rect::determineIntersection(to_shift, fixed);
 
-			// the intersection is larger in x-dimension; thus shift in the
-			// y-dimension to minimize shifting
-			if (intersect.w > intersect.h) {
+			dist_would_remain_to_boundary_x = outline_x - (fixed.ur.x + to_shift.w);
+			dist_would_remain_to_boundary_y = outline_y - (fixed.ur.y + to_shift.h);
 
-				// shift to the top
-				to_shift.ll.y = fixed.ur.y;
-				to_shift.ur.y = to_shift.ll.y + to_shift.h;
+			// the intersection is same in x- and y-dimension; this happens either for some TSV island overlapping a large module
+			// or for same-sized TSV islands overlapping each other
+			if (Math::looseDoubleComp(intersect.w, intersect.h)) {
+
+				// randomly decide which way/dimension is preferred to shift along
+				//
+				// preference is to shift top
+				if (Math::randB()) {
+
+					// but, also account for the distances to the die boundaries that would remain after such shift
+					if (dist_would_remain_to_boundary_y >= 0.0) {
+						// shift to the top
+						to_shift.ll.y = fixed.ur.y;
+						to_shift.ur.y = to_shift.ll.y + to_shift.h;
+					}
+					else if (dist_would_remain_to_boundary_x >= 0.0) {
+						// shift to the right
+						to_shift.ll.x = fixed.ur.x;
+						to_shift.ur.x = to_shift.ll.x + to_shift.w;
+					}
+					// if no distances remain, reset the rectangle to be shifted into the global LL corner;
+					// requires iterative shifting, but that can still be covered with this greedy shifting
+					else {
+						to_shift.ll.x = to_shift.ll.y = 0.0;
+						to_shift.ur.x = to_shift.w;
+						to_shift.ur.y = to_shift.h;
+					}
+				}
+				// preference is to shift right
+				else {
+					// but, also account for the distances to the die boundaries that would remain after such shift
+					if (dist_would_remain_to_boundary_x >= 0.0) {
+						// shift to the right
+						to_shift.ll.x = fixed.ur.x;
+						to_shift.ur.x = to_shift.ll.x + to_shift.w;
+					}
+					else if (dist_would_remain_to_boundary_y >= 0.0) {
+						// shift to the top
+						to_shift.ll.y = fixed.ur.y;
+						to_shift.ur.y = to_shift.ll.y + to_shift.h;
+					}
+					// if no distances remain, reset the rectangle to be shifted into the global LL corner;
+					// requires iterative shifting, but that can still be covered with this greedy shifting
+					else {
+						to_shift.ll.x = to_shift.ll.y = 0.0;
+						to_shift.ur.x = to_shift.w;
+						to_shift.ur.y = to_shift.h;
+					}
+				}
 			}
-			// the intersection is larger in y-dimension; thus shift in the
+			// the intersection is larger in x-dimension; thus preference is to shift in the
+			// y-dimension to minimize shifting
+			else if (intersect.w > intersect.h) {
+
+					// but, also account for the distances to the die boundaries that would remain after such shift
+					if (dist_would_remain_to_boundary_y >= 0.0) {
+						// shift to the top
+						to_shift.ll.y = fixed.ur.y;
+						to_shift.ur.y = to_shift.ll.y + to_shift.h;
+					}
+					else if (dist_would_remain_to_boundary_x >= 0.0) {
+						// shift to the right
+						to_shift.ll.x = fixed.ur.x;
+						to_shift.ur.x = to_shift.ll.x + to_shift.w;
+					}
+					// if no distances remain, reset the rectangle to be shifted into the global LL corner;
+					// requires iterative shifting, but that can still be covered with this greedy shifting
+					else {
+						to_shift.ll.x = to_shift.ll.y = 0.0;
+						to_shift.ur.x = to_shift.w;
+						to_shift.ur.y = to_shift.h;
+					}
+			}
+			// the intersection is larger in y-dimension; thus preference is to shift in the
 			// x-dimension to minimize shifting
 			else {
-				// shift to the right
-				to_shift.ll.x = fixed.ur.x;
-				to_shift.ur.x = to_shift.ll.x + to_shift.w;
+					// but, also account for the distances to the die boundaries that would remain after such shift
+					if (dist_would_remain_to_boundary_x >= 0.0) {
+						// shift to the right
+						to_shift.ll.x = fixed.ur.x;
+						to_shift.ur.x = to_shift.ll.x + to_shift.w;
+					}
+					else if (dist_would_remain_to_boundary_y >= 0.0) {
+						// shift to the top
+						to_shift.ll.y = fixed.ur.y;
+						to_shift.ur.y = to_shift.ll.y + to_shift.h;
+					}
+					// if no distances remain, reset the rectangle to be shifted into the global LL corner;
+					// requires iterative shifting, but that can still be covered with this greedy shifting
+					else {
+						to_shift.ll.x = to_shift.ll.y = 0.0;
+						to_shift.ur.x = to_shift.w;
+						to_shift.ur.y = to_shift.h;
+					}
 			}
 		};
 
