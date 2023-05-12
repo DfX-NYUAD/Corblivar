@@ -518,8 +518,8 @@ class TSV_Island : public Block {
 		}
 
 		/// greedy shifting of new TSV island such that they don't overlap any
-		/// existing island
-		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs) {
+		/// existing island or any existing hard block
+		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks) {
 			bool shift = true;
 
 			while (shift) {
@@ -548,6 +548,32 @@ class TSV_Island : public Block {
 
 						// shift only the new TSV
 						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, prev_island.bb);
+
+						shift = true;
+						break;
+					}
+				}
+
+				for (Block const& block : blocks) {
+
+					if (block.soft) {
+						continue;
+					}
+
+					if (block.layer != new_island_to_be_shifted.layer) {
+						continue;
+					}
+
+					if (Rect::rectsIntersect(block.bb, new_island_to_be_shifted.bb)) {
+
+						// dbg logging for TSV island to be
+						// shifted
+						if (TSV_Island::DBG) {
+							std::cout << "DBG_TSVS> TSV island " << new_island_to_be_shifted.id << " to be shifted; overlaps with existing hard block " << block.id << std::endl;
+						}
+
+						// shift only the new TSV
+						Rect::greedyShiftingRemoveIntersection(new_island_to_be_shifted.bb, block.bb);
 
 						shift = true;
 						break;
