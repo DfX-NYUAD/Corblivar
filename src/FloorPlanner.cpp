@@ -743,6 +743,10 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 
 			std::cout << "Corblivar>  Deadspace utilization by TSVs (w/o dummy TSVs and w/o deadspace of top layer) [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << " Deadspace utilization by TSVs (w/o dummy TSVs and w/o deadspace of top layer) [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
+			if (cost.TSVs_area_deadspace_ratio >= 1.0) {
+				std::cout << "Corblivar>   Note: TSV placement is not valid due to over-utilization; TSVs will overlap w/ modules and other TSVs." << std::endl;
+				this->IO_conf.results << "  Note: TSV placement is not valid due to over-utilization; TSVs will overlap w/ modules and other TSVs." << std::endl;
+			}
 			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Dummy TSVs: " << this->dummy_TSVs.size() << std::endl;

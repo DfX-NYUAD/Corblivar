@@ -442,6 +442,9 @@ class TSV_Island : public Block {
 		/// limits for AR of TSV island
 		static constexpr double AR_MAX = 2.0;
 
+		/// limits for greedy shifting iterations
+		static constexpr int SHIFTING_LIMIT = 1e4;
+
 		/// reset TSV group's outline according to area required for given TSVs
 		///
 		/// note that the following code does _not_ consider a sanity check where
@@ -519,13 +522,15 @@ class TSV_Island : public Block {
 
 		/// greedy shifting of new TSV island such that they don't overlap any
 		/// existing island or any existing hard block
-		//TODO have some limit on while loop; if reached, exit and mark solution as violating outline
 		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& overlap_w_soft_block, bool const& mono) {
 			bool shift = true;
+			int shift_iterations = 0;
 
-			while (shift) {
+			// try greedy shifting only for so long
+			while (shift && (shift_iterations < SHIFTING_LIMIT)) {
 
 				shift = false;
+				shift_iterations++;
 
 				for (TSV_Island const& prev_island : TSVs) {
 
