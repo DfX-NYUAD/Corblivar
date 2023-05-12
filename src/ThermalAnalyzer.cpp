@@ -585,6 +585,8 @@ void ThermalAnalyzer::adaptPowerMapsTSVsHelper(TSV_Island TSVi) {
 				bin.ur.y = this->power_maps_bins_ll_y[y + 1];
 
 				// determine intersection
+				// Note: the fact that TSV islands have only some part of the area covered by TSVs with the remainder being KOZ is accounted for when writing out the material parameters for HotSpot
+				// simulation, e.g., ThermalAnalyzer::heatCapSiBulk(fp.techParameters.TSV_group_Cu_area_ratio, fp.thermalAnalyzer.power_maps[cur_layer][x][y].TSV_density)
 				bin_intersect = Rect::determineIntersection(bin, TSVi.bb);
 				// normalize to full bin area
 				bin_intersect.area /= this->power_maps_bin_area;
