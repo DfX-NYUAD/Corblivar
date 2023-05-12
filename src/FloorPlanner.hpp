@@ -90,6 +90,8 @@ class FloorPlanner {
 			/// note that these two parameters cover all dies
 			double stack_area, stack_deadspace;
 
+			double stack_deadspace_wo_top_layer;
+
 		} IC;
 
 		/// POD for technology parameters

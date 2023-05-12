@@ -741,8 +741,8 @@ void FloorPlanner::finalize(CorblivarCore& corb, bool const& determ_overall_cost
 				this->IO_conf.results << " Avg TSV count per island: " << clustered_TSVs / this->TSVs.size() << std::endl;
 			}
 
-			std::cout << "Corblivar>  Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
-			this->IO_conf.results << " Deadspace utilization by TSVs [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
+			std::cout << "Corblivar>  Deadspace utilization by TSVs (w/o dummy TSVs and w/o deadspace of top layer) [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
+			this->IO_conf.results << " Deadspace utilization by TSVs (w/o dummy TSVs and w/o deadspace of top layer) [%]: " << 100.0 * cost.TSVs_area_deadspace_ratio << std::endl;
 			this->IO_conf.results << std::endl;
 
 			std::cout << "Corblivar> Dummy TSVs: " << this->dummy_TSVs.size() << std::endl;
@@ -2028,7 +2028,19 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 	}
 
 	// determine by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	//
+	// ignore top layer
+	this->IC.stack_deadspace_wo_top_layer = this->IC.die_area * (this->IC.layers - 1);
+	for (Block const& b : this->blocks) {
+
+		if (b.layer == (this->IC.layers - 1)) {
+			continue;
+		}
+
+		this->IC.stack_deadspace_wo_top_layer -= b.bb.area;
+	}
+	// note that dummy TSVs are already correctly ignored by costs.TSVs
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace_wo_top_layer;
 
 	// determine routing utilization
 	if (this->opt_flags.routing_util) {
@@ -2292,8 +2304,20 @@ void FloorPlanner::evaluateAlignments(Cost& cost, std::vector<CorblivarAlignment
 		cost.TSVs = cost.TSVs_actual_value / this->max_cost.TSVs;
 	}
 
-	// update by TSVs occupied deadspace amount
-	cost.TSVs_area_deadspace_ratio = (cost.TSVs_actual_value * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace;
+	// determine by TSVs occupied deadspace amount
+	//
+	// ignore top layer
+	this->IC.stack_deadspace_wo_top_layer = this->IC.die_area * (this->IC.layers - 1);
+	for (Block const& b : this->blocks) {
+
+		if (b.layer == (this->IC.layers - 1)) {
+			continue;
+		}
+
+		this->IC.stack_deadspace_wo_top_layer -= b.bb.area;
+	}
+	// note that dummy TSVs are already correctly ignored by costs.TSVs
+	cost.TSVs_area_deadspace_ratio = (cost.TSVs * std::pow(this->techParameters.TSV_pitch, 2)) / this->IC.stack_deadspace_wo_top_layer;
 
 	// update normalized HPWL cost; sanity check for zero HPWL not required
 	// since max cost are initialized during first phase
