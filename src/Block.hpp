@@ -520,7 +520,7 @@ class TSV_Island : public Block {
 		/// greedy shifting of new TSV island such that they don't overlap any
 		/// existing island or any existing hard block
 		//TODO have some limit on while loop; if reached, exit and mark solution as violating outline
-		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& mono) {
+		inline static void greedyShifting(TSV_Island& new_island_to_be_shifted, std::vector<TSV_Island> const& TSVs, std::vector<Block> const& blocks, double const& outline_x, double const& outline_y, bool const& overlap_w_soft_block, bool const& mono) {
 			bool shift = true;
 
 			while (shift) {
@@ -556,18 +556,19 @@ class TSV_Island : public Block {
 				}
 
 				// also shift TSVs away from hard/soft blocks
+				//
 				// not applicable for monolithic integration
 				if (mono) {
 					continue;
 				}
-
 				for (Block const& block : blocks) {
 
-					// TODO outsource as config parameter
-					if (block.soft) {
+					// ignore soft blocks, if config allows for
+					if (overlap_w_soft_block && block.soft) {
 						continue;
 					}
 
+					// ignore any blocks in other layer
 					if (block.layer != new_island_to_be_shifted.layer) {
 						continue;
 					}

@@ -119,10 +119,16 @@ class FloorPlanner {
 			double TSV_pitch;
 			double TSV_frame_dim;
 			int TSV_per_cluster_limit;
+			// TODO parse as new parameter from config file
+			bool TSV_allow_overlap_w_soft_block = false;
 			/// Cu area fraction for TSV groups
 			double TSV_group_Cu_area_ratio;
 
-			// TODO parameters from TimingPowerAnalyser
+			// monolithic style
+			// TODO parse as new parameter from techfile
+			bool mono = false;
+
+			// TODO private constant parameters from TimingPowerAnalyser
 			//
 		} techParameters;
 
