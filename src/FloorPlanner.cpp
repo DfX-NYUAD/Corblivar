@@ -1995,7 +1995,7 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 					if (!TSV_in_frame) {
 
 						// define new dummy TSV (trivial TSV island)
-						this->dummy_TSVs.emplace_back(TSV_Island(
+						TSV_Island dummy_TSV = TSV_Island(
 								// 
 								std::string("dummy_manuf_frame_"
 									+ std::to_string(x) + "_"
@@ -2011,7 +2011,27 @@ void FloorPlanner::evaluateInterconnects(FloorPlanner::Cost& cost, double const&
 								bb,
 								// layer assignment
 								i
-							));
+							);
+
+						// but, before storing the TSV, cross-check that it does not overlap with any hard block;
+						// overlaps with soft blocks are also not ideal but acceptable in this case as these TSVs
+						// are considered beneficial for manufacturability
+						bool overlap = false;
+						for (Block const& block : this->blocks) {
+
+							if (block.soft) {
+								continue;
+							}
+
+							if (Rect::rectsIntersect(block.bb, dummy_TSV.bb)) {
+								overlap = true;
+								break;
+							}
+						}
+
+						if (!overlap) {
+							this->dummy_TSVs.emplace_back(dummy_TSV);
+						}
 					}
 				}
 			}
