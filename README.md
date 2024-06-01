@@ -98,7 +98,7 @@ given default parameters should be applicable for most GSRC-benchmarks-based exp
 
 To run the Octave scripts, either change directory to thermal_analysis_octave/ and start
 scripts from there (octave optimization.m BENCH CORBLIVAR.CONF), or copy the scripts from
-thermal_analysis_octave/ to separate working directories; see below and/or exp/run9.sh for
+thermal_analysis_octave/ to separate working directories; see below and/or exp/run*.sh for
 further details.
 
 It's important to note that parallel runs of different of the Octave scripts have to be
@@ -168,7 +168,7 @@ the power-blurring-based thermal analysis; they can be also included e.g. in run
 scripts.  Note that these scripts will produce temporary output data in
 thermal_analysis_octave/, i.e., you might want to copy thermal_analysis_octave/ into
 separate working directories for parallel execution of different experiments, to avoid
-mixed up data. See for example exp/run9.sh
+mixed up data. See for example exp/run*.sh
 
 The script exp/gp.sh delegates to gnuplot for generating various output plots, e.g.,
 thermal map and floorplan, after running Corbilvar.
